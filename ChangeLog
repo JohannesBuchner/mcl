@@ -1,4 +1,57 @@
 
+Sat, 21 Jan 2006
+
+   *  mcl-06-021 released.
+
+   *  This release flushes some work before embarking on a big
+      mcxsubs overwrite. Analysis and cache modes have been improved.
+
+   *  mcxsubs excepts path(<index-list>) top-level spec. It sets
+      the domain to all nodes participating in all shortest path
+      between all members of (the comma-separated) <index-list>.
+
+   *  mcxsubs now works by default on the nil matrix. This makes it
+      easy to create domain templates with mcxsubs, e.g.
+
+         mcxsubs 'dom(cr, i(2,3,4))'
+
+      creates an empty matrix on the specified domains.
+
+   *  mcxsubs did not recognize --from-disk and 'ext(disc())' specifications
+      cannot be combined and would dereference a NULL pointer. Fixed.
+
+   *  Fixed weed-related bug in mcxsubs (removing rows/columns).
+
+   *  Cleaned up the postprocess/analysis/caching frameworks.
+      Exceptions, limitations, and user-second-guessing were removed.  By
+      default mcl does not append the log (it used to do this *sometimes*).
+
+   *  Analysis modes try to read a cached graph if it exists.
+
+   *  Added -cache-graphx <fname>. This caches a graph after transformations
+      have been applied.
+
+   *  Caching of the input graphs is now done before matrix transformations
+      have been applied, but necessarily after stream transformations (if any)
+      have been applied in case input is streamed. 
+
+   *  Added -etc option to mcxload to load simple graphs from label-data
+      in a line-based format.
+      Use -etc-ai to load matrices for which the column labels are not
+      specified (e.g. clusterings). mcxload will autoincrement the columns.
+
+   *  Fixed some documentation errors; inserted -abc-tf, --abc-log and
+      --abc-neg-log where -stream-tf, --stream-log and --stream-neg-log were
+      erroneously used.
+
+   *  Added rand(<pbb-keep>) transformation (the -tf and -abc-tf options).
+      Selects each matrix entry with probability <pbb-keep>.
+
+   *  mcl now prints a helpful reminder to cite the appropriate reference.
+
+   *  Added configure-time check for
+         void* val = (void*) unsigned_number
+      idiom used by the stream interface.
 
 Thu 17 Nov 2005
 

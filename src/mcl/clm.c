@@ -495,6 +495,11 @@ mclMatrix*  mclcSeparate
 ;  }
 
 
+
+/* fixme
+ *    why not a simple while loop ?
+*/
+
 void mclx_grow_component
 (  const mclx* mx
 ,  long  cidx     /*  cidx is already in cur; we don't know about its neighbours. */
@@ -559,6 +564,7 @@ mclx* mclcComponents
                         :  mx
       ;  mclp* civp = NULL
       ;  mclvMakeConstant(sub->dom_cols, 0.5)
+                                 /* fixme should not touch sub->dom_cols */
 
       ;  for (i=0;i<clvec->n_ivps;i++)
          {  long cidx = clvec->ivps[i].idx
@@ -570,7 +576,10 @@ mclx* mclcComponents
          ;  mclvInsertIdx(cur, cidx, 1.0)
          ;  mclx_grow_component(sub, cidx, cur)
          ;  mclvMakeConstant(cur, 1.0)
-         ;  mclvAdd(sub->dom_cols, cur, sub->dom_cols)
+         ;  if (0)                  /* recentlychanged 06-026 */
+            mclvUpdate(sub->dom_cols, cur, fltAdd)
+         ;  else
+            mclvAdd(sub->dom_cols, cur, sub->dom_cols)
          ;  mclvRenew(dom2->cols+n_cls, cur->ivps, cur->n_ivps)
          ;  mclvResize(cur, 0)
 ;if (DEBUG) fprintf(stderr, "\n##\n##\n new cluster %ld\n\n", (long) n_cls)

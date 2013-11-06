@@ -105,7 +105,7 @@
 }
 
 \par{
-   The \refcaption{xpl} section further below is likely to be of interest.
+   The \ref{xpl}{cap} section further below is likely to be of interest.
 }
 
 \sec{description}{DESCRIPTION}
@@ -180,7 +180,7 @@
    which the node has neighbours and for which the total sum of corresponding
    edge weights is significant.
    Several quantities are output for each node/cluster pair that is
-   deemed relevant. These are explained in the section \refcaption{xpl}.
+   deemed relevant. These are explained in the section \ref{xpl}{cap}.
 }
 
 \par{
@@ -192,7 +192,7 @@
 \par{
    \clmformat also shows how well each node fits in the cluster it is in and
    how cohesive each cluster is, using simple but effective measures
-   (described in section \refcaption{xpl}).
+   (described in section \ref{xpl}{cap}).
    This enables you to compare the quality of the clusters in a clustering
    relative to each other, and may help in identifying both interesting areas
    and areas for which cluster structure is hard to find or perhaps absent.
@@ -344,9 +344,6 @@ to the normal coverage measure except that it rewards inclusion
 of large edge weights even more.
 The cov and maxcov performance measures have several nice continuity and
 monotonicity properties and are described in \publref{pcfgcmce}.}
-
-
-
 
 
 \cpar{Example cluster header}

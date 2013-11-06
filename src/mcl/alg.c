@@ -73,7 +73,7 @@ enum
 ,  ALG_OPT_OUTPUT_LIMIT
 ,  ALG_OPT_APPEND_LOG
 ,  ALG_OPT_SHOW_LOG
-,  ALG_OPT_SVD
+,  ALG_OPT_LINT
 ,  ALG_OPT_ANALYZE
 ,  ALG_OPT_SORT
 ,  ALG_OPT_UNCHECKED
@@ -91,7 +91,8 @@ enum
 ,  ALG_OPT_TAB_RESTRICT
 ,  ALG_OPT_TAB_STRICT
 ,  ALG_OPT_TAB_USE
-,  ALG_OPT_CACHE_MX
+,  ALG_OPT_CACHE_MXIN
+,  ALG_OPT_CACHE_MXTF
 ,  ALG_OPT_CACHE_XP
                         ,  ALG_OPT_CACHE_TAB
 ,  ALG_OPT_AUTOOUT      =  ALG_OPT_CACHE_TAB + 2
@@ -103,8 +104,7 @@ enum
 ,  ALG_OPT_TRANSFORM
 ,  ALG_OPT_CTRMAXAVG
                         ,  ALG_OPT_DIAGADD
-,  ALG_OPT_INGQ         =  ALG_OPT_DIAGADD + 2
-,  ALG_OPT_PREPRUNE
+,  ALG_OPT_PREPRUNE     =  ALG_OPT_DIAGADD + 2
 ,  ALG_OPT_PREINFLATION
 }  ;
 
@@ -131,7 +131,6 @@ grade gradeDir[] =
 ,  {  86, "splendid" }
 ,  {  85, "outstanding" }
 ,  {  84, "really neat" }
-,  {  83, "swell" }
 ,  {  82, "dandy" }
 ,  {  80, "favourable" }
 ,  {  79, "not bad at all" }
@@ -145,9 +144,12 @@ grade gradeDir[] =
 ,  {  63, "fairish" }
 ,  {  60, "satisfactory" }
 ,  {  55, "acceptable" }
+,  {  53, "tolerable" }
 ,  {  50, "mediocre" }
+,  {  49, "so-so" }
 ,  {  48, "shabby" }
 ,  {  46, "shoddy" }
+,  {  44, "dodgy", }
 ,  {  43, "poor" }
 ,  {  40, "bad" }
 ,  {  35, "deplorable" }
@@ -155,6 +157,7 @@ grade gradeDir[] =
 ,  {  30, "lousy" }
 ,  {  26, "abominable" }
 ,  {  24, "miserable" }
+,  {  23, "dismal" }
 ,  {  22, "appalling" }
 ,  {  20, "awful" }
 ,  {  18, "pathetic" }
@@ -234,11 +237,11 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "y/n"
    ,  "send log to stdout"
    }
-,  {  "-svd"
+,  {  "--lint"
    ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
-   ,  ALG_OPT_SVD
+   ,  ALG_OPT_LINT
    ,  NULL
-   ,  "how Stijn van Dongen likes it"
+   ,  "over(t)ly analytical"
    }
 ,  {  "-append-log"
    ,  MCX_OPT_HASARG
@@ -326,9 +329,15 @@ mcxOptAnchor mclAlgOptions[] =
    }
 ,  {  "-cache-graph"
    ,  MCX_OPT_HASARG
-   ,  ALG_OPT_CACHE_MX
+   ,  ALG_OPT_CACHE_MXIN
    ,  "fname"
-   ,  "write input matrix to file fname"
+   ,  "write input matrix to file"
+   }
+,  {  "-cache-graphx"
+   ,  MCX_OPT_HASARG
+   ,  ALG_OPT_CACHE_MXTF
+   ,  "fname"
+   ,  "write transformed matrix to file"
    }
 ,  {  "-cache-expanded"
    ,  MCX_OPT_HASARG
@@ -480,12 +489,6 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "<num>"
    ,  "(deprecated) replace diagonal with <num> * I"
    }
-,  {  "-in-gq"
-   ,  MCX_OPT_HASARG
-   ,  ALG_OPT_INGQ
-   ,  "<num>"
-   ,  "remove values < <num> from input matrix"
-   }
 ,  {  "-pp"
    ,  MCX_OPT_HASARG
    ,  ALG_OPT_PREPRUNE
@@ -566,26 +569,6 @@ const char* mclHelp[]
 }  ;
 
 
-
-mclx* mclAlgorithmReread
-(  mclAlgParam* mlp
-)
-   {  mcxIO* xf = NULL
-   ;  mclx* mx = NULL
-
-   ;  if (mlp->stream_modes && mlp->stream_mx_wname)
-      xf = mcxIOnew(mlp->stream_mx_wname->str, "r")
-   ;  else
-      xf = mcxIOnew(mlp->fnin->str, "r")
-
-   ;  if (xf)
-      mx = mclxRead(xf, RETURN_ON_FAIL)
-
-   ;  mcxIOfree(&xf)
-   ;  return mx
-;  }
-
-
 /*
  * mlp->xfout is set up for us
 */
@@ -598,12 +581,14 @@ mclMatrix* postprocess
    ;  double gvals[8]  
    ;  mclx*  mx = NULL
    ;  const char* me = "__mclAfter__"
-   ;  mcxbool need_to_read
-      =  mlp->modes & (ALG_DO_CHECK_CONNECTED | ALG_DO_FORCE_CONNECTED | ALG_DO_ANALYZE)
+   ;  mcxbool reread
+      =     mlp->modes
+         & (ALG_DO_CHECK_CONNECTED | ALG_DO_FORCE_CONNECTED | ALG_DO_ANALYZE)
 
-   ;  if (need_to_read)       /* fixme problematic with stream input */
+                              /* TODO if cached, use cache */
+   ;  if (reread)       /* fixme problematic with stream input */
       {  mcxTell("mcl", "re-reading matrix for performance measures")
-      ;  mx = mclAlgorithmReread(mlp)     /* could fail! */
+      ;  mx = mclAlgorithmRead(mlp, reread)     /* could fail! */
    ;  }
 
       if (mx && (mlp->modes & (ALG_DO_CHECK_CONNECTED | ALG_DO_FORCE_CONNECTED)))
@@ -669,65 +654,56 @@ mclMatrix* postprocess
          ;  mcxIOnewName(mlp->xfout, "out.mcl")
          ;  mcxIOopen(mlp->xfout, EXIT_ON_FAIL)
       ;  }
-
          mclxaWrite(cl, mlp->xfout, MCLXIO_VALUE_NONE, EXIT_ON_FAIL)
+   ;  }
 
-      ;  if (mlp->modes & ALG_DO_APPEND_LOG)
-         mclWriteLog(mlp->xfout->fp, mlp, cl)
+      if (mlp->modes & ALG_DO_APPEND_LOG)
+      mclWriteLog(mlp->xfout->fp, mlp, cl)
 
-      ;  mcxIOclose(mlp->xfout)
+   ;  mcxIOclose(mlp->xfout)
 
-         /* clustering written, now check matrix */
+      /* clustering written, now check matrix */
 
-      ;  if (need_to_read && !mx)
-         {  mcxErr(me, "cannot re-read matrix")
+   ;  if (reread && !mx)
+      mcxErr(me, "cannot re-read matrix")
+   ;  else if (mlp->modes & ALG_DO_ANALYZE)
+      {  mcxTing* note = mcxTingEmpty(NULL, 60)
+      ;  mcxIOrenew(mlp->xfout, NULL, "a")
+
+      ;  if (mcxIOopen(mlp->xfout, RETURN_ON_FAIL))
+         {  mcxWarn(me, "cannot append to file %s", mlp->xfout->fn->str)
          ;  return cl
       ;  }
 
-         if (mlp->modes & ALG_DO_ANALYZE)
-         {  mcxTing* note = mcxTingEmpty(NULL, 60)
-         ;  mcxIOrenew(mlp->xfout, NULL, "a")
-         ;  if (mcxIOopen(mlp->xfout, RETURN_ON_FAIL))
-            {  mcxWarn(me, "cannot append to file %s", mlp->xfout->fn->str)
-            ;  return cl
-         ;  }
+         if (mlp->is_transformed)
+         mcxTingPrintAfter(note, "after-transform\n")
 
-            clmGranularity(cl, gvals)
-         ;  clmGranularityPrint (mlp->xfout->fp, note->str, gvals, 1)
+      ;  clmGranularity(cl, gvals)
+      ;  clmGranularityPrint (mlp->xfout->fp, note->str, gvals, 1)
 
+      ;  clmPerformance (mx, cl, pvals)
+      ;  mcxTingPrint
+         (  note
+         ,  "target-name=%s\nsource-name=%s\n%s"
+         ,  mlp->fnin->str
+         ,  mlp->xfout->fn->str
+         ,  mlp->is_transformed ? "after-transform\n" : ""
+         )
+      ;  clmPerformancePrint (mlp->xfout->fp, note->str, pvals, 1)
+
+      ;  if (!mlp->is_transformed && mclAlgorithmTransform(mx, mlp))
+         {  mcxTingPrintAfter(note, "after-transform\n")
          ;  clmPerformance (mx, cl, pvals)
-         ;  mcxTingPrint
-            (  note
-            ,  "target-name=%s\nsource-name=%s\n"
-            ,  mlp->fnin->str
-            ,  mlp->xfout->fn->str
-            )
          ;  clmPerformancePrint (mlp->xfout->fp, note->str, pvals, 1)
-
-         ;  if (mlp->pre_inflation> 0 || mlp->pre_maxnum)
-            { /*  fixme do (mlp->pre_in_gq >= 0) as well
-               *  dedup these pieces of code.
-              */
-               if (mlp->pre_inflation > 0)
-                  mclxInflate(mx, mlp->pre_inflation)
-               ,  mcxTingPrintAfter(note, "inflation=%.1f\n", mlp->pre_inflation)
-
-            ;  if (mlp->pre_maxnum)
-                  mclxMakeSparse(mx, 0, mlp->pre_maxnum)
-               ,  mcxTingPrintAfter(note, "preprune=%d\n", (int) mlp->pre_maxnum)
-
-            ;  clmPerformance (mx, cl, pvals)
-            ;  clmPerformancePrint (mlp->xfout->fp, note->str, pvals, 1)
-         ;  }
-
-            mcxTell(me, "included performance measures in cluster output")
-         ;  mclxFree(&mx)  
-         ;  mcxTingFree(&note)
       ;  }
-         mcxTell("mcl", "output is in %s", mlp->xfout->fn->str)
+
+         mcxTell(me, "included performance measures in cluster output")
+      ;  mclxFree(&mx)  
+      ;  mcxTingFree(&note)
    ;  }
 
-      return cl
+      mcxTell("mcl", "output is in %s", mlp->xfout->fn->str)
+   ;  return cl
 ;  }
 
 
@@ -738,83 +714,51 @@ mcxstatus mclAlgorithm
    {  mclMatrix      *thecluster       =  NULL
    ;  mclProcParam*  mpp               =  mlp->mpp
    ;  const char*    me                =  "mcl"
+   ;  int   o, m, e
 
-   ;  if (!mpp->inflate_expanded)
-      {  if (mlp->pre_diag > 0)
-         {  mclMatrix* diagAll   =  mclxConstDiag
-                                    (  mclvCopy(NULL, themx->dom_cols)
-                                    ,  mlp->pre_diag
-                                    )
-         ;  mclMatrix*  t  =  mclxAdd(themx, diagAll)
-         /* fixme this is way too costy for large mtcs */
-         ;  mclxFree(&themx)
-         ;  mclxFree(&diagAll)
-         ;  themx       =  t
-      ;  }
+   ;  mcxTell(me, "pid %ld\n", (long) getpid())
+   ;  thecluster = mclProcess(&themx, mpp)
 
-         if (mlp->pre_in_gq >= 0)
-         mclxSelectValues(themx, &(mlp->pre_in_gq), NULL, MCLX_EQT_GQ)
+   ;  if (mlp->modes & ALG_DO_OUTPUT_LIMIT)
+      {  mcxTing* fnlm  =  mcxTingPrint(NULL, "%s-%s", mlp->xfout->fn->str, "limit")
+      ;  mcxIO*   xflm  =  mcxIOnew(fnlm->str, "w")
+      ;  mclxWrite(themx, xflm, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+   ;  }
 
-      ;  if (mlp->pre_inflation > 0)
-         mclxInflate(themx, mlp->pre_inflation)
+      mclxFree(&themx)  /* this is the last iterand or the one before */
 
-      ;  if (mlp->pre_center >= 0)
-         mclCenter(themx, mlp->pre_center, mlp->pre_ctrmaxavg)
+   ;  if (mlp->modes & ALG_DO_SHOW_LOG)
+      fprintf(stdout, mpp->massLog->str)
 
-      ;  mclxMakeStochastic(themx)
+   ;  mclcEnstrict
+      (  thecluster
+      ,  &o
+      ,  &m
+      ,  &e
+      ,  mlp->modes & ALG_DO_KEEP_OVERLAP ? ENSTRICT_KEEP_OVERLAP : 0
+      )
 
-      ;  if (mlp->pre_maxnum)
-         {  mclxMakeSparse(themx, 0, mlp->pre_maxnum)
-         ;  mclxMakeStochastic(themx)
-      ;  }
-      }
+   ;  if (o>0)
+      {  if (mlp->modes & ALG_DO_KEEP_OVERLAP)
+         mcxWarn("__mclAfter__", "found <%ld> instances of overlap", (long) o)
 
-      {  int   o, m, e
+      ;  else if (!(mlp->modes & ALG_DO_KEEP_OVERLAP))
+         mcxWarn("__mclAfter__", "removed <%ld> instances of overlap", (long) o)
 
-      ;  mcxTell(me, "pid %ld\n", (long) getpid())
-      ;  thecluster = mclProcess(&themx, mpp)
+      ;  mlp->foundOverlap = TRUE
+   ;  }
 
-      ;  if (mlp->modes & ALG_DO_OUTPUT_LIMIT)
-         {  mcxTing* fnlm  =  mcxTingPrint(NULL, "%s-%s", mlp->xfout->fn->str, "limit")
-         ;  mcxIO*   xflm  =  mcxIOnew(fnlm->str, "w")
-         ;  mclxWrite(themx, xflm, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
-      ;  }
+      if (m>0)
+      mcxWarn(me, "added <%ld> garbage entries", (long) m)
 
-         mclxFree(&themx)
-
-      ;  if (mlp->modes & ALG_DO_SHOW_LOG)
-         fprintf(stdout, mpp->massLog->str)
-
-      ;  mclcEnstrict
-         (  thecluster
-         ,  &o
-         ,  &m
-         ,  &e
-         ,  mlp->modes & ALG_DO_KEEP_OVERLAP ? ENSTRICT_KEEP_OVERLAP : 0
-         )
-
-      ;  if (o>0)
-         {  if (mlp->modes & ALG_DO_KEEP_OVERLAP)
-            mcxWarn("__mclAfter__", "found <%ld> instances of overlap", (long) o)
-
-         ;  else if (!(mlp->modes & ALG_DO_KEEP_OVERLAP))
-            mcxWarn("__mclAfter__", "removed <%ld> instances of overlap", (long) o)
-
-         ;  mlp->foundOverlap = TRUE
-      ;  }
-
-         if (m>0)
-         mcxWarn(me, "added <%ld> garbage entries", (long) m)
-
-      ;  if (N_COLS(thecluster) > 1)
-         {  if (mlp->sortMode == 's')
-            mclxColumnsRealign(thecluster, mclvSizeCmp)
-         ;  else if (mlp->sortMode == 'S')
-            mclxColumnsRealign(thecluster, mclvSizeRevCmp)
-         ;  else if (mlp->sortMode == 'l')
-            mclxColumnsRealign(thecluster, mclvLexCmp)
-      ;  }
-      }
+   ;  if (N_COLS(thecluster) > 1)
+      {  if (mlp->sortMode == 's')
+         mclxColumnsRealign(thecluster, mclvSizeCmp)
+      ;  else if (mlp->sortMode == 'S')
+         mclxColumnsRealign(thecluster, mclvSizeRevCmp)
+      ;  else if (mlp->sortMode == 'l')
+         mclxColumnsRealign(thecluster, mclvLexCmp)
+   ;  }
 
      /* EO cluster enstriction
       */
@@ -877,7 +821,7 @@ mcxbool set_bit
       ;  case  ALG_OPT_CHECK_CONNECTED : bit = ALG_DO_CHECK_CONNECTED;  break
       ;  case  ALG_OPT_OUTPUT_LIMIT    : bit = ALG_DO_OUTPUT_LIMIT   ;  break
 
-      ;  case  ALG_OPT_SVD
+      ;  case  ALG_OPT_LINT
          :  bit =    ALG_DO_APPEND_LOG
                   |  ALG_DO_KEEP_OVERLAP
                   |  ALG_DO_ANALYZE
@@ -1078,8 +1022,13 @@ mcxstatus mclAlgorithmInit
          ;  break
          ;
 
-            case ALG_OPT_CACHE_MX
-         :  mlp->stream_mx_wname  =  mcxTingNew(opt->val)
+            case ALG_OPT_CACHE_MXTF
+         :  mlp->cache_mxtf  =  mcxTingNew(opt->val)
+         ;  break
+         ;
+
+            case ALG_OPT_CACHE_MXIN
+         :  mlp->cache_mxin  =  mcxTingNew(opt->val)
          ;  break
          ;
 
@@ -1179,7 +1128,7 @@ mcxstatus mclAlgorithmInit
          :  case ALG_OPT_APPEND_LOG
          :  case ALG_OPT_SHOW_LOG
          :  case ALG_OPT_ANALYZE
-         :  case ALG_OPT_SVD
+         :  case ALG_OPT_LINT
          :
             vok = set_bit(mlp, opt->anch->tag, anch->id, opt->val)
          ;  break
@@ -1243,13 +1192,6 @@ mcxstatus mclAlgorithmInit
          :  f = atof(opt->val)
          ;  if ((vok = chb(anch->tag, 'f', &f, fltGt, &f_0, NULL, NULL)))
             mlp->pre_inflation =  f
-         ;  break
-         ;
-
-            case ALG_OPT_INGQ
-         :  f = atof(opt->val)
-         ;  if ((vok = chb(anch->tag, 'f', &f, fltGq, &f_0, NULL, NULL)))
-            mlp->pre_in_gq =  f
          ;  break
          ;
 
@@ -1366,16 +1308,17 @@ mclAlgParam* mclAlgParamNew
    ;  mlp->pre_diag        =    -1.0
 
    ;  mlp->pre_inflation   =    -1.0
-   ;  mlp->pre_in_gq       =    -1.0
    ;  mlp->pre_maxnum      =     0
 
-   ;  mlp->modes           =     ALG_DO_APPEND_LOG
+   ;  mlp->modes           =     0
 
    ;  mlp->stream_modes    =     0
    ;  mlp->stream_tab_wname=     NULL
    ;  mlp->stream_tab_rname=     mcxTingEmpty(NULL, 0)
    ;  mlp->stream_write_labels =     FALSE
-   ;  mlp->stream_mx_wname =     NULL
+   ;  mlp->cache_mxin      =     NULL
+   ;  mlp->cache_mxtf      =     NULL
+   ;  mlp->is_transformed  =     FALSE  /* when reading back cached graph */
    ;  mlp->tab             =     NULL
 
    ;  mlp->stream_transform_spec  =     NULL
@@ -1403,7 +1346,7 @@ void mclAlgParamFree
 
    ;  mcxTingFree(&(mlp->stream_tab_wname))
    ;  mcxTingFree(&(mlp->stream_tab_rname))
-   ;  mcxTingFree(&(mlp->stream_mx_wname))
+   ;  mcxTingFree(&(mlp->cache_mxin))
 
    ;  mclTabFree(&(mlp->tab))
 
@@ -1468,7 +1411,7 @@ void mclWriteLog
 ,  mclAlgParam* mlp
 ,  mclMatrix* cl
 )
-   {  fputs("\n\n(mclruninfo\n\n", fp)
+   {  fputs("\n(mclruninfo\n\n", fp)
    ;  mclAlgPrintInfo(fp, mlp, cl)
    ;  fputc('\n', fp)
    ;  mclProcPrintInfo(fp, mlp->mpp)
@@ -1590,9 +1533,19 @@ static mclx* test_tab
 static mclx* mclAlgorithmStreamIn
 (  mcxIO* xfin
 ,  mclAlgParam* mlp
+,  mcxbool reread
 )
    {  mclTab* tabxch = mlp->tab
    ;  mcxbool abc = mlp->stream_modes & MCLXIO_STREAM_ABC
+
+   ;  if
+      (  reread
+      && !  (  mlp->stream_modes
+            &  (  MCLXIO_STREAM_TAB_EXTEND
+               |  MCLXIO_STREAM_TAB_STRICT |  MCLXIO_STREAM_TAB_RESTRICT
+      )     )  )
+      mlp->stream_modes |= MCLXIO_STREAM_TAB_RESTRICT
+
    ;  mclx* mx
       =  mclxIOstreamIn
          (  xfin
@@ -1628,41 +1581,124 @@ static mclx* mclAlgorithmStreamIn
 
 
 mclx* mclAlgorithmRead
-(  mcxIO* xfin
-,  mclAlgParam* mlp
+(  mclAlgParam* mlp
+,  mcxbool reread
 )
-   {  mclx* mx = NULL
+   {  const char* me =  "mclAlgorithmRead"
+   ;  mcxIO* xfin    =  mcxIOnew(mlp->fnin->str, "r")
+   ;  mcxTing* cache_name = NULL
+   ;  mclx* mx       =  NULL
+
+   ;  if (reread && (mcxIOopen(xfin, RETURN_ON_FAIL) || mcxIOstdio(xfin)))
+      {  cache_name = mlp->cache_mxin ? mlp->cache_mxin : mlp->cache_mxtf
+      ;  if (cache_name)
+         {  mcxIOclose(xfin)
+         ;  mcxIOrenew(xfin, cache_name->str, NULL)
+         ;  mcxTell
+            (  me
+            ,  "fall-back, trying to read cached graph <%s>"
+            ,  cache_name->str
+            )
+         ;  if (mcxIOopen(xfin, RETURN_ON_FAIL))
+            {  mcxTell(me, "fall-back failed")
+            ;  mcxIOfree(&xfin)
+         ;  }
+         }
+         else
+         mcxIOfree(&xfin)
+      ;  if (xfin)
+         mlp->stream_modes = 0
+   ;  }
+
+      if (!xfin)
+      return NULL
 
    ;  if
-      (  mlp->transform_spec
+      (  (mlp->transform_spec && !mlp->transform)
       && !(mlp->transform = mclpTFparse(NULL, mlp->transform_spec))
       )
       mcxDie(1, "mcl", "errors in tf-spec")
 
    ;  if
-      (  mlp->stream_transform_spec
+      (  (mlp->stream_transform_spec && !mlp->stream_transform)
       && !(mlp->stream_transform = mclpTFparse(NULL, mlp->stream_transform_spec))
       )
       mcxDie(1, "mcl", "errors in stream tf-spec")
 
    ;  if (mlp->stream_modes & MCLXIO_STREAM_READ)
-      mx = mclAlgorithmStreamIn(xfin, mlp)
+      mx = mclAlgorithmStreamIn(xfin, mlp, reread)
    ;  else
-      {  mx = mclxReadx(xfin, EXIT_ON_FAIL, MCL_READX_GRAPH)
-      ;  mx = test_tab(mx, mlp)
+      {  mx = mclxReadx(xfin, RETURN_ON_FAIL, MCL_READX_GRAPH)
+      ;  if (mx)
+         mx = test_tab(mx, mlp)
    ;  }
 
-      if (mlp->transform)
-      mclxUnaryList(mx, mlp->transform)
+      if (mx && reread && cache_name == mlp->cache_mxtf)
+      mlp->is_transformed = TRUE
 
-   ;  if (mlp->stream_mx_wname)
-      {  mcxIO* xfmx = mcxIOnew(mlp->stream_mx_wname->str, "w")
-      ;  mcxIOopen(xfmx, EXIT_ON_FAIL)
-      ;  mclxWrite(mx, xfmx, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+   ;  mcxIOfree(&xfin)
+   ;  return mx
+;  }
+
+
+int mclAlgorithmTransform
+(  mclx* mx  
+,  mclAlgParam* mlp
+)
+   {  int n_ops = 0
+   ;  if (mlp->pre_maxnum)
+         mclxMakeSparse(mx, 0, mlp->pre_maxnum)
+      ,  n_ops++
+
+   ;  if (mlp->transform)
+         mclxUnaryList(mx, mlp->transform)
+      ,  n_ops++
+
+   ;  if (mlp->pre_inflation > 0)
+         mclxInflate(mx, mlp->pre_inflation)
+      ,  n_ops++
+
+   ;  if (mlp->pre_diag > 0)
+      {  mclMatrix* diagAll   =  mclxConstDiag
+                                 (  mclvCopy(NULL, mx->dom_cols)
+                                 ,  mlp->pre_diag
+                                 )
+      ;  mclMatrix*  t  =  mclxAdd(mx, diagAll)
+      /* fixme this is too costly for large mtcs */
+      ;  mclxFree(&mx)
+      ;  mclxFree(&diagAll)
+      ;  mx       =  t
+   ;  }
+
+      if (mlp->pre_center >= 0)
+      mclCenter(mx, mlp->pre_center, mlp->pre_ctrmaxavg)
+
+   ;  mclxMakeStochastic(mx)
+   ;  return n_ops
+;  }
+
+
+mcxstatus mclAlgorithmCacheGraph
+(  mclx* mx
+,  mclAlgParam* mlp
+,  char ord
+)
+   {  mcxTing* name
+      =        ord == 'a'
+         ?  mlp->cache_mxin
+         :     ord == 'b'
+         ?  mlp->cache_mxtf
+         :  NULL
+
+   ;  if (name)
+      {  mcxIO* xfmx = mcxIOnew(name->str, "w")
+      ;  if (mcxIOopen(xfmx, RETURN_ON_FAIL))
+         return STATUS_FAIL
+      ;  if (mclxWrite(mx, xfmx, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL))
+         return STATUS_FAIL
       ;  mcxIOclose(xfmx)
       ;  mcxIOfree(&xfmx)
    ;  }
-      return mx
+      return STATUS_OK
 ;  }
-
 

@@ -11,6 +11,7 @@
 #include <stdlib.h>
 
 #include "util/minmax.h"
+#include "util/rand.h"
 #include "pval.h"
 
 double fltxConst
@@ -61,11 +62,29 @@ double fltxCopy
 ;  }
 
 
+double fltxScale
+(  pval     d
+,  void*    arg
+)
+   {  double e = *((double*) arg)
+   ;  return e ? d/e : 0.0
+;  }
+
+
 double fltxMul
 (  pval     d
 ,  void*    arg
 )
    {  return d * (*((double*)arg))
+;  }
+
+
+double fltxRand
+(  pval     flt
+,  void*    pbb_keep
+)
+   {  long d = random()
+   ;  return (d / (double) RANDOM_MAX) <= *((double*)pbb_keep) ? flt : 0.0
 ;  }
 
 

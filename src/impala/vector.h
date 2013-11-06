@@ -7,6 +7,13 @@
 */
 
 
+/* TODO: if you want meet in new vector, the intermediate vector
+ * could be extremely overly large. Same for minus.
+ * 1) a smarter scheme, taking the callback into account.
+ * 2) reallocing.
+*/
+
+
 #ifndef impala_vector_h
 #define impala_vector_h
 
@@ -47,6 +54,16 @@ typedef struct
 #define MCLV_MAXID(vec)  (MCLV_SIZE(vec) ? ((vec)->ivps)[MCLV_SIZE(vec)-1].idx : 0)
 #define MCLV_MINID(vec)  (MCLV_SIZE(vec) ? ((vec)->ivps)[0].idx : 0)
 
+#define MCLV_IS_CANONICAL(vec)  ((vec)->n_ivps && \
+            (vec)->ivps[(vec)->n_ivps-1].idx  == (vec)->n_ivps-1 && \
+                           ((vec)->ivps[0].idx == 0))
+
+#define PNUM_IN_RANGE(pivot, offset, count)  \
+         ((pivot) >= (offset) && (pivot) < (offset) + (count))
+
+#define PNUM_IN_INTERVAL(pivot, left_inclusive, right_inclusive)  \
+         ((pivot) >= (left_inclusive) && (pivot) < (right_inclusive))
+
 
 /* below are used for reading raw input */
 
@@ -62,7 +79,7 @@ typedef struct
  *    The setting n_ivps == 0, ivps == NULL is obviously legal.
  *
  * NOTE
- *    All unary and binary operations remove resulting entries that are zero.
+ *    Most unary and binary operations remove resulting entries that are zero.
  *
  *    This means it is dangerous to use those operations on vectors
  *    representing value lists (i.e. columns from value tables) that contain
@@ -70,7 +87,7 @@ typedef struct
  *    vectors simply by using mclvAdd, but the zero-valued entries will be
  *    removed.
  *
- *    There is currently no easy way around this. See also ../README .
+ *    mclvUpdateMeet is an exception to this rule.
 */
 
 
@@ -136,6 +153,12 @@ mclVector* mclvClone
 void mclvFree
 (  mclVector**    vec_p
 )  ;
+
+
+void mclvFree_v
+(  void*          vec_p
+)  ;
+
 
 void mclvRelease
 (  mclVector*        vec
@@ -230,7 +253,9 @@ void mclvSelectHighest
 /*
  * ignore:
  *    when searching k large elements, consider only those elements that are <
- *    ignore. case mode = KBAR_SELECT_LARGE when searching k small elements,
+ *    ignore. case mode = KBAR_SELECT_LARGE
+ *
+ *    when searching k small elements,
  *    consider only those elements that are >= ignore. case mode =
  *    KBAR_SELECT_SMALL
 */
@@ -283,6 +308,33 @@ void mclvUnary
 ,  void*          argument
 )  ;
 
+
+mclVector* mclvBinary
+(  const mclVector*  src1
+,  const mclVector*  src2
+,  mclVector*        dst
+,  double           (*operation)(pval val1, pval val2)
+)  ;
+
+
+/*    <!!!!>   Experimental.
+ *
+ *    <!!!>    Returns number of entries in src1 set to zero.
+ * This one updates src1 in the meet with src2
+ *
+ * Be aware that result (src1) could contain zero-valued entries. Perhaps you
+ * know it cannot e.g. because fltAdd was used on vectors with only positive
+ * entries, otherwise consider the possibility and what needs to be done.
+ * Rationale: it can be used for efficient bookkeeping, with a starting vector
+ * full of zeroes.
+*/
+
+int mclvUpdateMeet
+(  mclVector*  src1
+,  const mclVector*  src2
+,  double           (*operation)(pval val1, pval val2)
+)  ;
+
 long mclvUnaryList
 (  mclv*    mx
 ,  mclpAR*  ar       /* idx: MCLX_UNARY_mode, val: arg */
@@ -328,6 +380,8 @@ double mclvNormalize
 )  ;
 
 
+/* Returns powsum^(1/(power-1)) */
+
 double mclvInflate
 (  mclVector*     vec
 ,  double         power
@@ -370,32 +424,8 @@ mclVector* mclvInsertIdx
 ,  double         val
 )  ;
 
-   /* todo: make
 
-      mclVector* mclvInsertIdcs
-      (  mclVector*  vec
-      ,  int         k
-      ,  ...
-      )  ;
-
-      and possibly
-
-      mclVector* mclvAddtoIdcs
-      (  mclVector*  vec
-      ,  int         k
-      ,  ...
-      )  ;
-
-   */
-
-
-mclVector* mclvBinary
-(  const mclVector*  src1
-,  const mclVector*  src2
-,  mclVector*        dst
-,  double           (*operation)(pval val1, pval val2)
-)  ;
-
+/* inner product */
 
 double mclvIn
 (  const mclVector*        lft
@@ -406,7 +436,7 @@ double mclvIn
 mclVector* mcldMinus
 (  const mclVector*  vecl
 ,  const mclVector*  vecr
-,  mclVector*        dst      /* value from flt (naturally) */
+,  mclVector*        dst      /* value from lft (naturally) */
 )  ;
 
 
@@ -469,8 +499,8 @@ void mcldCountParts
 #define MCLD_CT_JOIN  7
 
 int mcldCountSet
-(  mclVector*  dom1
-,  mclVector*  dom2
+(  const mclVector*  dom1
+,  const mclVector*  dom2
 ,  mcxbits     parts
 )  ;
 
@@ -488,6 +518,7 @@ double mclvSelf
 double mclvSize
 (  const mclVector*   vec
 )  ;
+
 
 double mclvSelf
 (  const mclVector* vec
@@ -511,19 +542,16 @@ double mclvMaxValue
 )  ;
 
 
-double mclvIdxVal
-(  const mclVector*   vec
-,  long         idx
-,  int*         p_offset
-)  ;
-
+/**********************************************************************
+ * *
+ **      Some get routines.
+*/
 
 mclIvp* mclvGetIvp
 (  const mclVector*  vec
 ,  long              idx
-,  mclIvp*           offset
+,  const mclIvp*     offset
 )  ;
-
 
 int mclvGetIvpOffset
 (  const mclVector*   vec
@@ -531,20 +559,38 @@ int mclvGetIvpOffset
 ,  long         offset
 )  ;
 
+double mclvIdxVal
+(  const mclVector*   vec
+,  long         idx
+,  int*         p_offset
+)  ;
 
-double mclvAdjustForce
-(  mclv* vec
-,  long  r
-,  void* data
+   /*
+    * ceil is smallest ivp for which ivp.idx >= idx
+    * NULL if for all ivp in vec ivp.idx < idx
+   */
+mclIvp* mclvGetIvpCeil
+(  const mclVector*  vec
+,  long              idx
+,  const mclIvp*     offset
+)  ;
+
+   /*
+    * floor is largest ivp for which ivp.idx <= idx,
+    * NULL if for all ivp in vec ivp.idx > idx
+   */
+mclIvp* mclvGetIvpFloor
+(  const mclVector*  vec
+,  long              idx
+,  const mclIvp*     offset
 )  ;
 
 
-double mclvAdjustDiscard
-(  mclv* vec
-,  long  r
-,  void* data
-)  ;
 
+/**********************************************************************
+ * *
+ **      Some cmp routines.
+*/
 
 /* looks first at size, then at lexicographic ordering, ignores vid. */
 

@@ -1,5 +1,5 @@
-.\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcxload" 1 "16 Nov 2005" "mcxload 1\&.006, 05-320" "USER COMMANDS "
+.\" Copyright (c) 2006 Stijn van Dongen
+.TH "mcxload" 1 "21 Jan 2006" "mcxload 1\&.006, 06-021" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -54,6 +54,8 @@ mcxload \- load matrices and tab files from label format
 \fB[--stream-neg-log\fP (\fIminus log transform stream values\fP)\fB]\fP
 \fB[-stream-tf\fP (\fItransform stream values\fP)\fB]\fP
 \fB[-tf\fP <tf-spec> (\fItransform (not so) final matrix\fP)\fB]\fP
+\fB[-etc\fP <fname> (\fIleader \&'etc\&' label file\fP)\fB]\fP
+\fB[-etc-ai\fP <fname> (\fIleaderless \&'etc\&' label file\fP)\fB]\fP
 \fB[-t\fP (\fItranspose\fP)\fB]\fP
 \fB[--binary\fP (\fIoutput binary format\fP)\fB]\fP
 \fB[--debug\fP (\fIdebug\fP)\fB]\fP
@@ -132,6 +134,12 @@ mcxload does not accordingly change its idea of row and
 column domains\&.
 
 The final matrix can be symmetrified using the \fB-ri\fP option\&.
+
+The \fB-etc\fP options may be useful for the odd job\&.
+These options assume a format where all entries for a given
+column (or equivalently all neighbours for a given node)
+are joined onto a single line\&. This can be useful e\&.g\&. to read
+in externally generated clusterings\&.
 
 \fBSTAGES\fP
 .br
@@ -322,6 +330,26 @@ zero in mcl matrix operations) as one\&.
 .br
 Write the transposed matrix to file\&. This is obviously not useful
 when a symmetric matrix has been generated\&.
+.in -3m
+
+.ZI 3m "\fB-etc\fP <fname> (\fIleader \&'etc\&' label file\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-etc-ai\fP <fname> (\fIleaderless \&'etc\&' label file\fP)"
+\&
+'in -3m
+'in +3m
+\&
+.br
+The input is read in lines; each line is split on whitespace into labels\&.
+For \fB-etc\fP the first label is interpreted as the source node\&. All
+other labels are interpreted as destination nodes\&. Currently no values are
+recognized, but this functionality may be introduced in the future\&.
+For \fB-etc-ai\fP (\fIauto-increment\fP) all labels are interpreted as
+destination nodes and mcxload automatically creates a source node for each
+line it reads\&. This option can be useful to read in files encoding a
+clustering, where each line represents a cluster of white-space separated
+labels\&.
 .in -3m
 
 .ZI 3m "\fB--binary\fP (\fIoutput binary format\fP)"

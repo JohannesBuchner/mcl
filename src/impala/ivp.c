@@ -285,7 +285,9 @@ enum
 ,  MCLX_UNARY_LQ
 ,  MCLX_UNARY_GQ
 ,  MCLX_UNARY_GT
+,  MCLX_UNARY_RAND
 ,  MCLX_UNARY_MUL
+,  MCLX_UNARY_SCALE
 ,  MCLX_UNARY_ADD 
 ,  MCLX_UNARY_CEIL
 ,  MCLX_UNARY_FLOOR 
@@ -303,7 +305,9 @@ double (*mclp_unary_tab[])(pval, void*)
 ,  fltxLQ
 ,  fltxGT
 ,  fltxGT
+,  fltxRand
 ,  fltxMul
+,  fltxScale
 ,  fltxAdd 
 ,  fltxCeil
 ,  fltxFloor 

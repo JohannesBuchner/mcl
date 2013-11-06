@@ -1,4 +1,4 @@
-/*   Copyright (C) 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/* (c) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
  * under the terms of the GNU General Public License; either version 2 of the
@@ -44,7 +44,7 @@
  *    do shortcircuit. All mathematical functions from math.h and some
  *    additional ones (e.g. abs, round, sign).  Variables can be parsed and
  *    evaluated using user-supplied functions.  Currently, variables must be
- *    recognizable by a special introduction character.
+ *    recognizable by a special lead character.
 
    Todos
  *    I may want to pass raam along to compute and flatten after all.

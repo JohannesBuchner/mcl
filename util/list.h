@@ -1,4 +1,4 @@
-/*      Copyright (C) 2004, 2005 Stijn van Dongen
+/* (c) Copyright 2004, 2005 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
  * under the terms of the GNU General Public License; either version 2 of the
@@ -78,7 +78,7 @@ mcxLink*  mcxLinkSpawn
 )  ;
 
 
-/* freeval doesn't do anything yet
+/* !!!!! freeval doesn't do anything yet
 */
 
 void  mcxLinkFree

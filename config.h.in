@@ -76,6 +76,9 @@
 /* Define to 1 if you have the `vprintf' function. */
 #undef HAVE_VPRINTF
 
+/* output citation reference (default yes) */
+#undef MCL_HELPFUL_REMINDER
+
 /* Name of package */
 #undef PACKAGE
 

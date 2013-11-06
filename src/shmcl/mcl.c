@@ -7,6 +7,8 @@
 */
 
 
+#include "../../config.h"
+
 /*  **************************************************************************
  * *
  **            Implementation notes (a few).
@@ -70,6 +72,7 @@
 #include "util/io.h"
 #include "util/err.h"
 #include "util/equate.h"
+#include "util/rand.h"
 #include "util/opt.h"
 
 #include "mcl/proc.h"
@@ -77,6 +80,25 @@
 #include "mcl/alg.h"
 #include "mcl/clm.h"
 
+
+static void helpful_reminder
+(  void
+)
+   {
+#ifdef MCL_HELPFUL_REMINDER
+fprintf(stderr, "\nPlease cite:\n");
+fprintf(stderr, "    Stijn van Dongen, Graph Clustering by Flow Simulation.  PhD thesis,\n");
+fprintf(stderr, "    University of Utrecht, May 2000.\n");
+fprintf(stderr, "       (  http://www.library.uu.nl/digiarchief/dip/diss/1895620/full.pdf\n");
+fprintf(stderr, "       or  http://micans.org/mcl/lit/svdthesis.pdf.gz)\n");
+fprintf(stderr, "OR\n");
+fprintf(stderr, "    Stijn van Dongen, A cluster algorithm for graphs. Technical\n");
+fprintf(stderr, "    Report INS-R0010, National Research Institute for Mathematics\n");
+fprintf(stderr, "    and Computer Science in the Netherlands, Amsterdam, May 2000.\n");
+fprintf(stderr, "       (  http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z\n");
+fprintf(stderr, "       or  http://micans.org/mcl/lit/INS-R0010.ps.Z)\n\n");
+#endif
+   }
 
 int main
 (  int               argc
@@ -92,16 +114,16 @@ int main
    ;  mcxstatus      mainStatus        =  STATUS_OK
    ;  mcxstatus      parseStatus       =  STATUS_OK
    ;  int            prefix            =  2
+   ;  unsigned int seed                =  mcxSeed(0)  /* for transformation*/
 
    ;  mcxHash        *procOpts, *algOpts, *mergedOpts
    ;  mcxOption      *opts
-   ;  mcxIO          *xfin
 
+   ;  srandom(seed)
    ;  signal(SIGALRM, mclSigCatch)
 
    ;  mclProcOptionsInit()
    ;  mclAlgOptionsInit()
-
 
    ;  procOpts    =  mcxOptHash(mclProcOptions, NULL)
    ;  algOpts     =  mcxOptHash(mclAlgOptions, NULL)
@@ -129,9 +151,7 @@ int main
          prefix = 1
    ;  }
 
-      xfin = mcxIOnew(argv[1], "r")
-
-   ;  opts =  mcxHOptParse
+      opts =  mcxHOptParse
               (mergedOpts, (char**) argv, argc, prefix, 0, &parseStatus)
 
    ;  if (parseStatus != MCX_OPT_STATUS_OK)
@@ -161,7 +181,12 @@ int main
       ,  mcxTell("mcl", "do 'mcl -h' or 'man mcl'")
       ,  mcxExit(1)
 
-   ;  themx = mclAlgorithmRead(xfin, map)
+   ;  themx = mclAlgorithmRead(map, FALSE)
+   ;  if (!themx)
+      mcxDie(1, "mcl", "no jive")
+   ;  mclAlgorithmCacheGraph(themx, map, 'a')  /* might be a noop */
+   ;  mclAlgorithmTransform(themx, map)
+   ;  mclAlgorithmCacheGraph(themx, map, 'b')  /* might be a noop */
 
    ;  if (!mcldEquate(themx->dom_cols, themx->dom_rows, MCLD_EQ_EQUAL))
          mcxErr("mcl", "domains differ!")
@@ -169,8 +194,6 @@ int main
    ;  if (!N_COLS(themx))
          mcxErr("mcl", "Attempting to cluster the void")
       /* ,  mcxExit(1) */
-
-   ;  mcxIOfree(&xfin)
 
    ;  mclSetProgress(N_COLS(themx), mpp)
 
@@ -180,6 +203,7 @@ int main
       ,  mcxExit(1)
 
    ;  mclAlgParamFree(&map)
+   ;  helpful_reminder()
    ;  return 0
 ;  }
 

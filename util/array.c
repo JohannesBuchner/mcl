@@ -1,4 +1,4 @@
-/*  Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/* (c) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
  * under the terms of the GNU General Public License; either version 2 of the
@@ -270,5 +270,60 @@ void mcxBufReset
    ;  buf->n_alloc      =     0
    ;  buf->bFinalized   =     0
 ;  }
+
+
+
+void* mcxBsearchCeil
+(  const void *key
+,  const void *base
+,  int nmemb
+,  int size
+,  int (*cmp)(const void *, const void *)
+)
+   {  long bar, lft, rgt
+   ;  if (!nmemb || cmp(key, ((char*)base) + (nmemb-1) * size) > 0)
+      return NULL
+
+   ;  lft = -1
+   ;  rgt = nmemb
+   ;  bar = nmemb / 2
+
+   ;  while (bar < rgt)
+      {  if (cmp(key, ((char*) base) + bar*size) > 0)
+         lft = bar
+      ;  else
+         rgt = bar
+      ;  bar = rgt - (rgt-lft) / 2;
+   ;  }
+      return (((char*) base) + bar * size)
+;  }
+
+
+
+void* mcxBsearchFloor
+(  const void *key
+,  const void *base
+,  int nmemb
+,  int size
+,  int (*cmp)(const void *, const void *)
+)
+   {  long bar, lft, rgt
+   ;  if (!nmemb || cmp(key, base) < 0)
+      return NULL
+
+   ;  lft = -1
+   ;  rgt = nmemb
+   ;  bar = nmemb / 2
+
+   ;  while (bar > lft)
+      {  if (cmp(key, ((char*) base) + bar*size) < 0)
+         rgt = bar
+      ;  else
+         lft = bar
+      ;  bar = lft + (rgt-lft) / 2;
+   ;  }
+      return (((char*) base) + bar * size)
+;  }
+
 
 

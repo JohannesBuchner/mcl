@@ -22,6 +22,8 @@ block=0
 delete=0
 groundup=0
 
+cl0=""
+
 declare -a rubbish
 n_rubbish=0
 
@@ -64,11 +66,14 @@ outfile=""
 T=M
 TT=MM
 
-while getopts :ndbghz0:1:2:M:o: opt
+while getopts :ndbghz0:1:2:C:M:o: opt
 do
     case "$opt" in
     M)
       mx0=$OPTARG
+      ;;
+    C)
+      cl0=$OPTARG
       ;;
     o)
       outfile=$OPTARG
@@ -109,6 +114,7 @@ Options
 
 -o <mx-file>   final output cluster file.
 -M <mx-file> * input matrix file.
+-C <cl-file>   (optional) input cluster file.
 -0 <opt0>    * level 0 clustering options.
 -1 <opt1>    * level 1 clustering options.
 -2 <opt2>      level 2 clustering options.
@@ -156,15 +162,20 @@ if ! (test "$mx0" && test "$opts0" ); then
 fi
 
 
-cl0=`mcl $mx0 -ap = -aa '.C' $opts0 -az`
-tag0=`mcl $mx0 $opts0 -ax`
-
-stem=$mx0.$tag0
-
-
-if do_create $cl0 $new; then
-   mcl $mx0 -o $cl0 $opts0 --append-log=y --analyze=y
+if  !(test "$cl0"); then
+   cl0=`mcl $mx0 -ap = -aa '.C' $opts0 -az`
+   tag0=cl0
+   stem=cl0
+   if do_create $cl0 $new; then
+      mcl $mx0 -o $cl0 $opts0 --append-log=y --analyze=y
+   fi
+else
+   do_tell "Using $cl0 as first level clustering"
+   tag0=`mcl $mx0 $opts0 -ax`
+   stem=$mx0.$tag0
 fi
+
+
 do_tell "SIZE DISTRIBUTION LEVEL 0"
 clxdo gr $cl0
 

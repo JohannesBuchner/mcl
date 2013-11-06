@@ -48,6 +48,9 @@
    \synoptopt{-stream-tf}{transform stream values}
    \synoptopt{-tf}{<tf-spec>}{transform (not so) final matrix}
 
+   \synoptopt{-etc}{<fname>}{leader 'etc' label file}
+   \synoptopt{-etc-ai}{<fname>}{leaderless 'etc' label file}
+
    \synoptopt{-t}{transpose}
    \synoptopt{--binary}{output binary format}
    \synoptopt{--debug}{debug}
@@ -137,6 +140,13 @@
 
 \par{
    The final matrix can be symmetrified using the \genoptref{-ri} option.}
+
+\par{
+   The \genoptref{-etc} options may be useful for the odd job.
+   These options assume a format where all entries for a given
+   column (or equivalently all neighbours for a given node)
+   are joined onto a single line. This can be useful e.g. to read
+   in externally generated clusterings.}
 
 \cpar{STAGES}{
    Conceptually, input matrix creation consists of the following stages}
@@ -284,6 +294,22 @@
 \car{
    Write the transposed matrix to file. This is obviously not useful
    when a symmetric matrix has been generated.}
+
+\items{
+   {\defopt{-etc}{<fname>}{leader 'etc' label file}}
+   {\defopt{-etc-ai}{<fname>}{leaderless 'etc' label file}}
+}
+\car{
+    The input is read in lines; each line is split on whitespace into labels.
+    For \genopt{-etc} the first label is interpreted as the source node.  All
+    other labels are interpreted as destination nodes.  Currently no values are
+    recognized, but this functionality may be introduced in the future.
+
+    For \genopt{-etc-ai} (\it{auto-increment}) all labels are interpreted as
+    destination nodes and mcxload automatically creates a source node for each
+    line it reads. This option can be useful to read in files encoding a
+    clustering, where each line represents a cluster of white-space separated
+    labels.}
 
 \item{\defopt{--binary}{output binary format}}
 \car{

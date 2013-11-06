@@ -949,20 +949,19 @@ mclVector* mclxColNums
 ,  double           (*f)(const mclVector * vec)
 ,  mcxenum           mode  
 )
-   {  mclVector*  nums =  mclvResize(NULL, N_COLS(m))
+   {  mclVector*  nums = mclvClone(m->dom_cols)
    ;  int vec_ind =  0
-   ;  int ivp_idx =  0
    
    ;  if (nums)
       {  while (vec_ind < N_COLS(m))
-         {  double val =  f(m->cols + vec_ind)
-         ;  if (val || mode == MCL_VECTOR_COMPLETE)
-            mclpInstantiate(nums->ivps + (ivp_idx++), vec_ind, val)
+         {  nums->ivps[vec_ind].val = f(m->cols + vec_ind)
          ;  vec_ind++
       ;  }
-         mclvResize(nums, ivp_idx)
-   ;  }
-      return nums
+      }
+      if (mode == MCL_VECTOR_SPARSE)
+      mclvUnary(nums, fltxCopy, NULL)
+
+   ;  return nums
 ;  }
 
 
@@ -1241,26 +1240,25 @@ mclv* mclxUnionv
 ;  }
 
 
-mclx* mclxWeed
+void mclxWeed
 (  mclx* mx
 ,  mcxbits bits
 )
    {  mclv* colselect
-      =     bits & MCLX_WEED_COLS
+      =     bits & (MCLX_WEED_COLS | MCLX_WEED_GRAPH)
          ?  mclxColNums(mx, mclvSize, MCL_VECTOR_SPARSE)
          :  NULL
 
-   ;  mclv* rowselect
-      =     bits & MCLX_WEED_ROWS
+   ;  mclv* rowselect                     /* fixme, cheaper way? */
+      =     bits & (MCLX_WEED_ROWS | MCLX_WEED_GRAPH)
          ?  mclxUnionv(mx, NULL, NULL)
          :  NULL
 
-   ;  mclx* res = mclxSub(mx, colselect, rowselect)
-
-   ;  mclvFree(&colselect)
-   ;  mclvFree(&rowselect)
-
-   ;  return res
+   ;  if (bits & MCLX_WEED_GRAPH)
+      {  mcldMerge(colselect, rowselect, colselect)
+      ;  mclvCopy(rowselect, colselect)
+   ;  }
+      mclxChangeDomains(mx, colselect, rowselect)
 ;  }
 
 
@@ -1276,6 +1274,212 @@ long mclxUnaryList
          n_entries_kept += mclvUnaryList(vec, ar)
       ,  vec++
    ;  return n_entries_kept
+;  }
+
+
+
+/* remove those nodes in domain that cannot reach any
+ * node in projection via graph
+*/
+
+void wave_prune_sideways
+(  const mclx* graph
+,  mclv* domain
+,  const mclv* projection
+)
+   {  long i = 0
+   ;  mclv* nb = NULL
+   ;  for (i=0;i<domain->n_ivps;i++)
+      {  nb = mclxGetVector(graph, domain->ivps[i].idx, RETURN_ON_FAIL, nb)
+      ;  if (!nb || !mcldCountSet(nb,  projection, MCLD_CT_MEET))
+         domain->ivps[i].val = 0.0
+   ;  }
+      mclvUnary(domain, fltxCopy, NULL)
+;  }
+
+
+mclv* wave_get_new
+(  const mclv* wavez
+,  const mclv* seenz
+,  const mclx* graph
+)
+   {  mclv* nb = NULL
+   ;  mclv* newpart = NULL
+   ;  mclv* newz = mclvInit(NULL)
+   ;  long i
+
+   ;  for (i=0;i<wavez->n_ivps;i++)
+      {  long zz = wavez->ivps[i].idx
+      ;  nb = mclxGetVector(graph, zz, RETURN_ON_FAIL, nb)
+      ;  if (!nb)
+         {  mcxErr("mclxShortestPaths", "panic <%ld> not found", zz)
+         ;  continue
+      ;  }
+         newpart = mcldMinus(nb, seenz, newpart)
+      ;  newz = mcldMerge(newz, newpart, newz)
+   ;  }
+      mclvFree(&newpart)
+   ;  return newz
+;  }
+
+
+mclx* waves_get_nodes
+(  int            n_waves
+,  mclv*          node_set       /* used as matrix row domain */
+,  const mclv*    meet_in_the_middle
+,  const mcxLink* firstx
+,  const mcxLink* lasty
+)
+   {  const mcxLink* curr = firstx
+   ;  mclx* track = NULL
+   ;  int n = 0
+
+   ;  track =
+      mclxAllocZero
+      (  mclvCanonical(NULL, n_waves, 1.0)
+      ,  node_set
+      )
+      /* onwards: set the matrix columns */
+
+   ;  while (curr && curr->val && n < n_waves)
+      {  mclvCopy(track->cols+n++, curr->val)
+      ;  curr = curr->next
+   ;  }
+
+      if (n < n_waves)
+      mclvCopy(track->cols+n++, meet_in_the_middle)
+   ;  curr = lasty
+
+   ;  while (curr && curr->val && n < n_waves)
+      {  mclvCopy(track->cols+n++, curr->val)
+      ;  curr = curr->prev
+   ;  }
+
+      if (n != n_waves)
+      mcxErr
+      ("mclxShortestSimplePaths", "unexpected mismatch %d/%d", n, n_waves)
+
+   ;  return track
+;  }
+
+
+
+mclv* mclxSSPxy
+(  const mclx* graph
+,  long x
+,  long y
+,  mclx** trackpp
+)
+   {  mcxLink* src
+   ;  mcxLink* rootx, *rooty, *currx, *curry
+   ;  mclv* wavex, *wavey, *seenx, *seeny, *meet_in_the_middle
+   ;  int n_waves_x = 1, n_waves_y = 1
+   ;  mclx* track = NULL
+   ;  mclv* punters = NULL    /* nodes participating in SSPs */
+   
+   ;  if (x == y)       /* caller should cater */
+      return NULL
+                        /* fixme should pbb set ERANGE */
+   ;  if (!mclxGetVector(graph, x, RETURN_ON_FAIL, NULL))
+      return NULL
+                        /* fixme should pbb set ERANGE */
+   ;  if (!mclxGetVector(graph, y, RETURN_ON_FAIL, NULL))
+      return NULL
+
+   ;  src = mcxLinkNew(20, NULL, 0)
+
+   ;  wavex =  mclvInsertIdx(NULL, x, 1.0)
+   ;  wavey =  mclvInsertIdx(NULL, y, 1.0)
+
+   ;  seenx =  mclvClone(wavex)
+   ;  seeny =  mclvClone(wavey)
+
+   ;  currx = rootx =  mcxLinkSpawn(src, wavex)
+   ;  curry = rooty =  mcxLinkSpawn(src, wavey)
+
+   ;  while (wavex->n_ivps + wavey->n_ivps)     /* redundant condition */
+      {  mclv* wavex_new = wave_get_new(wavex, seenx, graph)
+      ;  currx = mcxLinkAfter(currx, wavex_new)
+      ;  wavex = wavex_new
+      ;  if (!wavex_new->n_ivps || mcldCountSet(wavex_new, wavey, MCLD_CT_MEET))
+         break
+      ;  n_waves_x++
+      ;  mcldMerge(seenx, wavex_new, seenx)
+
+      ;  mclv* wavey_new = wave_get_new(wavey, seeny, graph)
+      ;  curry = mcxLinkAfter(curry, wavey_new)
+      ;  wavey = wavey_new
+      ;  if (!wavey_new->n_ivps || mcldCountSet(wavey_new, wavex, MCLD_CT_MEET))
+         break
+      ;  n_waves_y++
+      ;  mcldMerge(seeny, wavex_new, seeny)
+   ;  }
+
+      if (wavex->n_ivps && wavey->n_ivps)
+      {  mcxLink* topx = currx
+      ;  mcxLink* topy = curry
+      ;  mclv* projection
+            =  meet_in_the_middle
+            =  mcldMeet(topx->val, topy->val, NULL)
+
+      ;  punters = mclvClone(meet_in_the_middle)
+
+      ;  topx->val = NULL
+      ;  topy->val = NULL
+
+      ;  while ((currx = currx->prev))
+         {  wave_prune_sideways(graph, currx->val, projection)
+               /* ^reduces currx->val  */
+         ;  projection = currx->val
+         ;  mcldMerge(punters, projection, punters)
+      ;  }
+         projection = meet_in_the_middle
+      ;  while ((curry = curry->prev))
+         {  wave_prune_sideways(graph, curry->val, projection)
+               /* ^reduces curry->val  */
+         ;  projection = curry->val
+         ;  mcldMerge(punters, projection, punters)
+      ;  }
+
+         if (trackpp)
+         {  track
+            =  waves_get_nodes
+               (  n_waves_x + n_waves_y
+               ,  punters
+               ,  meet_in_the_middle
+               ,  rootx, topy->prev
+               )
+         ;  *trackpp = track
+      ;  }
+         mclvFree(&meet_in_the_middle)
+   ;  }
+
+      mcxLinkFree(&src, mclvFree_v)
+   ;  mclvFree(&seenx)
+   ;  mclvFree(&seeny)
+
+   ;  return punters
+;  }
+
+
+mclv* mclxSSPd
+(  const mclx* graph
+,  const mclv* domain
+)
+   {  mclv* punters = mclvInit(NULL)
+   ;  long i
+   ;  for (i=0;i<domain->n_ivps;i++)
+      {  long j
+      ;  long x = domain->ivps[i].idx
+      ;  for (j=i+1;j<domain->n_ivps;j++)
+         {  long y = domain->ivps[j].idx
+         ;  mclv* nodes = mclxSSPxy(graph, x, y, NULL)
+         ;  if (nodes)
+            mcldMerge(punters, nodes, punters)
+         ;  mclvFree(&nodes)
+      ;  }
+   ;  }
+      return punters
 ;  }
 
 

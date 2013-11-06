@@ -278,6 +278,13 @@ void mclvFree
 ;  }
 
 
+void mclvFree_v
+(  void*  vecpp
+)  
+   {  mclvFree(vecpp)
+;  }
+
+
 void mclvCleanse
 (  mclVector*  vec
 )
@@ -641,6 +648,133 @@ void mclvUnary
 ;  }
 
 
+static int update_small_large
+(  mclVector*  v1
+,  const mclVector*  v2
+,  double  (*op)(pval mval, pval nval)
+)  
+   {  mcxbool update_small = FALSE
+   ;  const mclv* s, *l
+   ;  const mclp* l_ofs, *s_ofs, *s_max
+   ;  int n_zeroed = 0
+
+   ;  if (v1->n_ivps < v2->n_ivps)
+      {  l = v2
+      ;  s = v1
+      ;  update_small = TRUE    /* updates have to be made in s, not l */
+   ;  }
+      else
+      {  l = v1
+      ;  s = v2
+   ;  }
+
+      if (!l->n_ivps || !s->n_ivps)
+      return 0
+
+            /* search for largest applicable start in l;
+             * if successful then
+             *    l->ivps[k].idx <= s->ivps[0].idx
+            */
+   ;  if ((l_ofs = mclvGetIvpFloor(l, s->ivps[0].idx, NULL)))
+      s_ofs = s->ivps+0
+
+            /* search for smallest applicable start in s
+             * if successful then
+             *    s->ivps[k].idx >= l->ivps[0].idx
+             * or
+             *    l->ivps[0].idx <= s->ivps[k].idx
+            */
+   ;  else if ((s_ofs = mclvGetIvpCeil(s, l->ivps[0].idx, NULL)))
+      l_ofs = l->ivps+0
+   ;  else
+      return 0
+
+   ;  s_max = s->ivps + s->n_ivps
+
+            /*
+             * pre-condition: s_ofs < s_max.
+             * invariant: l_ofs->idx <= s_ofs->idx
+            */
+   ;  while (l_ofs)
+      {  if (s_ofs->idx == l_ofs->idx)
+         {  if
+            (  update_small
+            && !(((mclp*) s_ofs)->val = op(s_ofs->val, l_ofs->val))
+            )
+            n_zeroed++
+         ;  else if ( !(((mclp*) l_ofs)->val = op(l_ofs->val, s_ofs->val)))
+            n_zeroed++
+      ;  }
+         if (++s_ofs >= s_max)
+         break
+      ;  l_ofs = mclvGetIvpFloor(l, s_ofs->idx, l_ofs)
+   ;  }
+      return n_zeroed
+;  }
+
+
+static int update_zip
+(  mclVector*  v1
+,  const mclVector*  v2
+,  double  (*op)(pval mval, pval nval)
+)
+   {  mclp* ivp1 = v1->ivps, *ivp2 = v2->ivps
+         ,  *ivp1max = ivp1 + v1->n_ivps
+         ,  *ivp2max = ivp2 + v2->n_ivps
+
+   ;  int n_zeroed = 0
+
+   ;  while (ivp1 < ivp1max && ivp2 < ivp2max)
+      {  if (ivp1->idx < ivp2->idx)
+         ivp1++
+      ;  else if (ivp1->idx > ivp2->idx)
+         ivp2++
+      ;  else if (ivp1->val = op(ivp1->val, ivp2++->val), !ivp1++->val)
+         n_zeroed++
+   ;  }
+      return n_zeroed
+;  }
+
+
+static int update_canonical
+(  mclVector*  v1
+,  const mclVector*  v2
+,  double  (*op)(pval mval, pval nval)
+)
+   {  int i = 0
+   ;  long maxidx = v1->n_ivps-1
+   ;  int n_zeroed = 0
+
+   ;  for (i=0;i<v2->n_ivps;i++)
+      {  long idx = v2->ivps[i].idx
+      ;  if (idx > maxidx)
+         break
+      ;  v1->ivps[idx].val = op(v1->ivps[idx].val, v2->ivps[i].val)
+      ;  if (!v1->ivps[idx].val)
+         n_zeroed++
+   ;  }
+      return n_zeroed
+;  }
+
+
+int mclvUpdateMeet
+(  mclVector*  v1
+,  const mclVector*  v2
+,  double  (*op)(pval mval, pval nval)
+)  
+   {  if (MCLV_IS_CANONICAL(v1))
+      return update_canonical(v1, v2, op)
+   ;  else if
+      (  v2->n_ivps * log(v1->n_ivps) < v1->n_ivps
+      || v1->n_ivps * log(v2->n_ivps) < v2->n_ivps
+      )
+      return update_small_large(v1, v2, op)
+   ;  else
+      return update_zip(v1, v2, op)
+;  }
+
+
+
 mclVector* mclvBinary
 (  const mclVector*  vec1
 ,  const mclVector*  vec2
@@ -777,9 +911,8 @@ void mclvScale
    {  int      n_ivps   =  vec->n_ivps
    ;  mclIvp*  ivps     =  vec->ivps
 
-   ;  if (fac <= 0.0)
-         mcxErr("mclvScale PBD", "nonpositive factor <%f>", (double) fac)
-      ,  mcxExit(1)
+   ;  if (!fac)
+      mcxErr("mclvScale PBD", "zero")
 
    ;  while (--n_ivps >= 0)
       (ivps++)->val /= fac
@@ -802,10 +935,9 @@ double mclvNormalize
          ,  (double) sum
          ,  (long) vec->vid
          )
-      ;  mclvResize(vec, 0)
       ;  return 0.0
    ;  }
-      else if (sum<0.0)
+      else if (sum < 0.0)
       mcxErr("mclvNormalize", "warning: negative sum <%f>", (double) sum)
 
    ;  while (--vecsize >= 0)
@@ -825,14 +957,13 @@ double mclvInflate
    ;  MCLV_CHECK(vec, "mclvInflate")
 
    ;  if (!vec->n_ivps)
-      {  return 0.0
-   ;  }
+      return 0.0
 
    ;  vecivps  =  vec->ivps
    ;  vecsize  =  vec->n_ivps
 
    ;  while (vecsize-- > 0)
-      {  (vecivps)->val = (float) pow((double) (vecivps)->val, power)
+      {  (vecivps)->val = pow((double) (vecivps)->val, power)
       ;  powsum += (vecivps++)->val
    ;  }
 
@@ -852,17 +983,17 @@ double mclvInflate
 ;  }
 
 
+double mclvSize
+(  const mclVector*   vec
+)
+   {  return vec ? vec->n_ivps : 0.0
+;  }
+
+
 double mclvSelf
 (  const mclVector* vec
 )  
    {  return vec ? mclvIdxVal(vec, vec->vid, NULL) :  0.0
-;  }
-
-
-double mclvSize
-(  const mclVector* vec
-)  
-   {  return vec ? vec->n_ivps : 0.0
 ;  }
 
 
@@ -925,13 +1056,42 @@ int mclvGetIvpOffset
 ;  }
 
 
+mclIvp* mclvGetIvpCeil
+(  const mclVector*  vec
+,  long              idx
+,  const mclIvp*     offset
+)
+   {  mclIvp sought
+   ;  const mclIvp  *base  =  offset ? offset : vec->ivps
+   ;  int      n_ivps   =  vec->n_ivps - (base - vec->ivps)
+   ;  mclpInstantiate(&sought, idx, 1.0)
+
+   ;  return
+      mcxBsearchCeil(&sought, base, n_ivps, sizeof(mclp), mclpIdxCmp)
+;  }
+
+
+mclIvp* mclvGetIvpFloor
+(  const mclVector*  vec
+,  long              idx
+,  const mclIvp*     offset
+)
+   {  mclIvp   sought
+   ;  const mclIvp   *base    =  offset ? offset : vec->ivps
+   ;  int      n_ivps   =  vec->n_ivps - (base - vec->ivps)
+   ;  mclpInstantiate(&sought, idx, 1.0)
+   ;  return
+      mcxBsearchFloor(&sought, base, n_ivps, sizeof(mclp), mclpIdxCmp)
+;  }
+
+
 mclIvp* mclvGetIvp
 (  const mclVector*  vec
-,  long        idx
-,  mclIvp*     offset
+,  long              idx
+,  const mclIvp*     offset
 )  
    {  mclIvp   sought
-   ;  mclIvp   *base    =  offset ? offset : vec->ivps
+   ;  const mclIvp   *base    =  offset ? offset : vec->ivps
    ;  int      n_ivps   =  vec->n_ivps - (base - vec->ivps)
 
    ;  mclpInstantiate(&sought, idx, 1.0)
@@ -1164,7 +1324,12 @@ mclVector* mcldMinus
 ,  const mclVector*  rgt
 ,  mclVector*  dst
 )  
-   {  return mclvBinary(lft, rgt, dst, fltLaNR)
+   {  if (lft == dst)
+      {  if (mclvUpdateMeet(dst, rgt, fltLaNR))
+         mclvUnary(dst, fltxCopy, NULL)
+      ;  return dst
+   ;  }
+      return mclvBinary(lft, rgt, dst, fltLaNR)
 ;  }
 
 
@@ -1227,8 +1392,8 @@ mcxbool mcldEquate
 
 
 int mcldCountSet
-(  mclVector*  dom1
-,  mclVector*  dom2
+(  const mclVector*  dom1
+,  const mclVector*  dom2
 ,  mcxbits     parts
 )
    {  int meet, ldif, rdif, count = 0
@@ -1397,7 +1562,7 @@ long mclvHighestIdx
 double mclvMaxValue
 (  const mclVector*           vec
 )  
-   {  double max_val = 0.0
+   {  double max_val = -FLT_MAX
    ;  mclIvp* ivp    = vec->ivps  
    ;  mclIvp* ivpmax = ivp + vec->n_ivps
    ;  while (ivp<ivpmax)
@@ -1406,25 +1571,6 @@ double mclvMaxValue
       ;  ivp++
    ;  }
       return  max_val
-;  }
-
-
-double mclvAdjustDiscard
-(  mclv* vec
-,  long  r
-,  void* data
-)
-   {  return 0.0
-;  }
-
-
-double mclvAdjustForce
-(  mclv* vec
-,  long  r
-,  void* data
-)
-   {  mclp* ivp = mclvGetIvp(vec, r, NULL)
-   ;  return ivp && ivp->val ? ivp->val : 1.0
 ;  }
 
 

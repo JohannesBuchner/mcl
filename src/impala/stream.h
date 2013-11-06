@@ -24,28 +24,32 @@ mcxstatus mclxIOstreamOut
 ,  mcxstatus ON_FAIL
 )  ;
 
+
 #define MCLXIO_STREAM_PACKED        1 <<  0
 #define MCLXIO_STREAM_ABC           1 <<  1
 #define MCLXIO_STREAM_123           1 <<  2
+#define MCLXIO_STREAM_ETC           1 <<  3
 
-#define MCLXIO_STREAM_READ  (MCLXIO_STREAM_PACKED | MCLXIO_STREAM_ABC | MCLXIO_STREAM_123)
+#define MCLXIO_STREAM_READ  (MCLXIO_STREAM_PACKED | MCLXIO_STREAM_ABC | MCLXIO_STREAM_123 | MCLXIO_STREAM_ETC)
 
-#define MCLXIO_STREAM_WARN          1 <<  3     /* a/1 warn on parse miss */
-#define MCLXIO_STREAM_STRICT        1 <<  4     /* a/1 fail on parse miss */
+#define MCLXIO_STREAM_WARN          1 <<  4     /* a/1 warn on parse miss */
+#define MCLXIO_STREAM_STRICT        1 <<  5     /* a/1 fail on parse miss */
 
-#define MCLXIO_STREAM_MIRROR        1 <<  5     /* seeing x-y-f, add y-x-f */
-#define MCLXIO_STREAM_TWODOMAINS    1 <<  6     /* construct bipartite graph  */
-#define MCLXIO_STREAM_DEBUG         1 <<  7     /* debug */
+#define MCLXIO_STREAM_MIRROR        1 <<  6     /* seeing x-y-f, add y-x-f */
+#define MCLXIO_STREAM_TWODOMAINS    1 <<  7     /* construct bipartite graph  */
+#define MCLXIO_STREAM_DEBUG         1 <<  8     /* debug */
 
-#define MCLXIO_STREAM_CTAB_EXTEND   1 <<  8     /* on miss extend tab */
-#define MCLXIO_STREAM_CTAB_STRICT   1 <<  9     /* on miss fail */
-#define MCLXIO_STREAM_CTAB_RESTRICT 1 << 10     /* on miss ignore */
-#define MCLXIO_STREAM_RTAB_EXTEND   1 << 11     /* on miss extend tab */
-#define MCLXIO_STREAM_RTAB_STRICT   1 << 12     /* on miss fail */
-#define MCLXIO_STREAM_RTAB_RESTRICT 1 << 13     /* on miss ignore */
+#define MCLXIO_STREAM_CTAB_EXTEND   1 <<  9     /* on miss extend tab */
+#define MCLXIO_STREAM_CTAB_STRICT   1 << 10     /* on miss fail */
+#define MCLXIO_STREAM_CTAB_RESTRICT 1 << 11     /* on miss ignore */
+#define MCLXIO_STREAM_RTAB_EXTEND   1 << 12     /* on miss extend tab */
+#define MCLXIO_STREAM_RTAB_STRICT   1 << 13     /* on miss fail */
+#define MCLXIO_STREAM_RTAB_RESTRICT 1 << 14     /* on miss ignore */
 
-#define MCLXIO_STREAM_LOGTRANSFORM     1 << 14
-#define MCLXIO_STREAM_NEGLOGTRANSFORM  1 << 15
+#define MCLXIO_STREAM_LOGTRANSFORM     1 << 15
+#define MCLXIO_STREAM_NEGLOGTRANSFORM  1 << 16
+
+#define MCLXIO_STREAM_ETC_AI        1 << 17     /* autoincrement: no column labels */
 
 
 #define MCLXIO_STREAM_TAB_EXTEND (MCLXIO_STREAM_CTAB_EXTEND | MCLXIO_STREAM_RTAB_EXTEND)

@@ -3,8 +3,8 @@
  *
  *    with use-tab, what should the result domain be? extended tab presumably.
  *       only applies to abc data.
- *    with 123 data, one might want to set domains a priori. veto though,
- *       interface spaghetti.
+ *    with 123 data, one might want to set domains a priori.
+ *       danger of interface spaghetti?
  *    warn on strange combinations, e.g. tab[s] + 123.
 */
 
@@ -33,9 +33,7 @@
 #include "util/hash.h"
 #include "util/array.h"
 
-
-
-const char* me_str = "mclxIOstreamIn";
+const char* strin = "mclxIOstreamIn";
 
 static mcxstatus write_u32_be
 (  unsigned long l
@@ -94,7 +92,7 @@ static mcxstatus read_packed
 ;if(0)fprintf(stderr, "read %lu %lu %lu %.3f\n", *s, *x, *y, (double) *value)
 
    ;  if (*s >> 24 != SENTINEL_PACKED)
-      {  mcxErr(me_str, "no sentinel!")
+      {  mcxErr(strin, "no sentinel!")
       ;  return STATUS_FAIL
    ;  }
 
@@ -105,16 +103,186 @@ static mcxstatus read_packed
 ;  }
 
 
+/* keypp; if we free it caller can still free it as well
+ * (because *keypp is set to NULL).
+*/
+
+mcxstatus handle_label
+(  mcxTing** keypp
+,  mcxHash* map
+,  unsigned long* z
+,  long* z_max_seen        /* ummyes, fix|document (signedness) */
+,  mcxbits bits
+,  const char* mode
+)
+   {  mcxbool strict =  bits & MCLXIO_STREAM_TAB_STRICT
+   ;  mcxbool warn   =  bits & MCLXIO_STREAM_WARN
+   ;  mcxbool ro = bits & (MCLXIO_STREAM_TAB_STRICT | MCLXIO_STREAM_TAB_RESTRICT)
+   ;  mcxbool debug  = bits & MCLXIO_STREAM_DEBUG
+
+   ;  mcxstatus status = STATUS_OK
+   ;  mcxKV* kv = mcxHashSearch(*keypp, map, ro ? MCX_DATUM_FIND : MCX_DATUM_INSERT)
+
+   ;  if (!kv)      /* ro and not found */
+      {  if (strict)
+         {  mcxErr(strin, "label <%s> not found (%s strict)", (*keypp)->str, mode)
+         ;  status = STATUS_FAIL
+      ;  }
+         else if (warn)  /* restrict */
+         mcxTell(strin, "label <%s> not found (%s restrict)", (*keypp)->str, mode)
+   ;  }
+      else if (kv->key != *keypp)         /* seen */
+      {  mcxTingFree(keypp)
+      ;  *z = VOID_TO_UINT kv->val     /* fixme theoretical signedness issue */
+   ;  }
+      else                             /* INSERTed */
+      {  if (debug)
+         mcxTell
+         (  strin
+         ,  "label %s not found (%s extend %lu)"
+         ,  (*keypp)->str
+         ,  mode
+         ,  (*z_max_seen + 1)
+         )
+      ;  (*z_max_seen)++
+      ;  kv->val = UINT_TO_VOID *z_max_seen
+      ;  *z = *z_max_seen              /* fixme theoretical signedness issue */
+   ;  }
+      return status
+;  }
+
+
+
+/*
+ *    possibly implement ':value'
+*/
+
+static mcxstatus read_etc
+(  mcxIO* xf
+,  mcxHash* mapc
+,  mcxHash* mapr           /* note: can be same as mapc */
+,  unsigned long* x
+,  unsigned long* y        /* note: can be same as x  */
+,  long* x_max_seen
+,  long* y_max_seen
+,  double* value
+,  mcxbits bits
+)
+   {  static int etcbuf_check =  0
+   ;  static int etcbuf_ofs   =  0
+   ;  static long x_prev      =  ULONG_MAX
+   ;  static mcxTing* etcbuf  =  NULL
+   ;  mcxbool ignore = TRUE
+   ;  mcxstatus status = STATUS_OK
+   ;  mcxTing* ykey = NULL
+   ;  mcxTing* xkey = NULL
+   ;  const char* printable
+
+   ;  mcxbool label_cbits = bits & (MCLXIO_STREAM_CTAB_STRICT | MCLXIO_STREAM_CTAB_RESTRICT)
+   ;  mcxbool label_rbits = bits & (MCLXIO_STREAM_RTAB_STRICT | MCLXIO_STREAM_RTAB_RESTRICT)
+   ;  mcxbool label_dbits = bits & (MCLXIO_STREAM_WARN | MCLXIO_STREAM_DEBUG)
+
+   ;  *value = 1
+
+   ;  if (!etcbuf)
+      etcbuf = mcxTingEmpty(NULL, 100)
+
+   ;  while (1)
+      {  if (etcbuf->len != etcbuf_check)
+         {  mcxErr(strin, "read_etc sanity check failed %d %d", etcbuf->len, etcbuf_check)
+         ;  status = STATUS_FAIL
+         ;  break
+      ;  }
+                                             /* do we need to read a line ? */
+         if (etcbuf_ofs == etcbuf->len)      /* works first time around too */
+         {  etcbuf_ofs = 0
+         ;  if ((status = mcxIOreadLine(xf, etcbuf, MCX_READLINE_CHOMP)))
+            break
+         ;  etcbuf_check = etcbuf->len
+
+         ;  if
+            (  !(printable = mcxStrChrAint(etcbuf->str, isspace, -1))
+            || (unsigned char) *printable == '#'
+            )
+            break
+
+         ;  xkey = mcxTingEmpty(NULL, etcbuf->len)
+         ;  if (bits & MCLXIO_STREAM_ETC_AI)
+               *x = x_prev + 1         /* works first time around */
+            ,  *x_max_seen = x_prev + 1
+         ;  else
+            {  int n_read = 0
+            ;  if (1 != sscanf(etcbuf->str, "%s%n", xkey->str, &n_read))
+               break
+            ;  etcbuf_ofs += n_read
+            ;  if (!mcxStrChrAint(etcbuf->str+etcbuf_ofs, isspace, -1))
+               break
+            ;  xkey->len = strlen(xkey->str)
+            ;  xkey->str[xkey->len] = '\0'
+;if (0) fprintf(stderr, "found col %s\n", xkey->str)
+            ;  if
+               (  (  status
+                  =  handle_label
+                     (&xkey, mapc, x, x_max_seen, label_cbits | label_dbits, "col")
+               )  )
+               break
+         ;  }
+         }
+         else
+         *x = x_prev
+
+      ;  if
+         (  !(printable = mcxStrChrAint(etcbuf->str+etcbuf_ofs, isspace, -1))
+         || (unsigned char) *printable == '#'
+         )
+         break
+      ;  else
+         {  int n_read = 0
+         ;  ykey = mcxTingEmpty(NULL, etcbuf->len)
+         ;  if (1 != sscanf(etcbuf->str+etcbuf_ofs, "%s%n", ykey->str, &n_read))
+            break
+         ;  ykey->len = strlen(ykey->str)
+         ;  ykey->str[ykey->len] = '\0'
+         ;  etcbuf_ofs += n_read
+;if (0) fprintf(stderr, "found row %s\n", ykey->str)
+         ;  if
+            (  (  status
+               =  handle_label
+                  (&ykey, mapr, y, y_max_seen, label_rbits | label_dbits, "row")
+            )  )
+            break
+         ;  if (!mcxStrChrAint(etcbuf->str+etcbuf_ofs, isspace, -1))
+            break
+      ;  }
+
+         status = STATUS_OK
+      ;  ignore = FALSE
+      ;  x_prev = *x
+      ;  break
+   ;  }
+   
+      if (!status && ignore)
+      etcbuf_ofs = etcbuf->len
+
+   ;  if (status)
+      {  mcxTingFree(&xkey)      /* fixmefixmefixme xkey might be in use in hash */
+      ;  mcxTingFree(&ykey)
+   ;  }
+      return status
+;  }
+
+
+
 #define MCLXIO_STREAM_CTAB ((MCLXIO_STREAM_CTAB_EXTEND | MCLXIO_STREAM_CTAB_STRICT | MCLXIO_STREAM_CTAB_RESTRICT))
 #define MCLXIO_STREAM_RTAB ((MCLXIO_STREAM_RTAB_EXTEND | MCLXIO_STREAM_RTAB_STRICT | MCLXIO_STREAM_RTAB_RESTRICT))
 
 static mcxstatus read_abc
 (  mcxIO* xf
-,  mcxTing* buf
+,  mcxTing* buf         /* perhaps better make this static */
 ,  mcxHash* mapc
-,  mcxHash* mapr
+,  mcxHash* mapr           /* note: can be same as mapc */
 ,  unsigned long* x
-,  unsigned long* y
+,  unsigned long* y        /* note: can be same as x  */
 ,  long* x_max_seen
 ,  long* y_max_seen
 ,  double* value
@@ -127,17 +295,10 @@ static mcxstatus read_abc
    ;  int cv = 0
    ;  mcxbool strict = bits & MCLXIO_STREAM_STRICT
    ;  mcxbool warn   = bits & MCLXIO_STREAM_WARN
-   ;  mcxbool debug  = bits & MCLXIO_STREAM_DEBUG
 
-   ;  mcxbits col_inert = 
-      bits & (MCLXIO_STREAM_CTAB_STRICT | MCLXIO_STREAM_CTAB_RESTRICT)
-   ;  mcxbits row_inert = 
-      bits & (MCLXIO_STREAM_RTAB_STRICT | MCLXIO_STREAM_RTAB_RESTRICT)
-
-   ;  unsigned lookup_c
-      =  col_inert ?  MCX_DATUM_FIND :  MCX_DATUM_INSERT
-   ;  unsigned lookup_r
-      =  row_inert ?  MCX_DATUM_FIND :  MCX_DATUM_INSERT
+   ;  mcxbool label_cbits = bits & (MCLXIO_STREAM_CTAB_STRICT | MCLXIO_STREAM_CTAB_RESTRICT)
+   ;  mcxbool label_rbits = bits & (MCLXIO_STREAM_RTAB_STRICT | MCLXIO_STREAM_RTAB_RESTRICT)
+   ;  mcxbool label_dbits = bits & (MCLXIO_STREAM_WARN | MCLXIO_STREAM_DEBUG)
 
    ;  while (1)
       {  int xlen = 0
@@ -179,7 +340,7 @@ static mcxstatus read_abc
             status = mcxIOreadLine(xf, buf, MCX_READLINE_CHOMP)
          ;  continue
       ;  }
-         else if (!(*value < FLT_MAX))  /* should catch nan, inf */
+         else if (!(*value <= FLT_MAX))  /* should catch nan, inf */
          *value = 1.0
 
       ;  xlen = strlen(xkey->str)
@@ -188,78 +349,25 @@ static mcxstatus read_abc
       ;  xkey->len = xlen
       ;  ykey->len = ylen
 
-      ;  break
+      ;  if (handle_label(&xkey, mapc, x, x_max_seen, label_cbits | label_dbits, "col"))
+         {  status = STATUS_FAIL
+         ;  break
+      ;  }
+         if (handle_label(&ykey, mapr, y, y_max_seen, label_rbits | label_dbits, "row"))
+         {  status = STATUS_FAIL
+         ;  break
+      ;  }
+         break
    ;  }
-
-      if (!status)
-      while (1)
-      {  mcxKV* xkv = mcxHashSearch(xkey, mapc, lookup_c)
-      ;  mcxKV* ykv = mcxHashSearch(ykey, mapr, lookup_r)
-
-      ;  status = STATUS_FAIL
-
-      ;  if (!xkv)      /* FIND and not found */
-         {  if (col_inert & MCLXIO_STREAM_CTAB_STRICT)
-            {  mcxErr(me_str, "label <%s> not found (col strict)", xkey->str)
-            ;  break
-         ;  }
-            else if (warn)  /* restrict */
-            mcxTell(me_str, "label <%s> not found (col restrict)", xkey->str)
-      ;  }
-         else if (xkv->key != xkey)         /* seen */
-         {  mcxTingFree(&xkey)
-         ;  *x = (char*) xkv->val - (char*) NULL
-      ;  }
-         else                                /* INSERTed */
-         {  if (debug && bits & MCLXIO_STREAM_CTAB_EXTEND)
-            mcxTell
-            (  me_str
-            ,  "label %s not found (col extend %lu)"
-            ,  xkey->str
-            ,  (*x_max_seen + 1)
-            )
-         ;  (*x_max_seen)++
-         ;  xkv->val =  ((char*) (NULL)) + *x_max_seen
-         ;  *x = *x_max_seen
-      ;  }
-
-         if (!ykv)      /* FIND and not found */
-         {  if (row_inert & MCLXIO_STREAM_RTAB_STRICT)
-            {  mcxErr(me_str, "label <%s> not found (row strict)", ykey->str)
-            ;  break
-         ;  }
-            else if (warn)  /* restrict */
-            mcxTell(me_str, "label <%s> not found (row restrict)", ykey->str)
-      ;  }
-         else if (ykv->key != ykey)         /* seen */
-         {  mcxTingFree(&ykey)
-         ;  *y = (char*) ykv->val - (char*) NULL
-      ;  }
-         else                                /* INSERTed */
-         {  if (debug && bits & MCLXIO_STREAM_RTAB_EXTEND)
-            mcxTell
-            (  me_str
-            ,  "label %s not found (row extend %lu)"
-            ,  ykey->str
-            ,  (*y_max_seen + 1)
-            )
-         ;  (*y_max_seen)++
-         ;  ykv->val =  ((char*) (NULL)) + *y_max_seen
-         ;  *y = *y_max_seen
-      ;  }
-
-
-if(0)
-{  long xx = ((char*) xkv->val - (char*) NULL)
-;  long yy = ((char*) ykv->val - (char*) NULL)
-;  const char* xs = ((mcxTing*) xkv->key)->str
-;  const char* ys = ((mcxTing*) ykv->key)->str
-;  fprintf(stderr, "%ld [%s] %ld [%s] %f\n", xx, xs, yy, ys, (double) (*value))
-;  }
-         status = STATUS_OK
-      ;  break
-   ;  }
-
+               /* NOTE handle_label might have set either to NULL but
+                * that's OK.  This is needed because handle_label(&xkey)
+                * might succeed and free xkey (because already present in
+                * mapc); then when handle_label(&key) fails we need to
+                * clean up.
+                *
+                * FIXMEfixmefixme if handle label inserted xkey.
+                * it should not be freed.
+               */
       if (status)
       {  mcxTingFree(&xkey)
       ;  mcxTingFree(&ykey)
@@ -272,7 +380,7 @@ if(0)
 
 static mcxstatus read_123
 (  mcxIO* xf
-,  mcxTing* buf
+,  mcxTing* buf         /* perhaps better make this static */
 ,  unsigned long* x
 ,  unsigned long* y
 ,  double* value
@@ -281,7 +389,7 @@ static mcxstatus read_123
    {  mcxstatus status = mcxIOreadLine(xf, buf, MCX_READLINE_CHOMP)
    ;  int cv = 0
    ;  const char* printable
-   ;  const char* me = me_str
+   ;  const char* me = strin
    ;  mcxbool strict = bits & MCLXIO_STREAM_STRICT
    ;  mcxbool warn   = bits & MCLXIO_STREAM_WARN
 
@@ -368,9 +476,9 @@ mcxbits mclxio_stream_usebits
          ;  n++
       ;  }
          if (n > 1)
-         mcxErr(me_str, "conflicting tab directives found (taking most lax)")
+         mcxErr(strin, "conflicting tab directives found (taking most lax)")
       ;  else if (!n)
-            mcxErr(me_str, "no tab directives found (entering strict mode)")
+            mcxErr(strin, "no tab directives found (entering strict mode)")
          ,  newbits = MCLXIO_STREAM_CTAB_STRICT | MCLXIO_STREAM_RTAB_STRICT
    ;  }
       else
@@ -385,7 +493,7 @@ mcxbits mclxio_stream_usebits
 
 /* Needs documentation and splitting up.
  * it does a lot in different modes.
- * Its length is *very* depressing.
+ * Its length is *very* depressing - although largely caused by spacing.
 */
 
 
@@ -400,11 +508,13 @@ mclx* mclxIOstreamIn
 )
    {  long c_max_alloc  =  10
    ;  mcxstatus status  =  STATUS_FAIL
-   ;  const char* me    =  me_str
+   ;  const char* me    =  strin
    ;  mcxbool mirror    =  bits & MCLXIO_STREAM_MIRROR
    ;  mcxbool packed    =  bits & MCLXIO_STREAM_PACKED ? TRUE : FALSE
    ;  mcxbool one23     =  bits & MCLXIO_STREAM_123    ? TRUE : FALSE
    ;  mcxbool abc       =  bits & MCLXIO_STREAM_ABC    ? TRUE : FALSE
+   ;  mcxbool etc       =  bits & MCLXIO_STREAM_ETC    ? TRUE : FALSE
+   ;  mcxbool etcai     =  bits & MCLXIO_STREAM_ETC_AI ? TRUE : FALSE
    ;  mcxbool symmetric =  !(bits & MCLXIO_STREAM_TWODOMAINS) || mirror
    ;  mcxTing* buf      =  mcxTingEmpty(NULL, 100)
 
@@ -430,17 +540,17 @@ mclx* mclxIOstreamIn
          /* pars can now be alloced short of c_max_seen in abc mode */
 
    ;  while (1)
-      {  if (abc + one23 + packed > TRUE)   /* OUCH */
-         {  mcxErr(me_str, "multiple stream formats specified")
+      {  if (abc + one23 + packed + etc > TRUE)   /* OUCH */
+         {  mcxErr(strin, "multiple stream formats specified")
          ;  break
       ;  }
       
-         if ((!packed && !one23 && !abc) || (abc && !(tabcpp || tabrpp)))
-         {  mcxErr(me_str, "not enough to get going")
+         if ((!packed && !one23 && !abc && !etc) || (abc && !(tabcpp || tabrpp)))
+         {  mcxErr(strin, "not enough to get going")
          ;  break
       ;  }
 
-         if (abc)
+         if (abc || etc)
          {  if (tabcpp && *tabcpp != NULL)
             {  tabc = *tabcpp
             ;  if (!mcldIsCanonical(tabc->domain))
@@ -451,7 +561,7 @@ mclx* mclxIOstreamIn
 
             ;  if (!(bits & MCLXIO_STREAM_CTAB))
                   mcxErr
-                  (  me_str
+                  (  strin
                   ,  "PBD suggest explicit ctab mode (now extending)"
                   )
                ,  bits |= MCLXIO_STREAM_CTAB_EXTEND
@@ -472,13 +582,13 @@ mclx* mclxIOstreamIn
 
                ;  if (!(bits & MCLXIO_STREAM_RTAB))
                      mcxErr
-                     (  me_str
+                     (  strin
                      ,  "PBD suggest explicit rtab mode (now extending)"
                      )
                   ,  bits |= MCLXIO_STREAM_RTAB_EXTEND
                ;  r_max_seen = tabr->domain->n_ivps - 1
             ;  }
-               else if (abc)
+               else
                mapr = mcxHashNew(1024, mcxTingDPhash, mcxTingCmp)
          ;  }
             else
@@ -519,6 +629,12 @@ mclx* mclxIOstreamIn
             ?     read_packed(xf->fp, &s, &x, &y, &value)
             :  one23
             ?     read_123(xf, buf, &x, &y, &value, bits)
+            :  etc
+            ?     read_etc
+                  (  xf
+                  ,  mapc,mapr, &x, &y, c_max_seenp, r_max_seenp
+                  ,  &value, bits
+                  )
             :  abc
             ?     read_abc
                   (  xf, buf
@@ -558,7 +674,7 @@ mclx* mclxIOstreamIn
                   ,  RETURN_ON_FAIL
                   )
             ) )
-            {  mcxErr(me_str, "realloc failed")
+            {  mcxErr(strin, "realloc failed")
             ;  break
          ;  }
          }
@@ -648,12 +764,19 @@ mclx* mclxIOstreamIn
       ;  if (ON_FAIL == EXIT_ON_FAIL)
          mcxDie(1, me, "fini")
    ;  }
-      else if (abc)
-      {  if (!tabc || tabc->domain->n_ivps <= c_max_seen)
-         {  tabc = mclTabFromMap(mapc)
-         ;  *tabcpp = tabc
-         ;  mcxHashFree(&mapc, mcxTingAbandon, NULL)
-      ;  }
+
+   /* fixmefixmefixme mem leak with hashes */
+
+                        /* with etcai there is simply no column tab*/
+                        /* perhaps create a dummy one (integers* */
+      else if (abc || etc)
+      {  if (!etcai)
+         {  if (!tabc || tabc->domain->n_ivps <= c_max_seen)
+            {  tabc = mclTabFromMap(mapc)
+            ;  *tabcpp = tabc
+            ;  mcxHashFree(&mapc, mcxTingAbandon, NULL)
+         ;  }
+         }
          else
          mcxHashFree(&mapc, mcxTingFree_v, NULL)
 

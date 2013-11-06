@@ -57,7 +57,7 @@ by white space.  The most basic example of usage is this:}
 
 \par{
    Here \genopt{-strict-tab} tells mcl that the input should not contain
-   labels other than found in the file \genopt{saved-mapping}. It is possible to
+   labels other than found in the file \genopt{fname-map}. It is possible to
    relax this by using \genoptref{-restrict-tab}{fname-map} or
    \genoptref{-extend-tab}{fname-map}.
 }
@@ -96,7 +96,7 @@ mcxdeblast --m9 --abc-out=- hsfsp.blast | mcl - --abc -o -}
 
 \verbatim{\:/
 mcxdeblast --abc-out=- hsfsp.blast | \\
-   mcxload -abc - --mirror -o hsfsp.mcx -cache-tab hsfsp.tab --binary
+   mcxload -abc - --stream-mirror -o hsfsp.mcx -cache-tab hsfsp.tab --binary
 mcl hsfsp.mcx -use-tab hsfsp.tab -o  hsfsp.my-nice-clustering}
 
 \car{
@@ -183,9 +183,9 @@ label format and the addition of the \genoptref{--abc} option.}
 }
 \cpar{Transform options}{
    \synoptopt{-tf}{<tf-spec>}{transform input matrix values}
-   \synoptopt{-stream-tf}{<tf-spec>}{transform input stream values}
-   \synoptopt{--stream-log}{take logarithm of stream values}
-   \synoptopt{--stream-neg-log}{take negative logarithm of stream values}
+   \synoptopt{-abc-tf}{<tf-spec>}{transform input stream values}
+   \synoptopt{--abc-log}{take logarithm of stream values}
+   \synoptopt{--abc-neg-log}{take negative logarithm of stream values}
 }
 \cpar{Cache options}{
    \synoptopt{-cache-graph}{fname}{write graph}
@@ -272,9 +272,7 @@ label format and the addition of the \genoptref{--abc} option.}
    \synoptopt{-my-scheme}{n}{tag custom scheme}
    \synoptopt{-warn-pct}{n}{prune warn percentage}
    \synoptopt{-warn-factor}{n}{prune warn factor}
-   \synoptopt{--dense}{allow matrices to fill}
    \synoptopt{--adapt}{pruning}
-   \synoptopt{--rigid}{pruning}
    \synoptopt{-ae}{f}{adaptive pruning exponent}
    \synoptopt{-af}{f}{adaptive pruning factor}
    \synoptopt{-nx}{x}{x window index}
@@ -282,7 +280,6 @@ label format and the addition of the \genoptref{--abc} option.}
    \synoptopt{-nj}{j}{jury window index}
    \synoptopt{-nw}{w}{nr of windows}
    \synoptopt{-nl}{w}{nr of iterations}
-   \synoptopt{--thick}{expect dense input graph}
 }
 \par{
    The first argument of \mcl must be a file name, but some options are allowed
@@ -405,7 +402,7 @@ label format and the addition of the \genoptref{--abc} option.}
    \useopt{-scheme}{6}.
 
    There is an additional group of control parameters
-   \optref{--adapt}{\genopt{--adapt}, \genopt{--rigid}, \genopt{-ae},
+   \optref{--adapt}{\genopt{--adapt}, \genopt{-ae},
    \genopt{-af}}, which may be helpful in speeding up \mcl.
    When doing multiple mcl runs for the same graphs with different
    \genopt{-I} settings (for obtaining clusterings at different levels
@@ -596,16 +593,16 @@ label format and the addition of the \genoptref{--abc} option.}
 
 \items{
    {\defopt{-tf}{<tf-spec>}{transform input matrix values}}
-   {\defopt{-stream-tf}{<tf-spec>}{transform input stream values}}
-   {\defopt{--stream-log}{take logarithm of stream values}}
-   {\defopt{--stream-neg-log}{take negative logarithm of stream values}}
+   {\defopt{-abc-tf}{<tf-spec>}{transform input stream values}}
+   {\defopt{--abc-log}{take logarithm of stream values}}
+   {\defopt{--abc-neg-log}{take negative logarithm of stream values}}
 }
 \car{
    \genopt{-tf} transforms the values of the input matrix according
-   to \genopt{<tf-spec>}. \genopt{-stream-tf} transforms the stream values
+   to \genopt{<tf-spec>}. \genopt{-abc-tf} transforms the stream values
    (when \genoptref{--abc} or \genoptref{--expect-abc} is used)
    according to \genopt{<tf-spec>}. 
-   \genopt{--neg-stream-log} and \genopt{--stream-log}
+   \genopt{--abc-neg-log} and \genopt{--abc-log}
    respectively imply that the stream input values are
    first replaced by their (negative) logarithm.
    The reason for their existence is documented in \mysib{mcxio}.
@@ -775,7 +772,7 @@ mcxdump -imx - --no-values --dump-rlines\\
 \item{\useopt{-v}{pruning}}
    This mode causes output of resource-related quantities. It has
    \optref{-v-pruning}{a separate\
-   entry in the \refcaption{pruneoptions} section}.
+   entry in the \ref{pruneoptions}{cap} section}.
 
 \item{\useopt{-v}{clusters}}
    This mode prints a terse list of characteristics of the
@@ -1326,8 +1323,6 @@ mcxdump -imx - --no-values --dump-rlines\\
    for graphs with more than several thousands of entries, or you will
    have trouble digging your processor out of swap.
 }
-\item{\defopt{--rigid}{pruning}}
-   See the \genopt{--adapt} option below.
 
 \item{\defopt{-ae}{f}{adaptive pruning exponent}}
    See the \genopt{--adapt} option below.
@@ -1337,9 +1332,8 @@ mcxdump -imx - --no-values --dump-rlines\\
 
 \item{\defopt{--adapt}{pruning}}
    The default \mcl pruning behaviour as described under
-   the \optref{-P}{\genopt{-P} option} is called \it{rigid pruning}
-   (it being the default renders the switch \genopt{--rigid}
-   currently useless), refering to the fact that the first stage
+   the \optref{-P}{\genopt{-P} option} is called \it{rigid pruning},
+   refering to the fact that the first stage
    of pruning removes entries smaller than a fixed threshold.
    The options discussed here enable the computation of a threshold that
    depends on the homogeneity characteristics of a vector. This behaviour is
@@ -1378,10 +1372,6 @@ mcxdump -imx - --no-values --dump-rlines\\
    options will vary. If you want to speed up \mcl, try it out
    and add \useopt{--adapt} to your settings.
 }
-\item{\defopt{--thick}{expect dense input graph}}
-   This option is somewhat esoteric. It does not affect the matrices as
-   computed by \mcl, but it affects the way in which they are computed. If
-   the input graph is very dense, this may speed up mcl a little.
 
 \item{\defopt{-v-pruning}\useopt{-v}{pruning}}
    Pruning verbosity mode causes \mcl to emit several statistics related to
@@ -1679,7 +1669,7 @@ with value 0.8.}
 \sec{environment}{ENVIRONMENT}
 
 \begin{itemize}{{compact}{0}{contiguous}{0}{align}{left}}
-\item{MCLXINTERCHANGEDIGITS}
+\item{MCLXIODIGITS}
 \car{
    When writing matrices in interchange format, mcl will use the environment
    variable MCLXINTERCHANGEDIGITS (if present) as the precision (number of
@@ -1699,10 +1689,11 @@ with value 0.8.}
 \end{itemize}
 
 \item{MCLXIOFORMAT}
+\car{
    MCL and its sibling applications will by default output matrices
    in interchange format rather than binary format (cf. \mysib{mcxio}). 
    The desired format can be controlled via the variable 
-   MCLXIOFORMAT. These are the levels it can currently be set to.
+   MCLXIOFORMAT. These are the levels it can currently be set to.}
 
 \begin{itemize}{{compact}{1}{w2}{2}{contiguous}{1}{align}{right}}
 \item{1} Interchange format but applications may alter this.
@@ -1711,21 +1702,23 @@ with value 0.8.}
 \item{8} Binary format and applications can not alter this.
 \end{itemize}
 
-\item{MCLXINTERCHANGEFLAGS}
+\item{MCLXICFLAGS}
+\car{
    If matrices are output in interchange format, by default empty vectors
    will not be listed. Equivalently (during input time),
    vectors for which no listing is present are understood to be empty -
    note that the \it{presence} of a vector is established using
    the domain information found in the header part.
    It is possible to enforce listing of empty vectors by
-   setting bit '1' in the variable MCLXINTERCHANGEFLAGS.
+   setting bit '1' in the variable MCLXICFLAGS.}
 
 \item{MCLXIOUNCHECKED}
+\car{
    MCL and its sibling applications will always check a matrix for consistency
    while it is being read.  If this variable is set, the consistency check is
    omitted.  For large graphs the speed up can be considerable. However, if the
    input graph is not conforming it will likely crash the application that
-   is using it.
+   is using it.}
 
 \end{itemize}
 

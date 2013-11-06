@@ -37,13 +37,48 @@ int main
 (  int                  argc
 ,  const char*          argv[]
 )  
-   {  mcxIO* xf = mcxIOnew(argv[2], "r")
-   ;  mcxIO* xfout = mcxIOnew(argc > 3 ? argv[3] : "-", "w")
-   ;  mclTab* tab = NULL
+   {  mclv* base =mclvCanonical(NULL, 20000, 1.0) 
+   ;  mclv* small = mclvCanonical(NULL, 200, 1.0/(200))
 
-   ;  int a0 = atoi(argv[1])
+   ;  int mode = argc > 1 ? atoi(argv[1]) : 0
+   ;  int small_delta = 1
+   ;  int j
 
-   ;  mcxIOclose(xfout)
+   ;  if (argc == 1)
+      {  fprintf(stdout,
+"  0  default\n"
+"  1  use mclvUpdateMeet, not mclvAdd\n"
+"  2  sparsify small over Z6\n"
+"  4  sparsify base to even numbers\n"
+"  8  set small to size 3000\n"
+)     ;  return 0
+   ;  }
+
+      if (mode & 8)
+      small = mclvCanonical(small, 3000, 1.0/3000)
+
+   ;  if (mode & 2)
+      {  small_delta = 4
+      ;  for (j=0;j<small->n_ivps;j++)
+         small->ivps[j].idx *= 4
+   ;  }
+
+      if (mode & 4)
+      for (j=0;j<base->n_ivps;j++)
+      base->ivps[j].idx *= 2
+
+   ;  while (MCLV_MAXID(small) < MCLV_MAXID(base))
+      {  if (mode & 1)
+         mclvUpdateMeet(base, small, fltAdd)
+      ;  else
+         mclvAdd(base, small, base)
+
+      ;  for (j=0;j<small->n_ivps;j++)
+         small->ivps[j].idx += small_delta
+   ;  }
+      for (j=small->n_ivps-10;j<small->n_ivps+9;j++)
+      fprintf(stdout, "%d %.9f\n", base->ivps[j].idx, (double) base->ivps[j].val)
+
    ;  return 0
 ;  }
 

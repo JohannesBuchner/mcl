@@ -1,4 +1,4 @@
-/*   Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/* (c) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
  * under the terms of the GNU General Public License; either version 2 of the
@@ -30,6 +30,24 @@ static void mcxIOreset
 )  ;
 
 
+int begets_stdio
+(  const char* name
+,  const char* mode
+)
+   {  if
+      (  (  strstr(mode, "r")
+         && !strcmp(name, "-")
+         )
+      || (  (strstr(mode, "w") || strstr(mode, "a"))
+         && !strcmp(name, "-")
+         )
+      || (!strcmp(name, "stderr"))
+      )
+      return 1
+   ;  return 0
+;  }
+
+
 static int mcxIOwarnOpenfp
 (  mcxIO*    xf
 ,  const char* who
@@ -45,9 +63,17 @@ static int mcxIOwarnOpenfp
 void mcxIOclose
 (  mcxIO*    xf
 )
-   {  if (xf->fp && !xf->stdio)
+   {  fflush(xf->fp)
+   ;  if (xf->fp && !xf->stdio)
       {  fclose(xf->fp)
       ;  xf->fp = NULL
+   ;  }
+      else if (xf->stdio)
+      {  int fe = ferror(xf->fp)
+      ;  if (fe)
+         mcxErr("mcxIOclose", "error [%d] for [%s] stdio", fe, xf->mode)
+      ;  if (xf->ateof || feof(xf->fp))
+         clearerr(xf->fp)
    ;  }
       mcxIOreset(xf)
 ;  }
@@ -68,7 +94,8 @@ static void mcxIOreset
    ;  xf->lo_     =  0
    ;  xf->bc      =  0
    ;  xf->ateof   =  0
-   ;  xf->stdio   =  0
+                     /*  xf->fp not touched; promote user care */
+                     /*  xf->stdio not touched */
    ;  if (xf->usr && xf->usr_reset)
       xf->usr_reset(xf->usr)
 ;  }
@@ -113,14 +140,14 @@ mcxIO* mcxIOrenew
 ,  const char*       name
 ,  const char*       mode
 )
-   {  if
+   {  mcxbool twas_stdio = xf && xf->stdio
+   ;  if
       (  mode
       && !strstr(mode, "w") && !strstr(mode, "r") && !strstr(mode, "a")
       )
       {  mcxErr ("mcxIOrenew PBD", "unsupported open mode <%s>", mode)
       ;  return NULL
    ;  }
-
       if (!xf)
       {  if (!name || !mode)
          {  mcxErr ("mcxIOrenew PBD", "too few arguments")
@@ -155,7 +182,12 @@ mcxIO* mcxIOrenew
       ;  xf->mode = mcxStrDup(mode)
    ;  }
 
-      return xf
+      xf->stdio = begets_stdio(xf->fn->str, xf->mode)
+
+   ;  if (twas_stdio && !xf->stdio)
+      xf->fp = NULL
+
+   ;  return xf
 ;  }
 
 
@@ -186,21 +218,18 @@ mcxstatus  mcxIOopen
       (  strstr(xf->mode, "r")
       && !strcmp(fname, "-")
       )
-      {  xf->fp      =  stdin
-      ;  xf->stdio   =  1
-   ;  }
-      else if
+      xf->fp      =  stdin
+
+   ;  else if
       (  (strstr(xf->mode, "w") || strstr(xf->mode, "a"))
       && !strcmp(fname, "-")
       )
-      {  xf->fp      =  stdout
-      ;  xf->stdio   =  1
-   ;  }
-      else if (!strcmp(fname, "stderr"))
-      {  xf->fp      =  stderr
-      ;  xf->stdio   =  1
-   ;  }
-      else if ((xf->fp = fopen(fname, xf->mode)) == NULL)
+      xf->fp      =  stdout
+
+   ;  else if (!strcmp(fname, "stderr"))
+      xf->fp      =  stderr
+
+   ;  else if ((xf->fp = fopen(fname, xf->mode)) == NULL)
       {  if (ON_FAIL == RETURN_ON_FAIL)
          return STATUS_FAIL
       ;  mcxIOerr(xf, "mcxIOopen", "can not be opened")
@@ -215,7 +244,8 @@ mcxstatus  mcxIOtestOpen
 ,  mcxOnFail      ON_FAIL
 )
    {  if (!xf->fp && mcxIOopen(xf, ON_FAIL) != STATUS_OK)
-      {  mcxErr("mcxIO", "open test <%s> failed", xf->fn->str)
+      {  mcxErr
+         ("mcxIO", "cannot open %s file <%s> for", xf->mode, xf->fn->str)
       ;  return STATUS_FAIL
    ;  }
       return  STATUS_OK

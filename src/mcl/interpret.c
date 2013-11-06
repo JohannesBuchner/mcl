@@ -105,6 +105,9 @@ mclMatrix* mclDag
 /* we have equivalence classes of attractors, indexed by classid.
    classes are mapped back to neighbour lists, namely
    the merge of all the neighbours in a given class.
+
+fixme: attractor-in-chain is not write:
+spurious attr 505 in chain starting at 505 messages.
 */
 
 int calc_depth
@@ -182,7 +185,7 @@ int calc_depth
       ;  }
          if (depth > maxdepth)
          maxdepth = depth
-      ;  if (attr_in_chain)
+      ;  if (0 && attr_in_chain)
          fprintf(stderr, "attr %ld in chain starting at %ld\n", attr_example, cid)
    ;  }
 
@@ -259,10 +262,7 @@ int mclDagTest
    ;  }
 
                                                 /* coldom on attrs only */
-      {  mclx* weed = mclxWeed(m_attr, MCLX_WEED_COLS)
-      ;  mclxFree(&m_attr)                      /* rowdom idem */
-      ;  mclxChangeRDomain(weed, mclvClone(weed->dom_cols))
-      ;  m_attr = weed
+      {  mclxWeed(m_attr, MCLX_WEED_COLS)
       ;  mclxAddTranspose(m_attr, 1.0)          /* symmetrify */
       ;  mclxMakeCharacteristic(m_attr)
    ;  }

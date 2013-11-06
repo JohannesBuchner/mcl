@@ -251,18 +251,20 @@ mcxOptAnchor options[] =
 #define FIN_MAP_UNI_ROWS 8
 #define FIN_MAP_WEED_COLS 16
 #define FIN_MAP_WEED_ROWS 32
-#define FIN_WB             64
+#define FIN_MAP_WEED_GRAPH 64
+#define FIN_WB           128
 
 typedef struct
 {  mcxTing*    fname
 ;  mcxTing*    txt              /*  text representation of spec   */
-;  mclVector*  cvec             /*  contains col indices    */
-;  mclVector*  rvec             /*  contains row indices    */
+;  mclv*       cvec             /*  contains col indices    */
+;  mclv*       rvec             /*  contains row indices    */
 ;  long        sz_min
 ;  long        sz_max
 ;  long        ext_disc         /* TODO remove ext_disc */
 ;  long        ext_cdisc
 ;  long        ext_rdisc
+;  mclv*       path_set
 ;  long        ext_ring
 ;  int         n_col_specs
 ;  int         n_row_specs
@@ -379,6 +381,8 @@ void spec_init
    ;  spec->ext_cdisc      =  0
    ;  spec->ext_rdisc      =  0
    ;  spec->ext_ring       =  0
+
+   ;  spec->path_set       =  NULL
 
    ;  spec->sel_val        =  NULL
    ;  spec->sel_sz_opts    =  0
@@ -583,16 +587,21 @@ int main
       n_spec =  mcxBufFinalize(&spec_buf)
 
    ;  if (!xfmx)
-      {  mcxTell(me, "-imx flag is obligatory, see help (-h)")
-      ;  mcxExit(1)
+      {  mcxTell(me, "no matrix given, proceeding with nil matrix")
+      ;  universe_rows = mclvNew(NULL, 0)
+      ;  universe_cols = mclvNew(NULL, 0)
+      ;  mx
+         =  mclxAllocZero
+            (  mclvClone(universe_cols)
+            ,  mclvClone(universe_rows)
+            )
+      ;  reread = FALSE
    ;  }
-
-      if (reread && !do_block)
+      else if (reread && !do_block)
       {  universe_rows = mclvNew(NULL, 0)
       ;  universe_cols = mclvNew(NULL, 0)
       ;  if (mclxReadDomains(xfmx, universe_cols, universe_rows))
          mcxDie(1, me, "failed when reading domains")
-      ;  mcxIOclose(xfmx)
    ;  }
       else if (skin_read)
       {  universe_rows = mclvNew(NULL, 0)
@@ -604,7 +613,6 @@ int main
             (  mclvClone(universe_cols)
             ,  mclvClone(universe_rows)
             )
-      ;  mcxIOclose(xfmx)
    ;  }
       else
       {  mx    =  mclxRead(xfmx, EXIT_ON_FAIL)
@@ -612,7 +620,10 @@ int main
       ;  universe_cols =  mclvClone(mx->dom_cols)
    ;  }
 
-      if (xftab)
+      if (xfmx)
+      mcxIOclose(xfmx)
+
+   ;  if (xftab)
       {  tab = mclTabRead(xftab, NULL, EXIT_ON_FAIL)
       ;  mcxIOfree(&xftab)
    ;  }
@@ -642,7 +653,6 @@ int main
       if (xfcl)
       dom = mclxRead(xfcl, EXIT_ON_FAIL)
 
-   ;  mcxIOclose(xfmx)
    ;  mcxIOfree(&xfcl)
 
    ;  if (do_block && mx && dom != mx)
@@ -749,7 +759,7 @@ mcxstatus parse_fin
          spec->fin_map_opts |= FIN_MAP_UNI_COLS
 
       ;  else if (!strcmp(key, "weed"))
-         spec->fin_map_opts |= (FIN_MAP_WEED_COLS | FIN_MAP_WEED_ROWS)
+         spec->fin_map_opts |= FIN_MAP_WEED_GRAPH
       ;  else if (!strcmp(key, "weedc"))
          spec->fin_map_opts |= FIN_MAP_WEED_COLS
       ;  else if (!strcmp(key, "weedr"))
@@ -1033,6 +1043,37 @@ mcxstatus parse_dom
 ;  }
 
 
+mcxstatus parse_path
+(  mcxLink*    src
+,  int         n_args
+,  subspec_mt* spec
+,  context_mt* ctxt
+)
+   {  mcxLink* lk = src
+   ;  mclv* set = mclvInit(NULL)
+
+   ;  if (!ctxt->mx)
+      {  mcxErr(me, "cannot compute paths - no matrix! (did you use --from-disk?)")
+      ;  return STATUS_FAIL
+   ;  }
+   
+      while ((lk = lk->next))
+      {  mcxTokFunc tf
+      ;  mcxTing* ti = lk->val
+      ;  int i = atoi(ti->str)
+      ;  mclvInsertIdx(set, i, 1.0)
+   ;  }
+
+      if (set->n_ivps)
+      spec->path_set = set
+   ;  else
+      mclvFree(&set)
+
+   ;  return lk ? STATUS_FAIL : STATUS_OK
+;  }
+
+
+
 mcxstatus parse_ext
 (  mcxLink*    src
 ,  int         n_args
@@ -1040,8 +1081,13 @@ mcxstatus parse_ext
 ,  context_mt* ctxt
 )
    {  mcxLink* lk = src
+
+   ;  if (!ctxt->mx)
+      {  mcxErr(me, "cannot extend - no matrix! (did you use --from-disk?)")
+      ;  return STATUS_FAIL
+   ;  }
    
-   ;  while ((lk = lk->next))
+      while ((lk = lk->next))
       {  mcxTokFunc tf
       ;  mcxTing* extspec = lk->val
       ;  char* z
@@ -1170,6 +1216,11 @@ mcxstatus dispatch
                break
          ;  }
 
+            else if (!strcmp(tf.key->str, "path"))
+            {  if (parse_path(tf.args, n_args, spec, ctxt))
+               break
+         ;  }
+
             else if (!strcmp(tf.key->str, "ext"))
             {  if (parse_ext(tf.args, n_args, spec, ctxt))
                break
@@ -1211,12 +1262,30 @@ mcxstatus dispatch
 ;  }
 
 
+mcxstatus extend_path
+(  mclv*       dom
+,  const mclv* path_set
+,  context_mt* ctxt
+)
+   /* NOTE dom is alias for spec->cvec or spec->rvec */
+
+   {  mclv* punters = mclxSSPd(ctxt->mx, path_set)
+   ;  if (punters)
+      {  mclvCopy(dom, punters)
+      ;  mclvFree(&punters)
+      ;  return STATUS_OK
+   ;  }
+      return STATUS_FAIL
+;  }
+
+
+
 mcxstatus extend_disc
 (  mclv*       dom
 ,  int         ext_disc
 ,  context_mt* ctxt
 )
-   /* NOTE dom is alias for spec->cvec ёor spec->rvec */
+   /* NOTE dom is alias for spec->cvec or spec->rvec */
 
    {  mclx* mx = ctxt->mx
    ;  mclv* wave = mclxUnionv(mx, dom, NULL)
@@ -1281,26 +1350,32 @@ void spec_exec
          :  ctxt->universe_cols
       )
 
-   ;  if (spec->ext_disc)
-      {  long n = spec->cvec->n_ivps, nn
-      ;  extend_disc(spec->cvec, spec->ext_disc, ctxt)
-      ;  mclvCopy(spec->rvec, spec->cvec)
-      ;  nn = spec->cvec->n_ivps
-      ;  mcxTell(me, "disc-extend from %ld to %ld entries", n, nn)
-   ;  }
-      else
-      {  if (spec->ext_cdisc)
+   ;  if (ctxt->mx)              /* fixme, extend_xxx might fail */
+      {  if (spec->path_set)
+         extend_path(spec->cvec, spec->path_set, ctxt)
+      ,  mclvCopy(spec->rvec, spec->cvec)
+      
+      ;  if (spec->ext_disc)
          {  long n = spec->cvec->n_ivps, nn
-         ;  extend_disc(spec->cvec, spec->ext_cdisc, ctxt)
+         ;  extend_disc(spec->cvec, spec->ext_disc, ctxt)
+         ;  mclvCopy(spec->rvec, spec->cvec)
          ;  nn = spec->cvec->n_ivps
-         ;  mcxTell(me, "cdisc-extend from %ld to %ld entries", n, nn)
+         ;  mcxTell(me, "disc-extend from %ld to %ld entries", n, nn)
       ;  }
-         if (spec->ext_rdisc)
-         {  long n = spec->rvec->n_ivps, nn
-         ;  extend_disc(spec->rvec, spec->ext_rdisc, ctxt)
-         ;  nn = spec->rvec->n_ivps
-         ;  mcxTell(me, "rdisc-extend from %ld to %ld entries", n, nn)
-      ;  }
+         else
+         {  if (spec->ext_cdisc)
+            {  long n = spec->cvec->n_ivps, nn
+            ;  extend_disc(spec->cvec, spec->ext_cdisc, ctxt)
+            ;  nn = spec->cvec->n_ivps
+            ;  mcxTell(me, "cdisc-extend from %ld to %ld entries", n, nn)
+         ;  }
+            if (spec->ext_rdisc)
+            {  long n = spec->rvec->n_ivps, nn
+            ;  extend_disc(spec->rvec, spec->ext_rdisc, ctxt)
+            ;  nn = spec->rvec->n_ivps
+            ;  mcxTell(me, "rdisc-extend from %ld to %ld entries", n, nn)
+         ;  }
+         }
       }
 
       if (mcxIOopen(xf, RETURN_ON_FAIL) == STATUS_FAIL)
@@ -1396,12 +1471,19 @@ fprintf(stderr, "%ld %ld %ld\n", (long) spec->sel_sz_opts, spec->sz_min, spec->s
       if (spec->fin_misc_opts & FIN_MISC_CHR)
       mclxMakeCharacteristic(sub)
 
-   ;  if (spec->fin_map_opts & (FIN_MAP_WEED_COLS | FIN_MAP_WEED_ROWS))
-      {  mcxbits bc
-         =  spec->fin_map_opts & FIN_MAP_WEED_COLS ? MCLX_WEED_COLS : 0
-      ;  mcxbits br
-         =  spec->fin_map_opts & FIN_MAP_WEED_ROWS ? MCLX_WEED_ROWS : 0
-      ;  mclxWeed(sub, bc | br)
+   ;  if
+      (  spec->fin_map_opts
+      &  (FIN_MAP_WEED_COLS | FIN_MAP_WEED_ROWS | FIN_MAP_WEED_GRAPH)
+      )
+      {  mcxbits b = 0
+      ;  if (spec->fin_map_opts & FIN_MAP_WEED_COLS)
+         b |= MCLX_WEED_COLS
+      ;  if (spec->fin_map_opts & FIN_MAP_WEED_ROWS)
+         b |= MCLX_WEED_ROWS
+      ;  if (spec->fin_map_opts & FIN_MAP_WEED_GRAPH)
+         b |= MCLX_WEED_GRAPH
+;fprintf(stderr, "bits <%d>\n", b)
+      ;  mclxWeed(sub, b)
    ;  }
 
       if (spec->fin_map_opts & FIN_MAP_CAN_COLS)

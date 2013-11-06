@@ -252,16 +252,6 @@ int doIteration
    ;  if (XPNVB(mxp, XPNVB_VPROGRESS) && !XPNVB(mxp, XPNVB_PRUNING))
       fprintf(fv, "%3d  ", (int) n_ite+1)
 
-   ;  if
-      (  (mxp->modeExpand == MCL_EXPAND_DENSE)
-      && (n_ite > 0)
-      && mclxNrofEntries(*mxin) < pow(N_COLS(*mxin), 1.5)
-      )
-      mxp->modeExpand = MCL_EXPAND_SPARSE
-   /* apparently I don't use DENSE mode anymore
-    * and probably the modeExpand button neither.
-   */
-
    ;  *mxout =  mclExpand(*mxin, mxp)
 
    ;  if (n_ite >= 0 && n_ite < 5)

@@ -1,4 +1,4 @@
-/*   Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/* (c) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
  * under the terms of the GNU General Public License; either version 2 of the
@@ -7,14 +7,22 @@
 */
 
 /* STATUS:
- * usable:  yes
- * ad hoc:  somewhat
- * quirks:  probably a few
- * support: limited
+ *    usable:  yes
+ *    tested:  yes, stress-tested in zoem and mcl
+ *    ad hoc:  somewhat
+ *    quirks:  probably a few
+ *    support: limited
+ *
+ * AIMS
+ *    -  Provide convenient and efficient wrappers for reading lines, files, searching.
+ *    -  Within these wrappers, account bytes and lines read.
+ *    It is explicitly not an aim to be an all-encompassing interface, wrapping
+ *    everything provided by stdio.h.  The type is not opaque and you are
+ *    encouraged to inspect its fp member.
  *
  * TODO:
  * ?  support for pipes
- * -  design reset/close framework, esp related to usr member.
+ * -  design {reset,close} framework, esp related to usr member.
 */
 
 #ifndef util_file_h
@@ -177,6 +185,9 @@ void mcxIOerr
 )  ;
 
 
+/* Currently, for stdin/stdout/stderr clearerr is issued if necessary.
+ * This makes e.g. repeated reads from STDIN possible.
+*/
 void mcxIOclose
 (  mcxIO       *xf
 )  ;

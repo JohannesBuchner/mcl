@@ -1,4 +1,4 @@
-/*   Copyright (C) 2005 Stijn van Dongen
+/* (c) Copyright 2005 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea under
  * the terms of the GNU General Public License; either version 2 of the License
@@ -18,7 +18,7 @@
 
 /*
  * README
- *    This interface is not at all POSIX compliant. It might evolve to
+ *    This interface is not POSIX compliant. It might evolve to
  *    optionally be indeed.
  *    However, given some of the braindeadliness of POSIX tr compliance,
  *    I don't think the worlds needs another tr implementation.

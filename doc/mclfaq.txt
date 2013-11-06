@@ -85,7 +85,6 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
    6.3... The  effect of similarity distribution homogeneity on cluster granu-
           larity.
    6.4... The effect of initial centering on cluster granularity.
-   6.5... How to implement two-level approaches using mcl.
 
   7...... Implementing the MCL algorithm
    7.1... How easy is it to implement the MCL algorithm?
@@ -229,7 +228,7 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
           the year 2002. This date stamp agrees (as of April  2000)  with  the
           (differently  presented) date stamp used in all manual pages shipped
           with that release.  For example, the date stamp of the FAQ  you  are
-          reading is 16 Nov 2005, which corresponds with the MCL stamp 05-320.
+          reading is 21 Jan 2006, which corresponds with the MCL stamp 06-021.
           The Changelog file contains a list of what's changed/added with each
           release. Currently, the date stamp is the primary way of identifying
           an mcl release. When asked for its version by using  --version,  mcl
@@ -819,31 +818,12 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
           similarities. MCL is not affected by absolute magnitudes, it is only
           affected by magnitudes taken relative to each other.
 
-          UPDATE
-          As of version 03-154, mcl supports the pre-inflation  -pi f  option,
-          where f is the inflation parameter described below.  Use this option
-          rather than the convoluted procedure described below.   Read  on  to
-          find out what it does.
-
-          Here  is  how  to  make a graph more homogeneous with respect to the
-          weight function. Given  orig.mci,  clustering  revised.mci  as  con-
-          structed below should generally lead to coarser clusterings.
-
-          mcx /orig.mci lm 0.5 hdp /revised.mci wm
-
-          This  simply  applies  inflation with parameter 0.5 to orig.mci.  In
-          the mcx language, hdp stands for Hadamard power  (entrywise  power),
-          which  is equivalent to inflation except that the normalization step
-          is omitted.  This step is not needed since it is part of  mcl  (ini-
-          tialization) itself.  The parameter 0.5 can be changed to other val-
-          ues in the range [0..1.0].  The closer it is to zero, the more clus-
-          terings will tend to be coarse.
-
-          If  the  parameter  is  chosen  larger  than  1.0,  say in the range
-          [1.2..5.0] then clusterings will tend to be more finer-grained.  For
-          example,
-
-          mcx /orig.mci lm 3.0 hdp /revised.mci wm
+          As of version 03-154, mcl supports the pre-inflation  -pi f  option.
+          Make a graph more homogeneous with respect to the weight function by
+          using -pi with argument f somewhere in the interval [0,1] - 0.5  can
+          be  considered  a reasonable first try.  Make it less homogeneous by
+          setting f somewhere in the interval [1,10].  In this  case  5  is  a
+          reasonable starting point.
 
    6.4    The effect of initial centering on cluster granularity.
 
@@ -862,55 +842,7 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
           increasing  or  further  increase  -c.  It will really depend on the
           characteristics of the graph you are working with, and at this point
           in  time I cannot even give advice in terms of a general categoriza-
-          tion. Experiment, learn, and let me know the results  if  you  like.
-          ""{
-
-   6.5    How to implement two-level approaches using mcl.
-
-          If  changing  inflation  does  not yield clusterings that are suffi-
-          ciently coarse to your liking, you may consider trying  a  two-level
-          approach.   Presumably  your  input  graph is very large if you find
-          yourself in this situation. You should be aware of  the  possibility
-          that the graph you are clustering simply does not posses the type of
-          coarse-grained structure that you are looking for.
-
-          Two-level approaches can be implemented in a variety  of  ways,  and
-          you may wish to invoke tools other than mcl. However, it is possible
-          to experiment with two-level approaches using mcl and its associated
-          utility  mcx.  Here  is  how, assuming your original graph is called
-          orig.mci.
-
-          Warning
-          This approach is a little crude, and will  suffer  if  (many)  small
-          clusters are present.
-
-          mcl orig.mci -I 5.0 -c 3.0 -scheme 5 -o orig.i5.mco
-
-          Cluster  it  first so that you get a fine-grained clustering.  Since
-          orig.mci is likely a large graph, I opted for a high scheme.
-
-          mcx /orig.i5.mco lm tp exch     # line continues
-                      /orig.mci lm exch mul mul tp add /coarse.mci wm
-
-          This transforms the clustering+graph into  a  new  graph  coarse.mci
-          where  the  clusters  are  nodes.  You may, upon inspection, wish to
-          change the homogeneity of the weight distribution  by  applying  the
-          method  described  in faq entry 6.3 - but that's something best left
-          for optionally fine-tuning this method once you decide it  has  mer-
-          its.
-
-          mcl coarse.mci -I 2.0 -c 0.0 -scheme 5 -o coarse.mco
-
-          Cluster  the  coarsened graph, and keep the loops as computed in the
-          coarsening step.
-
-          mcx /orig.i5.mco lm /coarse.mco lm mul /projected.mco wm
-
-          Project the 'coarsened' clustering back  onto  the  original  graph.
-          Now projected.mco should be a coarse cluster for orig.mci.
-
-          There  are  a lot of parameters to play with here; e.g. the 5.0, 3.0
-          and 2.0, and 1.0. These seem reasonable defaults.  }
+          tion. Experiment, learn, and let me know the results if you like.
 
                              Implementing the MCL algorithm
 
@@ -943,9 +875,9 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
           probably be input/output and interpretation.
 
           It  is  perhaps  even such that implementing the basic MCL algorithm
-          makes a nice programming exercise. However, if you need an implemen-
-          tation  that  scales  to  several hundreds of thousands of nodes and
-          possibly beyond, then your  duties  become  much  heavier.  This  is
+          makes  a  nice  programming  exercise.  However,  if  you  need   an
+          implementation that scales to several hundreds of thousands of nodes
+          and possibly beyond, then your duties become much heavier.  This  is
           because  one  needs  to prune MCL iterands (c.q. matrices) such that
           they remain sparse. This must be done carefully  and  preferably  in
           such  a way that a trade-off between speed, memory usage, and poten-
@@ -1023,10 +955,10 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
           This  will  have  the  largest effect for early iterands; its effect
           will diminish as the iterand index increases.
 
-          When set to 0,  the  -tight  parameter  results  in  the  clustering
-          associated  with the DAG associated with an MCL iterand as described
-          in [3]. This DAG is pruned (thus possibly resulting in less  overlap
-          in the clustering) by increasing the -tight parameter. [add]
+          When set to 0, the -tight parameter results in the clustering  asso-
+          ciated  with  the DAG associated with an MCL iterand as described in
+          [3]. This DAG is pruned (thus possibly resulting in less overlap  in
+          the clustering) by increasing the -tight parameter. [add]
 
                                      Miscellaneous
 
@@ -1106,4 +1038,4 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
 
 
 
-  MCL FAQ 1.006, 05-320             16 Nov 2005                       MCL FAQ(7)
+  MCL FAQ 1.006, 06-021             21 Jan 2006                       MCL FAQ(7)

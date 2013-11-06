@@ -1,5 +1,5 @@
-.\" Copyright (c) 2005 Stijn van Dongen
-.TH "MCL\ FAQ" 7 "16 Nov 2005" "MCL\ FAQ 1\&.006, 05-320" "MISCELLANEOUS "
+.\" Copyright (c) 2006 Stijn van Dongen
+.TH "MCL\ FAQ" 7 "21 Jan 2006" "MCL\ FAQ 1\&.006, 06-021" "MISCELLANEOUS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -206,9 +206,6 @@ The effect of similarity distribution homogeneity on cluster granularity\&.
 .br
 .ZT 1m \fB6\&.4\fP
 The effect of initial centering on cluster granularity\&.
-.br
-.ZT 1m \fB6\&.5\fP
-How to implement two-level approaches using mcl\&.
 
 .ZT 0m \fB7\fP
 \s+1\fBImplementing the MCL algorithm\fP\s-1
@@ -372,8 +369,8 @@ The current setup, which I hope to continue, is this\&. All releases are
 identified by a date stamp\&. For example 02-095 denotes day 95 in the year
 2002\&. This date stamp agrees (as of April 2000) with the (differently
 presented) date stamp used in all manual pages shipped with that release\&.
-For example, the date stamp of the FAQ you are reading is \fB16 Nov 2005\fP,
-which corresponds with the MCL stamp \fB05-320\fP\&.
+For example, the date stamp of the FAQ you are reading is \fB21 Jan 2006\fP,
+which corresponds with the MCL stamp \fB06-021\fP\&.
 The Changelog file contains a list of what\&'s changed/added with each
 release\&. Currently, the date stamp is the primary way of identifying an \fBmcl\fP
 release\&. When asked for its version by using \fB--version\fP, mcl
@@ -1123,50 +1120,12 @@ possibly large changes in magnitude of the similarities\&. MCL is not affected
 by absolute magnitudes, it is only affected by magnitudes taken relative to
 each other\&.
 
-\fBUPDATE\fP
-.br
-As of version 03-154, mcl supports the pre-inflation \fB-pi\fP\ \fIf\fP option,
-where \fIf\fP is the inflation parameter described below\&.
-Use this option rather than the convoluted procedure described below\&.
-Read on to find out what it does\&.
-
-Here is how to make a graph more homogeneous with respect to the weight
-function\&. Given \fCorig\&.mci\fP, clustering \fCrevised\&.mci\fP as constructed
-below should generally lead to coarser clusterings\&.
-
-.di ZV
-.in 0
-.nf \fC
-mcx /orig\&.mci lm 0\&.5 hdp /revised\&.mci wm
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-This simply applies inflation with parameter 0\&.5 to \fCorig\&.mci\fP\&.
-In the \fBmcx\fP language, \fBhdp\fP stands for Hadamard power (entrywise power),
-which is equivalent to inflation except that the normalization step is omitted\&.
-This step is not needed since it is part of mcl (initialization) itself\&.
-The parameter 0\&.5 can be changed to other values in the range \fC[0\&.\&.1\&.0]\fP\&.
-The closer it is to zero, the more clusterings will tend to be coarse\&.
-
-If the parameter is chosen larger than 1\&.0, say in the range \fC[1\&.2\&.\&.5\&.0]\fP
-then clusterings will tend to be more finer-grained\&. For example,
-
-.di ZV
-.in 0
-.nf \fC
-mcx /orig\&.mci lm 3\&.0 hdp /revised\&.mci wm
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
+As of version 03-154, mcl supports the pre-inflation \fB-pi\fP\ \fIf\fP option\&.
+Make a graph more homogeneous with respect to the weight
+function by using \fB-pi\fP with argument \fIf\fP somewhere
+in the interval [0,1] \- 0\&.5 can be considered a reasonable first try\&.
+Make it less homogeneous by setting \fIf\fP somewhere in the interval [1,10]\&.
+In this case 5 is a reasonable starting point\&.
 
 .ZB 1m \fB6\&.4\fP
 \s+1\fBThe effect of initial centering on cluster granularity\&.\fP\s-1
@@ -1187,96 +1146,6 @@ further increase \fB-c\fP\&. It will really depend on the characteristics
 of the graph you are working with, and at this point in time I cannot even
 give advice in terms of a general categorization\&. Experiment, learn, and let
 me know the results if you like\&.
-""{
-
-.ZB 1m \fB6\&.5\fP
-\s+1\fBHow to implement two-level approaches using mcl\&.\fP\s-1
-
-If changing inflation does not yield clusterings that are sufficiently
-coarse to your liking, you may consider trying a two-level approach\&.
-Presumably your input graph is very large if you find yourself in this
-situation\&. You should be aware of the possibility that the graph you are
-clustering simply does not posses the type of coarse-grained structure that
-you are looking for\&.
-
-Two-level approaches can be implemented in a variety of ways, and you may
-wish to invoke tools other than mcl\&. However, it is possible to experiment
-with two-level approaches using \fBmcl\fP and its associated utility \fBmcx\fP\&. Here
-is how, assuming your original graph is called \fCorig\&.mci\fP\&.
-
-\fBWarning\fP
-.br
-This approach is a little crude, and will suffer
-if (many) small clusters are present\&.
-
-.di ZV
-.in 0
-.nf \fC
-mcl orig\&.mci -I 5\&.0 -c 3\&.0 -scheme 5 -o orig\&.i5\&.mco
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-Cluster it first so that you get a fine-grained clustering\&.
-Since \fCorig\&.mci\fP is likely a large graph, I opted for a high scheme\&.
-
-.di ZV
-.in 0
-.nf \fC
-mcx /orig\&.i5\&.mco lm tp exch     # line continues
-            /orig\&.mci lm exch mul mul tp add /coarse\&.mci wm
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-This transforms the clustering+graph into a new graph \fCcoarse\&.mci\fP where
-the clusters are nodes\&. You may, upon inspection, wish to change the
-homogeneity of the weight distribution by applying the method described in
-\fIfaq entry 6\&.3\fP \- but that\&'s
-something best left for optionally fine-tuning this method once you decide
-it has merits\&.
-
-.di ZV
-.in 0
-.nf \fC
-mcl coarse\&.mci -I 2\&.0 -c 0\&.0 -scheme 5 -o coarse\&.mco
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-Cluster the coarsened graph, and keep the loops as computed
-in the coarsening step\&.
-
-.di ZV
-.in 0
-.nf \fC
-mcx /orig\&.i5\&.mco lm /coarse\&.mco lm mul /projected\&.mco wm
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-Project the \&'coarsened\&' clustering back onto the original graph\&.
-Now \fCprojected\&.mco\fP should be a coarse cluster for \fCorig\&.mci\fP\&.
-
-There are a lot of parameters to play with here; e\&.g\&. the 5\&.0, 3\&.0 and
-2\&.0, and 1\&.0\&. These seem reasonable defaults\&.
-}
 
 .ce
 \s+2\fBImplementing the MCL algorithm\fP\s-2

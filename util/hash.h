@@ -1,4 +1,4 @@
-/*    Copyright (C) 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/* (c) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
  * under the terms of the GNU General Public License; either version 2 of the
@@ -35,9 +35,9 @@
 
  * Features:
  *    o  Searching, inserting, and deletion are all done by
- *       mcxHashSearch. It returns a pointer to mcxKV. When deleting, the
- *       caller must use apply mcxKVfree to it after doing whatever needs to
- *       be done with the 'val' and 'key' members.
+ *       mcxHashSearch. It returns a pointer to mcxKV. In all modes, the
+ *       caller can use the returned mcxKV* structure to obtain
+ *       the 'val' and 'key' members.
  *
  *    o  Hashes grow automatically once the average load per bucket
  *       exceeds a settable threshold and if the hash was not declared
@@ -71,6 +71,13 @@
 #include "alloc.h"
 #include "list.h"
 #include "gralloc.h"
+
+
+
+/* Below is for code that dares to store an unsigned in kv->val */
+
+#define VOID_TO_UINT (unsigned)        /* code tag */
+#define UINT_TO_VOID (void*)           /* code tag */
 
 
 /* The hash struct is hidden. Use mcxHashGetSettings if you need

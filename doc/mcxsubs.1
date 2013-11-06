@@ -1,5 +1,5 @@
-.\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcxsubs" 1 "16 Nov 2005" "mcxsubs 1\&.006, 05-320" "USER COMMANDS "
+.\" Copyright (c) 2006 Stijn van Dongen
+.TH "mcxsubs" 1 "21 Jan 2006" "mcxsubs 1\&.006, 06-021" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -448,6 +448,9 @@ in this case the indices \fC{10,11,12,13,14}\fP\&.
 The extension part is specified as
 
 \fBext\fP( < \fBdisc\fP(\fIk\fP) | \fBcdisc\fP(\fIk\fP) | \fBrdisc\fP(\fIk\fP) >)
+
+This option requires the input matrix to be held in memory\&. This implies it
+will not work with the \fB--from-disk\fP option\&.
 
 This \fIassumes that the input matrix encodes a graph\fP, so the column
 and row domains must be equal\&.

@@ -158,6 +158,26 @@ typedef struct
 static const char *mclxar = "mclxaRead";
 
 
+static double loop_adjust_discard
+(  mclv* vec
+,  long  r
+,  void* data
+)
+   {  return 0.0
+;  }
+
+
+static double loop_adjust_force
+(  mclv* vec
+,  long  r
+,  void* data
+)
+   {  mclp* ivp = mclvGetIvp(vec, r, NULL)
+   ;  return ivp && ivp->val ? ivp->val : 1.0
+;  }
+
+
+
 void mclxIOinfoFree
 (  void*  info_v
 )
@@ -311,7 +331,7 @@ mcxbool mclxIOgetQMode
 int set_interchange_digits
 (  int valdigits
 )
-   {  const char* envp  =  getenv("MCLXINTERCHANGEDIGITS")
+   {  const char* envp  =  getenv("MCLXIODIGITS")
 
    ;  if (valdigits == MCLXIO_VALUE_GETENV)
       {  if (envp)
@@ -678,9 +698,9 @@ static mclMatrix* mclxb_read_body
          {  long oa_start  =  ftell(xf->fp)     /* start of offset array */
          ;  long k =  0, vec_os  = -1, v_pos = 0
          ;
-            BREAK_IF(oa_start < 0)
             BREAK_IF(oa && (1+n_cols) != fread(oa, szl, 1+n_cols, xf->fp))
 
+            if (oa_start >= 0)
             while (k < colmask->n_ivps)
             {  long vec_vid = colmask->ivps[k].idx   /* MUST be sorted */
             ;  mclv* veck = mx->cols+k
@@ -711,8 +731,10 @@ static mclMatrix* mclxb_read_body
 
             ;  k++
          ;  }
+            else
+            break
 
-            BREAK_IF(k != colmask->n_ivps)
+         ;  BREAK_IF(k != colmask->n_ivps)
                                     /*  fetch end of matrix offset */
             BREAK_IF(fseek(xf->fp, oa_start + n_cols * szl, SEEK_SET))
             BREAK_IF(1 != fread(&v_pos, szl, 1, xf->fp))
@@ -1322,12 +1344,12 @@ mcxstatus mclxaWrite
    {  int   i
                   /* fixme; need more sanity checks on N_ROWS(mx) ? ? */
    ;  int   leadwidth   =  log10(MAXID_ROWS(mx)+1) + 2
-   ;  FILE* fp
    ;  const char* me    =  "mclxaWrite"
-   ;  unsigned long flags =  get_env_flags("MCLXINTERCHANGEIFLAGS")
+   ;  unsigned long flags =  get_env_flags("MCLXICFLAGS")
    ;  long n_mod        =  MAX(1+(N_COLS(mx)-1)/40, 1)
    ;  mcxbool progress  =     isatty(fileno(stderr))
                            && mclxIOgetQMode("MCLXIOVERBOSITY")
+   ;  FILE* fp
 
    ;  valdigits = set_interchange_digits(valdigits)
 
@@ -2165,8 +2187,8 @@ mcxstatus mclxIOdump
       )
       {  double (*op)(mclv* vec, long r, void* data)
          =     modes & MCLX_DUMP_LOOP_NONE
-            ?  mclvAdjustDiscard
-            :  mclvAdjustForce
+            ?  loop_adjust_discard
+            :  loop_adjust_force
       ;  mclxAdjustLoops(mx, op, NULL)
    ;  }
    
@@ -2300,8 +2322,12 @@ mclpAR* mclpTFparse
             mode = MCLX_UNARY_LT
          ;  else if (!strcmp(key, "lq"))
             mode = MCLX_UNARY_LQ
+         ;  else if (!strcmp(key, "rand"))
+            mode = MCLX_UNARY_RAND
          ;  else if (!strcmp(key, "mul"))
             mode = MCLX_UNARY_MUL
+         ;  else if (!strcmp(key, "scale"))
+            mode = MCLX_UNARY_SCALE
          ;  else if (!strcmp(key, "add"))
             mode = MCLX_UNARY_ADD
          ;  else if (!strcmp(key, "ceil"))

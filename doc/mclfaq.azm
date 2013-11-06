@@ -21,7 +21,7 @@
    algorithm is based. \mcl refers to the implementation.  This FAQ answers
    questions related to both.  In some places MCL is written where MCL or mcl
    can be read. This is the case for example in
-   \iref{kind}{section \refnumber{kind},\~\refcaption{kind}}.
+   \iref{kind}{section \ref{kind}{num},\~\ref{kind}{cap}}.
    It should in general be obvious from the context.
 
 \par
@@ -857,13 +857,13 @@ How can I trust the output clustering?}
 
 
 \faq{simil_granul}{The effect of similarity distribution homogeneity on cluster granularity.}
-
+\car{
    How similarities in the input graph were derived, constructed,
    adapted, filtered (et cetera) will affect cluster granularity.
    It is important that the similarities are honest;
-   refer to \iref{goodinput}{faq\~\refnumber{goodinput}}.
+   refer to \iref{goodinput}{faq\~\refnumber{goodinput}}.}
 
-\par
+\par{
    Another issue is that homogeneous similarities tend to result in more
    coarse-grained clusterings. You can make a set of similarities more
    homogeneous by applying some function to all of them, e.g.  for all pairs of
@@ -871,57 +871,38 @@ How can I trust the output clustering?}
    convex function.  Note that you need not worry about scaling, i.e. the
    possibly large changes in magnitude of the similarities. MCL is not affected
    by absolute magnitudes, it is only affected by magnitudes taken relative to
-   each other.
+   each other.}
 
-\cpar{UPDATE}{
-   As of version 03-154, mcl supports the pre-inflation \genopt{-pi}{f} option,
-   where \genarg{f} is the inflation parameter described below.
-   Use this option rather than the convoluted procedure described below.
-   Read on to find out what it does.
-}
-
-\par
-   Here is how to make a graph more homogeneous with respect to the weight
-   function. Given \v{orig.mci}, clustering \v{revised.mci} as constructed
-   below should generally lead to coarser clusterings.
-
-\verbatim{mcx /orig.mci lm 0.5 hdp /revised.mci wm}
-
-\car
-   This simply applies inflation with parameter 0.5 to \v{orig.mci}.
-   In the \mcx language, \bf{hdp} stands for Hadamard power (entrywise power),
-   which is equivalent to inflation except that the normalization step is omitted.
-   This step is not needed since it is part of mcl (initialization) itself. 
-   The parameter 0.5 can be changed to other values in the range \v{[0..1.0]}.
-   The closer it is to zero, the more clusterings will tend to be coarse.
-
-\par
-   If the  parameter is chosen larger than 1.0, say in the range \v{[1.2..5.0]}
-   then clusterings will tend to be more finer-grained. For example,
-
-\verbatim{mcx /orig.mci lm 3.0 hdp /revised.mci wm}
+\par{
+   As of version 03-154, mcl supports the pre-inflation \genopt{-pi}{f} option.
+   Make a graph more homogeneous with respect to the weight
+   function by using \genopt{-pi} with argument \genarg{f} somewhere
+   in the interval [0,1] \- 0.5 can be considered a reasonable first try.
+   Make it less homogeneous by setting \genarg{f} somewhere in the interval [1,10].
+   In this case 5 is a reasonable starting point.}
 
 \faq{}{The effect of initial centering on cluster granularity.}
+\car{
    This refers to the \genopt{-c} parameter, which adds loops to the input
    graph. Its default value is 1.0, which results in loops of a somehow
    'neutral' weight to be added.  If you need to really fine-tune granularity,
    this option can be of use, otherwise you should abstain from using it.
-   Increasing its value will increase cluster granularity.
+   Increasing its value will increase cluster granularity.}
 
-\par
+\par{
    Conceivable/normal values are in the range 1.0 to 5.0, but nothing
    stops you from going higher or slightly lower. Going lower than
-   0.5 is definitely not a good idea.
+   0.5 is definitely not a good idea.}
 
-\par
+\par{
    If you are into clustering at high levels of granularity, there is the issue
    whether to further increase \genopt{-I}, or whether to start increasing or
    further increase \genopt{-c}. It will really depend on the characteristics
    of the graph you are working with, and at this point in time I cannot even
    give advice in terms of a general categorization. Experiment, learn, and let
-   me know the results if you like.
+   me know the results if you like.}
 
-""{
+\""{
 \faq{}{How to implement two-level approaches using mcl.}
    If changing inflation does not yield clusterings that are sufficiently
    coarse to your liking, you may consider trying a two-level approach.

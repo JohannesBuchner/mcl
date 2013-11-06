@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!-- Copyright (c) 2005 Stijn van Dongen -->
+<!-- Copyright (c) 2006 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <style type="text/css">
@@ -68,9 +68,9 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-17 Nov 2005&nbsp;&nbsp;&nbsp;
+21 Jan 2006&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcl.ps"><b>mcl</b></a>
-1.006, 05-321
+1.006, 06-021
 </p>
 <div style="margin-top:1em">
 <table
@@ -153,7 +153,7 @@ dictionary, possibly one that was saved earlier using the
       <a class="intern" href="#opt-strict-tab"><b>-strict-tab</b>&nbsp;<i>fname-map</i></a></pre>
 <p class="default L50" style="margin-bottom:0">
 Here <b>-strict-tab</b> tells mcl that the input should not contain
-labels other than found in the file <b>saved-mapping</b>. It is possible to
+labels other than found in the file <b>fname-map</b>. It is possible to
 relax this by using <a class="intern" href="#opt-restrict-tab"><b>-restrict-tab</b>&nbsp;<i>fname-map</i></a> or
 <a class="intern" href="#opt-extend-tab"><b>-extend-tab</b>&nbsp;<i>fname-map</i></a>.
 </p>
@@ -184,7 +184,7 @@ tab-separated labels to STDOUT. All the <tt>abc</tt> strings serve to indicate
 that the mode of communication between these programs is <i>label format</i>.
 It is possible to cache the input graph in native mcl matrix format:</p>
 <pre>mcxdeblast --abc-out=- hsfsp.blast | \
-   mcxload -abc - --mirror -o hsfsp.mcx -cache-tab hsfsp.tab --binary
+   mcxload -abc - --stream-mirror -o hsfsp.mcx -cache-tab hsfsp.tab --binary
 mcl hsfsp.mcx -use-tab hsfsp.tab -o  hsfsp.my-nice-clustering</pre>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 The matrix is written in binary format to speed up
@@ -256,9 +256,9 @@ for those who are interested, so it has many options.
 </p>
 <p class="default L50" style="margin-bottom:0"><b>Transform options</b><br>
 <a class="intern" href="#opt-tf"><b>[-tf</b> &lt;tf-spec&gt; (<i>transform input matrix values</i>)<b>]</b></a>
-<a class="intern" href="#opt-stream-tf"><b>[-stream-tf</b> &lt;tf-spec&gt; (<i>transform input stream values</i>)<b>]</b></a>
-<a class="intern" href="#opt--stream-log"><b>[--stream-log</b> (<i>take logarithm of stream values</i>)<b>]</b></a>
-<a class="intern" href="#opt--stream-neg-log"><b>[--stream-neg-log</b> (<i>take negative logarithm of stream values</i>)<b>]</b></a>
+<a class="intern" href="#opt-abc-tf"><b>[-abc-tf</b> &lt;tf-spec&gt; (<i>transform input stream values</i>)<b>]</b></a>
+<a class="intern" href="#opt--abc-log"><b>[--abc-log</b> (<i>take logarithm of stream values</i>)<b>]</b></a>
+<a class="intern" href="#opt--abc-neg-log"><b>[--abc-neg-log</b> (<i>take negative logarithm of stream values</i>)<b>]</b></a>
 </p>
 <p class="default L50" style="margin-bottom:0"><b>Cache options</b><br>
 <a class="intern" href="#opt-cache-graph"><b>[-cache-graph</b> fname (<i>write graph</i>)<b>]</b></a>
@@ -343,9 +343,7 @@ and you have an appetite for tuning, have a look at the following:
 <a class="intern" href="#opt-my-scheme"><b>[-my-scheme</b> n (<i>tag custom scheme</i>)<b>]</b></a>
 <a class="intern" href="#opt-warn-pct"><b>[-warn-pct</b> n (<i>prune warn percentage</i>)<b>]</b></a>
 <a class="intern" href="#opt-warn-factor"><b>[-warn-factor</b> n (<i>prune warn factor</i>)<b>]</b></a>
-<a class="intern" href="#opt--dense"><b>[--dense</b> (<i>allow matrices to fill</i>)<b>]</b></a>
 <a class="intern" href="#opt--adapt"><b>[--adapt</b> (<i>pruning</i>)<b>]</b></a>
-<a class="intern" href="#opt--rigid"><b>[--rigid</b> (<i>pruning</i>)<b>]</b></a>
 <a class="intern" href="#opt-ae"><b>[-ae</b> f (<i>adaptive pruning exponent</i>)<b>]</b></a>
 <a class="intern" href="#opt-af"><b>[-af</b> f (<i>adaptive pruning factor</i>)<b>]</b></a>
 <a class="intern" href="#opt-nx"><b>[-nx</b> x (<i>x window index</i>)<b>]</b></a>
@@ -353,7 +351,6 @@ and you have an appetite for tuning, have a look at the following:
 <a class="intern" href="#opt-nj"><b>[-nj</b> j (<i>jury window index</i>)<b>]</b></a>
 <a class="intern" href="#opt-nw"><b>[-nw</b> w (<i>nr of windows</i>)<b>]</b></a>
 <a class="intern" href="#opt-nl"><b>[-nl</b> w (<i>nr of iterations</i>)<b>]</b></a>
-<a class="intern" href="#opt--thick"><b>[--thick</b> (<i>expect dense input graph</i>)<b>]</b></a>
 </p>
 <p class="default L50" style="margin-bottom:0">
 The first argument of <b>mcl</b> must be a file name, but some options are allowed
@@ -467,7 +464,7 @@ triggers different settings for the group of pruning parameters
 <b>-pct</b></a>. The default setting corresponds with
 <b>-scheme</b>&nbsp;<b>6</b>.
 There is an additional group of control parameters
-<a class="intern" href="#opt--adapt"><b>--adapt</b>, <b>--rigid</b>, <b>-ae</b>,
+<a class="intern" href="#opt--adapt"><b>--adapt</b>, <b>-ae</b>,
 <b>-af</b></a>, which may be helpful in speeding up <b>mcl</b>.
 When doing multiple mcl runs for the same graphs with different
 <b>-I</b> settings (for obtaining clusterings at different levels
@@ -630,13 +627,13 @@ but it requires mcxdump to act as an intermediary -
 <a class="local" href="mcxdump.html">mcxdump</a> has no such limitations. This need in
 general not be of concern to you. If a tab file is created by
 mcl or mcxdeblast it will always be canonical.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-tf"></a><b>-tf</b> &lt;tf-spec&gt; (<i>transform input matrix values</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-stream-tf"></a><b>-stream-tf</b> &lt;tf-spec&gt; (<i>transform input stream values</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--stream-log"></a><b>--stream-log</b> (<i>take logarithm of stream values</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--stream-neg-log"></a><b>--stream-neg-log</b> (<i>take negative logarithm of stream values</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-tf"></a><b>-tf</b> &lt;tf-spec&gt; (<i>transform input matrix values</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-abc-tf"></a><b>-abc-tf</b> &lt;tf-spec&gt; (<i>transform input stream values</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--abc-log"></a><b>--abc-log</b> (<i>take logarithm of stream values</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--abc-neg-log"></a><b>--abc-neg-log</b> (<i>take negative logarithm of stream values</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 <b>-tf</b> transforms the values of the input matrix according
-to <b>&lt;tf-spec&gt;</b>. <b>-stream-tf</b> transforms the stream values
+to <b>&lt;tf-spec&gt;</b>. <b>-abc-tf</b> transforms the stream values
 (when <a class="intern" href="#opt--abc"><b>--abc</b></a> or <a class="intern" href="#opt--expect-abc"><b>--expect-abc</b></a> is used)
 according to <b>&lt;tf-spec&gt;</b>.
-<b>--neg-stream-log</b> and <b>--stream-log</b>
+<b>--abc-neg-log</b> and <b>--abc-log</b>
 respectively imply that the stream input values are
 first replaced by their (negative) logarithm.
 The reason for their existence is documented in <a class="local" href="mcxio.html">mcxio</a>.
@@ -1220,17 +1217,14 @@ costly computation of the MCL process. Do not use this option
 for graphs with more than several thousands of entries, or you will
 have trouble digging your processor out of swap.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--rigid"></a><b>--rigid</b> (<i>pruning</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-See the <b>--adapt</b> option below.
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-ae"></a><b>-ae</b> f (<i>adaptive pruning exponent</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 See the <b>--adapt</b> option below.
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-af"></a><b>-af</b> f (<i>adaptive pruning factor</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 See the <b>--adapt</b> option below.
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--adapt"></a><b>--adapt</b> (<i>pruning</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 The default <b>mcl</b> pruning behaviour as described under
-the <a class="intern" href="#opt-P"><b>-P</b> option</a> is called <i>rigid pruning</i>
-(it being the default renders the switch <b>--rigid</b>
-currently useless), refering to the fact that the first stage
+the <a class="intern" href="#opt-P"><b>-P</b> option</a> is called <i>rigid pruning</i>,
+refering to the fact that the first stage
 of pruning removes entries smaller than a fixed threshold.
 The options discussed here enable the computation of a threshold that
 depends on the homogeneity characteristics of a vector. This behaviour is
@@ -1268,10 +1262,6 @@ you may just disregard the definition of T. The usefulness of these
 options will vary. If you want to speed up <b>mcl</b>, try it out
 and add <b>--adapt</b> to your settings.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--thick"></a><b>--thick</b> (<i>expect dense input graph</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-This option is somewhat esoteric. It does not affect the matrices as
-computed by <b>mcl</b>, but it affects the way in which they are computed. If
-the input graph is very dense, this may speed up mcl a little.
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-v-pruning"></a><b>-v</b>&nbsp;<b>pruning</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Pruning verbosity mode causes <b>mcl</b> to emit several statistics related to
 the pruning process, each of which is described below. Use
@@ -1551,7 +1541,7 @@ The mcl matrix format is described in the <a class="local" href="mcxio.html">mcx
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td colspan=3>MCLXINTERCHANGEDIGITS</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr><td colspan=3>MCLXIODIGITS</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 When writing matrices in interchange format, mcl will use the environment
 variable MCLXINTERCHANGEDIGITS (if present) as the precision (number of
@@ -1574,10 +1564,11 @@ cellpadding="0" summary="itemize">
 
 </div>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3>MCLXIOFORMAT</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 MCL and its sibling applications will by default output matrices
 in interchange format rather than binary format (cf. <a class="local" href="mcxio.html">mcxio</a>).
 The desired format can be controlled via the variable
-MCLXIOFORMAT. These are the levels it can currently be set to.
+MCLXIOFORMAT. These are the levels it can currently be set to.</p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
@@ -1590,20 +1581,22 @@ cellpadding="0" summary="itemize">
 </table>
 
 </div>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3>MCLXINTERCHANGEFLAGS</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3>MCLXICFLAGS</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 If matrices are output in interchange format, by default empty vectors
 will not be listed. Equivalently (during input time),
 vectors for which no listing is present are understood to be empty -
 note that the <i>presence</i> of a vector is established using
 the domain information found in the header part.
 It is possible to enforce listing of empty vectors by
-setting bit '1' in the variable MCLXINTERCHANGEFLAGS.
+setting bit '1' in the variable MCLXICFLAGS.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3>MCLXIOUNCHECKED</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 MCL and its sibling applications will always check a matrix for consistency
 while it is being read. If this variable is set, the consistency check is
 omitted. For large graphs the speed up can be considerable. However, if the
 input graph is not conforming it will likely crash the application that
-is using it.
+is using it.</p>
 </div></td></tr>
 </table>
 

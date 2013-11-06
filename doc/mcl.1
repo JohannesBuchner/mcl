@@ -1,5 +1,5 @@
-.\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcl" 1 "17 Nov 2005" "mcl 1\&.006, 05-321" "USER COMMANDS "
+.\" Copyright (c) 2006 Stijn van Dongen
+.TH "mcl" 1 "21 Jan 2006" "mcl 1\&.006, 06-021" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -92,7 +92,7 @@ dictionary, possibly one that was saved earlier using the
 .fi \fR
 
 Here \fB-strict-tab\fP tells mcl that the input should not contain
-labels other than found in the file \fBsaved-mapping\fP\&. It is possible to
+labels other than found in the file \fBfname-map\fP\&. It is possible to
 relax this by using \fB-restrict-tab\fP\ \fIfname-map\fP or
 \fB-extend-tab\fP\ \fIfname-map\fP\&.
 
@@ -141,7 +141,7 @@ It is possible to cache the input graph in native mcl matrix format:
 .in 0
 .nf \fC
 mcxdeblast --abc-out=- hsfsp\&.blast | \e
-   mcxload -abc - --mirror -o hsfsp\&.mcx -cache-tab hsfsp\&.tab --binary
+   mcxload -abc - --stream-mirror -o hsfsp\&.mcx -cache-tab hsfsp\&.tab --binary
 mcl hsfsp\&.mcx -use-tab hsfsp\&.tab -o  hsfsp\&.my-nice-clustering
 .fi \fR
 .in
@@ -217,9 +217,9 @@ for those who are interested, so it has many options\&.
 \fBTransform options\fP
 .br
 \fB[-tf\fP <tf-spec> (\fItransform input matrix values\fP)\fB]\fP
-\fB[-stream-tf\fP <tf-spec> (\fItransform input stream values\fP)\fB]\fP
-\fB[--stream-log\fP (\fItake logarithm of stream values\fP)\fB]\fP
-\fB[--stream-neg-log\fP (\fItake negative logarithm of stream values\fP)\fB]\fP
+\fB[-abc-tf\fP <tf-spec> (\fItransform input stream values\fP)\fB]\fP
+\fB[--abc-log\fP (\fItake logarithm of stream values\fP)\fB]\fP
+\fB[--abc-neg-log\fP (\fItake negative logarithm of stream values\fP)\fB]\fP
 
 \fBCache options\fP
 .br
@@ -313,9 +313,7 @@ and you have an appetite for tuning, have a look at the following:
 \fB[-my-scheme\fP n (\fItag custom scheme\fP)\fB]\fP
 \fB[-warn-pct\fP n (\fIprune warn percentage\fP)\fB]\fP
 \fB[-warn-factor\fP n (\fIprune warn factor\fP)\fB]\fP
-\fB[--dense\fP (\fIallow matrices to fill\fP)\fB]\fP
 \fB[--adapt\fP (\fIpruning\fP)\fB]\fP
-\fB[--rigid\fP (\fIpruning\fP)\fB]\fP
 \fB[-ae\fP f (\fIadaptive pruning exponent\fP)\fB]\fP
 \fB[-af\fP f (\fIadaptive pruning factor\fP)\fB]\fP
 \fB[-nx\fP x (\fIx window index\fP)\fB]\fP
@@ -323,7 +321,6 @@ and you have an appetite for tuning, have a look at the following:
 \fB[-nj\fP j (\fIjury window index\fP)\fB]\fP
 \fB[-nw\fP w (\fInr of windows\fP)\fB]\fP
 \fB[-nl\fP w (\fInr of iterations\fP)\fB]\fP
-\fB[--thick\fP (\fIexpect dense input graph\fP)\fB]\fP
 
 The first argument of \fBmcl\fP must be a file name, but some options are allowed
 to appear as the first argument instead\&. These are the options that cause
@@ -448,7 +445,7 @@ triggers different settings for the group of pruning parameters
 \fB-pct\fP\&. The default setting corresponds with
 \fB-scheme\fP\ \fB6\fP\&.
 There is an additional group of control parameters
-\fB--adapt\fP, \fB--rigid\fP, \fB-ae\fP,
+\fB--adapt\fP, \fB-ae\fP,
 \fB-af\fP, which may be helpful in speeding up \fBmcl\fP\&.
 When doing multiple mcl runs for the same graphs with different
 \fB-I\fP settings (for obtaining clusterings at different levels
@@ -629,23 +626,23 @@ mcl or mcxdeblast it will always be canonical\&.
 .ZI 3m "\fB-tf\fP <tf-spec> (\fItransform input matrix values\fP)"
 \&
 'in -3m
-.ZI 3m "\fB-stream-tf\fP <tf-spec> (\fItransform input stream values\fP)"
+.ZI 3m "\fB-abc-tf\fP <tf-spec> (\fItransform input stream values\fP)"
 \&
 'in -3m
-.ZI 3m "\fB--stream-log\fP (\fItake logarithm of stream values\fP)"
+.ZI 3m "\fB--abc-log\fP (\fItake logarithm of stream values\fP)"
 \&
 'in -3m
-.ZI 3m "\fB--stream-neg-log\fP (\fItake negative logarithm of stream values\fP)"
+.ZI 3m "\fB--abc-neg-log\fP (\fItake negative logarithm of stream values\fP)"
 \&
 'in -3m
 'in +3m
 \&
 .br
 \fB-tf\fP transforms the values of the input matrix according
-to \fB<tf-spec>\fP\&. \fB-stream-tf\fP transforms the stream values
+to \fB<tf-spec>\fP\&. \fB-abc-tf\fP transforms the stream values
 (when \fB--abc\fP or \fB--expect-abc\fP is used)
 according to \fB<tf-spec>\fP\&.
-\fB--neg-stream-log\fP and \fB--stream-log\fP
+\fB--abc-neg-log\fP and \fB--abc-log\fP
 respectively imply that the stream input values are
 first replaced by their (negative) logarithm\&.
 The reason for their existence is documented in \fBmcxio(5)\fP\&.
@@ -1528,12 +1525,6 @@ for graphs with more than several thousands of entries, or you will
 have trouble digging your processor out of swap\&.
 .in -3m
 
-.ZI 3m "\fB--rigid\fP (\fIpruning\fP)"
-\&
-.br
-See the \fB--adapt\fP option below\&.
-.in -3m
-
 .ZI 3m "\fB-ae\fP f (\fIadaptive pruning exponent\fP)"
 \&
 .br
@@ -1550,9 +1541,8 @@ See the \fB--adapt\fP option below\&.
 \&
 .br
 The default \fBmcl\fP pruning behaviour as described under
-the \fB-P\fP option is called \fIrigid pruning\fP
-(it being the default renders the switch \fB--rigid\fP
-currently useless), refering to the fact that the first stage
+the \fB-P\fP option is called \fIrigid pruning\fP,
+refering to the fact that the first stage
 of pruning removes entries smaller than a fixed threshold\&.
 The options discussed here enable the computation of a threshold that
 depends on the homogeneity characteristics of a vector\&. This behaviour is
@@ -1587,14 +1577,6 @@ This may seem complicated, but the rules are actually quite simple, and
 you may just disregard the definition of T\&. The usefulness of these
 options will vary\&. If you want to speed up \fBmcl\fP, try it out
 and add \fB--adapt\fP to your settings\&.
-.in -3m
-
-.ZI 3m "\fB--thick\fP (\fIexpect dense input graph\fP)"
-\&
-.br
-This option is somewhat esoteric\&. It does not affect the matrices as
-computed by \fBmcl\fP, but it affects the way in which they are computed\&. If
-the input graph is very dense, this may speed up mcl a little\&.
 .in -3m
 
 .ZI 3m "\fB-v\fP\ \fBpruning\fP"
@@ -1934,7 +1916,7 @@ There are currently no resource nor configuration files\&.
 The mcl matrix format is described in the \fBmcxio(5)\fP section\&.
 .SH ENVIRONMENT
 
-.ZI 3m "MCLXINTERCHANGEDIGITS"
+.ZI 3m "MCLXIODIGITS"
 \&
 .br
 When writing matrices in interchange format, mcl will use the environment
@@ -1985,7 +1967,7 @@ Binary format and applications can not alter this\&.
 .in -4m
 .in -3m
 
-.ZI 3m "MCLXINTERCHANGEFLAGS"
+.ZI 3m "MCLXICFLAGS"
 \&
 .br
 If matrices are output in interchange format, by default empty vectors
@@ -1994,7 +1976,7 @@ vectors for which no listing is present are understood to be empty -
 note that the \fIpresence\fP of a vector is established using
 the domain information found in the header part\&.
 It is possible to enforce listing of empty vectors by
-setting bit \&'1\&' in the variable MCLXINTERCHANGEFLAGS\&.
+setting bit \&'1\&' in the variable MCLXICFLAGS\&.
 .in -3m
 
 .ZI 3m "MCLXIOUNCHECKED"

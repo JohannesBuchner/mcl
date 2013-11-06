@@ -50,6 +50,8 @@ const char* syntax = "Usage: mcxload -abc <fname> -o <fname> [options]\n"
 enum
 {  MY_OPT_ABC
 ,  MY_OPT_123
+,  MY_OPT_ETC
+,  MY_OPT_ETC_AI
 ,  MY_OPT_PCK
 ,  MY_OPT_MIRROR
 ,  MY_OPT_GRAPH
@@ -226,19 +228,31 @@ mcxOptAnchor options[] =
    ,  MCX_OPT_HASARG
    ,  MY_OPT_ABC
    ,  "<fname>"
-   ,  "input file, abc format"
+   ,  "input file in abc format"
+   }
+,  {  "-etc-ai"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_ETC_AI
+   ,  "<fname>"
+   ,  "input file in etc format, auto-increment columns"
+   }
+,  {  "-etc"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_ETC
+   ,  "<fname>"
+   ,  "input file in etc format"
    }
 ,  {  "-packed"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_PCK
    ,  "<fname>"
-   ,  "input file, packed format"
+   ,  "input file in packed format"
    }
 ,  {  "-123"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_123
    ,  "<fname>"
-   ,  "input file, 123 format"
+   ,  "input file in 123 format"
    }
 ,  {  "-tf"
    ,  MCX_OPT_HASARG
@@ -424,19 +438,31 @@ int main
 
             case MY_OPT_PCK
          :  mcxIOrenew(xfin, opt->val, NULL)
-         ;  bits_stream_input = MCLXIO_STREAM_PACKED  
+         ;  bits_stream_input = MCLXIO_STREAM_PACKED
          ;  break
          ;
 
             case MY_OPT_123
          :  mcxIOrenew(xfin, opt->val, NULL)
-         ;  bits_stream_input = MCLXIO_STREAM_123  
+         ;  bits_stream_input = MCLXIO_STREAM_123
+         ;  break
+         ;
+
+            case MY_OPT_ETC_AI
+         :  mcxIOrenew(xfin, opt->val, NULL)
+         ;  bits_stream_input = MCLXIO_STREAM_ETC | MCLXIO_STREAM_ETC_AI
+         ;  break
+         ;
+
+            case MY_OPT_ETC
+         :  mcxIOrenew(xfin, opt->val, NULL)
+         ;  bits_stream_input = MCLXIO_STREAM_ETC
          ;  break
          ;
 
             case MY_OPT_ABC
          :  mcxIOrenew(xfin, opt->val, NULL)
-         ;  bits_stream_input = MCLXIO_STREAM_ABC  
+         ;  bits_stream_input = MCLXIO_STREAM_ABC
          ;  break
          ;
 
@@ -469,7 +495,7 @@ int main
             case MY_OPT_MIRROR
          :  bits_stream_other |=  MCLXIO_STREAM_MIRROR
          ;  symmetric = TRUE
-         ;  user_symmetric = 1
+         ;  user_symmetric = TRUE
          ;  break
          ;
 
@@ -506,6 +532,12 @@ int main
       }
    
       mcxOptFree(&opts)
+
+   ;  if
+      (  (bits_stream_other & MCLXIO_STREAM_MIRROR)
+      && (bits_stream_input & MCLXIO_STREAM_ETC_AI)
+      )
+      mcxDie(1, me, "--stream-mirror and -etc-ai cannot jive")
 
    ;  if
       (  stream_transform_spec
@@ -578,7 +610,7 @@ int main
    ;  mclxWrite(mx, xfmx, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
    ;  mcxIOclose(xfmx)
 
-   ;  if (bits_stream_input & MCLXIO_STREAM_ABC)
+   ;  if (bits_stream_input & (MCLXIO_STREAM_ABC | MCLXIO_STREAM_ETC))
       {  if (xfcachetab)
          {  mclTabWrite(tabcxch, xfcachetab, NULL, RETURN_ON_FAIL)
          ;  mcxIOclose(xfcachetab)
@@ -596,20 +628,26 @@ int main
       ;  }
 
          if (!symmetric && xfcachetabc)
-         {  mclTabWrite(tabcxch, xfcachetabc, NULL, RETURN_ON_FAIL)
-         ;  mcxIOclose(xfcachetabc)
-         ;  if (!tabc)
-            mcxTell(me, "tabc has %ld entries", (long) tabcxch->domain->n_ivps)
-         ;  else if (tabcxch != tabc)
-            mcxTell
-            (  me
-            ,  "tabc went from %ld to %ld nodes"
-            ,  (long) tabc->domain->n_ivps
-            ,  (long) tabcxch->domain->n_ivps
-            )
-         ;  else
-            mcxTell(me, "tabc same as before")
-      ;  }
+         {  if (bits_stream_input & MCLXIO_STREAM_ETC_AI)
+            {  mclTabWriteDomain(mx->dom_cols, xfcachetabc, RETURN_ON_FAIL)
+            ;  mcxIOclose(xfcachetabc)
+         ;  }
+            else
+            {  mclTabWrite(tabcxch, xfcachetabc, NULL, RETURN_ON_FAIL)
+            ;  mcxIOclose(xfcachetabc)
+            ;  if (!tabc)
+               mcxTell(me, "tabc has %ld entries", (long) tabcxch->domain->n_ivps)
+            ;  else if (tabcxch != tabc)
+               mcxTell
+               (  me
+               ,  "tabc went from %ld to %ld nodes"
+               ,  (long) tabc->domain->n_ivps
+               ,  (long) tabcxch->domain->n_ivps
+               )
+            ;  else
+               mcxTell(me, "tabc same as before")
+         ;  }
+         }
 
          if (!symmetric && xfcachetabr)
          {  mclTabWrite(tabrxch, xfcachetabr, NULL, RETURN_ON_FAIL)

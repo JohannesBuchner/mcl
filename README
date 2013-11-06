@@ -1,4 +1,4 @@
-# $Id: README,v 1.30 2005/09/15 14:42:36 flux Exp $
+# $Id: README,v 1.31 2006-01-12 14:21:47 flux Exp $
 
    If you use MCL software in your research, cite it as you would cite a
    journal or a book. This includes papers published in regular or electronic
@@ -55,6 +55,12 @@
    the year 2002.
 
 Configure and compiler options
+
+Synopsis
+
+   configure options:
+      --prefix=YOUR-PREFIX    (e.g. $HOME/local)
+      --enable-blast
 
    By default, MCL is compiled using C ints and floats -- the ints are used to
    encode graph nodes/matrix indices, and the floats are used to encode edge

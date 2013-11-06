@@ -29,7 +29,9 @@ enum
 ,  MCLX_UNARY_LQ
 ,  MCLX_UNARY_GQ
 ,  MCLX_UNARY_GT
+,  MCLX_UNARY_RAND
 ,  MCLX_UNARY_MUL
+,  MCLX_UNARY_SCALE
 ,  MCLX_UNARY_ADD 
 ,  MCLX_UNARY_CEIL
 ,  MCLX_UNARY_FLOOR 
@@ -88,9 +90,21 @@ double fltxCopy
 )  ;
 
 
+double fltxRand
+(  pval     flt
+,  void*    pbb_keep
+)  ;
+
+
 double fltxMul
 (  pval     flt
-,  void*    p_scale
+,  void*    p_factor
+)  ;
+
+
+double fltxScale
+(  pval     flt
+,  void*    p_scale  /* divide */
 )  ;
 
 

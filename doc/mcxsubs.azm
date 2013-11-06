@@ -452,6 +452,10 @@ It does not matter whether more than one subgraph is specified.
 }
 
 \par{
+   This option requires the input matrix to be held in memory. This implies it
+   will not work with the \genopt{--from-disk} option.}
+
+\par{
    This \it{assumes that the input matrix encodes a graph}, so the column
    and row domains must be equal.
    It will take the currently selected domain (column domain for

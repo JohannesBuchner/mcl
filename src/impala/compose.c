@@ -119,7 +119,7 @@ mclVector* mclxVectorCompose
 
       ;  vecprev  = mxvec ? mxvec + 1 : NULL
 
-      ;  if (!mxvec || !mxvec->ivps)
+      ;  if (!mxvec || !mxvec->n_ivps)
          continue
 
       ;  while (--colivp >= mxvec->ivps)

@@ -50,10 +50,7 @@ enum
 ,  PROC_OPT_XPNDINFLATION
 ,  PROC_OPT_SCHEME
 ,  PROC_OPT_MY_SCHEME
-                        ,  PROC_OPT_ETHREADS
-,  PROC_OPT_DENSE       =  PROC_OPT_ETHREADS + 2
-,  PROC_OPT_THICK
-,  PROC_OPT_RIGID
+,  PROC_OPT_ETHREADS
                         ,  PROC_OPT_ADAPT
 ,  PROC_OPT_SHOW        =  PROC_OPT_ADAPT + 2
 ,  PROC_OPT_VERBOSITY
@@ -94,19 +91,7 @@ enum
 
 
 mcxOptAnchor mclProcOptions[] =
-{  {  "--dense"
-   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
-   ,  PROC_OPT_DENSE
-   ,  NULL
-   ,  "try to do full matrix arithmetic"
-   }
-,  {  "--thick"
-   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
-   ,  PROC_OPT_THICK
-   ,  NULL
-   ,  "pre-compute the full vector"
-   }
-,  {  "--track"
+{  {  "--track"
    ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
    ,  PROC_OPT_TRACK
    ,  NULL
@@ -123,12 +108,6 @@ mcxOptAnchor mclProcOptions[] =
    ,  PROC_OPT_TRACKM
    ,  NULL
    ,  "does nothing"
-   }
-,  {  "--rigid"
-   ,  MCX_OPT_DEFAULT
-   ,  PROC_OPT_RIGID
-   ,  NULL
-   ,  "apply rigid first-level pruning (default, cf -P)"
    }
 ,  {  "--adapt"
    ,  MCX_OPT_DEFAULT
@@ -272,7 +251,7 @@ mcxOptAnchor mclProcOptions[] =
    ,  MCX_OPT_HASARG
    ,  PROC_OPT_PRUNE
    ,  "<num>"
-   ,  "(don't use) the rigid pruning threshold"
+   ,  "the rigid pruning threshold"
    }
 ,  {  "-P"
    ,  MCX_OPT_HASARG
@@ -578,18 +557,8 @@ mcxstatus mclProcessInit
          continue
 
       ;  switch(anch->id)
-         {  case PROC_OPT_THICK
-         :  mxp->modeExpand = MCL_EXPAND_DENSE
-         ;  break
-         ;
-
-            case PROC_OPT_TRACK
+         {  case PROC_OPT_TRACK
          :  mclTrackImpalaPruning   =  1
-         ;  break
-         ;
-
-            case PROC_OPT_RIGID
-         :  mxp->modePruning = MCL_PRUNING_RIGID
          ;  break
          ;
 
@@ -609,13 +578,6 @@ mcxstatus mclProcessInit
          ;  break
          ;
 #endif
-
-            case PROC_OPT_DENSE
-         :  n_recover =  0
-         ;  n_select  =  0
-         ;  mxp->modeExpand = MCL_EXPAND_DENSE
-         ;  break
-         ;
 
             case PROC_OPT_INITINFLATION
          :  f = atof(opt->val)
@@ -1061,9 +1023,6 @@ void makeSettings
       mxp->scheme = 0          /* this interfaces to alg.c. yesitisugly */
 
    ;  mxp->pct         /=  100.0
-
-   ;  if (!mxp->num_prune)
-      mxp->modeExpand = MCL_EXPAND_DENSE
 ;  }
 
 

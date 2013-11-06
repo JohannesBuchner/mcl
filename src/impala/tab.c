@@ -70,7 +70,7 @@ mclTab*   mclTabRead
    ;  if ((status = mcxIOtestOpen(xf, ON_FAIL)))
       mcxErr(me, "stream open error")
    ;  else
-      while(STATUS_OK == mcxIOreadLine(xf, line, MCX_READLINE_CHOMP))
+      while(STATUS_OK == (status = mcxIOreadLine(xf, line, MCX_READLINE_CHOMP)))
       {  mclp *ivp
       ;  char* c
       ;  status = STATUS_FAIL
@@ -191,7 +191,7 @@ mcxHash* mclTabHash
       ;  }
 
          index = tab->domain->ivps[i].idx
-      ;  kv -> val = ((char*) NULL) + index
+      ;  kv->val = UINT_TO_VOID index
    ;  }
       return h
 ;  }
@@ -208,9 +208,6 @@ mclTab* mclTabFromMap
    ;  const char* me =  "mclTabFromMap"
    ;  int n_missing  =  0
 
-   ;  if (!keys)
-      return NULL
-
    ;  if (!(tab->labels=mcxAlloc((n_keys+1) * sizeof(char*), RETURN_ON_FAIL)))
       return NULL
 
@@ -223,7 +220,7 @@ mclTab* mclTabFromMap
    ;  for (i=0;i<n_keys;i++)
       {  mcxTing* lbl   =  keys[i]
       ;  mcxKV*  kv     =  mcxHashSearch(lbl, map, MCX_DATUM_FIND)
-      ;  unsigned long  idx  =  kv ? (char*) kv->val - (char*) NULL : 0
+      ;  unsigned long  idx = kv ? VOID_TO_UINT kv->val : 0
 
       ;  if (!kv)
          {  mcxErr("mclTabFromMap panic", "cannot retrieve <%s>!?", lbl->str)
@@ -262,6 +259,30 @@ mclTab* mclTabFromMap
 
 
 
+mcxstatus mclTabWriteDomain
+(  mclv*          select
+,  mcxIO*         xfout
+,  mcxOnFail      ON_FAIL
+)
+   {  int i
+   ;  if (mcxIOtestOpen(xfout, ON_FAIL))
+      return STATUS_FAIL
+
+   ;  for (i=0;i<select->n_ivps;i++)
+      {  long idx = select->ivps[i].idx
+      ;  fprintf(xfout->fp, "%ld\t%ld\n", idx, idx)
+   ;  }
+      mcxTell
+      (  "mclIO"
+      ,  "wrote %ld tab entries to stream <%s>"
+      ,  (long) select->n_ivps
+      ,  xfout->fn->str
+      )
+   ;  return STATUS_OK
+;  }
+
+
+
 mcxstatus mclTabWrite
 (  mclTab*        tab
 ,  mcxIO*         xfout
@@ -271,7 +292,12 @@ mcxstatus mclTabWrite
    {  long label_o = -1, i
    ;  long miss = 1
 
-   ;  if (!select)
+   ;  if (!tab)
+      {  mcxErr("mclTabWrite", "no tab! target file: <%s>", xfout->fn->str)
+      ;  return STATUS_FAIL
+   ;  }
+
+      if (!select)
       select = tab->domain
 
    ;  if (mcxIOtestOpen(xfout, ON_FAIL))

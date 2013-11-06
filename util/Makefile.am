@@ -1,11 +1,11 @@
 ## Process this file with automake to produce Makefile.in
-## $Id: Makefile.am-assimilate,v 1.2 2005/09/25 21:38:56 flux Exp $
+## $Id: Makefile.am-assimilate,v 1.3 2005-12-07 16:58:40 flux Exp $
                                                                                 
 INCLUDES = -I$(top_srcdir)
                                                                                 
 noinst_LIBRARIES = libutil.a
 libutil_a_SOURCES = alloc.c array.c rand.c equate.c opt.c io.c \
- err.c hash.c heap.c let.c list.c gralloc.c tok.c ting.c ding.c tok.c \
+ err.c hash.c heap.c let.c list.c gralloc.c tok.c ting.c ding.c \
  tr.c
                                                                                 
 EXTRA_DIST = alloc.h array.h rand.h equate.h hash.h heap.h let.h io.h \

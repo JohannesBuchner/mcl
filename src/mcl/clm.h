@@ -83,6 +83,11 @@ mclMatrix* mclcProject
 )  ;
 
 
+/* dom is perhaps useless feature.
+ * mx->dom_cols is clobbered.
+ * implementation is ugly.
+*/
+
 mclMatrix*  mclcComponents
 (  const mclMatrix*  mx
 ,  const mclMatrix*  dom

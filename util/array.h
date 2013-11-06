@@ -1,4 +1,4 @@
-/*  Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/* (c) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
  * under the terms of the GNU General Public License; either version 2 of the
@@ -43,6 +43,39 @@ mcxstatus mcxResize
 ,  mcxOnFail      ON_FAIL
 )  ;
 
+
+/* Return largest element smaller than or equal to key.
+ * return NULL if no element is smaller than key.
+ * Returns rightmost element in case entries sort identically,
+ * (note: mcxBsearchCeil will then return the leftmost element)
+ *
+ * base should be sorted according to cmp
+*/
+
+void* mcxBsearchFloor
+(  const void *key
+,  const void *base
+,  int nmemb
+,  int size
+,  int (*cmp)(const void *, const void *)
+)  ;
+
+
+/* Return smallest element larger than or equal to key.
+ * return NULL if no element is larger than key.
+ * Returns leftmost element in case entries sort identically,
+ * (note: mcxBsearchFloor will then return the rightmost element)
+ *
+ * base should be sorted according to cmp
+*/
+
+void* mcxBsearchCeil
+(  const void *key
+,  const void *base
+,  int nmemb
+,  int size
+,  int (*cmp)(const void *, const void *)
+)  ;
 
 
 typedef struct

@@ -480,6 +480,39 @@ mclx* mclxMakeMap
 )  ;
 
 
+
+/* Shortest-Simple-Paths between x and y.
+ *
+ * -  Nodes must be different.
+ * -  Will fail mysteriously or rudely on directed graphs.
+ * -  Returns participating nodes including x and y as a vector.
+ * -  Optionally sets the associated track matrix in trackpp.
+*/
+
+mclv* mclxSSPxy
+(  const mclx* graph
+,  long x
+,  long y
+,  mclx** trackpp
+)  ;
+
+
+/* All nodes participating in all shortest simple paths between all
+ *       nodes in domain.
+ * -  Nodes must be different.
+ * -  Will fail mysteriously or rudely on directed graphs.
+ * -  Current implemementation is not run-time efficient.
+*/
+
+mclv* mclxSSPd
+(  const mclx* graph
+,  const mclv* set
+)  ;
+
+
+/* TODO move mcxsub disc implementation to this file.
+*/
+
 /* return union of columns with vid in dom.
  * fixme fixme fixme *VERY* ugly hack:
  *   idx -1 denotes cols
@@ -495,8 +528,9 @@ mclv* mclxUnionv
 
 #define MCLX_WEED_COLS 1
 #define MCLX_WEED_ROWS 2
+#define MCLX_WEED_GRAPH 4
 
-mclx* mclxWeed
+void mclxWeed
 (  mclx* mx
 ,  mcxbits bits
 )  ;

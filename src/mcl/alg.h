@@ -55,7 +55,6 @@ typedef struct
 ;  mcxTing*             stream_tab_wname
 ;  mcxTing*             stream_tab_rname
 ;  mcxbool              stream_write_labels
-;  mcxTing*             stream_mx_wname
 ;  mcxTing*             stream_yield
 
 ;  mcxTing*             stream_transform_spec
@@ -63,6 +62,10 @@ typedef struct
 
 ;  mcxTing*             transform_spec
 ;  mclpAR*              transform
+
+;  mcxTing*             cache_mxin
+;  mcxTing*             cache_mxtf
+;  mcxbool              is_transformed    /* when reading back cached graph */
 
 ;  int                  writeMode
 ;  int                  sortMode
@@ -107,10 +110,20 @@ mcxstatus mclAlgorithm
 )  ;
 
 mclx* mclAlgorithmRead
-(  mcxIO* xfin
-,  mclAlgParam* map
+(  mclAlgParam* map
+,  mcxbool reread
 )  ;
 
+int mclAlgorithmTransform
+(  mclx* mx  
+,  mclAlgParam* mlp
+)  ;
+
+mcxstatus mclAlgorithmCacheGraph
+(  mclx* mx
+,  mclAlgParam* mlp
+,  char ord
+)  ;
 
 #endif
 

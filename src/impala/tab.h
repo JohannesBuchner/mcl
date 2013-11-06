@@ -42,6 +42,13 @@ mcxstatus mclTabWrite
 )  ;
 
 
+mcxstatus mclTabWriteDomain
+(  mclv*          select
+,  mcxIO*         xfout
+,  mcxOnFail      ON_FAIL
+)  ;
+
+
 char* mclTabGet
 (  const mclTab*  tab
 ,  long     id
