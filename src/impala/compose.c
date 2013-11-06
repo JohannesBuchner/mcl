@@ -1,7 +1,8 @@
-/*  (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -10,6 +11,8 @@
 
 #include "compose.h"
 
+#include "util/compile.h"
+#include "util/types.h"
 #include "util/alloc.h"
 #include "util/types.h"
 #include "util/err.h"
@@ -42,7 +45,7 @@ struct mclxComposeHelper
 
 mclxComposeHelper* mclxComposePrepare
 (  const mclMatrix*  mx1
-,  const mclMatrix*  mx2
+,  const mclMatrix*  mx2 cpl__unused
 )
    {  mclxComposeHelper* ch
                   =     mcxRealloc

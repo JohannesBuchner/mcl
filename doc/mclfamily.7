@@ -1,5 +1,5 @@
-.\" Copyright (c) 2006 Stijn van Dongen
-.TH "The\ \&MCL\ \&family" 7 "27 Feb 2006" "The\ \&MCL\ \&family 1\&.006, 06-058" "MISCELLANEOUS "
+.\" Copyright (c) 2008 Stijn van Dongen
+.TH "The\ \&MCL\ \&family" 7 "5 Jun 2008" "The\ \&MCL\ \&family 1\&.007-grumpy-gryphon, 08-157" "MISCELLANEOUS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -30,7 +30,7 @@
 .SH NAME
 mclfamily \- a description of the mcl family of cluster applications\&.
 
-\fBmcl\fP is the Amsterdam implementation of the Markov Cluster Algorithm\&.
+\fBmcl\fP is an implementation of the Markov Cluster Algorithm, aka MCL algoritm\&.
 It is described in the \fBmcl manual\fP\&.
 Several other utilities are part of the MCL distribution\&. This manual pages
 gives an overview\&.
@@ -38,7 +38,7 @@ gives an overview\&.
 .ZI 16m "\fBmcl(1)\fP"
 the cluster algorithm
 .in -16m
-.ZI 16m "\fBmclfamily(7)\fP"
+.ZI 16m "\fBmclfaq(7)\fP"
 MCL Frequently Asked Questions
 .in -16m
 
@@ -46,9 +46,28 @@ MCL Frequently Asked Questions
 the graph/matrix input/output format
 .in -16m
 
-.ZI 16m "\fBmcxconvert(1)\fP"
+.ZI 16m "\fBmcx(1)\fP"
+general graph/matrix tasks
+.in -16m
+.ZI 16m "\fBmcx convert\fP"
 convert between interchange/binary storage types
 .in -16m
+.ZI 16m "\fBmcx diameter\fP"
+compute diameter of a symmetric graph
+.in -16m
+.ZI 16m "\fBmcx clcf\fP"
+compute clustering coefficient
+.in -16m
+.ZI 16m "\fBmcx ctty\fP"
+compute betweenness centrality
+.in -16m
+.ZI 16m "\fBmcx erdos\fP"
+compute shortest paths in graphs
+.in -16m
+.ZI 16m "\fBmcx q\fP"
+compute simple graph statistics
+.in -16m
+
 .ZI 16m "\fBmcxassemble(1)\fP"
 create matrices from raw data
 .in -16m
@@ -64,40 +83,48 @@ transform array data to MCL matrices
 .ZI 16m "\fBmcxmap(1)\fP"
 relabel indices in a graph/matrix
 .in -16m
-
-.ZI 16m "\fBmcx(1)\fP"
-general matrix operations
+.ZI 16m "\fBmcxrand(1)\fP"
+randomly remove, add, and perturb edge weights
 .in -16m
 .ZI 16m "\fBmcxsubs(1)\fP"
 extracting submatrices in various ways
 .in -16m
+.ZI 16m "\fBmcxi(1)\fP"
+general matrix operations
+.in -16m
 
-.ZI 16m "\fBclmdist(1)\fP"
+.ZI 16m "\fBclm(1)\fP"
+general graph-clustering related tasks
+.in -16m
+.ZI 16m "\fBclm dist\fP"
 compute split/join distance between clusterings
 .in -16m
-.ZI 16m "\fBclminfo(1)\fP"
+.ZI 16m "\fBclm vol\fP"
+derive node volatility scores from a set of clusterings
+.in -16m
+.ZI 16m "\fBclm info\fP"
 compute performance measure for clusterings
 .in -16m
-.ZI 16m "\fBclmmeet(1)\fP"
+.ZI 16m "\fBclm meet\fP"
 compute intersection of clusterings
 .in -16m
-.ZI 16m "\fBclmmate(1)\fP"
+.ZI 16m "\fBclm mate\fP"
 find best matching clusters between clusterings
 .in -16m
-.ZI 16m "\fBclmclose(1)\fP"
+.ZI 16m "\fBclm close\fP"
 fetch connected components from graphs or subgraphs
 .in -16m
-.ZI 16m "\fBclmimac(1)\fP"
+.ZI 16m "\fBclm imac\fP"
 interpret MCL iterand/matrix as clustering
 .in -16m
-.ZI 16m "\fBclmresidue(1)\fP"
+.ZI 16m "\fBclm residue\fP"
 extend subgraph clustering
+.in -16m
+.ZI 16m "\fBclm order\fP"
+reorder indices to represent blocks from different clusterings
 .in -16m
 .ZI 16m "\fBclmformat(1)\fP"
 display clusters as html or txt files
-.in -16m
-.ZI 16m "\fBclmorder(1)\fP"
-reorder indices to represent blocks from different clusterings
 .in -16m
 
 .ZI 16m "\fBmclpipeline(1)\fP"
@@ -120,9 +147,6 @@ it has the ability to read in and cluster label input\&.
 \fBmclfamily(7)\fP - Frequently Asked Questions\&.
 
 \fBmcxio(5)\fP - a description of the mcl matrix format\&.
-
-\fBmcxconvert(1)\fP - convert matrices from interchange mcl format to
-binary mcl format or vice versa\&.
 
 \fBmcxassemble(1)\fP - assemble a matrix/graph from partial edge
 weight scores\&. Useful intermediate format to be used when transforming
@@ -149,7 +173,16 @@ and further tearing and pruning options can be applied\&.
 
 \fBmcxmap(1)\fP - relabel indices in a graph\&.
 
-\fBmcx(1)\fP - an interpreter for a stack language that enables
+\fBmcxrand(1)\fP - randomly remove, add, and perturb edge weights\&.
+
+\fBmcx convert\fP - convert matrices from interchange mcl format to
+binary mcl format or vice versa\&.
+
+\fBmcx diameter\fP - compute the diameter of a graph\&.
+
+\fBmcx clcf\fP - compute the clustering coefficient of a graph\&.
+
+\fBmcxi(1)\fP - an interpreter for a stack language that enables
 interaction with the \fBmcl\fP matrix libraries\&. It can be used both from the
 command line and interactively, and supports a rich set of operations such
 as transposition, scaling, column scaling, multiplication, Hadamard powers
@@ -186,42 +219,41 @@ and column index sets can be specified as lists of indices combined
 with list of clusters in a given clustering\&. Useful for inspecting
 local cluster structure\&.
 
-\fBclmdist(1)\fP - compute the split/join distance between two
+\fBclm dist\fP - compute the split/join distance between two
 partitions\&. The split/join distance is better suited for measuring partition
 similarity than the long-known equivalence mismatch coefficient\&. The former
 measures the number of node moves required to transform one partition into
 the other, the latter measures differences between volumes of edges of
 unions of complete graphs associated with partitions\&.
 
-\fBclminfo(1)\fP - compute a performance measure saying how well
+\fBclm info\fP - compute a performance measure saying how well
 a clustering captures the edge weights of the input graph\&. Useful
 for comparing different clusterings on the same graph, best used in
-conjunction with \fBclmdist\fP - because comparing clusterings at
+conjunction with \fBclm dist\fP - because comparing clusterings at
 different levels of granularity should somewhat change the performance
-interpretation\&. The latter issue is discussed in the \fBclmdist(1)\fP
+interpretation\&. The latter issue is discussed in the \fBclm dist\fP
 entry\&.
 
-\fBclmmeet(1)\fP - compute the intersection of a set of clusterings,
+\fBclm meet\fP - compute the intersection of a set of clusterings,
 i\&.e\&. the largest clustering that is a subclustering of all\&. Useful
 for measuring the consistency of a set of different clusterings
-at supposedly different levels of granularity (in conjunction with
-\fBclmdist\fP)\&.
+at supposedly different levels of granularity (in conjunction with \fBclm dist\fP)\&.
 
-\fBclmmate(1)\fP - find best matching clusters between two different
+\fBclm mate\fP - find best matching clusters between two different
 clusterings\&.
 
-\fBclmclose(1)\fP - fetch connected components from graphs or subgraphs\&.
+\fBclm close\fP - fetch connected components from graphs or subgraphs\&.
 
-\fBclmimac(1)\fP - interpret MCL iterands as clusterings\&. The clusterings
+\fBclm imac\fP - interpret MCL iterands as clusterings\&. The clusterings
 associated with early iterands may contain overlap, should you be
 interested therein\&.
 
-\fBclmresidue(1)\fP - extend a clustering of a subgraph onto a clustering
+\fBclm residue\fP - extend a clustering of a subgraph onto a clustering
 of the larger graph\&.
 
 \fBclmformat(1)\fP - display clusters suitable for scrutinizing\&.
 
-\fBclmorder(1)\fP - reorder indices to represent blocks from
+\fBclm order\fP - reorder indices to represent blocks from
 different clusterings\&.
 
 \fBmclpipeline(1)\fP - set up a pipeline from data parsing stage
@@ -232,3 +264,10 @@ unto clustering format/display stage\&.
 \fBmcxdeblast(1)\fP - BLAST parser\&. Can be used to directly stream
 a graph into \fBmcl\fP\&. Can also prepare input for mcxassemble
 or can be plugged into the heavy-weight mclblastline\&.
+.SH ENVIRONMENT
+
+.ZI 3m "MCXLOGTAG"
+\&
+.br
+An interface to the logging code used in much of the mcl libraries\&.
+.in -3m

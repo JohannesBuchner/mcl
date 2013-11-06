@@ -13,8 +13,6 @@
 \sec{name}{NAME}
 \NAME{mcxsubs}{extract submatrices (subgraphs) of a matrix (graph).}
 
-\: todo
-\: --block --blockc
 
 \par{
    \mcxsubs can be used to
@@ -68,8 +66,10 @@
 }
 
 \par{
-   \mcxsubs \bf{-imx} <fname> (\it{input matrix})
+   \mcxsubs
+   \synreqopt{-imx}{<fname>}{input matrix}
    \synoptopt{-dom}{<fname>}{domain matrix}
+   \synoptopt{-tf}
    \synoptopt{--block}{use block matrix}
    \synoptopt{--blockc}{use complement of block matrix}
    \synoptopt{--skin-read}{read domain structure without entries}
@@ -164,6 +164,8 @@
    and not reading any entries, pertaining to the matrix
    specified by the \genopt{-imx} option.
 }
+
+\item_defopt{-tf}
 
 \item{\defopt{-tab}{read tab file}}
 \car{
@@ -319,12 +321,14 @@ It does not matter whether more than one subgraph is specified.
 
 \par{
    \it{Y} is the type indicator, it is exactly one of
-   \v{i}, \v{I}, \v{d}, \v{D}, \v{t}, or \v{T}.
+   \v{i}, \v{I}, \v{d}, \v{D}, \v{c}, \v{r}, \v{t}, or \v{T}.
    The \v{i/I} indicators specify
    that \it{ispec} contains a simple index specifation.
    The \v{d/D} specify that \it{ispec} contains domain indices.
    \it{ispec} must contain a comma-separated list of integers or
    integer ranges (e.g. 2, 5, 4-8).
+   \v{c} and \v{r} are restricted indicators that refer
+   to the domains in the \it{domain matrix}.
    \v{t} and \v{T} are restricted indicators that refer
    to the domain encoded in the tab file as specified by the
    \genopt{-tab} option. Their usage is described further below.
@@ -335,8 +339,7 @@ It does not matter whether more than one subgraph is specified.
    these integers in the matrix specified in the \genopt{-dom}
    option will be fetched and merged. If \genopt{-dom} was not used
    the target matrix itself (as specified by the \genopt{-imx} option) will be
-   used.  The special value -1 denotes the domain matrix column domain, the
-   value -2 denotes the domain matrix row domain.  For simple specifications
+   used.  For simple specifications
    (\v{i/I}) the result is simply the list of integers itself.  Uppercase
    indicators indicate that the complement is being specified.
 }
@@ -398,7 +401,7 @@ It does not matter whether more than one subgraph is specified.
    domains 0-3,8,21-30.
 }
 
-\par{
+\""{
    There are two special domains \- use \v{-1} to obtain the row domain
    of the domain matrix, use \v{-2} to obtain its column domain.
 }
@@ -406,7 +409,14 @@ It does not matter whether more than one subgraph is specified.
 \end{itemize}
 
 \par{
-   The \v{t} and \v{T} indicators must be followed by a matching
+   The \v{c} and \v{r} indicators must be followed by a
+   pair of matching parentheses. They specify to take respectively
+   the column domain and the row domain of the domain matrix (cf. \genoptref{-dom}).
+}
+
+
+\par{
+   The \v{t} and \v{T} indicators must be followed by a
    pair of matching parentheses. They specify to take the domain
    found in the tab file or its complement.
 }
@@ -489,7 +499,12 @@ It does not matter whether more than one subgraph is specified.
 }
 
 \par{
-   \bf{size}( < \bf{lt}(\it{x}) |  \bf{lq}(\it{x}) |  \bf{gq}(\it{x}) |  \bf{gt}(\it{x})  > + )
+   \bf{size}( <                    \:/
+      \bf{lt}(\it{x}) |                \:/
+      \bf{ceil}(\it{x}) |             \:/
+      \bf{gq}(\it{x}) |               \:/
+      \bf{rmgq}(\it{x})                \:/
+   > + )
 }
 
 \par{
@@ -504,14 +519,13 @@ It does not matter whether more than one subgraph is specified.
 }
 
 \par{
-   This prunes or removes column vectors based on their size.  If \bf{lt} or
-   \bf{lq} is used, column vectors are removed if they have not as much entries
-   as the corresponding lower bound.  If \bf{gt} or \bf{gq} is used and a
-   column vector has an excess of entries over the corresponding upper bound,
-   the smallest entries are removed. Ties are not arbitrarily broken, implying
-   that the resulting vector may still have more entries than the specified
-   bound.
-}
+   This prunes or removes column vectors based on their size.  If \bf{lt}
+   is used, column vectors are removed if the number of entries exceeds
+   the specified bound.  If \bf{gq} is used, vectors are discarded
+   if the number of entries is smaller than the specified bound.  If a column
+   vector has an excess of entries over the bound specified by \bf{ceil}, the
+   smallest entries are removed. Ties are not arbitrarily broken, implying that
+   the resulting vector may still have more entries than the specified bound.}
 
 \cpar{FINALIZE}{
    The finalize part is specified as
@@ -526,7 +540,7 @@ It does not matter whether more than one subgraph is specified.
 }
 
 \begin{itemize}{{w1}{6}}
-\item{empty}
+\item{skel}
    This creates an empty submatrix on the specified domains, and does
    \it{not} fill it with the corresponding entries from the
    \optref{-imx}{source matrix}.

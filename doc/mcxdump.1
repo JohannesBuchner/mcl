@@ -1,5 +1,5 @@
-.\" Copyright (c) 2006 Stijn van Dongen
-.TH "mcxdump" 1 "27 Feb 2006" "mcxdump 1\&.006, 06-058" "USER COMMANDS "
+.\" Copyright (c) 2008 Stijn van Dongen
+.TH "mcxdump" 1 "5 Jun 2008" "mcxdump 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -32,8 +32,12 @@ mcxdump \- dump matrices, optionally map indices to labels
 .SH SYNOPSIS
 
 \fBmcxdump\fP
-\fB-imx\fP <fname> (\fImatrix file\fP)
-\fB[-o\fP <fname> (\fIdumpf file (\&'-\&' for stdout)\fP)\fB]\fP
+\fB[-imx\fP <fname> (\fImatrix file\fP)\fB]\fP
+\fB[-imx-cat\fP <fname> (\fIconcatenation matrix file\fP)\fB]\fP
+\fB[-imx-tree\fP <fname> (\fIconcatenation cone file\fP)\fB]\fP
+\fB[--skeleton\fP (\fIread empty matrix, honour domains\fP)\fB]\fP
+\fB[-o\fP <fname> (\fIoutput file name (\&'-\&' for stdout)\fP)\fB]\fP
+\fB[-digits\fP <num> (\fIoutput precision\fP)\fB]\fP
 \fB[-tab\fP <fname> (\fIrow/column tab (label) file\fP)\fB]\fP
 \fB[-tabc\fP <fname> (\fIcolumn tab file\fP)\fB]\fP
 \fB[-tabr\fP <fname> (\fIrow tab file\fP)\fB]\fP
@@ -44,16 +48,37 @@ mcxdump \- dump matrices, optionally map indices to labels
 \fB[--force-loops\fP (\fIforce loops\fP)\fB]\fP
 \fB[--dump-pairs\fP (\fIemit pairs per line\fP)\fB]\fP
 \fB[--dump-lines\fP (\fIemit rows per line\fP)\fB]\fP
-\fB[--dump-rlines\fP (\fIomit leading column node\fP)\fB]\fP
-\fB[--dump-tabc\fP (\fIdump tab file on column domain\fP)\fB]\fP
-\fB[--dump-tabr\fP (\fIdump tab file on row domain\fP)\fB]\fP
+\fB[--dump-rlines\fP (\fIomit leading identifier\fP)\fB]\fP
+\fB[--dump-lead-off\fP (\fIomit leading identifier\fP)\fB]\fP
+\fB[--dump-lower\fP (\fIdump lower part excluding diagonal\fP)\fB]\fP
+\fB[--dump-loweri\fP (\fIdump lower part including diagonal\fP)\fB]\fP
+\fB[--dump-upper\fP (\fIdump upper part excluding diagonal\fP)\fB]\fP
+\fB[--dump-upperi\fP (\fIdump upper part including diagonal\fP)\fB]\fP
+\fB[--write-tabc\fP (\fIdump tab file on column domain\fP)\fB]\fP
+\fB[--write-tabr\fP (\fIdump tab file on row domain\fP)\fB]\fP
+\fB[--dump-domc\fP (\fIdump column domain\fP)\fB]\fP
+\fB[--dump-domr\fP (\fIdump row domain\fP)\fB]\fP
+\fB[--dump-table\fP (\fIdump table format\fP)\fB]\fP
+\fB[--dump-lead-off\fP (\fIdo not dump leading identifiers\fP)\fB]\fP
+\fB[-table-nfields\fP <num> (\fIoutput first <num> fields\fP)\fB]\fP
+\fB[-table-nlines\fP <num> (\fIoutput first <num> lines\fP)\fB]\fP
+\fB[--table-keys\fP (\fIdump field/cell identifiers\fP)\fB]\fP
+\fB[--newick\fP (\fIoutput newick format\fP)\fB]\fP
+\fB[-newick\fP [NBI]+ (\fIexclude Number|Branch-length|Indent\fP)\fB]\fP
+\fB[--write-matrix\fP (\fI(deconcatenate) write matrices\fP)\fB]\fP
+\fB[-split-stem\fP <str> (\fI(deconcatenate) matrices file name stem\fP)\fB]\fP
+\fB[-cat-max\fP <num> (\fI(deconcatenate) write first <num> matrices\fP)\fB]\fP
 \fB[-dump\fP <fname> (\fIalias for -o\fP)\fB]\fP
 \fB[-sep-value\fP <str> (\fInode/value separator\fP)\fB]\fP
 \fB[-sep-field\fP <str> (\fIfield separator\fP)\fB]\fP
 \fB[-sep-lead\fP <str> (\fIlead separator\fP)\fB]\fP
-\fB[-h\fP (\fIlist help\fP)\fB]\fP
-\fB[--apropos\fP (\fIlist synopsis of all options\fP)\fB]\fP
+\fB[-sep-cat\fP <str> (\fIconcatenation separator\fP)\fB]\fP
+\fB[-sort\fP size-{ascending,descending} (\fIvector sort mode\fP)\fB]\fP
+\fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--apropos\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--version\fP (\fIprint version, exit\fP)\fB]\fP
 .SH DESCRIPTION
+
 \fBmcxdump\fP reads a data file satisfying the mcl input format
 (refer to \fBmcxio(5)\fP)\&. It outputs a line-based format\&. The
 \fB--dump-pairs\fP option yields a single matrix entry per line,
@@ -63,6 +88,10 @@ The \fB--dump-lines\fP and \fB--dump-rlines\fP result in the
 joining of all row entries on a single line, separated by the field
 separator\&. For both formats, the matrix value corresponding with
 a particular entry is by default output as well\&.
+
+\fBmcxdump\fP can also act on files that contain concatenated
+matrices\&. Refer to the group of options headed by
+\fB-imx-cat\fP\ \&\fIfname\fP\&.
 .SH OPTIONS
 
 .ZI 3m "\fB-imx\fP <fname> (\fImatrix file\fP)"
@@ -71,10 +100,28 @@ a particular entry is by default output as well\&.
 Input matrix\&.
 .in -3m
 
-.ZI 3m "\fB-dump\fP <fname> (\fIdumpf file (\&'-\&' for stdout)\fP)"
+.ZI 3m "\fB--transpose\fP (\fIwork with the transpose\fP)"
 \&
 .br
-Output stream\&.
+Work with the tranpsose of the input matrix\&.
+.in -3m
+
+.ZI 3m "\fB--skeleton\fP (\fIread empty matrix, honour domains\fP)"
+\&
+.br
+No entries are read, only domains\&.
+.in -3m
+
+.ZI 3m "\fB-o\fP <fname> (\fIoutput file name\fP)"
+\&
+.br
+Output stream\&. Use \fC-\fP for STDOUT\&.
+.in -3m
+
+.ZI 3m "\fB-digits\fP <num> (\fIoutput precision\fP)"
+\&
+.br
+Specify the precision to use in native interchange format\&.
 .in -3m
 
 .ZI 3m "\fB-tab\fP <fname> (\fIrow/column tab (label) file\fP)"
@@ -129,41 +176,169 @@ Applies only to matrices for which column and row domains are equal\&.
 
 .ZI 3m "\fB--dump-pairs\fP (\fIemit pairs per line\fP)"
 \&
-.br
-Output a single pair of column-identifier and row-identifier per line,
-optionally followed by the value of the corresponding matrix entry\&.
-All fields are separated by the field separator\&.
-.in -3m
-
+'in -3m
 .ZI 3m "\fB--dump-lines\fP (\fIemit rows per line\fP)"
 \&
+'in -3m
+.ZI 3m "\fB--dump-rlines\fP (\fIomit leading column node\fP)"
+\&
+'in -3m
+.ZI 3m "\fB--dump-lead-off\fP (\fIdo not dump leading identifiers\fP)"
+\&
+'in -3m
+.ZI 3m "\fB--dump-lower\fP (\fIdump lower part excluding diagonal\fP)"
+\&
+'in -3m
+.ZI 3m "\fB--dump-loweri\fP (\fIdump lower part including diagonal\fP)"
+\&
+'in -3m
+.ZI 3m "\fB--dump-upper\fP (\fIdump upper part excluding diagonal\fP)"
+\&
+'in -3m
+.ZI 3m "\fB--dump-upperi\fP (\fIdump upper part including diagonal\fP)"
+\&
+'in -3m
+'in +3m
+\&
 .br
-For each matrix column, the corresponding row is output on a
+\fB--dump-pairs\fP is the default mode of output\&. Each matrix entry
+is output as a single pair of column-identifier and row-identifier per line,
+optionally followed by the value of the corresponding matrix entry\&.
+All fields are separated by the field separator\&.
+
+With \fB--dump-lines\fP, each matrix column is output on a
 single line, with row identifiers separated by the field separator
 and values attached to the row identifier by the node/value separator\&.
 In this format, the column identifier is output as the leading field\&.
+
+\fB--dump-rlines\fP is as \fB--dump-lines\fP,
+except that the column identifier is not output\&.
+Use \fB--dump-lead-off\fP to preclude the output of the leading
+identifiers (for line-based outputs)\&.
+
+The options pertaining to \fIlower\fP and \fIupper\fP dumps currently
+only work with \fB--dump-pairs\fP\&. They act to only output
+the specified part of the matrix\&.
 .in -3m
 
-.ZI 3m "\fB--dump-rlines\fP (\fIomit leading column node\fP)"
+.ZI 3m "\fB--dump-table\fP (\fIdump table format\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-table-nfields\fP (\fIfield limit\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-table-nlines\fP (\fIline/row limit\fP)"
+\&
+'in -3m
+.ZI 3m "\fB--table-keys\fP (\fIdo dump field/cell identifiers\fP)"
+\&
+'in -3m
+'in +3m
 \&
 .br
-As the option above, except that the column identifier is not output\&.
+Output table format\&. In table format no indices are printed by default
+and all values
+are printed including zeroes\&. The options \fB-table-nfields\fP and \fB-table-nlines\fP
+can be used to limit
+the number of fields and lines to be printed\&. Note that fields correspond
+to MCL matrix rows and that lines correspond to MCL matrix columns, as MCL
+calls its primary indices column indices\&.
+Use \fB--table-keys\fP to include identifiers (tab-derived if a tab file is specified)\&.
+Use \fB--dump-lead-off\fP to preclude the output of the leading
+identifiers (for line-based outputs)\&.
 .in -3m
 
-.ZI 3m "\fB--dump-tabc\fP (\fIdump tab file on column domain\fP)"
+.ZI 3m "\fB--newick\fP (\fIoutput newick format\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-newick\fP [NBI]+ (\fInewick, exclude Number|Branch-length|Indent\fP)"
+\&
+'in -3m
+'in +3m
 \&
 .br
-This will only infer the domains from the input matrix\&. It assumes
-the input tab file envelopes the matrix column domain, and it outputs
-a new tab file restricted to that domain\&.
+Boo\&.
 .in -3m
 
-.ZI 3m "\fB--dump-tabr\fP (\fIdump tab file on row domain\fP)"
+.ZI 3m "\fB--write-tabc\fP (\fIdump tab file on column domain\fP)"
+\&
+'in -3m
+.ZI 3m "\fB--write-tabr\fP (\fIdump tab file on row domain\fP)"
+\&
+'in -3m
+.ZI 3m "\fB--dump-domc\fP (\fIdump column domain\fP)"
+\&
+'in -3m
+.ZI 3m "\fB--dump-domr\fP (\fIdump row domain\fP)"
+\&
+'in -3m
+'in +3m
+\&
+.br
+These options work in conjunction with the \fB-ixm\fP\ \&\fIfname\fP option\&.
+Only the domains from the input matrix are read as if \fB--skeleton\fP
+was specified\&.
+\fB--write-tabc\fP assumes the input tab file envelopes the matrix column
+domain, and it outputs a new tab file restricted to that domain\&.
+\fB--write-tabr\fP acts analogously for the row domain\&.
+\fB--dump-domc\fP and \fB--dump-domr\fP respectively dump the column
+and domain as a regular dump, outputting labels in case a tab file is
+specified\&.
+
+These options are implemented as ensembles of other options\&.
+For example, \fB--dump-domr\fP \fB-imx\fP\ \&\fIfname\fP corresponds with
+\fB--dump-lines\fP \fB--transpose\fP \fB--skeleton\fP\&.
+.in -3m
+
+.ZI 3m "\fB--write-tabr\fP (\fIdump tab file on row domain\fP)"
 \&
 .br
 This will only infer the domains from the input matrix\&. It assumes
 the input tab file envelopes the matrix row domain, and it outputs
 a new tab file restricted to that domain\&.
+.in -3m
+
+.ZI 3m "\fB-imx-cat\fP <fname> (\fIconcatenation matrix file\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-imx-tree\fP <fname> (\fIconcatenation cone file\fP)"
+\&
+'in -3m
+.ZI 3m "\fB--write-matrix\fP (\fI(deconcatenate) write matrices\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-split-stem\fP <str> (\fI(deconcatenate) matrices file name stem\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-cat-max\fP <num> (\fI(deconcatenate) write first <num> matrices\fP)"
+\&
+'in -3m
+'in +3m
+\&
+.br
+\fB-imx-cat\fP is like \fB-imx\fP except that the input is assumed to
+contain multiple concatenated matrices\&.
+The matrices are dumped separated by the
+\fIcat separator\fP (cf\&. \fB-sep-cat\fP)\&.
+Alternatively, the matrices can be written to different files
+using the \fB-split-stem\fP option\&.
+In this case it is possible to output each matrix in native format
+rather than as a dump by specifying \fB--write-matrix\fP\&.
+This makes mcxdump effectively act as a deconcatenator\&.
+In all cases (respectively dumping and writing matrices
+to either the same stream or multiple files) the number of
+matrices to be dumped can be limited with \fB-cat-max\fP\&.
+
+\fB-imx-tree\fP is like \fB-imx-cat\fP except that the input
+is assumed to be in cone format (the format output by \fBmclcm\fP)\&.
+This format encodes a tree as a concatenation of matrices with
+nested domains\&. \fBmcxdump\fP will project all levels of this tree
+so that all row domains are the same as the bottom row domain\&.
+This implies that a set of nested clusterings (on different node
+sets, as the set of clusters of a given level is the node set
+of the next level) is transformed
+into a set of flattened clusterings, all on the same node set\&.
+If you do not want this to happen, simply use \fB-imx-cat\fP\&.
 .in -3m
 
 .ZI 3m "\fB-sep-value\fP <str> (\fInode/value separator\fP)"
@@ -189,16 +364,19 @@ more than one entry in a matrix mapping nodes to clusters\&. This
 will find nodes in overlap\&.
 .in -3m
 
-.ZI 3m "\fB-h\fP (\fIlist help\fP)"
+.ZI 3m "\fB-sep-cat\fP <str> (\fIconcatenation separator\fP)"
 \&
 .br
-Print help, same as \fB--apropos\fP\&.
+Set the separator that is used between matrix dumps when a concatenation of
+matrices is dumped\&.
 .in -3m
 
-.ZI 3m "\fB--apropos\fP (\fIlist synopsis of all options\fP)"
+.ZI 3m "\fB-sort\fP size-{ascending,descending} (\fIconcatenation separator\fP)"
 \&
 .br
-List a one-line synopsis for all options\&.
+Reorder the matrix columns prior to dumping, based on the number of
+nonzero entries in each column\&.
+Do not use this in conjunction with a tab file for the column domain\&.
 .in -3m
 .SH AUTHOR
 

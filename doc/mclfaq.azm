@@ -17,42 +17,42 @@
 \sec{name}{NAME}
 \NAME{mclfaq}{faqs and facts about the MCL cluster algorithm.}
 
-\par
+\par{
    MCL refers to the generic MCL algorithm and the MCL process on which the
    algorithm is based. \mcl refers to the implementation.  This FAQ answers
    questions related to both.  In some places MCL is written where MCL or mcl
    can be read. This is the case for example in
    \iref{kind}{section \ref{kind}{num},\~\ref{kind}{cap}}.
-   It should in general be obvious from the context.
+   It should in general be obvious from the context.}
 
-\par
+\par{
    This FAQ does not begin to attempt to explain the motivation
    and mathematics behind the MCL algorithm - the internals are not
    explained. A broad view is given in faq\~\fnum{overview},
-   and see also faq\~\fnum{innards} and section \secref{references}.
+   and see also faq\~\fnum{innards} and section \secref{references}.}
 
-\par
+\par{
    Some additional sections preceed the actual faq entries.
    The TOC section contains a listing of all questions.
 \${html}{
    \bf{Clicking on the number of a question}
    (where it is answered) will take you to
    the corresponding section of the table of contents.
-}
+}}
 
 \sec{resources}{RESOURCES}
-\par
+\par{
    The manual pages for all the utilities that come with \mcl;
-   refer to \mysib{mclfamily} for an overview.
+   refer to \mysib{mclfamily} for an overview.}
 
-\par
+\par{
    mcl development is discussed on mcl-devel@micans.org,
    list information is at
-   \httpref{https://lists.micans.org:446/listinfo/mcl-devel}.
+   \httpref{https://lists.micans.org/listinfo/mcl-devel}.}
 
-\par
+\par{
    See the \secref{references} Section for publications detailing the
-   mathematics behind the MCL algorithm.
+   mathematics behind the MCL algorithm.}
 
 \sec{toc}{TOC}
 
@@ -66,6 +66,7 @@
 }
 
 \faq{}{For whom is mcl and for whom is this FAQ?}
+\car{
    For everybody with an appetite for graph clustering.
    Regarding the FAQ, I have kept the amount of
    mathematics as low as possible, as far as matrix analysis is concerned.
@@ -74,62 +75,65 @@
    accuracy.  Graph terminology is used somewhat more carelessly though. The
    future might bring definition entries, right now you have to do without.
    Mathematically inclined people may be interested in the pointers found in
-   the \secref{references} section.
+   the \secref{references} section.}
 
-\par
+\par{
    Given this mention of mathematics, let me point out this one time only that
    using \mcl is extremely straightforward anyway.  You need only mcl and an
    input graph (refer to the \sibref{mcl}{mcl manual page}), and many people
-   trained in something else than mathematics are using mcl happily.
+   trained in something else than mathematics are using mcl happily.}
 
 \faq{overview}{What is the relationship between the MCL process, the MCL algorithm, and the 'mcl' implementation?}
+\car{
    \mcl is what you use for clustering. It implements the MCL algorithm,
    which is a cluster algorithm for graphs. The MCL algorithm is basically
    a shell in which the MCL process is computed and interpreted. I will
-   describe them in the natural, reverse, order.
+   describe them in the natural, reverse, order.}
 
-\par
-   The MCL process generates a row of stochastic matrices given some initial
+\par{
+   The MCL process generates a sequence  of stochastic matrices given some initial
    stochastic matrix. The elements with even index are obtained by
    \it{expanding} the previous element, and the elements with odd index are
    obtained by \it{inflating} the previous element given some inflation
    constant. Expansion is nothing but normal matrix squaring, and inflation is
    a particular way of rescaling the entries of a stochastic matrix such that
-   it remains stochastic.
+   it remains stochastic.}
 
-\par
-   The row of MCL elements (from the MCL process) is in principle without end,
+\par{
+   The sequence  of MCL elements (from the MCL process) is in principle without end,
    but what happens is that the elements converge to some specific kind of
    matrix, called the \it{limit} of the process.  The heuristic underlying MCL
    predicts that the interaction of expansion with inflation will lead to a
    limit exhibiting cluster structure in the graph associated with the
    initial matrix. This is indeed the case, and several mathematical results
    tie MCL iterands and limits and the MCL interpretation together
-   (\secref{references}).
+   (\secref{references}).}
 
-\par
-   The MCL algorithm is simply a shell around the MCL process in which
-   an input graph is transformed into an initial matrix suitable for
-   starting the process, in which inflation parameters are set, and
-   in which the MCL process is stopped once the limit is reached,
-   and in which the result is interpreted as a clustering.
+\par{
+   The MCL algorithm is simply a shell around the MCL process. It
+   transforms an input graph into an initial matrix suitable for
+   starting the process. It sets inflation parameters and stops the
+   MCL process once a limit is reached, i.e. convergence is detected.
+   The result is then interpreted as a clustering.}
 
-\par
+\par{
    The \mcl implementation supplies the functionality of the MCL algorithm,
    with some extra facilities for manipulation of the input graph, interpreting
    the result, manipulating resources while computing the process, and
-   monitoring the state of these manipulations.
+   monitoring the state of these manipulations.}
 
 
 \faq{}{What do the letters MCL stand for?}
+\car{
    For \it{Markov Cluster}. The MCL algorithm is a \bf{cluster} algorithm
    that is basically a shell in which an algebraic process is computed.
    This process iteratively generates stochastic matrices, also known
    as \bf{Markov} matrices, named after the famous Russian
-   mathematician Andrei Markov.
+   mathematician Andrei Markov.}
 
 \faq{}{How could you be so feebleminded to use MCL as abbreviation? Why
 is it labeled 'Markov cluster' anyway?}
+\car{
    Sigh. It is a widely known fact that a TLA or Three-Letter-Acronym
    is \it{the canonical self-describing abbreviation for the name
    of a species with which computing terminology is infested} (quoted
@@ -139,9 +143,9 @@ is it labeled 'Markov cluster' anyway?}
    (and would still do that today). Then \it{MCL} occurred
    to me, and without giving it much thought I started using it.
    A Google search (or was I still using Alta-Vista back then?)
-   might have kept me from going astray.
+   might have kept me from going astray.}
 
-\par
+\par{
    Indeed, \it{MCL} is used as a tag for \it{Macintosh Common Lisp},
    \it{Mission Critical Linux}, \it{Monte Carlo Localization}, \it{MUD Client
    for Linux}, \it{Movement for Canadian Literacy}, and a gazillion other
@@ -149,40 +153,41 @@ is it labeled 'Markov cluster' anyway?}
    the three characters \v{MCL} possess otherworldly magical powers making
    them an ever so strange and strong attractor in the space of TLAs. It
    probably helps that Em-See-Ell (Em-Say-Ell in Dutch) has some rhythm
-   to it as well.  Anyway MCL stuck, and it's here to stay.
+   to it as well.  Anyway MCL stuck, and it's here to stay.}
 
-\par
+\par{
    On a more general level, the label \it{Markov Cluster} is not an entirely
    fortunate choice either. Although phrased in the language of stochastic
    matrices, MCL theory bears very little relation to Markov theory, and is
    much closer to matrix analysis (including Hilbert's distance) and the theory
    of dynamical systems. No results have been derived in the latter framework,
    but many conjectures are naturally posed in the language of dynamical
-   systems.
+   systems.}
+
 \faq{innards}{Where can I learn about the innards of the MCL algorithm/process?}
+\car{
    Currently, the most basic explanation of the MCL algorithm is found in the
    technical report \refer{cafg}. It contains sections on several other
    (related) subjects though, and it assumes some working knowledge on graphs,
-   matrix arithmetic, and stochastic matrices.
+   matrix arithmetic, and stochastic matrices.}
 
 
 \faq{}{For which platforms is mcl available?}
+\car{
    It should compile and run on virtually any flavour of UNIX (including Linux
    and the BSD variants of course). Following the instructions in the INSTALL
    file shipped with mcl should be straightforward and sufficient.  Courtesy to
-   Joost van Baal who completely autofooled \mcl.
+   Joost van Baal who completely autofooled \mcl.}
 
-\par
+\par{
    Building MCL on Wintel (Windows on Intel chip) should be straightforward if
    you use the full suite of cygwin tools. Install cygwin if you do not have it
    yet. In the cygwin shell, unpack mcl and simply issue the commands
    \it{./configure, make, make install}, i.e. follow the instructions in
-   INSTALL.
+   INSTALL.}
 
 \par{
-   This MCL implementation has not yet been reported to run on MAC.  For the
-   latest Mac OS X one would expect that it is certainly possible to
-   make this happen.}
+   This MCL implementation should also build successfully on Mac OS X.}
 
 \par{
    If you have further questions or news about this issue, contact
@@ -206,10 +211,10 @@ is it labeled 'Markov cluster' anyway?}
    stamps, also have something like version numbers, wanting to use those to
    indicate noteworthy changes. The April 2002 release got version tag 1.001,
    in order to celebrate the then-recent addition of this FAQ, mcl's new
-   logging facility \genopt{--log}, and \clmimac to the MCL distribution.  The
+   logging facility \genopt{--log}, and \clmref{imac} to the MCL distribution.  The
    January 2003 release had its version number bumped to 1.002, marking MCL's
    ability to directly deal with a much more general type of graph encoding.
-   1.003 brought mclpipeline, mcxdeblast, mclblastline, mcxassemble, clmformat
+   1.003 brought mclpipeline, mcxdeblast, mclblastline, mcxassemble, \clmformat
    and automatic output naming. 1.004 revived binary format, improved mcxsubs,
    and had a host of other additions. 1.005 removed an IO bottleneck,
    considerably speeding up matrix reads. 1.006 featured mcl's ability to
@@ -225,7 +230,7 @@ is it labeled 'Markov cluster' anyway?}
 
 \faq{}{How can I get my data into the MCL matrix format?}
 
-\par{
+\car{
    One of the easiest ways is if you have a list of label pairs with
    similarities attached to the pairs.
    Put this information into a file with each
@@ -253,7 +258,7 @@ pears     apples     1.01}
    This is nonsensical with this particular 4-node input but a good idea in
    general.  \mcl provides many options to cache the intermediate matrix input
    and the intermediate tab file.  Refer to the \sibref{mcl}{mcl manual page},
-   specifically look for the \genopt{-cache-tab} and \genopt{-cache-graph}
+   specifically look for the \genopt{-write-tab} and \genopt{-write-graph}
    options.}
 
 \par{
@@ -270,10 +275,9 @@ pears     apples     1.01}
    mcl mydata --abc -I 2.8}
 
 \car{
-   will result in the output files \v{out.mydata.I20s6},
-   \v{out.mydata.I24s6}, and \v{out.mydata.I28s6}. The \v{s6} bit
-   indicates the resource scheme used by mcl. The automatic
-   naming facility is very convenient \- try it. If you need to
+   will result in the output files \v{out.mydata.I20},
+   \v{out.mydata.I24}, and \v{out.mydata.I28}.
+   The automatic naming facility is very convenient \- try it. If you need to
    script mcl use the \genopt{-az} option to capture the name
    that mcl \it{would} generate given the rest of the command-line.}
 
@@ -286,90 +290,101 @@ pears     apples     1.01}
 }
 
 \faq{}{What is legal input for MCL?}
+\car{
    Any graph (encoded as a matrix of similarities) that is nonnegative,
-   i.e. all similarities are greater than or equal to zero.
+   i.e. all similarities are greater than or equal to zero.}
 
 \faq{}{What is sensible input for MCL?}
-   It is ok for graphs to be weighted, and they should preferably be symmetric.
-   They should certainly not contain parts that are (almost) cyclic,
-   although nothing stops you from experimenting with such input.
+\car{
+   Graphs can be weighted, and they should preferably be symmetric.  Weights
+   should carry the meaning of similarity, \it{not} distance.  These weights or
+   similarities are incorporated into the MCL algorithm in a meaningful way.
+   Graphs should certainly not contain parts that are (almost) cyclic, although
+   nothing stops you from experimenting with such input.
+   }
 
 \faq{}{Does MCL work for weighted graphs?}
+\car{
    Yes, unequivocally. They should preferably be symmetric/undirected though.
-   See entries\~\fnum{whatkind} and\~\fnum{goodinput}.
+   See entries\~\fnum{whatkind} and\~\fnum{goodinput}.}
 
 \faq{}{Does MCL work for directed graphs?}
+\car{
    Maybe, with a big caveat. See entries\~\fnum{goodinput}
-   and\~\fnum{directedinput}.
+   and\~\fnum{directedinput}.}
 
 \faq{}{Can MCL work for lattices / directed acyclic graphs / DAGs?}
+\car{
    Such graphs [term] can surely exhibit clear cluster structure.  If they
    do, there is only one way for mcl to find out. You have to change all arcs
    to edges, i.e. if there is an arc from i to j with similarity s(i,j) \- by
-   the DAG property this implies s(j,i) = 0 \- then make s(j,i) equal to
-   s(i,j).
+   the DAG property this implies s(j,i) = 0 \- then make s(j,i) equal to s(i,j).}
 
-\par
+\par{
    This may feel like throwing away valuable information, but in truth the
    information that is thrown away (direction) is \it{not} informative with
    respect to the presence of cluster structure. This may well deserve a longer
-   discussion than would be justified here.
+   discussion than would be justified here.}
 
 \faq{}{Does MCL work for tree graphs?}
-   Nah, I don't think so. More info at entry\~\fnum{whatkind}.
+\car{
+   Nah, I don't think so. More info at entry\~\fnum{whatkind}.}
 
 
 \faq{whatkind}{For what kind of graphs does MCL work well and for which does it not?}
+\car{
    Graphs in which the diameter [term] of (subgraphs induced by) natural
    clusters is not too large. Additionally, graphs should preferably be
    (almost) undirected (see entry below) and not so sparse that the cardinality
-   of the edge set is close to the number of nodes.
+   of the edge set is close to the number of nodes.}
 
-\par
+\par{
    A class of such very sparse graphs is that of tree graphs. You might look
    into \it{graph visualization} software and research if you are interested
-   in decomposing trees into 'tight' subtrees.
+   in decomposing trees into 'tight' subtrees.}
 
-\par
+\par{
    The diameter criterion could be violated by
    neighbourhood graphs derived from vector data. In the specific case
    of 2 and 3 dimensional data, you might be interested
    in \it{image segmentation} and \it{boundary detection}, and for
-   the general case there is a host of other algorithms out there. [add]
+   the general case there is a host of other algorithms out there. [add]}
 
-\par
+\par{
    In case of weighted graphs, the notion of \it{diameter} is sometimes not
    applicable.  Generalizing this notion requires inspecting the \it{mixing
    properties} of a subgraph induced by a natural cluster in terms of its
    spectrum. However, the diameter statement is something grounded on heuristic
    considerations (confirmed by practical evidence \refer{pcfgcmce})
-   to begin with, so you should probably forget about mixing properties.
+   to begin with, so you should probably forget about mixing properties.}
 
 
 \faq{goodinput}{What makes a good input graph?
 How do I construct the similarities?
 How to make them satisfy this Markov condition?}
+\car{
    To begin with the last one: you \it{need not and must not} make the
    input graph such that it is stochastic aka Markovian [term]. What you
    need to do is make a graph that is preferably symmetric/undirected,
    i.e. where s(i,j) = s(j,i) for all nodes i and j. It need not be
    perfectly undirected, see the following faq for a discussion of that.
    \mcl will work with the graph of random walks that is associated
-   with your input graph, and that is the natural state of affairs.
+   with your input graph, and that is the natural state of affairs.}
 
-\par
+\par{
    The input graph should preferably be honest in the sense that if s(x,y)=N
    and s(x,z)=200N (i.e. the similarities differ by a factor 200), then
    this should really reflect that the similarity of y to x is neglectible
-   compared with the similarity of z to x.
+   compared with the similarity of z to x.}
 
-\par
+\par{
    For the rest, anything goes. Try to get a feeling by experimenting.
    Sometimes it is a good idea to filter out high-frequency
    and/or low-frequency data, i.e. nodes with either very many neighbours
-   or extremely few neighbours.
+   or extremely few neighbours.}
 
 \faq{directedinput}{My input graph is directed. Is that bad?}
+\car{
    It depends. The class of directed graphs can be viewed as a spectrum going
    from undirected graphs to uni-directed graphs.  \it{Uni-directed} is
    terminology I am inventing here, which I define as the property that
@@ -377,16 +392,17 @@ How to make them satisfy this Markov condition?}
    words, if there is an arc going from i to j in a uni-directed graph, then
    there is no arc going from j to i. I call a node pair i, j,
    \it{almost uni-directed} if s(i,j) << s(j,i) or vice versa,
-   i.e. if the similarities differ by an order of magnitude.
+   i.e. if the similarities differ by an order of magnitude.}
 
-\par
+\par{
    If a graph does not have (large) subparts that are (almost) uni-directed,
    have a go with mcl. Otherwise, try to make your graph less uni-directed.
    You are in charge, so do anything with your graph as you see fit,
-   but preferably abstain from feeding mcl uni-directed graphs.
+   but preferably abstain from feeding mcl uni-directed graphs.}
 
 \faq{}{Why does mcl like undirected graphs and why does it
 dislike uni-directed graphs so much?}
+\car{
    Mathematically, the mcl iterands will be \it{nice} when the input graph is
    symmetric, where \it{nice} is in this case \it{diagonally symmetric to a
    semi-positive definite matrix} (ignore as needed).  For one thing, such nice
@@ -394,38 +410,39 @@ dislike uni-directed graphs so much?}
    interpretation of the mcl limit as a clustering (if you are curious to these
    intermediate clusterings, see \iref{imac}{faq entry\~\refnumber{imac}}).
    See the \secref{references} section for pointers to mathematical
-   publications.
+   publications.}
 
-\par
+\par{
    The reason that mcl dislikes uni-directed graphs is not very mcl specific,
    it has more to do with the clustering problem itself.
    Somehow, directionality thwarts the notion of cluster structure.
-   [add].
+   [add].}
 
 \faq{checksymmetry}{How do I check that my graph/matrix is symmetric/undirected?}
+\car{
    Whether your graph is created by third-party software or by custom sofware
    written by someone you know (e.g. yourself), it is advisable to test whether
    the software generates symmetric matrices.  This can be done as follows
-   using the \sibref{mcx}{mcx utility}, assuming that you want to test the
-   matrix stored in file \v{matrix.mci}.  The mcx utility should be available
-   on your system if mcl was installed in the normal way.
+   using the \sibref{mcxi}{mcxi utility}, assuming that you want to test the
+   matrix stored in file \v{matrix.mci}.  The mcxi utility should be available
+   on your system if mcl was installed in the normal way.}
 
-\verbatim{mcx /matrix.mci lm tp -1 mul add /check wm}
+\verbatim{mcxi /matrix.mci lm tp -1 mul add /check wm}
 
-\car
-   This loads the graph/matrix stored in \v{matrix.mci} into \bf{mcx}'s memory with
-   the mcx \it{lm} primitive.  \- the leading slash is how strings are
-   introduced in the stack language interpreted by \bf{mcx}. The transpose of
+\car{
+   This loads the graph/matrix stored in \v{matrix.mci} into \bf{mcxi}'s memory with
+   the \mcxi \it{lm} primitive.  \- the leading slash is how strings are
+   introduced in the stack language interpreted by \mcxi. The transpose of
    that matrix is then pushed on the stack with the \it{tp} primitive and
    multiplied by minus one.  The two matrices are added, and the result is
    written to the file \v{check}.
    The transposed matrix is the mirrored version of the original matrix stored
    in \v{matrix.mci}.  If a graph/matrix is undirected/symmetric, the mirrored
    image is necessarily the same, so if you subtract one from the other it
-   should yield an all zero matrix.
+   should yield an all zero matrix.}
 
-\par
-   Thus, the file \v{check} \it{should look like this}:
+\par{
+   Thus, the file \v{check} \it{should look like this}:}
 
 \verbatim{(mclheader
 mcltype matrix
@@ -435,12 +452,12 @@ dimensions <num>x<num>
 begin
 )}
 
-\car
+\car{
    Where \v{<num>} is the same as in the file \v{matrix.mci}.  If this is not
    the case, find out what's prohibiting you from feeding mcl symmetric
    matrices. Note that any nonzero entries found in the matrix stored as
    \v{check} correspond to node pairs for which the arcs in the two possible
-   directions have different weight.
+   directions have different weight.}
 
 \end{faqsec}
 
@@ -450,27 +467,28 @@ begin
 }
 
 \faq{howfast}{How fast is mcl/MCL?}
+\car{
    It's fast - here is how and why. Let N be the number of nodes in the input
    graph. A straigtforward implementation of MCL will have time and space
    complexity respecively O(N^3) (i.e. cubic in N) and O(N^2) (quadratic in N).
-   So you don't want one of those.
+   So you don't want one of those.}
 
-\par
+\par{
    \mcl implements a slightly perturbed version of the MCL  process,
    as discussed in section \iref{resource}{\refcaption{resource}}.
    Refer to that section for a more extensive discussion of all
    the aspects involved. This section is only concerned with the high-level
-   view of things \it{and} the nitty gritty complexity details.
+   view of things \it{and} the nitty gritty complexity details.}
 
-\par
+\par{
    While computing the square of a matrix
    (the product of that matrix with itself), mcl keeps the matrix sparse
    by allowing a certain maximum number of nonzero entries
    per stochastic column. The maximum is one of the mcl parameters, and
-   it is typically set somewhere between 500 and 1000.
-   Call the maximum K.
+   it is typically set somewhere between 500 and 1500.
+   Call the maximum K.}
 
-\par
+\par{
    mcl's time complexity is governed by the complexity of matrix squaring.
    There are two sub-algorithms to consider. The first is the
    algorithm responsible for assembling a new vector during matrix
@@ -485,56 +503,58 @@ begin
    the number of cross-computations when carrying out matrix
    multiplication among multiple processors.]
    In actual cases of heavy usage, L is of order in the tens of thousands, and
-   K is in the order of several hundreds up to a thousand.
+   K is in the order of several hundreds up to a thousand.}
 
-\par
+\par{
    It is safe to say that in general the worst case complexity of mcl
    is of order O(N*K^2); for extremely tight and dense graphs this
    might become O(N*N*log(K)). Still, these are worst case estimates,
    and observed running times for actual usage are much better than that.
-   (refer to faq\~\fnum{stats}).
+   (refer to faq\~\fnum{stats}).}
 
-\par
+\par{
    In this analysis, the number of iterations required by mcl was not
    included. It is nearly always far below 100. Only the first
    few iterations are genuinely time consuming; the first few iterations
    (some number below 10) are usually responsible for more than 95 percent
-   of the running time.
+   of the running time.}
 
-\par
+\par{
    The process of removing the smallest entries of a vector is called
    pruning.  mcl provides extensive facilities for monitoring and controlling
    the effect of pruning, and it will output statistics and a summary once it
    is done. More information is provided in the pruning section of the
    \sibref{mcl}{mcl manual} and \iref{resource}{Section\~\refnumber{resource}}
-   in this FAQ.
+   in this FAQ.}
 
-\par
-   The space complexity is of order O(N*K).
+\par{
+   The space complexity is of order O(N*K).}
 
 \faq{stats}{What statistics are available?}
+\car{
    Few. Some experiments are described in \refer{pcfgcmce}, and
    \refer{eaflsdopf} mentions large graphs being clustered in very reasonable
    time. In protein clustering, \mcl has been applied to graphs with up to one
    million nodes, and on high-end hardware such graphs can be clustered within
-   a few hours.
-
+   a few hours.}
 
 \faq{colsort}{Does this implementation need to sort vectors?}
+\car{
    No, it does not. You might expect that one needs to sort
    a vector in order to obtain the K largest entries, but a simpler
    mechanism called \it{heap selection} does the job nicely.
    Selecting the K largest entries from a set of L by sorting
    would require O(L*log(L)) operations; heap selection
-   requires O(L*log(K)) operations.
+   requires O(L*log(K)) operations.}
 
    
 \faq{approx}{mcl does not compute the ideal MCL process!}
+\car{
    Indeed it does not. What are the ramifications?  Several entries in section
    \iref{resource}{\refcaption{resource}} discuss this issue.  For a synopsis,
-   consider two ends of a spectrum.
+   consider two ends of a spectrum.}
 
-\par
+\par{
    On the one end, a graph that has very strong cluster structure,
    with clearly (and not necessarity fully) separated clusters. This
    mcl implementation will certainly retrieve those clusters if the
@@ -549,41 +569,83 @@ begin
    either here or there, nodes that are of a peripheral nature,
    and for which the (cluster) destination is very sensitive to
    fluctutations in edge weights or algorithm parametrizations (any
-   algorithm, not just mcl).
-   
-\par
+   algorithm, not just mcl).}
+
+\par{
    One can
    say that the perturbation effect of the pruning process applied by
    mcl is just a small source of noise. Additionally, graphs at the noisy
    end of the spectrum will generally be very susceptible to changes in
    parametrization of the MCL algorithm and process, and the perturbation
    caused by computing an imperfect process will generally be small
-   compared with the effect of changing parametrizations.
+   compared with the effect of changing parametrizations.}
 
-\par
+\par{
    Of course, there is the issue of very large and very dense graphs.
    The act of pruning will have a larger impact as graphs grow
    larger and denser.
    Obviously, mcl will have trouble dealing with such very large and very dense
-   graphs \- so will other methods.
+   graphs \- so will other methods.}
 
-\par
+\par{
    Finally, there is the engineering approach, which offers the possibility of
    pruning a whole lot of speculation.  Do the experiments with \mcl, try it
-   out, and see what's there to like and dislike.
+   out, and see what's there to like and dislike.}
+
+\end{faqsec}
 
 
+\begin{faqsec}{
+   {ref}{comparison}
+   {cap}{Comparison with other algorithms}
+}
 
-\faq{elsewhere}{I've read elsewhere that MCL is slow [compared with XYZ]}
+
+\faq{xyzbetter}{I've read someplace that XYZ is much better than MCL}
+\car{
+   XYZ might well be the bees knees of all things clustering. Bear in mind
+   though that comparing cluster algorithms is a very tricky affair.
+   One particular trap is the following. Sometimes a new cluster algorithm is proposed based
+   on some optimization criterion. The algorithm is then compared with
+   previous algorithms (e.g. MCL). But how to compare? Quite often the
+   comparison will be done by computing a criterion and astoundingly,
+   quite often the chosen criterion is simply the optimization criterion again.
+   \it{Of course} XYZ will do very well. It would be a very poor algorithm
+   it if did not score well on its own optimization criterion, and it
+   would be a very poor algorithm if it did not perform better than other
+   algorithms which are built on different principles.}
+
+\par{
+   There are some further issues that have to be considered here.
+   First, there is not a single optimization criterion that
+   fully captures the notion of cluster structure, let alone best cluster
+   structure. Second, leaving optimization approaches aside, it is not
+   possible to speak of a best clustering.  Best always depends on context -
+   application field, data characteristics, scale (granularity), and
+   practitioner to name but a few aspects.
+   Accordingly, the best a clustering algorithm can hope for is to
+   be a good fit for a certain class of problems. The class should not be
+   too narrow, but no algorithm can cater for the broad spectre of
+   problems for which clustering solutions are sought.
+   The class of problems to which MCL is applicable is discussed
+   in section \iref{kind}{\ref{kind}{cap}}.}
+
+
+\faq{xyzslower}{I've read someplace that MCL is slow [compared with XYZ]}
+\car{
    Presumably, they did not know mcl, and did not read the parts
    in \refer{gcbfs} and \refer{cafg} that discuss implementation.  Perhaps
    they assume or insist that the only way to implement MCL is to implement the
    ideal process.  And there is always the genuine possibility
-   of a \it{really} stupifyingly fast algorithm.
+   of a \it{really} stupifyingly fast algorithm. It is certainly not the
+   case that MCL has a time complexity of O(N^3) as is sometimes erroneously
+   stated.}
 
+\""{
    [One such publication is Ulrik Brandes, Marco Gaertler, and
    Dorothea Wagner: Experiments on Graph Clustering Algorithms. Proc. 11th
-   Europ. Symp. Algorithms (ESA '03), Springer LNCS].
+   Europ. Symp. Algorithms (ESA '03), Springer LNCS].}
+
 
 \end{faqsec}
 
@@ -594,21 +656,22 @@ begin
 }
 
 \faq{wdymbrt}{What do you mean by resource tuning?}
+\car{
    \mcl computes a process in which stochastic matrices are alternately
    expanded and inflated. Expansion is nothing but standard matrix
    multiplication, inflation is a particular way of rescaling the matrix
-   entries.
+   entries.}
 
-\par
+\par{
    Expansion causes problems in terms of both time and space.  mcl works with
    matrices of dimension N, where N is the number of nodes in the input graph.
    If no precautions are taken, the number of entries in the mcl iterands
    (which are stochastic matrices) will soon approach the square of N.  The
    time it takes to compute such a matrix will be proportional to the cube of
    N. If your input graph has 100.000 nodes, the memory requirements become
-   infeasible and the time requirements become impossible.
+   infeasible and the time requirements become impossible.}
 
-\par
+\par{
    What mcl does is perturbing the process it computes a little
    by removing the smallest entries \- it keeps its matrices \it{sparse}.
    This is a natural thing to do, because the matrices are sparse in
@@ -624,22 +687,24 @@ begin
    on the resulting clustering, i.e. how would the clustering
    resulting from a \it{perfectly computed} mcl process compare with
    the clustering I have on disk?
-   \iref{pcmp}{Faq entry\~\refnumber{pcmp}} discusses this issue.
+   \iref{pcmp}{Faq entry\~\refnumber{pcmp}} discusses this issue.}
 
-\par
+\par{
    The amount of \it{resources} used by mcl is bounded in terms of the maximum
    number of neighbours a node is allowed to have during all computations.
    Equivalently, this is the maximum number of nonzero entries a matrix column
    can possibly have. This number, finally, is the maximum of the 
    the values corresponding with the \genopt{-S} and \genopt{-R} options.
    The latter two are listed when using the \genopt{-z} option
-   (see faq\~\fnum{defaults}).
+   (see faq\~\fnum{defaults}).}
 
 \faq{}{How do I compute the maximum amount of RAM needed by mcl?}
-   It is rougly equal to
+\car{
+   It is rougly equal to}
 
 \verbatim{2 * s * K * N}
 
+\car{
    bytes, where 2 is the number of matrices held in memory by \mcl, s is the
    size of a single cell (c.q. matrix entry or node/arc specification), N is
    the number of nodes in the input graph, and where K is the maximum of the
@@ -649,21 +714,22 @@ begin
    is listed in one of the first lines of the resulting output.  s equals the
    size of an int plus the size of a float, which will be 8 on most systems.
    The estimate above will in most cases be way too pessimistic (meaning
-   you do not need that amount of memory).
+   you do not need that amount of memory).}
 
-\par
+\: mq
+\par{
    The \genopt{-how-much-ram} option is provided by mcl for computing
    the bound given above. This options takes as argument the number of
-   nodes in the input graph.
+   nodes in the input graph.}
 
 \: In case \mcl
 \: was compiled to use \it{doubles} rather than \it{floats} (i.e. use higher
 \: precision), s will likely be equal to 12 or possibly 16 (the latter could be
 \: due to alignment).
 
-\par
+\par{
    The theoretically more precise upper bound is slightly larger due to
-   overhead.  It is something like
+   overhead.  It is something like}
 
 \verbatim{( 2 * s * (K + c)) * N}
 
@@ -673,22 +739,23 @@ begin
 \: Perfectly Computed MCL Process
 \faq{pcmp}{How much does the mcl clustering differ from the clustering resulting
 from a perfectly computed MCL process?}
+\car{
    For graphs with up until a few thousand nodes a \it{perfectly computed}
    MCL process can be achieved by abstaining from pruning and doing
    full-blown matrix arithmetic. Of course, this still leaves the
-   issue of machine precision, but let us wholeheartedly ignore that.
+   issue of machine precision, but let us wholeheartedly ignore that.}
 
-\par
+\par{
    Such experiments give evidence (albeit incidental) that pruning is indeed
    really what it is thought to be - a small perturbation.  In many cases, the
    'approximated' clustering is identical to the 'exact' clustering.  In other
    cases, they are very close to each other in terms of the metric
-   split/join distance as computed by \mysib{clmdist}.
+   split/join distance as computed by \clmref{dist}.
 
    Some experiments with randomly generated test graphs, clustering,
-   and pruning are described in \refer{pcfgcmce}.
+   and pruning are described in \refer{pcfgcmce}.}
 
-\par
+\par{
    On a different level of abstraction, note that perturbations of the
    inflation parameter will also lead to perturbations in the resulting
    clusterings, and surely, large changes in the inflation parameter will in
@@ -696,17 +763,18 @@ from a perfectly computed MCL process?}
    are different for the approximated and the exact clustering  will very
    likely correspond with nodes that are in a boundary region between two or
    more clusters anyway, as the perturbation is not likely to move a node from
-   one core of attraction to another.
+   one core of attraction to another.}
 
-\par
-   \iref{qsep}{Faq entry \refnumber{qsep}} has more to say about this subject.
+\par{
+   \iref{qsep}{Faq entry \refnumber{qsep}} has more to say about this subject.}
 
 \faq{enoughresources}{How do I know that I am using enough resources?}
+\car{
    In \mcl parlance, this becomes \it{how do I know that my} \genopt{-scheme}
    \it{parameter is high enough} or more elaborately \it{how do I know
-   that the values of the {-P, -S, -R, -pct} combo are high enough?}
+   that the values of the {-P, -S, -R, -pct} combo are high enough?}}
 
-\par
+\par{
    There are several aspects. First, watch the \it{jury marks} reported by \mcl
    when it's done.
    \: It sends them to STDERR and they are included in the
@@ -716,30 +784,23 @@ from a perfectly computed MCL process?}
    pruning went. If the marks are in the seventies, eighties, or nineties, mcl
    is probably doing fine. If they are in the eighties or lower, try to see if
    you can get the marks higher by spending more resources (e.g. increase the
-   parameter to the \genopt{-scheme} option).
+   parameter to the \genopt{-scheme} option).}
 
-\par
+\par{
    Second, you can do multiple \mcl runs for different resource schemes,
-   and compare the resulting clusterings using \mysib{clmdist}. See
-   the \sibref{clmdist}{clmdist manual} for a case study.
+   and compare the resulting clusterings using \clm{dist}. See
+   the \clmref{dist}{clmdist manual} for a case study.}
 
 \: No Mathematical Analysis for Pruning.
 \faq{nmap}{Where is the mathematical analysis of this mcl pruning strategy?}
-   There is none. [add]
+\car{
+   There is none. [add]}
 
-\par
-   Ok, the next entry gives an engineer's rule of thumb.
-   
+\par{
+   Ok, the next entry gives an engineer's rule of thumb.}
 
-\: \par
-\: It is quite clear though that pruning is absolutely necessary if you want to
-\: apply MCL to large graphs and that pruning is a very viable thing to do.
-\: \mcl gives you hooks for monitoring pruning \- refer to the \genopt{-v}
-\: option. \mysib{clmdist} should also be useful, refer to the other entries in
-\: this section.
-
-\: Qualitative Statements aboutthe Effects of Pruning
 \faq{qsep}{What qualitative statements can be made about the effect of pruning?}
+\car{
    The more severe pruning is, the more the computed process will tend to
    converge prematurely. This will generally lead to finer-grained clusterings.
    In cases where pruning was severe, the \mcl clustering will likely be closer
@@ -747,46 +808,51 @@ from a perfectly computed MCL process?}
    inflation value, than to the clustering ideally resulting from the same MCL
    process. Strong support for this is found in a general observation
    illustrated by the following example.  Suppose u is a stochastic vector
-   resulting from expansion:
+   resulting from expansion:}
 
 \verbatim{u   =  0.300 0.200 0.200 0.100 0.050 0.050 0.050 0.050}
 
-   Applying inflation with inflation value 2.0 to u gives
+\car{
+   Applying inflation with inflation value 2.0 to u gives}
 
 \verbatim{v   =  0.474 0.211 0.211 0.053 0.013 0.013 0.013 0.013}
 
+\car{
    Now suppose we first apply pruning to u such that the 3 largest entries
    0.300, 0.200 and 0.200 survive,
    throwing away 30 percent of the stochastic mass
    (which is quite a lot by all means).
-   We rescale those three entries and obtain
+   We rescale those three entries and obtain}
 
 \verbatim{u'  =  0.429 0.286 0.286 0.000 0.000 0.000 0.000 0.000}
 
-   Applying inflation with inflation value 2.0 to u' gives
+\car{
+   Applying inflation with inflation value 2.0 to u' gives}
 
 \verbatim{v'  =  0.529 0.235 0.235 0.000 0.000 0.000 0.000 0.000}
 
+\car{
    If we had applied inflation with inflation value 2.5 to u, we would
-   have obtained
+   have obtained}
 
 \verbatim{v'' =  0.531 0.201 0.201 0.038 0.007 0.007 0.007 0.007}
 
+\car{
    The vectors v' and v'' are much closer to each other
-   than the vectors v' and v, illustrating the general idea.
+   than the vectors v' and v, illustrating the general idea.}
 
-\par
+\par{
    In practice, \mcl should (on average) do much better than in this
-   example.
+   example.}
 
 \faq{}{At different high resource levels my clusterings are not identical.
 How can I trust the output clustering?}
-
+\car{
    Did you read all other entries in this section? That should have
    reassured you somewhat, except perhaps for
-   \iref{nmap}{Faq answer\~\refnumber{nmap}}.
+   \iref{nmap}{Faq answer\~\refnumber{nmap}}.}
 
-\par
+\par{
    You need not feel uncomfortable with the clusterings still being different
    at high resource levels,  if ever  so  slightly. In  all likelihood, there
    are anyway nodes which are not in any core of  attraction,  and  that are on
@@ -794,24 +860,24 @@ How can I trust the output clustering?}
    another, and these are the  nodes which will go different ways even at high
    resource levels.  Such nodes may be stable  in  clusterings  obtained  for
    lower inflation values (i.e. coarser clusterings), in which the different
-   clusters to which they are attracted are merged.
+   clusters to which they are attracted are merged.}
 
-\par
-   By the way, you do know all about \mysib{clmdist}, don't you? Because the
+\par{
+   By the way, you do know all about \clmref{dist}, don't you? Because the
    statement that clusterings are not identical should be quantified: \it{How
-   much do they differ?} This issue is discussed in the \mysib{clmdist} manual
-   page \- clmdist gives you a robust measure for the distance (dissimilarity)
-   between two clusterings.
+   much do they differ?} This issue is discussed in the \clmref{dist} manual
+   page \- \clm{dist} gives you a robust measure for the distance (dissimilarity)
+   between two clusterings.}
 
-\par
+\par{
    There are other means of gaining trust in a clustering, and there are
    different issues at play. There is the matter of how accurately this \mcl
    computed the mcl process, and there is the matter of how well the chosen
    inflation parameter fits the data.  The first can be judged by looking at
    the jury marks (\iref{enoughresources}{faq\~\refnumber{enoughresources}})
-   and applying clmdist to different clusterings. The
-   second can be judged by measurement (e.g. use \mysib{clminfo}) and/or
-   inspection (use your judgment).
+   and applying \clm{dist} to different clusterings. The
+   second can be judged by measurement (e.g. use \clmref{info}) and/or
+   inspection (use your judgment).}
 
 \end{faqsec}
 
@@ -821,40 +887,42 @@ How can I trust the output clustering?}
 }
 
 \faq{}{How do I tune cluster granularity?}
+\car{
    There are several ways for influencing cluster granularity.  These ways and
    their relative merits are successively discussed below. The
-   \sibref{clmdist}{clmdist(1) manual} contains an example of doing multiple
+   \clmref{dist}{clmdist(1) manual} contains an example of doing multiple
    mcl runs for finding granularily different clusterings, using the
-   most common approach, namely that of varying inflation.
+   most common approach, namely that of varying inflation.}
 
 \faq{}{The effect of inflation on cluster granularity.}
+\car{
    The main handle for changing inflation is the \genopt{-I} option.  This is
    also \it{the} principal handle for regulating cluster granularity.  Unless
    you are mangling huge graphs it could be the only \mcl option you ever need
-   besides the output redirection option \genopt{-o}.
+   besides the output redirection option \genopt{-o}.}
 
-\par
+\par{
    Increasing the value of \genopt{-I} will increase cluster granularity.
    Conceivable values are from 1.1 to 5.0 or so, but the range of suitable
    values will certainly depend on your input graph.  For many graphs, 1.1 will
    be far too low, and for many other graphs, 5.0 will be far too high.  You
    will have to find the right value or range of values by experimenting, using
-   your judgment, and using measurement tools such as \mysib{clmdist} and
-   \mysib{clminfo}. The default 2.0 is a good value to begin the experimental
-   stage with.
+   your judgment, and using measurement tools such as \clmref{dist} and
+   \clmref{info}. The default 2.0 is a good value to begin the experimental
+   stage with.}
 
-\par
+\par{
    For experiments that are more subtle with respect to inflation,
    \mcl provides the \genopt{-i} option in conjunction with the \genopt{-l}
    (small letter ell) option. Do this only if you have the intention of
    playing around with mcl in order to study the characteristics of the
    process that it computes, and \it{maybe}, just \it{maybe}, use it in a
    production environment if you find it useful.  In the first vein, you may be
-   interested to know that \mysib{mcx} is a stack language/interpreter in which
+   interested to know that \mysib{mcxi} is a stack language/interpreter in which
    the entire MCL algorithm can be written in three lines of code. It provides
    comprehensive access to the MCL graph and matrix libraries.  However, the
-   \mcx interface to the MCL pruning facilities is not yet satisfactory at this
-   time. 
+   \mcxi interface to the MCL pruning facilities is not yet satisfactory at this
+   time. }
 
 
 \faq{simil_granul}{The effect of similarity distribution homogeneity on cluster granularity.}
@@ -882,79 +950,6 @@ How can I trust the output clustering?}
    Make it less homogeneous by setting \genarg{f} somewhere in the interval [1,10].
    In this case 5 is a reasonable starting point.}
 
-\faq{}{The effect of initial centering on cluster granularity.}
-\car{
-   This refers to the \genopt{-c} parameter, which adds loops to the input
-   graph. Its default value is 1.0, which results in loops of a somehow
-   'neutral' weight to be added.  If you need to really fine-tune granularity,
-   this option can be of use, otherwise you should abstain from using it.
-   Increasing its value will increase cluster granularity.}
-
-\par{
-   Conceivable/normal values are in the range 1.0 to 5.0, but nothing
-   stops you from going higher or slightly lower. Going lower than
-   0.5 is definitely not a good idea.}
-
-\par{
-   If you are into clustering at high levels of granularity, there is the issue
-   whether to further increase \genopt{-I}, or whether to start increasing or
-   further increase \genopt{-c}. It will really depend on the characteristics
-   of the graph you are working with, and at this point in time I cannot even
-   give advice in terms of a general categorization. Experiment, learn, and let
-   me know the results if you like.}
-
-\""{
-\faq{}{How to implement two-level approaches using mcl.}
-   If changing inflation does not yield clusterings that are sufficiently
-   coarse to your liking, you may consider trying a two-level approach.
-   Presumably your input graph is very large if you find yourself in this
-   situation. You should be aware of the possibility that the graph you are
-   clustering simply does not posses the type of coarse-grained structure that
-   you are looking for.
-
-\par
-   Two-level approaches can be implemented in a variety of ways, and you may
-   wish to invoke tools other than mcl. However, it is possible to experiment
-   with two-level approaches using \mcl and its associated utility \mcx.  Here
-   is how, assuming your original graph is called \v{orig.mci}.
-
-\cpar{Warning} This approach is a little crude, and will suffer
-   if (many) small clusters are present.
-
-\verbatim{mcl orig.mci -I 5.0 -c 3.0 -scheme 5 -o orig.i5.mco}
-
-\car
-   Cluster it first so that you get a fine-grained clustering.
-   Since \v{orig.mci} is likely a large graph, I opted for a high scheme.
-
-\verbatim{mcx /orig.i5.mco lm tp exch     # line continues
-            /orig.mci lm exch mul mul tp add /coarse.mci wm}
-
-\car
-   This transforms the clustering+graph into a new graph \v{coarse.mci} where
-   the clusters are nodes. You may, upon inspection, wish to change the
-   homogeneity of the weight distribution by applying the method described in
-   \iref{simil_granul}{faq entry \refnumber{simil_granul}} \- but that's
-   something best left for optionally fine-tuning this method once you decide
-   it has merits.
-
-\verbatim{mcl coarse.mci -I 2.0 -c 0.0 -scheme 5 -o coarse.mco}
-
-\car
-   Cluster the coarsened graph, and keep the loops as computed
-   in the coarsening step.
-
-\verbatim{mcx /orig.i5.mco lm /coarse.mco lm mul /projected.mco wm}
-
-\car
-   Project the 'coarsened' clustering back onto the original graph.
-   Now \v{projected.mco} should be a coarse cluster for \v{orig.mci}.
-
-\par
-   There are a lot of parameters to play with here; e.g. the 5.0, 3.0 and
-   2.0, and 1.0. These seem reasonable defaults.
-}
-
 \end{faqsec}
 
 \begin{faqsec}{
@@ -963,7 +958,7 @@ How can I trust the output clustering?}
 }
 
 \faq{}{How easy is it to implement the MCL algorithm?}
-\par{
+\car{
    Very easy, if you will be doing small graphs only, say up to a few thousand
    entries at most.  These are the basic ingredients:}
 
@@ -986,22 +981,20 @@ How can I trust the output clustering?}
    Implementing matrix muliplication is a standard exercise.  Implementing
    inflation is nearly trivial. The hardest part may actually be the
    interpretation function, because you need to cover the corner cases of
-   overlap and attractor systems of cardinality greater than one.}
+   overlap and attractor systems of cardinality greater than one.  Note that
+   MCL does not use intricate and expensive operations such as matrix inversion
+   or matrix reductions.}
 
 \par{
-   In Mathematica or Maple, this should be doable in at most 50 lines of code.
-   For perl you may need 50 more lines \- note that MCL does not use intricate
-   and expensive operations such as matrix inversion or matrix reductions.  In
-   lower level languages such as C a basic MCL program may need a few hundred
-   lines, but the largest part will probably be input/output and
-   interpretation.}
+   In Mathematica or Maple, mcl should be doable in at most 100 lines of code.
+   For perl you may need twice that amount.  In lower level languages such as C
+   or Fortran a basic MCL program may need a few hundred lines, but the largest
+   part will probably be input/output and interpretation.}
 
 \par{
    To illustrate all these points, mcl now ships with \lref{minimcl}{minimcl},
    a small perl script that implements mcl for educational purposes.
-   Both its line and statement count well exceed the estimation made
-   above \- it was not coded to be maximally succint. Its structure
-   is very simple though and should be easy to follow.}
+   Its structure is very simple and should be easy to follow.}
 
 \par{
    Implementing the basic MCL algorithm makes a
@@ -1034,76 +1027,78 @@ How can I trust the output clustering?}
    core all the nodes that reach it. This procedure may result
    in clusterings containing overlap.
 
-\par
+\par{
    In the MCL limit, the associated DAG has in general a very degenerated
    form, which induces overlap only on very rare occasions (see
-   \iref{ccco}{faq entry \refnumber{ccco}}).
+   \iref{ccco}{faq entry \refnumber{ccco}}).}
 
-\par
+\par{
    Interpreting \mcl iterands as clusterings may well be interesting.
    Few experiments have been done so far. It is clear though that
    early iterands generally contain the most overlap (when interpreted
    as clusterings). Overlap dissappears soon as the iterand
    index increases. For more information, consult the other entries
-   in this section and the \sibref{clmimac}{clmimac manual page}.
+   in this section and the \clmref{imac}{clmimac manual page}.}
 
 \: Can Clusterings Contain Overlap
 \faq{ccco}{Can the clusterings returned by mcl contain overlap?}
+\car{
    No. Clusterings resulting from the abstract MCL algorithm may in theory
    contain overlap, but the default behaviour in \mcl is to remove it should it
    occur, by allocating the nodes in overlap to the first cluster in which they
    are seen.  \mcl will warn you if this occurs.  This behaviour is switched
-   off by supplying \genopt{--keep-overlap=yes}.
+   off by supplying \genopt{--keep-overlap=yes}.}
 
-\par
+\par{
    Do note that overlap is mostly a theoretical possibility.
    It is conjectured that it requires the presence of very strong
    symmetries in the input graph, to the extent that there \it{exists
    an automorphism of the input graph mapping the overlapping part
-   onto itself}.
+   onto itself}.}
 
-\par
+\par{
    It is possible to construct (highly symmetric) input graphs leading to
    cluster overlap. Examples of overlap in which a few nodes are involved are
    easy to construct; examples with many nodes are exceptionally hard to
-   construct.
+   construct.}
 
-\par
+\par{
    Clusterings associated with intermediate/early MCL iterands
    may very well contain overlap, see the
-   \iref{olapintro}{introduction in this section} and other entries.
+   \iref{olapintro}{introduction in this section} and other entries.}
 
 \faq{imac}{How do I obtain the clusterings associated with MCL iterands?}
+\car{
    There are two options. If
    you are interested in clusterings containing overlap, you
    should go for the second. If not, use the first, but beware
-   that the resulting clusterings may contain overlap.
+   that the resulting clusterings may contain overlap.}
 
-\par
+\par{
    The first solution is to use \useopt{-dump}{cls} (probably in conjunction
    with either \genopt{-L} or \genopt{-dumpi} in order to limit the number of
    matrices written). This will cause \mcl to write the clustering generically
    associated with each iterand to file. The \genopt{-dumpstem} option may be
-   convenient as well.
+   convenient as well.}
 
-\par
+\par{
    The second solution is to use the \useopt{-dump}{ite} option
    (\genopt{-dumpi} and \genopt{-dumpstem} may be of use again).  This will
    cause \mcl to write the intermediate iterands to file. After that, you can
-   apply \clmimac (interpret matrix as clustering) to those iterands. \clmimac
+   apply \clmref{imac} (interpret matrix as clustering) to those iterands. \clm{imac}
    has a \genopt{-tight} parameter which affects the mapping of matrices to
    clusterings. It takes a value between 0 and 100 as argument.  The default is
    100 and corresponds with the strict mapping. Lowering the \genopt{-tight}
    value will generally result in clusterings containing more overlap.  This
    will have the largest effect for early iterands; its effect will diminish as
-   the iterand index increases.
+   the iterand index increases.}
 
-\par
+\par{
    When set to 0, the \genopt{-tight} parameter results in the clustering
    associated with the DAG associated with an MCL iterand as described
    in \refer{supfg}. This DAG is pruned (thus possibly resulting
    in less overlap in the clustering) by increasing the \genopt{-tight}
-   parameter. [add]
+   parameter. [add]}
 
 \end{faqsec}
 
@@ -1112,99 +1107,102 @@ How can I trust the output clustering?}
    {cap}{Miscellaneous}
 }
 \faq{defaults}{How do I find the default settings of mcl?}
+\car{
    Use \genopt{-z} to find out the actual settings - it shows
    the settings as resulting from the command line options (e.g. the default
-   settings if no other options are given).
+   settings if no other options are given).}
 
 \faq{next}{What's next?}
+\car{
    I'd like to port MCL to cluster computing, using one of the
    PVM, MPI, or openMP frameworks. 
    For the 1.002 release, mcl's internals were rewritten to allow more general
    matrix computations. Among other things, mcl's data structures and primitive
    operations are now more suited to be employed in a distributed computing
    environment. However, much remains to be done before mcl can operate
-   in such an environment.
+   in such an environment.}
 
-\par
+\par{
    At some point in the future a second, xml-based, interchange input format
-   may be introduced.
+   may be introduced.}
 
-\par
+\par{
    If you feel that mcl should support some other standard matrix format,
-   let us know.
+   let us know.}
+
 \end{faqsec}
 
 \sec{bugs}{BUGS}
-\par
+\par{
    This FAQ tries to compromise between being concise and comprehensive.  The
    collection of answers should preferably cover the universe of questions at a
    pleasant level of semantic granularity without too much overlap.  It should
    offer value to people interested in clustering but without sound
    mathematical training. Therefore, if this FAQ has not failed somewhere,
-   it must have failed.
+   it must have failed.}
 
-\par
+\par{
    Send criticism and missing questions for consideration to mcl-faq at
-   micans.org.
+   micans.org.}
 
 \sec{author}{AUTHOR}
-\par
-   Stijn van Dongen.
+\par{
+   Stijn van Dongen.}
 
 \sec{seealso}{SEE ALSO}
 
-\par
+\par{
    \mysib{mclfamily} for an overview of all the documentation
-   and the utilities in the mcl family.
+   and the utilities in the mcl family.}
 
-\par
-   mcl's home at \httpref{http://micans.org/mcl/}.
+\par{
+   mcl's home at \httpref{http://micans.org/mcl/}.}
 
 \sec{references}{REFERENCES}
 
-\par
+\par{
    \reference{gcbfs}
    Stijn van Dongen. \it{Graph Clustering by Flow Simulation}.
    PhD thesis, University of Utrecht, May 2000.\|
-   \httpref{http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm}
+   \httpref{http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm}}
 
-\par
+\par{
    \reference{cafg}
    Stijn van Dongen. \it{A cluster algorithm for graphs}.
    Technical Report INS-R0010, National Research Institute for Mathematics and
    Computer Science in the Netherlands, Amsterdam, May 2000.\|
-   \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z}
+   \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z}}
 
-\par
+\par{
    \reference{supfg}
    Stijn van Dongen.  \it{A stochastic uncoupling process for graphs}.
    Technical Report INS-R0011, National Research Institute for Mathematics and
    Computer Science in the Netherlands, Amsterdam, May 2000.\|
-   \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z}
+   \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z}}
 
-\par
+\par{
    \reference{pcfgcmce}
    Stijn van Dongen. \it{Performance criteria for graph clustering and Markov
    cluster experiments}.  Technical Report INS-R0012, National Research
    Institute for Mathematics and Computer Science in the Netherlands,
    Amsterdam, May 2000.\|
-   \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z}
+   \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z}}
 
-\par
+\par{
    \reference{eaflsdopf}
    Enright A.J., Van Dongen S., Ouzounis C.A.
    \it{An efficient algorithm for large-scale detection of protein families},
-   Nucleic Acids Research 30(7):1575-1584 (2002). 
+   Nucleic Acids Research 30(7):1575-1584 (2002). }
 
 \sec{notes}{NOTES}
 
-\par
+\par{
    This page was generated from \bf{ZOEM} manual macros,
    \httpref{http://micans.org/zoem}.  Both html and roff pages can be created
    from the same source without having to bother with all the usual conversion
    problems, while keeping some level of sophistication in the typesetting.
    \${html}{\lref{mclfaq.ps}{This} is the PostScript derived from the zoem
-   troff output.}
+   troff output.}}
 
 \"man::postamble"
 

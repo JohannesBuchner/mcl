@@ -1,16 +1,15 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
 
 
-/* TODO: if you want meet in new vector, the intermediate vector
- * could be extremely overly large. Same for minus.
- * 1) a smarter scheme, taking the callback into account.
- * 2) reallocing.
+/* TODO
+ *    unify various select routines in callback frame.
 */
 
 
@@ -41,7 +40,7 @@ enum
 
 
 typedef struct
-{  int         n_ivps
+{  dim         n_ivps
 ;  long        vid      /* vector id */
 ;  double      val      /* for misc purposes */
 ;  mclIvp*     ivps
@@ -54,15 +53,14 @@ typedef struct
 #define MCLV_MAXID(vec)  (MCLV_SIZE(vec) ? ((vec)->ivps)[MCLV_SIZE(vec)-1].idx : 0)
 #define MCLV_MINID(vec)  (MCLV_SIZE(vec) ? ((vec)->ivps)[0].idx : 0)
 
-#define MCLV_IS_CANONICAL(vec)  ((vec)->n_ivps && \
-            (vec)->ivps[(vec)->n_ivps-1].idx  == (vec)->n_ivps-1 && \
-                           ((vec)->ivps[0].idx == 0))
+#define MCLV_IS_CANONICAL(vec)  (!(vec)->n_ivps || \
+      ((vec)->ivps[(vec)->n_ivps-1].idx == (long) ((vec)->n_ivps-1)))
 
 #define PNUM_IN_RANGE(pivot, offset, count)  \
-         ((pivot) >= (offset) && (pivot) < (offset) + (count))
+      ((pivot) >= (offset) && (pivot) < (offset) + (count))
 
 #define PNUM_IN_INTERVAL(pivot, left_inclusive, right_inclusive)  \
-         ((pivot) >= (left_inclusive) && (pivot) < (right_inclusive))
+      ((pivot) >= (left_inclusive) && (pivot) < (right_inclusive))
 
 
 /* below are used for reading raw input */
@@ -116,14 +114,14 @@ void* mclvInit_v
 
 mclVector* mclvNew
 (  mclp*    ivps
-,  int      n_ivps
+,  dim      n_ivps
 )  ;
 
 
 mclVector* mclvRenew
 (  mclv*    dst
 ,  mclp*    ivps
-,  int      n_ivps
+,  dim      n_ivps
 )  ;
 
 
@@ -135,21 +133,30 @@ mclVector* mclvRenew
 
 mclVector* mclvResize
 (  mclVector*     vec
-,  int            n_ivps
+,  dim            n_ivps
 )  ;
 
 
+/* NOTE
+ *    src can be NULL
+*/
 mclVector* mclvCopy
 (  mclVector*        dst
 ,  const mclVector*  src
 )  ;
 
 
+/* NOTE
+ *    src can be NULL
+*/
 mclVector* mclvClone
 (  const mclVector*  src
 )  ;
 
 
+/* NOTE
+ *    *vec_p can be NULL
+*/
 void mclvFree
 (  mclVector**    vec_p
 )  ;
@@ -161,22 +168,25 @@ void mclvFree_v
 
 
 void mclvRelease
-(  mclVector*        vec
+(  mclVector*     vec
+)  ;
+
+
+void mclvRelease_v
+(  void*          vec
 )  ;
 
 
 mclv* mclvFromIvps
 (  mclv* dst
 ,  mclp* ivps
-,  int n_ivps
+,  dim n_ivps
 )  ;
 
 
-mclv* mclvFromIvps_x
+mclv* mclvFromPAR
 (  mclv* dst
-,  mclp* ivps
-,  int n_ivps
-,  mcxbits sortbits
+,  mclpAR* par
 ,  mcxbits warnbits
 ,  void (*ivpmerge)(void* ivp1, const void* ivp2)
 ,  double (*fltbinary)(pval val1, pval val2)
@@ -199,19 +209,40 @@ mclVector* mclvMap
 
 
 mclVector* mclvCanonical
-(  mclVector*     dst_vec
-,  int            n_ivps
+(  mclVector*     dst
+,  dim            n_ivps
 ,  double         val
 )  ;
 
 
-/* fixme: mask_mode interface ? */
+   /* Initialize values to those in dst; if the index
+    * is not present then set it to val
+   */
+mclVector* mclvCanonicalEmbed
+(  mclv*       dst
+,  const mclv* src
+,  dim         nr
+,  double      val
+)  ;  
 
-mclVector* mclvMaskedCopy
-(  mclVector*        dst
-,  const mclVector*  src
-,  const mclVector*  msk
-,  int               mask_mode
+   /* Further extend a canonical vector.
+    * dst == NULL yields a new vector.
+    * dst->n_ivps > N is an acceptable no-op.
+    * dst not canonical will proceed (with the top index)
+    *    and issue an error
+   */
+mclVector* mclvCanonicalExtend
+(  mclv*       dst
+,  dim         N
+,  double      val
+)  ;
+
+
+mclVector* mclvRange
+(  mclVector*     dst
+,  dim            n_ivps
+,  dim            offset
+,  double         val
 )  ;
 
 
@@ -231,7 +262,7 @@ void mclvSortDescVal
 )  ;
 
 
-int mclvUniqueIdx
+dim mclvUniqueIdx
 (  mclVector*     vec
 ,  void (*merge)(void* ivp1, const void* ivp2)
 )  ;
@@ -246,7 +277,7 @@ void mclvCleanse
 
 void mclvSelectHighest
 (  mclVector*     vec
-,  int            max_n_ivps
+,  dim            max_n_ivps
 )  ;
 
 
@@ -262,7 +293,7 @@ void mclvSelectHighest
 
 double mclvKBar
 (  mclVector      *vec
-,  int            max_n_ivps
+,  dim            max_n_ivps
 ,  double         ignore
 ,  int            mode
 )  ;
@@ -272,7 +303,7 @@ double mclvKBar
  * can the implementation be (significantly) improved?
 */
 
-long  mclvTop
+dim mclvTop
 (  mclVector      *vec
 ,  double         psum
 ,  double*        maxptr
@@ -285,8 +316,17 @@ double mclvSelectValues
 (  mclv*          src
 ,  double         *lft        /* NULL for turning of lft comparison  */
 ,  double         *rgt        /* NULL for turning of rgt comparison  */
-,  mcxbits        equate      /*  0,1,or 2 of { MCLX_GQ,  MCLX_LQ }  */
+,  mcxbits        equate      /*  0,1,or 2 of { MCLX_EQT_GQ,  MCLX_EQT_LQ }  */
 ,  mclv*          dst
+)  ;
+
+
+dim mclvSelectIdcs
+(  mclv        *src
+,  long        *lft
+,  long        *rgt
+,  mcxbits     equate
+,  mclv        *dst
 )  ;
 
 
@@ -330,7 +370,7 @@ mclVector* mclvBinary
  * full of zeroes.
 */
 
-int mclvUpdateMeet
+dim mclvUpdateMeet
 (  mclVector*  src1
 ,  const mclVector*  src2
 ,  double           (*operation)(pval val1, pval val2)
@@ -341,7 +381,7 @@ long mclvUnaryList
 ,  mclpAR*  ar       /* idx: MCLX_UNARY_mode, val: arg */
 )  ;
 
-int mclvCountGiven
+dim mclvCountGiven
 (  mclVector*     src
 ,  mcxbool       (*operation)(mclIvp* ivp, void* arg)
 ,  void*          arg
@@ -359,7 +399,7 @@ mclVector* mclvCopyGiven
 ,  mclVector*     src
 ,  mcxbool        (*operation)(mclIvp* ivp, void* arg)
 ,  void*          arg
-,  int            size_upper_bound  /* 0 for I-don't-know */
+,  dim            size_upper_bound  /* 0 for I-don't-know */
 )  ;
 
 
@@ -426,6 +466,22 @@ mclVector* mclvInsertIdx
 )  ;
 
 
+/* Efficient replacement of an index.
+ * The index to be removed is specified by its ofset and the index
+ * to be inserted must not be present already, lest STATUS_FAIL
+ * is returned.
+ * The vector is reordered to be in canonical order.
+ * If !vec or ofs >= vec->n_ivps STATUS_FAIL is returned.
+*/
+
+mcxstatus mclvReplace
+(  mclVector*     vec
+,  long           ofs
+,  long           idx
+,  double         val
+)  ;
+
+
 /* inner product */
 
 double mclvIn
@@ -463,14 +519,14 @@ mcxbool mcldIsCanonical
                 *    m: size of meet.
                */
 enum
-{  MCLD_EQ_SUPER           /*    r == 0                     */
-,  MCLD_EQ_SUB             /*    l == 0                     */
-,  MCLD_EQ_EQUAL           /*    r == 0 && l == 0           */
-,  MCLD_EQ_DISJOINT        /*    m == 0                     */
-,  MCLD_EQ_MEET            /*    m != 0                     */
-,  MCLD_EQ_TRISPHERE       /*    l != 0 && m != 0 && r != 0 */ 
-,  MCLD_EQ_LDIFF           /*    l != 0                     */
-,  MCLD_EQ_RDIFF           /*    r != 0                     */
+{  MCLD_EQT_SUPER           /*    r == 0                     */
+,  MCLD_EQT_SUB             /*    l == 0                     */
+,  MCLD_EQT_EQUAL           /*    r == 0 && l == 0           */
+,  MCLD_EQT_DISJOINT        /*    m == 0                     */
+,  MCLD_EQT_MEET            /*    m != 0                     */
+,  MCLD_EQT_TRISPHERE       /*    l != 0 && m != 0 && r != 0 */ 
+,  MCLD_EQT_LDIFF           /*    l != 0                     */
+,  MCLD_EQT_RDIFF           /*    r != 0                     */
 }  ;
 
 mcxbool mcldEquate
@@ -479,18 +535,18 @@ mcxbool mcldEquate
 ,  mcxenum    mode
 )  ;
 
-#define MCLD_EQUAL(d1, d2) mcldEquate(d1, d2, MCLD_EQ_EQUAL)
-#define MCLD_SUPER(d1, d2) mcldEquate(d1, d2, MCLD_EQ_SUPER)
-#define MCLD_SUB(d1, d2) mcldEquate(d1, d2, MCLD_EQ_SUB)
-#define MCLD_DISJOINT(d1, d2) mcldEquate(d1, d2, MCLD_EQ_DISJOINT)
+#define MCLD_EQUAL(d1, d2) mcldEquate((d1), (d2), MCLD_EQT_EQUAL)
+#define MCLD_SUPER(d1, d2) mcldEquate((d1), (d2), MCLD_EQT_SUPER)
+#define MCLD_SUB(d1, d2) mcldEquate((d1), (d2), MCLD_EQT_SUB)
+#define MCLD_DISJOINT(d1, d2) mcldEquate((d1), (d2), MCLD_EQT_DISJOINT)
 
 
-void mcldCountParts
+dim mcldCountParts
 (  const mclVector* dom1
 ,  const mclVector* dom2
-,  int*       ldif
-,  int*       meet
-,  int*       rdif
+,  dim*       ldif
+,  dim*       meet
+,  dim*       rdif
 )  ;
 
 
@@ -499,7 +555,7 @@ void mcldCountParts
 #define MCLD_CT_RDIFF 4
 #define MCLD_CT_JOIN  7
 
-int mcldCountSet
+dim mcldCountSet
 (  const mclVector*  dom1
 ,  const mclVector*  dom2
 ,  mcxbits     parts
@@ -511,12 +567,32 @@ double mclvSum
 )  ;
 
 
+void mclvMean
+(  const mclv*    vec
+,  dim            N           /* vec does/might not store zeroes */
+,  double        *mean
+,  double        *stddev
+)  ;
+
+
+void mclvMove
+(  mclv* vec
+,  double mean
+,  double stddev
+)  ;
+
+
 double mclvSelf
 (  const mclVector*   vec
 )  ;
 
 
 double mclvSize
+(  const mclVector*   vec
+)  ;
+
+
+double mclvVal
 (  const mclVector*   vec
 )  ;
 
@@ -538,7 +614,17 @@ double mclvNorm
 )  ;
 
 
+double mclvHasLoop
+(  const mclVector*   vec
+)  ;
+
+
 double mclvMaxValue
+(  const mclVector*   vec
+)  ;
+
+
+double mclvMinValue
 (  const mclVector*   vec
 )  ;
 
@@ -549,26 +635,27 @@ double mclvMaxValue
 */
 
 mclIvp* mclvGetIvp
-(  const mclVector*  vec
-,  long              idx
-,  const mclIvp*     offset
+(  const mclv*    vec
+,  long           idx
+,  const mclp*    offset
 )  ;
 
-int mclvGetIvpOffset
-(  const mclVector*   vec
-,  long         idx
-,  long         offset
+ofs mclvGetIvpOffset
+(  const mclv*    vec
+,  long           idx
+,  ofs            offset
 )  ;
 
 double mclvIdxVal
-(  const mclVector*   vec
-,  long         idx
-,  int*         p_offset
+(  const mclv*    vec
+,  long           idx
+,  ofs*           p_offset
 )  ;
 
    /*
     * ceil is smallest ivp for which ivp.idx >= idx
     * NULL if for all ivp in vec ivp.idx < idx
+    * (result is minimal ceil to idx)
    */
 mclIvp* mclvGetIvpCeil
 (  const mclVector*  vec
@@ -579,6 +666,7 @@ mclIvp* mclvGetIvpCeil
    /*
     * floor is largest ivp for which ivp.idx <= idx,
     * NULL if for all ivp in vec ivp.idx > idx
+    * (result is maximal floor to idx)
    */
 mclIvp* mclvGetIvpFloor
 (  const mclVector*  vec
@@ -631,6 +719,19 @@ int mclvSumCmp
 int mclvSumRevCmp
 (  const void*  p1
 ,  const void*  p2
+)  ;
+
+
+   /* modes:
+    *    1     vid
+    *    2     values
+    *    4     closing '$'
+   */
+void mclvSprintf
+(  mcxTing* scr
+,  mclv* vec
+,  int valdigits
+,  mcxbits modes
 )  ;
 
 

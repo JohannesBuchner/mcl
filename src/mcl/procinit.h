@@ -1,7 +1,8 @@
-/*   Copyright (C) 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -34,7 +35,7 @@ void  mclSetProgress
 )  ;
 
 void mclShowSettings (FILE* fp, mclProcParam* mpp, mcxbool user);
-void mclShowSchemes(void);
+void mclShowSchemes(mcxbool print_skid);
 
 void doBool(const char *string, mclProcParam* mp);
 int  doInfoFlag(const char *string, mclProcParam* mp);

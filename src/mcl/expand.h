@@ -1,7 +1,8 @@
-/*   Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -14,6 +15,7 @@
 
 #include "util/ting.h"
 #include "util/heap.h"
+#include "util/types.h"
 
 #include "taurus/ilist.h"
 #include "impala/matrix.h"
@@ -25,12 +27,16 @@
 #define  MCL_EXPAND_SPARSE 2    
 
 extern int mclDefaultWindowSizes[];
-extern int mcl_n_windows;
+extern dim mcl_n_windows;
 
 
 typedef struct
 {  double            chaosMax
 ;  double            chaosAvg
+;  double            homgMax
+;  double            homgMin
+;  double            homgAvg
+;  mclv*             homgVec
 ;  double            lap
 
 ;  int               n_selects
@@ -51,7 +57,7 @@ typedef struct
 ;  double            mass_prune_all
 ;  double            mass_final_all
 
-;  int               n_windows
+;  dim               n_windows
 ;  int*              window_sizes
 ;  mcxHeap*          windowPrune
 ;  mcxHeap*          windowFinal
@@ -76,9 +82,9 @@ typedef struct
 ;  double            precision
 ;  double            pct
 
-;  int               num_prune
-;  int               num_select
-;  int               num_recover
+;  dim               num_prune
+;  dim               num_select
+;  dim               num_recover
 ;  int               scheme
 ;  int               my_scheme
 
@@ -89,26 +95,24 @@ typedef struct
 
 #define  XPNVB_PRUNING     1 << 0
 #define  XPNVB_EXPLAIN     1 << 1
-#define  XPNVB_VPROGRESS   1 << 2
-#define  XPNVB_MPROGRESS   1 << 3
-#define  XPNVB_CLUSTERS    1 << 4
-;  mcxbits           verbosity
+#define  XPNVB_CLUSTERS    1 << 2
 
+;  mcxbits           verbosity
 ;  int               vectorProgression
-;  int               usrVectorProgression
 
 ;  int               warnFactor
 ;  double            warnPct
 
-;  int               nl             /* number of iterations to log   */
-;  int               nw             /* number of windows to log      */
-;  int               nx             /* window index (monitored)      */
-;  int               ny             /* window index (monitored)      */
-;  int               nj             /* window index of jury          */
+;  dim               nl             /* number of iterations to log   */
+;  dim               nw             /* number of windows to log      */
+;  dim               nx             /* window index (monitored)      */
+;  dim               ny             /* window index (monitored)      */
+;  dim               nj             /* window index of jury          */
 ;  mcxIL             *windowSizes
-;  int               n_windows
+;  dim               n_windows
 
 ;  int               dimension
+;  double            inflation      /* for computing homg vector     */
 
 ;
 }  mclExpandParam    ;
@@ -121,7 +125,7 @@ mclMatrix* mclExpand
 
 
 mclExpandStats* mclExpandStatsNew
-(  int   n_windows
+(  dim   n_windows
 ,  int*  window_sizes
 ,  int   nx          /* one of the heaps */
 ,  int   ny          /* one of the heaps */

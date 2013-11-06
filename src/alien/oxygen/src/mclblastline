@@ -1,9 +1,9 @@
 #!/usr/bin/env perl
 
-#     Copyright (C) 2003, 2004, 2005 Stijn van Dongen
-#
+#     Copyright (C) 2003, 2004, 2005, 2006, 2007 Stijn van Dongen
+ #
 # You can redistribute and/or modify this program under the terms of the GNU
-# General Public License;  either version 2 of the License or (at your option)
+# General Public License;  either version 3 of the License or (at your option)
 # any later  version.
 
 use strict;
@@ -19,7 +19,7 @@ unless (grep { $_ =~ /^--ass-r[vei]?=/; } @ARGV) {
 
 $cline .= " @ARGV";
 
-if (grep { $_ eq '--help'; } @ARGV) {
+if (grep { $_ =~ /--(help|apropos)/; } @ARGV) {
    $do_help = 1;
 }
 elsif (!@ARGV) {

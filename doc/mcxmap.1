@@ -1,5 +1,5 @@
-.\" Copyright (c) 2006 Stijn van Dongen
-.TH "mcxmap" 1 "27 Feb 2006" "mcxmap 1\&.006, 06-058" "USER COMMANDS "
+.\" Copyright (c) 2008 Stijn van Dongen
+.TH "mcxmap" 1 "5 Jun 2008" "mcxmap 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -32,6 +32,11 @@ mcxmap \- permute or remap the indices of graphs and matrices\&.
 .SH SYNOPSIS
 
 \fBmcxmap\fP
+\fB-imx\fP fname (\fIinput\fP)
+\fB[-o\fP fname (\fIoutput\fP)\fB]\fP
+\fB[-cann\fP (\fIoutput map file name\fP)\fB]\fP
+\fB[-cannc\fP (\fIoutput map file name\fP)\fB]\fP
+\fB[-cannr\fP (\fIoutput map file name\fP)\fB]\fP
 \fB[-cmul\fP a (\fIcoefficient\fP)\fB]\fP
 \fB[-cshift\fP b (\fItranslate\fP)\fB]\fP
 \fB[-rmul\fP c (\fIcoefficient\fP)\fB]\fP
@@ -41,12 +46,10 @@ mcxmap \- permute or remap the indices of graphs and matrices\&.
 \fB[-map\fP fname (\fIrow/col map file\fP)\fB]\fP
 \fB[-rmap\fP fname (\fIrow map file\fP)\fB]\fP
 \fB[-cmap\fP fname (\fIcolumn map file\fP)\fB]\fP
-\fB[--invert\fP (\fIinvert map file(s)\fP)\fB]\fP
-\fB[--invertc\fP (\fIinvert column map file\fP)\fB]\fP
-\fB[--invertr\fP (\fIinvert row map file\fP)\fB]\fP
-\fB[-digits\fP n (\fIdigits width\fP)\fB]\fP
-\fB[-o\fP fname (\fIoutput\fP)\fB]\fP
-\fB-imx\fP fname (\fIinput\fP)
+\fB[-mapi\fP fname (\fIrow/col map file (use inverse)\fP)\fB]\fP
+\fB[-rmapi\fP fname (\fIrow map file (use inverse)\fP)\fB]\fP
+\fB[-cmapi\fP fname (\fIcolumn map file (use inverse)\fP)\fB]\fP
+\fB[-tab\fP fname (\fIread (and map) tab file\fP)\fB]\fP
 .SH DESCRIPTION
 
 This utility relabels graphs or matrices\&. Its main use is in applying a
@@ -93,10 +96,45 @@ Output file\&.
 Input file\&.
 .in -3m
 
-.ZI 3m "\fB-digits\fP n (\fIdigits width\fP)"
+.ZI 3m "\fB-map\fP fname (\fIrow/col map file)\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-rmap\fP fname (\fIrow map file\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-cmap\fP fname (\fIcolumn map file\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-mapi\fP fname (\fIrow/col map file (use inverse)\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-rmapi\fP fname (\fIrow map fil (use inverse)\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-cmapi\fP fname (\fIcolumn map fil (use inverse)\fP)"
+\&
+'in -3m
+'in +3m
 \&
 .br
-Number of digits output for values\&.
+Different ways to specify map files\&.
+.in -3m
+
+.ZI 3m "\fB-cann\fP (\fIoutput map file name\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-cannc\fP (\fIoutput map file name\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-cannr\fP (\fIoutput map file name\fP)"
+\&
+'in -3m
+'in +3m
+\&
+.br
+Generate a map that maps the specified domain onto
+the appropriate canonical domain and write the map
+matrix to file\&.
 .in -3m
 
 .ZI 3m "\fB-cmul\fP a (\fIcoefficient\fP)"
@@ -105,30 +143,12 @@ Number of digits output for values\&.
 .ZI 3m "\fB-cshift\fP b (\fItranslate\fP)"
 \&
 'in -3m
-.ZI 3m "\fB-cmap\fP fname (\fIcol map file\fP)"
-\&
-'in -3m
 'in +3m
 \&
 .br
-If the map file is specified, column indices will be mapped
-according to this file\&. Otherwise, if any of the first two
-options is used, column indices\ \&\fCi\fP are mapped to\ \&\fCa*i+b\fP\&.
-.in -3m
-
-.ZI 3m "\fB--invert\fP (\fIinvert map file(s)\fP)"
-\&
-'in -3m
-.ZI 3m "\fB--invertc\fP (\fIinvert column map file\fP)"
-\&
-'in -3m
-.ZI 3m "\fB--invertr\fP (\fIinvert row map file\fP)"
-\&
-'in -3m
-'in +3m
-\&
-.br
-Specifies to use the inverse of the map file(s) given\&.
+These options have affect if neither a column map file nor column
+canonification is specified\&. If any of the first two options is used,
+column indices\ \&\fCi\fP are mapped to\ \&\fCa*i+b\fP\&.
 .in -3m
 
 .ZI 3m "\fB-rmul\fP c (\fIcoefficient\fP)"
@@ -137,15 +157,12 @@ Specifies to use the inverse of the map file(s) given\&.
 .ZI 3m "\fB-rshift\fP d (\fItranslate\fP)"
 \&
 'in -3m
-.ZI 3m "\fB-rmap\fP fname (\fIrow map file\fP)"
-\&
-'in -3m
 'in +3m
 \&
 .br
-If the map file is specified, row indices will be mapped
-according to this file\&. Otherwise, if any of the first two
-options is used, row indices\ \&\fCi\fP are mapped to\ \&\fCc*i+d\fP\&.
+These options have affect if neither a row map file nor row
+canonification is specified\&. If any of the first two options is used,
+indices\ \&\fCi\fP are mapped to\ \&\fCc*i+d\fP\&.
 .in -3m
 
 .ZI 3m "\fB-mul\fP e (\fIcoefficient\fP)"
@@ -154,17 +171,19 @@ options is used, row indices\ \&\fCi\fP are mapped to\ \&\fCc*i+d\fP\&.
 .ZI 3m "\fB-shift\fP f (\fItranslate\fP)"
 \&
 'in -3m
-.ZI 3m "\fB-map\fP fname (\fIrow/col map file\fP)"
-\&
-'in -3m
 'in +3m
 \&
 .br
-If the map file is specified, both column and row indices
-will be mapped according to it\&.
-Otherwise, if any of the two first options is specified,
-both column and row indices\ \&\fCi\fP will be mapped
-to\ \&\fCe*i+f\fP\&.
+If a map file is specified for a given domain, neither a map file nor
+canonification is specified\&. If any of the first two options is used, the
+indices\ \&\fCi\fP will be mapped to\ \&\fCe*i+f\fP\&.
+.in -3m
+
+.ZI 3m "\fB-tab\fP fname (\fIread (and map) tab file\fP)"
+\&
+.br
+This option requires the \fB-map\fP option\&. \fBmcxmap\fP will output the
+mapped tab definition\&.
 .in -3m
 .SH EXAMPLES
 

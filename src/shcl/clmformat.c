@@ -1,7 +1,8 @@
-/*      Copyright (C) 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -17,16 +18,19 @@
 #include "clmformat.zmm.h"
 
 #include "impala/matrix.h"
+#include "impala/cat.h"
 #include "impala/vector.h"
 #include "impala/io.h"
 #include "impala/tab.h"
 #include "impala/compose.h"
 #include "impala/iface.h"
-#include "impala/scan.h"
 #include "impala/app.h"
 
+#include "clew/scan.h"
+#include "clew/claw.h"
+#include "clew/clm.h"
+
 #include "mcl/interpret.h"
-#include "mcl/clm.h"
 
 #include "util/io.h"
 #include "util/types.h"
@@ -64,15 +68,6 @@
  *       cluster1/cluster2/node context require interface design first. 
 */
 
-/* Checklist for cluster/graph properties.
- *    defective clustering (overlap, missing nodes, empty clusters)
- *    sparse cluster (column) domain
- *    sparse node domain (cluster rows, graph rows/cols)
- *    graph node domain subsumes cluster node domain.
- *    cluster node domain subsumes graph node domain.
- *    graph/cluster node domains induce tri-sphere.
-*/
-
 
 const char* me = "clmformat";
 const char* syntax = "Usage: clmformat <options>";
@@ -83,6 +78,7 @@ enum
 ,  MY_OPT_TAB
 
 ,  MY_OPT_PI         =  MY_OPT_TAB + 2
+,  MY_OPT_TF
 
 ,  MY_OPT_ADAPT
 ,  MY_OPT_SUBGRAPH
@@ -201,6 +197,12 @@ mcxOptAnchor options[] =
    ,  "<f>"
    ,  "apply inflation to input graph"
    }
+,  {  "-tf"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_TF
+   ,  "<tf-spec>"
+   ,  "apply transformation to input graph"
+   }
 ,  {  "-dump"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_DUMP
@@ -243,6 +245,12 @@ mcxOptAnchor options[] =
    ,  NULL
    ,  "this info"
    }
+,  {  "--apropos"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_HELP
+   ,  NULL
+   ,  "this info"
+   }
 ,  {  NULL ,  0 ,  0 ,  NULL, NULL}
 }  ;
 
@@ -276,13 +284,13 @@ static const char* fname_defs = "clmformat.zmm";
 
 void print_el_scores
 (  mcxTing* scr
-,  mclvScore* score
+,  clmVScore* score
 )
    {  double mass = score->sum_i + score->sum_o
    ;  double selfval = mass ? score->sum_i / mass : 0.0
    ;  double cov, covmax
 
-   ;  mclvScoreCoverage(score, &cov, &covmax)
+   ;  clmVScoreCoverage(score, &cov, &covmax)
 
    ;  mcxTingPrint
       (  scr
@@ -330,7 +338,7 @@ void dodump
 ,  mclTab*  tab      /* NULL allowed */
 ,  mclx*    clvals   /* NULL allowed */
 )
-   {  int i, j
+   {  dim i, j
    ;  FILE* fp = xf_dump->fp
    ;  for (i=0;i<N_COLS(cl);i++)
       {  mclv* clus = cl->cols+i
@@ -381,13 +389,16 @@ char** mknames
 ,  const char* base
 ,  int batchsize
 )
-   {  int i
+   {  dim i
    ;  char** fnames = mcxAlloc((N_COLS(cl)+1) * sizeof(char*), EXIT_ON_FAIL)
    ;  mcxTing* txt = mcxTingEmpty(NULL, 80)
    ;  mcxTing* bch = mcxTingEmpty(NULL, 80)
    ;  mcxTing* res = NULL
    ;  mcxTing* emp = mcxTingNew("")
    ;  int carry = 0
+
+   ;  if (!base)
+      base = ""
 
    ;  if (!mcldIsCanonical(cl->dom_cols))
       mcxDie(1, me, "Currently I need sequentially numbered clusters")
@@ -397,7 +408,7 @@ char** mknames
 
       ;  if (batchsize)
          {  if (!carry)
-            {  int j
+            {  dim j
             ;  for (j=i;j<N_COLS(cl) && carry<batchsize;j++)
                carry+= cl->cols[j].n_ivps
             ;  carry = 0
@@ -433,69 +444,11 @@ char** mknames
 ;  }
 
 
-/*    The entries in cl are set to the self-projection value.
- *
-*/
-
-void settoself
-(  mclMatrix* cl
-,  mclMatrix* el_on_cl
-)
-   {  int i, j
-   ;  for (i=0;i<N_COLS(cl);i++)
-      {  mclv* clvec = cl->cols+i
-      ;  long  clid  = clvec->vid
-      ;  mclv* elclvec = NULL
-      ;  mclp* valivp = NULL
-      ;  for (j=0;j<clvec->n_ivps;j++)
-         {  long elid = clvec->ivps[j].idx
-         ;  elclvec = mclxGetVector(el_on_cl, elid, EXIT_ON_FAIL, elclvec)
-         ;  valivp = mclvGetIvp(elclvec, clid, NULL)
-         ;  if (!valivp && clvec->n_ivps > 1)
-            mcxErr(me, "match error: el %ld cl %ld", elid, clid)
-         ;  clvec->ivps[j].val = valivp ? MAX(0.01, valivp->val) : 0.01
-      ;  }
-      }
-   }
-
-
-void prune_it
-(  mclMatrix* el_to_cl  /* must be conforming */
-,  mclMatrix* el_on_cl  /* this one will be pruned */
-,  double pct
-,  int max
-)
-   {  int i
-   ;  for (i=0;i<N_COLS(el_on_cl);i++)
-      {  mclv* elclvec  =  el_on_cl->cols+i
-      ;  long clid      =  el_to_cl->cols[i].ivps[0].idx
-      ;  mclp* elivp    =  mclvGetIvp(elclvec, clid, NULL)
-      ;  double elfrac  =  elivp ? elivp->val : 0.01
-      ;  double sum     =  elivp ? elivp->val : 0.05
-      ;  int n_others   =  0
-      ;  int k          =  -1
-
-      ;  mclvSort(elclvec, mclpValRevCmp)
-
-      ;  while (++k < elclvec->n_ivps && sum < pct && n_others < max)
-         {  long y = elclvec->ivps[k].idx
-         ;  if (y == clid)
-            continue
-         ;  sum += elclvec->ivps[k].val
-         ;  n_others++
-      ;  }
-
-         mclvResize(elclvec, k)
-      ;  mclvSort(elclvec, mclpIdxCmp)
-      ;  if (!mclvGetIvp(elclvec, clid, NULL))
-         mclvInsertIdx(elclvec, clid, elfrac)
-   ;  }
-   }
-
-
 /* 0: self value
  * 1: coverage
  * 2: maxcoverage
+ *
+ * fixme: less verbose way with clew/scan.h now possible?
 */
 
 mclMatrix* mkclvals
@@ -503,8 +456,8 @@ mclMatrix* mkclvals
 ,  mclMatrix* cl
 ,  mclMatrix* cl_on_cl
 )
-   {  int i
-   ;  mclxScore xscore
+   {  dim i
+   ;  clmXScore xscore
    ;  mclMatrix* clvals
       =  mclxCartesian
          (  mclvCopy(NULL, cl->dom_cols), mclvCanonical(NULL, 3, 1.0), 1.0 )
@@ -512,12 +465,14 @@ mclMatrix* mkclvals
    ;  for(i=0;i<N_COLS(cl);i++)
       {  mclv* clvec = cl->cols+i
       ;  mclp* tivp = mclvGetIvp(cl_on_cl->cols+i, clvec->vid, NULL)
+      ;  double cov, covmax
 
-      ;  clvals->cols[i].ivps[0].val = tivp ? MAX(tivp->val, 0.001) : 0.001
-      ;  mclxSubScan
-         (mx, clvec, clvec, &xscore)
-      ;  clvals->cols[i].ivps[1].val = MAX(xscore.cov, 0.001)
-      ;  clvals->cols[i].ivps[2].val = MAX(xscore.covmax, 0.001)
+      ;  clvals->cols[i].ivps[0].val = tivp ? MCX_MAX(tivp->val, 0.001) : 0.001
+      ;  clmXScanInit(&xscore)
+      ;  clmXScanDomain(mx, clvec, &xscore)
+      ;  clmXScoreCoverage(&xscore, &cov, &covmax)
+      ;  clvals->cols[i].ivps[1].val = MCX_MAX(cov, 0.001)
+      ;  clvals->cols[i].ivps[2].val = MCX_MAX(covmax, 0.001)
    ;  }
       return clvals
 ;  }
@@ -528,17 +483,17 @@ mclMatrix* mkclvals
  *    for other clusters, it has to be computed on the fly.
 */
 
-mclvScore* mkelvals
+clmVScore* mkelvals
 (  mclMatrix* mx
 ,  mclMatrix* cl
 ,  mclMatrix* el_to_cl
 )
    {  long n = N_COLS(mx), i
-   ;  mclvScore* scores = mcxNAlloc(n, sizeof(mclvScore), NULL, EXIT_ON_FAIL)
+   ;  clmVScore* scores = mcxNAlloc(n, sizeof(clmVScore), NULL, EXIT_ON_FAIL)
    ;  for (i=0;i<n;i++)    /* only see element offsets here, no idx */
       {  long clid = el_to_cl->cols[i].ivps[0].idx
       ;  long clos = mclxGetVectorOffset(cl, clid, EXIT_ON_FAIL, -1)
-      ;  mclvSubScan(mx->cols+i, cl->cols+clos, scores+i)
+      ;  clmVScanDomain(mx->cols+i, cl->cols+clos, scores+i)
    ;  }
       return scores
 ;  }
@@ -565,13 +520,13 @@ void mkanindex
 ,  char** fnames
 ,  mclVector* cllist
 ,  mclVector* ellist       /* need not be conforming (e.g. val ordered) */
-,  mclvScore* elscores
+,  clmVScore* elscores
 )
    {  double coh, cov, maxcov
    ;  mcxTing* scr = mcxTingEmpty(NULL, 80)
-   ;  int i
+   ;  dim i
 
-   ;  cov = mclxCoverage(mx, cl, &maxcov)
+   ;  cov = clmCoverage(mx, cl, &maxcov)
                /* fixme could be infered from elscores */
 
    ;  coh = mclvSum(cllist)
@@ -658,19 +613,24 @@ void mkanindex
 
 
 void mkindex
-(  const char* ind1
-,  const char* ind2
+(  const char* infix
 ,  mclMatrix* mx
 ,  mclMatrix* cl
 ,  mclMatrix* el_to_cl
 ,  mclMatrix* clvals
 ,  mclTab* tab
 ,  char** fnames
-,  mclvScore* elscores
+,  clmVScore* elscores
 )
    {  mclv* cllist = mclvCopy(NULL, clvals->dom_cols)  /* coverage */
    ;  mclv* ellist = mclvCopy(NULL, cl->dom_rows)
-   ;  int i
+   ;  mcxTing* ind1 = mcxTingNew("index")
+   ;  mcxTing* ind2 = mcxTingNew("index2")
+   ;  dim i
+
+   ;  if (infix)
+         mcxTingPrintAfter(ind1, ".%s", infix)
+      ,  mcxTingPrintAfter(ind2, ".%s", infix)
 
    ;  for (i=0;i<cllist->n_ivps;i++)
       {  cllist->ivps[i].val = clvals->cols[i].ivps[0].val
@@ -681,10 +641,10 @@ void mkindex
         */
    ;  }
 
-      mcxTell(me, "writing index file [%s]", ind1)
+      mcxTell(me, "writing index file [%s]", ind1->str)
    ;  mkanindex
-      (  ind1
-      ,  ind2
+      (  ind1->str
+      ,  ind2->str
       ,  "Index II"
       ,  mx, cl
       ,  el_to_cl
@@ -699,10 +659,10 @@ void mkindex
    ;  mclvSort(cllist, mclpValRevCmp)
    ;  mclvSort(ellist, mclpValRevCmp)
 
-   ;  mcxTell(me, "writing index file [%s]", ind2)
+   ;  mcxTell(me, "writing index file [%s]", ind2->str)
    ;  mkanindex
-      (  ind2
-      ,  ind1
+      (  ind2->str
+      ,  ind1->str
       ,  "Index I"
       ,  mx, cl
       ,  el_to_cl
@@ -716,6 +676,8 @@ void mkindex
 
    ;  mclvFree(&cllist)
    ;  mclvFree(&ellist)
+   ;  mcxTingFree(&ind1)
+   ;  mcxTingFree(&ind2)
 ;  }
 
 
@@ -728,6 +690,7 @@ int main
       , *xf_dump = NULL
       , *xf_tst = mcxIOnew("-", "w")
 
+   ;  mcxTing*    tfting      =  NULL
    ;  mcxbool     write_defs  =  TRUE
    ;  mcxbool     adapt       =  FALSE
    ;  mcxbool     subgraph    =  FALSE
@@ -736,11 +699,11 @@ int main
    ;  mcxbool     fancy       =  FALSE
    ;  mcxbool     dump_measures  =  FALSE
    ;  mcxTing*    dn_fmt      =  NULL
-   ;  mcxTing*    fn_azm      =  mcxTingNew("fmt.azm")
+   ;  mcxTing*    fn_azm      =  NULL
    ;  mclMatrix   *cl         =  NULL
    ;  mclMatrix   *mx         =  NULL
-   ;  mclvScore*  elscores    =  NULL 
-   ;  mclvScore   score
+   ;  clmVScore*  elscores    =  NULL 
+   ;  clmVScore   score
    ;  mclx* el_to_cl = NULL, *el_on_cl = NULL, *cl_on_cl = NULL
             , *cl_on_el = NULL, *clvals = NULL
    ;  mclv* clclvec = NULL
@@ -748,10 +711,10 @@ int main
    ;  mclVector   *meet       =  NULL
    ;  mclTab* tab = NULL
 
-   ;  int i, j
-   ;  int o, m, e, n_err = 0
+   ;  dim i, j
+   ;  dim o, m, e, n_err = 0
    ;  int batchsize = 500
-   ;  const char* infix = ""
+   ;  const char* infix = NULL
    ;  char** fnames = NULL
    ;  float inflation = 0.0
 
@@ -766,6 +729,7 @@ int main
 
    ;  mcxIOopen(xf_tst, EXIT_ON_FAIL) /* stdout, for debug dumping */
    ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
+   ;  mclx_app_init(stderr)
 
    ;  mcxOptAnchorSortById(options, sizeof(options)/sizeof(mcxOptAnchor) -1)
 
@@ -812,8 +776,13 @@ int main
          ;  break
          ;
 
+            case MY_OPT_TF
+         :  tfting = mcxTingNew(opt->val)
+         ;  break
+         ;
+
             case MY_OPT_PI
-         :  inflation = atof(opt->val)
+         :  inflation = atof(opt->val)    /* fixme check value */
          ;  break
          ;
 
@@ -921,14 +890,20 @@ int main
    ;
 
       if (xf_mx)
-      {  mx =  mclxReadx(xf_mx, EXIT_ON_FAIL, MCL_READX_GRAPH)
+      {  mx =  mclxReadx(xf_mx, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH)
       ;  mcxIOfree(&xf_mx)
 
-      ;  if (inflation)
-         mclxInflate(mx, inflation)
-      ;  mclxMakeStochastic(mx)
+      ;  if (tfting)
+         {  mclpAR* tfar = mclpTFparse(NULL, tfting)
+         ;  if (!tfar)
+            mcxDie(1, me, "errors in tf-spec")
+         ;  mclxUnaryList(mx, tfar)
+      ;  }
 
-      ;  if (!mcldEquate(mx->dom_cols, cl->dom_rows, MCLD_EQ_EQUAL))
+         if (inflation)
+         mclxInflate(mx, inflation)
+
+      ;  if (!mcldEquate(mx->dom_cols, cl->dom_rows, MCLD_EQT_EQUAL))
          {  mclVector* meet   =  mcldMeet(mx->dom_cols, cl->dom_rows, NULL)
          ;  mcxErr
             (  me
@@ -953,7 +928,7 @@ int main
             report_exit(me, SHCL_ERROR_DOMAIN)
       ;  }
 
-         if (mclcEnstrict(cl, &o, &m, &e, ENSTRICT_KEEP_OVERLAP))
+         if (clmEnstrict(cl, &o, &m, &e, ENSTRICT_KEEP_OVERLAP))
          {  report_partition(me, cl, xf_cl->fn, o, m, e)
          ;  if (!e && !m)
             ;
@@ -963,16 +938,8 @@ int main
             report_exit(me, SHCL_ERROR_PARTITION)
       ;  }
 
-         el_to_cl =  mclxTranspose(cl)
-      ;  el_on_cl =  mclxCompose(el_to_cl, mx, 0) /* el_to_cl not stochastic? */
-      ;  cl_on_cl =  mclxCompose(el_on_cl, cl, 0)
-      ;  mclxMakeStochastic(el_on_cl)
-      ;  mclxMakeStochastic(cl_on_cl)
-
-      ;  if (1)
-         settoself(cl, el_on_cl)
-      ;  prune_it(el_to_cl, el_on_cl, 0.95, 10)
-      ;  cl_on_el =  mclxTranspose(el_on_cl)
+         clmCastActors
+         (&mx, &cl, &el_to_cl, &el_on_cl, &cl_on_cl, &cl_on_el, 0.95)
 
       ;  for (i=0;i<N_COLS(el_to_cl);i++)    /* some checks: necessary? */
          {  long clusid
@@ -999,11 +966,11 @@ int main
          mclvFree(&meet)
 
       ;  if (xf_nsm)
-         {  mclxWrite(el_on_cl, xf_nsm, 6, RETURN_ON_FAIL);
+         {  mclxWrite(el_on_cl, xf_nsm, 6, RETURN_ON_FAIL)
          ;  mcxIOfree(&xf_nsm)
       ;  }
          if (xf_ccm)
-         {  mclxWrite(cl_on_cl, xf_ccm, 6, EXIT_ON_FAIL);
+         {  mclxWrite(cl_on_cl, xf_ccm, 6, EXIT_ON_FAIL)
          ;  mcxIOfree(&xf_ccm)
       ;  }
       }
@@ -1064,6 +1031,12 @@ int main
       clvals = mkclvals(mx, cl, cl_on_cl)
    ;  elscores = mkelvals(mx, cl, el_to_cl)
 
+   ;  if (!fn_azm)
+         fn_azm
+      =     infix
+         ?  mcxTingPrint(NULL, "fmt.%s.azm", infix)
+         :  mcxTingNew("fmt.azm")
+
    ;  {  xf_azm = mcxIOnew(fn_azm->str, "w")
       ;  mcxIOopen(xf_azm, EXIT_ON_FAIL)
       ;  zfp = xf_azm->fp
@@ -1081,7 +1054,7 @@ int main
       ;  mcxIOclose(xf_zmm)
    ;  }
 
-      mkindex("index", "index2", mx, cl, el_to_cl, clvals, tab,fnames,elscores)
+      mkindex(infix, mx, cl, el_to_cl, clvals, tab,fnames,elscores)
    
    ;  for (i=0;i<N_COLS(cl);i++)
       {  mclv* clvec = cl->cols+i
@@ -1144,7 +1117,7 @@ int main
          ;  double sumcl = clfrac
          ;  double clselfval = 0.0
          ;  int n_cls = 0
-         ;  long x = 0
+         ;  dim x = 0
          ;  clclvec = mclxGetVector(cl_on_cl, clid, EXIT_ON_FAIL, clclvec)
          ;  clivp = mclvGetIvp(clclvec, clid, NULL)
          ;  if (!clivp && clvec->n_ivps > 1)
@@ -1162,6 +1135,9 @@ int main
 
          ;  while (sumcl < 0.95 && n_cls < 10 && ++x < tmpclvec->n_ivps)
             {  long otherid = tmpclvec->ivps[x].idx
+                     /* ^ fixme document: why start with 1 here?
+                      * Do we know what element 0 is given mclpValRevCmp ?
+                     */
 
             ;  if (otherid == clid)
                continue
@@ -1221,7 +1197,7 @@ int main
             ;  mclp *elivp
 
             ;  score = elscores[elos]
-            ;  mclvScoreCoverage(&score, &cov, &covmax)
+            ;  clmVScoreCoverage(&score, &cov, &covmax)
 
             ;  elclvec = mclxGetVector(el_on_cl, elid, EXIT_ON_FAIL, NULL)
                /* clsortvec must be ascending in elid if #3 != NULL*/
@@ -1234,19 +1210,19 @@ int main
 
             ;  if (1)   /* other clusters branch */
                {  mclv* tmpelvec = mclvCopy(NULL, elclvec)
-               ;  long k
+               ;  dim k
                ;  mclvSort(tmpelvec, mclpValRevCmp)
 
                ;  for (k=0;k<tmpelvec->n_ivps;k++)
                   {  mclv *cl2vec
-                  ;  mclvScore tscore
+                  ;  clmVScore tscore
                   ;  long cl2id = tmpelvec->ivps[k].idx
                   ;  if (cl2id == clid)
                      continue
 
                   ;  cl2vec = mclxGetVector(cl, cl2id, EXIT_ON_FAIL, NULL)
-                  ;  mclvSubScan(elmxvec, cl2vec, &tscore)
-                  ;  mclvScoreCoverage(&tscore, &cov, &covmax)
+                  ;  clmVScanDomain(elmxvec, cl2vec, &tscore)
+                  ;  clmVScoreCoverage(&tscore, &cov, &covmax)
 
                   ;  fprintf
                      (  zfp
@@ -1275,8 +1251,8 @@ int main
 
       ;  if (mx)
          {  mclv* aliens = mcldMinus(cl_on_el->cols+i, clvec, NULL)
-         ;  long j
-         ;  mclvScore ascore
+         ;  dim j
+         ;  clmVScore ascore
          ;  mcxTingEmpty(txtEL2, 80)
 
          ;  mclvSort(aliens, mclpValRevCmp)
@@ -1293,10 +1269,10 @@ int main
                   /* note that alelid need not be ascending */
 
             ;  almxvec = mclxGetVector(mx, alelid, EXIT_ON_FAIL, NULL)
-            ;  mclvSubScan(almxvec, clvec, &ascore)
+            ;  clmVScanDomain(almxvec, clvec, &ascore)
             ;  cl3vec = mclxGetVector(cl, alclid, EXIT_ON_FAIL, NULL)
 
-            ;  mclvScoreCoverage(&ascore, &acov, &acovmax)
+            ;  clmVScoreCoverage(&ascore, &acov, &acovmax)
 
            /*  ascore:  alien element + current cluster
            */

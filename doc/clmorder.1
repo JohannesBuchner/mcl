@@ -1,5 +1,5 @@
-.\" Copyright (c) 2006 Stijn van Dongen
-.TH "clmorder" 1 "27 Feb 2006" "clmorder 1\&.006, 06-058" "USER COMMANDS "
+.\" Copyright (c) 2008 Stijn van Dongen
+.TH "clm order" 1 "5 Jun 2008" "clm order 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -28,23 +28,39 @@
 .el .in 8m
 ..
 .SH NAME
-clmorder \- reorder indices to represent blocks from different clusterings\&.
+clm order \- reorder indices to represent blocks from different clusterings\&.
+
+clmorder is not in actual fact a program\&. This manual
+page documents the behaviour and options of the clm program when
+invoked in mode \fIorder\fP\&. The options \fB-h\fP, \fB--apropos\fP,
+\fB--version\fP, \fB-set\fP, \fB--nop\fP are accessible
+in all \fBclm\fP modes\&. They are described
+in the \fBclm\fP manual page\&.
 .SH SYNOPSIS
 
-\fBclmorder\fP <file name>+
+\fBclm order\fP
+\fB[-o\fP fname (\fIoutput file\fP)\fB]\fP
+<cl-stack-file>
 .SH DESCRIPTION
 
-Given a set of input clusterings, \fBclmorder\fP reorders indices so that
+Given a set of concatenated input clusterings (encoded in a single file/stream),
+\fBclm order\fP reorders indices so that
 the ordering represents blocks from different clusterings (which are
 preferably more or less hierarchically organized)\&. It puts nodes that
 share many clusters over the different clusters nearby, and puts nodes
 in larger clusters earlier in the ordering\&. It is presumed that the
 clusterings are successive subclusterings, but it need not be strictly
-the case - \fBclmorder\fP will convert the input clusterings to a strictly
+the case - \fBclm order\fP will convert the input clusterings to a strictly
 nested sequence\&.
 
-\fBclmorder\fP interprets its arguments as names of files containing
-clusterings in mcl format (see \fBmcxio(5)\fP)\&.
+\fBclm order\fP expects a trailing file name argument for a file
+containing concatenated matrices (see \fBmcxio(5)\fP)\&.
+.SH OPTIONS
+
+.ZI 3m "\fB-o\fP fname (\fIoutput file\fP)"
+\&
+.br
+.in -3m
 .SH AUTHOR
 
 Stijn van Dongen\&.

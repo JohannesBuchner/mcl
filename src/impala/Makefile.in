@@ -55,7 +55,7 @@ libimpala_a_AR = $(AR) $(ARFLAGS)
 libimpala_a_LIBADD =
 am_libimpala_a_OBJECTS = compose.$(OBJEXT) tab.$(OBJEXT) \
 	pval.$(OBJEXT) iface.$(OBJEXT) io.$(OBJEXT) ivp.$(OBJEXT) \
-	matrix.$(OBJEXT) vector.$(OBJEXT) scan.$(OBJEXT) \
+	matrix.$(OBJEXT) vector.$(OBJEXT) cat.$(OBJEXT) \
 	version.$(OBJEXT) app.$(OBJEXT) stream.$(OBJEXT)
 libimpala_a_OBJECTS = $(am_libimpala_a_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
@@ -80,8 +80,6 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BUILD_BLAST_FALSE = @BUILD_BLAST_FALSE@
 BUILD_BLAST_TRUE = @BUILD_BLAST_TRUE@
-BUILD_TRIBE_FALSE = @BUILD_TRIBE_FALSE@
-BUILD_TRIBE_TRUE = @BUILD_TRIBE_TRUE@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -164,10 +162,10 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)
-LDADD = ../mcl/libmcl.a ../taurus/libtaurus.a ../impala/libimpala.a ../../util/libutil.a
+LDADD = ../mcl/libmcl.a ../clew/libclew.a ../taurus/libtaurus.a ../gryphon/libgryphon.a ../impala/libimpala.a ../../util/libutil.a
 noinst_LIBRARIES = libimpala.a
-libimpala_a_SOURCES = compose.c tab.c pval.c iface.c io.c ivp.c matrix.c vector.c scan.c version.c app.c stream.c
-EXTRA_DIST = compose.h pval.h iface.h tab.h io.h ivp.h matrix.h ivptypes.h vector.h scan.h version.h app.h stream.h
+libimpala_a_SOURCES = compose.c tab.c pval.c iface.c io.c ivp.c matrix.c vector.c cat.c version.c app.c stream.c
+EXTRA_DIST = compose.h pval.h iface.h tab.h io.h ivp.h matrix.h ivptypes.h vector.h cat.h version.h app.h stream.h
 all: all-am
 
 .SUFFIXES:
@@ -216,13 +214,13 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/app.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/compose.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/iface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/io.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ivp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/matrix.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pval.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scan.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stream.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tab.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vector.Po@am__quote@

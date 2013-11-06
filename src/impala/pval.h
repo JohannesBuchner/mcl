@@ -1,7 +1,8 @@
-/*  (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -22,7 +23,9 @@
 #define  MCLX_EQT_LQ  2
 #define  MCLX_EQT_GQ  4
 #define  MCLX_EQT_GT  8
+#define  MCLX_EQT_UNUSED 16
 
+#define  MCLX_EQT   (MCLX_EQT_LT | MCLX_EQT_LQ | MCLX_EQT_GQ | MCLX_EQT_GT)
 
 enum
 {  MCLX_UNARY_LT  =  0
@@ -159,6 +162,30 @@ double fltSubtract
 )  ;
 
 
+double flt0p0
+(  pval     d1
+,  pval     d2
+)  ;
+
+
+double flt0p5
+(  pval     d1
+,  pval     d2
+)  ;
+
+
+double flt1p0
+(  pval     d1
+,  pval     d2
+)  ;
+
+
+double flt1p5
+(  pval     d1
+,  pval     d2
+)  ;
+
+
 /* This one is funny.  It assumes zero values correspond with missing values
  * that are actually implicitly equal to one, unless two zero values are
  * present. It returns the product, so
@@ -176,6 +203,12 @@ double fltCross
 
 
 double fltMultiply
+(  pval     d1
+,  pval     d2
+)  ;
+
+
+double fltMin
 (  pval     d1
 ,  pval     d2
 )  ;

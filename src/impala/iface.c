@@ -1,10 +1,13 @@
 /*   (C) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
+
+/* This file currently provides nothing */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -12,17 +15,13 @@
 #include "iface.h"
 
 #include "util/io.h"
+#include "util/inttypes.h"
 
-int   mclWarningImpala                 =  1;
+dim nu_meet_can  = 0;
+dim nu_meet_sl   = 0;
+dim nu_meet_zip  = 0;
+dim nu_diff_can  = 0;
+dim nu_diff_sl   = 0;
+dim nu_diff_zip  = 0;
 
-/*
- * all mclTrackImpalaPruning stuff is obsolete, kept because it might
- * be transfered and reinstated in mcl/expand.c
-*/
-int   mclTrackImpalaPruning            =  0;
-int   mclTrackImpalaPruningInterval    =  1;
-int   mclTrackImpalaPruningOffset      =  0;
-int   mclTrackImpalaPruningBound       =  0;
-
-mcxIO *mclTrackStreamImpala            =  NULL;
 

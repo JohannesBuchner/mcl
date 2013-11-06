@@ -17,6 +17,7 @@
 *  Maximum Capacity Learning
 *  Macintosh Common Lisp
 *  Mucocutaneous Leishmaniasis
+*  Microfluidic chemiluminescence
 *  Microsoft Compatibility Labs
 *  Minimum Coupling Loss [International mobile telephony acronym (?)]
 *  Motion Control Language

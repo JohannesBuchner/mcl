@@ -1,5 +1,5 @@
-.\" Copyright (c) 2006 Stijn van Dongen
-.TH "mcxarray" 1 "27 Feb 2006" "mcxarray 1\&.006, 06-058" "USER COMMANDS "
+.\" Copyright (c) 2008 Stijn van Dongen
+.TH "mcxarray" 1 "5 Jun 2008" "mcxarray 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -31,38 +31,109 @@
 mcxarray \- Transform array data to MCL matrices
 .SH SYNOPSIS
 
-\fBmcxarray\fP [options] <array data matrix>
+\fBmcxarray\fP [options]
 
 \fBmcxarray\fP
+\fB[-data\fP fname (\fIinput data file\fP)\fB]\fP
+\fB[-skipr\fP <num> (\fIskip <num> data rows\fP)\fB]\fP
+\fB[-skipc\fP <num> (\fIskip <num> data columns\fP)\fB]\fP
+\fB[-write-tab\fP <fname> (\fIwrite row labels to file\fP)\fB]\fP
+\fB[-l\fP <num> (\fItake labels from column <num>\fP)\fB]\fP
+\fB[-imx\fP fname (\fIinput matrix file\fP)\fB]\fP
+\fB[-n\fP mode (\fInormalize input\fP)\fB]\fP
 \fB[-o\fP fname (\fIoutput file fname\fP)\fB]\fP
+\fB[-digits\fP <num> (\fIoutput precision\fP)\fB]\fP
 \fB[-co\fP num (\fIcutoff for output values\fP)\fB]\fP
+\fB[-cutoff\fP num (\fIcutoff for output values\fP)\fB]\fP
 \fB[-gq\fP num (\fIignore input smaller than\fP)\fB]\fP
 \fB[-lq\fP num (\fIignore input larger than\fP)\fB]\fP
-\fB[-t\fP (\fIwork with the transpose\fP)\fB]\fP
-\fB[-ctr\fP num (\fIadd center (for graph-type input)\fP)\fB]\fP
-\fB[--ctr\fP (\fIadd center with default value (for graph-type input)\fP)\fB]\fP
-\fB[--01\fP (\fIremap output to [0,1] interval\fP)\fB]\fP
+\fB[--transpose\fP (\fIwork with the transpose\fP)\fB]\fP
 \fB[--cosine\fP (\fIuse cosine\fP)\fB]\fP
 \fB[--pearson\fP (\fIuse Pearson correlation (default)\fP)\fB]\fP
 \fB[-tear\fP num (\fIinflate input columns\fP)\fB]\fP
 \fB[-teartp\fP num (\fIinflate tranposed columns\fP)\fB]\fP
 \fB[-pi\fP num (\fIinflate the result\fP)\fB]\fP
-<fname> (\fIarray data matrix\fP)
+\fB[--apropos\fP (\fIprint this help\fP)\fB]\fP
+\fB[-h\fP (\fIprint this help\fP)\fB]\fP
+\fB[--version\fP (\fIprint version information\fP)\fB]\fP
 .SH DESCRIPTION
-\fBmcxarray\fP reads a data file satisfying the mcl input format
-(refer to \fBmcxio(5)\fP)\&. By default it will work with the
-columns as the data vectors (note that mcl matrices are
-presented as a listing of columns)\&. This can be changed using
-the \fB-t\fP option\&.
+
+\fBmcxarray\fP can either read a flat file containing array data (\fB-data\fP)
+or a matrix file satisfying the mcl input format (\fB-imx\fP)\&. In the
+former case it will by default work with the rows as the data vectors\&. In
+the latter case it will by default work with the columns as the data
+vectors (note that mcl matrices are presented as a listing of columns)\&.
+This can be changed for both using the
+\fB--transpose\fP option\&.
 .SH OPTIONS
+
+.ZI 3m "\fB-data\fP fname (\fIinput data file\fP)"
+\&
+.br
+Specify the data file containing the expression values\&.
+It should be tab-separated\&.
+.in -3m
+
+.ZI 3m "\fB-imx\fP fname (\fIinput matrix file\fP)"
+\&
+.br
+The expression values are read from a file in mcl matrix format\&.
+.in -3m
+
+.ZI 3m "\fB-skipr\fP <num> (\fIskip <num> data rows\fP)"
+\&
+.br
+Skip the first \fI<num>\fP data rows\&.
+.in -3m
+
+.ZI 3m "\fB-skipc\fP <num> (\fIskip <num> data columns\fP)"
+\&
+.br
+Ignore the first \fI<num>\fP data columns\&.
+.in -3m
+
+.ZI 3m "\fB-l\fP <num> (\fItake labels from column <num>\fP)"
+\&
+.br
+Specifies to construct a tab of labels from this data column\&.
+The tab can be written to file using \fB-write-tab\fP\ \&\fIfname\fP\&.
+.in -3m
+
+.ZI 3m "\fB-write-tab\fP <fname> (\fIwrite row labels to file\fP)"
+\&
+.br
+Write a tab file\&. In the simple case where the labels are in the first
+data column it is sufficient to issue \fB-skipc\fP\ \&\fB1\fP\&.
+If more data columns need to be skipped one must explicitly specify
+the data column to take labels from with \fB-l\fP\ \&\fIl\fP\&.
+.in -3m
+
+.ZI 3m "\fB-n\fP mode (\fInormalization mode\fP)"
+\&
+.br
+If \fImode\fP is set to \fBz\fP the data will be normalized
+based on z-score\&. No other modes are currently supported\&.
+.in -3m
 
 .ZI 3m "\fB-o\fP fname (\fIoutput file fname\fP)"
 \&
 .br
-Indeed\&.
+Output file name\&.
+.in -3m
+
+.ZI 3m "\fB-digits\fP <num> (\fIoutput precision\fP)"
+\&
+.br
+Specify the precision to use in native interchange format\&.
 .in -3m
 
 .ZI 3m "\fB-co\fP num (\fIcutoff for output values\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-cutoff\fP num (\fIalias for \fB-co\fP\fP)"
+\&
+'in -3m
+'in +3m
 \&
 .br
 Output values smaller than \fInum\fP are removed (set to zero)\&.
@@ -80,29 +151,10 @@ Input values smaller than \fInum\fP are ignored\&.
 Input values larger than \fInum\fP are ignored\&.
 .in -3m
 
-.ZI 3m "\fB-t\fP (\fIwork with the transpose\fP)"
+.ZI 3m "\fB--transpose\fP (\fIwork with the transpose\fP)"
 \&
 .br
 Work with the transpose of the input data matrix\&.
-.in -3m
-
-.ZI 3m "\fB-ctr\fP num (\fIadd center (for graph-type input)\fP)"
-\&
-.br
-Add diagonal values to the output according to a (so called)
-\fIcenter\fP formula\&.
-.in -3m
-
-.ZI 3m "\fB--ctr\fP (\fIadd center with default value (for graph-type input)\fP)"
-\&
-.br
-Same as \fB-ctr\fP\ \&\fB1\&.0\fP\&.
-.in -3m
-
-.ZI 3m "\fB--01\fP (\fIremap output to [0,1] interval\fP)"
-\&
-.br
-Rescale output values so that they are within the [0,1] interval\&.
 .in -3m
 
 .ZI 3m "\fB--cosine\fP (\fIuse cosine\fP)"
@@ -114,8 +166,8 @@ Use the cosine as correlation measure\&.
 .ZI 3m "\fB--pearson\fP (\fIuse Pearson correlation (default)\fP)"
 \&
 .br
-Compute the Pearson correleation coefficient as the
-similarity between the data columns\&.
+Compute the Pearson correleation coefficient as the similarity between the
+data columns\&.
 .in -3m
 
 .ZI 3m "\fB-tear\fP num (\fIinflate input columns\fP)"
@@ -137,10 +189,27 @@ values in the transposed matrix before further processing\&.
 .br
 Apply inflation with parameter \fInum\fP to the output values\&.
 .in -3m
+
+.ZI 3m "\fB--apropos\fP (\fIprint help\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-h\fP (\fIprint help\fP)"
+\&
+'in -3m
+'in +3m
+\&
+.br
+.in -3m
+
+.ZI 3m "\fB--version\fP (\fIprint version information\fP)"
+\&
+.br
+.in -3m
 .SH AUTHOR
 
 Stijn van Dongen\&.
 .SH SEE ALSO
+
 \fBmcl(1)\fP,
 \fBmclfaq(7)\fP,
 and \fBmclfamily(7)\fP for an overview of all the documentation

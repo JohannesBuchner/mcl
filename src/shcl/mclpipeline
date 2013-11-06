@@ -124,7 +124,7 @@ my $endlevel = 4;
 
 
 
-if (!@ARGV) {
+if (!@ARGV || $ARGV[0] =~ /--(help|apropos)/) {
    help();
 }
 
@@ -728,14 +728,14 @@ This will successively call four programs,
    $parser , mcxassemble , mcl , clmformat
 These programs write by default to files with names sharing a common base.
 The parser should implement the behaviour expected by mclpipeline.
-________ global options:
+,_______ global options:
    --whatif          shows only what would be done.
    --start-assemble  skip the parse step, assume needed files exist already.
    --start-mcl       start running mcl immediately, as above.
    --start-format    only (re)do the formatting stage, as above.
    --prepare-mcl     create the input file for mcl, then quit.
    --help            show this.
-________ global options (affecting shared base name of created files):
+,_______ global options (affecting shared base name of created files):
    --xi=<suf>        strip <suf> from file-name for use as base stem.
    --xo-dat=<suf>    attach <suf> to parse result.
    --xo-ass=<suf>    attach <suf> to mcxassemble result.
@@ -744,16 +744,16 @@ ________ global options (affecting shared base name of created files):
    --xe-mcl=<suf>    append to mcl file name.
    --xo-fmt=<suf>    attach <suf> to clmformat result.
      mnemonics: eXtension In, Out, Append, Extra.
-________ parse options
+,_______ parse options
    --parser=<script> name of parse script
    --parser-tag=<str>   tag of options to pass to parse script.
-________ mcxassemble options:
+,_______ mcxassemble options:
    --ass-repeat=<str>str in <add|max|mul|left|right>
    --ass-nomap       map file does not exist or should be ignored.
 and GENERALLY,
    --ass<-opt[=val]> add '-opt [val]' to mcxassemble command line.
    --start-assemble=<base-name>  start running mcxassemble with base-name.
-________ mcl options:
+,_______ mcl options:
    --mcl-te=<num>    number of expansion threads.
    --mcl-I=<float>   inflation value, MAIN mcl handle.
    --mcl-i=<float>   initial inflation value.
@@ -768,7 +768,7 @@ and GENERALLY,
    --start-mcl=<file-name>
                      start running mcl with file-name.  optionally combines
                      with the --xi option.
-________ clmformat options:
+,_______ clmformat options:
    --fmt-lump-size=<num>   collect clusters of size lq <num> in a single file.
    --fmt-lump-count=<num>  make batches containing approximately <num> nodes.
    --fmt-notab             tab file does not exist or should be ignored.

@@ -1,7 +1,8 @@
-/*  Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -66,6 +67,7 @@
 #include "impala/ivp.h"
 #include "impala/compose.h"
 #include "impala/iface.h"
+#include "impala/app.h"
 
 #include "util/types.h"
 #include "util/ting.h"
@@ -78,7 +80,8 @@
 #include "mcl/proc.h"
 #include "mcl/procinit.h"
 #include "mcl/alg.h"
-#include "mcl/clm.h"
+
+#include "clew/clm.h"
 
 
 static void helpful_reminder
@@ -86,6 +89,7 @@ static void helpful_reminder
 )
    {
 #ifdef MCL_HELPFUL_REMINDER
+if (mcxLogLevel & MCX_LOG_UNIVERSE) {
 fprintf(stderr, "\nPlease cite:\n");
 fprintf(stderr, "    Stijn van Dongen, Graph Clustering by Flow Simulation.  PhD thesis,\n");
 fprintf(stderr, "    University of Utrecht, May 2000.\n");
@@ -97,114 +101,60 @@ fprintf(stderr, "    Report INS-R0010, National Research Institute for Mathemati
 fprintf(stderr, "    and Computer Science in the Netherlands, Amsterdam, May 2000.\n");
 fprintf(stderr, "       (  http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z\n");
 fprintf(stderr, "       or  http://micans.org/mcl/lit/INS-R0010.ps.Z)\n\n");
+}
 #endif
    }
 
+
+
 int main
 (  int               argc
-,  char* const       argv[]
+,  const char*       argv[]
 )
-   {  mclMatrix      *themx            =  NULL
+   {  const char* fn_input    =  argc > 1 ? argv[1] : ""
+   ;  mclAlgParam* mlp        =  NULL
+   ;  const char* me          =  "mcl"
+   ;  mcxstatus status        =  STATUS_OK
 
-   ;  mclProcParam*  mpp               =  mclProcParamNew()
-   ;  char* prog                       =  argc > 0 ? argv[0] : ""
-   ;  char* input                      =  argc > 1 ? argv[1] : ""
-   ;  mclAlgParam*   map               =  mclAlgParamNew(mpp, prog, input)
-   ;  mcxstatus      libStatus         =  STATUS_OK
-   ;  mcxstatus      mainStatus        =  STATUS_OK
-   ;  mcxstatus      parseStatus       =  STATUS_OK
-   ;  int            prefix            =  2
-   ;  unsigned int seed                =  mcxSeed(0)  /* for transformation*/
-
-   ;  mcxHash        *procOpts, *algOpts, *mergedOpts
-   ;  mcxOption      *opts
-
-   ;  srandom(seed)
+   ;  srandom(mcxSeed(315))
    ;  signal(SIGALRM, mclSigCatch)
+   ;  if (signal(SIGUSR1, mcxLogSig) == SIG_ERR)
+      mcxErr(me, "cannot catch SIGUSR1!")
 
-   ;  mclProcOptionsInit()
-   ;  mclAlgOptionsInit()
-
-   ;  procOpts    =  mcxOptHash(mclProcOptions, NULL)
-   ;  algOpts     =  mcxOptHash(mclAlgOptions, NULL)
-   ;  mergedOpts  =  mcxHashMerge(procOpts, algOpts, NULL, NULL)
+   ;  mcxLogLevel =
+      MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
+   ;  mclx_app_init(stderr)
 
    ;  if (argc < 2)
       {  mcxTell
-         (  "mcl"
+         (  me
          ,  "usage: mcl <-|file name> [options],"
             " do 'mcl -h' or 'man mcl' for help"
          )
       ;  mcxExit(0)
    ;  }
 
-     /* 
-      *  one big fat ugly hack. If there is only one argument, it need not be a
-      *  file name, but it can be an info-flag.  This is the only case we
-      *  cover. If someone wants to see the effect of '-I 3.0 -z', she needs to
-      *  add a dummy file name like '-' or so, e.g. 'mcl -I 3.0 -z' is illegal.
-     */
-      if (argc >= 2 && *(argv[1]) == '-' && *(argv[1]+1) != '\0')
-      {  mcxKV* kv = mcxHashSearch(argv[1], algOpts, MCX_DATUM_FIND)  
-      ;  mcxOptAnchor* anch = kv ? (mcxOptAnchor*) kv->val : NULL
-      ;  if (anch && (anch->flags & MCX_OPT_INFO))
-         prefix = 1
-   ;  }
+      status
+      =  mclAlgInterface
+         (&mlp, (char**) (argv+2), argc-2, fn_input, NULL, ALG_DO_IO)
 
-      opts =  mcxHOptParse
-              (mergedOpts, (char**) argv, argc, prefix, 0, &parseStatus)
-
-   ;  if (parseStatus != MCX_OPT_STATUS_OK)
-      {  mcxErr("mcl", "error while parsing options")
-      ;  mcxTell("mcl", "do 'mcl -h' or 'man mcl'")
-      ;  return 1
-   ;  }
-
-      libStatus   =  mclProcessInit(opts, procOpts, mpp)
-
-   ;  if (libStatus == STATUS_FAIL)
-         mcxErr("mcl", "initialization failed")
-      ,  mcxTell("mcl", "do 'mcl -h' or 'man mcl'")
-      ,  mcxExit(1)
-
-   ;  mainStatus  =  mclAlgorithmInit(opts, algOpts, argv[1], map)
-
-   ;  mcxOptFree(&opts)
-   ;  mcxOptHashFree(&algOpts)
-   ;  mcxOptHashFree(&procOpts)
-   ;  mcxOptHashFree(&mergedOpts)
-
-   ;  if (mainStatus == ALG_INIT_DONE)
+   ;  if (status == ALG_INIT_DONE)
       return 0
-   ;  else if (mainStatus == ALG_INIT_FAIL)
-         mcxErr("mcl", "initialization failed")
-      ,  mcxTell("mcl", "do 'mcl -h' or 'man mcl'")
-      ,  mcxExit(1)
+   ;  else if (status)
+      mcxDie(STATUS_FAIL, me, "no tango")
 
-   ;  themx = mclAlgorithmRead(map, FALSE)
-   ;  if (!themx)
-      mcxDie(1, "mcl", "no jive")
-   ;  mclAlgorithmCacheGraph(themx, map, 'a')  /* might be a noop */
-   ;  mclAlgorithmTransform(themx, map)
-   ;  mclAlgorithmCacheGraph(themx, map, 'b')  /* might be a noop */
+   ;  if ((status = mclAlgorithm(mlp)) == STATUS_FAIL)
+      mcxDie(STATUS_FAIL, me, "failed")
 
-   ;  if (!mcldEquate(themx->dom_cols, themx->dom_rows, MCLD_EQ_EQUAL))
-         mcxErr("mcl", "domains differ!")
-      ,  mcxExit(1)
-   ;  if (!N_COLS(themx))
-         mcxErr("mcl", "Attempting to cluster the void")
-      /* ,  mcxExit(1) */
+   ;  if (mlp->n_assimilated)
+      mcxLog(MCX_LOG_MODULE, me, "%lu nodes will assimilate", (ulong) mlp->n_assimilated)
 
-   ;  mclSetProgress(N_COLS(themx), mpp)
+   ;  if (mlp->mx_start)
+      mcxLog(MCX_LOG_MODULE, me, "cached matrix with %lu columns", (ulong) N_COLS(mlp->mx_start))
 
-   ;  mainStatus  =  mclAlgorithm(themx, map)
-   ;  if (mainStatus == STATUS_FAIL)
-         mcxErr("mcl", "failed")
-      ,  mcxExit(1)
-
-   ;  mclAlgParamFree(&map)
+   ;  mclAlgParamFree(&mlp, TRUE)
    ;  helpful_reminder()
-   ;  return 0
+   ;  return STATUS_OK
 ;  }
 
 

@@ -1,9 +1,9 @@
 #!/usr/local/bin/perl -w
 
-#  (C) Copyright 2006 Stijn van Dongen
+#  (C) Copyright 2006, 2007 Stijn van Dongen
  #
 #  This file is part of MCL.  You can redistribute and/or modify MCL under the
-#  terms of the GNU General Public License; either version 2 of the License or
+#  terms of the GNU General Public License; either version 3 of the License or
 #  (at your option) any later version.  You should have received a copy of the
 #  GPL along with MCL, in the file COPYING.
 
@@ -11,8 +11,8 @@
 sub explain {
 print <<EOH;
 purpose:
-   A small mcl implementation for educational purposes.  It uses terse perl
-   though, so the education might be twofold.
+   A small mcl implementation for educational purposes.  It is written
+   in moderately terse perl.
 
 implementation:
    It is hash based, which implies that we get sparse matrices easily but at
@@ -66,6 +66,8 @@ if
 
 my $mx = {};
 
+   ##    This reads the labels into a graph structure.
+   ##
 while (<>) {
    next if /^\s*#/;
    if (/(\S+)\s+(\S+)\s+(\S+)/) {

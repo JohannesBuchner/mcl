@@ -1,9 +1,11 @@
+# configure.ac - generated from configure.ac.in by setversion. do not edit
+# configure.ac, but edit the master.
 # Process this file with autoconf to produce a configure script.
 #
-# $Id: configure.ac.in,v 1.32 2006-01-23 23:07:49 flux Exp $
+# $Id: configure.ac.in,v 1.36 2006-11-03 13:06:53 flux Exp $
 
 AC_PREREQ(2.50)
-AC_INIT(mcl, 06-058, mcl-devel@lists.micans.org)
+AC_INIT(mcl, 08-157, mcl-devel@lists.micans.org)
 
 PACKAGE=$PACKAGE_NAME
 VERSION=$PACKAGE_VERSION
@@ -89,23 +91,25 @@ if test "$helpful_reminder" = "yes"; then
 fi
 
 
-########################  blast package      #####################################
-
-# extra ./configure options
-AC_ARG_ENABLE(tribe,
-[  --enable-tribe  build contributed tribe tools (protein clustering stuff) ],
- [
-     case "${enableval}" in
-         yes) tribe=true ;;
-         no)  tribe=false ;;
-         *) AC_MSG_ERROR([bad value ${enableval} for --enable-tribe]) ;;
-     esac
- ], [tribe=false]
-)
-AM_CONDITIONAL(BUILD_TRIBE, test x$tribe = xtrue)
-
-
 ########################  tribe package      #####################################
+##  DEPRECATED.
+##  PLEASE USE BLAST PACKAGE INSTEAD.
+
+##  # extra ./configure options
+##  AC_ARG_ENABLE(tribe,
+##  [  --enable-tribe  build contributed tribe tools (protein clustering stuff) ],
+##   [
+##       case "${enableval}" in
+##           yes) tribe=true ;;
+##           no)  tribe=false ;;
+##           *) AC_MSG_ERROR([bad value ${enableval} for --enable-tribe]) ;;
+##       esac
+##   ], [tribe=false]
+##  )
+##  AM_CONDITIONAL(BUILD_TRIBE, test x$tribe = xtrue)
+
+
+########################  blast package      #####################################
 
 AC_ARG_ENABLE(blast,
 [  --enable-blast   build bio-informatics tools ],
@@ -163,20 +167,24 @@ AC_OUTPUT([
     Makefile
     include/Makefile
     doc/Makefile
+    testing/Makefile
+    testing/stream/Makefile
+    testing/blast/Makefile
     graphs/Makefile
+    img/Makefile
     scripts/Makefile
     util/Makefile
     src/Makefile
     src/taurus/Makefile
+    src/clew/Makefile
     src/mcl/Makefile
+    src/gryphon/Makefile
     src/impala/Makefile
     src/shcl/Makefile
     src/shmcl/Makefile
     src/shmx/Makefile
     src/shmcxquery/Makefile
     src/shmcx/Makefile
-    src/contrib/Makefile
-    src/contrib/tribe/Makefile
     src/alien/Makefile
     src/alien/oxygen/Makefile
     src/alien/oxygen/doc/Makefile

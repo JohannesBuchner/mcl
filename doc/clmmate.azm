@@ -2,8 +2,8 @@
 \def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{clmmate}
-\set{"man::html-title"}{The clmmate manual}
+\set{"man::name"}{clm mate}
+\set{"man::html-title"}{The clm mate manual}
 \set{"man::author"}{Stijn van Dongen}
 \set{"man::section"}{1}
 
@@ -11,16 +11,24 @@
 \${html}{\"man::maketoc"}
 
 \sec{name}{NAME}
-\NAME{clmmate}{compute best matches between two clusterings}
+\NAME{clm mate}{compute best matches between two clusterings}
+
+\disclaim_clm{mate}
 
 \sec{synopsis}{SYNOPSIS}
-   \par
-   \clmmate [-l] [-o fname] <clfile1> <clfile2>
+\par{
+   \clm{mate}
+   \synoptopt{-o}{fname}{output file name}
+   \synoptopt{-b}{omit headers}
+   \synoptopt{--one-to-many}{require multiple hits in <clfile1>}
+   \stdsynopt
+   <clfile1> <clfile2>
+   }
 
 \sec{description}{DESCRIPTION}
 
 \par{
-   \clmmate computes for each cluster \v{X} in \v{clfile1} all clusters
+   \clm{mate} computes for each cluster \v{X} in \v{clfile1} all clusters
    \v{Y} in \v{clfile2} that have non-empty intersection and outputs
    a line with the data points listed below.}
 
@@ -36,9 +44,6 @@
    projection(X, clfile2)     # see below
    projection(Y, clfile1)     # see below
 }
-
-\par{
-   Use the \genopt{-l} option to include a legend heading the output.}
 
 \par{
    The projected size of a cluster \v{X} relative to a clustering \v{K} is
@@ -79,6 +84,21 @@ mcx /clfile2 lm /clfile1 lm tp mul /ting wm}
    (use the \usearg{-s} option for UNIX sort)
    From this information one can quickly extract the closest
    clusters between two clusterings.}
+
+\sec{options}{OPTIONS}
+
+\'begin{itemize}{\mcx_itemopts}
+
+\item{\defopt{-o}{fname}{output file name}}
+\car{Specify the name of the output file.}
+\item{\defopt{-b}{omit headers}}
+\car{Batch mode, omit column names.}
+\item{\defopt{--one-to-many}{require multiple hits in <clfile1>}}
+\car{Do not output information for clusters in the first file
+that are subset of a cluster in the second file.}
+\stddefopt
+
+\'end{itemize}
 
 \sec{author}{AUTHOR}
 \par

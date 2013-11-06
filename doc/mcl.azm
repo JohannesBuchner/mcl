@@ -29,7 +29,7 @@ that assumes label input.  The input is then a file or stream in which each
 line encodes an edge in terms of two labels and a numerical value, separated
 by white space.  The most basic example of usage is this:}
 
-\verbatim{\:/
+\verbatim{\:{/}
    \mcl <-|fname> \genoptref{--abc} \genoptref{-o}{fname-out}}
 
 \car{
@@ -38,20 +38,20 @@ by white space.  The most basic example of usage is this:}
    \it{matrix input} is the second mode of operation.  Label mode can save its
    input for later use in matrix input. Here is how to do it.}
 
-\verbatim{\:/
+\verbatim{\:{/}
    \mcl <-|fname> \genoptref{--abc} \genoptref{-o}{fname-out}\\
-      \genoptref{-cache-tab}{map-name} \genoptref{-cache-graph}{graph-name}}
+      \genoptref{-write-tab}{map-name} \genoptref{-write-graph}{graph-name}}
 
 \car{
    Native mode (matrix input) is entered simply by \it{not} specifying
    \genopt{--abc}.  The input file should then have been created by an earlier
-   invocation of \genoptref{-cache-graph}{fname} or by other means,
+   invocation of \genoptref{-write-graph}{fname} or by other means,
    e.g. \mysib{mcxload}. It is
    possible to obtain label output in native mode by specifying a label
    dictionary, possibly one that was saved earlier using the
-   \genoptref{-cache-tab}{fname} option. An example is this:}
+   \genoptref{-write-tab}{fname} option. An example is this:}
 
-\verbatim{\:/
+\verbatim{\:{/}
    \mcl <-|fname> \genoptref{--yield-abc} \genoptref{-o}{fname-out}\\
       \genoptref{-strict-tab}{fname-map}}
 
@@ -59,8 +59,7 @@ by white space.  The most basic example of usage is this:}
    Here \genopt{-strict-tab} tells mcl that the input should not contain
    labels other than found in the file \genopt{fname-map}. It is possible to
    relax this by using \genoptref{-restrict-tab}{fname-map} or
-   \genoptref{-extend-tab}{fname-map}.
-}
+   \genoptref{-extend-tab}{fname-map}.}
 
 \par{
    Label mode is very convenient for easy and fast exploration.  A decided
@@ -81,9 +80,9 @@ by white space.  The most basic example of usage is this:}
    Refer to the group of options discussed with
    \genoptref{--abc}.  By way of a small example, consider these.}
 
-\verbatim{\:/
-mcxdeblast --abc-out=- hsfsp.blast | mcl - --abc -o -
-mcxdeblast --m9 --abc-out=- hsfsp.blast | mcl - --abc -o -}
+\verbatim{\:{/}
+mcxdeblast --line-mode=abc --out=- hsfsp.blast | mcl - --abc -o -
+mcxdeblast --m9 --line-mode=abc --out=- hsfsp.blast | mcl - --abc -o -}
 
 \car{
    The single hyphens in this example (other than word-separators)
@@ -94,9 +93,9 @@ mcxdeblast --m9 --abc-out=- hsfsp.blast | mcl - --abc -o -}
    that the mode of communication between these programs is \it{label format}.
    It is possible to cache the input graph in native mcl matrix format:}
 
-\verbatim{\:/
-mcxdeblast --abc-out=- hsfsp.blast | \\
-   mcxload -abc - --stream-mirror -o hsfsp.mcx -cache-tab hsfsp.tab --binary
+\verbatim{\:{/}
+mcxdeblast --line-mode=-abc --out=- hsfsp.blast | \\
+   mcxload -abc - --stream-mirror -o hsfsp.mcx -write-tab hsfsp.tab --write-binary
 mcl hsfsp.mcx -use-tab hsfsp.tab -o  hsfsp.my-nice-clustering}
 
 \car{
@@ -106,13 +105,13 @@ mcl hsfsp.mcx -use-tab hsfsp.tab -o  hsfsp.my-nice-clustering}
    Keep in mind though that it is not portable across machines
    and is not garantueed to be portable across different versions
    of mcl or differently compiled versions of mcl.
-   \mcl also accepts the \genoptref{--binary} option, ensuring that
-   graphs written with \genoptref{-cache-graph} are output in binary
+   \mcl also accepts the \genoptref{--write-binary} option, ensuring that
+   graphs written with \genoptref{-write-graph} are output in binary
    format.
    The \mysib{mcxload} \genopt{--mirror} option ensures that
-   the resulting graph is undirected. Input graphs that
-   are cached with mcl's \genoptref{-cache-graph} option
-   get the same treatment.}
+   the resulting graph is undirected. When mcl itself is in charge of processing
+   the label input (rather than mcxload as in the example under discussion)
+   it is not necessary to instruct mcl to do so.}
 
 \sec{synopsis}{SYNOPSIS}
 
@@ -132,18 +131,15 @@ label format and the addition of the \genoptref{--abc} option.}
    These options are sufficient in 95 percent of the cases or more.  The first
    argument must be the name of a file containing a graph/matrix in the mcl
    input format, or a hyphen to read from STDIN.  With respect to clustering,
-   only the \optref{-I}{\genopt{-I} option} and
-   \optref{-scheme}{\genopt{-scheme} option} are relevant and the rest is
-   immaterial.
-}
+   the \optref{-I}{\genopt{-I} option} and \optref{-scheme}{\genopt{-scheme}
+   option} are foremost relevant.}
 
 \'""{
    As of the first 1.003 release, \mysib{clmformat} enables you to map a
    clustering onto a format better suited for inspection, using an index file
    (the so called \it{tab file}) mapping mcl indices onto descriptive labels.
    Read the \sibref{clmformat}{clmformat manual} for more information -
-   it is simple to use and the manual is small.
-}
+   it is simple to use and the manual is small.}
 
 \par{
    A mechanism for pipelines is supported (as of the first 1.003 release).
@@ -151,8 +147,7 @@ label format and the addition of the \genoptref{--abc} option.}
    A prepackaged pipeline for BLAST data is present in the form of
    \mysib{mclblastline}. As of release 1.006 a lightweight BLAST clustering
    mechanism is also supported. \secref{started} is a small introduction,
-   with some examples of using BLAST results.
-}
+   with some examples of using BLAST results.}
 
 \par{
    The full listing of \mcl options is shown below, separated
@@ -163,13 +158,14 @@ label format and the addition of the \genoptref{--abc} option.}
    The \genopt{-scheme} parameter provides a single access point to the
    pruning options, and should be sufficient in most cases.
    \mcl allows comprehensive tuning and access to its internals
-   for those who are interested, so it has many options.
-}
+   for those who are interested, so it has many options.}
 
 \cpar{Baseline clustering options}{
-   \synoptopt{-I}{f}{inflation}
+   \synoptopt{-I}{<num>}{inflation}
    \synoptopt{-o}{str}{fname}
    \synoptopt{-scheme}{k}{resource scheme}
+   \synoptopt{--shadow-vl}{shadow distant nodes}
+   \synoptopt{-c}{<num>}{reweight loops}
 }
 \cpar{Stream options}{
    \synoptopt{--abc}{fname}{expect/write labels}
@@ -179,7 +175,7 @@ label format and the addition of the \genoptref{--abc} option.}
    \synoptopt{-strict-tab}{fname}{use mapping to enforce}
    \synoptopt{-restrict-tab}{fname}{use mapping to restrict}
    \synoptopt{-extend-tab}{fname}{use mapping and extend}
-   \synoptopt{-cache-tab}{fname}{write mapping}
+   \synoptopt{-write-tab}{fname}{write mapping}
 }
 \cpar{Transform options}{
    \synoptopt{-tf}{<tf-spec>}{transform input matrix values}
@@ -188,24 +184,30 @@ label format and the addition of the \genoptref{--abc} option.}
    \synoptopt{--abc-neg-log}{take negative logarithm of stream values}
 }
 \cpar{Cache options}{
-   \synoptopt{-cache-graph}{fname}{write graph}
-   \synoptopt{-cache-expanded}{fname}{write expanded graph}
-   \synoptopt{-ei}{inflation}{use with expanded input}
+   \synoptopt{-write-graph}{fname}{write graph}
+   \synoptopt{-write-graphx}{fname}{write transformed graph}
+   \synoptopt{-write-expanded}{fname}{write expanded graph}
 }
 \cpar{Additional clustering options}{
    \synoptopt{-l}{n}{initial iteration number}
    \synoptopt{-L}{n}{main iteration number}
    \synoptopt{-i}{f}{initial inflation}
+   \synoptopt{-lint-k}{<num>}{assimilate small clusters entirely}
+   \synoptopt{-lint-l}{<num>}{try to pry nodes from small clusters}
+   \synoptopt{--adapt-local}{localize inflation (experimental)}
+   \synoptopt{--shadow}{mode}{modulation type}
+   \synoptopt{-shadow-s}{f}{boost factor}
 }
 \cpar{Input manipulation options}{
-   \synoptopt{-c}{f}{centering}
    \synoptopt{-pi}{f}{pre-inflation}
+   \synoptopt{-ph}{f}{pre-inflation, max-bound}
+   \synoptopt{-if}{f}{start-inflation}
    \synoptopt{-pp}{n}{preprune count}
-   \synoptopt{-in-gq}{f}{filter threshold}
+   \synoptkvp{--discard-loops}{y/n}{discard y/n loops in input}
 }
 \cpar{Clustering result options}{
    \synoptopt{-sort}{str}{sort mode}
-   \synoptkvp{--keep-overlap}{y/n}{retain overlap}
+   \synoptopt{-overlap}{str}{overlap mode}
    \synoptkvp{--output-limit}{y/n}{write limit matrix}
    \synoptkvp{--force-connected}{y/n}{analyze components}
    \synoptkvp{--check-connected}{y/n}{analyze components}
@@ -214,35 +216,36 @@ label format and the addition of the \genoptref{--abc} option.}
    \synoptkvp{--append-log}{y/n}{append log}
 }
 \cpar{Verbosity options}{
+   \synoptopt{-q}{spec}{log levels}
    \synoptopt{-v}{str}{verbosity type on}
    \synoptopt{-V}{str}{verbosity type off}
-   \synoptopt{--silent}{very}
-   \synoptopt{--verbose}{very}
-   \synoptopt{-progress}{k}{gauge}
    \synoptopt{--show}{print (small) matrices to screen}
 }
 \cpar{Thread options}{
    \synoptopt{-te}{k}{#expansion threads}
-   \synoptopt{-ti}{k}{#inflation threads}
-   \synoptopt{-t}{k}{#threads}
 }
-\cpar{Output file name options}{
+\cpar{Output file name and annotation options}{
    \synoptopt{-o}{str}{fname}
    \synoptopt{-ap}{str}{use str as file name prefix}
    \synoptopt{-aa}{str}{append str to suffix}
    \synoptopt{-az}{show output file name and exit}
    \synoptopt{-ax}{show output suffix and exit}
+   \synoptopt{-annot}{str}{dummy annotation option}
 }
 \cpar{Dump options}{
+         \: Below list aliases to keep docme happy.
+         \: \synoptopt{-di}
+         \: \synoptopt{-ds}
+         \: \synoptopt{-dm}
    \synoptopt{-dump-interval}{i:j}{dump interval}
    \synoptopt{-dump-modulo}{k}{dump modulo}
    \synoptopt{-dump-stem}{stem}{dump file stem}
-   \'""{\synoptopt{--db}{dump binary}}
    \synoptopt{-dump}{str}{type}
    \synoptopt{-dump-subi}{spec}{index list for submatrix dump}
    \synoptopt{-dump-subd}{spec}{domain list for submatrix dump}
    \synoptopt{-dump-dom}{fname}{domain matrix file}
    \synoptopt{-digits}{n}{printing precision}
+   \synoptopt{--write-binary}{write matrices in binary format}
 }
 \cpar{Info options}{
    \synoptopt{--jury-charter}{explains jury}
@@ -261,8 +264,8 @@ label format and the addition of the \genoptref{--abc} option.}
    be employed by \mcl.  They are described in the \secref{pruneoptions}
    section, accompanied by a description of the mcl pruning strategy.
    If your graphs are huge
-   and you have an appetite for tuning, have a look at the following:
-}
+   and you have an appetite for tuning, have a look at the following:}
+
 \par{
    \synoptopt{-p}{f}{cutoff}
    \synoptopt{-P}{n}{1/cutoff}
@@ -273,20 +276,15 @@ label format and the addition of the \genoptref{--abc} option.}
    \synoptopt{-warn-pct}{n}{prune warn percentage}
    \synoptopt{-warn-factor}{n}{prune warn factor}
    \synoptopt{--adapt}{pruning}
-   \synoptopt{-ae}{f}{adaptive pruning exponent}
-   \synoptopt{-af}{f}{adaptive pruning factor}
-   \synoptopt{-nx}{x}{x window index}
-   \synoptopt{-ny}{y}{y window index}
-   \synoptopt{-nj}{j}{jury window index}
-   \synoptopt{-nw}{w}{nr of windows}
-   \synoptopt{-nl}{w}{nr of iterations}
+   \: synoptopt{-nj}{j}{jury window index}
 }
+
 \par{
    The first argument of \mcl must be a file name, but some options are allowed
    to appear as the first argument instead.  These are the options that cause
    mcl to print out information of some kind, after which it will gracefully
-   exit.  The full list of these options is
-}
+   exit.  The full list of these options is}
+
 \par{
    \optref{-z}{\genopt{-z}},
    \optref{-h}{\genopt{-h}},
@@ -319,8 +317,7 @@ label format and the addition of the \genoptref{--abc} option.}
    See the \secref{applicability} section for a description of the type of
    graph mcl likes best, and for a qualitative assessment of its speed.
    \mcl is accompanied by several other utilities for analyzing clusterings and
-   performing matrix and graph operations; see the \secref{seealso} section.
-}
+   performing matrix and graph operations; see the \secref{seealso} section.}
 
 \par{
    The first argument is the input file name,
@@ -328,14 +325,14 @@ label format and the addition of the \genoptref{--abc} option.}
    making the name of the input file a fixed parameter is that you typically do
    several runs with different parameters. In command line mode it is
    pleasant if you do not have to skip over an immutable parameter all the
-   time.
-}
+   time.}
+
 \par{
    The \optref{-I}{\genopt{-I}{f} option} is the main control,
    affecting cluster granularity. Using \mcl is as simple as
    typing (assuming a file \it{proteins} contains a matrix/graph
-   in native matrix format)
-}
+   in native matrix format)}
+
 \verbatim{mcl proteins -I 2.0}
 
 \car{
@@ -344,15 +341,14 @@ label format and the addition of the \genoptref{--abc} option.}
    possible to explicitly specify the name of the output file
    using the \genoptref{-o}{fname} option. Refer to the
    \genoptref{-ap} option for a description of mcl's procedure
-   in automatically constructing file names from it parameters.
-}
+   in automatically constructing file names from it parameters.}
+
 \par{
    In native mode clusterings are stored as matrices
    - this is discussed in the \mysib{mcxio} section.
    You presumably want to convert the output to something that
    is easier to interpret. The native mcl matrix format is perhaps
-   unpleasant to parse in the quick and dirty way. You can use
-}
+   unpleasant to parse in the quick and dirty way. You can use}
 
 \verbatim{mcl proteins -I 2.0 -use-tab proteins.tab --yield-abc}
 
@@ -364,15 +360,14 @@ label format and the addition of the \genoptref{--abc} option.}
    Refer to \mysib{mcxio} for more information on tab files,
    and the entries grouped under \genoptref{--abc} for an extensive
    discussion of the various ways in which mcl can combine
-   label format and matrix format in input and output.
-}
+   label format and matrix format in input and output.}
 
 \par{
    In finding good \mcl parameter settings for a particular domain,
    or in finding cluster structure at different levels of granularity,
    one typically runs mcl multiple times for varying values of f (refer
-   to the \genoptref{-I}{inflation} option for further information).
-}
+   to the \genoptref{-I}{inflation} option for further information).}
+
 \cpar{NOTE}{mcl interprets the matrix
    entries or graph edge weights as \bf{similarities}, and it likes
    \bf{undirected input graphs} best. It can handle directed graphs, but any
@@ -382,16 +377,16 @@ label format and the addition of the \genoptref{--abc} option.}
    make your input graphs undirected.  How your edge weights are computed may
    affect mcl's performance.  In protein clustering, one way to go is to
    choose the negated logarithm of the BLAST probabilities (see
-   \secref{references}).
-}
+   \secref{references}).}
+
 \par{
    \mcl's default parameters should make it quite fast under almost all
    circumstances.  Taking default parameters, mcl has been used to generate
    good protein clusters on 133k proteins, taking 10 minutes running time on a
    Compaq ES40 system with four alpha EV6.7 processors.  It has been applied
    (with good results) to graphs with 800k nodes, and if you have the memory
-   (and preferably CPUs as well) nothing should stop you from going further.
-}
+   (and preferably CPUs as well) nothing should stop you from going further.}
+
 \par{
    For large graphs, there are several groups of parameters available for
    tuning the mcl computing process, should it be necessary.  The easiest thing
@@ -401,57 +396,49 @@ label format and the addition of the \genoptref{--abc} option.}
    \genopt{-pct}}.  The default setting corresponds with
    \useopt{-scheme}{6}.
 
-   There is an additional group of control parameters
-   \optref{--adapt}{\genopt{--adapt}, \genopt{-ae},
-   \genopt{-af}}, which may be helpful in speeding up \mcl.
    When doing multiple mcl runs for the same graphs with different
    \genopt{-I} settings (for obtaining clusterings at different levels
    of granularity), it can be useful to factor out the first bit
    of computation that is common to all runs, by using
-   the \genoptref{-cache-expanded} option one time
-   and then using \genoptref{-ei}{inflation} for each run in the set.
+   the \genoptref{-write-expanded} option one time
+   and then using \genoptref{-if}{inflation} for each run in the set.
 
    Whether mcl considers a graph large depends mainly on the graph
    connectivity; a highly connected graph on 50,000 nodes is large to
    mcl (so that you might want to tune resources) whereas a sparsely
-   connected graph on 500,000 nodes may be business as usual.
+   connected graph on 500,000 nodes may be business as usual.}
+
 \'""{If graphs are really huge, the time to read a graph from file can be
    shortened by converting the input graph from
    interchane mcl format to binary mcl
    format with \mysib{mcxconvert}.}
-}
+
 \par{
    \mcl is a memory munger. Its precise appetite depends on the resource
    settings. You can get a rough (and usually much too pessimistic) upper
    bound for the amount of RAM that is needed by using the
    \optref{-how-much-ram}{\genopt{-how-much-ram} option}.  The corresponding
    entry in this manual page contains the simple formula via which the upper
-   bound is computed.
-}
+   bound is computed.}
+
 \par{
-   Two other groups of interest are the thread-related
-   options (you can specify the number of threads to use)
-
-   \optref{-t}{\genopt{-t}, \genopt{-te}, \genopt{-ti}},
-
-   and the verbosity-related options
-   \optref{--verbose}{\genopt{--verbose}, \genopt{--silent}, \genopt{-v}, 
-   \genopt{-V}}.
+   Other options of interest are the option to specify threads
+   \optref{-te}{\genopt{-te}}, and the verbosity-related options
+   \optref{-v}{\genopt{-v} and \genopt{-V}}.
 
    The actual settings are shown with \genopt{-z}, and for graphs with
    at most 12 nodes or so you can view the MCL matrix iterands on screen
    by supplying \optref{--show}{\genopt{--show}} (this may give some
-   more feeling).
-}
+   more feeling).}
+
 \par{
    MCL iterands allow a generic interpretation as clusterings as well.  The
    clusterings associated with early iterands may contain a fair amount of
    overlap. Refer to the \optref{-dump}{\genopt{-dump} option}, the \mysib{mclfaq}
-   manual, and the \mysib{clmimac} utility (Interpret Matrices As Clusterings).
-   Use \clmimac only if you have a special reason; the normal usage of \mcl is
+   manual, and the \clm{imac} utility (Interpret Matrices As Clusterings).
+   Use \clm{imac} only if you have a special reason; the normal usage of \mcl is
    to do multiple runs for varying \genopt{-I} parameters and use the
-   clusterings output by mcl itself.
-}
+   clusterings output by mcl itself.}
 
 \par{
    Under very rare circumstances, \mcl might get stuck in a seemingly infinite
@@ -459,23 +446,22 @@ label format and the addition of the \genoptref{--abc} option.}
    indicator remains nearly constant (presumably around value 0.37), you can
    force mcl to stop by sending it the ALRM signal (usually done
    by \bf{kill -s ALRM} \it{pid}). It will finish the current
-   iteration, and interpret the last iterand a clustering. Alternatively, you
+   iteration, and interpret the last iterand as a clustering. Alternatively, you
    can wait and mcl might converge by itself or it will certainly stop after
    10,000 iterations (the default value for the \genoptref{-L} option).  The
    most probable explanation for such an infinite loop is that the input graph
-   contains the flip-flop graph of node size three as a subgraph.
-}
+   contains the flip-flop graph of node size three as a subgraph.}
 
 \par{
    The creator of this page feels that manual pages are a valuable resource,
    that online html documentation is also a good thing to have, and
    that info pages are way \it{way} ahead of their time. The
-   \secref{notes} section explains how this page was created.
-}
+   \secref{notes} section explains how this page was created.}
+
 \par{
    In the \secref{options} section options are listed in order of
-   importance, with related options grouped together.
-}
+   importance, with related options grouped together.}
+
 \sec{options}{OPTIONS}
 
 \'begin{itemize}{\mcx_itemopts}
@@ -489,43 +475,93 @@ label format and the addition of the \genoptref{--abc} option.}
    result in very coarse grained clusterings. Your mileage will vary
    depending on the characteristics of your data.  That is why it is
    a good idea to test the quality and coherency of your clusterings
-   using \mysib{clmdist} and \mysib{clminfo}.  This will most likely reveal that
+   using \clm{dist} and \clm{info}.  This will most likely reveal that
    certain values of \genopt{-I} are simply not right for your data.  The
-   \mysib{clmdist} section contains a discussion of how to use the cluster
-   validation tools shipped with \mcl (see the \secref{seealso} section).
-}
+   \clm{dist} section contains a discussion of how to use the cluster
+   validation tools shipped with \mcl (see the \secref{seealso} section).}
 
-\par{
-   A second option for affecting cluster granularity is the
-   \optref{-c}{\genopt{-c} option}.
-   It may possibly increase granularity.
-}
 \par{
    With low values for \genopt{-I}, like \useopt{-I}{1.2}, you should be
    prepared to use more resources in order to maintain quality of
    clusterings, i.e. increase the argument to the
-   \optref{-scheme}{\genopt{-scheme} option}.
-}
+   \optref{-scheme}{\genopt{-scheme} option}.}
+
 \item{\defopt{-o}{str}{fname}}
 \car{
-   Output the clustering to file named fname.
-   It is possible to send the clustering to stdout
-   by supplying \useopt{-o}{-}. If either one of \genoptref{--abc},
-   \genoptref{--yield-abc}, or \genoptref{-use-tab}{tab-file}
-   is used the output will be in
-   label format \- provided a tab file is specified or the input
-   is in label format.
-   Otherwise the clustering is output in the
-   mcl matrix format; see the \mysib{mcxio} section for 
-   more information on this.
-   Refer also to the group of options
-   discussed at \genoptref{--abc}.
-}
+   Output the clustering to file named fname.  It is possible to send the
+   clustering to stdout by supplying \useopt{-o}{-}. If either one of
+   \genoptref{--abc}, \genoptref{--yield-abc}, or
+   \genoptref{-use-tab}{tab-file} is used the output will be in label format \-
+   provided a tab file is specified or the input is in label format.  Otherwise
+   the clustering is output in the mcl matrix format; see the \mysib{mcxio}
+   section for more information on this.  Refer also to the group of options
+   discussed at \genoptref{--abc}.}
 
 \par{
    Look at the \genoptref{-ap}{prefix} option and its siblings for the
    automatic naming constructions employed by \mcl if the \genopt{-o} option is
    not used.}
+
+
+\items{
+   {\defopt{-shadow}{mode}{apply shadowing}}
+   {\defopt{-shadow-s}{<num>}{boost factor (experimental)}}
+   {\defopt{--shadow-vl}{shadow distant nodes}}
+}
+
+\cpar{EXPERIMENTAL}{
+   \it{These options are intended and useful for hierarchical
+   clustering with} \mysib{mclcm}.
+   \useopt{--shadow-vl} is the same as \useopt{-shadow}{vl}
+   and is at present the best mode to choose.
+   }
+
+\par{
+   Use these to weaken the connectivity of certain
+   classes of nodes. This means that the effect of the edges
+   in which they participate on the final clustering result is diminished.
+   This is done such that the extent to which a node exhibits certain
+   characteristics is correlated with the extent to which its connectivity is
+   weakened. The different types of characteristics that can be regulated
+   are}
+
+\begin{itemize}{{$compact}{1}{$contiguous}{1}}
+\item{\bf{vl}}   value low - nodes for which the average value of its edges
+            is low compared with the same number across its neighbours.
+\item{\bf{vh}}   value high - nodes for which the average value of its edges
+            is high compared with the same number across its neighbours.
+\item{\bf{el}}   edge low - nodes for which the number of neighbours
+            is low compared with the same number across its neighbours.
+\item{\bf{eh}}   edge high - nodes for which the number of neighbours
+            is high compared with the same number across its neighbours.
+\end{itemize}   
+
+\car{The characteristics above, e.g. \bf{vl}, correspond to the modes
+   that can be passed to the \genopt{-shadow} argument.  The first mode \bf{vl}
+   is the one most likely to be useful.  Combining different modes is possible
+   but may lead to unbalanced clusterings.  Using the mode \bf{el} in \mclcm
+   may similarly lead to unbalanced hierachies.}
+
+\par{
+   The boost factor can be set e.g. to 2.0 to increase the effect of shadowing.
+   The default setting is 1.0.
+   }
+
+\item{\defopt{-c}{<num>}{reweight loops}}
+\car{
+   As the final step of loop computation (i.e. after initialization
+   and shadowing), all loop weights are multiplied by \genopt{<num>},
+   if supplied.
+   }
+
+\item{\defkvp{--discard-loops}{y/n}{discard loops in input}}
+\car{
+   By default \mcl will remove any loops that are present in the input.  Use
+   \usekvp{--discard-loops}{n} to turn this off.  Bear in mind that loops will
+   still be modified in all cases where the loop weight is not maximal among
+   the list of edge weights for a given node.
+
+   }
 
 \items{
    {\defopt{--abc}{fname}{expect/write labels}}
@@ -535,15 +571,15 @@ label format and the addition of the \genoptref{--abc} option.}
    {\defopt{-strict-tab}{fname}{use mapping to enforce}}
    {\defopt{-restrict-tab}{fname}{use mapping to restrict}}
    {\defopt{-extend-tab}{fname}{use mapping and extend}}
-   {\defopt{-cache-tab}{fname}{write mapping}}
+   {\defopt{-write-tab}{fname}{write mapping}}
 }
+
 \car{
    These items all relate to label input and/or label output.
    \genopt{--abc} tells mcl to expect label input and output clusters
    in terms of those labels.
    It is equivalent to the combination of \genopt{--expect-abc}
-   and \genopt{--yield-abc}.
-}
+   and \genopt{--yield-abc}.}
 
 \par{
    \genopt{-restrict-tab} and \genopt{-strict-tab}
@@ -556,26 +592,23 @@ label format and the addition of the \genoptref{--abc} option.}
    will simply ignore them.
    \genopt{-strict-tab} and \genopt{-restrict-tab} do \it{not}
    automatically yield label output. You need \genopt{--abc} or
-   \genopt{--yield-abc}.
-}
+   \genopt{--yield-abc}.}
 
 \par{
    \genopt{-extend-tab} is only useful when label input is used.
    It will create a new label/index mapping when a label is not found
-   in the tab file. Presumably you want to use the \genopt{-cache-tab}
-   as well then.
-}
+   in the tab file. Presumably you want to use the \genopt{-write-tab}
+   as well then.}
 
 \par{
    \genopt{-use-tab} is only useful when matrix input is used.
    It will use the tab file to convert the output to labels; it does
    not hitch on indices missing from the tab file. Take a pick
    from \genopt{-restrict-tab} or \genopt{-strict-tab} \it{and}
-   \genopt{--abc} or \genopt{--yield-abc} if that is what you want.
-}
+   \genopt{--abc} or \genopt{--yield-abc} if that is what you want.}
 
 \par{
-   \genopt{-cache-tab} can be used to preserve the tab file
+   \genopt{-write-tab} can be used to preserve the tab file
    that was constructed from label input, either from scratch
    or by extension from a previous tab file in case \genopt{-extend-tab}
    was used.}
@@ -610,26 +643,30 @@ label format and the addition of the \genoptref{--abc} option.}
    in \genopt{<tf-spec>} refer to the same.}
 
 \items{
-   {\defopt{-cache-graph}{fname}{write graph}}
-   {\defopt{-cache-expanded}{fname}{write expanded graph}}
-   {\defopt{-ei}{inflation}{use with expanded input}}
+   {\defopt{-write-graph}{fname}{write graph}}
+   {\defopt{-write-graphx}{fname}{write transformed graph}}
+   {\defopt{-write-expanded}{fname}{write expanded graph}}
 }
-\car{If you work with label input, \genopt{-cache-graph} can be
-   used to save the matrix mcl constructs. In a following
-   mcl invocation, you can use this graph rather than the label
-   input. This should greatly speed up matters. Presumably
-   the first time around you have use the \genopt{-cache-tab}{my.cache}
-   option. You can put that \v{my.cache} file to good use by
-   passing it in as \genopt{-use-tab}{my.cache} the second time around.
-   The session below puts everything together.}
+\car{
+   If you work with label input, \genopt{-write-graph} can be
+   used to save the matrix mcl constructs from the input stream.
+   \genopt{-write-graphx} is similar except that it applies to the graph after
+   transformations have been applied to it (such as specified by the
+   \genoptref{-tf} option).  In a following mcl invocation, you can use this
+   graph rather than the label input. This should greatly speed up matters.
+   Presumably the first time around you have use the
+   \genopt{-write-tab}{my.tab} option. You can put that \v{my.tab} file to
+   good use by passing it in as \genopt{-use-tab}{my.tab} the second time
+   around.  The session below puts everything together.
+   }
 
-\verbatim{\:/
-mcl xyz.data --abc -I 2.0 -o xyz.cls-I20 --binary\\
-            -cache-graph xyz.mci -cache-tab xyz.tab
+\verbatim{\:{/}
+mcl xyz.data --abc -I 2.0 -o xyz.cls-I20 --write-binary\\
+            -write-graph xyz.mci -write-tab xyz.tab
 mcl xyz.mci -I 2.4 -use-tab xyz.tab -o xyz.cls-I24}
 
 \car{
-   The \genoptref{--binary} option is useful for large graphs as it
+   The \genoptref{--write-binary} option is useful for large graphs as it
    will drastically speed up subsequent load times. Otherwise it
    is not necessary, and bear in mind that binary format is not
    portable across machines and it is not garantueed to be portable
@@ -637,19 +674,18 @@ mcl xyz.mci -I 2.4 -use-tab xyz.tab -o xyz.cls-I24}
    For very large graphs it could be a bit wasteful to load a large tab
    structure into memory. The second line can then be replaced by}
 
-\verbatim{\:/
+\verbatim{\:{/}
 mcl xyz.mci -I 2.4 -o -|\\
 mcxdump -imx - --no-values --dump-rlines\\
             -tabr xyz.tab -o xyz.cls-I24}
 
 \car{
    Admittedly this is beginning to look like black magic, but truthfully
-   it is not, my dear paduan. \mysib{mcxdump}
+   it is not. \mysib{mcxdump}
    simply needs to be told how it should format its output. It needs to know
    it should dump the matrix columns (clusters in this case) on a per-line
    basis, that it should not dump the index that identifies the cluster
-   (an arbitrary rank in our case), and that there is no need to output
-   values.
+   (an arbitrary rank in our case), and that there is no need to output values.
    \bf{mcxdump} furthermore does not know how the tab file relates to
    its input matrix, whereas mcl previously had the advantage of knowing.
    Hence \genopt{-tabr} is telling mcxdump that the \it{row domain}
@@ -660,16 +696,16 @@ mcxdump -imx - --no-values --dump-rlines\\
    input is \it{squared} or \it{expanded}.  This is a rather costly operation
    if the input size is large.  When you are doing multiple runs it can thus be
    useful to cache the expanded matrix at the cost of a little more hassle.
-   Use \genopt{-cache-expanded}{fname} to write this matrix to \genarg{fname}.
+   Use \genopt{-write-expanded}{fname} to write this matrix to \genarg{fname}.
    In subsequent runs supply \genarg{fname} as the input argument to mcl and
-   use \genopt{-ei}{num} to indicate that the first thing to apply should be
+   use \genopt{-if}{num} to indicate that the first thing to apply should be
    inflation with parameter \genarg{num}. Combining our previous two
    examples then yields}
 
-\verbatim{\:/
-mcl xyz.data --abc -I 2.0 -o xyz.cls-I20 --binary\\
-            -cache-expanded xyz.mxp -cache-tab xyz.tab
-mcl xyz.mxp -ei 2.4 -I 2.4 -o -|\\
+\verbatim{\:{/}
+mcl xyz.data --abc -I 2.0 -o xyz.cls-I20 --write-binary\\
+            -write-expanded xyz.mxp -write-tab xyz.tab
+mcl xyz.mxp -if 2.4 -I 2.4 -o -|\\
 mcxdump -imx - --no-values --dump-rlines\\
             -tabr xyz.tab -o xyz.cls-I24}
 
@@ -695,107 +731,142 @@ mcxdump -imx - --no-values --dump-rlines\\
    has several entries discussing this issue. The bottom line is
    that you have to compare the clusterings resulting from different
    schemes (and otherwise identical parameters) using utilities
-   such as \mysib{clmdist}, \mysib{clminfo} on the one hand, and your
-   own sound judgment on the other hand.
-}
+   such as \clm{dist}, \clm{info} on the one hand, and your
+   own sound judgment on the other hand.}
+
 \par{
    If your input graph is extremely dense, with an average node degree
    (i.e. the number of neighbours per node) that is somewhere above 
    500, you may need to filter the input graph by removing the nodes
    of highest degree (and projecting them back onto the resulting
    clustering afterwards) or by using the
-   \optref{-pp}{\genopt{-pp} option}.
+   \optref{-pp}{\genopt{-pp} option}.}
+
+
+\items{
+   {\defopt{-lint-k}{<numk>}{cluster size assimilation threshold}}
+   {\defopt{-lint-l}{<numl>}{cluster size pry threshold}}
 }
 
+\car{
+   These options will result in postprocessing on the clustering, reallocating
+   nodes that seems to have siphoned the wrong way.  The input matrix will be
+   reread for this.
+   }
+
+\par{
+   When applied to networks with inhomogenously distributed edge density
+   characteristics the mcl process will sometimes cause smaller
+   clusters/sparse areas to suck in border nodes which 1) have only few
+   edges to that cluster/area and 2) seem to have been sucked out of a much
+   denser cluster into which they would fit beautifully. This is fully in line
+   with the flow characteristics of mcl but a largely unwanted phenomenon.  The
+   postprocessing step was added as a remedy for this problem should it
+   manifest itself.  It is based on the efficiency criterion described in
+   \refer{gcbfs} and \refer{pcfgcmce} (there called \it{coverage}).}
+
+\par{
+   With \genopt{-lint-l} a node is tentatively reallocated if this will improve
+   its effiency, and if it is initially in a cluster of size at most \genarg{numl}.
+   After all nodes that are candidate for reallocation have been
+   identified the proposed new clustering is accepted if it increases the total
+   edge weight captured. This procedure is iterated until no further
+   reallocations are possible. The efficiency measure is a conservative
+   criterion in that it does not unduly favour larger clusters over smaller
+   clusters. For example, if a node has 4 neighbours in a cluster of size 8 and
+   it has a further 8 neighbours in a cluster of size 100 the efficiency for
+   the first cluster (relative to that node) will generally be higher than the
+   efficiency for the second cluster.}
+
+\par{
+   With \genopt{-lint-k} clusters up to the given size \genarg{numk}
+   are assimilated by a larger cluster if a suitable candidate is found.
+   This is based on the same criteria as described above, except
+   that a cluster is absorbed in its entirety.
+   }
+
+\item{\defopt{--adapt-local}{localize inflation (experimental)}}
+\ccar{Experimental}{
+   Inflation is adapted depending on the amount of local dispersion,
+   where dispersion is a measure for how quickly stochastic flow
+   disperses throughout the graph. Regions with a low/high clustering
+   coefficient will have comparatively high/low dispersion.
+   For regions with high dispersion (low clustering coefficient)
+   inflation is adapted towards a higher value, for regions with
+   low dispersion (high clustering coefficient) inflation is adapted
+   towards a lower value.
+   }
+
 \item{\defopt{--show-schemes}{show preset resource schemes}}
+\car{
    Shows the explicit settings to which the different preset schemes
-   correspond.
+   correspond.}
 
 \par{
    The characteristics are written in the same format (more or less) as
-   the output triggered by \optref{-v-pruning}{\useopt{-v}{pruning}}.
-}
-\item{\defopt{-c}{f}{centering}}
-   The larger the value of f the more nodes are attached to themselves
-   rather than their neighbours, the more expansion (the spreading
-   of flow through the graph) is opposed, and the more fine-grained
-   clusterings tend to be.  f should be chosen greater than or equal
-   to 1.0.  The default is f=1.0.  This option has a much weaker
-   effect than the \genopt{-I} option, but it can be useful depending
-   on your data.
+   the output triggered by \optref{-v-pruning}{\useopt{-v}{pruning}}.}
 
-
-\item{\defopt{-v}{str}{verbosity type on}}
-   See the \genopt{--verbose} option below.
 
 \item{\defopt{-V}{str}{verbosity type off}}
-   See the \genopt{--verbose} option below.
+\car{
+   See the \genopt{-v} option below.}
 
-\item{\defopt{--silent}{very}}
-   See the \genopt{--verbose} option below.
-
-\item{\defopt{--verbose}{very}}
-   These are the different verbosity modes:
+\item{\defopt{-v}{str}{verbosity type on}}
+\car{
+   These are the different verbosity modes:}
 
 \par{
-   \bf{progress}\| 
    \bf{pruning}\| 
    \bf{explain}\| 
-   \bf{clusters}\|
-   \bf{all}
-}
+   \bf{cls}\|
+   \bf{all}}
+
+\item{\defopt{-q}{spec}{log levels}}
+
 \par{
-   where \it{all} means all three previous modes.
-   \useopt{--verbose} and \useopt{-v}{all}
-   turn them all on, \useopt{--silent} and \useopt{-V}{all}
-   turn them all off. \genopt{-v}{str} and \genopt{-V}{str}
-   turn on/off the single mode \genarg{str} (for \genarg{str}
-   equal to one of \bf{progress}, \bf{pruning}, or \bf{explain}).
-   Each verbosity mode is given its own entry below.
-}
-\item{\useopt{-v}{progress}}
-   This mode causes \mcl to emit a gauge
-   for each single matrix multiplication. It uses some
-   default length for the gauge, which can be altered by
-   the \genopt{-progress}{k} option. Simply using the latter
-   will also turn on this verbosity mode.
-   This mode can give you quickly an idea how long an mcl
-   run might take. If you use threading
-   (see the \optref{-t}{\genopt{-t} option} and its friends),
-   this option may slow down the program a little (relative to
-   \useopt{-V}{progress}, not relative to a single-CPU mcl run).
+   To make mcl as quiet as can be, add
+   \useopt{-q}{x} \useopt{-V}{all} to the command line.}
+
+\par{
+   The \genopt{-q} option governs a general logging mechanism.
+   The format accepted is described in the \mysib{tingea.log} manual page.}
+
+\par{
+   The other options govern verbosity levels specific to mcl.  \useopt{-v}{all}
+   turns them all on, \useopt{-V}{all} turns them all off. \genopt{-v}{str} and
+   \genopt{-V}{str} turn on/off the single mode \genarg{str} (for \genarg{str}
+   equal to one of \bf{pruning}, \bf{cls}, or \bf{explain}).  Each verbosity
+   mode is given its own entry below.}
 
 \item{\useopt{-v}{explain}}
+\car{
    This mode causes the output of explanatory headers illuminating the
-   output generated with the \bf{pruning} verbosity mode.
+   output generated with the \bf{pruning} verbosity mode.}
 
 \item{\useopt{-v}{pruning}}
+\car{
    This mode causes output of resource-related quantities. It has
    \optref{-v-pruning}{a separate\
-   entry in the \ref{pruneoptions}{cap} section}.
+   entry in the \ref{pruneoptions}{cap} section}.}
 
-\item{\useopt{-v}{clusters}}
-   This mode prints a terse list of characteristics of the
-   clusterings associated with intermediate iterands.
-
-\item{\defopt{-progress}{k}{gauge}}
-   If k>0 then for each matrix multiplication \mcl will print an
-   ascii gauge telling how far it is. The gauge will be (in some
-   cases approximately) k characters long. If k<0 then mcl will
-   emit a gauge that is extended by one character after every |k|
-   vectors computed. For large graphs, this option has been known
-   to ease the pain of impatience. If k=0 then mcl will print a
-   message only after every matrix multiplication, and not during
-   matrix multiplication. This can be useful when you want mcl to be
-   as speedy as possible, for example when using parallellized mode
-   (as monitoring progress requires thread communication).
-   For parallellization (by threading) see the
-   \optref{-t}{\genopt{-t} option}.
+\item{\useopt{-v}{cls}}
+\car{
+   This mode (on by default) prints a terse list of characteristics of the
+   clusterings associated with intermediate iterands.  The characteristics are
+   \bf{E/V}, \bf{cls}, \bf{olap}, and \bf{dd}.  They respectively stand for the
+   number of outgoing arcs per node (as an average), the number of clusters in
+   the overlapping clustering associated with the iterand, the number of nodes
+   in overlap, and the \it{dag depth} associated with the DAG (directed acyclic
+   graph) associated with the iterand.  For more information on this DAG refer
+   to the \genoptref{-dump} option description in this manual and also
+   \mysib{mclfaq}.}
 
 \item{\defopt{-aa}{str}{append str to suffix}}
-   See the \genopt{-ap} option below.
+\car{
+   See the \genopt{-ap} option below.}
 
 \item{\defopt{-ap}{str}{use str as file name prefix}}
+\car{
    If the \genoptref{-o}{fname} option is not used,
    \mcl will create a file name (for writing output to) that
    should uniquely characterize the important parameters used in the
@@ -803,38 +874,37 @@ mcxdump -imx - --no-values --dump-rlines\\
    where \bf{out} is simply the literal string \v{out}, \bf{fname} is the
    first argument containing the name of the file (with the graph) to be
    clustered, and where \bf{suf} is the suffix encoding a set of parameters
-   (described further below).
+   (described further below).}
 
 \par{
    The \genopt{-ap}{str} option specifies a prefix to use
    rather than \bf{out.fname} as sketched above.
    However, \mcl will interpret the character '=', if present
-   in \genarg{str}, as a placeholder for the input file name.
-}
+   in \genarg{str}, as a placeholder for the input file name.}
+
 \par{
    If the \genopt{-aa}{str} option is used, \mcl will append
    \bf{str} to the suffix \bf{suf} created by itself.
    You can use this if you need to encode some extra information in the
-   file name suffix.
-}
+   file name suffix.}
+
 \par{
    The suffix is constructed as follows. The \genopt{-I}{f}
    and \genopt{-scheme} parameter are always encoded.
-   The \genopt{-pi}{f}, \genopt{-l}{k}, \genopt{-i}{f}, and \genopt{-c}{f}
+   The \genopt{-pi}{f}, \genopt{-l}{k}, and \genopt{-i}{f}
    options are only encoded if they are used.  Any real argument \genarg{f}
    is encoded using \it{exactly one} trailing digit behind the decimal
    separator (which itself is not written).  The setting \useopt{-I}{3.14}
    is thus encoded as I31. The \genopt{-scheme} option is encoded using the
    letter 's', all other options mentioned here are encoded as themselves
-   (stripped of the hyphen). For example
-}
+   (stripped of the hyphen). For example}
+
 \verbatim{mcl small.mci -I 3 -c 2.5 -pi 0.8 -scheme 5}
 
 \car{
    results in the file name \v{out.small.mci.I30s5c25pi08}.
    If you want to know beforehand what file name will be produced,
-   use the \genopt{-az} option.
-}
+   use the \genopt{-az} option.}
 \items{
    {\defopt{-az}{show output file name and exit}}
    {\defopt{-ax}{show output suffix and exit}}
@@ -846,36 +916,32 @@ mcxdump -imx - --no-values --dump-rlines\\
    unique file names is convenient.
 
 \par{
-   By default MCL incorporates the input file name into the output file
+   By default mcl incorporates the input file name into the output file
    name and appends a short suffix describing the most important
    option settings. Use \genopt{-ax} to find out what that suffix is.
-   This can be useful in wrapper pipeline scripts such as clxcoarse.
-}
+   This can be useful in wrapper pipeline scripts such as clxcoarse.}
+
+\item{\defopt{-annot}{str}{dummy annotation option}}
+\car{
+   \mcl writes the command line with which it was invoked to the output
+   clustering file. Use this option to include any additional
+   information. MCL does nothing with this option except copying
+   it as just described.
+   }
 
 \item{\defopt{-te}{k}{#expansion threads}}
 \car{
-   See the \genopt{-t}{k} option below.
-}
-
-\item{\defopt{-ti}{k}{#inflation threads}}
-\car{
-   See the \genopt{-t}{k} option below.
-}
-
-\item{\defopt{-t}{k}{#threads}}
-\car{
-   The \genopt{-t} options are self-explanatory.  Note that threading
-   inflation is hardly useful, as inflation is orders of magnitude
-   faster than expansion.  Also note that threading is only useful
-   if you have a multi-processor system.
-}
+   Threading is useful if you have a multi-processor system. \mcl will
+   spawn \genarg{k} threads of computation. If these are computed
+   in parallel (this depends on the number of CPUs available to the
+   mcl process) it will speed up the process accordingly.}
 
 \par{
    When threading, it is best not to turn on pruning verbosity
    mode if you are letting mcl run unattended, unless you want to
    scrutinize its output later. This is because it makes \mcl run
-   somewhat slower, although the difference is not dramatic.
-}
+   somewhat slower, although the difference is not dramatic.}
+
 \item{\defopt{-l}{n}{initial iteration number} (small letter ell)}
    The number of times \mcl will use a different inflation value
    before it switches to the (main) inflation given by the \genopt{-I}
@@ -891,9 +957,9 @@ mcxdump -imx - --no-values --dump-rlines\\
    one lets expansion prevail during the first two iterations,
    followed by inflation catching up (in a figurative way of writing).
    This may be useful in certain cases, but this type of experiment
-   is \it{certainly secondary} to simply varying \genopt{-I} (capital eye).
-}
+   is \it{certainly secondary} to simply varying \genopt{-I} (capital eye).}
 \item{\defopt{-L}{n}{main iteration number}}
+\car{
    Normally, \mcl computes the MCL process until it has converged
    fully to a doubly idempotent matrix. The number of iterations
    required is typically somewhere in the range 10-100.
@@ -901,14 +967,19 @@ mcxdump -imx - --no-values --dump-rlines\\
    The \genopt{-L} option can be used to specify the number of
    iterations mcl may do at most. When this number is reached,
    mcl will output the clustering associated with the iterand
-   last computed.
+   last computed.}
 
 \item{\defopt{-i}{f}{initial inflation}}
+\car{
    The inflation value used during the first n iterations,
    where n is specified by the \genopt{-l} (ell) option.
-   By default, n=0 and f=2.0.
+   By default, n=0 and f=2.0.}
 
-\item{\defopt{-pi}{f}{pre-inflation}}
+\items{
+   {\defopt{-pi}{f}{pre-inflation}}
+   {\defopt{-ph}{f}{pre-inflation, max-bound}}
+}
+\car{
    If used, \mcl will apply inflation one time to the input graph
    before entering the main process. This can be useful for
    making the edge weights in a graph either more homogeneous (which
@@ -916,60 +987,79 @@ mcxdump -imx - --no-values --dump-rlines\\
    (which may result in more granular clusterings).
    Homogeneity is achieved for values \genarg{f} less than one,
    heterogeneity for values larger than one.
-   Values to try are normally in the range \m{[2.0,10.0]}.
+   Values to try are normally in the range \m{[2.0,10.0]}.}
+
+\par{
+   The \genopt{-ph} option is special in that it does not rescale
+   columns to be stochastic. Instead, it rescales columns so that
+   the maximum value found in the column stays the same after
+   inflation was applied. This is for use in conjunction with
+   \genkvp{--shadow}{vl}, as the latter option is affected by
+   absolute differences in edge weights.
+}
+
+
+\item{\defopt{-if}{f}{start-inflation}}
+\car{
+   If used, \mcl will apply inflation one time to the input graph
+   before entering the main process. The difference with
+   \genopt{-pi} is that with the latter option mcl may apply
+   certain transformations after reading in the matrix such
+   as adding or modifying loops. The purpose of
+   the \genopt{-if} (mnemonic for \it{inflation-first})
+   option  is to use it on graphs saved
+   with the \genoptref{--write-expanded} option and convey
+   to mcl that it should not apply those transformations.}
+
 
 
 \items{
    {\defopt{-di}{i:j}{dump interval}}
-   {\genopt{-di}{all}}
-   {\genopt{-dump-interval}{i:j}}
+   {\dummydefopt{-di}{all}}
+   {\dummydefopt{-dump-interval}{i:j}}
 }
+\car{
    Dump during iterations i..j-1. Use \it{all} to dump in all
-   iterations. See the \genopt{-dump}{str} option below.
+   iterations. See the \genopt{-dump}{str} option below.}
 
 \items{
    {\defopt{-dm}{k}{dump i+0..i+k..}}
-   {\genopt{-dump-modulo}{k}}
+   {\dummydefopt{-dump-modulo}{k}}
 }
+\car{
    Sampling rate: select only these iterations in the dump interval.
-   See the \genopt{-dump}{str} option below.
+   See the \genopt{-dump}{str} option below.}
 
 \items{
    {\defopt{-ds}{stem}{file stem}}
-   {\genopt{-dump-stem}{stem}}
+   {\dummydefopt{-dump-stem}{stem}}
 }
+\car{
    Set the the stem for file names of dumped
-   objects (default \it{mcl}). See the \genopt{-dump}{str} option below.
+   objects (default \it{mcl}). See the \genopt{-dump}{str} option below.}
 
 \items{
    {\defopt{-dump-subi}{spec}{index list for submatrix dump}}
    {\defopt{-dump-subd}{spec}{domain list for submatrix dump}}
    {\defopt{-dump-dom}{fname}{domain matrix file}}
 }
+\car{
    \genopt{-dump-subi} specifies a range of indices which will be
    used to select the extended principal submatrix.
    Argument \genarg{spec} can be a comma-separated
    list of single integers and integer ranges. Ranges are denoted by
-   two integers separated by a hyphen.
+   two integers separated by a hyphen.}
 
 \par{
    If \genopt{-dump-dom} is used and specifies a matrix file,
    the indices specified in the \genopt{-dump-subd} option should index
    columns in that matrix. These columns are merged and added to the
-   list of entries used in selecting the extended principal submatrix.
-}
-
-\'""{
-   \items{
-      {\defopt{--db}{dump binary format}}
-      {\genopt{--dump-binary}}
-   }
-      Dump objects in binary format; objects require roughly 50 percent
-      less disk space.}
+   list of entries used in selecting the extended principal submatrix.}
 
 \item{\defopt{-dump}{str}{type}}
+\car{
    \genarg{str} is checked for substring occurrences of the following entries.
-   Repeated use of \genopt{-dump} is also allowed.
+   Repeated use of \genopt{-dump} is also allowed.}
 
 \par{
    \bf{ite}\|
@@ -977,16 +1067,14 @@ mcxdump -imx - --no-values --dump-rlines\\
    \bf{cls}\|
    \bf{chr}\|
    \bf{lines}\|
-   \bf{cat}
-}
+   \bf{cat}}
 
 \par{
    \bf{lines} and \bf{cat} change the mode of dumping. The first
    changes the dump format to a line based pairwise format rather
    than the default mcl matrix format. The second causes all
    dumped items to be dumped to the default stream used for the
-   output clustering, which is appended at the end.
-}
+   output clustering, which is appended at the end.}
 
 \par{
    The \bf{ite} option writes \mcl iterands to file.  The \bf{cls}
@@ -995,17 +1083,15 @@ mcxdump -imx - --no-values --dump-rlines\\
    (abbreviated as DAG) associated with each iterand. The \bf{dag} option
    writes that DAG to file. The DAG can optionally be further
    pruned and then again be interpreted as a
-   clustering using \mysib{clmimac}, and \mysib{clmimac} can also
+   clustering using \clm{imac}, and \clm{imac} can also
    work with the matrices written using the \bf{ite} option.
    It should be noted that clusterings associated with intermediate
    iterands may contain overlap, which is interesting in
    many applications. For more information
-   refer to \mysib{mclfaq} and the \secref{references} section below.
-}
+   refer to \mysib{mclfaq} and the \secref{references} section below.}
 
 \par{
-   The \bf{result} option dumps the usual MCL clustering.
-}
+   The \bf{result} option dumps the usual MCL clustering.}
 
 \par{
    The \bf{chr} option says, for each iterand I, to output a matrix C with
@@ -1016,22 +1102,23 @@ mcxdump -imx - --no-values --dump-rlines\\
    Entry 2 is the center of column k (the sum of its entries squared)
    computed \it{after} expansion and \it{before} pruning, entry 3 is the
    maximum value found in that column at the same time.  Entry 4 is the
-   amount of mass kept for that column \it{after pruning}.
-}
+   amount of mass kept for that column \it{after pruning}.}
 
 \par{
    The \genopt{-ds} option sets the stem for file names of dumped
    objects (default \it{mcl}).  The \genopt{-di} and \genopt{-dm}
-   options allow a selection of iterands to be made.
-}
+   options allow a selection of iterands to be made.}
+
 \item{\defopt{-digits}{n}{printing precision}}
+\car{
    This has two completely different uses. It sets
    the number of decimals used for pretty-printing \mcl iterands
    when using the \optref{--show}{\genopt{--show} option} (see below),
    and it sets the number of decimals used for writing
-   the expanded matrix when using the \genoptref{-cache-expanded} option.
+   the expanded matrix when using the \genoptref{-write-expanded} option.}
 
 \item{\defopt{--show}{print matrices to screen}}
+\car{
    Print matrices to screen. The number of significant digits to be
    printed can be tuned with \genopt{-digits}{n}. An 80-column screen
    allows graphs (matrices) of size up to 12(x12) to be printed with
@@ -1039,15 +1126,14 @@ mcxdump -imx - --no-values --dump-rlines\\
    with two digits. This can give you an idea of how \mcl operates,
    and what the effect of pruning is.
    Use e.g. \useopt{-S}{6} for such
-   a small graph and view the MCL matrix iterands with \genopt{--show}.
+   a small graph and view the MCL matrix iterands with \genopt{--show}.}
 
-\item{\defopt{--binary}{output format}}
+\item{\defopt{--write-binary}{output format}}
 \car{
    Write matrix dump output in binary mcl format rather
    than interchange mcl format (the default). Note that \mysib{mcxconvert}
    can be used to convert each one into the other.
-   See \mysib{mcxio} and \mysib{mcxconvert} for more information.
-}
+   See \mysib{mcxio} and \mysib{mcxconvert} for more information.}
 
 \item{\defopt{-sort}{str}{sort mode}}
 \car{
@@ -1057,12 +1143,11 @@ mcxdump -imx - --no-values --dump-rlines\\
    come first, if the mode is 'lex', clusters are ordered
    lexicographically, and if the mode is 'none', the order
    is the same as produced by the procedure used by mcl to
-   map matrices onto clusterings.
-}
+   map matrices onto clusterings.}
 
-\item{\defopt{--keep-overlap}{y/n}{retain overlap}}
+\item{\defopt{-overlap}{str}{overlap mode}}
 \car{
-   The \bf{keep-overlap} action causes mcl to retain overlap
+   Mode \it{keep} causes mcl to retain overlap
    should this improbable event occur.  In theory, \mcl may generate a
    clustering that contains overlap, although this almost never happens
    in practice, as it requires some particular type of symmetry to be present
@@ -1071,8 +1156,15 @@ mcxdump -imx - --no-values --dump-rlines\\
    eat his shoe if it fails to be true (for marzipan values of shoe).  It is
    easy though to construct an input graph for which certain mcl settings
    result in overlap - for example a line graph on an odd number of nodes.  The
-   default is to remove overlap should it occur.
-}
+   default is to remove overlap should it occur, corresponding with mode
+   \it{remove}.}
+
+\par{
+   In mode \it{split} mcl will put all nodes in overlap into
+   separate clusters. These clusters are chosen such that
+   two nodes are put in the same new cluster if and only if
+   they always occur paired in the clusters of the
+   overlapping clustering.}
 
 \par{
    This option has more than theoretical use because \mcl is able
@@ -1081,23 +1173,23 @@ mcxdump -imx - --no-values --dump-rlines\\
    possibility, and will often occur. If you specify
    the \optref{-L}{\genopt{-L}{k}} option, mcl will output the
    clustering associated with the last iterand computed, and
-   it may well contain overlap.
-}
+   it may well contain overlap.}
+
 \par{
    This option has no effect on the clusterings that are
    output when using \optref{-dump}{\genopt{-dump}{cls}} -
    the default for those is that overlap is not touched,
-   and this default can not yet be overridden.
-}
+   and this default can not yet be overridden.}
 
 \items{
    {\defkvp{--force-connected}{y/n}{analyze components}}
    {\defkvp{--check-connected}{y/n}{analyze components}}
 }
+\car{
    If the input graph has strong bipartite characteristics,
    mcl may yield clusters that do not correspond to connected
    components in the input graph. Turn one of these modes on to
-   analyze the resultant clustering.
+   analyze the resultant clustering.}
 
 \par{
    If loose clusters are found
@@ -1108,52 +1200,54 @@ mcxdump -imx - --no-values --dump-rlines\\
    to the same file with suffix \v{orig}.
    With \genkvp{--check-connected}{y} mcl will write the 
    loose clustering to the normal output file, and the corrected clustering
-   to the same file with suffix \v{coco}.
-}
+   to the same file with suffix \v{coco}.}
 
 \par{
    These options are not on by default, as the analysis
    is currently (overly) time-consuming
    and mcl's behaviour actually makes some sense
-   (when taking bipartite characteristics into account).
-}
+   (when taking bipartite characteristics into account).}
 
 \item{\defkvp{--output-limit}{y/n}{write limit matrix}}
+\car{
    This will write the limit matrix to a file named
-   \bf{base}-limit.
+   \bf{base}-limit.}
 
 \item{\defkvp{--analyze}{y/n}{performance criteria}}
+\car{
    With this mode turned on, \mcl will reread the input matrix
    and compute a few performance criteria and attach them to
-   the output file. Off by default.
+   the output file. Off by default.}
 
 \item{\defkvp{--append-log}{y/n}{append log}}
+\car{
    Appends a log with the process characteristics to the output file.
-   By default, this mode is on.
+   Off by default.}
 
 \item{\defkvp{--show-log}{y/n}{show log}}
+\car{
    Shows the log with process characteristics on STDOUT.
-   By default, this mode is off.
-
-\item{\defopt{-in-gq}{f}{filter threshold}}
-   mcl will remove any edges in the input graph (equivalently, entries in
-   the input matrix) for which the weight is below\~\genarg{f}.
+   By default, this mode is off.}
 
 \item{\defopt{-pp}{n}{preprune count}}
+\car{
    For each column vector (node) in the input matrix (graph) \mcl will 
    keep the n entries (outgoing edges) of that vector (node) that
-   have largest weight and remove the rest.
+   have largest weight and remove the rest.}
 
 \item{\defopt{--jury-charter}{explains jury}}
-   Explains how the jury synopsis is computed from the jury marks.
+\car{
+   Explains how the jury synopsis is computed from the jury marks.}
 
 \item{\defopt{--version}{show version}}
-   Show version.
+\car{
+   Show version.}
 
 \item{\defopt{-how-much-ram}{n}{RAM upper bound}}
+\car{
    \usearg{n} is interpreted as the number of nodes of an input graph.
    mcl will print the maximum amount of RAM it needs for its computations.
-   The formula for this number in bytes is:
+   The formula for this number in bytes is:}
 
 \verbatim{\
    2 * c * k * n
@@ -1170,21 +1264,21 @@ mcxdump -imx - --no-values --dump-rlines\\
    the average node degree of the input graph does not exceed k.  The
    \genopt{-how-much-ram} option takes other command-line arguments into
    account (such as \genopt{-S} and \genopt{-R}), and it expresses the
-   amount of RAM in megabyte units.
-}
+   amount of RAM in megabyte units.}
 
 \item{\defopt{-h}{show help}}
-   Shows a selection of the most important \mcl options.
+\car{
+   Shows a selection of the most important \mcl options.}
 
 \item{\defopt{--apropos}{show help}}
-   Gives a one-line description for all options.
+\car{
+   Gives a one-line description for all options.}
 
-\item{\defopt{--show-settings}{show settings}}
-   A synonym for the \optref{-z}{\genopt{-z} option}.
 
 \item{\defopt{-z}{show settings}}
+\car{
    Show current settings for tunable parameters.
-   \genopt{--show-settings} is a synonym.
+   \genopt{--show-settings} is a synonym.}
 
 \'end{itemize}
 
@@ -1257,8 +1351,8 @@ mcxdump -imx - --no-values --dump-rlines\\
 }
 \par{
    Note that 'less accurate' or 'more accurate' computations may still
-   generate the same output clusterings. Use \clmdist to compare output
-   clusterings for different resource parameters.  Refer to \mysib{clmdist}
+   generate the same output clusterings. Use \clm{dist} to compare output
+   clusterings for different resource parameters.  Refer to \clmref{dist}
    for a discussion of this issue.
 }
 
@@ -1309,71 +1403,10 @@ mcxdump -imx - --no-values --dump-rlines\\
    \it{warn-pct} and increase \it{warn-factor}. Set \it{warn-factor} to zero
    if you want no warnings.
 }
-   \item{\defopt{--dense}{allow matrices to fill}}
-      This renders all pruning options useless except for one.  After each
-      expansion step, \mcl will remove all entries that are smaller than the
-      threshold specified by \genopt{-p} or \genopt{-P}, which acts like a
-      precision in this case.  After removal, the matrix columns are rescaled
-      to be stochastic again.
 
-\par{
-   If the \genopt{-p} threshold (precision) is zero or very small,
-   the \genopt{--dense} option results in a rather accurate and very
-   costly computation of the MCL process. Do not use this option
-   for graphs with more than several thousands of entries, or you will
-   have trouble digging your processor out of swap.
-}
-
-\item{\defopt{-ae}{f}{adaptive pruning exponent}}
-   See the \genopt{--adapt} option below.
-
-\item{\defopt{-af}{f}{adaptive pruning factor}}
-   See the \genopt{--adapt} option below.
-
-\item{\defopt{--adapt}{pruning}}
-   The default \mcl pruning behaviour as described under
-   the \optref{-P}{\genopt{-P} option} is called \it{rigid pruning},
-   refering to the fact that the first stage
-   of pruning removes entries smaller than a fixed threshold.
-   The options discussed here enable the computation of a threshold that
-   depends on the homogeneity characteristics of a vector. This behaviour is
-   triggered by supplying \useopt{--adapt}.
-
-\par{
-   The \genopt{--adapt} behaviour only affects the first pruning stage, c.q.
-   the computation of the first threshold (see the discussion under the
-   \optref{-P}{\genopt{-P} option}).  It does not interfere with either
-   selection or recovery.  It is affected however by the threshold as
-   specified by the \genopt{-P} option.  When using \genopt{--adapt}, you
-   typically use the \genopt{-P} option as well, and you can and should use
-   a higher value then you would without using \genopt{--adapt}.
-}
-\par{
-   All that said, \genopt{--adapt} triggers this behaviour: Given a
-   stochastic vector v, its mass center of order two is computed,
-   which is the sum of each entry squared. The mass center of v,
-   call it c, is strongly related to its homogeneity properties
-   (see \secref{references}).  The threshold T is computed as 1/f *
-   pow(c, e), where e and f are the arguments to the \genopt{-af}{f}
-   and \genopt{-ae}{e} options respectively (check \genopt{-z}
-   for the respective defaults).
-   For either e or f decreasing it means that T becomes larger.
-   \it{Finally, T is maxed with the rigid threshold value}, which
-   can be altered using either \genopt{-p}{f} or \genopt{-P}{n}.
-   The latter is why you should increase the \genopt{-P} parameter n
-   (so that the rigid threshold is decreased) once you switch to
-   adaptive pruning. The adaptive threshold should be the main factor
-   controlling pruning, with the rigid threshold acting as a safeguard
-   that does not take over too often.
-}
-\par{
-   This may seem complicated, but the rules are actually quite simple, and
-   you may just disregard the definition of T.  The usefulness of these
-   options will vary. If you want to speed up \mcl, try it out
-   and add \useopt{--adapt} to your settings.
-}
-
-\item{\defopt{-v-pruning}\useopt{-v}{pruning}}
+         \: below, \""{\defopt{-z}} is to fool my little docme program,
+         \: that aligns `progname --apropos` with `grep defopt`
+\item{\""{\defopt{-z}}\defopt{-v-pruning}\useopt{-v}{pruning}}
    Pruning verbosity mode causes \mcl to emit several statistics related to
    the pruning process, each of which is described below.  Use
    \useopt{-v}{explain} to get explanatory headers in the output as well
@@ -1412,14 +1445,14 @@ all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|
 }
 \par{
    The header entries 8532c85.. indicate thresholds going from 80000, 50000,
-   20000, 12500, 8000, all the way down to 300, 200, and 125. The character
-   'c' signifies the base 1.25 (for no apparent reason). The second entry
-   '2' (after '0') on the first line signifies that roughly 20 percent of
-   all the vectors had footprint (#nonzero entries) between 800 and 1250.
-   Likewise, 40 percent had footprint between 300 and 500. The '0' entries
-   signify a fraction somewhere below 5 percent, and the '@' entries signify
-   a fraction somewhere above 95 percent.
-}
+   20000, 12500, 8000, all the way down to 300, 200, and 125. The character 'c'
+   signifies the base 1.25 (for no apparent reason). The second entry '2'
+   (after '0') on the first line signifies that roughly 20 percent of all the
+   vectors had a footprint (#nonzero entries) in excess of 800 entries.
+   Likewise, 40 percent had a footprint in excess of 300 entries. The '0'
+   entries signify a fraction somewhere below 5 percent, and the '@' entries
+   signify a fraction somewhere above 95 percent.  }
+
 \par{
    Two columns are listed, one for the expansion vector footprints
    (i.e. after squaring), and the other for the vector
@@ -1462,18 +1495,8 @@ all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|
    cardinality. The windows in the fixed set have respective sizes 1, 2, 5,
    10, 20, 50, and so on up until 5000000 (which makes 15 windows in all).
 }
-\items{
-   {\defopt{-nx}{i}{x window index}}
-   {\defopt{-ny}{j}{y window index}}
-}
-   The options \genopt{-nx} and \genopt{-ny}
-   both take an index in the range 1..15. The default values
-   for \genopt{-nx} and \genopt{-ny} are respectively 4 and 7,
-   denoting the fourth and seventh window of respective widths
-   10 and 100. They are used in the verbosity output as
-   described above.
 
-\item{\defopt{-nj}{i}{jury window index}}
+\""{item{\defopt{-nj}{i}{jury window index}}
    The \genopt{-nj} denotes a window index in the same way as \genopt{-nx}
    and \genopt{-ny} do. This particular window is used for computing the
    \it{jury marks}, which are the three number reported by \mcl when it is
@@ -1500,18 +1523,8 @@ all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|
    good.  The marks and the synopsis grade the severity of pruning, not
    cluster quality.  Note that the jury becomes friendlier, resp. harsher
    when the \genopt{-nj} option is increased/decreased.
-}
-   \item{\defopt{-nw}{w}{nr of windows}}
-      Normally, \mcl will use all windows that have width smaller
-      than the cardinality of the input graph. This option limits
-      the set of windows to those w windows of smallest width.
-      This affects the output when setting
-      \optref{--append-log}{\usekvp{--append-log}{y}} output.
+}}
 
-   \item{\defopt{-nl}{l}{number of iterations}}
-      By default, \mcl will log the window mass averages for the first ten
-      iterations.  This options sets that number to\~\usearg{l}.
-      It affects the \optref{--append-log}{\usekvp{--append-log}{y}} output.
 
 \'end{itemize}
 
@@ -1533,7 +1546,7 @@ all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|
 \par{
    In general, clustering requires several stages; creating the matrix,
    running mcl, and displaying the result.  The display stage is supported
-   by \mysib{clmformat}.  The matrix creation stage often needs only be
+   by \clm{format}.  The matrix creation stage often needs only be
    done once for a given data collection, followed by repeated runs of
    the other two stages for varying inflation values and scheme settings.}
 
@@ -1671,9 +1684,9 @@ with value 0.8.}
 \'begin{itemize}{{compact}{0}{contiguous}{0}{align}{left}}
 \item{MCLXIODIGITS}
 \car{
-   When writing matrices in interchange format, mcl will use the environment
-   variable MCLXINTERCHANGEDIGITS (if present) as the precision (number of
-   digits) for printing the fractional part of values.}
+   When writing matrices in interchange format, mcl will use this variable (if
+   present) as the precision (number of digits) for printing the fractional
+   part of values.}
 
 \item{MCLXIOVERBOSITY}
 \car{
@@ -1728,16 +1741,15 @@ with value 0.8.}
    If \mcl issues a diagnostic error, it will most likely be
    because the input matrix could not be parsed succesfully.
    \mcl tries to be helpful in describing the kind of parse error.
-   The mcl matrix format is described in the \mysib{mcxio} section.
-}
+   The mcl matrix format is described in the \mysib{mcxio} section.}
+
 \sec{bugs}{BUGS}
 \par{
-   No known bugs at this time. Please send bug reports to mcl-devel@micans.org.
-}
+   No known bugs at this time. Please send bug reports to mcl-devel@micans.org.}
+
 \sec{author}{AUTHOR}
 \par{
-Stijn van Dongen.
-}
+   Stijn van Dongen.}
 
 \sec{history}{HISTORY/CREDITS}
 \par{
@@ -1750,8 +1762,8 @@ Stijn van Dongen.
    the period Oktober 1997 - May 1999. The efficient matrix-vector
    multiplication routine was written by Annius. This routine is
    without significant changes still one of the cornerstones of this
-   MCL implementation.
-}
+   MCL implementation.}
+
 \par{
    Since May 1999 all MCL libraries have seen much development and
    redesign by the present author. Matrix-matrix multiplication has been
@@ -1759,31 +1771,31 @@ Stijn van Dongen.
    properties of the stochastic matrices brought forth by the MCL
    algorithm. This mostly concerns the issue of pruning \- removal of
    small elements in a stochastic column in order to keep  matrices
-   sparse.
-}
+   sparse.}
+
 \par{
    Very instructive was  that around April 2001 Rob  Koopman pointed out
    that selecting  the k largest  elements out of  a collection of  n is
    best done  using a  min-heap. This  was the key  to the  second major
    rewrite (now counting three) of the MCL pruning schemes, resulting in
    much faster code, generally producing  a more accurate computation of
-   the MCL process.
-}
+   the MCL process.}
+
 \par{
    In May 2001  Anton Enright initiated the parallellization  of the
    \mcl code and threaded inflation. From this example, Stijn threaded
    expansion.  This was great, as the MCL data structures  and operands
    (normal matrix multiplication and Hadamard multiplication) just beg
-   for parallellization.
-}
+   for parallellization.}
+
 \par{
    Onwards.
    The January 2003 03-010 release introduced support for sparsely
    enumerated (i.e. indices need not be sequential) graphs and matrices, the
    result of a major overhaul of the matrix library and most higher layers.
    Conceptually, the library now sees matrices as infinite quadrants
-   of which only finite subsections happen to have nonzero entries.
-}
+   of which only finite subsections happen to have nonzero entries.}
+
 \par{
    The June 2003 03-154 release introduced unix-type pipelines for clustering,
    including the BLAST parser mcxdeblast and the mclblastline script.
@@ -1802,74 +1814,83 @@ Stijn van Dongen.
    Joost van Baal set up the mcl CVS tree and packaged mcl for Debian
    GNU/Linux. He completely autotooled the sources, so much so that at first I
    found it hard to find them back amidst bootstrap, aclocal.m4, depcomp, and
-   other beauties.
-}
+   other beauties.}
+
 \par{
    Jan van der Steen shared his elegant mempool code. Philip Lijnzaad gave
    useful comments. Philip, Shawn Hoon, Abel Ureta-Vidal,
-   and Martin Mokrejs sent helpful bug reports.
-}
+   and Martin Mokrejs sent helpful bug reports.}
+
 \par{
    Abel Ureta-Vidal and Dinakarpandian Deendayal commented on
-   and contributed to mcxdeblast and mcxassemble.
-}
+   and contributed to mcxdeblast and mcxassemble.}
+
 \par{
    Tim Hughes contributed several good bug reports for mcxassemble,
-   mcxdeblast and zoem (a workhorse for clmformat).
-}
+   mcxdeblast and zoem (a workhorse for \clmformat).}
+
 \sec{seealso}{SEE ALSO}
 
 \par{
-   \mysib{mclfaq} - Frequently Asked Questions.
-}
+   \mysib{mclfaq} - Frequently Asked Questions.}
+
 \par{
-   \mysib{mcxio} - a description of the mcl matrix format.
-}
+   \mysib{mcxio} - a description of the mcl matrix format.}
+
 \par{
    There are many more utilities. Consult
    \mysib{mclfamily} for an overview of and links to all the documentation
-   and the utilities in the mcl family.
-}
+   and the utilities in the mcl family.}
+
+\par{
+   \bf{minimcl} is a 200-line perl implementation of mcl. It is shipped
+   in the mcl distribution and can be found online at
+   \httpref{http://micans.org/mcl}.}
+
 \par{
    \mcl development is discussed on \v{mcl-devel@lists.micans.org},
    (subscribtion) information is at
    \httpref{https://lists.micans.org:446/listinfo/mcl-devel} , this list is
-   archived at \httpref{https://lists.micans.org:446/pipermail/mcl-devel/}.
-}
+   archived at \httpref{https://lists.micans.org:446/pipermail/mcl-devel/}.}
+
 \par{
-   mcl's home at \httpref{http://micans.org/mcl/}.
-}
+   mcl's home at \httpref{http://micans.org/mcl/}.}
 \sec{references}{REFERENCES}
 
 \par{
+   \reference{gcbfs}
    Stijn van Dongen, \it{Graph Clustering by Flow Simulation}.
    PhD thesis, University of Utrecht, May 2000.\|
-   \httpref{http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm}
-}
+   \httpref{http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm}}
+
 \par{
+   \reference{cafg}
    Stijn van Dongen. \it{A cluster algorithm for graphs}.
    Technical Report INS-R0010, National Research Institute for Mathematics and
    Computer Science in the Netherlands, Amsterdam, May 2000.\|
-   \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z}
-}
+   \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z}}
+
 \par{
+   \reference{supfg}
    Stijn van Dongen.  \it{A stochastic uncoupling process for graphs}.
    Technical Report INS-R0011, National Research Institute for Mathematics and
    Computer Science in the Netherlands, Amsterdam, May 2000.\|
-   \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z}
-}
+   \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z}}
+
 \par{
+   \reference{pcfgcmce}
    Stijn van Dongen. \it{Performance criteria for graph clustering and Markov
    cluster experiments}.  Technical Report INS-R0012, National Research
    Institute for Mathematics and Computer Science in the Netherlands,
    Amsterdam, May 2000.\|
-   \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z}
-}
+   \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z}}
+
 \par{
+   \reference{eaflsdopf}
    Enright A.J., Van Dongen S., Ouzounis C.A.
    \it{An efficient algorithm for large-scale detection of protein families},
-   Nucleic Acids Research 30(7):1575-1584 (2002). 
-}
+   Nucleic Acids Research 30(7):1575-1584 (2002).}
+
 \sec{notes}{NOTES}
 
 \par{
@@ -1878,6 +1899,6 @@ Stijn van Dongen.
    from the same source without having to bother with all the usual conversion
    problems, while keeping some level of sophistication in the typesetting.
    \'${html}{\lref{mcl.ps}{This} is the PostScript derived from the zoem troff
-   output.}
-}
+   output.}}
+
 \"man::postamble"

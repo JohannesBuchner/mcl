@@ -1,7 +1,8 @@
-/*  Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -10,6 +11,8 @@
 #include <limits.h>
 #include <float.h>
 #include <pthread.h>
+#include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include "expand.h"
@@ -42,7 +45,8 @@ int mclDefaultWindowSizes[] =
 1000000, 2000000, 5000000,
 */
 
-int mcl_n_windows   =  sizeof(mclDefaultWindowSizes) / sizeof(int);
+dim mcl_n_windows   =      sizeof mclDefaultWindowSizes
+                        /  sizeof mclDefaultWindowSizes[0];
 
 static int   levels[]
 =
@@ -78,10 +82,6 @@ static void levelAccount
 )  ;
 
 
-void mclExpandVectorLine
-(  void* arg
-)  ;
-
 double mclExpandVector
 (  const mclMatrix*  mx
 ,  const mclVector*  srvec       /* src                         */
@@ -94,15 +94,46 @@ double mclExpandVector
 )  ;
 
 
+                  /* homg is measured as                                      */
+                  /*                                                          */
+                  /*  mclvPowSum(src, 2.0) * mclvPowSum(dst, inflation) ** 2  */
+                  /*  ------------------------------------------------        */
+                  /*             mclvPowSum(dst, 2.0 * inflation)             */
+                  /*                                                          */
+
+static double get_homg
+(  const mclv* src
+,  const mclv* dst
+,  double inflation
+)
+   {  if (getenv("MCL_AUTO_COSINE"))
+      {  double ip = mclvIn(src, dst)
+      ;  double nom = sqrt(mclvPowSum(src, 2.0) * mclvPowSum(dst, 2.0))
+      ;  double invcosine = ip ? nom / ip : 1.0
+      ;  return invcosine
+   ;  }
+      else
+      {  double homg_num   =  mclvPowSum(src, 2.0) * pow(mclvPowSum(dst, inflation), 2.0)
+      ;  double homg_nom   =  mclvPowSum(dst, 2.0 * inflation)
+;if(0)fprintf(stdout, "-> %d\t%.4f\t%.4f\n", src->vid, homg_nom, homg_num)
+      ;  return   homg_nom
+               ?  homg_num / homg_nom
+               :  1.0
+   ;  }
+   }
+
+
 typedef struct
 {  long              id
 ;  long              start
 ;  long              end
+;  long              n_mod
 ;  mclExpandParam*   mxp
 ;  mclExpandStats*   stats
-;  const mclMatrix*  mxs
-;  mclMatrix*        mxd
-;  mclVector*        chaosVec
+;  const mclx*       mxs
+;  mclx*             mxd
+;  mclv*             chaosVec
+;  mclv*             homgVec
 ;
 }  mclExpandVectorLine_arg ;
 
@@ -132,17 +163,16 @@ mclExpandParam* mclExpandParamNew
    ;  mxp->precision       =  0.000666
    ;  mxp->pct             =  0.95
 
-   ;  mxp->num_prune       =  1444  /* should be overridden by scheme or user */
-   ;  mxp->num_select      =  1444  /* should be overridden by scheme or user */
-   ;  mxp->num_recover     =  1444  /* should be overridden by scheme or user */
+   ;  mxp->num_prune       =  1444u /* should be overridden by scheme or user */
+   ;  mxp->num_select      =  1444u /* should be overridden by scheme or user */
+   ;  mxp->num_recover     =  1444u /* should be overridden by scheme or user */
    ;  mxp->scheme          =  6
    ;  mxp->my_scheme       =  -1
 
    ;  mxp->cutCof          =  4.0
    ;  mxp->cutExp          =  2.0
 
-   ;  mxp->vectorProgression     =  30
-   ;  mxp->usrVectorProgression  =  0
+   ;  mxp->vectorProgression     =  20
 
    ;  mxp->warnFactor      =  50
    ;  mxp->warnPct         =  0.3
@@ -154,9 +184,10 @@ mclExpandParam* mclExpandParamNew
    ;  mxp->nl              =  10
    ;  mxp->windowSizes     =  NULL
 
-   ;  mxp->verbosity       =  XPNVB_VPROGRESS
-
+   ;  mxp->verbosity       =  0
    ;  mxp->dimension       =  -1
+
+   ;  mxp->inflation       =  -1.0
 
    ;  return mxp
 ;  }
@@ -175,21 +206,24 @@ void mclExpandParamFree
 ;  }
 
 
-void mclExpandVectorLine
+void* mclExpandVectorLine
 (  void* arg
 )
    {  mclExpandVectorLine_arg *a =  (mclExpandVectorLine_arg *) arg
-   ;  const mclMatrix*     mxs   =  a->mxs
-   ;  mclMatrix*     mxd      =  a->mxd
-   ;  mclVector*     chaosVec =  a->chaosVec
+   ;  const mclx*    mxs      =  a->mxs
+   ;  mclx*          mxd      =  a->mxd
+   ;  mclv*          chaosVec =  a->chaosVec
+   ;  mclv*          homgVec  =  a->homgVec
    ;  long           colidx   =  a->start
    ;  mclExpandParam*  mxp    =  a->mxp
    ;  mclExpandStats* stats   =  a->stats
+   ;  double homg_factor =  getenv("HOMG_USE_INFLATION") ? mxp->inflation : 2.0
+   ;  clock_t        t1       =  clock(), t2
 
    ;  mclpAR* ivpbuf =  mclpARensure(NULL, N_ROWS(mxs))  
    ;  mclxComposeHelper*ch =  mclxComposePrepare(mxs, NULL)
 
-   ;  for (colidx = a->start; colidx < a->end; colidx++)
+   ;  for (colidx = a->start; colidx < a->end; colidx+=a->n_mod)
       {  double colInhomogeneity
          =  mclExpandVector
             (  mxs
@@ -201,13 +235,27 @@ void mclExpandVectorLine
             ,  mxp
             ,  stats
             )
+
+      ;  (homgVec->ivps+colidx)->val
+         =  get_homg
+            (  mxs->cols+colidx
+            ,  mxd->cols+colidx
+            ,  homg_factor
+            )
       ;  (chaosVec->ivps+colidx)->val = colInhomogeneity
-   ;  }
+
+      ;  if (!a->id)
+         {  t2 = clock()
+         ;  stats->lap += ((double) (t2 - t1)) / CLOCKS_PER_SEC
+         ;  t1 = t2
+      ;  }
+      }
 
       mclpARfree(&ivpbuf)
    ;  mclxComposeRelease(&ch)
 
    ;  free(a)
+   ;  return NULL
 ;  }
 
 
@@ -221,8 +269,8 @@ double mclExpandVector
 ,  mclExpandParam*   mxp
 ,  mclExpandStats*   stats
 )
-   {  int            rg_n_expand    =  0
-   ;  int            rg_n_prune     =  0
+   {  dim            rg_n_expand    =  0
+   ;  dim            rg_n_prune     =  0
 
    ;  mcxbool        rg_b_recover   =  FALSE
    ;  mcxbool        rg_b_select    =  FALSE
@@ -240,6 +288,8 @@ double mclExpandVector
    ;  double         center         =  0.0
    ;  double         cut_adapt      =  0.0
    ;  double         colInhomogeneity =  0.0
+
+   ;  mcxbool        progress       =  mcxLogGet(MCX_LOG_GAUGE)
 
    ;  mclxVectorCompose
       (  mx
@@ -273,7 +323,7 @@ double mclExpandVector
       ;  cut_adapt         =  (1/mxp->cutCof)
                               *  center
                               *  pow(center/maxval,mxp->cutExp)
-      ;  cut               =  MAX(cut_adapt, mxp->precision)
+      ;  cut               =  MCX_MAX(cut_adapt, mxp->precision)
       ;  rg_mass_prune     =  mclvSelectGqBar(dstvec, cut)
       ;  rg_n_prune        =  dstvec->n_ivps
       ;  rg_mass_final     =  rg_mass_prune
@@ -286,7 +336,7 @@ double mclExpandVector
 
    ;  if
       (  mxp->warnFactor
-      && (     mxp->warnFactor * MAX(dstvec->n_ivps,mxp->num_select)
+      && (     mxp->warnFactor * MCX_MAX(dstvec->n_ivps,mxp->num_select)
             <  rg_n_expand
          && rg_mass_prune < mxp->warnPct
          )
@@ -322,7 +372,7 @@ double mclExpandVector
       && (  dstvec->n_ivps <  mxp->num_recover)
       && (  rg_mass_prune  <  mxp->pct)
       )
-      {  int recnum     =  mxp->num_recover
+      {  dim recnum     =  mxp->num_recover
       ;  rg_b_recover   =  TRUE
       ;  mclvRenew(dstvec, ivpbuf->ivps, ivpbuf->n_ivps)
 
@@ -376,7 +426,7 @@ double mclExpandVector
          && (  dstvec->n_ivps  <  mxp->num_recover)
          && (  mass_select    <  mxp->pct)
          )
-         {  int recnum     =  mxp->num_recover
+         {  dim recnum     =  mxp->num_recover
          ;  rg_b_recover   =  TRUE
          ;  mclvRenew(dstvec, ivpbuf->ivps, ivpbuf->n_ivps)
 
@@ -425,7 +475,7 @@ double mclExpandVector
      /*
       *  always fill the stuff, we need it for the jury marks
      */
-      {  int z
+      {  dim z
       ;  mclMatrix *chr = stats->mx_chr
 
       ;  if (mxp->n_ethreads)
@@ -457,9 +507,8 @@ double mclExpandVector
       ;  if (rg_mass_final < mxp->pct)
          stats->n_below_pct++
 
-      ;  if (XPNVB(mxp,XPNVB_VPROGRESS))
+      ;  if (progress)
          {  stats->n_cols++
-
          ;  if (stats->n_cols % mxp->vectorProgression == 0)
             fwrite(".", sizeof(char), 1, stderr)
          ,  fflush(stderr)
@@ -477,27 +526,29 @@ mclMatrix* mclExpand
 (  const mclMatrix*        mx
 ,  mclExpandParam*         mxp
 )
-   {  mclMatrix*           mx_d
-   ;  mclVector*           chaosVec
-   ;  long                 col      =  0
-   ;  mclExpandStats*      stats    =  mxp->stats
-   ;  clock_t              t1       =  clock()
-   ;  long                 n_cols   =  N_COLS(mx)
+   {  mclMatrix*        sq
+   ;  mclVector*        chaosVec, * homgVec
+   ;  long              col      =  0
+   ;  mclExpandStats*   stats    =  mxp->stats
+   ;  clock_t           t1       =  clock(), t2
+   ;  long              n_cols   =  N_COLS(mx)
+   ;  double      homg_factor = getenv("HOMG_USE_INFLATION") ? mxp->inflation : 2.0
 
    ;  if (mxp->dimension < 0 || !stats || !mxp->windowSizes)
          mcxErr("mclExpand", "pbd: not correctly initialized")
          /* mclExpandParamDim probably not called */
       ,  mcxExit(1)
 
-   ;  if (!mcldEquate(mx->dom_cols, mx->dom_rows, MCLD_EQ_EQUAL))
+   ;  if (!mcldEquate(mx->dom_cols, mx->dom_rows, MCLD_EQT_EQUAL))
          mcxErr("mclExpand", "pbd: matrix not square")
       ,  mcxExit(1)
 
-   ;  mx_d     =  mclxAllocZero
+   ;  sq       =  mclxAllocZero
                   (  mclvCopy(NULL, mx->dom_rows)
                   ,  mclvCopy(NULL, mx->dom_cols)
                   )
    ;  chaosVec =  mclvCanonical(NULL, n_cols, 1.0)
+   ;  homgVec  =  mclvCanonical(NULL, n_cols, 1.0)
 
    ;  mclExpandStatsReset(stats)
 
@@ -505,8 +556,6 @@ mclMatrix* mclExpand
       {  pthread_t *threads_expand  
                            =  (pthread_t *) mcxAlloc
                               (mxp->n_ethreads*sizeof(pthread_t), EXIT_ON_FAIL)
-      ;  int   workLoad    =  n_cols / mxp->n_ethreads
-      ;  int   workTail    =  n_cols % mxp->n_ethreads
       ;  pthread_attr_t  pthread_custom_attr
       ;  int   i
 
@@ -514,27 +563,27 @@ mclMatrix* mclExpand
       ;  pthread_attr_init(&pthread_custom_attr)
 
       ;  for (i=0;i<mxp->n_ethreads;i++)
-         {  mclExpandVectorLine_arg *a
-                           =  (mclExpandVectorLine_arg *)
-                              malloc(sizeof(mclExpandVectorLine_arg))
+         {  mclExpandVectorLine_arg *a = malloc(sizeof(mclExpandVectorLine_arg))
          ;  a->id          =  i
-         ;  a->start       =  workLoad * i
-         ;  a->end         =  workLoad * (i+1)
-         ;  a->mxd         =  mx_d
+
+         ;  a->start       =  i
+         ;  a->end         =  N_COLS(mx)
+         ;  a->n_mod       =  mxp->n_ethreads
+
+         ;  a->mxd         =  sq
          ;  a->mxp         =  mxp
          ;  a->stats       =  stats
          ;  a->chaosVec    =  chaosVec
+         ;  a->homgVec     =  homgVec
 
          ;  a->mxs         =  mx
 
-         ;  if (i+1==mxp->n_ethreads)
-            a->end   +=  workTail
-
+                           /* TODO: non-overflow accounting of lap times */
          ;  pthread_create
             (  &threads_expand[i]
             ,  &pthread_custom_attr
-            ,  (void *(*)(void*)) mclExpandVectorLine
-            ,  (void *) a
+            ,  mclExpandVectorLine
+            ,  a
             )
       ;  }
 
@@ -547,13 +596,13 @@ mclMatrix* mclExpand
       else
       {  mclpAR* ivpbuf = mclpARensure(NULL, N_ROWS(mx))  
       ;  mclxComposeHelper *ch = mclxComposePrepare(mx, NULL)
-      ;
-         for (col=0;col<n_cols;col++)
+
+      ;  for (col=0;col<n_cols;col++)
          {  double colInhomogeneity
             =  mclExpandVector
                (  mx
                ,  mx->cols+col
-               ,  mx_d->cols+col
+               ,  sq->cols+col
                ,  ivpbuf
                ,  ch
                ,  col
@@ -561,16 +610,47 @@ mclMatrix* mclExpand
                ,  stats
                )
          ;  (chaosVec->ivps+col)->val = colInhomogeneity
-      ;  }
+         ;  (homgVec->ivps+col)->val
+            =  get_homg
+               (  mx->cols+col
+               ,  sq->cols+col
+               ,  homg_factor
+               )
+
+         ;  if (!((col+1) % 10))
+            {  t2 = clock()
+            ;  stats->lap += ((double) (t2 - t1)) / CLOCKS_PER_SEC
+            ;  t1 = t2
+         ;  }
+         }
 
          mclpARfree(&ivpbuf)
       ;  mclxComposeRelease(&ch)
    ;  }
 
       if (chaosVec->n_ivps)
-      {  stats->lap = ((double) (clock() - t1)) / CLOCKS_PER_SEC
-      ;  stats->chaosMax =  mclvMaxValue(chaosVec)
+      {  stats->chaosMax =  mclvMaxValue(chaosVec)
       ;  stats->chaosAvg =  mclvSum(chaosVec) / chaosVec->n_ivps
+      ;  stats->homgAvg  =  mclvSum(homgVec) / homgVec->n_ivps
+      ;  stats->homgMax  =  mclvMaxValue(homgVec)
+      ;  stats->homgMin  =  mclvMinValue(homgVec)
+   ;  }
+
+      if (getenv("MCL_SPEW"))    /* lisp homg: lame TODO fixfixmefixme : remove */
+      {  int i
+      ;  for (i=0;i<N_COLS(mx);i++)
+         {  mclv* nblist = mx->cols+i
+         ;  long nb = -1
+         ;  double homg = 0.0
+         ;  int j
+         ;  for (j=0;j<nblist->n_ivps;j++)
+            {  long ofs = mclvGetIvpOffset(homgVec, nblist->ivps[j].idx, nb)
+            ;  if (ofs >=0)
+               homg += nblist->ivps[j].val * homgVec->ivps[ofs].val
+         ;  }
+            fprintf(stdout, "%4ld -> avg %.2f, val %.2f\n", nblist->vid, homg, homgVec->ivps[i].val)
+      ;  }
+         fputs("===\n", stdout)
    ;  }
 
      /*
@@ -578,7 +658,7 @@ mclMatrix* mclExpand
       *  Transferral of information from registry to stats.
      */
 
-      {  int x, z
+      {  dim x, z
 
       ;  for (z=0;z<stats->n_windows;z++)
          {  mcxHeap* floatHeap = (stats->windowPrune)+z
@@ -649,12 +729,13 @@ mclMatrix* mclExpand
    ;  }
 
       mclvFree(&chaosVec)
-   ;  return mx_d
+   ;  stats->homgVec = homgVec
+   ;  return sq
 ;  }
 
 
 mclExpandStats* mclExpandStatsNew
-(  int   n_windows
+(  dim   n_windows
 ,  int*  window_sizes
 ,  int   nx          /* one of the heaps */
 ,  int   ny          /* one of the heaps */
@@ -664,7 +745,7 @@ mclExpandStats* mclExpandStatsNew
                                 (  sizeof(mclExpandStats)
                                 ,  EXIT_ON_FAIL
                                 )
-   ;  int z
+   ;  dim z
    ;  stats->mx_chr        =  mclxCartesian
                               (  mclvCopy(NULL, dom_cols)
                               ,  mclvCanonical(NULL, 5, 1.0)
@@ -679,6 +760,8 @@ mclExpandStats* mclExpandStatsNew
 
    ;  stats->windowPrune   =  mcxAlloc(n_windows*sizeof(mcxHeap), EXIT_ON_FAIL)
    ;  stats->windowFinal   =  mcxAlloc(n_windows*sizeof(mcxHeap), EXIT_ON_FAIL)
+
+   ;  stats->homgVec       =  NULL
 
    ;  for(z=0;z<stats->n_windows;z++)
       {  mcxHeapNew
@@ -715,9 +798,12 @@ mclExpandStats* mclExpandStatsNew
 void mclExpandStatsReset
 (  mclExpandStats* stats
 )  
-   {  int z
+   {  dim z
    ;  stats->chaosMax         =  0.0
    ;  stats->chaosAvg         =  0.0
+   ;  stats->homgMax          =  0.0
+   ;  stats->homgMin          =  PVAL_MAX
+   ;  stats->homgAvg          =  0.0
    ;  stats->n_selects        =  0
    ;  stats->n_recoveries     =  0
    ;  stats->n_below_pct      =  0
@@ -741,6 +827,8 @@ void mclExpandStatsReset
 
    ;  mcxTingFree(&(stats->levels_expand))
    ;  mcxTingFree(&(stats->levels_prune))
+
+   ;  mclvFree(&(stats->homgVec))
 ;  }
 
 
@@ -761,6 +849,7 @@ void mclExpandStatsFree
    ;  mclxFree(&(stats->mx_chr))
 
    ;  mcxFree(stats->window_sizes)
+   ;  mclvFree(&(stats->homgVec))
 
    ;  mcxNFree
       (  stats->windowPrune
@@ -785,7 +874,7 @@ void mclExpandStatsPrint
 )
    {  fprintf
       (  fp
-      ,  "%3d%3d%3d %3d%3d%3d %s %s %-7d %-7d %-7d\n"
+      ,  "#]%3d%3d%3d %3d%3d%3d %s %s %-7d %-7d %-7d\n"
       ,  (int) (100.0*stats->mass_prune_all)
       ,  (int) (100.0*stats->mass_prune_low[stats->ny])
       ,  (int) (100.0*stats->mass_prune_low[stats->nx])
@@ -840,28 +929,28 @@ void mclExpandParamDim
 (  mclExpandParam*  mxp
 ,  const mclMatrix *mx
 )
-   {  int n_windows     =  mcl_n_windows
-   ;  int n_nodes       =  N_COLS(mx)
+   {  dim n_windows     =  mcl_n_windows
+   ;  dim n_nodes       =  N_COLS(mx)
    ;  int* window_sizes =  mclDefaultWindowSizes
 
    ;  if (mxp->nw)
-      n_windows = MIN(n_windows, mxp->nw)
+      n_windows = MCX_MIN(n_windows, mxp->nw)
 
-   ;  while (window_sizes[n_windows-1] >= n_nodes && n_windows > 1)
+   ;  while ((dim) window_sizes[n_windows-1] >= n_nodes && n_windows > 1)
       n_windows--
 
    ;  mxp->windowSizes = ilInstantiate(mxp->windowSizes, n_windows, window_sizes)
    ;  mxp->dimension   = n_nodes
 
-   ;  if (mxp->nx < 0 || mxp->nx >= n_windows)
+   ;  if (mxp->nx >= n_windows)
       {  if (0) mcxTell("mcl-proc", "setting nx to <%d>", (int) n_windows)
       ;  mxp->nx = n_windows -1
    ;  }
-      if (mxp->ny < 0 || mxp->ny >= n_windows)
+      if (mxp->ny >= n_windows)
       {  if (0) mcxTell("mcl-proc", "setting ny to <%d>", (int) n_windows)
       ;  mxp->ny = n_windows -1
    ;  }
-      if (mxp->nj < 0 || mxp->nj >= n_windows)
+      if (mxp->nj >= n_windows)
       {  if (0) mcxTell("mcl-proc", "setting nj to <%d>", (int) n_windows)
       ;  mxp->nj = n_windows -1
    ;  }
@@ -942,7 +1031,7 @@ void mclExpandAppendLog
 ,  mclExpandStats *s
 ,  int n_ite
 )
-   {  int z
+   {  dim z
    ;  mcxTing* buf = mcxTingEmpty(NULL, 60)
 
    ;  for (z=0;z<s->n_windows;z++)
@@ -991,11 +1080,14 @@ void mclExpandAppendLog
 
    ;  mcxTingPrint
       (  buf
-      ,  "ite %d time %.2f chaos %.2f/%.2f\n"
+      ,  "ite %d time %.2f chaos %.2f/%.2f homg %.2f/%.2f/%.2f\n"
       ,  (int) n_ite
       ,  (double) s->lap
       ,  (double) s->chaosMax
       ,  (double) s->chaosAvg
+      ,  (double) s->homgMax
+      ,  (double) s->homgMin
+      ,  (double) s->homgAvg
       )
 
    ;  mcxTingAppend(Log, buf->str)
@@ -1065,12 +1157,12 @@ fprintf
 fprintf
 (  vbfp
 ,  "\n"
-"---------------------------------------------------------------------------\n"
-" mass percentages  | distr of vec footprints       |#recover cases <>      \n"
-"         |         |____ expand ___.____ prune ____||    #select cases []  \n"
-"  prune  | final   |e4   e3   e2   |e4   e3   e2   ||       |    #below pct\n"
-"all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|V       V        V     \n"
-"---------.---------.---------------.---------.-----.--------.-------.------\n"
+"#]---------------------------------------------------------------------------\n"
+"#] mass percentages  | distr of vec footprints       |#recover cases <>      \n"
+"#]         |         |____ expand ___.____ prune ____||    #select cases []  \n"
+"#]  prune  | final   |e4   e3   e2   |e4   e3   e2   ||       |    #below pct\n"
+"#]all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|V       V        V     \n"
+"#]---------.---------.---------------.---------.-----.--------.-------.------\n"
 )  ;
 
    }

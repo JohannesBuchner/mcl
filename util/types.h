@@ -1,7 +1,8 @@
-/* (c) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
- * under the terms of the GNU General Public License; either version 2 of the
+ * under the terms of the GNU General Public License; either version 3 of the
  * License or (at your option) any later version.  You should have received a
  * copy of the GPL along with tingea, in the file COPYING.
 */
@@ -17,8 +18,16 @@ typedef unsigned long mcxenum  ;
          /* mcxstatus   defined below */
          /* mcxbool     defined below */
 
-#define BIT_ON(var, bits)   (var) |= (bits)
-#define BIT_OFF(var, bits)  (var) |= (bits), (var) ^= (bits)
+#define BIT_ON(var,bits)   (var) |= (bits)
+#define BIT_OFF(var, bits)  do { (var) |= (bits); (var) ^= (bits); } while (0)
+
+#define ALL_BITS_OFF   0
+
+#define VOID_TO_UINT (unsigned)
+#define UINT_TO_VOID (void*)
+
+#define NOTHING   do { } while (0)
+
 
 /*  **************************************************************************
  * *
@@ -46,6 +55,7 @@ typedef enum
 ,  STATUS_IGNORE           /* for iterator type interfaces (line parser)   */
 ,  STATUS_NOMEM
 ,  STATUS_ABORT            /* e.g. user response                           */
+,  STATUS_NEW              /* for cache type interfaces                    */
 ,  STATUS_UNUSED           /* use this as lower bound for new statuses     */
 }  mcxstatus         ;
 
@@ -64,6 +74,7 @@ typedef enum
 {  RETURN_ON_FAIL =  1960
 ,  EXIT_ON_FAIL
 ,  SLEEP_ON_FAIL
+,  ENQUIRE_ON_FAIL    /* user sets TINGEA_MEM_DO to e.g. exit or retry */
 }  mcxOnFail         ;
 
 

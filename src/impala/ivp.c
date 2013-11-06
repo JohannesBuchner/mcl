@@ -1,7 +1,8 @@
-/*  (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -54,6 +55,14 @@ mclpAR* mclpARinit
 ;  }
 
 
+void mclpARreset
+(  mclpAR* mclpar
+)
+   {  mclpar->n_ivps    =  0
+   ;  mclpar->sorted    =  3
+;  }
+
+
 void* mclpARinit_v
 (  void* mclpar
 )
@@ -63,42 +72,41 @@ void* mclpARinit_v
 
 mclpAR* mclpARensure
 (  mclpAR* mclpar
-,  int     n
+,  dim     sz
 )
    {  if (!mclpar && !(mclpar =  mclpARinit(NULL)))
       return NULL
 
-   ;  if
-      (  (n > mclpar->n_alloc)
-      &&!( mclpar->ivps
-         =  mcxNRealloc
-            (  mclpar->ivps
-            ,  n
-            ,  mclpar->n_alloc
-            ,  sizeof(mclp)
-            ,  mclpInit_v
-            ,  RETURN_ON_FAIL
-            )
-         )
-      )
-      return NULL
+   ;  if (sz > mclpar->n_alloc)
+      {  if (!( mclpar->ivps
+            =  mcxNRealloc
+               (  mclpar->ivps
+               ,  sz
+               ,  mclpar->n_alloc
+               ,  sizeof(mclp)
+               ,  mclpInit_v
+               ,  RETURN_ON_FAIL
+               )
+            ) )
+         return NULL
+      ;  mclpar->n_alloc = sz
+   ;  }
 
-   ;  mclpar->n_alloc = n
-   ;  return mclpar
+      return mclpar
 ;  }
 
 
 mclpAR* mclpARfromIvps
 (  mclpAR*  mclpar
 ,  mclp*    ivps
-,  int      n
+,  dim      sz
 )
-   {  mclpar = mclpARensure(mclpar, n)
+   {  mclpar = mclpARensure(mclpar, sz)
    ;  if (!mclpar)
       return NULL
-   ;  if (n)
-      memcpy(mclpar->ivps, ivps, n * sizeof(mclIvp))
-   ;  mclpar->n_ivps = n
+   ;  if (sz)
+      memcpy(mclpar->ivps, ivps, sz * sizeof(mclIvp))
+   ;  mclpar->n_ivps = sz
    ;  return mclpar
 ;  }
 
@@ -152,12 +160,23 @@ mcxstatus mclpARextend
 ;  }
 
 
-mcxbool mclpGivenValGt
+mcxbool mclpGivenValGQ
 (  mclIvp*        ivp
 ,  void*          arg
 )
    {  double* f = (double*) arg
    ;  if (ivp->val >= *f)
+      return TRUE
+   ;  return FALSE
+;  }
+
+
+mcxbool mclpGivenValLQ
+(  mclIvp*        ivp
+,  void*          arg
+)
+   {  double* f = (double*) arg
+   ;  if (ivp->val <= *f)
       return TRUE
    ;  return FALSE
 ;  }
@@ -193,7 +212,7 @@ int mclpValCmp
 (  const void*             i1
 ,  const void*             i2
 )
-   {  int     s  =  SIGN(((mclIvp*)i1)->val - ((mclIvp*)i2)->val)
+   {  int     s  =  MCX_SIGN(((mclIvp*)i1)->val - ((mclIvp*)i2)->val)
    ;  return (s ? s : ((mclIvp*)i1)->idx - ((mclIvp*)i2)->idx)
 ;  }
 
@@ -202,7 +221,7 @@ int mclpValRevCmp
 (  const void*             i1
 ,  const void*             i2
 )
-   {  int     s  =  SIGN(((mclIvp*)i2)->val - ((mclIvp*)i1)->val)
+   {  int     s  =  MCX_SIGN(((mclIvp*)i2)->val - ((mclIvp*)i1)->val)
    ;  return (s ? s : ((mclIvp*)i1)->idx - ((mclIvp*)i2)->idx)
 ;  }
 
@@ -231,11 +250,19 @@ void mclpMergeAdd
 ;  }
 
 
+void mclpMergeMin
+(  void*                   i1
+,  const void*             i2
+)
+   {  ((mclIvp*)i1)->val = MCX_MIN(((mclIvp*)i1)->val,((mclIvp*)i2)->val)
+;  }
+
+
 void mclpMergeMax
 (  void*                   i1
 ,  const void*             i2
 )
-   {  ((mclIvp*)i1)->val = MAX(((mclIvp*)i1)->val,((mclIvp*)i2)->val)
+   {  ((mclIvp*)i1)->val = MCX_MAX(((mclIvp*)i1)->val,((mclIvp*)i2)->val)
 ;  }
 
 
@@ -303,7 +330,7 @@ double (*mclp_unary_tab[])(pval, void*)
 =
 {  fltxLT
 ,  fltxLQ
-,  fltxGT
+,  fltxGQ
 ,  fltxGT
 ,  fltxRand
 ,  fltxMul
@@ -333,8 +360,72 @@ double mclpUnary
          ;  break
       ;  }
          val = mclp_unary_tab[mode](val, &arg)
-   ;  }
+      ;  if (!val)
+         switch(mode)
+         {  case MCLX_UNARY_LT
+         :  case MCLX_UNARY_LQ
+         :  case MCLX_UNARY_GQ
+         :  case MCLX_UNARY_GT
+         :  return val
+      ;  }
+      }
       return val
+;  }
+
+
+
+mcxbool mclpSelectIdcs
+(  mclp     *ivp
+,  void     *range
+)
+   {  mclpIRange* rng = range
+   ;  long idx = ivp->idx
+   ;  long* lft = rng->lft
+   ;  long* rgt = rng->rgt
+   ;  if
+      (  (  rgt
+         && 
+            (  idx > rgt[0]
+            || (rng->equate & MCLX_EQT_LT && idx >= rgt[0])
+            )
+         )
+      || (  lft
+         && 
+            (  idx < lft[0]
+            || (rng->equate & MCLX_EQT_GT && idx <= lft[0])
+            )
+         )
+      )
+      return FALSE
+   ;  return TRUE
+;  }
+
+
+
+mcxbool mclpSelectValues
+(  mclp     *ivp
+,  void     *range
+)
+   {  mclpVRange* rng = range
+   ;  double val = ivp->val
+   ;  double* lft = rng->lft
+   ;  double* rgt = rng->rgt
+   ;  if
+      (  (  rgt
+         && 
+            (  val > rgt[0]
+            || (rng->equate & MCLX_EQT_LT && val >= rgt[0])
+            )
+         )
+      || (  lft
+         && 
+            (  val < lft[0]
+            || (rng->equate & MCLX_EQT_GT && val <= lft[0])
+            )
+         )
+      )
+      return FALSE
+   ;  return TRUE
 ;  }
 
 

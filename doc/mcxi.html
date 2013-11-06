@@ -1,0 +1,342 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<!-- Copyright (c) 2008 Stijn van Dongen -->
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<style type="text/css">
+body {
+text-align: justify;
+color: #001111;
+background: white;
+margin-left: 8%;
+margin-right: 8%;
+font-family: Helvetica, Univers, Verdana, sans-serif;
+}
+p.default {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+p.L53 { font-size: 30pt; }
+p.L52 { font-size: 20pt; }
+p.L51 { font-size: 15pt; }
+p.L50 { font-size: 12pt; }
+p.L49 { font-size: 10pt; }
+p.L48 { font-size: 9pt; }
+p.L47 { font-size: 8pt; }
+td {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+h3 { margin-top:1em; }
+h2 { margin-top:2em; }
+.left { text-align: left; align: left; }
+.right { text-align: right; align: right; }
+.center { text-align: center; align: center; }
+.nowrap { white-space: nowrap; }
+a:link { text-decoration: none; }
+a:active { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:link { color: #1111aa; }
+a:active { color: #1111aa; }
+a:visited { color: #111166; }
+a.local:link { color: #11aa11; }
+a.local:active { color: #11aa11; }
+a.local:visited { color: #116611; }
+a.intern:link { color: #1111aa; }
+a.intern:active { color: #1111aa; }
+a.intern:visited { color: #111166; }
+a.extern:link { color: #aa1111; }
+a.extern:active { color: #aa1111; }
+a.extern:visited { color: #661111; }
+a.quiet:link { color: black; }
+a.quiet:active { color: black; }
+a.quiet:visited { color: black; }
+div.copy
+{ font-size: 12pt;
+font-family: monospace;
+text-align: left;
+white-space: pre;
+margin-left: 2em;
+margin-top: 1em;
+margin-bottom: 1em;
+}
+div.indent
+{ margin-left: 8%;
+margin-right: 0%;
+}
+</style>
+<title>The mcx manual</title>
+</head>
+<body>
+<p style="text-align:right">
+5 Jun 2008&nbsp;&nbsp;&nbsp;
+<a class="local" href="mcxi.ps"><b>mcx</b></a>
+1.007-grumpy-gryphon, 08-157
+</p>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr><td width=48 valign="top" class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#name">NAME</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#synopsis">SYNOPSIS</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#description">DESCRIPTION</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#operators">OPERATORS</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#index">INDEX</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#author">AUTHOR</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">7.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#seealso">SEE ALSO</a>
+</div></td></tr>
+</table>
+
+</div>
+
+<a name="name"></a>
+<h2>NAME</h2>
+<p class="default L50" style="margin-bottom:0">
+mcx - a stack language interpreter for interaction with the <b>mcl</b> libraries.</p>
+
+<a name="synopsis"></a>
+<h2>SYNOPSIS</h2>
+<p class="default L50">
+<b>mcx</b> (enter interactive mode)
+<p class="default L50">
+<b>mcx</b> &lt;mcx expression&gt;
+
+<a name="description"></a>
+<h2>DESCRIPTION</h2>
+<p class="default L50">
+<b>mcx</b> can be used both from the command line and interactively, and supports
+a rich set of operations such as transposition, scaling, column scaling,
+multiplication, Hadamard powers and products, et cetera. It has variables,
+control primitives, and stack manipulation primitives.
+The general aim is to support basic number and matrix arithmetic, as well as
+graph, set, and clustering operations. The language will be kept simple,
+and should serve only as a means of making the <b>mcl</b> framework a pleasant one
+for working with graphs, matrices, clusterings, and sets.
+The language is typed, and currently has the types <i>integer, real,
+matrix, string, and block</i>.
+Blocks are used both in control statements such as <b>ifelse</b> and
+<b>while</b>, and for defining compound statements resembling procedures or
+functions.
+Some of <b>mcx</b>'s primitives are overloaded. The following is a very simple
+example of implementing and using <b>mcl</b> in this language.
+<pre>
+ 2.0 .i def                   # define inflation value.
+ /small lm                    # load matrix in file 'small'.
+ dim id add                   # add identity matrix.
+ st .x def                    # make stochastic, bind to x.
+ { xpn .i infl vm } .mcl def  # define one mcl iteration.
+ 20 .x .mcl repeat            # iterate 20 times
+ imac                         # interpret matrix as clustering.
+ vm                           # view matrix (clustering).
+</pre>
+Somewhat misleadingly, '#' is not recognized as a comment
+symbol by <b>mcx</b>, so don't use it (yet).
+<p class="default L50">
+<b>mcx</b> has quite a lot of primitives, and they are not all explained in here.
+However, <b>mcx</b> has several help facilities. <b>mcx</b>'s munge modes (command
+line, interactive, and file) are discussed first, followed by some syntactic
+and semantic rules.
+Several groups of related primitives are then discussed. These are the help
+primitives <b>help</b>, <b>grep</b>, <b>ops</b>, and others,
+the binding primitives <b>def</b>, <b>free</b>, and <b>unlink</b>,
+the control primitives <b>ifelse</b>, <b>do</b>, <b>repeat</b>, and <b>while</b>,
+and the stack manipulation primitives <b>pop</b>, <b>exch</b>, <b>dup</b>,
+<b>mdup</b>, <b>copy</b>, <b>roll</b>, <b>clear</b>.
+And for the record, <b>mcx</b> has <b>lt</b>, <b>lq</b>, <b>eq</b>, <b>gq</b>, and
+<b>gt</b>.
+In the grandiloquently named <a class="intern" href="#index">INDEX</a> section, you find a list
+of all current <b>mcx</b> primitives.
+<p class="default L50">
+First, there is no difference as far as <b>mcx</b> is concerned whether
+you give it a bunch of operators and operands directly from the command
+line, or whether you do it in interactive mode. Interactive mode is
+line-based; each time you type a carriage return, <b>mcx</b> starts interpreting
+the line you typed. Newlines can be escaped by preceding them with a
+backslash;
+<b>mcx</b> will delay interpretation and keep building up your expression.
+Command line mode is the same as entering interactive mode and entering a
+single line. For non-batch processing, interactive mode is the safest,
+because <b>mcx</b> will simply refuse to carry out impossible operations,
+whereas in command line mode it will exit.
+<p class="default L50">
+In interactive mode, <b>mcx</b> will by default list the stack after each line you
+type. This is verbosity level 1. There are four verbosity levels, namely 0,
+1, 2, and 3 (in increasingly verbose order). Set the level with the <b>vb</b>
+primitive. Verbosity control is still a bit crude, this is one of the areas
+in which <b>mcx</b> will be improved.
+<p class="default L50">
+There is another <b>mcx</b> munge mode which is entered when reading files
+with the <b>lf</b> (load file) primitive. This mode is not line-based,
+the whole file is interpreted in one go - there is little
+difference with line-based mode. Beware though, it is currently
+not possible (nor necessary) to escape newlines in files.
+<p class="default L50">
+Currently, <b>mcx</b> parses lines of text into atoms in an extremely
+straightforward way: Whitespace is the only separator, and it is always a
+separator. This has as a consequence that the block delimiters <b>{</b> and
+<b>}</b> are not allowed to appear next to a non-white character. Another
+consequence is that strings cannot contain white spaces. Both these
+conditions may be relaxed in the future though.
+<p class="default L50">
+Strings are always entered
+with a leading slash, and anything with a leading slash is a string, so
+<tt>/this</tt> is a string. Currently, the double quote has no special
+meaning, but it may acquire meaning in the future, especially as in
+<tt>/"maybe the mcx future will be brighter"</tt>.
+<p class="default L50">
+Variables names are always entered with a leading dot, and anything with a
+leading dot is a variable name. Variables are implicitly typed by the
+object to which they are bound. There is no support for arrays (yet).
+If variables are used, as in <tt>.x .y add</tt>, only the names of
+the variables are popped, and the binding between the names and their
+values stays intact.
+<p class="default L50">
+There are some operators that do in-place modification of the object that
+they act on, such as <tt>infl</tt> (inflation). Currently, these are all
+operators acting on matrices. When presented with a variable,
+they do change the object associated with the variable.
+In the built-in documentation strings (accessible with <b>help</b>
+and <b>grep</b>), such in-place modification is denoted with
+a prime as in <tt>&lt;m&gt; -&gt; &lt;m'&gt;</tt>.
+<p class="default L50">
+<b>dup</b> can be used to duplicate objects. In case of variables,
+this will be a copy of the variable name. If one occurrence is
+used to free the associated object by some operator, all other
+instances of the variable become <i>stale</i>.
+<b>mcx</b> will notice this and you will see such elements marked as stale
+handles in the stack listing. <b>copy</b> can be used to copy the
+object associated with a variable.
+<p class="default L50">
+<b>mcx</b> is/interprets a stack language. In order to add 1 and 2 you need to
+write <tt>1 2 add</tt>. When add is evaluated, it removes the previous two
+items from the stack and replaces it with their sum, in this case the
+integer 3.
+<b>mcx</b>'s types are denoted as <tt>&lt;int&gt;</tt>, <tt>&lt;real&gt;</tt>, <tt>&lt;mx&gt;</tt>,
+<tt>&lt;str&gt;</tt>, <tt>&lt;block&gt;</tt>, and so are objects that can be of that type. An
+object that is of underspecified type (such as taken by overloaded
+operators) is denoted <tt>&lt;obj&gt;</tt>.
+Where a variable name must occur, <tt>&lt;var&gt;</tt> is written.
+In <b>mcx</b> parlance a 'variable' is the same as 'handle'.
+Remember that a variable named <tt>x</tt> is written <tt>.x</tt>, and
+that a string "foo" is entered as <tt>/foo</tt> in <b>mcx</b>.
+
+<a name="operators"></a>
+<h2>OPERATORS</h2>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr><td colspan=3><b>help</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<b>help</b> with no arguments prints a descriptory line for each primitive.
+Can only be used at bottom of stack.
+Alias: <b>h</b>.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>/str</tt> <b>help</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<b>help</b> with argument <tt>/str</tt> prints a descriptive line for the
+primitive named <tt>str</tt>. The string must be identical to the primitive's
+name, or help will not show anything. Alias: <b>h</b>.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>/str</tt> <b>grep</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Prints each descriptive line in which the string str occurs (literally).
+So <tt>/matrix grep</tt> should produce a lot of matrix related
+primitives (although it may miss generic primitives such as <b>add</b>
+and <b>mul</b>). At bottom of stack, prints all descriptive lines.
+Alias: <b>g</b>.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>ops</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Lists all primitives and aliases concisely in a paragraph.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>list</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Lists the contents of the operand stack.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>info</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Lists the top element of the operand stack.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;int&gt;</tt> <b>tell</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Lists the top <tt>&lt;int&gt;</tt> elements of the operand stack.
+The trio of <b>list</b>, <b>info</b>, and <b>tell</b>
+is perhaps overdoing it slightly, but anyway there it is.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>vars</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Lists all variables currently bound.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;obj&gt;</tt> <tt>&lt;var&gt;</tt> <b>def</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Bind <tt>&lt;obj&gt;</tt> to <tt>&lt;var&gt;</tt>. Redefinition is allowed.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;var&gt;</tt> <b>free</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Break the binding between <tt>&lt;var&gt;</tt> and the object it currently binds,
+and remove object.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>unlink</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Break the binding between <tt>&lt;var&gt;</tt> and the object it currently binds,
+and push object on the stack.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;int&gt; &lt;block1&gt; &lt;block2&gt;</tt> <b>ifelse</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+If <tt>&lt;int&gt;</tt> is nonzero execute <tt>&lt;block1&gt;</tt>,
+otherwise execute <tt>&lt;block2&gt;</tt>.
+The equate operators <b>lt</b>, <b>lq</b>, <b>eq</b>, <b>gq</b>, and <b>gt</b>
+can be used to leave an <tt>&lt;int&gt;</tt> on the stack.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;block&gt;</tt> <b>do</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Execute <tt>&lt;block&gt;</tt> (one time).
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;int&gt; &lt;block&gt;</tt> <b>repeat</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Execute <tt>&lt;block&gt;</tt> <tt>&lt;int&gt;</tt> times.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;block1&gt; &lt;block2&gt;</tt> <b>while</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+This primitive repeatedly executes the <i>condition</i> <tt>&lt;block1&gt;</tt>,
+<i>which must push an integer each time it is executed</i>. Each time, the
+pushed integer is popped. If it was non-zero, <tt>&lt;block2&gt;</tt> is executed,
+<tt>&lt;block1&gt;</tt> is executed, and the cycle continues. If it was zero,
+<b>while</b> is done.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>pop</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Pops one element off of the stack.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>exch</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Exchanges the top two elements of the stack.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>dup</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Duplicates the top element and pushes the duplicate onto the stack. In case
+of a variable, the name is duplicated and not the object it points to. In
+case of anonymous matrices and strings (and whatever other (composite)
+objects may emerge), a <i>deep copy</i> is made that is completely independent
+of the original object.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;int&gt;</tt> <b>mdup</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Duplicates the top <tt>&lt;int&gt;</tt> elements. See the <b>dup</b> entry
+above for the semantics of duplication. I wrote <b>mdup</b> because
+I thought some other operator needed it, which turned out to be false.
+In the meantime, I became very much attached to <b>mdup</b>,
+so mail me if you think you have any useful use for it.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>copy</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Copies the top element and pushes the copy onto the stack.
+In case of a variable, copies the object associated with the variable
+rather than the variable's name (as <b>dup</b> would do).
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;int1&gt; &lt;int2&gt;</tt> <b>roll</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Shift <tt>&lt;int1&gt;</tt> objects cyclically <tt>&lt;int2&gt;</tt> times to the right
+if <tt>&lt;int2&gt;</tt> is positive, to the left otherwise.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>clear</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Empty the stack. All objects bound to variables are unaffected.
+</div></td></tr>
+</table>
+
+</div>
+
+<a name="index"></a>
+<h2>INDEX</h2>
+<p class="default L50">
+This is a list of all <b>mcx</b>'s primitives, including aliases.
+Do 'mcx /&lt;op&gt; help' to see a short descriptive string, where &lt;op&gt;
+is one of the primitives below (remember, strings need a leading slash).
+<p class="default L50">
+<b>add</b> <b>addto</b> <b>cdim</b> <b>ch</b> <b>clear</b> <b>copy</b> <b>def</b> <b>dgt</b>
+<b>dim</b> <b>div</b> <b>do</b> <b>dup</b> <b>eq</b> <b>exch</b> <b>free</b> <b>gq</b>
+<b>grep</b> <b>gt</b> <b>hdm</b> <b>hdp</b> <b>help</b> <b>id</b> <b>ifelse</b> <b>imac</b>
+<b>infl</b> <b>info</b> <b>jj</b> <b>lf</b> <b>list</b> <b>lm</b> <b>lq</b> <b>lt</b> <b>max</b>
+<b>mdup</b> <b>min</b> <b>mod</b> <b>mul</b> <b>ops</b> <b>pop</b> <b>pow</b> <b>quit</b>
+<b>rdim</b> <b>repeat</b> <b>roll</b> <b>st</b> <b>tell</b> <b>tp</b> <b>tut</b> <b>unlink</b>
+<b>vars</b> <b>vb</b> <b>vm</b> <b>while</b> <b>wm</b> <b>xpn</b> <b>bye=quit</b> <b>d=def</b>
+<b>f=free</b> <b>h=help</b> <b>i=info</b> <b>l=list</b> <b>p=pop</b> <b>g=grep</b>
+<b>u=unlink</b> <b>x=exch</b>.
+
+<a name="author"></a>
+<h2>AUTHOR</h2>
+<p class="default L50">
+Stijn van Dongen.
+
+<a name="seealso"></a>
+<h2>SEE ALSO</h2>
+<a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+and the utilities in the mcl family.
+</body>
+</html>

@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-SOURCES = $(mcxarray_SOURCES) $(mcxassemble_SOURCES) $(mcxconvert_SOURCES) $(mcxdump_SOURCES) $(mcxload_SOURCES) $(mcxmap_SOURCES) $(mcxsubs_SOURCES) $(mcxtest_SOURCES)
+SOURCES = $(mcx_SOURCES) $(mcxarray_SOURCES) $(mcxassemble_SOURCES) $(mcxdump_SOURCES) $(mcxload_SOURCES) $(mcxmap_SOURCES) $(mcxminusmeet_SOURCES) $(mcxrand_SOURCES) $(mcxsubs_SOURCES) $(mcxtest_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -37,12 +37,12 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = @host@
-DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/include/include.am
-bin_PROGRAMS = mcxconvert$(EXEEXT) mcxsubs$(EXEEXT) mcxmap$(EXEEXT) \
+bin_PROGRAMS = mcx$(EXEEXT) mcxsubs$(EXEEXT) mcxmap$(EXEEXT) \
 	mcxassemble$(EXEEXT) mcxarray$(EXEEXT) mcxdump$(EXEEXT) \
-	mcxload$(EXEEXT)
-noinst_PROGRAMS = mcxtest$(EXEEXT)
+	mcxload$(EXEEXT) mcxrand$(EXEEXT)
+noinst_PROGRAMS = mcxtest$(EXEEXT) mcxminusmeet$(EXEEXT)
 subdir = src/shmx
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
@@ -55,45 +55,66 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
+am_mcx_OBJECTS = mcx.$(OBJEXT) mcxconvert.$(OBJEXT) mcxq.$(OBJEXT) \
+	mcxdiameter.$(OBJEXT) mcxclcf.$(OBJEXT) mcxerdos.$(OBJEXT)
+mcx_OBJECTS = $(am_mcx_OBJECTS)
+mcx_LDADD = $(LDADD)
+mcx_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
+	../taurus/libtaurus.a ../gryphon/libgryphon.a \
+	../impala/libimpala.a ../../util/libutil.a
 am_mcxarray_OBJECTS = mcxarray.$(OBJEXT)
 mcxarray_OBJECTS = $(am_mcxarray_OBJECTS)
 mcxarray_LDADD = $(LDADD)
-mcxarray_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
+mcxarray_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
+	../taurus/libtaurus.a ../gryphon/libgryphon.a \
 	../impala/libimpala.a ../../util/libutil.a
 am_mcxassemble_OBJECTS = mcxassemble.$(OBJEXT)
 mcxassemble_OBJECTS = $(am_mcxassemble_OBJECTS)
 mcxassemble_LDADD = $(LDADD)
-mcxassemble_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
-	../impala/libimpala.a ../../util/libutil.a
-am_mcxconvert_OBJECTS = mcxconvert.$(OBJEXT)
-mcxconvert_OBJECTS = $(am_mcxconvert_OBJECTS)
-mcxconvert_LDADD = $(LDADD)
-mcxconvert_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
+mcxassemble_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
+	../taurus/libtaurus.a ../gryphon/libgryphon.a \
 	../impala/libimpala.a ../../util/libutil.a
 am_mcxdump_OBJECTS = mcxdump.$(OBJEXT)
 mcxdump_OBJECTS = $(am_mcxdump_OBJECTS)
 mcxdump_LDADD = $(LDADD)
-mcxdump_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
+mcxdump_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
+	../taurus/libtaurus.a ../gryphon/libgryphon.a \
 	../impala/libimpala.a ../../util/libutil.a
 am_mcxload_OBJECTS = mcxload.$(OBJEXT)
 mcxload_OBJECTS = $(am_mcxload_OBJECTS)
 mcxload_LDADD = $(LDADD)
-mcxload_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
+mcxload_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
+	../taurus/libtaurus.a ../gryphon/libgryphon.a \
 	../impala/libimpala.a ../../util/libutil.a
 am_mcxmap_OBJECTS = mcxmap.$(OBJEXT)
 mcxmap_OBJECTS = $(am_mcxmap_OBJECTS)
 mcxmap_LDADD = $(LDADD)
-mcxmap_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
+mcxmap_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
+	../taurus/libtaurus.a ../gryphon/libgryphon.a \
+	../impala/libimpala.a ../../util/libutil.a
+am_mcxminusmeet_OBJECTS = mcxminusmeet.$(OBJEXT)
+mcxminusmeet_OBJECTS = $(am_mcxminusmeet_OBJECTS)
+mcxminusmeet_LDADD = $(LDADD)
+mcxminusmeet_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
+	../taurus/libtaurus.a ../gryphon/libgryphon.a \
+	../impala/libimpala.a ../../util/libutil.a
+am_mcxrand_OBJECTS = mcxrand.$(OBJEXT)
+mcxrand_OBJECTS = $(am_mcxrand_OBJECTS)
+mcxrand_LDADD = $(LDADD)
+mcxrand_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
+	../taurus/libtaurus.a ../gryphon/libgryphon.a \
 	../impala/libimpala.a ../../util/libutil.a
 am_mcxsubs_OBJECTS = mcxsubs.$(OBJEXT)
 mcxsubs_OBJECTS = $(am_mcxsubs_OBJECTS)
 mcxsubs_LDADD = $(LDADD)
-mcxsubs_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
+mcxsubs_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
+	../taurus/libtaurus.a ../gryphon/libgryphon.a \
 	../impala/libimpala.a ../../util/libutil.a
 am_mcxtest_OBJECTS = mcxtest.$(OBJEXT)
 mcxtest_OBJECTS = $(am_mcxtest_OBJECTS)
 mcxtest_LDADD = $(LDADD)
-mcxtest_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
+mcxtest_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
+	../taurus/libtaurus.a ../gryphon/libgryphon.a \
 	../impala/libimpala.a ../../util/libutil.a
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/autofoo/depcomp
@@ -102,12 +123,14 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(mcxarray_SOURCES) $(mcxassemble_SOURCES) \
-	$(mcxconvert_SOURCES) $(mcxdump_SOURCES) $(mcxload_SOURCES) \
-	$(mcxmap_SOURCES) $(mcxsubs_SOURCES) $(mcxtest_SOURCES)
-DIST_SOURCES = $(mcxarray_SOURCES) $(mcxassemble_SOURCES) \
-	$(mcxconvert_SOURCES) $(mcxdump_SOURCES) $(mcxload_SOURCES) \
-	$(mcxmap_SOURCES) $(mcxsubs_SOURCES) $(mcxtest_SOURCES)
+SOURCES = $(mcx_SOURCES) $(mcxarray_SOURCES) $(mcxassemble_SOURCES) \
+	$(mcxdump_SOURCES) $(mcxload_SOURCES) $(mcxmap_SOURCES) \
+	$(mcxminusmeet_SOURCES) $(mcxrand_SOURCES) $(mcxsubs_SOURCES) \
+	$(mcxtest_SOURCES)
+DIST_SOURCES = $(mcx_SOURCES) $(mcxarray_SOURCES) \
+	$(mcxassemble_SOURCES) $(mcxdump_SOURCES) $(mcxload_SOURCES) \
+	$(mcxmap_SOURCES) $(mcxminusmeet_SOURCES) $(mcxrand_SOURCES) \
+	$(mcxsubs_SOURCES) $(mcxtest_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -121,8 +144,6 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BUILD_BLAST_FALSE = @BUILD_BLAST_FALSE@
 BUILD_BLAST_TRUE = @BUILD_BLAST_TRUE@
-BUILD_TRIBE_FALSE = @BUILD_TRIBE_FALSE@
-BUILD_TRIBE_TRUE = @BUILD_TRIBE_TRUE@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -205,15 +226,18 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)
-LDADD = ../mcl/libmcl.a ../taurus/libtaurus.a ../impala/libimpala.a ../../util/libutil.a
+LDADD = ../mcl/libmcl.a ../clew/libclew.a ../taurus/libtaurus.a ../gryphon/libgryphon.a ../impala/libimpala.a ../../util/libutil.a
+EXTRA_DIST = fake mcx.h mcxconvert.h mcxminusmeet.c mcxq.h mcxdiameter.h mcxclcf.h mcxerdos.h
 mcxassemble_SOURCES = mcxassemble.c
-mcxconvert_SOURCES = mcxconvert.c
 mcxsubs_SOURCES = mcxsubs.c
 mcxmap_SOURCES = mcxmap.c
 mcxdump_SOURCES = mcxdump.c
 mcxtest_SOURCES = mcxtest.c
 mcxarray_SOURCES = mcxarray.c
 mcxload_SOURCES = mcxload.c
+mcxrand_SOURCES = mcxrand.c
+mcxminusmeet_SOURCES = mcxminusmeet.c
+mcx_SOURCES = mcx.c mcxconvert.c mcxq.c mcxdiameter.c mcxclcf.c mcxerdos.c
 all: all-am
 
 .SUFFIXES:
@@ -273,15 +297,15 @@ clean-binPROGRAMS:
 
 clean-noinstPROGRAMS:
 	-test -z "$(noinst_PROGRAMS)" || rm -f $(noinst_PROGRAMS)
+mcx$(EXEEXT): $(mcx_OBJECTS) $(mcx_DEPENDENCIES) 
+	@rm -f mcx$(EXEEXT)
+	$(LINK) $(mcx_LDFLAGS) $(mcx_OBJECTS) $(mcx_LDADD) $(LIBS)
 mcxarray$(EXEEXT): $(mcxarray_OBJECTS) $(mcxarray_DEPENDENCIES) 
 	@rm -f mcxarray$(EXEEXT)
 	$(LINK) $(mcxarray_LDFLAGS) $(mcxarray_OBJECTS) $(mcxarray_LDADD) $(LIBS)
 mcxassemble$(EXEEXT): $(mcxassemble_OBJECTS) $(mcxassemble_DEPENDENCIES) 
 	@rm -f mcxassemble$(EXEEXT)
 	$(LINK) $(mcxassemble_LDFLAGS) $(mcxassemble_OBJECTS) $(mcxassemble_LDADD) $(LIBS)
-mcxconvert$(EXEEXT): $(mcxconvert_OBJECTS) $(mcxconvert_DEPENDENCIES) 
-	@rm -f mcxconvert$(EXEEXT)
-	$(LINK) $(mcxconvert_LDFLAGS) $(mcxconvert_OBJECTS) $(mcxconvert_LDADD) $(LIBS)
 mcxdump$(EXEEXT): $(mcxdump_OBJECTS) $(mcxdump_DEPENDENCIES) 
 	@rm -f mcxdump$(EXEEXT)
 	$(LINK) $(mcxdump_LDFLAGS) $(mcxdump_OBJECTS) $(mcxdump_LDADD) $(LIBS)
@@ -291,6 +315,12 @@ mcxload$(EXEEXT): $(mcxload_OBJECTS) $(mcxload_DEPENDENCIES)
 mcxmap$(EXEEXT): $(mcxmap_OBJECTS) $(mcxmap_DEPENDENCIES) 
 	@rm -f mcxmap$(EXEEXT)
 	$(LINK) $(mcxmap_LDFLAGS) $(mcxmap_OBJECTS) $(mcxmap_LDADD) $(LIBS)
+mcxminusmeet$(EXEEXT): $(mcxminusmeet_OBJECTS) $(mcxminusmeet_DEPENDENCIES) 
+	@rm -f mcxminusmeet$(EXEEXT)
+	$(LINK) $(mcxminusmeet_LDFLAGS) $(mcxminusmeet_OBJECTS) $(mcxminusmeet_LDADD) $(LIBS)
+mcxrand$(EXEEXT): $(mcxrand_OBJECTS) $(mcxrand_DEPENDENCIES) 
+	@rm -f mcxrand$(EXEEXT)
+	$(LINK) $(mcxrand_LDFLAGS) $(mcxrand_OBJECTS) $(mcxrand_LDADD) $(LIBS)
 mcxsubs$(EXEEXT): $(mcxsubs_OBJECTS) $(mcxsubs_DEPENDENCIES) 
 	@rm -f mcxsubs$(EXEEXT)
 	$(LINK) $(mcxsubs_LDFLAGS) $(mcxsubs_OBJECTS) $(mcxsubs_LDADD) $(LIBS)
@@ -304,12 +334,19 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxarray.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxassemble.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxclcf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxconvert.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxdiameter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxdump.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxerdos.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxload.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxmap.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxminusmeet.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxq.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxrand.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxsubs.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxtest.Po@am__quote@
 
@@ -497,6 +534,9 @@ uninstall-am: uninstall-binPROGRAMS uninstall-info-am
 	tags uninstall uninstall-am uninstall-binPROGRAMS \
 	uninstall-info-am
 
+
+# leave: assemble erdos array rand subs
+# assimilate: map dump test array load minusmeet
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

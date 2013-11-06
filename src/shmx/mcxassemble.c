@@ -1,7 +1,8 @@
-/* (c) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -40,7 +41,8 @@ enum
 ,  MY_OPT_SINGLE
 ,  MY_OPT_OUTPUT
 ,  MY_OPT_XO
-,  MY_OPT_BINMODE
+,  MY_OPT_WB
+,  MY_OPT_PLUS
 ,                 MY_OPT_NO
 ,  MY_OPT_MAP =   MY_OPT_NO  + 2
 ,  MY_OPT_MAP_
@@ -230,9 +232,15 @@ mcxOptAnchor options[] =
    ,  NULL
    ,  "do not write default symmetrized result"
    }
-,  {  "--binary"
+,  {  "+"
+   ,  MCX_OPT_HIDDEN
+   ,  MY_OPT_PLUS
+   ,  NULL
+   ,  "write result matrices in binary format"
+   }
+,  {  "--write-binary"
    ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_BINMODE
+   ,  MY_OPT_WB
    ,  NULL
    ,  "write result matrices in binary format"
    }
@@ -331,13 +339,15 @@ int main
    ;  mcxstatus parseStatus = STATUS_OK
    ;  mcxOption* opts, *opt
 
-   ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
+   ;  char* qmode = mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
 
    ;  mcxOptAnchorSortById(options, sizeof(options)/sizeof(mcxOptAnchor) -1)
 
    ;  if
       (!(opts = mcxOptParse(options, (char**) argv, argc, 1, 0, &parseStatus)))
       exit(0)
+
+   ;  mclx_app_init(stderr)
 
    ;  for (opt=opts;opt->anch;opt++)
       {  mcxOptAnchor* anch = opt->anch
@@ -421,7 +431,8 @@ int main
          ;  break
          ;
 
-            case MY_OPT_BINMODE
+            case MY_OPT_WB
+         :  case MY_OPT_PLUS
          :  mclxSetBinaryIO()
          ;  break
          ;
@@ -531,7 +542,9 @@ int main
       ;  }
       }
 
-      if (single_data_file && xf_raw != xf_hdr)
+      mcxOptFree(&opts)
+
+   ;  if (single_data_file && xf_raw != xf_hdr)
          mcxErr(me, "some other option conflicts -i usage")
       ,  mcxExit(1)
 
@@ -608,6 +621,8 @@ int main
          ivpmerge = mclpMergeAdd
       ;  else if (!strcmp(re, "max"))
          ivpmerge = mclpMergeMax
+      ;  else if (!strcmp(re, "min"))
+         ivpmerge = mclpMergeMin
       ;  else if (!strcmp(re, "mul"))
          ivpmerge = mclpMergeMul
       ;  else if (!strcmp(re, "left"))
@@ -622,6 +637,8 @@ int main
          fltvecbinary = fltAdd
       ;  else if (!strcmp(rv, "max"))
          fltvecbinary = fltMax
+      ;  else if (!strcmp(rv, "min"))
+         fltvecbinary = fltMin
       ;  else if (!strcmp(rv, "mul"))
          fltvecbinary = fltCross
       ;  else if (!strcmp(rv, "left"))
@@ -632,15 +649,17 @@ int main
 
       if (ra || ri)
       {  ri = ra ? ra : ri
-      ;  if (!strcmp(rv, "add"))
+      ;  if (!strcmp(ri, "add"))
          fltmxbinary = fltAdd
       ;  else if (!strcmp(ri, "max"))
          fltmxbinary = fltMax
-      ;  else if (!strcmp(rv, "mul"))
+      ;  else if (!strcmp(ri, "min"))
+         fltmxbinary = fltMin
+      ;  else if (!strcmp(ri, "mul"))
          fltmxbinary = fltCross
-      ;  else if (!strcmp(rv, "left"))
+      ;  else if (!strcmp(ri, "left"))
          fltmxbinary = fltLeft
-      ;  else if (!strcmp(rv, "right"))
+      ;  else if (!strcmp(ri, "right"))
          fltmxbinary = fltRight
    ;  }
 
@@ -652,8 +671,10 @@ int main
    ;  if (xf_raw != xf_hdr)
       mcxIOopen(xf_raw, EXIT_ON_FAIL)
    /* else: -i option was used */
+
    ;  if (xf_prm)
       mcxIOopen(xf_prm, EXIT_ON_FAIL)
+
    ;  if (xf_map)
       mcxIOopen(xf_map, EXIT_ON_FAIL)
    ;  else
@@ -662,6 +683,7 @@ int main
       ;  if (xf_cmap)
          mcxIOopen(xf_cmap, EXIT_ON_FAIL)
    ;  }
+
       if (xf_skew)
       mcxIOopen(xf_skew, EXIT_ON_FAIL)
 
@@ -731,7 +753,37 @@ int main
       ;  fprintf(stdout, "symmetry check: %ld skew edges\n", (long) (n/2))
    ;  }
 
-      return 0
+      if (qmode)
+      mcxFree(qmode)
+
+   ;  mcxTingFree(&ibase)
+   ;  mcxTingFree(&obase)
+
+   ;  if (xf_hdr == xf_raw)
+      mcxIOfree(&xf_hdr)
+   ;  else
+         mcxIOfree(&xf_hdr)
+      ,  mcxIOfree(&xf_raw)
+
+   ;  mcxIOfree(&xf_prm)
+   ;  mcxIOfree(&xf_map)
+   ;  mcxIOfree(&xf_rmap)
+   ;  mcxIOfree(&xf_cmap)
+   ;  mcxIOfree(&xf_skew)
+   ;  mcxIOfree(&xf_sym)
+
+   ;  mclxFree(&mx)
+   ;  mclxFree(&tp)
+   ;  mclxFree(&sym)
+   ;  mclxFree(&skew)
+
+   ;  if (cmap == rmap)
+      mclxFree(&cmap)
+   ;  else
+         mclxFree(&rmap)
+      ,  mclxFree(&cmap)
+
+   ;  return 0
 ;  }
 
 

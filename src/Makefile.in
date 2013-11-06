@@ -66,8 +66,6 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BUILD_BLAST_FALSE = @BUILD_BLAST_FALSE@
 BUILD_BLAST_TRUE = @BUILD_BLAST_TRUE@
-BUILD_TRIBE_FALSE = @BUILD_TRIBE_FALSE@
-BUILD_TRIBE_TRUE = @BUILD_TRIBE_TRUE@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -149,7 +147,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-SUBDIRS = . taurus mcl impala shcl shmcl shmx shmcx shmcxquery contrib alien
+SUBDIRS = . taurus clew mcl gryphon impala shcl shmcl shmx shmcx shmcxquery alien
 all: all-recursive
 
 .SUFFIXES:

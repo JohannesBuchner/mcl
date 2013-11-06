@@ -24,14 +24,24 @@
 \: -packed <fname>                 input file, packed format
 
 \par{
+   \synoptopt{-abc}{<fname>}{label file}
+   \synoptopt{-123}{<fname>}{identifier file}
+   \synoptopt{-o}{<fname>}{output file}
+
    \synoptopt{--stream-mirror}{symmetrify, same domain}
    \synoptopt{--graph}{assume same domain}
    \synoptopt{-re}{<mode>}{edge deduplication mode}
    \synoptopt{-ri}{<mode>}{image symmetrification mode}
 
-   \synoptopt{-cache-tab}{<fname>}{save domain tab}
-   \synoptopt{-cache-tabc}{<fname>}{save column tab}
-   \synoptopt{-cache-tabr}{<fname>}{save row tab}
+   \synoptopt{-etc}{<fname>}{leader 'etc' label file}
+   \synoptopt{-etc-ai}{<fname>}{leaderless 'etc' label file}
+
+   \synoptopt{-235}{<fname>}{leader '235' label file}
+   \synoptopt{-235-ai}{<fname>}{leaderless '235' label file}
+
+   \synoptopt{-write-tab}{<fname>}{save domain tab}
+   \synoptopt{-write-tabc}{<fname>}{save column tab}
+   \synoptopt{-write-tabr}{<fname>}{save row tab}
 
    \synoptopt{-strict-tab}{<fname>}{tab universe}
    \synoptopt{-strict-tabc}{<fname>}{tabc universe}
@@ -48,35 +58,47 @@
    \synoptopt{-stream-tf}{transform stream values}
    \synoptopt{-tf}{<tf-spec>}{transform (not so) final matrix}
 
-   \synoptopt{-etc}{<fname>}{leader 'etc' label file}
-   \synoptopt{-etc-ai}{<fname>}{leaderless 'etc' label file}
-
-   \synoptopt{-t}{transpose}
-   \synoptopt{--binary}{output binary format}
+   \synoptopt{--transpose}{transpose}
+   \synoptopt{--write-binary}{output binary format}
    \synoptopt{--debug}{debug}
-   \synoptopt{-h}{option listing}
-   \synoptopt{--apropos}{option listing}
-   \synoptopt{--version}{version}}
+   \stdsynopt
+   }
 
 
 \sec{description}{DESCRIPTION}
 
 \car{
-   \mcxload reads label input from a file. The format of the file
-   should be line-based, each line containing two white-space separated
-   strings (labels) and optionally a number separated from the second label
-   by whitespace. In the absence of a value, mcxload will use the
-   default value 1.0.}
+   \mcxload reads label input from a file. The format of the file should be
+   line-based, each line containing two white-space separated strings (labels)
+   and optionally a number separated from the second label by whitespace. In
+   the absence of a value, mcxload will use the default value 1.0.  If a tab is
+   present on an input line, mcxload will assume that the tab character is the
+   separator for that line. Lines for which the first non-whitespace character
+   is an octothorpe ('\v{#}') are skipped.}
 
 \par{
-   mcxload will transform the labels into mcl numerical identifiers and the
-   pairs of labels into graph edges or equivalently matrix entries.
-   The weight of an edge is the value associated with the associated
-   labels. mcxload constructs dictionaries (sometimes just one) that
-   map labels onto mcl identifiers as it goes along. It can optionally
-   write these to file.
-   In MCL (family) parlance, a such a dictionary written to file
-   is called a \it{tab file}.}
+   \mcxload will transform the labels into mcl numerical identifiers and the
+   pairs of labels into graph edges or equivalently matrix entries.  The weight
+   of an edge is the value associated with the associated labels. mcxload
+   constructs dictionaries (sometimes just one) that map labels onto mcl
+   identifiers as it goes along. It can optionally write these to file.  In MCL
+   (family) parlance, such a dictionary written to file is called a \it{tab
+   file}.}
+
+\par{
+   It is possible to specify numerical identifiers directly with
+   the \genoptref{-123} option. In this case \mcxload assumes a canonical
+   domain (cf \sibref{mcxio}) and will create the minimal canonical
+   domain that supports the data. Also bear in mind the caveat further
+   below.}
+
+\par{
+   It is possible to effectively predeclare labels and thus enforce
+   an a-priori known mapping of labels onto numerical identifiers.
+   Labels receive an identifier in the order in which they occur
+   in the input. Predeclaring labels can be achieved by
+   having them appear in the desired order and setting the edge
+   weight to zero.}
 
 \par{
    A major mcxload modality is whether the input refers to a single
@@ -106,7 +128,7 @@
    on the fly, or whether it proceeds from a tab file already
    available.
    By default mcxload will construct dictionaries on the fly. You
-   need to save them with the appropriate \bf{cache} option(s).
+   need to save them with the appropriate \bf{-write} option(s).
    All the \bf{strict} options read a tab file
    and require any labels in the \genoptref{-abc}{label input}
    to be present in the corresponding tab file. mcxload will then fail in
@@ -116,7 +138,7 @@
    The \bf{extend} options extend the existing tab file with
    labels that are not found.
    It presumably only makes sense to do so if the corresponding
-   \bf{cache} options are used as well.}
+   \bf{-write} options are used as well.}
 
 \par{
    The input stream is deduplicated on a per-node neighbourhood basis
@@ -134,7 +156,7 @@
    by the latter two options \- it is a syntax accepted
    by a few more mcl siblings.
    Finally it is possible to transpose the final result
-   using the \genoptref{-t} option. Keep in mind that
+   using the \genoptref{--transpose} option. Keep in mind that
    mcxload does not accordingly change its idea of row and
    column domains.}
 
@@ -142,11 +164,22 @@
    The final matrix can be symmetrified using the \genoptref{-ri} option.}
 
 \par{
-   The \genoptref{-etc} options may be useful for the odd job.
-   These options assume a format where all entries for a given
-   column (or equivalently all neighbours for a given node)
-   are joined onto a single line. This can be useful e.g. to read
-   in externally generated clusterings.}
+   The \optref{-etc}{\genopt{-etc} and \genopt{-235}} options may be useful for
+   the odd job.  These options assume a format where all entries for a given
+   column (or equivalently all neighbours for a given node) are joined onto a
+   single line. This can be useful e.g. to read in externally generated
+   clusterings. The \genopt{-etc} options expects label input, whereas the
+   \genopt{-235} options expects numbers in the input that are mapped
+   directly onto mcl numerical identifiers.
+   }
+
+\cpar{CAVEAT}{
+   Please note that by feeding the line '1000000000 1' to \mcxload with either
+   of the \genopt{-235} or \genopt{-123} options it will try to allocate a
+   matrix with one billion columns. This is most likely not what is wanted.
+   Assuming that the input contains fewer than one billion unique labels, one
+   should use the label options as described above and below.
+   }
 
 \cpar{STAGES}{
    Conceptually, input matrix creation consists of the following stages}
@@ -175,7 +208,22 @@
 \begin{itemize}
 
 \item{\defopt{-abc}{<fname>}{label file}}
-\car{The file to read label data from.}
+\car{
+   The file to read label data from.  Labels are separated by white-space. The
+   labels may optionally be followed by a value (again separated by
+   white-space), which is taken as the edge weight between the nodes
+   corresponding with the labels.  If a tab is present on an input line it is
+   presumed to be the separator for that line, including the value if present.
+   Lines for which the first non-blank character is the octothorpe ('\v{#}')
+   are skipped.
+   }
+
+\item{\defopt{-123}{<fname>}{identifier file}}
+\car{
+   The file to read numerical data from. The format is the same as
+   for label data, but the identifiers are directly mapped onto mcl identifiers
+   as described earlier.
+   }
 
 \item{\defopt{-o}{<fname>}{output file}}
 \car{The output file where the constructed matrix is written.}
@@ -202,16 +250,16 @@
    Also note that \usearg{first} and \usearg{last} might not result in
    symmetric input if only \genopt{--stream-mirror} is used.}
 
-\item{\defopt{-cache-tab}{<fname>}{save domain tab}}
+\item{\defopt{-write-tab}{<fname>}{save domain tab}}
 \car{
    Write the domain to file. It applies to both label types.}
 
-\item{\defopt{-cache-tabc}{<fname>}{save column tab}}
+\item{\defopt{-write-tabc}{<fname>}{save column tab}}
 \car{
    Write the column domain to file. It applies to the first label found
    on each input line.}
 
-\item{\defopt{-cache-tabr}{<fname>}{save row tab}}
+\item{\defopt{-write-tabr}{<fname>}{save row tab}}
 \car{
    Write the column domain to file. It applies to the second label found
    on each input line.}
@@ -290,7 +338,7 @@
    is special in that it treats missing entries (which are normally considered
    zero in mcl matrix operations) as one.}
 
-\item{\defopt{-t}{transpose}}
+\item{\defopt{--transpose}{transpose}}
 \car{
    Write the transposed matrix to file. This is obviously not useful
    when a symmetric matrix has been generated.}
@@ -298,6 +346,8 @@
 \items{
    {\defopt{-etc}{<fname>}{leader 'etc' label file}}
    {\defopt{-etc-ai}{<fname>}{leaderless 'etc' label file}}
+   {\defopt{-235}{<fname>}{leader '235' label file}}
+   {\defopt{-235-ai}{<fname>}{leaderless '235' label file}}
 }
 \car{
     The input is read in lines; each line is split on whitespace into labels.
@@ -311,28 +361,22 @@
     clustering, where each line represents a cluster of white-space separated
     labels.}
 
-\item{\defopt{--binary}{output binary format}}
+\par{
+   The \genopt{-235} options are similar except that the input is not
+   interpreted as labels but must consist of numbers that explicitly
+   specify the matrix to be built.}
+
+\item{\defopt{--write-binary}{output binary format}}
 \car{
-   Write the output matrix in native binary format.
-   This is generally smaller and faster to read, albeit not
-   humanly unreadable.}
+   The output matrix is written in native binary format \- refer to
+   \mysib{mcxio}.}
 
 \item{\defopt{--debug}{debug}}
 \car{
    Among other things, this turns on warnings when \bf{restrict} tab
    files are used and labels are found to be missing.}
 
-\item{\defopt{-h}{option listing}}
-\car{
-   List short description of all options.}
-
-\item{\defopt{--apropos}{option listing}}
-\car{
-   List short description of all options.}
-
-\item{\defopt{--version}{version}}
-\car{
-   Output version information.}
+\stddefopt
 
 \end{itemize}
 
@@ -343,6 +387,7 @@
 \sec{seealso}{SEE ALSO}
 
 \car{
+   \mysib{mcxio},
    \mysib{mcxdump},
    \mysib{mcl},
    \mysib{mclfaq},

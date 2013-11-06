@@ -1,13 +1,19 @@
-/* (c) Copyright 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
- * under the terms of the GNU General Public License; either version 2 of the
+ * under the terms of the GNU General Public License; either version 3 of the
  * License or (at your option) any later version.  You should have received a
  * copy of the GPL along with tingea, in the file COPYING.
 */
 
-#ifndef util_opt_h
-#define util_opt_h
+
+/* TODO
+ *    recode dispatch case 'no arguments supplied'. now ugly.
+*/
+
+#ifndef tingea_opt_h
+#define tingea_opt_h
 
 #include "types.h"
 #include "ting.h"
@@ -27,7 +33,7 @@
  *
  *    Tentatively, this interface treats -I 3 and --I=3 as equivalent
  *    syntax. It is possible to define -I and --I= as separate options.
- *    (by defining -I with MCX_OPT_HASARG and --I with MCX_OPT_EMBEDDED).
+ *    (by defining -I with MCX_OPT_HASARG and --I with MCX_OPT_DEFAULT).
  *
  * TODO:
  *    implement newline/indent magic in option descriptions.
@@ -39,7 +45,6 @@
 #define     MCX_OPT_HASARG       1     /* -a 10, xyz foo */
 #define     MCX_OPT_REQUIRED     2
 #define     MCX_OPT_INFO         4
-#define     MCX_OPT_EMBEDDED     8     /* --a=b, xyz or xyz=foo, NOT xyz foo */
 #define     MCX_OPT_HIDDEN       16
 #define     MCX_OPT_UNUSED       32
 
@@ -55,7 +60,7 @@ enum
 /*  struct mcxOptAnchor
  *
  * id
- *    When using mcxOptApropos, ifthe option MCX_OPT_DISPLAY_SKIP is used,
+ *    When using mcxOptApropos, if the option MCX_OPT_DISPLAY_SKIP is used,
  *    an increment larger then one between successive ids (from the structs
  *    in the array presented to mcxOptApropos) causes an additional newline
  *    to be output before the option synopsis.
@@ -82,19 +87,20 @@ typedef struct mcxOptAnchor
 ;  int            id             /* ID                                  */
 ;  char*          descr_arg      /* "<fname>" or "<num>", NULL ok       */
 ;  char*          descr_usage    /* NULL allowed                        */
+;  mcxbits        usr_bits       /* not used here                       */
 ;
 }  mcxOptAnchor   ;
 
 
 void mcxOptAnchorSortByTag
 (  mcxOptAnchor *anchors
-,  int n_anchors
+,  dim n_anchors
 )  ;
 
 
 void mcxOptAnchorSortById
 (  mcxOptAnchor *anchors
-,  int n_anchors
+,  dim n_anchors
 )  ;
 
 
@@ -147,6 +153,11 @@ mcxOption* mcxOptParse
 
 void mcxOptFree
 (  mcxOption**    optpp
+)  ;
+
+mcxbool mcxOptIsInfo
+(  const char*  arg
+,  mcxOptAnchor* options
 )  ;
 
 #define MCX_OPT_DISPLAY_DEFAULT       0
@@ -217,13 +228,12 @@ void mcxUsage
 )  ;
 
 
-
 extern int mcxOptPrintDigits;
 
 mcxbool mcxOptCheckBounds
 (  const char*    caller
 ,  const char*    flag
-,  char           type
+,  unsigned char  type
 ,  void*          var
 ,  int            (*lftRlt) (const void*, const void*)
 ,  void*          lftBound
@@ -232,6 +242,80 @@ mcxbool mcxOptCheckBounds
 )  ;
 
 
-#endif
+/* TODO
+ * provide escape mechanisms for delim;
+ * e.g. mcx tilde, UNIX backslash, or SGML percent sign based.
+ * -> smarter space-based separation. \t ?
+ *
+ * NOTE
+ *    Separates on spaces, which are replaced with '\0'.
+ *    src is modified ('\0' are written throughout).
+ *    the char* members 'char* argv[]' all point to within src.
+*/
 
+char** mcxOptParseString
+(  char* src
+,  int*  argc
+,  unsigned char delim
+)  ;
+
+mcxTing* mcxOptArgLine
+(  const char** argv
+,  int argc
+,  int quote      /*    '[' or '"' */
+)  ;
+
+
+/*
+ *
+ *
+ *
+*/
+
+#define  MCX_DISP_DEFAULT  0
+#define  MCX_DISP_HIDDEN   1
+
+typedef struct
+{  const char*    name
+;  const char*    syntax
+;  mcxOptAnchor*  options
+;  int            n_options
+;  mcxstatus      (*arg_cb)(int optid, const char* val)
+;  mcxstatus      (*init)( void )
+;  mcxstatus      (*main)(int argc, const char* argv[])
+;  int            n_at_least     /* trailing arguments */
+;  int            n_at_most      /* trailing arguments */
+;  mcxbits        flags
+;
+}  mcxDispHook    ;
+
+
+typedef struct
+{  int        id
+;  mcxDispHook* (*get_hk)(void)
+;
+}  mcxDispEntry   ;
+
+
+
+typedef struct mcx_disp_bundle
+{  int            disp_argc
+;  const char**   disp_argv
+;  const char*    disp_name
+;  const char*    disp_syntax
+;  mcxOptAnchor*  disp_shared
+;  dim            n_disp_shared
+;  mcxstatus    (*shared_handler)(int optid, const char* val, mcxDispHook*, struct mcx_disp_bundle*)
+;  void (*disp_version)(const char* me) 
+;  mcxDispEntry*  disp_table
+;
+}  mcxDispBundle  ;
+
+
+int mcxDispatch
+(  mcxDispBundle* bundle
+)  ;
+
+
+#endif
 

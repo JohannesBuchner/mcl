@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!-- Copyright (c) 2006 Stijn van Dongen -->
+<!-- Copyright (c) 2008 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <style type="text/css">
@@ -32,6 +32,7 @@ h2 { margin-top:2em; }
 .left { text-align: left; align: left; }
 .right { text-align: right; align: right; }
 .center { text-align: center; align: center; }
+.nowrap { white-space: nowrap; }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -68,25 +69,25 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-27 Feb 2006&nbsp;&nbsp;&nbsp;
+5 Jun 2008&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxarray.ps"><b>mcxarray</b></a>
-1.006, 06-058
+1.007-grumpy-gryphon, 08-157
 </p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=48 valign="top" class=left>1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr><td width=48 valign="top" class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#options">OPTIONS</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#author">AUTHOR</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#seealso">SEE ALSO</a>
 </div></td></tr>
 </table>
@@ -100,32 +101,44 @@ mcxarray - Transform array data to MCL matrices</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p class="default L50">
-<b>mcxarray</b> [options] &lt;array data matrix&gt;
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
+<b>mcxarray</b> [options]</p>
+<p class="default L50" style="margin-bottom:0">
 <b>mcxarray</b>
+<a class="intern" href="#opt-data"><b>[-data</b> fname (<i>input data file</i>)<b>]</b></a>
+<a class="intern" href="#opt-skipr"><b>[-skipr</b> &lt;num&gt; (<i>skip &lt;num&gt; data rows</i>)<b>]</b></a>
+<a class="intern" href="#opt-skipc"><b>[-skipc</b> &lt;num&gt; (<i>skip &lt;num&gt; data columns</i>)<b>]</b></a>
+<a class="intern" href="#opt-write-tab"><b>[-write-tab</b> &lt;fname&gt; (<i>write row labels to file</i>)<b>]</b></a>
+<a class="intern" href="#opt-l"><b>[-l</b> &lt;num&gt; (<i>take labels from column &lt;num&gt;</i>)<b>]</b></a>
+<a class="intern" href="#opt-imx"><b>[-imx</b> fname (<i>input matrix file</i>)<b>]</b></a>
+<a class="intern" href="#opt-n"><b>[-n</b> mode (<i>normalize input</i>)<b>]</b></a>
 <a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output file fname</i>)<b>]</b></a>
+<a class="intern" href="#opt-digits"><b>[-digits</b> &lt;num&gt; (<i>output precision</i>)<b>]</b></a>
 <a class="intern" href="#opt-co"><b>[-co</b> num (<i>cutoff for output values</i>)<b>]</b></a>
+<a class="intern" href="#opt-cutoff"><b>[-cutoff</b> num (<i>cutoff for output values</i>)<b>]</b></a>
 <a class="intern" href="#opt-gq"><b>[-gq</b> num (<i>ignore input smaller than</i>)<b>]</b></a>
 <a class="intern" href="#opt-lq"><b>[-lq</b> num (<i>ignore input larger than</i>)<b>]</b></a>
-<a class="intern" href="#opt-t"><b>[-t</b> (<i>work with the transpose</i>)<b>]</b></a>
-<a class="intern" href="#opt-ctr"><b>[-ctr</b> num (<i>add center (for graph-type input)</i>)<b>]</b></a>
-<a class="intern" href="#opt--ctr"><b>[--ctr</b> (<i>add center with default value (for graph-type input)</i>)<b>]</b></a>
-<a class="intern" href="#opt--01"><b>[--01</b> (<i>remap output to [0,1] interval</i>)<b>]</b></a>
+<a class="intern" href="#opt--transpose"><b>[--transpose</b> (<i>work with the transpose</i>)<b>]</b></a>
 <a class="intern" href="#opt--cosine"><b>[--cosine</b> (<i>use cosine</i>)<b>]</b></a>
 <a class="intern" href="#opt--pearson"><b>[--pearson</b> (<i>use Pearson correlation (default)</i>)<b>]</b></a>
 <a class="intern" href="#opt-tear"><b>[-tear</b> num (<i>inflate input columns</i>)<b>]</b></a>
 <a class="intern" href="#opt-teartp"><b>[-teartp</b> num (<i>inflate tranposed columns</i>)<b>]</b></a>
-<a class="intern" href="#opt-pi"><b>[-pi</b> num (<i>inflate the result</i>)<b>]</b></a>
-&lt;fname&gt; (<i>array data matrix</i>)
+<a class="intern" href="#opt-pi"><b>[-pi</b> num (<i>inflate the result</i>)<b>]</b></a></p>
+<a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print this help</i>)<b>]</b></a>
+<a class="intern" href="#opt-h"><b>[-h</b> (<i>print this help</i>)<b>]</b></a>
+<a class="intern" href="#opt--version"><b>[--version</b> (<i>print version information</i>)<b>]</b></a>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<b>mcxarray</b> reads a data file satisfying the mcl input format
-(refer to <a class="local" href="mcxio.html">mcxio</a>). By default it will work with the
-columns as the data vectors (note that mcl matrices are
-presented as a listing of columns). This can be changed using
-the <a class="intern" href="#opt-t"><b>-t</b> option</a>.
+<p class="default L50" style="margin-bottom:0">
+<b>mcxarray</b> can either read a flat file containing array data (<b>-data</b>)
+or a matrix file satisfying the mcl input format (<b>-imx</b>). In the
+former case it will by default work with the rows as the data vectors. In
+the latter case it will by default work with the columns as the data
+vectors (note that mcl matrices are presented as a listing of columns).
+This can be changed for both using the
+<a class="intern" href="#opt--transpose"><b>--transpose</b> option</a>.
+</p>
 
 <a name="options"></a>
 <h2>OPTIONS</h2>
@@ -133,36 +146,75 @@ the <a class="intern" href="#opt-t"><b>-t</b> option</a>.
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td colspan=3><a name="opt-o"></a><b>-o</b> fname (<i>output file fname</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Indeed.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-co"></a><b>-co</b> num (<i>cutoff for output values</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Output values smaller than <i>num</i> are removed (set to zero).
+<tr><td colspan=3><a name="opt-data"></a><b>-data</b> fname (<i>input data file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Specify the data file containing the expression values.
+It should be tab-separated.
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-imx"></a><b>-imx</b> fname (<i>input matrix file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+The expression values are read from a file in mcl matrix format.
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-skipr"></a><b>-skipr</b> &lt;num&gt; (<i>skip &lt;num&gt; data rows</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Skip the first <i>&lt;num&gt;</i> data rows.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-skipc"></a><b>-skipc</b> &lt;num&gt; (<i>skip &lt;num&gt; data columns</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Ignore the first <i>&lt;num&gt;</i> data columns.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-l"></a><b>-l</b> &lt;num&gt; (<i>take labels from column &lt;num&gt;</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Specifies to construct a tab of labels from this data column.
+The tab can be written to file using <a class="intern" href="#opt-write-tab"><b>-write-tab</b>&nbsp;<i>fname</i></a>.
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-write-tab"></a><b>-write-tab</b> &lt;fname&gt; (<i>write row labels to file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Write a tab file. In the simple case where the labels are in the first
+data column it is sufficient to issue <b>-skipc</b>&nbsp;<b>1</b>.
+If more data columns need to be skipped one must explicitly specify
+the data column to take labels from with <b>-l</b>&nbsp;<i>l</i>.
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-n"></a><b>-n</b> mode (<i>normalization mode</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+If <i>mode</i> is set to <b>z</b> the data will be normalized
+based on z-score. No other modes are currently supported.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-o"></a><b>-o</b> fname (<i>output file fname</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Output file name.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-digits"></a><b>-digits</b> &lt;num&gt; (<i>output precision</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Specify the precision to use in native interchange format.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-co"></a><b>-co</b> num (<i>cutoff for output values</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cutoff"></a><b>-cutoff</b> num (<i>alias for <b>-co</b></i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Output values smaller than <i>num</i> are removed (set to zero).</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-gq"></a><b>-gq</b> num (<i>ignore input smaller than</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Input values smaller than <i>num</i> are ignored.
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Input values smaller than <i>num</i> are ignored.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-lq"></a><b>-lq</b> num (<i>ignore input larger than</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Input values larger than <i>num</i> are ignored.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-t"></a><b>-t</b> (<i>work with the transpose</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Work with the transpose of the input data matrix.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-ctr"></a><b>-ctr</b> num (<i>add center (for graph-type input)</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Add diagonal values to the output according to a (so called)
-<i>center</i> formula.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--ctr"></a><b>--ctr</b> (<i>add center with default value (for graph-type input)</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Same as <b>-ctr</b>&nbsp;<b>1.0</b>.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--01"></a><b>--01</b> (<i>remap output to [0,1] interval</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Rescale output values so that they are within the [0,1] interval.
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Input values larger than <i>num</i> are ignored.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--transpose"></a><b>--transpose</b> (<i>work with the transpose</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Work with the transpose of the input data matrix.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--cosine"></a><b>--cosine</b> (<i>use cosine</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Use the cosine as correlation measure.
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Use the cosine as correlation measure.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--pearson"></a><b>--pearson</b> (<i>use Pearson correlation (default)</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Compute the Pearson correleation coefficient as the
-similarity between the data columns.
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Compute the Pearson correleation coefficient as the similarity between the
+data columns.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-tear"></a><b>-tear</b> num (<i>inflate input columns</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Apply (column-wise) inflation with parameter <i>num</i> to the input
-values before further processing.
+values before further processing.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-teartp"></a><b>-teartp</b> num (<i>inflate tranposed columns</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Apply (column-wise) inflation with parameter <i>num</i> to the input
-values in the transposed matrix before further processing.
+values in the transposed matrix before further processing.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-pi"></a><b>-pi</b> num (<i>inflate the result</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Apply inflation with parameter <i>num</i> to the output values.
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Apply inflation with parameter <i>num</i> to the output values.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt--apropos"></a><b>--apropos</b> (<i>print help</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-h"></a><b>-h</b> (<i>print help</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--version"></a><b>--version</b> (<i>print version information</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 </div></td></tr>
 </table>
 
@@ -170,14 +222,15 @@ Apply inflation with parameter <i>num</i> to the output values.
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p class="default L50">
-Stijn van Dongen.
+<p class="default L50" style="margin-bottom:0">
+Stijn van Dongen.</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
+<p class="default L50" style="margin-bottom:0">
 <a class="local" href="mcl.html">mcl</a>,
 <a class="local" href="mclfaq.html">mclfaq</a>,
 and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
-and the utilities in the mcl family.
+and the utilities in the mcl family.</p>
 </body>
 </html>

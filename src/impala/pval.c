@@ -1,7 +1,8 @@
-/*  (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -84,7 +85,7 @@ double fltxRand
 ,  void*    pbb_keep
 )
    {  long d = random()
-   ;  return (d / (double) RANDOM_MAX) <= *((double*)pbb_keep) ? flt : 0.0
+   ;  return (d / (double) RAND_MAX) <= *((double*)pbb_keep) ? flt : 0.0
 ;  }
 
 
@@ -190,6 +191,38 @@ double fltAdd
 ;  }
 
 
+double flt0p0
+(  pval     d1
+,  pval     d2
+)
+   {  return 0.0
+;  }
+
+
+double flt0p5
+(  pval     d1
+,  pval     d2
+)
+   {  return 0.5
+;  }
+
+
+double flt1p0
+(  pval     d1
+,  pval     d2
+)
+   {  return 1.0
+;  }
+
+
+double flt1p5
+(  pval     d1
+,  pval     d2
+)
+   {  return 1.5
+;  }
+
+
 double fltSubtract
 (  pval     d1
 ,  pval     d2
@@ -211,6 +244,14 @@ double fltCross
 ,  pval     d2
 )
    {  return  d1 && d2 ? d1 * d2 : d1 ? d1 : d2
+;  }
+
+
+double fltMin
+(  pval     d1
+,  pval     d2
+)
+   {  return (d1 < d2) ? d1 : d2
 ;  }
 
 

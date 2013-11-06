@@ -1,0 +1,71 @@
+\def{"man::synstyle"}{long}
+\def{"man::defstyle"}{long}
+\import{mcx.zmm}
+
+\set{"man::name"}{mcx clcf}
+\set{"man::html-title"}{The mcx clcf manual}
+\set{"man::author"}{Stijn van Dongen}
+\set{"man::section"}{1}
+
+\"man::preamble"
+\${html}{\"man::maketoc"}
+
+\sec{name}{NAME}
+\NAME{mcx clcf}{compute the clustering coefficient of a graph}
+
+\sec{synopsis}{SYNOPSIS}
+\par{
+   \mcx{clcf} [options] [matrix-file]}
+
+\disclaim_mcx{clcf}
+
+\par{
+   \mcx{clcf}
+
+      \synoptopt{-abc}{<fname>}{specify label input}
+      \synoptopt{-imx}{<fname>}{specify matrix input}
+      \synoptopt{--list}{list clustering coefficient for all nodes}
+      \stdsynopt
+   }
+
+\sec{description}{DESCRIPTION}
+\par{
+   \mcx{clcf} computes the clustering coefficient of a graph.}
+
+\par{
+   The input graph/matrix, if specified with the \genopt{-imx} option, has to
+   be in mcl matrix/graph format.  You can use label input instead by using the
+   \genopt{-abc} option.
+   Refer to \mysib{mcxio} for a description of these two input formats.
+   By default \mcx{diameter} reads from STDIN \it{and expects matrix format}.
+   To specify label input from STDIN use \useopt{-abc}{-}.}
+
+\sec{options}{OPTIONS}
+
+\begin{itemize}
+
+\item{\defopt{-abc}{<fname>}{label input}}
+\car{
+   The file name for input that is in label format.}
+
+\item{\defopt{-imx}{<fname>}{input matrix}}
+\car{
+   The file name for input. STDIN is assumed if not specified.}
+
+\item{\defopt{--list}{print result for each node}}
+\car{
+   Print clustering coefficient for all nodes.}
+
+\stddefopt
+
+\end{itemize}
+
+
+\sec{seealso}{SEE ALSO}
+\par{
+   \mysib{mcxio},
+   and \mysib{mclfamily} for an overview of all the documentation
+   and the utilities in the mcl family.}
+
+\"man::postamble"
+

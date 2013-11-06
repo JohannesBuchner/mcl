@@ -2,8 +2,8 @@
 \def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{clmclose}
-\set{"man::html-title"}{The clmclose manual}
+\set{"man::name"}{clm close}
+\set{"man::html-title"}{The clm close manual}
 \set{"man::author"}{Stijn van Dongen}
 \set{"man::section"}{1}
 
@@ -11,55 +11,63 @@
 \${html}{\"man::maketoc"}
 
 \sec{name}{NAME}
-\NAME{clmclose}{Fetch connected components from graphs or subgraphs}
+\NAME{clm close}{Fetch connected components from graphs or subgraphs}
+
+\disclaim_clm{close}
 
 \sec{synopsis}{SYNOPSIS}
-   \par
-   \clmclose -imx <fname> [options]
+\par{
+   \clm{close} -imx <fname> [options]
+   }
 
-   \par
-   \clmclose
+\par{
+   \clm{close}
    \synreqopt{-imx}{fname}{input file}
    \synreqopt{-dom}{fname}{input domain/cluster file}
-   \synoptopt{-o}{fname}{output file}
-   \synoptopt{-cc}{output connected components}
-   \synoptopt{-h}{list help}
-   \synoptopt{--apropos}{list synopsis of all options}
+   \synoptopt{-write-cc}{fname}{output file}
+   \synoptopt{-cc-bound}{num}{select components with size at least num}
+   \synoptopt{-tf}
+   \stdsynopt
+   }
 
 \sec{description}{DESCRIPTION}
 
-\par
-   Currently, \genopt{-cc} is the only mode provided, implying
-   its use is required.
-
-\par
-   Use \clmclose to fetch the connected components from a graph.
+\par{
+   Use \clm{close} to fetch the connected components from a graph.
    They will be returned as a clustering file. Use this file
    in conjunction with \mcxsubs and the graph file itself to
    retrieve individual subgraphs corresponding to connected components. 
+   }
 
-\par
-   If the \genopt{-dom}{fname} option is used, clmclose will
+\par{
+   If the \genopt{-dom}{fname} option is used, clm close will
    for each of the domains in file\~\genarg{fname} retrieve
    the associated subgraph from the input graph, decompose it into
    its connected components, and write each connected components
    as a separate domain/cluster in the output file.
+   }
 
 
-\""{
-   \sec{options}{OPTIONS}
+\sec{options}{OPTIONS}
 
-   \begin{itemize}
+\begin{itemize}
 
-   \item{\defopt{-imx}{fname}{input file}}
-   \item{\defopt{-dom}{fname}{input domain/cluster file}}
-   \item{\defopt{-o}{fname}{output file}}
-   \item{\defopt{-cc}{output connected components}}
-   \item{\defopt{-h}{list help}}
-   \item{\defopt{--apropos}{list synopsis of all options}}
+\item{\defopt{-imx}{fname}{input file}}
 
-   \end{itemize}
-}
+\item{\defopt{-dom}{fname}{input domain/cluster file}}
+
+\item{\defopt{-write-cc}{fname}{output connected components}}
+\par{
+   Set the name of the file to be written to.
+   }
+
+\item{\defopt{-cc-bound}{num}{select components with size at least num}}
+
+\item_defopt{-tf}
+
+\stddefopt
+
+\end{itemize}
 
 \sec{author}{AUTHOR}
 \par

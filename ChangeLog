@@ -1,14 +1,198 @@
 
 
+Thu, 05 Jun 2008
+
+   *  mcl-08-057 released.
+
+      -  mcxarray reads in gene expression data in table format and
+         converts it to an mcl input graph.
+
+      -  mcl now uses a simplified way of adding loops to the input graph. The
+         loop edge weight for a node is now set to the maximum of the weights
+         of edges connecting the node to its neighbours.  This may cause small
+         changes in clustering results. These changes should generally be of
+         the same (small) magnitude as changes resulting from perturbing the
+         input data (edge weights).
+
+      -  Added a program to compute, in various modes, for each node its
+         clustering coefficient, its eccentricity, and its betweenness
+         centrality. Also, to compute the diameter of a graph (i.e. the
+         maximum eccentricity): mcx clcf, mcx diameter, and mcx ctty.
+
+      -  The number of applications has decreased substantially.
+         See below.
+
+      -  The mcl suite is moving towards a wider focus on general purpose
+         large scale graph utilities, with the emphasis so far on basic
+         measures and transformations.
+
+         *  mcx diameter   compute diameter
+         *  mcx ctty       compute centrality
+         *  mcx clcf       compute clustering coefficient
+         *  mcx erdos      compute shortest paths
+         *  mcxrand        randomly shuffle, add, create, perturb edges
+         *  mclcm          hierarchical clustering with mcl
+         *  clm dist       compute cluster distance
+         *  clm meet       compute maximal joint subclustering
+         *  clm close      compute (subgraph) connected components
+         *  ...            and more.
+
+         *  mcxi (formerly mcx) basic matrix operations
+
+         The binaries installed are
+
+         mcl         mcxarray       mcxrand     clmformat
+         mclcm       mcxassemble    mcxsubs
+         clm         mcxdump
+         mcx         mcxload
+         mcxi        mcxmap
+
+         The scripts installed are mclpipeline, along with mcxdeblast and
+         mclblastline if configure was instructed with --enable-blast.
+
+         Currently all programs in the mcl suite use one of the three
+         prefixes "mcl", "mcx", or "clm".
+
+      -  first basic support for tree structures in the library.
+      -  new --shadow-vl mcl preprocessing option.
+      -  new mcl logging framework.
+
+      -  speed ups in many applications.
+      -  binary format can now be streamed over STDOUT/STDIN.
+
+   *  Added mclcm, which implements hierarchical clustering with mcl.
+      It supports several modes:
+
+         contraction    progress from fine to coarse
+         subcluster     progress from coarse to fine
+         dispatch       compute and combine different
+
+   *  The mcl option --shadow-vl aids in creating well-balanced hierarchies
+      by adding dummy (shadow) nodes to a graph, which throttles flow between
+      denser and sparser parts. This prevents rapid absorption of sparse parts
+      by dense parts.
+      Possibly useful in standalone mode as well.
+
+   *  New experimental mcl options --adapt-local and --adapt-smooth.  They
+      adapt inflation according to local density characteristics of the input
+      graph.
+
+   *  The number of applications has decreased substantially.
+
+      Most of the clm**** applications are now dispatched by the new
+      program clm, and most of the mcx**** applications are now dispatched
+      by the program mcx:
+
+      clm MODE       clm encapsulates
+                        dist order vol mate meet imac info close residue
+
+      mcx MODE       mcx encapsulates
+                        convert clcf diameter
+
+      Use
+         clm dist [options] <files>
+         clm order [options] <files>
+         mcx convert [options] <files>
+      et cetera.
+
+      The functionality formerly in mcx is now offered by mcxi.
+
+   *  Interchange format now uses scientific notation except within a
+      limited range around zero (by using the fprintf %g conversion
+      specifier). This makes interchange format less lossy.
+
+   *  binary format can now be streamed over STDOUT/STDIN. implying
+      very fast and lossless communication between mcl programs.  Binary
+      format is lossless compared to interchange format in that the text
+      representations used by the latter are currently not garantueed to
+      result in the exact same value when read back.
+
+   *  Lots of optimization work on graph and set related operations.
+      Many operations have been sped up for canonical matrices.  These speed
+      ups do not affect mcl itself.  Sped up: clmclose.
+
+   *  mcl verbosity output is now largely controlled by a new logging
+      framework. Use the -q option or set environment variable TINGEA_LOG_TAG.
+      Use -q x -V all to thoroughly silence mcl.
+
+   *  mcl emits more graph and cluster-related quantities in its
+      progress/log output.
+
+   *  mcxarray:
+      It can now read flat-file array files with the -data option.
+      +  Skipping leading rows and leading columns is supported
+         (-skipr/-skipc).  missing data is not yet supported.
+      +  Labels can be written to a tab file
+
+   *  Renamed -cache-graph, -cache-graphx, -cache-tab to -write-graph,
+      -write-graphx, -write-tab. This is to avoid terminological confusion
+      with the process-level caching sometimes employed by mcl within a single
+      run to accomodate postprocessing.
+
+      Similarly the mcxload -cache-xxx options were all renamed to -write-xxx.
+
+   *  mcl is accessible as a C library call. It is very undocumented
+      and lacking is an interface to build up a matrix.  There are not yet
+      convenient installation tools.
+
+   *  mcxdump by default read from STDIN and -imx is no longer
+      required.
+
+   *  Fixed bug in mcxassemble where it would crash when presented
+      with a corrupted format.
+
+   *  Added -lint-k and -lint-l options. Either will reread the input matrix and 
+      do postprocessing on the clustering, reallocating nodes that seem to
+      have siphoned the wrong way.
+
+      When applied to networks with inhomogenously distributed edge density
+      characteristics the mcl process will sometimes cause smaller
+      clusters/sparse areas to suck in border nodes which 1) have only few
+      edges to that cluster/area and 2) seem to have been sucked out of a much
+      denser cluster into which they would fit beautifully. This is fully in
+      line with the flow characteristics of mcl but a largely unwanted
+      phenomenon.  The postprocessing steps were added to remedy this.
+
+      -lint-l <num> considers all nodes in clusters of size not exceeding
+      <num> and optionally moves them to a larger cluster. Each
+      node is considered separately.
+
+      -lint-k <num> will try to have small clusters (up to a given size k)
+      assimilated in their entirety by a larger cluster if a suitable suitor
+      can be found.
+
+   *  Fixed bug in mcxload -etc -etc-ai functionality. Singletons
+      would cause mayhem.
+
+   *  The code underlying the analysis framework was largely reimplemented
+      and reorganized.
+
+   *  --keep-overlap=y/n was removed and replaced by -overlap
+      <keep|remove|split>, remove being the default as before.
+      The split mode is new and causes all maximally consistent
+      overlapping fragments to be put in new clusters. This mode
+      is used in mclcm to cover theoretical fringe cases.
+
+   *  If label data is tab-separated labels may contain spaces.
+      The code switches to tab-separated values if it finds a tab
+      in the input.
+
+   *  Fixed bug in label loading where transformed values set to zero
+      were kept.
+
+   *  Changed default output format in clminfo.
+
+   *  GRATUITOUS. Bumped the gratuitous version tag to 1.007.
+
 Mon, 27 Feb 2006
 
-	*	mcl-06-058 released.
+   *  mcl-06-058 released.
 
-	*	Added scripts/minimcl, a 200-line fully functional mcl
-		implementation in perl. It only accepts label input and
-		has no parameters except inflation. The implementation is
-		hash-based rather than array, which may or may not leverage
-		sparseness properties.
+   *  Added scripts/minimcl, a 200-line fully functional mcl
+      implementation in perl. It only accepts label input and
+      has no parameters except inflation. The implementation is
+      hash-based rather than array, which may or may not leverage
+      sparseness properties.
 
 Sat, 21 Jan 2006
 
@@ -363,11 +547,13 @@ Thu, 31 Mar 2005
 
    *  mcxmap has new
 
-         --invert
-         --invertc
-         --invertr
+         --mapi
+         --cmapi
+         --rmapi
 
       options to facilitate use of inverted maps.
+
+   *  mcxmap can map tab files with the -tab <tab-file> option.
 
    *  Added -my-scheme option to mcl for subtly better default output
       naming capacities. Read the manual for what that means.
@@ -1112,4 +1298,5 @@ Tue,  5 Feb 2002
 Wed, 12 Dec 2001
 
    *  mcl-20011211 released.
+
 

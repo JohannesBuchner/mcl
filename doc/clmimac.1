@@ -1,5 +1,5 @@
-.\" Copyright (c) 2006 Stijn van Dongen
-.TH "clmimac" 1 "27 Feb 2006" "clmimac 1\&.006, 06-058" "USER COMMANDS "
+.\" Copyright (c) 2008 Stijn van Dongen
+.TH "clm imac" 1 "5 Jun 2008" "clm imac 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -28,25 +28,34 @@
 .el .in 8m
 ..
 .SH NAME
-clmimac \- Interpret Matrices (c\&.q\&. MCL iterands output by \fBmcl\fP) As Clusterings\&.
+clm imac \- Interpret Matrices (c\&.q\&. MCL iterands output by \fBmcl\fP) As Clusterings\&.
+
+clmimac is not in actual fact a program\&. This manual
+page documents the behaviour and options of the clm program when
+invoked in mode \fIimac\fP\&. The options \fB-h\fP, \fB--apropos\fP,
+\fB--version\fP, \fB-set\fP, \fB--nop\fP are accessible
+in all \fBclm\fP modes\&. They are described
+in the \fBclm\fP manual page\&.
 .SH SYNOPSIS
 
-\fBclmimac\fP -imx <fname> [options]
+\fBclm imac\fP -imx <fname> [options]
 
-\fBclmimac\fP
+\fBclm imac\fP
 \fB-imx\fP fname (\fIinput file\fP)
 \fB[-o\fP fname (\fIname/stem for output\fP)\fB]\fP
 \fB[-dag\fP fname (\fIoutput DAG\fP)\fB]\fP
 \fB[--enstrict\fP (\fIremove overlap\fP)\fB]\fP
 \fB[-sort\fP str (\fIsize|revsize|lex|none\fP)\fB]\fP
-\fB[-h\fP (\fIlist help\fP)\fB]\fP
-\fB[--apropos\fP (\fIlist synopsis of all options\fP)\fB]\fP
+\fB[-strict\fP num (\fIin 0\&.\&.1\fP)\fB]\fP
+\fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--apropos\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--version\fP (\fIprint version, exit\fP)\fB]\fP
 .SH DESCRIPTION
 
-Use \fBclmimac\fP to interpret matrices (as clusterings) output by \fBmcl\fP using
+Use \fBclm imac\fP to interpret matrices (as clusterings) output by \fBmcl\fP using
 \fBmcl\fP\&'s \fB-dump\fP\ \&\fBite\fP option\&.
 
-Use \fBclmimac\fP only if you have a special reason; the normal usage
+Use \fBclm imac\fP only if you have a special reason; the normal usage
 of \fBmcl\fP is to do multiple runs for varying \fB-I\fP parameters
 and use the clusterings output by \fBmcl\fP itself\&.
 One reason is if you are interested in clusterings with overlap;
@@ -60,6 +69,14 @@ associated with the MCL process evolves over time\&.
 .br
 The input file is presumably an MCL iterand resulting
 from the mcl option \fB-dump\fP\ \&\fBite\fP\&.
+.in -3m
+
+.ZI 3m "\fB-strict\fP num (\fIin 0\&.\&.1\fP)"
+\&
+.br
+Higher values (up until 1) will thin out the DAG
+constructed by \fBclm imac\fP\&. The default value is 0\&.00001,
+yielding the full DAG\&.
 .in -3m
 
 .ZI 3m "\fB-o\fP fname (\fIfile name/stem\fP)"
@@ -91,19 +108,6 @@ exactly as obtained from the interpretation routine\&.
 .br
 Remove overlap should it be found, by allocating the nodes
 in overlap to the first cluster in which they were found\&.
-.in -3m
-
-.ZI 3m "\fB-h\fP (\fIlist help\fP)"
-\&
-.br
-Print help, this could possibly be the same output as
-supplied with \fB--apropos\fP\&.
-.in -3m
-
-.ZI 3m "\fB--apropos\fP (\fIlist synopsis of all options\fP)"
-\&
-.br
-List a one-line synopsis for all options\&.
 .in -3m
 .SH AUTHOR
 

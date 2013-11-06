@@ -1,7 +1,8 @@
-/* (c) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
- * under the terms of the GNU General Public License; either version 2 of the
+ * under the terms of the GNU General Public License; either version 3 of the
  * License or (at your option) any later version.  You should have received a
  * copy of the GPL along with tingea, in the file COPYING.
 */
@@ -11,6 +12,14 @@
  *    You probably don't want to look at this code - the reasons are explained
  *    below.  I like the beast though, especially the part that you can specify
  *    callbacks to parse 'external' data.
+*/
+
+/*
+ * TODO
+ *    catch integer overflow.
+ *    consider unsigned type. Perhaps implement signed with separate sign.
+ *    consider bit operators and unsigned type.
+ *    precision.
 */
 
 #include <stdio.h>
@@ -26,6 +35,7 @@
 #include "err.h"
 #include "types.h"
 #include "ding.h"
+#include "compile.h"
 
 
 /*  **************************************************************************
@@ -224,7 +234,7 @@ typedef enum
 ,  TOKEN_OPEN  =  6     /* like fun, 6 = (                              */
 ,  TOKEN_CLOSE =  9     /* like fun, 9 = )                              */
 ,  TOKEN_COMMA =  13579 /* gaps                                         */
-,  TOKEN_CONST =  314159/* PI                                           */
+,  TOKEN_CONST =  31415 /* PI                                           */
 ,  TOKEN_USER  =  981   /* G, variable                                  */
 }  tokentype   ;
 
@@ -293,7 +303,7 @@ double letround
 
 
 double letlog2
-(double f) { return f > 0 ? log(f) / log(2) : 0.0 ;  }
+(double f) { return f > 0 ? log(f) / log(2.0) : 0.0 ;  }
 
 
 typedef struct fun1Hook
@@ -806,7 +816,7 @@ int getatoken
       else if
       (  user_char_g == *p
       && (len = user_parse_g(raam->text, p-raam->text->str)) > 0
-      )
+      )                               /* ^truncintok */
       {  p += len
       ;  toktype = TOKEN_USER
    ;  }
@@ -817,7 +827,7 @@ int getatoken
       ;  toktype = TOKEN_BINOP
       ;  p = q
    ;  }
-      mcxTingNWrite(raam->token, raam->p, p-raam->p)
+      mcxTingNWrite(raam->token, raam->p, (dim) (p-raam->p))
    ;  raam->p = p
    ;  return toktype
 ;  }
@@ -976,9 +986,9 @@ mcxstatus flatten
 
          ;  if (op->opid & OPTYPE_BIT)
             {  if (!tn_isint(lft))
-               ilft = lft->fval
+               ilft = lft->fval        /* fixme: why the reassign? */
             ;  if (!tn_isint(rgt))
-               irgt = rgt->fval
+               irgt = rgt->fval        /* fixme: why the reassign? */
             ;  if (!tn_isint(rgt) || !tn_isint(lft))
                mcxErr
                (  "let"
@@ -1127,16 +1137,13 @@ mcxstatus flatten
             :  err = 1
          ;  }
 
-            if (!(flags & TN_NOINT))
-            flags |=  tn_isint(lft) & tn_isint(rgt)
-
-               /* this rules implements implicit behaviour with overruling:
+               /* this rule implements implicit behaviour with overruling:
                 * two integers result in an integer unless overruled
                 * with the TN_NOINT attribute.
                */
 
-         ;  if ((fval > NUM_MAX || fval < NUM_MIN) && (flags & TN_ISINT))
-            flags ^= TN_ISINT
+            if (!(flags & TN_NOINT))
+            flags |=  tn_isint(lft) & tn_isint(rgt)
 
                /* next we check whether overflow occurred. If so, discard the
                 * integer attribute.  This depends on i) fval follows ival as
@@ -1144,16 +1151,19 @@ mcxstatus flatten
                 * fval is computed to be similar to ival.
                */
 
-         ;  if (flags & TN_ISINT)
-            fval = ival
-         ;  else
-            ival = 0
+         ;  if ((fval > NUM_MAX || fval < NUM_MIN) && (flags & TN_ISINT))
+            flags ^= TN_ISINT
 
                /* make fval follow ival, otherwise, give ival special
                 * value. *Never* should float->int conversion happen
                 * in this code; it should be user-enforced.
                 * Setting ival to 0 may help show any such behaviour as a bug.
                */
+
+         ;  if (flags & TN_ISINT)
+            fval = ival
+         ;  else
+            ival = 0
       ;  }
          else
          {  mcxErr(me, "panicking at toktype <%ld>", (long) op->toktype)
@@ -1717,7 +1727,7 @@ mcxstatus trmParse
 
 
 void trmRegister
-(  telRaam* raam
+(  telRaam* raam  cpl__unused
 ,  int      (user_parse)(mcxTing* txt, int offset)
 ,  mcxenum  (user_eval)(const char* token, long *ival, double *fval)
 ,  char     user_char

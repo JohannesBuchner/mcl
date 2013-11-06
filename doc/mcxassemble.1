@@ -1,5 +1,5 @@
-.\" Copyright (c) 2006 Stijn van Dongen
-.TH "mcxassemble" 1 "27 Feb 2006" "mcxassemble 1\&.006, 06-058" "USER COMMANDS "
+.\" Copyright (c) 2008 Stijn van Dongen
+.TH "mcxassemble" 1 "5 Jun 2008" "mcxassemble 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -34,6 +34,7 @@ mcxassemble \- transform raw cooccurrence data to mcl matrix format\&.
 \fBmcxassemble\fP
 \fB-b\fP base (\fIbase name\fP)
 \fB[-o\fP fname (\fIwrite to file fname\fP)\fB]\fP
+\fB[--write-binary\fP (\fIwrite output in binary format\fP)\fB]\fP
 \fB[--map\fP (\fIapply base\&.map\fP)\fB]\fP
 \fB[-raw-tf\fP (\fIapply transform spec to input\fP)\fB]\fP
 \fB[-rv\fP MODE (\fIrepeated vectors\fP)\fB]\fP
@@ -94,8 +95,9 @@ where \fBmcxassemble\fP is the best solution\&. Consider first whether
 \fB[--quiet-re\fP (\fIquiet for repeated entries\fP)\fB]\fP
 \fB[--quiet-rv\fP (\fIquiet for repeated vectors\fP)\fB]\fP
 \fB[-q\fP (\fIthe two above combined\fP)\fB]\fP
-\fB[-h\fP (\fIlist help\fP)\fB]\fP
-\fB[--apropos\fP (\fIlist synopsis of all options\fP)\fB]\fP
+\fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--apropos\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--version\fP (\fIprint version, exit\fP)\fB]\fP
 .SH DESCRIPTION
 
 \fBmcxassemble\fP enables easy matrix creation from an intermediate raw matrix
@@ -372,6 +374,9 @@ can be prevented using the \fB-n\fP\ \&option\&.
 .ZI 3m "\fB-digits\fP int (\fIdigits width\fP)"
 \&
 'in -3m
+.ZI 3m "\fB--write-binary\fP (\fIwrite output in binary format\fP)"
+\&
+'in -3m
 'in +3m
 \&
 .br
@@ -549,19 +554,6 @@ or the product of the two quantities\ \&\fC50\fP and\ \&\fC20\fP\&.
 .br
 Warning options\&. Turn these on if you expect the raw data to be free
 of repeats\&.
-.in -3m
-
-.ZI 3m "\fB-h\fP (\fIlist help\fP)"
-\&
-.br
-Print help, this could possibly be the same output as
-supplied with \fB--apropos\fP\&.
-.in -3m
-
-.ZI 3m "\fB--apropos\fP (\fIlist synopsis of all options\fP)"
-\&
-.br
-List a one-line synopsis for all options\&.
 .in -3m
 .SH AUTHOR
 Stijn van Dongen\&.

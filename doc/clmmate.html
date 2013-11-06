@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!-- Copyright (c) 2006 Stijn van Dongen -->
+<!-- Copyright (c) 2008 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <style type="text/css">
@@ -32,6 +32,7 @@ h2 { margin-top:2em; }
 .left { text-align: left; align: left; }
 .right { text-align: right; align: right; }
 .center { text-align: center; align: center; }
+.nowrap { white-space: nowrap; }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -64,27 +65,29 @@ div.indent
 margin-right: 0%;
 }
 </style>
-<title>The clmmate manual</title>
+<title>The clm mate manual</title>
 </head>
 <body>
 <p style="text-align:right">
-27 Feb 2006&nbsp;&nbsp;&nbsp;
-<a class="local" href="clmmate.ps"><b>clmmate</b></a>
-1.006, 06-058
+5 Jun 2008&nbsp;&nbsp;&nbsp;
+<a class="local" href="clmmate.ps"><b>clm mate</b></a>
+1.007-grumpy-gryphon, 08-157
 </p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=48 valign="top" class=left>1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr><td width=48 valign="top" class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#options">OPTIONS</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#author">AUTHOR</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#seealso">SEE ALSO</a>
 </div></td></tr>
 </table>
@@ -94,17 +97,31 @@ cellpadding="0" summary="itemize">
 <a name="name"></a>
 <h2>NAME</h2>
 <p class="default L50" style="margin-bottom:0">
-clmmate - compute best matches between two clusterings</p>
+clm mate - compute best matches between two clusterings</p>
+<p class="default L50" style="margin-bottom:0">clmmate is not in actual fact a program. This manual
+page documents the behaviour and options of the clm program when
+invoked in mode <i>mate</i>. The options <b>-h</b>, <b>--apropos</b>,
+<b>--version</b>, <b>-set</b>, <b>--nop</b> are accessible
+in all <b>clm</b> modes. They are described
+in the <a class="local" href="clm.html">clm</a> manual page.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p class="default L50">
-<b>clmmate</b> [-l] [-o fname] &lt;clfile1&gt; &lt;clfile2&gt;
+<p class="default L50" style="margin-bottom:0">
+<b>clm mate</b>
+<a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output file name</i>)<b>]</b></a>
+<a class="intern" href="#opt-b"><b>[-b</b> (<i>omit headers</i>)<b>]</b></a>
+<a class="intern" href="#opt--one-to-many"><b>[--one-to-many</b> (<i>require multiple hits in &lt;clfile1&gt;</i>)<b>]</b></a>
+<a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
+<a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print synopsis, exit</i>)<b>]</b></a>
+<a class="intern" href="#opt--version"><b>[--version</b> (<i>print version, exit</i>)<b>]</b></a>
+&lt;clfile1&gt; &lt;clfile2&gt;
+</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
 <p class="default L50" style="margin-bottom:0">
-<b>clmmate</b> computes for each cluster <tt>X</tt> in <tt>clfile1</tt> all clusters
+<b>clm mate</b> computes for each cluster <tt>X</tt> in <tt>clfile1</tt> all clusters
 <tt>Y</tt> in <tt>clfile2</tt> that have non-empty intersection and outputs
 a line with the data points listed below.</p>
 <pre>   overlap(X,Y)               # 2 * size(meet(X,Y)) / (size(X)+size(Y))
@@ -118,8 +135,6 @@ a line with the data points listed below.</p>
    projection(X, clfile2)     # see below
    projection(Y, clfile1)     # see below
 </pre>
-<p class="default L50" style="margin-bottom:0">
-Use the <b>-l</b> option to include a legend heading the output.</p>
 <p class="default L50" style="margin-bottom:0">
 The projected size of a cluster <tt>X</tt> relative to a clustering <tt>K</tt> is
 simply the sum of all the nodes shared between any cluster <tt>Y</tt> in <tt>K</tt>
@@ -154,6 +169,24 @@ that first score field. It is advisable to use a stable sort routine
 (use the <b>-s</b> option for UNIX sort)
 From this information one can quickly extract the closest
 clusters between two clusterings.</p>
+
+<a name="options"></a>
+<h2>OPTIONS</h2>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr><td colspan=3><a name="opt-o"></a><b>-o</b> fname (<i>output file name</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">Specify the name of the output file.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-b"></a><b>-b</b> (<i>omit headers</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">Batch mode, omit column names.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--one-to-many"></a><b>--one-to-many</b> (<i>require multiple hits in &lt;clfile1&gt;</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">Do not output information for clusters in the first file
+that are subset of a cluster in the second file.</p>
+</div></td></tr>
+</table>
+
+</div>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>

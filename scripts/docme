@@ -1,0 +1,111 @@
+#!/usr/local/bin/perl
+
+#  This program matches
+#  A)
+#     "progname --apropos"
+#  output with
+#  B)
+#     defopt, defkvp                                  (azm OPTIONS section)
+#     synoptopt, synreqopt, synoptkvp, synreqkvp      (azm SYNOPSIS section)
+#
+#  and looks for unsupported or undocumented options.
+
+use Getopt::Long;
+use strict;
+
+my @ARGV_COPY  = @ARGV;
+my $n_args = @ARGV;
+
+$::amoixa =  0;
+$::silent =  0;
+$::exclude = "";
+
+my %exclude = ();
+
+if
+(! GetOptions
+   (  "--amoixa"        =>   \$::amoixa
+   ,  "--silent"        =>   \$::silent
+   ,  "--exclude=s"     =>   \$::exclude
+   )
+)
+   {  print STDERR "option processing failed\n";
+      exit(1);
+   }
+
+die "need <program-name> <zoem-manual>" unless @ARGV == 2;
+my ($progname, $azm) =  @ARGV;
+
+my $apropos = $::amoixa ? "--amoixa" : "--apropos";
+my %exclude = map { ($_, 1) } split ",", $::exclude;
+
+my $marker = '=' x 40;
+
+
+my %apropos
+=  map { /^\-*(\S*)\s+(.*)/; ($1, $2); }
+   grep { /^\-/; }
+   `$progname $apropos`;
+
+my %def
+=  map
+   {  /def(opt|kvp)\{-+(.*?)\}/
+   ?  ($2, 1)
+   :     /item_def(opt|kvp)_(\w+)/
+      ?  ($2, 1)
+      :  ();
+   }
+   `grep '\\def\\(opt\\|kvp\\)\{' $azm`; 
+
+my %syn
+=  map
+   {  /syn(opt|req)(opt|kvp)\{-+(.*?)\}/
+   ?  ($3, 1)
+   :     /syn(opt|req)(opt|kvp)_(\w+)/
+      ?  ($3, 1)
+      :  ();
+   }
+   `grep '\\syn\\(opt\\|\\req\\)\\(opt\\|kvp\\){' $azm`; 
+
+for my $k (keys %exclude) {
+   delete($apropos{$k});
+   delete($def{$k});
+   delete($syn{$k});
+}
+
+
+my @undocumented = grep { !defined($def{$_}) } sort keys %apropos;
+print $marker . " Undocumented options:\n" unless $::silent && !@undocumented;
+for my $k (@undocumented) {
+   print "$k $apropos{$k}\n";
+}
+
+
+my @unsupported = grep { !defined({$apropos{$_}}) } sort keys %def;
+print $marker . " Unsupported options:\n" unless $::silent && !@unsupported;
+for my $k (@unsupported) {
+   print "$k\n";
+}
+
+
+my @unsupported2 = grep { !defined({$apropos{$_}}) } sort keys %syn;
+print $marker . " Unsupported options (syn):\n" unless $::silent && !@unsupported2;
+for my $k (@unsupported2) {
+   print "$k\n";
+}
+
+my @unsynopsed = ();
+if (!@undocumented) {
+   @unsynopsed = grep { !defined($syn{$_}) } sort keys %apropos;
+   print $marker . " Undocumented options - synopsis\n"
+                           unless $::silent && !@unsynopsed;
+   for my $k (@unsynopsed) {
+      print "$k $apropos{$k}\n";
+   }
+}
+else {
+   print $marker . " Skipped synopsis section (fix defs first)\n" unless $::silent;
+}
+
+exit (@unsupported + @undocumented + @unsupported2 + @unsynopsed ? 1 : 0);
+

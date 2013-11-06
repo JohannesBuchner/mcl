@@ -1,9 +1,29 @@
-/* (c) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
- * under the terms of the GNU General Public License; either version 2 of the
+ * under the terms of the GNU General Public License; either version 3 of the
  * License or (at your option) any later version.  You should have received a
  * copy of the GPL along with tingea, in the file COPYING.
+*/
+
+
+#define DEBUG 0
+
+/* NOTE
+ *    Very few routines should be allowed to touch buffer.
+ *    create/free routines, and step and stepBack.
+ *    currently many routines ignore the buffer (but warn
+ *    when doing so).
+ *    mcxIOtryCookie is currently only one filling buffer.
+ *    Conceivably, mcxIOfind could be next.
+ *
+ * TODO
+ *    mcxIOfind can be made much faster.
+ *    - inline fillpatbuf
+ *    - get rid of modulus computations - subtract  patlen if necessary.
+ *    - use buffered input.
+ *    The last one requires 
 */
 
 #include <stdlib.h>
@@ -22,12 +42,34 @@
 #include "ding.h"
 #include "err.h"
 #include "alloc.h"
+#include "compile.h"
 #include "getpagesize.h"
 
 
-static void mcxIOreset
-(  mcxIO*    xf
-)  ;
+#define buffaro(xf)  (xf->buffer_consumed < xf->buffer->len) 
+
+static void buffer_empty
+(  mcxIO* xf
+)
+   {  mcxTingEmpty(xf->buffer, getpagesize())
+   ;  xf->buffer_consumed = 0
+;  }
+
+
+static void buffer_spout
+(  mcxIO* xf
+,  const char* me
+)
+   {  mcxErr
+      (  "mcxIO"
+      ,  "warning: reader %s in file <%s> discards buffered input <%.*s>"
+      ,  me
+      ,  xf->fn->str
+      ,  (int) (xf->buffer->len - xf->buffer_consumed)
+      ,  xf->buffer->str+xf->buffer_consumed
+      )
+   ;  buffer_empty(xf)
+;  }
 
 
 int begets_stdio
@@ -60,7 +102,7 @@ static int mcxIOwarnOpenfp
 ;  }
 
 
-void mcxIOclose
+mcxstatus mcxIOclose
 (  mcxIO*    xf
 )
    {  fflush(xf->fp)
@@ -68,14 +110,14 @@ void mcxIOclose
       {  fclose(xf->fp)
       ;  xf->fp = NULL
    ;  }
-      else if (xf->stdio)
-      {  int fe = ferror(xf->fp)
+      else if (xf->fp && xf->stdio)
+      {  int fe = ferror(xf->fp)    /* fixme why not in branch above? */
       ;  if (fe)
          mcxErr("mcxIOclose", "error [%d] for [%s] stdio", fe, xf->mode)
       ;  if (xf->ateof || feof(xf->fp))
          clearerr(xf->fp)
    ;  }
-      mcxIOreset(xf)
+      return mcxIOreset(xf)
 ;  }
 
 
@@ -86,7 +128,7 @@ void mcxIOclose
  *    fp
 */
 
-static void mcxIOreset
+mcxstatus mcxIOreset
 (  mcxIO*    xf
 )
    {  xf->lc      =  0
@@ -94,10 +136,14 @@ static void mcxIOreset
    ;  xf->lo_     =  0
    ;  xf->bc      =  0
    ;  xf->ateof   =  0
+
+                     /* regardless of read/write */
+   ;  buffer_empty(xf)
                      /*  xf->fp not touched; promote user care */
-                     /*  xf->stdio not touched */
    ;  if (xf->usr && xf->usr_reset)
-      xf->usr_reset(xf->usr)
+      return xf->usr_reset(xf->usr)
+
+   ;  return STATUS_OK
 ;  }
 
 
@@ -132,7 +178,9 @@ mcxIO* mcxIOnew
 ;  }
 
 
-/* fixme: the code below is not so clear.
+/* fixme: the code below is very muddy.
+ * The ->stdio decision (for new streams) might best be made
+ * at open time?
 */
 
 mcxIO* mcxIOrenew
@@ -140,7 +188,7 @@ mcxIO* mcxIOrenew
 ,  const char*       name
 ,  const char*       mode
 )
-   {  mcxbool twas_stdio = xf && xf->stdio
+   {  mcxbool twas_stdio = xf && xf->stdio      /* It Was STDIN/OUT/ERR */
    ;  if
       (  mode
       && !strstr(mode, "w") && !strstr(mode, "r") && !strstr(mode, "a")
@@ -148,9 +196,20 @@ mcxIO* mcxIOrenew
       {  mcxErr ("mcxIOrenew PBD", "unsupported open mode <%s>", mode)
       ;  return NULL
    ;  }
+
+      if
+      (  getenv("TINGEA_PLUS_APPEND")
+      && name
+      && (uchar) name[0] == '+'
+      && strchr(mode, 'w')
+      )
+      {  name++
+      ;  mode = "a"
+   ;  }
+
       if (!xf)
       {  if (!name || !mode)
-         {  mcxErr ("mcxIOrenew PBD", "too few arguments")
+         {  mcxErr("mcxIOrenew PBD", "too few arguments")
          ;  return NULL
       ;  }
 
@@ -162,12 +221,19 @@ mcxIO* mcxIOrenew
          ;  return NULL
       ;  }
 
-         xf->usr  =  NULL
+      ;  if (!(xf->buffer = mcxTingEmpty(NULL, getpagesize())))
+         {  mcxFree(xf)
+         ;  return NULL
+      ;  }
+
+         xf->fp      =  NULL
+      ;  xf->mode    =  NULL
+      ;  xf->usr     =  NULL
       ;  xf->usr_reset =  NULL
-      ;  xf->fp   =  NULL
-      ;  xf->mode =  NULL
+      ;  xf->buffer_consumed = 0
    ;  }
       else if (xf->stdio)
+      NOTHING
    ;  else if (mcxIOwarnOpenfp(xf, "mcxIOrenew"))
       mcxIOclose(xf)
 
@@ -184,6 +250,7 @@ mcxIO* mcxIOrenew
 
       xf->stdio = begets_stdio(xf->fn->str, xf->mode)
 
+               /* fixme: no longer necessary? */
    ;  if (twas_stdio && !xf->stdio)
       xf->fp = NULL
 
@@ -195,8 +262,7 @@ mcxstatus  mcxIOopen
 (  mcxIO*   xf
 ,  mcxOnFail      ON_FAIL
 )
-   {  const char* treat    =  ""
-   ;  const char* fname    =  xf->fn->str
+   {  const char* fname    =  xf->fn->str
    ;  if (!xf)
       {  mcxErr("mcxIOnew PBD", "received void object")
       ;  if (ON_FAIL == RETURN_ON_FAIL)
@@ -207,27 +273,18 @@ mcxstatus  mcxIOopen
       if (mcxIOwarnOpenfp(xf, "mcxIOopen PBD"))
       return STATUS_OK
 
-   ;  if (strstr(xf->mode, "r"))
-      treat   =  "reading"
-   ;  else if (strstr(xf->mode, "w"))
-      treat   =  "writing"
-   ;  else if (strstr(xf->mode, "a"))
-      treat   =  "appending"
+   ;  if (!strcmp(fname, "-"))
+      {  if (strchr(xf->mode, 'r'))
+         xf->fp =  stdin
+      ;  else if (strchr(xf->mode, 'w') || strchr(xf->mode, 'a'))
+         xf->fp =  stdout
+   ;  }
 
-   ;  if
-      (  strstr(xf->mode, "r")
-      && !strcmp(fname, "-")
+      else if
+      (  !strcmp(fname, "stderr")
+      && (strchr(xf->mode, 'w') || strchr(xf->mode, 'a'))
       )
-      xf->fp      =  stdin
-
-   ;  else if
-      (  (strstr(xf->mode, "w") || strstr(xf->mode, "a"))
-      && !strcmp(fname, "-")
-      )
-      xf->fp      =  stdout
-
-   ;  else if (!strcmp(fname, "stderr"))
-      xf->fp      =  stderr
+      xf->fp =  stderr
 
    ;  else if ((xf->fp = fopen(fname, xf->mode)) == NULL)
       {  if (ON_FAIL == RETURN_ON_FAIL)
@@ -239,13 +296,13 @@ mcxstatus  mcxIOopen
 ;  }
 
 
-mcxstatus  mcxIOtestOpen
+mcxstatus mcxIOtestOpen
 (  mcxIO*         xf
 ,  mcxOnFail      ON_FAIL
 )
    {  if (!xf->fp && mcxIOopen(xf, ON_FAIL) != STATUS_OK)
       {  mcxErr
-         ("mcxIO", "cannot open %s file <%s> for", xf->mode, xf->fn->str)
+         ("mcxIO", "cannot open file <%s> in mode %s", xf->fn->str, xf->mode)
       ;  return STATUS_FAIL
    ;  }
       return  STATUS_OK
@@ -271,7 +328,7 @@ mcxstatus mcxIOappendName
 (  mcxIO*         xf
 ,  const char*    suffix
 )
-   {  if (xf->fp)
+   {  if (xf->fp && !xf->stdio)
       mcxErr
       (  "mcxIOappendName PBD"
       ,  "stream open while request for name change from <%s> to <%s>"
@@ -281,6 +338,7 @@ mcxstatus mcxIOappendName
    ;  else if (!mcxTingAppend(xf->fn, suffix))
       return STATUS_FAIL
 
+   ;  xf->stdio = begets_stdio(xf->fn->str, "-")
    ;  return STATUS_OK
 ;  }
 
@@ -303,7 +361,9 @@ int mcxIOstepback
    {  if (c == EOF)
       return EOF
    ;  else
-      {  if (ungetc(c, xf->fp) == EOF)
+      {  if (buffaro(xf) && xf->buffer_consumed > 0)
+         c = xf->buffer->str[--xf->buffer_consumed]
+      ;  else if (ungetc(c, xf->fp) == EOF)
          {  mcxErr
             (  "mcxIOstepback"
             ,  "failed to push back <%d> on stream <%s>\n"
@@ -328,7 +388,26 @@ int mcxIOstepback
 int mcxIOstep
 (  mcxIO*    xf
 )
-   {  int c = xf->ateof ? EOF : fgetc(xf->fp)
+   {  int c
+
+#if 0
+;if (xf->buffer)
+fprintf(stderr, "buffer [%s]\n", xf->buffer->str)
+;else
+fprintf(stderr, "nobuffer\n")
+#endif
+
+
+   ;  if (xf->ateof)
+      c = EOF
+   ;  else if (buffaro(xf))
+      {  c = xf->buffer->str[xf->buffer_consumed++]
+      ;  if (!buffaro(xf))
+         buffer_empty(xf)
+   ;  }
+      else
+      c = fgetc(xf->fp)
+
    ;  switch(c)
       {
       case '\n'
@@ -367,17 +446,22 @@ mcxstatus  mcxIOreadFile
    {  struct stat mystat
    ;  size_t sz = 4096
    ;  ssize_t r
+   ;  const char* me = "mcxIOreadFile"
+
    ;  mcxTingEmpty(filetxt, 0)
+
+   ;  if (buffaro(xf))
+      buffer_spout(xf, me)
 
    ;  if (!xf->stdio)
       {  if (stat(xf->fn->str, &mystat))
-         mcxIOerr(xf, "mcxIOreadFile", "can not stat file")
+         mcxIOerr(xf, me, "can not stat file")
       ;  else
          sz = mystat.st_size
    ;  }
 
       if (!xf->fp && mcxIOopen(xf, RETURN_ON_FAIL))
-      {  mcxIOerr(xf, "mcxIOreadFile", "can not open file")
+      {  mcxIOerr(xf, me, "can not open file")
       ;  return STATUS_FAIL
    ;  }
 
@@ -396,14 +480,14 @@ mcxstatus  mcxIOreadFile
 ;  }
 
 
-static int  mcxIO__rl_fillbuf__
+static dim  mcxIO__rl_fillbuf__
 (  mcxIO*   xf
 ,  char*    buf
-,  int      size
+,  dim      size
 ,  int*     last
 )
    {  int   a  = 0
-   ;  int   ct = 0
+   ;  dim   ct = 0
    ;  while(ct<size && EOF != (a = mcxIOstep(xf)))
       {  buf[ct++] = a
       ;  if (a == '\n')
@@ -416,7 +500,7 @@ static int  mcxIO__rl_fillbuf__
 
 #define IO_MEM_ERROR (EOF-1)
 
-static int mcxIO__rl_rl__
+static ofs mcxIO__rl_rl__
 (  mcxIO    *xf
 ,  mcxTing  *lineTxt
 )
@@ -429,7 +513,7 @@ static int mcxIO__rl_rl__
      /* todo/fixme; need to set errno so that caller can know */
 
    ;  while (1)
-      {  int ct = mcxIO__rl_fillbuf__(xf, cbuf, MCX_IORL_BSZ, &z)
+      {  dim ct = mcxIO__rl_fillbuf__(xf, cbuf, MCX_IORL_BSZ, &z)
       ;  if (ct && !mcxTingNAppend(lineTxt, cbuf, ct))
          return IO_MEM_ERROR
       ;  if (z == '\n' || z == EOF)
@@ -442,44 +526,49 @@ static int mcxIO__rl_rl__
 ;  }
 
 
-int mcxIOdiscardLine
+dim mcxIOdiscardLine
 (  mcxIO       *xf
 )
-   {  int a, ct = 0
+   {  int a
+   ;  dim ct = 0
 
    ;  if (!xf->fp)
       {  mcxIOerr(xf, "mcxIOdiscardLine", "is not open")
-      ;  return -1
+      ;  return 0          /* fixme; set errno? */
    ;  }
 
       while(((a = mcxIOstep(xf)) != '\n') && a != EOF)
       ct++
+
+   ;  if (buffaro(xf))     /* fixme/design check buffer for line */
+      buffer_spout(xf, "mcxIOdiscardLine")
 
    ;  return ct
 ;  }
 
 
 
-ssize_t mcxIOappendChunk
-(  mcxIO        *xf
-,  mcxTing      *dst
-,  ssize_t      sz
-,  mcxbits      flags
+ofs mcxIOappendChunk
+(  mcxIO      *xf
+,  mcxTing     *dst
+,  dim         sz
+,  mcxbits     flags cpl__unused
 )
    {  unsigned long psz =  getpagesize()
-   ;  ssize_t k   =  sz / psz       /* fixme: size checks? */
-   ;  ssize_t rem =  sz % psz
-   ;  ssize_t r   =  1              /* pretend in case k == 0 */
+   ;  dim k          =  sz / psz       /* fixme: size checks? */
+   ;  dim rem        =  sz % psz
+   ;  ofs r          =  1              /* pretend in case k == 0 */
   /*  mcxbool  account = flags & MCX_CHUNK_ACCOUNT ? TRUE : FALSE */
-   ;  size_t   offset = dst->len
+   ;  dim offset     =  dst->len
    ;  char* p
 
    ;  if (!dst || !xf->fp || !mcxTingEnsure(dst, dst->len + sz))
       return -1
       /* fixme set some (new) errno */
 
-   ;  while (k-- && (r = read(fileno(xf->fp),  dst->str+dst->len, psz)) > 0)
-      dst->len += r
+   ;  if (k)
+      while (k-- > 0 && (r = read(fileno(xf->fp),  dst->str+dst->len, psz)) > 0)
+      dst->len += r     /* careful with unsignedness */
 
    ;  if
       (  r > 0
@@ -504,7 +593,7 @@ ssize_t mcxIOappendChunk
       if (!r)                    /* fixme; other possibilities? */
       xf->ateof = 1
 
-   ;  return  r < 0 ? r : dst->len
+   ;  return dst->len
 ;  }
 
 
@@ -513,13 +602,14 @@ mcxstatus  mcxIOreadLine
 ,  mcxTing  *dst
 ,  mcxbits  flags
 )
-   {  int      a, ll
-   ;  mcxbool  chomp    =  flags & MCX_READLINE_CHOMP
-   ;  mcxbool  skip     =  flags & MCX_READLINE_SKIP_EMPTY
-   ;  mcxbool  par      =  flags & MCX_READLINE_PAR
-   ;  mcxbool  dot      =  flags & MCX_READLINE_DOT
-   ;  mcxbool  bsc      =  flags & MCX_READLINE_BSC
-   ;  mcxbool  repeat   =  dot || par || bsc
+   {  int      a
+   ;  dim      ll
+   ;  mcxbool  chomp    =  flags & MCX_READLINE_CHOMP       ? TRUE : FALSE
+   ;  mcxbool  skip     =  flags & MCX_READLINE_SKIP_EMPTY  ? TRUE : FALSE
+   ;  mcxbool  par      =  flags & MCX_READLINE_PAR         ? TRUE : FALSE
+   ;  mcxbool  dot      =  flags & MCX_READLINE_DOT         ? TRUE : FALSE
+   ;  mcxbool  bsc      =  flags & MCX_READLINE_BSC         ? TRUE : FALSE
+   ;  mcxbool  repeat   =  dot || par || bsc                ? TRUE : FALSE
    ;  mcxbool  continuation   =  FALSE
    ;  mcxTing* line
    ;  mcxstatus stat    =  STATUS_OK
@@ -532,12 +622,12 @@ mcxstatus  mcxIOreadLine
       if (xf->ateof)
       return STATUS_DONE
 
-   ;  if (!(dst = mcxTingEmpty(dst, 1)))
+   ;  if (!dst || !mcxTingEmpty(dst, 1))
       return STATUS_NOMEM
 
    ;  if (skip || par)
       {  while((a = mcxIOstep(xf)) == '\n')
-      /* NOTHING */
+         NOTHING
       ;  if (xf->ateof)
          return STATUS_DONE
       ;  else
@@ -548,8 +638,9 @@ mcxstatus  mcxIOreadLine
       return STATUS_NOMEM
 
    ;  while (1)
-      {  if (IO_MEM_ERROR == (a = mcxIO__rl_rl__(xf, line)))
-         {  stat = STATUS_NOMEM
+      {  ofs d = mcxIO__rl_rl__(xf, line)
+      ;  if (IO_MEM_ERROR == d)
+         {  stat = STATUS_NOMEM     /* fixme grainify error/status */
          ;  break
       ;  }
 
@@ -565,6 +656,7 @@ mcxstatus  mcxIOreadLine
             && (  ll == 2
                || (ll == 3 && line->str[1] == '\r')
                )
+               /* fixme still not fully covering */
             )
             break
                   /* do not attach the single-dot-line */
@@ -597,6 +689,7 @@ mcxstatus  mcxIOreadLine
    ;  if (stat)
       return stat    /* fixme; should we not check chomp first ? */
 
+                     /* fixme _: \n\r ? */
    ;  if (chomp && dst->len && *(dst->str+dst->len-1) == '\n')
       mcxTingShrink(dst, -1)
 
@@ -634,7 +727,7 @@ void mcxIOpos
    {  const char* ateof =  xf->ateof ? "at EOF in " : ""
    ;  fprintf
       (  channel
-      ,  "[mclIO] %sstream <%s>, line <%ld>, character <%ld>\n"
+      ,  "[mcxIO] %sstream <%s>, line <%ld>, character <%ld>\n"
       ,  ateof
       ,  xf->fn->str
       ,  (long) xf->lc
@@ -656,9 +749,10 @@ void mcxIOfree
    {  if (*xfpp)
       {  mcxIO* xf = *xfpp
       ;  mcxIOrelease(xf)
+      ;  mcxTingFree(&(xf->buffer))
       ;  if (xf->usr && xf->usr_free)
          xf->usr_free(xf->usr)
-      ;  mcxFree(*xfpp)
+      ;  mcxFree(xf)
       ;  *xfpp =  NULL
    ;  }
    }
@@ -672,6 +766,9 @@ mcxstatus mcxIOexpectReal
 )
    {  int   n_read   =  0
    ;  int   n_conv   =  0
+
+   ;  if (buffaro(xf))
+      buffer_spout(xf, "mcxIOexpectReal")
 
    ;  mcxIOskipSpace(xf)      /* keeps accounting correct */
 
@@ -700,6 +797,9 @@ mcxstatus mcxIOexpectNum
    {  int   n_read   =  0
    ;  int   n_conv   =  0
    ;  mcxstatus status = STATUS_OK
+
+   ;  if (buffaro(xf))
+      buffer_spout(xf, "mcxIOexpectNum")
 
    ;  mcxIOskipSpace(xf)      /* keeps accounting correct */
 
@@ -733,43 +833,52 @@ int mcxIOskipSpace
    ;  while ((c = mcxIOstep(xf)) != EOF && isspace(c))
       ;
 
-      return  mcxIOstepback(c, xf)
+      return mcxIOstepback(c, xf)
 ;  }
 
 
-
-   /* fixme; can't be sure to rewind on stdin */
 mcxbool mcxIOtryCookie
 (  mcxIO* xf
-,  unsigned  number_expected
+,  const uchar abcd[4]
 )
-   {  int number_found
-   ;  int n_read = fread(&number_found, sizeof(int), 1, xf->fp)
+   {  uchar efgh[5]
+   ;  int n_read = fread(efgh, sizeof efgh[0], 4, xf->fp)
+   ;  int error  = ferror(xf->fp)
+   ;  dim i = 0
 
-   ;  if (n_read != 1)
-      return FALSE
-   ;  else if (number_found != number_expected)
-      {  if (fseek(xf->fp, -sizeof(int), SEEK_CUR))
-         mcxErr
-         (  "mcxIOtryCookie"
-         ,  "beware: could not rewind %d bytes for cookie %x"
-         ,  (int) sizeof(unsigned)
-         ,  (unsigned) number_expected
-         )
-      ;  return FALSE
+   ;  if (n_read == 4)
+      for (i=0; i<4 && abcd[i] == efgh[i]; i++)
+      NOTHING
+
+#if 0
+;fprintf(stderr, "IN %d %d %d %d %d %d\n", i, n_read, (int) efgh[0], (int) efgh[1], (int) efgh[2], (int) efgh[3])
+;fprintf(stderr, "IN %d %d %d %d %d %d\n", i, n_read, (int) abcd[0], (int) abcd[1], (int) abcd[2], (int) abcd[3])
+#endif
+   ;  if (i == 4)
+      {  xf->bc += 4
+      ;  return TRUE
    ;  }
 
-      return TRUE
+      if (!fseek(xf->fp, -n_read, SEEK_CUR))
+      xf->bc += (4-n_read)
+   ;  else
+      {  mcxTingNAppend(xf->buffer, (char*) efgh, n_read)
+      ;  /* xf->bc += n_read  mcxIOstep does subsequent accounting */
+      ;  if (!error)
+         clearerr(xf->fp)
+   ;  }
+
+      return FALSE
 ;  }
 
 
 mcxbool mcxIOwriteCookie
 (  mcxIO* xf
-,  unsigned number
+,  const uchar abcd[4]
 )
-   {  int n_written = fwrite(&number, sizeof(int), 1, xf->fp)
-   ;  if (n_written != 1)
-      {  mcxErr("mcxIOwriteCookie", "failed to write <%d>", number)
+   {  dim n_written = fwrite(abcd, sizeof abcd[0], 4, xf->fp)
+   ;  if (n_written != 4)
+      {  mcxErr("mcxIOwriteCookie", "failed to write <%.4s>", abcd)
       ;  return FALSE
    ;  }
 
@@ -790,13 +899,13 @@ int mcxIOexpect
    ;  int         d  =  0
    ;  int         n_trailing
 
-   ;  xf->pos = ftell(xf->fp)
   /*  
    *  no functional behaviour yet attached to this state change
+   *  fixme: semantics for STDIN agree between stdlib and us?
   */
 
    ;  while
-      (  c = (unsigned char) s[0]
+      (  c = (uchar) s[0]
       ,  
          (  c
          && (  d = mcxIOstep(xf)
@@ -806,7 +915,7 @@ int mcxIOexpect
       )
       s++
 
-   ;  n_trailing = strlen(s)
+   ;  n_trailing = strlen(s)     /* truncintok */
 
    ;  if (c && ON_FAIL == EXIT_ON_FAIL)
       {  mcxErr("mcxIOexpect", "parse error: expected to see <%s>", str)
@@ -820,22 +929,22 @@ int mcxIOexpect
 
 typedef struct
 {  int            tbl[256]
-;  int*           circle      /* circular buffer */
+;  int*           circle         /* circular buffer */
+;  int            circle_last    /* circle bumper */
 ;  const char*    pat
 ;  int            patlen
-;  int            last        /* circle bumper */
 ;
 }  mcxIOpat       ;
 
 
-static void mcxIOnewpat
+static void mcxio_newpat
 (  mcxIOpat* md
 ,  const char* pattern
 )
    {  int i
    ;  int *tbl = md->tbl
    ;  const char* pat
-   ;  int patlen = strlen(pattern)
+   ;  int patlen = strlen(pattern)     /* truncintok */
 
    ;  md->circle = mcxAlloc(patlen * sizeof(int), EXIT_ON_FAIL)
    ;  md->pat = pattern
@@ -847,13 +956,17 @@ static void mcxIOnewpat
       tbl[i] = patlen
 
    ;  for (i = 0; i < patlen-1; i++)
-      tbl[(unsigned char) pat[i]] = patlen -i -1
+      tbl[(uchar) pat[i]] = patlen -i -1
 
-   ;  if (0)
-      for (i = 0; i < patlen; i++)
-      fprintf(stderr, "shift value for %c is %d\n", pat[i], tbl[(unsigned char) pat[i]])
+#if DEBUG
+   ;  for (i=0; i<patlen; i++)
+      fprintf
+      (  stderr
+      ,  "shift value for %c is %d\n", pat[i], tbl[(uchar) pat[i]]
+      )
+#endif
 
-   ;  md->last = patlen -1
+   ;  md->circle_last = patlen -1
 ;  }
 
 
@@ -875,13 +988,12 @@ static int fillpatbuf
    ;  int patlen = md->patlen
 
    ;  while (z < shift && (c = mcxIOstep(xfin)) != EOF)
-      {  int q = (md->last+z+1) % patlen
+      {  int q = (md->circle_last+z+1) % patlen
       ;  md->circle[q] = c
       ;  z++
    ;  }
 
-      md->last = (md->last+shift) % patlen
-
+      md->circle_last = (md->circle_last+shift) % patlen
    ;  return c
 ;  }
 
@@ -891,14 +1003,14 @@ mcxstatus mcxIOfind
 ,  const char* pat
 ,  mcxOnFail   ON_FAIL  
 )
-   {  int j, k, c
+   {  int j, k
    ;  int shift, patlen
    ;  int* tbl
    ;  int* circle
    ;  mcxIOpat md
    ;  int found = 0
 
-   ;  mcxIOnewpat(&md, pat)
+   ;  mcxio_newpat(&md, pat)
 
    ;  patlen   =  md.patlen
    ;  tbl      =  md.tbl
@@ -913,35 +1025,42 @@ mcxstatus mcxIOfind
       found = 1
    ;  else
       do
-      {  if ((c = fillpatbuf(xfin, shift, &md) == EOF))
+      {  if (EOF == fillpatbuf(xfin, shift, &md))
          break
       ;  for
-         (  j=md.last+patlen, k=patlen-1
-         ;  j>md.last && circle[j%patlen] == (unsigned char) pat[k]
+         (  j=md.circle_last+patlen, k=patlen-1
+         ;  j>md.circle_last && circle[j%patlen] == (uchar) pat[k]
          ;  j--, k--
          )
-         ;
+         NOTHING
+#if DEBUG
+fprintf
+(stderr
+,"comparing circlebuf pos %d char [%c] with pattern pos %d char [%c]\n"
+,(int) (j%patlen)
+,(int) ((uchar) circle[j%patlen])
+,(int) k
+,(int) pat[k] 
+)
+#endif
 
-      ;  if (j == md.last)
-         {  found = 1
-         ;  break  
+      ;  if (j == md.circle_last)
+         {  found++
+         ;  break
       ;  }
-        /* 
-         * if more matches are needed, do something in this branch
-         * and then simply continue.
-        */
 
-         shift = tbl[circle[md.last % patlen]]
+         shift = tbl[circle[md.circle_last % patlen]]
 
-      ;  if (0)
-         fprintf
-         (  stderr
-         ,  "___ last[%d] index[%d] pivot[%d] shift[%d]\n"
-         ,  (int) md.last
-         ,  (int) md.last % patlen
-         ,  (int) circle[md.last % patlen]
-         ,  (int) shift
-         )
+#if DEBUG
+;  fprintf
+   (  stderr
+   ,  "___ last[%d] index[%d] pivot[%c] shift[%d]\n"
+   ,  (int) md.circle_last
+   ,  (int) md.circle_last % patlen
+   ,  (int) circle[md.circle_last % patlen]
+   ,  (int) shift
+   )
+#endif
    ;  }
       while (1)
 
@@ -951,7 +1070,43 @@ mcxstatus mcxIOfind
       return STATUS_FAIL
    ;  else if (!found)
       exit(EXIT_FAILURE)
-   ;  else
-      return STATUS_OK
+
+   ;  return STATUS_OK
 ;  }
+
+
+dim mcxIOdiscard
+(  mcxIO*      xf
+,  dim         amount
+)
+   {  dim bsz        =  xf->buffer->mxl
+   ;  char* buf      =  xf->buffer->str
+   ;  dim  n_read    =  0
+   ;  dim  n_chunk   =  amount / bsz
+   ;  dim  rem       =  amount - bsz * n_chunk
+   ;  dim  i, n
+
+   ;  if (buffaro(xf))
+      buffer_spout(xf, "mcxIOdiscard")
+
+   ;  for (i=0;i<n_chunk;i++)
+      {  n = fread(buf, 1, bsz, xf->fp)
+      ;  n_read += n
+      ;  xf->bc += n  
+      ;  if (n != bsz)
+         break
+   ;  }
+
+      if (i < n_chunk)
+      return n_read
+
+   ;  if (rem)
+         n = fread(buf, 1, rem, xf->fp)
+      ,  n_read += n
+      ,  xf->bc += n  
+
+   ;  return n_read
+;  }
+
+
 

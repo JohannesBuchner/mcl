@@ -1,13 +1,15 @@
-/*   Copyright (C) 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
 
 #include <ctype.h>
 #include <math.h>
+#include <string.h>
 
 #include "glob.h"
 #include "stack.h"
@@ -516,7 +518,7 @@ zgglob_p zgMul
       ;  x = zgGetOb(o1, UTYPE_MX)
       ;  y = zgGetOb(o2, UTYPE_MX)
       ;  if (!x || !y) return NULL
-      ;  if (!mcldEquate(x->dom_cols, y->dom_rows, MCLD_EQ_EQUAL))
+      ;  if (!mcldEquate(x->dom_cols, y->dom_rows, MCLD_EQT_EQUAL))
          zmTell
          (  'e'
          , "left col domain (dim %ld) and right row domain (dim %ld) do not match"
@@ -971,12 +973,10 @@ int zgUnlink
 int zgVars
 (  void
 )
-   {  mcxHashWalk hw
+   {  mcxHashWalk* hw = mcxHashWalkInit(hdltable_g)
    ;  mcxKV* kv
 
-   ;  mcxHashWalkInit(hdltable_g, &hw)
-
-   ;  while ((kv = mcxHashWalkStep(&hw)))
+   ;  while ((kv = mcxHashWalkStep(hw, NULL)))
       {  zgglob_p  glob = (zgglob_p) kv->val
       ;  mcxTing* hdl  = (mcxTing*) kv->key
       ;  const char* what
@@ -1011,7 +1011,9 @@ int zgVars
       ;  }
       ;  zmTell('m', "%8s  ==  handle to %s", hdl->str, what)
    ;  }
-      return 1
+
+      mcxHashWalkFree(&hw)
+   ;  return 1
 ;  }
 
 

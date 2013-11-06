@@ -1,7 +1,8 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -24,24 +25,20 @@
 
 
 /* TODO:
+ *    Everything is woefully un(der)documented.
+ *    Some fancy stuff should be taken over by cat.[ch]
+ *
  *    Make ascii format parsing looser (not line based).
  *    The ascii parsing code is not all that great, heavy-weight.
-
+ *
  *    mcl input format needs a clean approach with grammar and parsing.
  *    Then it would be (much?) faster if not fgetc based but does buffering.
- *
- *    There should be a clearer framework for rewinding streams after gathering
- *    partial information (readDomains, readDimensions).
  *
  *    There is now a funky callback mclxIOinfoReset, invoked by mclxIOclose.
  *    Look out for implications.
  *
  *    mclvaDump and mclvaDump2 are weird.
 */
-
-
-#define mclxCookie   0x0d141831u     /* MTX1 */
-#define mclvCookie   0x16050331u     /* VEC1 */
 
 
 #define MCL_APP_VB_NO   2
@@ -54,13 +51,24 @@
 /*                                1,2         4,8
  * MCLXIOFORMAT                  ascii       binary
  * MCLXIOVERBOSITY               silent      verbose
+ *
+ * Quad mode:
+ *    1  modeX app-alterable
+ *    2  modex user-fixed 
+ *    4  modeY app-alterable
+ *    8  modeY users fixed
 */
+
 
 mcxbool mclxIOgetQMode        /* quad mode */
 (  const char* opt
 )  ;
 
-mcxbool mclxIOsetQMode        /* quad mode */
+
+   /* Returns NULL if setting opt failed.
+    * Otherwise returns pointer to string put into the environment otherwise.
+   */
+char* mclxIOsetQMode        /* quad mode */
 (  const char* opt
 ,  unsigned long mode
 )  ;
@@ -70,10 +78,15 @@ int mclxIOformat
 (  mcxIO* xf
 )  ;
 
+int get_interchange_digits
+(  int valdigits
+)  ;
+
+
  /* *********************
 */
 
-mclMatrix* mclxRead
+mclx* mclxRead
 (  mcxIO*      xfIn
 ,  mcxOnFail   ON_FAIL
 )  ;
@@ -82,12 +95,14 @@ mclMatrix* mclxRead
 
  /* *********************
  *
- *   requires equal domains.
+ *  bits may contain:
+ *    MCLX_IS_{GRAPH,CANR,CANC,CAN}
+ *
 */
 
-#define MCL_READX_GRAPH 1
+#define MCL_READX_REMOVE_LOOPS  MCLX_MODE_UNUSED << 0
 
-mclMatrix* mclxReadx
+mclx* mclxReadx
 (  mcxIO*      xfIn
 ,  mcxOnFail   ON_FAIL
 ,  mcxbits     bits
@@ -99,10 +114,10 @@ mclMatrix* mclxReadx
  *    colmask and rowmask are assimilated into matrix.
 */
 
-mclMatrix* mclxSubRead
+mclx* mclxSubRead
 (  mcxIO*      xfIn
-,  mclVector*  colmask        /* create submatrix on this domain */
-,  mclVector*  rowmask        /* create submatrix on this domain */
+,  mclv*  colmask        /* create submatrix on this domain */
+,  mclv*  rowmask        /* create submatrix on this domain */
 ,  mcxOnFail   ON_FAIL
 )  ;
 
@@ -112,10 +127,10 @@ mclMatrix* mclxSubRead
  *    colmask and rowmask are assimilated into matrix.
 */
 
-mclMatrix* mclxSubReadx
+mclx* mclxSubReadx
 (  mcxIO* xf
-,  mclVector* colmask    /* create submatrix on this domain */
-,  mclVector* rowmask    /* create submatrix on this domain */
+,  mclv* colmask    /* create submatrix on this domain */
+,  mclv* rowmask    /* create submatrix on this domain */
 ,  mcxOnFail ON_FAIL
 ,  mcxbits    bits       /* refer to mclxReadx */
 )  ;
@@ -144,6 +159,20 @@ mcxstatus mclxReadDimensions
 
 
 
+/* ***********************
+ * read just the domains.
+ * You can still read the full matrix (but you'll get another
+ * matrix again).
+ * bits only acknowledges MCLX_REQUIRE_GRAPH
+*/
+
+mclx* mclxReadSkeleton
+(  mcxIO*    xf
+,  mcxbits   bits
+,  mcxbool   flushmatrix
+)  ;
+
+
 #define MCLXIO_VALUE_NONE    -1
 #define MCLXIO_VALUE_INT      0
 #define MCLXIO_VALUE_GETENV  -2
@@ -153,21 +182,21 @@ mcxstatus mclxReadDimensions
 #define MCLXIO_FORMAT_GETENV  3
 
 mcxstatus mclxWrite
-(  const mclMatrix*        mx
+(  const mclx*        mx
 ,  mcxIO*                  xfout
 ,  int                     valdigits   /* only relevant for ascii writes */
 ,  mcxOnFail               ON_FAIL
 )  ;
 
 mcxstatus mclxaWrite
-(  const mclMatrix*  mx
+(  const mclx*  mx
 ,  mcxIO*            xfOut
 ,  int               valdigits
 ,  mcxOnFail         ON_FAIL
 )  ;
 
 mcxstatus  mclxbWrite
-(  const mclMatrix*  mtx
+(  const mclx*  mtx
 ,  mcxIO*            xfOut
 ,  mcxOnFail         ON_FAIL
 )  ;
@@ -188,7 +217,7 @@ enum
 }  ;
 
 
-mclVector* mclvaReadRaw
+mclv* mclvaReadRaw
 (  mcxIO          *xf
 ,  mclpAR*        ar
 ,  mcxOnFail      ON_FAIL
@@ -200,7 +229,7 @@ mclVector* mclvaReadRaw
 
 mcxstatus mclxaSubReadRaw
 (  mcxIO          *xf
-,  mclMatrix      *mx
+,  mclx      *mx
 ,  mclv           *dom_cols
 ,  mclv           *dom_rows
 ,  mcxOnFail      ON_FAIL
@@ -214,7 +243,7 @@ mcxstatus mclxaSubReadRaw
 
 
 void mcxPrettyPrint
-(  const mclMatrix*  mx
+(  const mclx*  mx
 ,  FILE*             fp
 ,  int               width
 ,  int               digits
@@ -223,7 +252,7 @@ void mcxPrettyPrint
 
 
 void mclFlowPrettyPrint
-(  const mclMatrix*  mx
+(  const mclx*  mx
 ,  FILE*             fp
 ,  int               digits
 ,  const char        msg[]
@@ -231,8 +260,8 @@ void mclFlowPrettyPrint
 
 
 mcxstatus mclxTaggedWrite
-(  const mclMatrix*  mx
-,  const mclMatrix*  dom
+(  const mclx*  mx
+,  const mclx*  dom
 ,  mcxIO*            xfOut
 ,  int               valdigits
 ,  mcxOnFail         ON_FAIL
@@ -241,8 +270,8 @@ mcxstatus mclxTaggedWrite
 
 
 void                 mclxBoolPrint
-(  mclMatrix*        mx
-,  int               mode
+(  mclx*        mx
+,  int          mode
 )  ;
 
 
@@ -253,27 +282,27 @@ mcxstatus mclIOvcheck
 
 
 mcxstatus mclvEmbedRead
-(  mclVector*        vec
-,  mcxIO*            xf
-,  mcxOnFail         ON_FAIL
+(  mclv*        vec
+,  mcxIO*       xf
+,  mcxOnFail    ON_FAIL
 )  ;
 
-
 mcxstatus mclvWrite
-(  const mclVector*  vec
-,  mcxIO*            xfOut
+(  mcxIO*            xfout
+,  mclv*             dom_rows
+,  mclv*             col         /* vid will be set >= 0 if necessary */
 ,  mcxOnFail         ON_FAIL
 )  ;
 
 
 mcxstatus mclvEmbedWrite
-(  const mclVector*  vec
+(  const mclv*  vec
 ,  mcxIO*            xfOut
 )  ;
 
 
 void mclvaWrite
-(  const mclVector*  vec
+(  const mclv*  vec
 ,  FILE*             fp
 ,  int               valdigits
 )  ;
@@ -288,9 +317,9 @@ void mclvaWrite
 
                /*  does *not* accept MCLXIO_VALUE_GETENV */
 void mclvaDump
-(  const mclVector*  vec
+(  const mclv*  vec
 ,  FILE*             fp
-,  int               idxwidth
+,  int               leadwidth
 ,  int               valdigits
 ,  mcxbool           doHeader
 )  ;
@@ -307,9 +336,8 @@ void mclvaDump
 #define MCLVA_DUMP_TRAIL_YES 16
 
 void mclvaDump2
-(  const mclVector*  vec
+(  const mclv*  vec
 ,  FILE*             fp
-,  int               n_per_line
 ,  int               valdigits
 ,  const char*       sep
 ,  mcxbits           opts
@@ -328,10 +356,20 @@ void mclvaDump2
 #define MCLX_DUMP_VALUES          1 <<  0
 #define MCLX_DUMP_PAIRS           1 <<  1
 #define MCLX_DUMP_LINES           1 <<  2
-#define MCLX_DUMP_RLINES          1 <<  3
-#define MCLX_DUMP_LOOP_ASIS       1 <<  4
-#define MCLX_DUMP_LOOP_NONE       1 <<  5
-#define MCLX_DUMP_LOOP_FORCE      1 <<  6
+#define MCLX_DUMP_NOLEAD          1 <<  3
+#define MCLX_DUMP_TABLE           1 <<  12
+#define MCLX_DUMP_KEYS            1 <<  13
+#define MCLX_DUMP_PART_UPPER      1 <<  4
+#define MCLX_DUMP_PART_LOWER      1 <<  5
+#define MCLX_DUMP_PART_UPPERI     1 <<  6
+#define MCLX_DUMP_PART_LOWERI     1 <<  7
+
+
+#define MCLX_DUMP_LOOP_ASIS       1 <<  8
+#define MCLX_DUMP_LOOP_NONE       1 <<  9
+#define MCLX_DUMP_LOOP_FORCE      1 << 10
+
+#define MCLX_DUMP_MATRIX          1 << 11
 
 typedef struct
 {  mcxbits        modes
@@ -339,12 +377,19 @@ typedef struct
 ;  const char*    sep_row
 ;  const char*    sep_val
 ;  double         threshold
+;  dim            table_nlines      /* correspond to columns (but lines/rows in output)  */
+;  dim            table_nfields     /* correspond to matrix rows (but columns in output) */
 ;
 }  mclxIOdumper   ;
 
 
-/* Note. we could stabilize the interface by a string-based format
+/* 
+ * NOTE
+ * this routine initializes table_nlines and table_nfields both to zero.
+ *
+ * Note. we could stabilize the interface by a string-based format
  * + hiding the mclxIOdumper struct. oh well.
+ *
 */
 
 void mclxIOdumpSet
@@ -356,12 +401,16 @@ void mclxIOdumpSet
 )  ;
 
 
+/* Using MCLX_DUMP_LOOP* options may change the loops
+ * in the matrix itself.
+*/
 mcxstatus mclxIOdump
 (  mclx*       mx
 ,  mcxIO*      xf_dump
 ,  mclxIOdumper* dump
 ,  const mclTab*  tabc
 ,  const mclTab*  tabr
+,  int         valdigits
 ,  mcxOnFail   ON_FAIL
 )  ;
 
@@ -384,7 +433,6 @@ mclpAR* mclpTFparse
 (  mcxLink*    encoding_link
 ,  mcxTing*    encoding_ting
 )  ;
-
 
 #endif
 

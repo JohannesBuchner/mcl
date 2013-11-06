@@ -1,7 +1,7 @@
-/* (c) Copyright 2005 Stijn van Dongen
+/*   (C) Copyright 2005, 2006, 2007 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
- * under the terms of the GNU General Public License; either version 2 of the
+ * under the terms of the GNU General Public License; either version 3 of the
  * License or (at your option) any later version.  You should have received a
  * copy of the GPL along with tingea, in the file COPYING.
 */
@@ -54,9 +54,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
 
 #include "tr.h"
 #include "ting.h"
+#include "types.h"
 #include "ding.h"
 #include "err.h"
 
@@ -178,14 +180,14 @@ mcxTing* mcxTRsplash
 ;  }
 
 
-int mcxTRtranslate
+ofs mcxTRtranslate
 (  char*    src
 ,  mcxTR*   tr
 )
-   {  int i,j
-   ;  int prev =  -1          /* only relevant for squash case */
-   ;  int len = strlen(src)
-   ;  u32* tbl = tr->tlt
+   {  dim i,j
+   ;  int prev =  INT_MAX          /* only relevant for squash case */
+   ;  dim len  =  strlen(src)
+   ;  u32* tbl =  tr->tlt
 
    ;  for (i=0,j=0;i<len;i++)
       {  u8  idx     = *(src+i)
@@ -204,11 +206,11 @@ int mcxTRtranslate
       ;  }
       }
       *(src+j) = '\0'
-   ;  return j
+   ;  return (ofs) j
 ;  }
 
 
-int mcxTingTranslate
+ofs mcxTingTranslate
 (  mcxTing* src
 ,  mcxTR*   tr
 )
@@ -221,16 +223,16 @@ int mcxTingTranslate
 /* fixme conceivably mcxTRtranslate could return -1 as
  * error condition. hum ho.
 */
-int mcxTingTr
+ofs mcxTingTr
 (  mcxTing*       txt
 ,  const char*    src
 ,  const char*    dst
-,  const char*    delete
-,  const char*    squash
+,  const char*    set_delete
+,  const char*    set_squash
 ,  mcxbits        modes
 )
    {  mcxTR tr
-   ;  if (mcxTRloadTable(&tr, src, dst, delete, squash, modes))
+   ;  if (mcxTRloadTable(&tr, src, dst, set_delete, set_squash, modes))
       return -1
    ;  txt->len = mcxTRtranslate(txt->str, &tr)
    ;  return txt->len
@@ -393,7 +395,7 @@ static const char* xtr_get_token
                   /* q[0] should be ']' now */
 
                value =  value2
-            ;  np    =  (q+1) - p
+            ;  np    =  (q+1) - p         /* truncintok */
          ;  }
 
          /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -417,7 +419,8 @@ static const char* xtr_get_token
       ;  return NULL
    ;  }
       
-if (mcx_tr_debug) fprintf(stdout, "xtr_get_token (%d | %d)\n", value, class)
+if (mcx_tr_debug)
+fprintf(stdout, "xtr_get_token (%d | %d)\n", (int) value, (int) class)
 
    ;  if (classp)
       *classp = class
@@ -511,13 +514,12 @@ static void mcx_tr_enc_dump
 
 static mcxstatus xtr_get_spec
 (  const char* spec
-,  mcxTR*      tr
 ,  u32*        tbl         /* size MAX_SPEC_INDEX+1 */
 ,  mcxbool     repeat_ok   /* doubles as true for dst, false for src, ugly! */
 )
    {  const char* p  =  spec
    ;  const char* z  =  spec + strlen(spec)
-   ;  int ofs=0, i=0
+   ;  int offset=0, i=0
    ;  mcxstatus status = STATUS_FAIL
 
    ;  while (1)
@@ -533,7 +535,7 @@ static mcxstatus xtr_get_spec
                               /* space for 1 token; check anything longer.
                                * (reserve space for EOF token)
                               */
-      ;  if (ofs >= MAX_SPEC_INDEX)
+      ;  if (offset >= MAX_SPEC_INDEX)
          break
       ;  if (!(p = xtr_get_set(p, z, &class, &value, &count)))
          break
@@ -543,49 +545,49 @@ static mcxstatus xtr_get_spec
             {  mcx_tr_err = X_REPEAT_UNEXPECTED
             ;  break
          ;  }
-            tbl[ofs++] = (class << 8) | value
-         ;  if (ofs >= MAX_SPEC_INDEX)
+            tbl[offset++] = (class << 8) | value
+         ;  if (offset >= MAX_SPEC_INDEX)
             break
-         ;  tbl[ofs++] = count & 0377
+         ;  tbl[offset++] = count & 0377
       ;  }
          else if (ISCLASS(class))
          {  int (*innit)(int) =  isit[class - C_CLASSSTART]
-         ;  tbl[ofs++]        =  (C_CLASSSTART << 8 ) | class
+         ;  tbl[offset++]        =  (C_CLASSSTART << 8 ) | class
 
          ;  for (i=0;i<256;i++)
             {  if (innit(i))
-               {  if (ofs >= MAX_SPEC_INDEX)
+               {  if (offset >= MAX_SPEC_INDEX)
                   break
-               ;  tbl[ofs++] = i
+               ;  tbl[offset++] = i
             ;  }
             }
             if (i != 256)
             break
-         ;  if (ofs >= MAX_SPEC_INDEX)
+         ;  if (offset >= MAX_SPEC_INDEX)
             break
-         ;  tbl[ofs++] = (C_CLASSEND << 8) | class
+         ;  tbl[offset++] = (C_CLASSEND << 8) | class
       ;  }
          else if (count > 1)
-         {  tbl[ofs++] = (C_RANGESTART << 8)
+         {  tbl[offset++] = (C_RANGESTART << 8)
          ;  for (i=value;i<value+count;i++)
-            {  if (ofs >= MAX_SPEC_INDEX)
+            {  if (offset >= MAX_SPEC_INDEX)
                break
-            ;  tbl[ofs++] = i
+            ;  tbl[offset++] = i
          ;  }
             if (i != value+count)
             break
-         ;  if (ofs >= MAX_SPEC_INDEX)
+         ;  if (offset >= MAX_SPEC_INDEX)
             break
-         ;  tbl[ofs++] = C_RANGEEND << 8
+         ;  tbl[offset++] = C_RANGEEND << 8
       ;  }
          else
-         tbl[ofs++] = value
+         tbl[offset++] = value
 
       ;  status = STATUS_OK
    ;  }
 
 
-      tbl[ofs++] = C_EOF << 8
+      tbl[offset++] = C_EOF << 8
 
    ;  if (status || p!=z)
       {  mcxErr(us, "error!")
@@ -685,7 +687,9 @@ static mcxstatus mcx_tr_translate_encode
             ,  dst_val = dst_tok & 0377
       ;  }
 
-;if (mcx_tr_debug) fprintf(stdout, "have %3d %3d   %3d %3d\n", src_cls,src_val, dst_cls, dst_val);
+;if (mcx_tr_debug)
+fprintf(stdout, "have %3d %3d   %3d %3d\n",
+(int) src_cls, (int) src_val, (int) dst_cls, (int) dst_val);
 
 /* check class/range conditions.  */
          if (ISLOWERSTART(src_tok) && ISUPPERSTART(dst_tok))
@@ -755,9 +759,9 @@ fprintf(stdout, "star count/fill/flood %d %d %d\n", star_count, star_fill, flood
    ;  }
 
       if (!src_end)
-      mcxErr(us, "trailing spunk in src")
+      mcxErr(us, "trailing fluff in src")
    ;  if (!dst_end && !((star_fill || flood_fill) && dstenc[d] >> 8 == C_EOF))
-      mcxErr(us, "trailing spunk in dst")
+      mcxErr(us, "trailing fluff in dst")
 
    ;  return STATUS_OK        /* specs parsed alright, just ignore spurious stuff */
 ;  }
@@ -816,8 +820,8 @@ static mcxstatus mcx_tr_encode
 (  mcxTR* tr
 ,  const char* src
 ,  const char* dst
-,  const char* delete
-,  const char* squash
+,  const char* set_delete
+,  const char* set_squash
 )
    {  u32 srcenc[MAX_SPEC_INDEX+1]
    ;  u32 dstenc[MAX_SPEC_INDEX+1]
@@ -828,7 +832,7 @@ static mcxstatus mcx_tr_encode
             srcenc[i] = 0
          ,  dstenc[i] = 0
 
-      ;  if (xtr_get_spec(src, tr, srcenc, FALSE))
+      ;  if (xtr_get_spec(src, srcenc, FALSE))
          return STATUS_FAIL
 
       ;  if (mcx_tr_debug)
@@ -837,7 +841,7 @@ static mcxstatus mcx_tr_encode
       ;  if (tr->modes & MCX_TR_SOURCE_C)
          mcx_tr_complement(srcenc)
 
-      ;  if (xtr_get_spec(dst, tr, dstenc, TRUE))
+      ;  if (xtr_get_spec(dst, dstenc, TRUE))
          return STATUS_FAIL
 
       ;  if (mcx_tr_debug)
@@ -850,11 +854,11 @@ static mcxstatus mcx_tr_encode
          return STATUS_FAIL
    ;  }
 
-      if (delete)
+      if (set_delete)
       {  for (i=0;i<=MAX_SPEC_INDEX;i++)
          srcenc[i] = 0
 
-      ;  if (xtr_get_spec(delete, tr, srcenc, FALSE))
+      ;  if (xtr_get_spec(set_delete, srcenc, FALSE))
          return STATUS_FAIL
 
       ;  if (mcx_tr_debug)
@@ -866,11 +870,11 @@ static mcxstatus mcx_tr_encode
       ;  mcx_tr_encode_boolean(tr, srcenc, MCX_TR_DELETE)
    ;  }
 
-      if (squash)
+      if (set_squash)
       {  for (i=0;i<=MAX_SPEC_INDEX;i++)
          srcenc[i] = 0
 
-      ;  if (xtr_get_spec(squash, tr, srcenc, FALSE))
+      ;  if (xtr_get_spec(set_squash, srcenc, FALSE))
          return STATUS_FAIL
 
       ;  if (mcx_tr_debug)
@@ -891,8 +895,8 @@ mcxstatus mcxTRloadTable
 (  mcxTR*      tr
 ,  const char* src
 ,  const char* dst
-,  const char* delete
-,  const char* squash
+,  const char* set_delete
+,  const char* set_squash
 ,  mcxbits     modes
 )
    {  const char* me =  "mcxTRloadTable"
@@ -910,16 +914,16 @@ mcxstatus mcxTRloadTable
    ;  if (src && dst)
       modes |= MCX_TR_TRANSLATE
 
-   ;  if (delete)
-      {  if (UC(delete) == '^')
-            delete++
+   ;  if (set_delete)
+      {  if (UC(set_delete) == '^')
+            set_delete++
          ,  modes |= MCX_TR_DELETE_C
       ;  modes |= MCX_TR_DELETE
    ;  }
 
-   ;  if (squash)
-      {  if (UC(squash) == '^')
-            squash++
+   ;  if (set_squash)
+      {  if (UC(set_squash) == '^')
+            set_squash++
          ,  modes |= MCX_TR_SQUASH_C
       ;  modes |= MCX_TR_SQUASH
    ;  }
@@ -934,7 +938,7 @@ mcxstatus mcxTRloadTable
       ;  return STATUS_FAIL
    ;  }
 
-      return mcx_tr_encode(tr, src, dst, delete, squash)
+      return mcx_tr_encode(tr, src, dst, set_delete, set_squash)
 ;  }
 
 

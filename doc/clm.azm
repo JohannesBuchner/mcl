@@ -1,0 +1,129 @@
+\def{"man::synstyle"}{long}
+\def{"man::defstyle"}{long}
+\import{mcx.zmm}
+
+\set{"man::name"}{clm}
+\set{"man::html-title"}{The clm manual}
+\set{"man::author"}{Stijn van Dongen}
+\set{"man::section"}{1}
+
+\"man::preamble"
+\${html}{\"man::maketoc"}
+
+\sec{name}{NAME}
+\NAME{clm}{perform various computations on graphs and clusterings}
+
+\sec{synopsis}{SYNOPSIS}
+\verbatim{\:/
+   \clm <mode> [mode-options] [mode-files]}
+
+\sec{description}{DESCRIPTION}
+
+\par{
+   \clm implements a variety of computations on graphs and clusterings.  The
+   first argument to \clm should be a \it{mode}, which is a string establishing
+   the type of computation to invoke.  Each mode \it{mode} is described in the
+   clm\it{mode} manual page.  The currently available modes are
+   \clmref{dist},
+   \clmref{info},
+   \clmref{meet},
+   \clmref{mate},
+   \clmref{close},
+   \clmref{order},
+   \clmref{imac},
+   \clmref{vol},      and
+   \clmref{residue}.
+   The \bf{dist} mode is thus described in the
+   \sibref{clmdist} manual page.
+   }
+
+\par{
+   Invoking \clm without arguments causes it to print out a list
+   of available modes with a short description of the type of
+   command line expected by that mode.
+   }
+
+\par{
+   Invoking \clm with just a mode will print out a longer listing
+   of options available for that particular mode.
+   Modes that are able to function normally without arguments
+   can be invoked by adding the \genarg{--nop} argument.
+   }
+
+\par{
+   Several options are shared between all \clm modes. Note that
+   these options are specified after the \bf{mode}. See \secref{options}.
+   }
+
+\par{
+   The \genopt{--version} option causes \clm to print out version
+   and license information.
+   }
+
+\sec{options}{OPTIONS}
+
+\par{
+   These are options that pertain to all modes. They should be specified 
+   \it{after} the mode argument.
+   }
+
+\'begin{itemize}{\mcx_itemopts}
+
+\items{
+   {\defopt{-h}{synopsis}}
+   {\defopt{--apropos}{synopsis}}
+}
+\car{
+   List available options.
+   }
+
+\item{\defopt{--nop}{no-op}}
+\car{
+   Not an option. This option has no effect then to increment
+   the argument count. This can be useful for \clm modes which are able to
+   function without any options. Such a mode typically reads from STDIN, writes
+   to STDOUT, and uses default settings. However, simply specifying a mode
+   without options leads \clm to output a list of available options for that
+   mode. This can be averted by using the \genopt{--nop} option.
+   }
+
+\item{\defopt{-set}{key=val}{set key-value pair}}
+\car{
+   Sets the key\~\bf{key} to value\~\bf{val} in the environment.
+   Some modes allow adjustment of settings in this manner.
+   }
+
+
+\items{
+   {\defopt{-debug}{<int>}{set debug level/flags}}
+   {\defopt{--debug}{turn default debugging on}}
+   {\defopt{--test}{turn default testing on}}
+}
+\car{
+   The first two turn on debugging, the last is for testing. The effect of
+   these options is otherwise undocumented.
+
+   }
+
+\item{\defopt{--progress}{enable progress reporting}}
+\car{
+   This will enable some kind of progress reporting, by
+   writing to STDERR.
+
+   }
+
+\'end{itemize}
+
+\sec{author}{AUTHOR}
+\par
+   Stijn van Dongen.
+
+
+\sec{seealso}{SEE ALSO}
+\par{
+   \mysib{mclfamily} for an overview of all the documentation
+   and the utilities in the mcl family.
+}
+
+\"man::postamble"
+

@@ -1,4 +1,4 @@
-# $Id: README,v 1.32 2006-02-22 12:43:39 flux Exp $
+# $Id: README,v 1.33 2006-11-08 23:02:03 flux Exp $
 
    If you use MCL software in your research, cite it as you would cite a
    journal or a book. This includes papers published in regular or electronic
@@ -17,11 +17,8 @@
       ( http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z )
 
    and proper attributions to mcl's home http://micans.org/mcl/ and its author,
-   Stijn van Dongen.
-
-   Do this *also* if you are using some wrapper around mcl such as the blast
-   module or the tribe module.
-
+   Stijn van Dongen.  Do this *also* if you are using some wrapper around mcl
+   such as the blast module.
    For biological applications, it is appropriate to cite, additionally,
    the reference article for the first application of mcl to biological data:
 
@@ -29,16 +26,21 @@
       An efficient algorithm for large-scale detection of protein families,
       Nucleic Acids Research 30(7):1575-1584 (2002).
 
-
-   For BLAST users, consider using the blast package that is very well
-   integrated with the core mcl libraries and offers many options and extensive
-   configurability. Use mcxdeblast to parse BLAST files, use mcxassemble to
-   transform the parser's output to mcl input.
+   Please be advised that the TribeMCL module has been disabled.  BLAST users
+   can use the blast package that is very well integrated with the core mcl
+   libraries and offers many options and extensive configurability.  Use
+   mcxdeblast to parse BLAST files, use mcxassemble to transform the parser's
+   output to mcl input.
       The Genome Protein view at ensembl.org uses these programs.
       -----------------------------------------------------------
+
    It is also possible to use the pipeline script mclblastline that
    encapsulates mcxdeblast, mcxassemble, mcl, and clmformat (the latter
    prettyprints clustering results).
+
+   Finally, with mcl's new label streaming facilities it is possible to cluster
+   directly from BLAST files. Refer to the mcl website for examples.
+
    
    MCL documentation is in doc/, in various formats. It gets installed in
    <prefix>/share/doc/mcl/. A few example input graphs are in graphs/, in the
@@ -82,10 +84,13 @@ Synopsis
    MCL comes nowadays packaged with the BLAST parsing script mcxdeblast and the
    pipeline script mclblastline. It encapsulates all the stages of parsing,
    matrix creation, running mcl, and formatting the result into a single
-   application. These scripts can be used in place of the tribe module. Enable
-   them by adding --enable-blast to ./configure.  For the TribeMCL module issue
-   --enable-tribe. Be sure to read http://micans.org/mcl/#mods first though. It
-   is suggested you use the BLAST module instead.
+   application.  Enable them by adding --enable-blast to ./configure.
+
+   These scripts can be used in place of the now disabled TribeMCL
+   module.
+   TribeMCL module issue --enable-tribe. Be sure to read
+   http://micans.org/mcl/#mods first though. It is suggested you use the BLAST
+   module instead.
 
 See also
 

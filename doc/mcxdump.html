@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!-- Copyright (c) 2006 Stijn van Dongen -->
+<!-- Copyright (c) 2008 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <style type="text/css">
@@ -32,6 +32,7 @@ h2 { margin-top:2em; }
 .left { text-align: left; align: left; }
 .right { text-align: right; align: right; }
 .center { text-align: center; align: center; }
+.nowrap { white-space: nowrap; }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -68,25 +69,25 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-27 Feb 2006&nbsp;&nbsp;&nbsp;
+5 Jun 2008&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxdump.ps"><b>mcxdump</b></a>
-1.006, 06-058
+1.007-grumpy-gryphon, 08-157
 </p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=48 valign="top" class=left>1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr><td width=48 valign="top" class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#options">OPTIONS</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#author">AUTHOR</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#seealso">SEE ALSO</a>
 </div></td></tr>
 </table>
@@ -100,10 +101,14 @@ mcxdump - dump matrices, optionally map indices to labels</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
 <b>mcxdump</b>
-<a class="intern" href="#opt-imx"><b>-imx</b> &lt;fname&gt; (<i>matrix file</i>)</a>
-<a class="intern" href="#opt-o"><b>[-o</b> &lt;fname&gt; (<i>dumpf file ('-' for stdout)</i>)<b>]</b></a>
+<a class="intern" href="#opt-imx"><b>[-imx</b> &lt;fname&gt; (<i>matrix file</i>)<b>]</b></a>
+<a class="intern" href="#opt-imx-cat"><b>[-imx-cat</b> &lt;fname&gt; (<i>concatenation matrix file</i>)<b>]</b></a>
+<a class="intern" href="#opt-imx-tree"><b>[-imx-tree</b> &lt;fname&gt; (<i>concatenation cone file</i>)<b>]</b></a>
+<a class="intern" href="#opt--skeleton"><b>[--skeleton</b> (<i>read empty matrix, honour domains</i>)<b>]</b></a>
+<a class="intern" href="#opt-o"><b>[-o</b> &lt;fname&gt; (<i>output file name ('-' for stdout)</i>)<b>]</b></a>
+<a class="intern" href="#opt-digits"><b>[-digits</b> &lt;num&gt; (<i>output precision</i>)<b>]</b></a>
 <a class="intern" href="#opt-tab"><b>[-tab</b> &lt;fname&gt; (<i>row/column tab (label) file</i>)<b>]</b></a>
 <a class="intern" href="#opt-tabc"><b>[-tabc</b> &lt;fname&gt; (<i>column tab file</i>)<b>]</b></a>
 <a class="intern" href="#opt-tabr"><b>[-tabr</b> &lt;fname&gt; (<i>row tab file</i>)<b>]</b></a>
@@ -114,18 +119,40 @@ mcxdump - dump matrices, optionally map indices to labels</p>
 <a class="intern" href="#opt--force-loops"><b>[--force-loops</b> (<i>force loops</i>)<b>]</b></a>
 <a class="intern" href="#opt--dump-pairs"><b>[--dump-pairs</b> (<i>emit pairs per line</i>)<b>]</b></a>
 <a class="intern" href="#opt--dump-lines"><b>[--dump-lines</b> (<i>emit rows per line</i>)<b>]</b></a>
-<a class="intern" href="#opt--dump-rlines"><b>[--dump-rlines</b> (<i>omit leading column node</i>)<b>]</b></a>
-<a class="intern" href="#opt--dump-tabc"><b>[--dump-tabc</b> (<i>dump tab file on column domain</i>)<b>]</b></a>
-<a class="intern" href="#opt--dump-tabr"><b>[--dump-tabr</b> (<i>dump tab file on row domain</i>)<b>]</b></a>
+<a class="intern" href="#opt--dump-rlines"><b>[--dump-rlines</b> (<i>omit leading identifier</i>)<b>]</b></a>
+<a class="intern" href="#opt--dump-lead-off"><b>[--dump-lead-off</b> (<i>omit leading identifier</i>)<b>]</b></a>
+<a class="intern" href="#opt--dump-lower"><b>[--dump-lower</b> (<i>dump lower part excluding diagonal</i>)<b>]</b></a>
+<a class="intern" href="#opt--dump-loweri"><b>[--dump-loweri</b> (<i>dump lower part including diagonal</i>)<b>]</b></a>
+<a class="intern" href="#opt--dump-upper"><b>[--dump-upper</b> (<i>dump upper part excluding diagonal</i>)<b>]</b></a>
+<a class="intern" href="#opt--dump-upperi"><b>[--dump-upperi</b> (<i>dump upper part including diagonal</i>)<b>]</b></a>
+<a class="intern" href="#opt--write-tabc"><b>[--write-tabc</b> (<i>dump tab file on column domain</i>)<b>]</b></a>
+<a class="intern" href="#opt--write-tabr"><b>[--write-tabr</b> (<i>dump tab file on row domain</i>)<b>]</b></a>
+<a class="intern" href="#opt--dump-domc"><b>[--dump-domc</b> (<i>dump column domain</i>)<b>]</b></a>
+<a class="intern" href="#opt--dump-domr"><b>[--dump-domr</b> (<i>dump row domain</i>)<b>]</b></a>
+<a class="intern" href="#opt--dump-table"><b>[--dump-table</b> (<i>dump table format</i>)<b>]</b></a>
+<a class="intern" href="#opt--dump-lead-off"><b>[--dump-lead-off</b> (<i>do not dump leading identifiers</i>)<b>]</b></a>
+<a class="intern" href="#opt-table-nfields"><b>[-table-nfields</b> &lt;num&gt; (<i>output first &lt;num&gt; fields</i>)<b>]</b></a>
+<a class="intern" href="#opt-table-nlines"><b>[-table-nlines</b> &lt;num&gt; (<i>output first &lt;num&gt; lines</i>)<b>]</b></a>
+<a class="intern" href="#opt--table-keys"><b>[--table-keys</b> (<i>dump field/cell identifiers</i>)<b>]</b></a>
+<a class="intern" href="#opt--newick"><b>[--newick</b> (<i>output newick format</i>)<b>]</b></a>
+<a class="intern" href="#opt-newick"><b>[-newick</b> [NBI]+ (<i>exclude Number|Branch-length|Indent</i>)<b>]</b></a>
+<a class="intern" href="#opt--write-matrix"><b>[--write-matrix</b> (<i>(deconcatenate) write matrices</i>)<b>]</b></a>
+<a class="intern" href="#opt-split-stem"><b>[-split-stem</b> &lt;str&gt; (<i>(deconcatenate) matrices file name stem</i>)<b>]</b></a>
+<a class="intern" href="#opt-cat-max"><b>[-cat-max</b> &lt;num&gt; (<i>(deconcatenate) write first &lt;num&gt; matrices</i>)<b>]</b></a>
 <a class="intern" href="#opt-dump"><b>[-dump</b> &lt;fname&gt; (<i>alias for -o</i>)<b>]</b></a>
 <a class="intern" href="#opt-sep-value"><b>[-sep-value</b> &lt;str&gt; (<i>node/value separator</i>)<b>]</b></a>
 <a class="intern" href="#opt-sep-field"><b>[-sep-field</b> &lt;str&gt; (<i>field separator</i>)<b>]</b></a>
 <a class="intern" href="#opt-sep-lead"><b>[-sep-lead</b> &lt;str&gt; (<i>lead separator</i>)<b>]</b></a>
-<a class="intern" href="#opt-h"><b>[-h</b> (<i>list help</i>)<b>]</b></a>
-<a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>list synopsis of all options</i>)<b>]</b></a>
+<a class="intern" href="#opt-sep-cat"><b>[-sep-cat</b> &lt;str&gt; (<i>concatenation separator</i>)<b>]</b></a>
+<a class="intern" href="#opt-sort"><b>[-sort</b> size-{ascending,descending} (<i>vector sort mode</i>)<b>]</b></a>
+<a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
+<a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print synopsis, exit</i>)<b>]</b></a>
+<a class="intern" href="#opt--version"><b>[--version</b> (<i>print version, exit</i>)<b>]</b></a>
+</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
+<p class="default L50" style="margin-bottom:0">
 <b>mcxdump</b> reads a data file satisfying the mcl input format
 (refer to <a class="local" href="mcxio.html">mcxio</a>). It outputs a line-based format. The
 <b>--dump-pairs</b> option yields a single matrix entry per line,
@@ -135,6 +162,12 @@ The <b>--dump-lines</b> and <b>--dump-rlines</b> result in the
 joining of all row entries on a single line, separated by the field
 separator. For both formats, the matrix value corresponding with
 a particular entry is by default output as well.
+</p>
+<p class="default L50" style="margin-bottom:0">
+<b>mcxdump</b> can also act on files that contain concatenated
+matrices. Refer to the group of options headed by
+<a class="intern" href="#opt-imx-cat"><b>-imx-cat</b>&nbsp;<i>fname</i></a>.
+</p>
 
 <a name="options"></a>
 <h2>OPTIONS</h2>
@@ -143,65 +176,164 @@ a particular entry is by default output as well.
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
 <tr><td colspan=3><a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>matrix file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Input matrix.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-dump"></a><b>-dump</b> &lt;fname&gt; (<i>dumpf file ('-' for stdout)</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Output stream.
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Input matrix.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--transpose"></a><b>--transpose</b> (<i>work with the transpose</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Work with the tranpsose of the input matrix.
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--skeleton"></a><b>--skeleton</b> (<i>read empty matrix, honour domains</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+No entries are read, only domains.
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-o"></a><b>-o</b> &lt;fname&gt; (<i>output file name</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Output stream. Use <tt>-</tt> for STDOUT.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-digits"></a><b>-digits</b> &lt;num&gt; (<i>output precision</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Specify the precision to use in native interchange format.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-tab"></a><b>-tab</b> &lt;fname&gt; (<i>row/column tab (label) file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Substitute column indices and row indices by labels from the tab file.
 Since the same tab file is used for both, this implies that the matrix
-domains are identical.
+domains are identical.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-tabc"></a><b>-tabc</b> &lt;fname&gt; (<i>column tab file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Substitute column indices by labels from the tab file.
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Substitute column indices by labels from the tab file.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-tabr"></a><b>-tabr</b> &lt;fname&gt; (<i>row tab file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Substitute row indices by labels from the tab file.
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Substitute row indices by labels from the tab file.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--lazy-tab"></a><b>--lazy-tab</b> (<i>allow tab/domain mismatch</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 If used, the tab file domain(s) do not necessarily need to match
 the corresponding domain in the input matrix. Entries missing in
-the tab files will be replaced by a question mark.
+the tab files will be replaced by a question mark.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--no-values"></a><b>--no-values</b> (<i>omit values</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Do not emit values.
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Do not emit values.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--no-loops"></a><b>--no-loops</b> (<i>omit loops</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Do not output entries for which the row index equals the column index,
 if present.
-Applies only to matrices for which column and row domains are equal.
+Applies only to matrices for which column and row domains are equal.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--force-loops"></a><b>--force-loops</b> (<i>force loops</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 For each column, force output of a row entry that matches the
 column index.
-Applies only to matrices for which column and row domains are equal.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--dump-pairs"></a><b>--dump-pairs</b> (<i>emit pairs per line</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Output a single pair of column-identifier and row-identifier per line,
+Applies only to matrices for which column and row domains are equal.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt--dump-pairs"></a><b>--dump-pairs</b> (<i>emit pairs per line</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--dump-lines"></a><b>--dump-lines</b> (<i>emit rows per line</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--dump-rlines"></a><b>--dump-rlines</b> (<i>omit leading column node</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--dump-lead-off"></a><b>--dump-lead-off</b> (<i>do not dump leading identifiers</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--dump-lower"></a><b>--dump-lower</b> (<i>dump lower part excluding diagonal</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--dump-loweri"></a><b>--dump-loweri</b> (<i>dump lower part including diagonal</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--dump-upper"></a><b>--dump-upper</b> (<i>dump upper part excluding diagonal</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--dump-upperi"></a><b>--dump-upperi</b> (<i>dump upper part including diagonal</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<b>--dump-pairs</b> is the default mode of output. Each matrix entry
+is output as a single pair of column-identifier and row-identifier per line,
 optionally followed by the value of the corresponding matrix entry.
 All fields are separated by the field separator.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--dump-lines"></a><b>--dump-lines</b> (<i>emit rows per line</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-For each matrix column, the corresponding row is output on a
+</p>
+<p class="default L50" style="margin-bottom:0">
+With <b>--dump-lines</b>, each matrix column is output on a
 single line, with row identifiers separated by the field separator
 and values attached to the row identifier by the node/value separator.
 In this format, the column identifier is output as the leading field.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--dump-rlines"></a><b>--dump-rlines</b> (<i>omit leading column node</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-As the option above, except that the column identifier is not output.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--dump-tabc"></a><b>--dump-tabc</b> (<i>dump tab file on column domain</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-This will only infer the domains from the input matrix. It assumes
-the input tab file envelopes the matrix column domain, and it outputs
-a new tab file restricted to that domain.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--dump-tabr"></a><b>--dump-tabr</b> (<i>dump tab file on row domain</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</p>
+<p class="default L50" style="margin-bottom:0">
+<b>--dump-rlines</b> is as <b>--dump-lines</b>,
+except that the column identifier is not output.
+Use <b>--dump-lead-off</b> to preclude the output of the leading
+identifiers (for line-based outputs).
+</p>
+<p class="default L50" style="margin-bottom:0">
+The options pertaining to <i>lower</i> and <i>upper</i> dumps currently
+only work with <b>--dump-pairs</b>. They act to only output
+the specified part of the matrix.
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt--dump-table"></a><b>--dump-table</b> (<i>dump table format</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-table-nfields"></a><b>-table-nfields</b> (<i>field limit</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-table-nlines"></a><b>-table-nlines</b> (<i>line/row limit</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--table-keys"></a><b>--table-keys</b> (<i>do dump field/cell identifiers</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Output table format. In table format no indices are printed by default
+and all values
+are printed including zeroes. The options <b>-table-nfields</b> and <b>-table-nlines</b>
+can be used to limit
+the number of fields and lines to be printed. Note that fields correspond
+to MCL matrix rows and that lines correspond to MCL matrix columns, as MCL
+calls its primary indices column indices.
+Use <b>--table-keys</b> to include identifiers (tab-derived if a tab file is specified).
+Use <b>--dump-lead-off</b> to preclude the output of the leading
+identifiers (for line-based outputs).
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt--newick"></a><b>--newick</b> (<i>output newick format</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-newick"></a><b>-newick</b> [NBI]+ (<i>newick, exclude Number|Branch-length|Indent</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Boo.
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt--write-tabc"></a><b>--write-tabc</b> (<i>dump tab file on column domain</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--write-tabr"></a><b>--write-tabr</b> (<i>dump tab file on row domain</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--dump-domc"></a><b>--dump-domc</b> (<i>dump column domain</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--dump-domr"></a><b>--dump-domr</b> (<i>dump row domain</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+These options work in conjunction with the <a class="intern" href="#opt-ixm"><b>-ixm</b>&nbsp;<i>fname</i></a> option.
+Only the domains from the input matrix are read as if <a class="intern" href="#opt--skeleton"><b>--skeleton</b></a>
+was specified.
+<b>--write-tabc</b> assumes the input tab file envelopes the matrix column
+domain, and it outputs a new tab file restricted to that domain.
+<b>--write-tabr</b> acts analogously for the row domain.
+<b>--dump-domc</b> and <b>--dump-domr</b> respectively dump the column
+and domain as a regular dump, outputting labels in case a tab file is
+specified.
+</p>
+<p class="default L50" style="margin-bottom:0">
+These options are implemented as ensembles of other options.
+For example, <b>--dump-domr</b> <b>-imx</b>&nbsp;<i>fname</i> corresponds with
+<b>--dump-lines</b> <b>--transpose</b> <b>--skeleton</b>.
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--write-tabr"></a><b>--write-tabr</b> (<i>dump tab file on row domain</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 This will only infer the domains from the input matrix. It assumes
 the input tab file envelopes the matrix row domain, and it outputs
-a new tab file restricted to that domain.
+a new tab file restricted to that domain.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-imx-cat"></a><b>-imx-cat</b> &lt;fname&gt; (<i>concatenation matrix file</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-imx-tree"></a><b>-imx-tree</b> &lt;fname&gt; (<i>concatenation cone file</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--write-matrix"></a><b>--write-matrix</b> (<i>(deconcatenate) write matrices</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-split-stem"></a><b>-split-stem</b> &lt;str&gt; (<i>(deconcatenate) matrices file name stem</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cat-max"></a><b>-cat-max</b> &lt;num&gt; (<i>(deconcatenate) write first &lt;num&gt; matrices</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<b>-imx-cat</b> is like <b>-imx</b> except that the input is assumed to
+contain multiple concatenated matrices.
+The matrices are dumped separated by the
+<i>cat separator</i> (cf. <b>-sep-cat</b>).
+Alternatively, the matrices can be written to different files
+using the <b>-split-stem</b> option.
+In this case it is possible to output each matrix in native format
+rather than as a dump by specifying <b>--write-matrix</b>.
+This makes mcxdump effectively act as a deconcatenator.
+In all cases (respectively dumping and writing matrices
+to either the same stream or multiple files) the number of
+matrices to be dumped can be limited with <b>-cat-max</b>.
+</p>
+<p class="default L50" style="margin-bottom:0">
+<b>-imx-tree</b> is like <b>-imx-cat</b> except that the input
+is assumed to be in cone format (the format output by <b>mclcm</b>).
+This format encodes a tree as a concatenation of matrices with
+nested domains. <b>mcxdump</b> will project all levels of this tree
+so that all row domains are the same as the bottom row domain.
+This implies that a set of nested clusterings (on different node
+sets, as the set of clusters of a given level is the node set
+of the next level) is transformed
+into a set of flattened clusterings, all on the same node set.
+If you do not want this to happen, simply use <b>-imx-cat</b>.
+</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-sep-value"></a><b>-sep-value</b> &lt;str&gt; (<i>node/value separator</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Set the node/value separator for line based row ensemble output.
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Set the node/value separator for line based row ensemble output.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-sep-field"></a><b>-sep-field</b> &lt;str&gt; (<i>field separator</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Set the field separator for different row indices in a given column.
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Set the field separator for different row indices in a given column.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-sep-lead"></a><b>-sep-lead</b> &lt;str&gt; (<i>lead separator</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Set the lead separator. In the <b>--dump-lines</b> format it
 separates the leading column index from the following ensembl of
 row indices. It can be useful to make this different from the
 field separator. One can for example grep for columns that have
 more than one entry in a matrix mapping nodes to clusters. This
-will find nodes in overlap.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-h"></a><b>-h</b> (<i>list help</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Print help, same as <b>--apropos</b>.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--apropos"></a><b>--apropos</b> (<i>list synopsis of all options</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-List a one-line synopsis for all options.
+will find nodes in overlap.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-sep-cat"></a><b>-sep-cat</b> &lt;str&gt; (<i>concatenation separator</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Set the separator that is used between matrix dumps when a concatenation of
+matrices is dumped.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-sort"></a><b>-sort</b> size-{ascending,descending} (<i>concatenation separator</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Reorder the matrix columns prior to dumping, based on the number of
+nonzero entries in each column.
+Do not use this in conjunction with a tab file for the column domain.</p>
 </div></td></tr>
 </table>
 

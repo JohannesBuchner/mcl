@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!-- Copyright (c) 2006 Stijn van Dongen -->
+<!-- Copyright (c) 2008 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <style type="text/css">
@@ -32,6 +32,7 @@ h2 { margin-top:2em; }
 .left { text-align: left; align: left; }
 .right { text-align: right; align: right; }
 .center { text-align: center; align: center; }
+.nowrap { white-space: nowrap; }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -64,27 +65,29 @@ div.indent
 margin-right: 0%;
 }
 </style>
-<title>The clmclose manual</title>
+<title>The clm close manual</title>
 </head>
 <body>
 <p style="text-align:right">
-27 Feb 2006&nbsp;&nbsp;&nbsp;
-<a class="local" href="clmclose.ps"><b>clmclose</b></a>
-1.006, 06-058
+5 Jun 2008&nbsp;&nbsp;&nbsp;
+<a class="local" href="clmclose.ps"><b>clm close</b></a>
+1.007-grumpy-gryphon, 08-157
 </p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=48 valign="top" class=left>1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr><td width=48 valign="top" class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#options">OPTIONS</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#author">AUTHOR</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#seealso">SEE ALSO</a>
 </div></td></tr>
 </table>
@@ -94,37 +97,69 @@ cellpadding="0" summary="itemize">
 <a name="name"></a>
 <h2>NAME</h2>
 <p class="default L50" style="margin-bottom:0">
-clmclose - Fetch connected components from graphs or subgraphs</p>
+clm close - Fetch connected components from graphs or subgraphs</p>
+<p class="default L50" style="margin-bottom:0">clmclose is not in actual fact a program. This manual
+page documents the behaviour and options of the clm program when
+invoked in mode <i>close</i>. The options <b>-h</b>, <b>--apropos</b>,
+<b>--version</b>, <b>-set</b>, <b>--nop</b> are accessible
+in all <b>clm</b> modes. They are described
+in the <a class="local" href="clm.html">clm</a> manual page.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p class="default L50">
-<b>clmclose</b> -imx &lt;fname&gt; [options]
-<p class="default L50">
-<b>clmclose</b>
+<p class="default L50" style="margin-bottom:0">
+<b>clm close</b> -imx &lt;fname&gt; [options]
+</p>
+<p class="default L50" style="margin-bottom:0">
+<b>clm close</b>
 <a class="intern" href="#opt-imx"><b>-imx</b> fname (<i>input file</i>)</a>
 <a class="intern" href="#opt-dom"><b>-dom</b> fname (<i>input domain/cluster file</i>)</a>
-<a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output file</i>)<b>]</b></a>
-<a class="intern" href="#opt-cc"><b>[-cc</b> (<i>output connected components</i>)<b>]</b></a>
-<a class="intern" href="#opt-h"><b>[-h</b> (<i>list help</i>)<b>]</b></a>
-<a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>list synopsis of all options</i>)<b>]</b></a>
+<a class="intern" href="#opt-write-cc"><b>[-write-cc</b> fname (<i>output file</i>)<b>]</b></a>
+<a class="intern" href="#opt-cc-bound"><b>[-cc-bound</b> num (<i>select components with size at least num</i>)<b>]</b></a>
+<a class="intern" href="#opt-tf"><b>[-tf</b> spec (<i>apply tf-spec to input matrix</i>)<b>]</b></a>
+<a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
+<a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print synopsis, exit</i>)<b>]</b></a>
+<a class="intern" href="#opt--version"><b>[--version</b> (<i>print version, exit</i>)<b>]</b></a>
+</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p class="default L50">
-Currently, <b>-cc</b> is the only mode provided, implying
-its use is required.
-<p class="default L50">
-Use <b>clmclose</b> to fetch the connected components from a graph.
+<p class="default L50" style="margin-bottom:0">
+Use <b>clm close</b> to fetch the connected components from a graph.
 They will be returned as a clustering file. Use this file
 in conjunction with <b>mcxsubs</b> and the graph file itself to
 retrieve individual subgraphs corresponding to connected components.
-<p class="default L50">
-If the <b>-dom</b>&nbsp;<i>fname</i> option is used, clmclose will
+</p>
+<p class="default L50" style="margin-bottom:0">
+If the <b>-dom</b>&nbsp;<i>fname</i> option is used, clm close will
 for each of the domains in file&nbsp;<i>fname</i> retrieve
 the associated subgraph from the input graph, decompose it into
 its connected components, and write each connected components
 as a separate domain/cluster in the output file.
+</p>
+
+<a name="options"></a>
+<h2>OPTIONS</h2>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr><td colspan=3><a name="opt-imx"></a><b>-imx</b> fname (<i>input file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-dom"></a><b>-dom</b> fname (<i>input domain/cluster file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-write-cc"></a><b>-write-cc</b> fname (<i>output connected components</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-bottom:0">
+Set the name of the file to be written to.
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-cc-bound"></a><b>-cc-bound</b> num (<i>select components with size at least num</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-tf"></a><b>-tf</b> spec (<i>apply tf-spec to input matrix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Transform the input matrix values according
+to the syntax described in <a class="local" href="mcxio.html">mcxio</a>.
+</p>
+</div></td></tr>
+</table>
+
+</div>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>

@@ -2,8 +2,8 @@
 \def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{clmorder}
-\set{"man::html-title"}{The clmorder manual}
+\set{"man::name"}{clm order}
+\set{"man::html-title"}{The clm order manual}
 \set{"man::author"}{Stijn van Dongen}
 \set{"man::section"}{1}
 
@@ -11,37 +11,57 @@
 \${html}{\"man::maketoc"}
 
 \sec{name}{NAME}
-\NAME{clmorder}{reorder indices to represent blocks from different clusterings.}
+\NAME{clm order}{reorder indices to represent blocks from different clusterings.}
+
+\disclaim_clm{order}
 
 \sec{synopsis}{SYNOPSIS}
-   \par
-   \clmorder <file name>+
+\par{
+   \clm{order}
+   \synoptopt{-o}{fname}{output file}
+   <cl-stack-file>
+   }
 
 \sec{description}{DESCRIPTION}
 
-\par
-   Given a set of input clusterings, \clmorder reorders indices so that
+\par{
+   Given a set of concatenated input clusterings (encoded in a single file/stream),
+   \clm{order} reorders indices so that
    the ordering represents blocks from different clusterings (which are
    preferably more or less hierarchically organized).  It puts nodes that
    share many clusters over the different clusters nearby, and puts nodes
    in larger clusters earlier in the ordering.  It is presumed that the
    clusterings are successive subclusterings, but it need not be strictly
-   the case - \clmorder will convert the input clusterings to a strictly
+   the case - \clm{order} will convert the input clusterings to a strictly
    nested sequence.
+   }
 
-\par
-   \clmorder interprets its arguments as names of files containing
-   clusterings in mcl format (see \mysib{mcxio}).
+\par{
+   \clm{order} expects a trailing file name argument for a file
+   containing concatenated matrices (see \mysib{mcxio}).
+   }
+
+\sec{options}{OPTIONS}
+
+
+\'begin{itemize}{\mcx_itemopts}
+
+\item{\defopt{-o}{fname}{output file}}
+
+\'end{itemize}
+
 
 \sec{author}{AUTHOR}
-\par
+\par{
    Stijn van Dongen.
+   }
 
 \sec{seealso}{SEE ALSO}
 
-\par
+\par{
    \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
+   }
 
 \"man::postamble"
 

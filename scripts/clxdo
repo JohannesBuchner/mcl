@@ -1,15 +1,23 @@
 #!/usr/bin/env bash
 
+#  (C) Copyright 2005, 2006, 2007 Stijn van Dongen
+ #
+#  This file is part of MCL.  You can redistribute and/or modify MCL under the
+#  terms of the GNU General Public License; either version 3 of the License or
+#  (at your option) any later version.  You should have received a copy of the
+#  GPL along with MCL, in the file COPYING.
+
 # make function to require argument count (e.g. sym)
 
 mode=$1
 nargs=$#
+export MCLXIOVERBOSITY=2
 
 set -e
 
 function require_num() {
    local num=$1
-   if let $(($num != $nargs)); then
+   if let $(($num+1 > $nargs)); then
       echo "mode $mode needs $num arguments (see -h)"
       false
    fi
@@ -18,16 +26,93 @@ function require_num() {
 
     case "$mode" in
 
+
 ################################
 
-    gr)
-export MCLXIOVERBOSITY=2
+    -h)
+      cat <<EOU
+Usage:
+clxdo gran          <cl-file>             #  show size distribution (granularity)
+clxdo gran_buckets  <num> <cl-file>       #  show sizes buckets
+clxdo vol           <cl-file>+            #  output list of volatile nodes
+clxdo gran_divide   <num> <cl-file>       #  #clusters, #nodes in clusters >= num
+clxdo gran_largest  <num> <cl-file>       #  <num> biggest sizes
+clxdo sym     <mx-file> <check-file>      #  check symmetry.
+clxdo csym    <mx-file> <check-file>      #  check symmetry of presence.
+clxdo grok    <cl-file> <mx-file> <nsm-name> <ccm-name>    # node-cl and cl-cl
+clxdo rcl     <cl-file>                   #  randomize clustering
+clxdo annot2tab  <tab-file> <annot-file]  #  make tab file from annot file
+clxdo cls_annot_summary <cls-annot-dump-file>
+EOU
+      exit
+      ;;
+
+
+
+
+################################
+
+
+    vol)
+require_num 2
+fac=$2
+shift 2
+clm vol -nff-fac $fac $@ | mcxsubs 'val(gt(1)), out(-)' | mcxdump | cut -f 2,3 | sort -nk 2
+      ;;
+
+
+################################
+
+    gran_buckets)
+require_num 2
+export CLXDO_VAL1=$2
+shift 2
+for mx in $@; do
+      export mx
+      mcxdump -imx $mx --no-values --dump-lines -o - \
+   |  /usr/local/bin/perl -ane '$ct{@F-1}++; END { print "# name=$ENV{mx}\n"; print map { "$_ $ct{$_}\n" } sort { $a <=> $b } grep { !$ENV{CLXDO_VAL1} || $_ <= $ENV{CLXDO_VAL1} } keys %ct; print "\n\n";}'
+done
+      ;;
+
+
+
+################################
+
+    gran_divide)
+require_num 2
+export CLXDO_VAL1=$2
+shift 2
+for mx in $@; do
+      mcxdump -imx $mx --no-values --dump-lines -o - \
+   |  /usr/local/bin/perl -ane '$ct{@F-1}++; END {%i = map { ($_, 1) } grep { $_ >= $ENV{CLXDO_VAL1}; } keys %ct; ($lt, $n_lt, $gq, $n_gq) = (0,0,0,0); for my $x (keys %ct) { if ($i{$x}) { $n_gq += $ct{$x}; $gq += $x * $ct{$x}; } else { $n_lt += $ct{$x}; $lt += $x * $ct{$x} } } print "$n_lt $lt $n_gq $gq\n"; }'
+done
+      ;;
+
+
+
+################################
+
+    gran_largest)
+require_num 2
+export CLXDO_VAL1=$2
+shift 2
+for mx in $@; do
+     mcxdump -imx $mx --no-values --dump-lines -o - \
+   | perl -ane 'print (@F-1); print "\n";' \
+   | sort -nr | head -n $CLXDO_VAL1 | sort -n | tr '\n' ' '
+   echo
+done
+      ;;
+
+
+
+################################
+
+    gran)
 shift 1
 for mx in $@; do
-   echo $mx
-   echo -n "  "
-     mcxdump -imx $mx --no-values --dump-rlines -o - \
-   | perl -ne '$x = s/(\w+)//g; print $x, "\n";' \
+     mcxdump -imx $mx --no-values --dump-lines -o - \
+   | perl -ane 'print (@F-1); print "\n";' \
    | sort -n | tr '\n' ' '
    echo
 done
@@ -36,33 +121,64 @@ done
 ################################
 
     sym)
-require_num 3
+require_num 1
 mx=$2
-check=$3
-mcx /$mx lm tp -1 mul add /$check wm
+mcxi /$mx lm tp -1 mul add /- wm | mcxdump
+      ;;
+
+################################
+
+    csym)
+require_num 1
+mx=$2
+mcxi /$mx lm ch tp -1 mul add /- wm | mcxdump
       ;;
 
 ################################
 
     grok)
-require_num 5
+require_num 4
 cl=$2
 mx=$3
 nsm=$4
 ccm=$5
-mcx /$cl lm tp /$mx lm st mul dup st /$nsm wm pop exch mul st /$ccm wm
+mcxi /$cl lm tp /$mx lm st mul dup st /$nsm wm pop exch mul st /$ccm wm
       ;;
+
 
 ################################
 
-    -h)
-      cat <<EOU
-Usage:
-clxdo gr    <cl-file>                  #  show size distribution (granularity)
-clxdo sym   <mx-file> <check-file>     #  check symmetry.
-clxdo grok  <cl-file> <mx-file> <nsm-name> <ccm-name>    # node-cl and cl-cl
-EOU
-      exit
+    cls_annot_summary)
+require_num 1
+cls=$2
+perl -ane 'BEGIN { $, = " "; } my %a = (); for (@F) { if (/^\?/) { $a{_}++; } else { $a{$_}++; } } print $id++, "\n"; print map { "\t$_ $a{$_}\n" } (sort keys %a);' $cls
+
       ;;
+
+
+################################
+
+    annot2tab)
+require_num 2
+fnannot=$2
+fntab=$3
+perl -ane 'BEGIN { ($fannot, $ftab) = @ARGV; $" = ":"; } if ($ARGV eq $fannot) { my $f = shift @F; $annot{$f} = "@F"; } else { print "$F[0]\t$annot{$F[1]}\n" if defined($annot{$F[1]}) && $ARGV eq $ftab; }' $fnannot $fntab
+
+      ;;
+
+
+################################
+
+    rcl)
+require_num 1
+clin=$2
+clxdo gran $clin | perl -ne 'use List::Util "shuffle"; $, = " "; chomp; my @v = split; map { $sum += $_ } @v; @w = shuffle(0..$sum-1); $o = 0; while (@v) { $oo = $o; $o += shift @v; print map { $w[$_] } ($oo..$o-1); print "\n"; };' \
+   | mcxload -235-ai -
+
+      ;;
+
+
+####
    esac
+
 

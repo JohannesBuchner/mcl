@@ -1,0 +1,75 @@
+\def{"man::synstyle"}{long}
+\def{"man::defstyle"}{long}
+\import{mcx.zmm}
+
+\set{"man::name"}{clm vol}
+\set{"man::html-title"}{The clm vol manual}
+\set{"man::author"}{Stijn van Dongen}
+\set{"man::section"}{1}
+
+\"man::preamble"
+\${html}{\"man::maketoc"}
+
+\sec{name}{NAME}
+\NAME{clm vol}{compute volatile nodes from a set of clusterings}
+
+\disclaim_clm{vol}
+
+\sec{synopsis}{SYNOPSIS}
+\par{
+   \clm{vol}
+   \synoptopt{-nff-fac}{num}{nff factor}
+   \synoptopt{-o}{fname}{output file}
+   <cl file>+
+   }
+
+\sec{description}{DESCRIPTION}
+
+\par{
+   \clm{vol} computes a score for each node, which at a minimum is equal to one.
+   The output is in the form of a matrix containing a single column.  The score
+   correlates with what is deemed to be volatile behaviour.  For all pairs of
+   clusterings the set of all intersections is computed, and these  are
+   considered in turn.
+   
+   An intersection is deemed to be volatile if the size of the intersection is
+   less than half the size of either parent cluster.
+   
+   In this case, for each node in the intersection the score is incremented by
+   one over the size of the intersection.
+
+   The size comparison can be made more stringent by increasing
+   the factor using \genopt{-nff-fac}{<num>} option. It is by default set to
+   \v{0.5}, the fraction taken from the parent cluster sizes.
+   If it is increased all the way up to 1.0, the implication is that an
+   intersection is always considered volatile unless one of the parent
+   clusters is a subset of the other parent cluster.
+   }
+
+
+\sec{author}{AUTHOR}
+\par
+   Stijn van Dongen.
+
+
+\sec{options}{OPTIONS}
+
+\'begin{itemize}{\mcx_itemopts}
+
+\item{\defopt{-nff-fac}{num}{nff factor}}
+\car{See the discussion at \secref{description}.
+   }
+
+\item{\defopt{-o}{fname}{output file}}
+
+\end{itemize}
+
+
+\sec{seealso}{SEE ALSO}
+\par{
+   \mysib{mclfamily} for an overview of all the documentation
+   and the utilities in the mcl family.
+}
+
+\"man::postamble"
+

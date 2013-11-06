@@ -2,8 +2,8 @@
 \def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{clmmeet}
-\set{"man::html-title"}{The clmmeet manual}
+\set{"man::name"}{clm meet}
+\set{"man::html-title"}{The clm meet manual}
 \set{"man::author"}{Stijn van Dongen}
 \set{"man::section"}{1}
 
@@ -11,37 +11,52 @@
 \${html}{\"man::maketoc"}
 
 \sec{name}{NAME}
-\NAME{clmmeet}{compute the intersection of a set of clusterings.}
+\NAME{clm meet}{compute the intersection of a set of clusterings.}
+
+\disclaim_clm{meet}
 
 \sec{synopsis}{SYNOPSIS}
-   \par
-   \clmmeet [--adapt] [-o <output file name>] <file name>+
+\par{
+   \clm{meet}
+   \synoptopt{-o}{fname}{output file name}
+   \stdsynopt
+   <file name>+
+   }
 
 \sec{description}{DESCRIPTION}
 
-\par
-   \clmmeet computes the intersection of a set of clusterings, that is,
+\par{
+   \clm{meet} computes the intersection of a set of clusterings, that is,
    the largest clustering that is a subclustering of all the clusterings
    in the set. It stores the intersection (or meet) in the argument
    to the \genopt{-o} flag, which must be the first option given.
    All remaining arguments are interpreted as names of files containing
    clusterings in mcl format (see \mysib{mcxio}), which must all
    pertain to a set of the same cardinality.
+   }
 
-\par
+\par{
    This utility can be useful in measuring (in conjunction with
-   \mysib{clmdist}) the consistency of a set of clusterings at different
+   \clmref{dist}) the consistency of a set of clusterings at different
    levels of granularity \- if the meet of all those clusterings is close to
    being a subclustering of each of them, consistency is good.  See
-   \mysib{clmdist} for an example.
+   \clmref{dist} for an example.
+   }
 
-\par
-   The --adapt option allows domain mismatches to occur between clusterings.
-   \clmmeet will project the clusterings onto the meet of their domains.
+
+\sec{options}{OPTIONS}
+
+\'begin{itemize}{\mcx_itemopts}
+
+\item{\defopt{-o}{fname}{output file name}}
+\stddefopt
+
+\end{itemize}
 
 \sec{author}{AUTHOR}
-\par
+\par{
    Stijn van Dongen.
+   }
 
 \sec{seealso}{SEE ALSO}
 

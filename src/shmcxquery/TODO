@@ -22,6 +22,12 @@ types
 
 context(mx)    sets the current context for overloaded operators.
 
+[ bad idea if I'll be using matrices to store results / keep state ]
+
+will need support for vectors of longs matrices of longs ?  vectors of matrices ?
+tabs ?
+-> not in C though. User-assembled. conflicts with large scale stuff.
+
 
 def closure (<graph> mx, <node> i)
 {  context(mx)

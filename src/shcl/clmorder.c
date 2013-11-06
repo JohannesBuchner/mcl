@@ -1,29 +1,21 @@
-/*      Copyright (C) 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2005, 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
 
-#include <string.h>
-#include <stdio.h>
 
-#include "report.h"
-
-#include "impala/matrix.h"
-#include "impala/vector.h"
-#include "impala/io.h"
-#include "impala/compose.h"
-#include "impala/iface.h"
-#include "impala/app.h"
-#include "mcl/clm.h"
-
-#include "util/io.h"
-#include "util/types.h"
-#include "util/err.h"
-#include "util/opt.h"
-
+/* TODO
+ *
+ *  - only works for canonical graphs.
+ *  - optionally reorder clusterings; presumably based on count or center.
+ *  # output a map matrix (one of maps?)
+ *  - remove recursion.
+ *  ? permute graph according to map.
+ *  ? permute stack according to map. 
+*/
 
 /*  This program reorders indices so that that ordering represents
     blocks from different clusterings (which are preferably more or
@@ -39,96 +31,188 @@
     ordering.
 */
 
-mcxstatus rerank
+#include <string.h>
+#include <stdio.h>
+
+#include "clm.h"
+#include "report.h"
+#include "clmorder.h"
+
+#include "impala/matrix.h"
+#include "impala/cat.h"
+#include "impala/vector.h"
+#include "impala/io.h"
+#include "impala/compose.h"
+#include "impala/iface.h"
+#include "impala/app.h"
+
+#include "clew/clm.h"
+
+#include "util/io.h"
+#include "util/types.h"
+#include "util/err.h"
+#include "util/opt.h"
+
+static const char* me = "clmorder";
+
+enum
+{  MY_OPT_OUTPUT = CLM_DISP_UNUSED
+,  MY_OPT_REORDER
+,  MY_OPT_WRITEMAP
+}  ;
+
+
+static mcxOptAnchor orderOptions[] =
+{  {  "-o"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_OUTPUT
+   ,  "<fname>"
+   ,  "output file name"
+   }
+,  {  "--reorder"
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
+   ,  MY_OPT_REORDER
+   ,  NULL
+   ,  "(DEFUNCT) reorder from fine-grained to coarse-grained"
+   }
+,  {  "--write-maps"
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
+   ,  MY_OPT_WRITEMAP
+   ,  NULL
+   ,  "write matrix map files"
+   }
+,  {  NULL ,  0 ,  0 ,  NULL, NULL}
+}  ;
+
+
+static mcxIO*  xfout    =  (void*) -1;
+static mcxIO*  xfmap    =  (void*) -1;
+static mcxbool reorder  =  -1;
+static mcxbool write_map  =  -1;
+
+
+static mcxstatus orderInit
+(  void
+)
+   {  xfout = mcxIOnew("-", "w")
+   ;  xfmap = mcxIOnew("-", "w")
+   ;  reorder = FALSE
+   ;  write_map = FALSE
+   ;  return STATUS_OK
+;  }
+
+
+static mcxstatus orderArgHandle
+(  int optid
+,  const char* val
+)
+   {  switch(optid)
+      {  case MY_OPT_REORDER
+      :  reorder = TRUE
+      ;  break
+      ;
+
+         case MY_OPT_WRITEMAP
+      :  write_map = TRUE
+      ;  break
+      ;
+
+         case MY_OPT_OUTPUT
+      :  mcxIOnewName(xfout, val)
+      ;  break
+      ;
+
+         default
+      :  return STATUS_FAIL
+      ;
+      }
+      return STATUS_OK
+;  }
+
+
+
+static mcxstatus rerank
 (  long     clid
 ,  int      depth
-,  mclx**   clxs
+,  mclxCat*  st
 ,  mclx**   maps
-,  mclv*    ordv
-,  double*  ord
+,  mclx*    mxmap
+,  ofs*     ord
 )  ;
 
 
-int main
+static mcxstatus orderMain
 (  int                  argc
 ,  const char*          argv[]
 )
-   {  mcxIO       *xfin    =  mcxIOnew("-", "r")
-   ;  mcxIO       *xfout   =  mcxIOnew("out.order", "w")
+   {  mcxIO       *xfin    =  mcxIOnew(argv[0], "r")
    ;  mcxTing     *fname   =  NULL
-   ;  mclv*       ordv     =  mclvInit(NULL)
-   ;  double      ord      =  1.0
-   ;  long        i        =  0
+   ;  ofs         ord      =  0
+   ;  dim         i        =  0
 
-   ;  mclx       **clxs    =  NULL
-   ;  mclx       **maps    =  NULL
+   ;  mclx       **maps    =  NULL     /* fixme/document purpose */
    ;  mclx        *cls     =  NULL
-   ;  int         n_clxs   =  0
+   ;  mclx*       mxmap    =  NULL
+   ;  mcxbits     bits     =     MCLX_REQUIRE_PARTITION
+                              |  MCLX_PRODUCE_DOMSTACK
+                              |  MCLX_REQUIRE_CANONICALC
 
-   ;  const char  *me      =  "clmorder"
-   ;  int         a        =  1
+   ;  mclxCat st
+   ;  mcxstatus status = mclxCatRead(xfin, &st, 0, NULL, NULL, bits)
 
    ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
+   ;  mclx_app_init(stderr)
 
-   ;  clxs = mcxAlloc(argc*sizeof(mclx*), EXIT_ON_FAIL)
-   ;  maps = mcxAlloc(argc*sizeof(mclx*), EXIT_ON_FAIL)
+   ;  maps = mcxAlloc(st.n_level * sizeof(mclx*), EXIT_ON_FAIL)
 
-   ;  while(a<argc)
-      {  mcxIOnewName(xfin, argv[a])
-      ;  cls = mclxRead(xfin, EXIT_ON_FAIL)
+   ;  if (status || !st.n_level)
+      mcxDie(1, me, "not happy, you hear me ?- not happy")
+
+#define MX(i) (st.level[i].mx)
+
+   ;  mclxColumnsRealign(MX(st.n_level-1), mclvSizeRevCmp)
+   ;  mclxMakeCharacteristic(MX(st.n_level-1))
+
+   ;  for (i=st.n_level-1;i>0;i--)
+      {  cls = st.level[i-1].mx
       ;  mclxColumnsRealign(cls, mclvSizeRevCmp)
       ;  mclxMakeCharacteristic(cls)
-      ;  mcxIOclose(xfin)
 
-/* mcx /out.order-1 lm tp /out.order-2 lm mul tp /x1 wm
- */
-      ;  if (!n_clxs)
-         clxs[n_clxs] = cls
-      ;  else
-         {  mclx* clinv, *map
+/* mcx /out.order-1 lm tp /out.order-2 lm mul tp /x1 wm */
 
-         ;  clxs[n_clxs]   =  mclcMeet(clxs[n_clxs-1], cls, EXIT_ON_FAIL)
-         ;  mclxColumnsRealign(clxs[n_clxs], mclvSizeRevCmp)
+      ;  {  mclx* clinv, *map
 
-         ;  clinv          =  mclxTranspose(clxs[n_clxs])
-         ;  map            =  mclxCompose(clinv, clxs[n_clxs-1], 0)
-         ;  maps[n_clxs-1] =  map
-
-         ;  fname = mcxTingPrint(fname, "out.map.%d-%d", (int) a-1, (int) a)
-         ;  mcxIOnewName(xfout, fname->str)
-         ;  mclxWrite(map, xfout, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
-         ;  mcxIOclose(xfout)
-
+         ;  MX(i-1) = clmMeet(MX(i), cls)
          ;  mclxFree(&cls)
-         ;  mclxFree(&clinv)
-      ;  }
+         ;  mclxColumnsRealign(MX(i-1), mclvSizeRevCmp)
 
-         fname = mcxTingPrint(fname, "out.order.%d", (int) a)
-      ;  mcxIOnewName(xfout, fname->str)
-      ;  mclxWrite(clxs[n_clxs], xfout, MCLXIO_VALUE_NONE, EXIT_ON_FAIL)
-      ;  mcxIOclose(xfout)
+         ;  clinv    =  mclxTranspose(MX(i-1))
+         ;  map      =  mclxCompose(clinv, MX(i), 0)
+         ;  maps[i]  =  map
 
-      ;  n_clxs++
-      ;  a++
-   ;  }
+         ;  if (write_map)
+            {  fname = mcxTingPrint(fname, "out.map.%d-%d", (int) i, (int) i-1)
+            ;  mcxIOnewName(xfmap, fname->str)
+            ;  mclxWrite(map, xfmap, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
+            ;  mcxIOclose(xfmap)
+         ;  }
+         }
+      }
 
-      if (!n_clxs)
-      return 0
+      maps[0]  =  NULL
+   ;  mxmap    =  mclxAllocZero
+                  (mclvClone(MX(0)->dom_rows), mclvClone(MX(0)->dom_rows))
 
-   ;  ordv           =  mclvClone(clxs[0]->dom_rows)
-   ;  clxs[n_clxs]   =  NULL
-   ;  maps[n_clxs-1] =  NULL
-
-   ;  {  mclx* cls0  =  clxs[0]
+   ;  {  mclx* cls0  =  MX(st.n_level-1)
       ;  for (i=0;i<cls0->dom_cols->n_ivps;i++)
-         if (rerank(cls0->dom_cols->ivps[i].idx, 0,  clxs, maps, ordv, &ord))
+         if (rerank(cls0->dom_cols->ivps[i].idx, st.n_level-1,  &st, maps, mxmap, &ord))
          break
 
+      ;  mcxIOopen(xfout, EXIT_ON_FAIL)
+
       ;  if (i == cls0->dom_cols->n_ivps)
-         {  mcxTell
-            (me, "reordering successful (%ld entries)", (long) ordv->n_ivps)
-         ;  mclvSort(ordv, mclpValCmp)
-         ;  mclvaDump2(ordv, stdout, 0, -1, "\n", MCLVA_DUMP_EOV_NO)
+         {  mcxTell(me, "reordering successful")
+         ;  mclxWrite(mxmap, xfout, MCLXIO_VALUE_NONE, EXIT_ON_FAIL)
       ;  }
       }
 
@@ -136,21 +220,21 @@ int main
 ;  }
 
 
-mcxstatus rerank
+static mcxstatus rerank
 (  long     clid
-,  int      depth
-,  mclx**   clxs
+,  int      height
+,  mclxCat *st
 ,  mclx**   maps
-,  mclv*    ordv
-,  double*  ord
+,  mclx*    mxmap
+,  ofs*     ord
 )
-   {  mclx* cls = clxs[depth]
-   ;  mclx* map = maps[depth]
+   {  mclx* cls = st->level[height].mx
+   ;  mclx* map = maps[height]
    ;  mcxstatus status = STATUS_FAIL
    ;  mclv* domv
    ;  const char* errmsg = "all's well"
 
-;if (0) fprintf(stderr, "in at %ld/%d %f\n", clid, depth, *ord) 
+;if (0) fprintf(stderr, "in at %ld/%ld %ld\n", (long) clid, (long) height, (long) *ord) 
 
    ;  while (1)
       {  if (!cls)
@@ -165,25 +249,25 @@ mcxstatus rerank
          ;  break
       ;  }
 
-         if (map)
+         if (height)
          {  mclv* mapv = mclxGetVector(map, clid, RETURN_ON_FAIL, NULL)
-         ;  long i
+         ;  dim i
          ;  if (!map)
             {  errmsg = "no mapv"
             ;  break
          ;  }
 
             for (i=0;i<mapv->n_ivps;i++)
-            if (rerank(mapv->ivps[i].idx, depth+1, clxs, maps, ordv, ord))
+            if (rerank(mapv->ivps[i].idx, height-1, st, maps, mxmap, ord))
             break
 
          ;  if (i != mapv->n_ivps)
             break
       ;  }
          else
-         {  long i
+         {  dim i
          ;  for (i=0;i<domv->n_ivps;i++)
-            {  mclvInsertIdx(ordv, domv->ivps[i].idx, *ord)
+            {  mclvInsertIdx(mxmap->cols+domv->ivps[i].idx, *ord, 1.0)
             ;  (*ord)++
          ;  }
          }
@@ -193,9 +277,30 @@ mcxstatus rerank
    ;  }
       
       if (status)
-      {  mcxErr("rerank", "panic <%s> clid/depth %ld/%d", errmsg, clid, depth)
+      {  mcxErr("rerank", "panic <%s> clid/height %ld/%ld", errmsg, (long) clid, (long) height)
       ;  return STATUS_FAIL
    ;  }
       return STATUS_OK
 ;  }
 
+
+static mcxDispHook orderEntry
+=  {  "order"
+   ,  "order [options] <cl stack file>"
+   ,  orderOptions
+   ,  sizeof(orderOptions)/sizeof(mcxOptAnchor) - 1
+   ,  orderArgHandle
+   ,  orderInit
+   ,  orderMain
+   ,  1
+   ,  1
+   ,  MCX_DISP_DEFAULT
+   }
+;
+
+
+mcxDispHook* mcxDispHookOrder
+(  void
+)
+   {  return &orderEntry
+;  }

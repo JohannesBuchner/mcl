@@ -1,15 +1,16 @@
-/* (c) Copyright 2005 Stijn van Dongen
+/*   (C) Copyright 2005, 2006, 2007 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
- * under the terms of the GNU General Public License; either version 2 of the
+ * under the terms of the GNU General Public License; either version 3 of the
  * License or (at your option) any later version.  You should have received a
  * copy of the GPL along with tingea, in the file COPYING.
 */
 
-#ifndef util_tok
-#define util_tok
+#ifndef tingea_tok
+#define tingea_tok
 
 #include <string.h>
+#include "inttypes.h"
 #include "types.h"
 #include "list.h"
 #include "ting.h"
@@ -42,9 +43,9 @@
 */
 
 char* mcxTokSkip
-(  const char* ofs
+(  const char* offset
 ,  int (*fbool)(int c)
-,  int  len
+,  ofs  len
 )  ;
 
 
@@ -54,10 +55,10 @@ char* mcxTokSkip
 */
 
 mcxstatus mcxTokMatch
-(  const char* ofs
+(  const char* offset
 ,  char**      end
 ,  mcxbits     mode
-,  int         len            /* considered if >= 0 */
+,  ofs         len            /* considered if >= 0 */
 )  ;
 
 
@@ -69,11 +70,11 @@ mcxstatus mcxTokMatch
 */
 
 mcxstatus mcxTokFind
-(  const char* ofs
+(  const char* offset
 ,  char*       tok            /* Only tok[0] considered for now! */
 ,  char**      pos
 ,  mcxbits     mode
-,  int         len            /* considered if >= 0 */
+,  ofs         len            /* considered if >= 0 */
 )  ;
 
 
@@ -101,7 +102,7 @@ void mcxTokFuncFree
 mcxstatus mcxTokExpectFunc
 (  mcxTokFunc* tf
 ,  const char* str
-,  long        str_len
+,  dim         str_len
 ,  char**      z
 ,  int         n_min
 ,  int         n_max

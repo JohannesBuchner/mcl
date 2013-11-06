@@ -1,7 +1,8 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -17,6 +18,7 @@
 #include "ivp.h"
 #include "iface.h"
 #include "pval.h"
+#include "io.h"
 
 #include "util/compile.h"
 #include "util/alloc.h"
@@ -24,6 +26,221 @@
 #include "util/array.h"
 #include "util/minmax.h"
 #include "util/err.h"
+
+
+/* ­--------------------------------------------------------------- */
+
+/* return smallest ceil to key */
+
+static inline mclp* mclpBsearchCeil
+(  const mclp *key
+,  const mclp *base
+,  dim nmemb
+)
+   {  ofs lft                 /* fixme (consider -1 initialization) */
+   ;  dim bar, rgt
+   ;  if (!nmemb || key->idx > base[nmemb-1].idx)
+      return NULL
+
+   ;  if (key->idx <= base[0].idx)
+      return (mclp*) base
+
+   ;  lft = -1
+   ;  rgt = nmemb
+   ;  bar = nmemb / 2
+
+   ;  while (lft < 0 || bar < (dim) rgt)
+      {  if (key->idx > base[bar].idx)
+         lft = bar
+      ;  else
+         rgt = bar
+      ;  bar = rgt - (rgt-lft) / 2;
+   ;  }
+      return (mclp*) base + bar
+;  }
+
+
+/* return largest floor to key */
+
+static inline mclp* mclpBsearchFloor
+(  const mclp *key
+,  const mclp *base
+,  dim nmemb
+)
+   {  ofs lft
+   ;  dim bar, rgt
+   ;  if (!nmemb || key->idx < base->idx)
+      return NULL
+
+   ;  lft = -1
+   ;  rgt = nmemb
+   ;  bar = nmemb / 2
+
+   ;  while (lft < 0 || bar > (dim) lft)
+      {  if (key->idx < base[bar].idx)
+         rgt = bar
+      ;  else
+         lft = bar
+      ;  bar = lft + (rgt-lft) / 2;
+   ;  }
+      return (mclp*) base + bar
+;  }
+
+
+/* ­--------------------------------------------------------------- */
+
+
+void* mclvInit_v
+(  void* vecv
+)  
+   {  mclv *vec = vecv
+   ;  if (!vec && !(vec = mcxAlloc(sizeof(mclVector), ENQUIRE_ON_FAIL)))
+      return NULL
+   ;  vec->ivps   =  NULL
+   ;  vec->n_ivps =  0
+   ;  vec->vid    =  -1
+   ;  vec->val    =  0.0
+   ;  return vec
+;  }
+
+
+mclVector* mclvInit
+(  mclVector*              vec
+)  
+   {  return mclvInit_v(vec)
+;  }
+
+
+/* this routine should always work also for non-conforming vectors */
+
+mclVector* mclvInstantiate
+(  mclVector*     dst_vec
+,  dim            new_n_ivps
+,  const mclIvp*  src_ivps
+)
+   {  mclIvp*     new_ivps
+   ;  dim         old_n_ivps
+
+   ;  if (!dst_vec && !(dst_vec = mclvInit(NULL)))    /* create */
+      return NULL
+
+   ;  old_n_ivps = dst_vec->n_ivps
+
+               /* fixme: delay initialization until after success */
+   ;  if
+      ( !(  dst_vec->ivps
+         =  mcxRealloc
+            (  dst_vec->ivps
+            ,  new_n_ivps * sizeof(mclIvp)
+            ,  ENQUIRE_ON_FAIL
+            )
+         )
+      && new_n_ivps
+      )
+      {  mcxMemDenied(stderr, "mclvInstantiate", "mclIvp", new_n_ivps)
+     /*  do not free; *dst_vec could be array element */
+      ;  return NULL
+   ;  }
+
+      new_ivps = dst_vec->ivps
+
+   ;  if (!src_ivps)                                  /* resize */
+      {  dim k = old_n_ivps
+      ;  while (k < new_n_ivps)
+         {  mclpInit(new_ivps + k)
+         ;  k++
+      ;  }
+      }
+      else if (src_ivps && new_n_ivps)                /* copy   */
+      memcpy(new_ivps, src_ivps, new_n_ivps * sizeof(mclIvp))
+
+   ;  dst_vec->n_ivps = new_n_ivps
+   ;  return dst_vec
+;  }
+
+
+
+mclVector* mclvNew
+(  mclp*    ivps
+,  dim      n_ivps
+)
+   {  return mclvInstantiate(NULL, n_ivps, ivps)
+;  }
+
+
+mclVector* mclvClone
+(  const mclVector*  src
+)
+   {  return mclvCopy(NULL, src)
+;  }
+
+
+mclVector* mclvCopy
+(  mclVector*        dst
+,  const mclVector*  src
+)  
+   {  if (!src)
+      {  mclvFree(&dst)
+      ;  return NULL
+   ;  }
+      return mclvInstantiate(dst, src->n_ivps, src->ivps)
+;  }
+
+
+void mclvRelease
+(  mclVector*        vec
+)
+   {  if (!vec)
+      return
+   ;  mcxFree(vec->ivps)
+   ;  vec->ivps = NULL
+   ;  vec->n_ivps = 0
+;  }
+
+
+void mclvRelease_v
+(  void*        vec
+)
+   {  mclvRelease(vec)
+;  }
+
+
+void mclvFree
+(  mclVector**                 vecpp
+)  
+   {  if (*vecpp)
+      {  mcxFree((*vecpp)->ivps)
+      ;  mcxFree(*vecpp)
+      ;  (*vecpp) = NULL
+   ;  }
+;  }
+
+
+void mclvFree_v
+(  void*  vecpp
+)  
+   {  mclvFree(vecpp)
+;  }
+
+
+mclVector* mclvRenew
+(  mclv*    dst
+,  mclp*    ivps
+,  dim      n_ivps
+)
+   {  return mclvInstantiate(dst, n_ivps, ivps)
+;  }
+
+
+mclVector*  mclvResize
+(  mclVector*              vec
+,  dim                     n_ivps
+)  
+   {  return mclvInstantiate(vec, n_ivps, NULL)
+;  }
+
+
+/* ­--------------------------------------------------------------- */
 
 
 void mclvRuntime
@@ -34,13 +251,6 @@ void mclvRuntime
          mcxErr(caller, "void vector argument")
       ,  mcxExit(1)
 ;  }
-
-
-#ifdef RUNTIME_INTEGRITY
-#  define MCLV_CHECK(vec, caller) mclvRuntime(vec, caller)
-#else
-#  define MCLV_CHECK(vec, caller)
-#endif
 
 
 mcxstatus mclvCheck
@@ -116,98 +326,7 @@ mcxstatus mclvCheck
 ;  }
 
 
-void* mclvInit_v
-(  void* vecv
-)  
-   {  mclv *vec = vecv
-   ;  if (!vec && !(vec = mcxAlloc(sizeof(mclVector), RETURN_ON_FAIL)))
-      return NULL
-   ;  vec->ivps   =  NULL
-   ;  vec->n_ivps =  0
-   ;  vec->vid    =  -1
-   ;  vec->val    =  0.0
-   ;  return vec
-;  }
-
-
-mclVector* mclvInit
-(  mclVector*              vec
-)  
-   {  return mclvInit_v(vec)
-;  }
-
-
-/* this routine should always work also for non-conforming vectors */
-
-mclVector* mclvInstantiate
-(  mclVector*     dst_vec
-,  int            new_n_ivps
-,  const mclIvp*  src_ivps
-)
-   {  mclIvp*     new_ivps
-   ;  int         old_n_ivps
-
-   ;  if (!dst_vec && !(dst_vec = mclvInit(NULL)))    /* create */
-      return NULL
-
-   ;  old_n_ivps = dst_vec->n_ivps
-
-   ;  if
-      ( !(  dst_vec->ivps
-         =  mcxRealloc
-            (  dst_vec->ivps
-            ,  new_n_ivps * sizeof(mclIvp)
-            ,  RETURN_ON_FAIL
-            )
-         )
-      && new_n_ivps
-      )
-      {  mcxMemDenied(stderr, "mclvInstantiate", "mclIvp", new_n_ivps)
-     /*  do not free; *dst_vec could be array element */
-      ;  return NULL
-   ;  }
-
-      new_ivps = dst_vec->ivps
-
-   ;  if (!src_ivps)                                  /* resize */
-      {  int k = old_n_ivps
-      ;  while (k < new_n_ivps)
-         {  mclpInit(new_ivps + k)
-         ;  k++
-      ;  }
-      }
-      else if (src_ivps && new_n_ivps)                /* copy   */
-      memcpy(new_ivps, src_ivps, new_n_ivps * sizeof(mclIvp))
-
-   ;  dst_vec->n_ivps = new_n_ivps
-   ;  return dst_vec
-;  }
-
-
-
-mclVector* mclvNew
-(  mclp*    ivps
-,  int      n_ivps
-)
-   {  return mclvInstantiate(NULL, n_ivps, ivps)
-;  }
-
-
-mclVector* mclvRenew
-(  mclv*    dst
-,  mclp*    ivps
-,  int      n_ivps
-)
-   {  return mclvInstantiate(dst, n_ivps, ivps)
-;  }
-
-
-mclVector*  mclvResize
-(  mclVector*              vec
-,  int                     n_ivps
-)  
-   {  return mclvInstantiate(vec, n_ivps, NULL)
-;  }
+/* ­--------------------------------------------------------------- */
 
 
 double mclvIn
@@ -239,52 +358,6 @@ double mclvIn
 ;  }
 
 
-mclVector* mclvClone
-(  const mclVector*  src
-)
-   {  return mclvCopy(NULL, src)
-;  }
-
-
-mclVector* mclvCopy
-(  mclVector*        dst
-,  const mclVector*  src
-)  
-   {  if (!src)
-      return NULL
-   ;  return mclvInstantiate(dst, src->n_ivps, src->ivps)
-;  }
-
-
-void mclvRelease
-(  mclVector*        vec
-)
-   {  if (!vec)
-      return
-   ;  mcxFree(vec->ivps)
-   ;  vec->ivps = NULL
-   ;  vec->n_ivps = 0
-;  }
-
-
-void mclvFree
-(  mclVector**                 vecpp
-)  
-   {  if (*vecpp)
-      {  mcxFree((*vecpp)->ivps)
-      ;  mcxFree(*vecpp)
-      ;  (*vecpp) = NULL
-   ;  }
-;  }
-
-
-void mclvFree_v
-(  void*  vecpp
-)  
-   {  mclvFree(vecpp)
-;  }
-
-
 void mclvCleanse
 (  mclVector*  vec
 )
@@ -311,9 +384,7 @@ void mclvSort
 (  mclVector*   vec
 ,  int         (*cmp)(const void*, const void*)
 )  
-   {  MCLV_CHECK(vec, "mclvSort")
-
-   ;  if (!cmp)
+   {  if (!cmp)
       cmp = mclpIdxCmp
 
    ;  if (vec->n_ivps)
@@ -321,12 +392,11 @@ void mclvSort
 ;  }
 
 
-int mclvUniqueIdx
+dim mclvUniqueIdx
 (  mclVector*              vec
 ,  void (*merge)(void* ivp1, const void* ivp2)
 )  
-   {  int n = 0, diff = 0
-   ;  MCLV_CHECK(vec, "mclvUniqueIdx")
+   {  dim n = 0, diff = 0
 
    ;  if (vec->n_ivps)
       n = mcxDedup
@@ -343,44 +413,44 @@ int mclvUniqueIdx
 ;  }
 
 
-long  mclvTop
+dim mclvTop
 (  mclVector      *vec
 ,  double         psum
 ,  double*        maxptr
 ,  double*        minptr
 ,  mcxbool        select
 )
-   {  long i = 0
+   {  dim d = 0
    ;  double acc = 0.0
 
    ;  mclvSort(vec, mclpValRevCmp)  /* DANGER vector now not conforming */
 
-   ;  while (i<vec->n_ivps && acc < psum)
-         acc += vec->ivps[i].val
-      ,  i++
+   ;  while (d<vec->n_ivps && acc < psum)
+         acc += vec->ivps[d].val
+      ,  d++
 
    ;  if (select)
-      mclvResize(vec, i)
+      mclvResize(vec, d)
 
    ;  if (maxptr)
-      *maxptr = i ? vec->ivps[0].val : DBL_MAX
+      *maxptr = d ? vec->ivps[0].val : DBL_MAX
 
-   ;  if (minptr && i)
-      *minptr = i ? vec->ivps[i-1].val : -DBL_MAX
+   ;  if (minptr && d)
+      *minptr = d ? vec->ivps[d-1].val : -DBL_MAX
 
    ;  mclvSort(vec, mclpIdxCmp)
-   ;  return i
+   ;  return d
 ;  }
 
 
 double mclvKBar
 (  mclVector   *vec
-,  int         k
+,  dim         k
 ,  double      ignore            /*    ignore elements relative to this  */
 ,  int         mode
 )  
    {  int      bEven       =  (k+1) % 2
-   ;  int      n_inserted  =  0
+   ;  dim      n_inserted  =  0
    ;  double   ans         =  0.0
 
    ;  mclIvp*  vecIvp      =  vec->ivps
@@ -391,7 +461,7 @@ double mclvKBar
    ;  if (k >= vec->n_ivps)
       return(-1.0)
 
-   ;  heap =  mcxAlloc ((k+bEven)*sizeof(pval), EXIT_ON_FAIL)
+   ;  heap =  mcxAlloc ((k+bEven)*sizeof(pval), ENQUIRE_ON_FAIL)
       /* fixme; enomem */
 
    ;  if (mode == KBAR_SELECT_LARGE)
@@ -405,18 +475,18 @@ double mclvKBar
             {
          ;  }
             else if (n_inserted < k)
-            {  int i =  n_inserted
+            {  dim d =  n_inserted
 
-            ;  while (i != 0 && *(heap+(i-1)/2) > val)
-               { *(heap+i) =  *(heap+(i-1)/2)
-               ;  i = (i-1)/2
+            ;  while (d != 0 && *(heap+(d-1)/2) > val)
+               { *(heap+d) =  *(heap+(d-1)/2)
+               ;  d = (d-1)/2
             ;  }
-               *(heap+i) =  val
+               *(heap+d) =  val
             ;  n_inserted++
          ;  }
             else if (val > *heap)
-            {  int root  =  0
-            ;  int d
+            {  dim root  =  0
+            ;  dim d
 
             ;  while((d = 2*root+1) < k)
                {  if (*(heap+d) > *(heap+d+1))
@@ -446,18 +516,18 @@ double mclvKBar
             {
          ;  }
             else if (n_inserted < k)
-            {  int i = n_inserted
+            {  dim d = n_inserted
 
-            ;  while (i != 0 && *(heap+(i-1)/2) < val)
-               { *(heap+i) = *(heap+(i-1)/2)
-               ;  i = (i-1)/2
+            ;  while (d != 0 && *(heap+(d-1)/2) < val)
+               { *(heap+d) = *(heap+(d-1)/2)
+               ;  d = (d-1)/2
             ;  }
-               *(heap+i) = val
+               *(heap+d) = val
             ;  n_inserted++
          ;  }
             else if (val < *heap)
-            {  int root = 0
-            ;  int d
+            {  dim root = 0
+            ;  dim d
 
             ;  while((d = 2*root+1) < k)
                {  if (*(heap+d) < *(heap+d+1))
@@ -493,8 +563,6 @@ double mclvSelectGqBar
    {  mclIvp *newivp, *oldivp, *maxivp
    ;  double mass = 0.0      
 
-   ;  MCLV_CHECK(vec, "mclvSelectGqBar")
-
    ;  newivp = vec->ivps
    ;  oldivp = newivp
    ;  maxivp = newivp+vec->n_ivps
@@ -509,21 +577,20 @@ double mclvSelectGqBar
    ;  }
 
       mclvResize(vec, newivp - (vec->ivps))
-         /* fixme; enomen (conceivable?:shrinking) */
    ;  return mass
 ;  }
 
 
-int mclvCountGiven
+dim mclvCountGiven
 (  mclVector*     src
 ,  mcxbool       (*operation)(mclIvp* ivp, void* arg)
 ,  void*          arg
 )  
-   {  int         n_src    =  src->n_ivps
+   {  dim         n_src    =  src->n_ivps
    ;  mclIvp      *src_ivp =  src->ivps
-   ;  int         n_hits   =  0
+   ;  dim         n_hits   =  0
 
-   ;  while (--n_src >= 0)
+   ;  while (n_src-- > 0)     /* careful with unsignedness */
       {  if (operation(src_ivp, arg))
          n_hits++
       ;  src_ivp++
@@ -532,39 +599,20 @@ int mclvCountGiven
 ;  }
 
 
-typedef struct
-{  double*     lft
-;  double*     rgt
-;  mcxbits     equate   /* 1: lq, 2: gq */
-;
-}  mclpRange   ;
-
-
-mcxbool mclpSelectValues
-(  mclp     *ivp
-,  void     *range
+dim mclvSelectIdcs
+(  mclv        *src
+,  long        *lft
+,  long        *rgt
+,  mcxbits     equate
+,  mclv        *dst
 )
-   {  mclpRange* rng = (mclpRange*) range
-   ;  double val = ivp->val
-   ;  double* lft = rng->lft
-   ;  double* rgt = rng->rgt
+   {  mclpIRange range
+   ;  range.lft = lft
+   ;  range.rgt = rgt
+   ;  range.equate = equate
 
-   ;  if
-      (  (  rgt
-         && 
-            (  val > rgt[0]
-            || (rng->equate & MCLX_EQT_LT && val >= rgt[0])
-            )
-         )
-      || (  lft
-         && 
-            (  val < lft[0]
-            || (rng->equate & MCLX_EQT_GT && val <= lft[0])
-            )
-         )
-      )
-      return FALSE
-   ;  return TRUE
+   ;  mclvCopyGiven(src, dst, mclpSelectIdcs, &range, 0)
+   ;  return dst->n_ivps
 ;  }
 
 
@@ -575,7 +623,7 @@ double mclvSelectValues
 ,  mcxbits     equate
 ,  mclv        *dst
 )
-   {  mclpRange range
+   {  mclpVRange range
    ;  range.lft = lft
    ;  range.rgt = rgt
    ;  range.equate = equate
@@ -590,9 +638,9 @@ mclVector* mclvCopyGiven
 ,  mclVector*     src
 ,  mcxbool        (*operation)(mclIvp* ivp, void* arg)
 ,  void*          arg
-,  int            sup
+,  dim            sup
 )  
-   {  int         n_src
+   {  dim         n_src
    ;  mclIvp      *src_ivp, *dst_ivp
 
                         /* dst allowed to be NULL */
@@ -606,9 +654,10 @@ mclVector* mclvCopyGiven
    ;  src_ivp     =  src->ivps
    ;  dst_ivp     =  dst->ivps
 
-   /* BEWARE: this routine must work if dst==src */
-   
-   ;  while (--n_src >= 0 && dst_ivp < dst->ivps + dst->n_ivps)
+                        /* BEWARE: this routine must work if dst==src */
+                        /* n_src--: careful with unsignedness */
+
+   ;  while (n_src-- > 0 && dst_ivp < dst->ivps + dst->n_ivps)
       {  if (operation(src_ivp, arg))
          {  dst_ivp->idx =  src_ivp->idx
          ;  dst_ivp->val =  src_ivp->val
@@ -627,16 +676,14 @@ void mclvUnary
 ,  double     (*operation)(pval val, void* arg)
 ,  void*       arg
 )  
-   {  int      n_ivps
+   {  dim      n_ivps
    ;  mclIvp   *src_ivp, *dst_ivp
-
-   ;  MCLV_CHECK(vec, "mclvUnary")
 
    ;  n_ivps   =  vec->n_ivps
    ;  src_ivp  =  vec->ivps
    ;  dst_ivp  =  vec->ivps
    
-   ;  while (--n_ivps >= 0)
+   ;  while (n_ivps-- > 0)    /* careful with unsignedness */
       {  double val =  operation(src_ivp->val, arg)
 
       ;  if (val != 0.0)
@@ -650,7 +697,12 @@ void mclvUnary
 ;  }
 
 
-static int update_small_large
+/* ­--------------------------------------------------------------- */
+
+/* NOTE caller ensures that both vectors have > 0 ivps
+*/
+
+static dim update_meet_small_large
 (  mclVector*  v1
 ,  const mclVector*  v2
 ,  double  (*op)(pval mval, pval nval)
@@ -658,7 +710,9 @@ static int update_small_large
    {  mcxbool update_small = FALSE
    ;  const mclv* s, *l
    ;  const mclp* l_ofs, *s_ofs, *s_max
-   ;  int n_zeroed = 0
+   ;  dim n_zeroed = 0
+
+;nu_meet_sl++
 
    ;  if (v1->n_ivps < v2->n_ivps)
       {  l = v2
@@ -670,28 +724,29 @@ static int update_small_large
       ;  s = v2
    ;  }
 
-      if (!l->n_ivps || !s->n_ivps)
-      return 0
-
-            /* search for largest applicable start in l;
-             * if successful then
-             *    l->ivps[k].idx <= s->ivps[0].idx
+            /* search for largest applicable start in l; possible if
+             * l->ivps[0] <= s->ivps[0] then k is maximal s.t.
+             * l_ofs->ivps[k].idx <= s->ivps[0].idx
+             *         _
+             *    l  3 4     10 17 30 50
+             *    s     5 8 9  11
             */
-   ;  if ((l_ofs = mclvGetIvpFloor(l, s->ivps[0].idx, NULL)))
-      s_ofs = s->ivps+0
-
-            /* search for smallest applicable start in s
-             * if successful then
-             *    s->ivps[k].idx >= l->ivps[0].idx
-             * or
-             *    l->ivps[0].idx <= s->ivps[k].idx
-            */
-   ;  else if ((s_ofs = mclvGetIvpCeil(s, l->ivps[0].idx, NULL)))
-      l_ofs = l->ivps+0
+      if (l->ivps[0].idx <= s->ivps[0].idx)
+         l_ofs = mclvGetIvpFloor(l, s->ivps[0].idx, NULL)
+      ,  s_ofs = s->ivps+0
    ;  else
-      return 0
+            /*                _        _
+             *    l          19 20 21 22 30 39 40 44 45
+             *    s     4 5 13        22
+             *    In the example we first find 22 on 19;
+             *    then we have to find 22 on 22.
+            */
+      {  if (!(s_ofs = mclvGetIvpCeil(s, l->ivps[0].idx, NULL)))
+         return 0
+      ;  l_ofs = mclvGetIvpFloor(l, s_ofs->idx, NULL)
+   ;  }
 
-   ;  s_max = s->ivps + s->n_ivps
+      s_max = s->ivps + s->n_ivps
 
             /*
              * pre-condition: s_ofs < s_max.
@@ -707,15 +762,20 @@ static int update_small_large
          ;  else if ( !(((mclp*) l_ofs)->val = op(l_ofs->val, s_ofs->val)))
             n_zeroed++
       ;  }
+                  /* 
+                   * alternative to ++s_ofs is mclvGetIvpCeil again,
+                   * but s is small so we choose not to.
+                  */
          if (++s_ofs >= s_max)
          break
       ;  l_ofs = mclvGetIvpFloor(l, s_ofs->idx, l_ofs)
    ;  }
+
       return n_zeroed
 ;  }
 
 
-static int update_zip
+static dim update_meet_zip
 (  mclVector*  v1
 ,  const mclVector*  v2
 ,  double  (*op)(pval mval, pval nval)
@@ -724,8 +784,11 @@ static int update_zip
          ,  *ivp1max = ivp1 + v1->n_ivps
          ,  *ivp2max = ivp2 + v2->n_ivps
 
-   ;  int n_zeroed = 0
+   ;  dim n_zeroed = 0
 
+;nu_meet_zip++
+
+;if(0)fprintf(stderr, "zip zip zip\n")
    ;  while (ivp1 < ivp1max && ivp2 < ivp2max)
       {  if (ivp1->idx < ivp2->idx)
          ivp1++
@@ -734,47 +797,197 @@ static int update_zip
       ;  else if (ivp1->val = op(ivp1->val, ivp2++->val), !ivp1++->val)
          n_zeroed++
    ;  }
+;if(0)fprintf(stderr, "meet zip vector %d (%d zero)\n", (int) v1->vid, (int) n_zeroed)
+;
       return n_zeroed
 ;  }
 
 
-static int update_canonical
+static dim update_meet_canonical
 (  mclVector*  v1
 ,  const mclVector*  v2
 ,  double  (*op)(pval mval, pval nval)
 )
-   {  int i = 0
+   {  dim d = 0
+   ;  dim n_zeroed = 0
    ;  long maxidx = v1->n_ivps-1
-   ;  int n_zeroed = 0
 
-   ;  for (i=0;i<v2->n_ivps;i++)
-      {  long idx = v2->ivps[i].idx
+;nu_meet_can++
+
+   ;  for (d=0;d<v2->n_ivps;d++)
+      {  long idx = v2->ivps[d].idx
       ;  if (idx > maxidx)
          break
-      ;  v1->ivps[idx].val = op(v1->ivps[idx].val, v2->ivps[i].val)
+      ;  v1->ivps[idx].val = op(v1->ivps[idx].val, v2->ivps[d].val)
       ;  if (!v1->ivps[idx].val)
          n_zeroed++
    ;  }
+;if(0)fprintf(stderr, "meet can vector %d (%d zero)\n", (int) v1->vid, (int) n_zeroed)
+;
       return n_zeroed
 ;  }
 
 
-int mclvUpdateMeet
+dim mclvUpdateMeet
 (  mclVector*  v1
 ,  const mclVector*  v2
 ,  double  (*op)(pval mval, pval nval)
 )  
-   {  if (MCLV_IS_CANONICAL(v1))
-      return update_canonical(v1, v2, op)
+   {  if (!v1->n_ivps || !v2->n_ivps)
+      return 0
+
+   ;  if ((int) MCLV_IS_CANONICAL(v1))
+      return update_meet_canonical(v1, v2, op)
    ;  else if
-      (  v2->n_ivps * log(v1->n_ivps) < v1->n_ivps
-      || v1->n_ivps * log(v2->n_ivps) < v2->n_ivps
+      (  v2->n_ivps * 3 * log(v1->n_ivps) < v1->n_ivps
+      || v1->n_ivps * 3 * log(v2->n_ivps) < v2->n_ivps
       )
-      return update_small_large(v1, v2, op)
+      return update_meet_small_large(v1, v2, op)
    ;  else
-      return update_zip(v1, v2, op)
+      return update_meet_zip(v1, v2, op)
 ;  }
 
+
+/* ­--------------------------------------------------------------- */
+
+
+static dim update_diff_zip
+(  mclVector*  v1
+,  const mclVector*  v2
+,  double  (*op)(pval mval, pval nval)
+)
+   {  mclp* p1 = v1->ivps, *p2 = v2->ivps
+         ,  *p1max = p1 + v1->n_ivps
+         ,  *p2max = p2 + v2->n_ivps
+
+   ;  dim n_zeroed = 0
+
+;nu_diff_zip++
+
+;if(0)fprintf(stderr, "zip v1 %d with %d v2 %d with %d\n", (int) v1->vid, (int) v1->n_ivps, (int) v2->vid, (int) v2->n_ivps)
+
+   ;  while (p1 < p1max && p2 < p2max)
+{if(0)fprintf(stderr, "p1 p2 %d %d\n", (int) p1->idx, (int) p2->idx)
+      ;  if (p1->idx < p2->idx)
+         {  if (!(p1->val = op(p1->val, 0)))
+            n_zeroed++
+         ;  p1++
+      ;  }
+         else if (p1->idx == (p2++)->idx)
+         p1++
+   ;  }
+
+      while (p1 < p1max)
+      {  if (!(p1->val = op(p1->val, 0)))
+         n_zeroed++
+      ;  p1++
+   ;  }
+
+;if(0)fprintf(stderr, "diff zip vector %d (%d zero)\n", (int) v1->vid, (int) n_zeroed)
+;
+      return n_zeroed
+;  }
+
+
+   /* update everything in  v1/v2 with op(v1,0)
+   */
+static dim update_diff_canonical
+(  mclVector*  v1
+,  const mclVector*  v2
+,  double (*op)(pval mval, pval nval)
+)
+   {  dim d = 0
+   ;  dim n_zeroed   =  0
+   ;  long maxidx    =  v1->n_ivps-1
+   ;  long prev_idx  =  -1, t
+
+;nu_diff_can++
+
+   ;  for (d=0;d<v2->n_ivps;d++)
+      {  long idx = v2->ivps[d].idx
+      ;  if (idx > maxidx)
+         break
+
+      ;  for (t=prev_idx+1; t<idx; t++)
+         if (!(v1->ivps[t].val = op(v1->ivps[t].val, 0)))
+         n_zeroed++
+      ;  prev_idx = idx
+   ;  }
+
+      for (t=prev_idx+1; t<=maxidx;t++)
+      if (!(v1->ivps[t].val = op(v1->ivps[t].val, 0)))
+      n_zeroed++
+
+;if(0)fprintf(stderr, "diff can vector %d (%d zero)\n", (int) v1->vid, (int) n_zeroed)
+
+   ;  return n_zeroed
+;  }
+
+
+static dim update_diff_small_large
+(  mclVector*  a
+,  const mclVector*  b
+,  double  (*op)(pval mval, pval nval)
+)  
+   {  mclp *b_ofs = b->ivps+0
+         , *a_ofs = a->ivps+0
+         , *a_max = a_ofs + a->n_ivps
+   ;  dim n_zeroed = 0
+
+;nu_diff_sl++
+
+   ;  if (b_ofs)
+      while (a_ofs < a_max)
+      {  if
+         (  b_ofs->idx < a_ofs->idx
+         && (!(b_ofs = mclvGetIvpCeil(b, a_ofs->idx, b_ofs)))
+         )
+         break
+            /* nothing in (remainder of) b is >= current a */
+
+      ;  if
+         (  a_ofs->idx < b_ofs->idx
+         && (!(a_ofs->val = op(a_ofs->val, 0.0)))
+         )
+         n_zeroed++
+            /* current a is not in b; compute op */
+
+      ;  a_ofs++
+   ;  }
+
+            /* all these are not in b either */
+      while (a_ofs < a_max)            
+      {  if (!(a_ofs->val = op(a_ofs->val, 0.0)))
+         n_zeroed++
+      ;  a_ofs++
+   ;  }
+
+      return n_zeroed
+;  }
+
+
+
+dim mclvUpdateDiff
+(  mclVector*  v1
+,  const mclVector*  v2
+,  double  (*op)(pval mval, pval nval)
+)  
+   {  if (!v1->n_ivps)
+      return 0
+
+   ;  if (MCLV_IS_CANONICAL(v1))
+      return update_diff_canonical(v1, v2, op)
+   ;  else if
+      (  (v1->n_ivps * 3 * log(v2->n_ivps) < v2->n_ivps)
+      || (v2->n_ivps * 3 * log(v1->n_ivps) < v1->n_ivps)
+      )
+      return update_diff_small_large(v1, v2, op)
+   ;  else
+      return update_diff_zip(v1, v2, op)
+;  }
+
+
+/* ­--------------------------------------------------------------- */
 
 
 mclVector* mclvBinary
@@ -786,16 +999,13 @@ mclVector* mclvBinary
    {  mclIvp  *ivp1, *ivp2, *ivp1max, *ivp2max, *ivpk, *ivpl
    ;  long n1n2 = vec1->n_ivps+vec2->n_ivps
 
-   ;  MCLV_CHECK(vec1, "mclvBinary lft")
-   ;  MCLV_CHECK(vec2, "mclvBinary rgt")
-
    ;  if (vec1->n_ivps + vec2->n_ivps == 0)
       return mclvInstantiate(dst, 0, NULL)
 
    ;  ivpl  =  ivpk 
             =  mcxAlloc
                (  n1n2 * sizeof(mclIvp)
-               ,  RETURN_ON_FAIL
+               ,  ENQUIRE_ON_FAIL
                )
    ;  if (!ivpk)
       {  mcxMemDenied(stderr, "mclvBinary", "mclIvp", n1n2)
@@ -886,23 +1096,106 @@ mclVector* mclvMap
 ;  }
 
 
+mclVector* mclvCanonicalExtend
+(  mclv*       dst
+,  dim         N
+,  double      val
+)
+   {  dim j, N_old
+   ;  ofs idx
+   ;  if (!dst)
+      return mclvCanonical(NULL, N, val)
+
+   ;  N_old = dst->n_ivps
+   ;  if (N < N_old)          /* fixme: err? */
+      return dst
+
+   ;  if (N_old)
+      {  idx = dst->ivps[N_old-1].idx+1
+      ;  if (idx != N_old)
+         mcxErr("mclvCanonicalExtend", "argument not canonical (proceeding)")
+   ;  }
+      else
+      idx = 0
+
+   ;  mclvResize(dst, N)
+   ;  for (j=N_old; j<N; j++)
+         dst->ivps[j].idx = idx++ 
+      ,  dst->ivps[j].val = val
+   ;  return dst
+;  }
+
+
+mclVector* mclvCanonicalEmbed
+(  mclv*       dst
+,  const mclv* src
+,  dim         nr
+,  double      val
+)  
+   {  mclIvp* ivp
+   ;  dim d =  0
+   ;  mclv* src_clone = NULL
+
+   ;  if (dst == src)
+         src_clone = mclvClone(src)
+      ,  src = src_clone
+
+   ;  dst = mclvResize(dst, nr) 
+
+                           /* set everything to val */
+   ;  ivp = dst->ivps
+   ;  while (ivp < dst->ivps+dst->n_ivps)
+      {  ivp->idx = d++
+      ;  (ivp++)->val =  val
+   ;  }
+
+                           /* insert src values */
+                           /* fixme: use better implementation,
+                            * preferably with a callback
+                           */
+      ivp = dst->ivps
+   ;  for (d=0;d<src->n_ivps;d++)
+      {  ivp = mclvGetIvp(dst, src->ivps[d].idx, ivp)
+      ;  if (ivp)
+         ivp->val = src->ivps[d].val
+   ;  }
+
+      if (src_clone)
+      mclvFree(&src_clone)
+   ;  return dst
+;  }
+
+
+mclVector* mclvRange
+(  mclVector*     dst
+,  dim            n_ivps
+,  dim            offset
+,  double         val
+)
+   {  dim i
+   ;  dst = mclvCanonical(dst, n_ivps, val)
+   ;  for (i=0;i<n_ivps;i++)
+      dst->ivps[i].idx = offset+i
+   ;  return dst
+;  }
+
 
 mclVector* mclvCanonical
-(  mclVector* dst_vec
-,  int        nr
+(  mclVector* dst
+,  dim        nr
 ,  double     val
 )  
    {  mclIvp* ivp
-   ;  int i  =  0
-   ;  dst_vec  =  mclvResize(dst_vec, nr) 
+   ;  dim d  =  0
+   ;  dst  =  mclvResize(dst, nr) 
 
-   ;  ivp = dst_vec->ivps
+   ;  ivp = dst->ivps
 
-   ;  while (ivp < dst_vec->ivps+dst_vec->n_ivps)
-      {  ivp->idx =  i++
+   ;  while (ivp < dst->ivps+dst->n_ivps)
+      {  ivp->idx =  d++
       ;  (ivp++)->val =  val
    ;  }
-      return dst_vec
+      return dst
 ;  }
 
 
@@ -910,13 +1203,13 @@ void mclvScale
 (  mclVector*  vec
 ,  double      fac
 )  
-   {  int      n_ivps   =  vec->n_ivps
+   {  dim      n_ivps   =  vec->n_ivps
    ;  mclIvp*  ivps     =  vec->ivps
 
    ;  if (!fac)
       mcxErr("mclvScale PBD", "zero")
 
-   ;  while (--n_ivps >= 0)
+   ;  while (n_ivps-- > 0)
       (ivps++)->val /= fac
 ;  }
 
@@ -924,13 +1217,13 @@ void mclvScale
 double mclvNormalize
 (  mclVector*  vec
 )  
-   {  int      vecsize  = vec->n_ivps
+   {  dim      vecsize  = vec->n_ivps
    ;  mclIvp*  vecivps  = vec->ivps
    ;  double   sum      = mclvSum(vec)
 
    ;  vec->val =  sum
 
-   ;  if (sum == 0.0)
+   ;  if (vec->n_ivps && sum == 0.0)
       {  mcxErr
          (  "mclvNormalize"
          ,  "warning: zero sum <%f> for vector <%ld>"
@@ -942,7 +1235,7 @@ double mclvNormalize
       else if (sum < 0.0)
       mcxErr("mclvNormalize", "warning: negative sum <%f>", (double) sum)
 
-   ;  while (--vecsize >= 0)
+   ;  while (vecsize-- > 0)      /* careful with unsignedness */
       (vecivps++)->val /= sum
    ;  return sum
 ;  }
@@ -953,10 +1246,8 @@ double mclvInflate
 ,  double      power
 )  
    {  mclIvp*  vecivps
-   ;  int      vecsize
+   ;  dim      vecsize
    ;  double   powsum   =  0.0
-
-   ;  MCLV_CHECK(vec, "mclvInflate")
 
    ;  if (!vec->n_ivps)
       return 0.0
@@ -970,8 +1261,13 @@ double mclvInflate
    ;  }
 
      /* fixme static interface */
-      if (mclWarningImpala && powsum <= 0.0)
-      {  mcxErr("mclvInflate", "warning: nonpositive sum <%f>", (double) powsum)
+      if (powsum <= 0.0)
+      {  mcxErr
+         (  "mclvInflate"
+         ,  "warning: nonpositive sum <%f> for vector %ld"
+         ,  (double) powsum
+         ,  (long) vec->vid
+         )
       ;  mclvResize(vec, 0)
       ;  return 0.0
    ;  }
@@ -982,6 +1278,13 @@ double mclvInflate
       (vecivps++)->val /= powsum
 
    ;  return pow((double) powsum, power > 1.0 ? 1/(power-1) : 1.0)
+;  }
+
+
+double mclvVal
+(  const mclVector*   vec
+)
+   {  return vec ? vec->val : 0.0
 ;  }
 
 
@@ -1004,11 +1307,9 @@ double mclvSum
 )  
    {  double   sum      =  0.0
    ;  mclIvp*  vecivps  =  vec->ivps
-   ;  int      vecsize  =  vec->n_ivps
+   ;  dim      vecsize  =  vec->n_ivps
 
-   ;  MCLV_CHECK(vec, "mclvSum")
-
-   ;  while (--vecsize >= 0)
+   ;  while (vecsize-- > 0)      /* careful with unsignedness */
       {  sum += vecivps->val
       ;  vecivps++  
    ;  }
@@ -1021,10 +1322,10 @@ double mclvPowSum
 ,  double power
 )  
    {  mclIvp* vecivps = vec->ivps
-   ;  int     vecsize = vec->n_ivps
+   ;  dim     vecsize = vec->n_ivps
    ;  double  powsum  = 0.0
 
-   ;  while (vecsize-- > 0)
+   ;  while (vecsize-- > 0)      /* careful with unsignedness */
       powsum += (float) pow((double) (vecivps++)->val, power)
    ;  return powsum
 ;  }
@@ -1042,10 +1343,10 @@ double mclvNorm
 ;  }
 
 
-int mclvGetIvpOffset
-(  const mclVector*  vec
+ofs mclvGetIvpOffset
+(  const mclv* vec
 ,  long        idx
-,  long        offset
+,  ofs         offset
 )
    {  mclIvp*  match    =  mclvGetIvp
                            (  vec
@@ -1064,12 +1365,13 @@ mclIvp* mclvGetIvpCeil
 ,  const mclIvp*     offset
 )
    {  mclIvp sought
-   ;  const mclIvp  *base  =  offset ? offset : vec->ivps
-   ;  int      n_ivps   =  vec->n_ivps - (base - vec->ivps)
-   ;  mclpInstantiate(&sought, idx, 1.0)
+   ;  const mclp *base  =  offset ? offset : vec->ivps
+   ;  dim n_ivps        =  vec->n_ivps - (base - vec->ivps)
+   ;  sought.idx = idx
+   ;  sought.val = 1.0
 
    ;  return
-      mcxBsearchCeil(&sought, base, n_ivps, sizeof(mclp), mclpIdxCmp)
+      mclpBsearchCeil(&sought, base, n_ivps)
 ;  }
 
 
@@ -1079,11 +1381,12 @@ mclIvp* mclvGetIvpFloor
 ,  const mclIvp*     offset
 )
    {  mclIvp   sought
-   ;  const mclIvp   *base    =  offset ? offset : vec->ivps
-   ;  int      n_ivps   =  vec->n_ivps - (base - vec->ivps)
-   ;  mclpInstantiate(&sought, idx, 1.0)
+   ;  const mclp *base  =  offset ? offset : vec->ivps
+   ;  dim n_ivps        =  vec->n_ivps - (base - vec->ivps)
+   ;  sought.idx = idx
+   ;  sought.val = 1.0
    ;  return
-      mcxBsearchFloor(&sought, base, n_ivps, sizeof(mclp), mclpIdxCmp)
+      mclpBsearchFloor(&sought, base, n_ivps)
 ;  }
 
 
@@ -1093,8 +1396,8 @@ mclIvp* mclvGetIvp
 ,  const mclIvp*     offset
 )  
    {  mclIvp   sought
-   ;  const mclIvp   *base    =  offset ? offset : vec->ivps
-   ;  int      n_ivps   =  vec->n_ivps - (base - vec->ivps)
+   ;  const mclp *base  =  offset ? offset : vec->ivps
+   ;  dim n_ivps        =  vec->n_ivps - (base - vec->ivps)
 
    ;  mclpInstantiate(&sought, idx, 1.0)
 
@@ -1108,9 +1411,9 @@ mclIvp* mclvGetIvp
 double mclvIdxVal
 (  const mclVector*  vec
 ,  long        idx
-,  int*        p_offset
+,  ofs*        p_offset
 )  
-   {  int     offset   =  mclvGetIvpOffset(vec, idx, -1)
+   {  ofs     offset   =  mclvGetIvpOffset(vec, idx, -1)
    ;  double  value    =  0.0
 
    ;  if (p_offset)
@@ -1123,12 +1426,69 @@ double mclvIdxVal
 ;  }
 
 
+mcxstatus mclvReplace
+(  mclVector*     vec
+,  long           ofs
+,  long           idx
+,  double         val
+)
+   {  mclp piv, *dst
+
+   ;  if (!vec || vec->n_ivps <= ofs || ofs < 0)
+      return STATUS_FAIL
+
+   ;  if (mclvGetIvp(vec, idx, NULL))
+      return STATUS_FAIL
+
+   ;  piv.idx = idx
+   ;  piv.val = val
+
+                     /*       a  b  c  d  _  f  g  h i
+                      * idx needs to be somewhere in the f-i range
+                      * If we have
+                      *       a  b  c  d  e  f  g  h _
+                      * then (vec->ivps+ofs+1) == dst
+                      * and the size to copy is zero.
+                     */
+   ;  if (vec->ivps[ofs].idx < idx)
+      {  if (!(dst = mclpBsearchCeil(&piv, vec->ivps, vec->n_ivps)))
+         dst = vec->ivps+vec->n_ivps
+      ;  memmove
+         (  vec->ivps+ofs           /* destination */
+         ,  vec->ivps+ofs+1         /* source      */
+         ,  sizeof piv * ((dst-(vec->ivps+ofs))-1)
+         )
+      ;  dst[-1] = piv
+   ;  }
+                     /*       a  b  c  d  _  f  g  h i
+                      * idx needs to be somewhere in the a-d range
+                      * If we have
+                      *       _  b  c  d  e  f  g  h i
+                      * then ofs == vec->ivps and dst == vec->ivps
+                      * and the size to copy is zero.
+                     */
+      else if (vec->ivps[ofs].idx > idx)
+      {  if (!(dst = mclpBsearchFloor(&piv, vec->ivps, vec->n_ivps)))
+         dst = vec->ivps
+      ;  else
+         dst++       
+      ;  memmove
+         (  dst+1    /* destination */
+         ,  dst      /* source */
+         ,  sizeof piv * (vec->ivps+ofs-dst)
+         )
+      ;  dst[0] = piv
+   ;  }
+      return STATUS_OK
+;  }
+
+
 mclVector* mclvInsertIdx
 (  mclVector*  vec
 ,  long        idx
 ,  double      val
 )  
-   {  int   offset
+   {  ofs offset
    
    ;  if (!vec)
       {  vec = mclvInstantiate(NULL, 1, NULL)
@@ -1137,13 +1497,13 @@ mclVector* mclvInsertIdx
       else if ((offset =  mclvGetIvpOffset(vec, idx, -1)) >= 0)
       vec->ivps[offset].val = val
    ;  else
-      {  long i = vec->n_ivps
-      ;  mclvResize(vec, i+1)
-      ;  while (i && vec->ivps[i-1].idx > idx)
-            vec->ivps[i] = vec->ivps[i-1]
-         ,  i--
-      ;  vec->ivps[i].val = val
-      ;  vec->ivps[i].idx = idx
+      {  dim d = vec->n_ivps
+      ;  mclvResize(vec, d+1)
+      ;  while (d && vec->ivps[d-1].idx > idx)     /* fixme: search and memmove */
+            vec->ivps[d] = vec->ivps[d-1]
+         ,  d--
+      ;  vec->ivps[d].val = val
+      ;  vec->ivps[d].idx = idx
    ;  }
       return vec
 ;  }
@@ -1153,7 +1513,7 @@ void mclvRemoveIdx
 (  mclVector*  vec
 ,  long        idx
 )  
-   {  int   offset   =  mclvGetIvpOffset(vec, idx, -1)
+   {  ofs offset = mclvGetIvpOffset(vec, idx, -1)
                      /* check for nonnull vector is done in mclvIdxVal */
    ;  if (offset >= 0)
       {  memmove
@@ -1171,7 +1531,7 @@ int mclvVidCmp
 ,  const void*  p2
 )
    {  long diff = ((mclVector*) p1)->vid - ((mclVector*)p2)->vid
-   ;  return SIGN(diff)
+   ;  return MCX_SIGN(diff)
 ;  }
 
 
@@ -1181,7 +1541,7 @@ int mclvSizeRevCmp
 )
    {  long diff  = ((mclVector*)p2)->n_ivps - ((mclVector*)p1)->n_ivps
    ;  if (diff)
-      return SIGN(diff)
+      return MCX_SIGN(diff)
    ;  else
       return mclvLexCmp(p1, p2)
 ;  }
@@ -1202,19 +1562,19 @@ int mclvLexCmp
    {  mclIvp*   ivp1    =  ((mclVector*)p1)->ivps
    ;  mclIvp*   ivp2    =  ((mclVector*)p2)->ivps
    ;  long      diff
-   ;  int       n_ivps  =  MIN
+   ;  dim       n_ivps  =  MCX_MIN
                            (  ((mclVector*)p1)->n_ivps
                            ,  ((mclVector*)p2)->n_ivps
                            )
   /*
    *  Vectors with low numbers first
   */
-   ;  while (--n_ivps >= 0)
+   ;  while (n_ivps-- > 0)       /* careful with unsignedness */
       if ((diff = (ivp1++)->idx - (ivp2++)->idx))
-      return SIGN(diff)
+      return MCX_SIGN(diff)
 
    ;  diff = ((mclVector*)p1)->n_ivps - ((mclVector*)p2)->n_ivps
-   ; return SIGN(diff)
+   ;  return MCX_SIGN(diff)
 ;  }
 
 
@@ -1223,7 +1583,7 @@ int mclvSumCmp
 ,  const void* p2
 )  
    {  double diff = mclvSum((mclVector*) p1) - mclvSum((mclVector*) p2)
-   ;  return SIGN(diff)
+   ;  return MCX_SIGN(diff)
 ;  }
 
 
@@ -1237,12 +1597,13 @@ int mclvSumRevCmp
 
 void mclvSelectHighest
 (  mclVector*  vec
-,  int         max_n_ivps
+,  dim         max_n_ivps
 )  
    {  double f
-      =  vec->n_ivps <= max_n_ivps
-         ?  0.0
-         :  vec->n_ivps >= 2 * max_n_ivps
+   ;  if (vec->n_ivps <= max_n_ivps)
+      return
+
+   ;  f =   vec->n_ivps >= 2 * max_n_ivps
             ?  mclvKBar
                (vec, max_n_ivps, PVAL_MAX, KBAR_SELECT_LARGE)
             :  mclvKBar
@@ -1277,8 +1638,9 @@ void mclvMakeConstant
 void mclvMakeCharacteristic
 (  mclVector* vec
 )  
-   {  double one = 1.0
-   ;  mclvUnary(vec, fltxConst, &one)
+   {  mclp* ivp = vec->ivps, *ivpmax = ivp+vec->n_ivps
+   ;  while (ivp<ivpmax)
+      (ivp++)->val = 1.0
 ;  }
 
 
@@ -1299,19 +1661,6 @@ mclVector* mclvAdd
 ;  }
 
 
-mclVector* mclvMaskedCopy
-(  mclVector*        dst
-,  const mclVector*  src
-,  const mclVector*  msk
-,  int               mask_mode
-)  
-   {  if   (mask_mode == 0)                              /* positive mask */
-      return  mclvBinary(src, msk, dst, fltLaR)
-   ;  else                                               /* negative mask */
-      return mclvBinary(src, msk, dst, fltLaNR)
-;  }
-
-
 mclVector* mcldMerge
 (  const mclVector*  lft
 ,  const mclVector*  rgt
@@ -1321,27 +1670,79 @@ mclVector* mcldMerge
 ;  }
 
 
+/*
+ * Remember that the dst values have to come from lft
+*/
+
 mclVector* mcldMinus
 (  const mclVector*  lft
 ,  const mclVector*  rgt
 ,  mclVector*  dst
 )  
-   {  if (lft == dst)
-      {  if (mclvUpdateMeet(dst, rgt, fltLaNR))
-         mclvUnary(dst, fltxCopy, NULL)
-      ;  return dst
-   ;  }
+   {  if (rgt == dst)         /* interesting src/dst pattern */
       return mclvBinary(lft, rgt, dst, fltLaNR)
+   ;  else
+      {  if (lft != dst)
+         dst = mclvCopy(dst, lft)
+            /* if lft is large and rgt as well then copying may introduce
+             * unnecessary work. But we don't really have a way of knowing in
+             * advance, and the solution would probably involve headaches
+             * similar to the ones in mcldMeet.
+            */
+      ;  if (mclvUpdateMeet(dst, rgt, flt0p0))
+         mclvUnary(dst, fltxCopy, NULL)
+   ;  }
+      return dst
 ;  }
 
+
+/*
+ * Remember that the dst values have to come from lft
+*/
 
 mclVector* mcldMeet
 (  const mclVector*  lft
 ,  const mclVector*  rgt
 ,  mclVector*  dst
-)  
+)
+#ifdef MCLD_PLAIN
    {  return mclvBinary(lft, rgt, dst, fltLaR)
 ;  }
+#else
+                      /* this code is hilarious hiledeous */  
+   {  if (lft == rgt)
+      return dst == lft ? dst : mclvCopy(dst, lft)
+
+   ;  if
+      (  dst != lft
+      && (  3 * log(lft->n_ivps+1) * rgt->n_ivps < lft->n_ivps
+         || dst == rgt
+         )
+      )
+      {  if (dst != rgt)                /* now (small) dst has rgt values */
+         dst = mclvCopy(dst, rgt)
+      ;  if (mclvUpdateDiff(dst, lft, flt0p0))  /* rgt meet values remain */
+         mclvUnary(dst, fltxCopy, NULL)
+      ;  mclvUpdateMeet(dst, lft, fltRight)     /* set them to left again */ 
+   ;  }
+                     /*       dst == lft
+                      * or    (     size comparison ok
+                      *       and   dst != rgt
+                      *       )
+                     */
+      else
+      {  if (dst == lft)
+         NOTHING
+      ;  else        /*  dst != rgt */
+         dst = mclvCopy(dst, lft)
+      ;  if (mclvUpdateDiff(dst, rgt, flt0p0))
+         mclvUnary(dst, fltxCopy, NULL)
+   ;  }
+
+      return dst
+;  }
+#endif
+
 
 
 mcxbool mcldEquate
@@ -1349,39 +1750,39 @@ mcxbool mcldEquate
 ,  const mclVector* dom2
 ,  mcxenum    mode
 )
-   {  int meet, ldif, rdif
+   {  dim meet, ldif, rdif
    ;  mcldCountParts(dom1, dom2, &ldif, &meet, &rdif)
 
    ;  switch(mode)
-      {  case MCLD_EQ_SUPER
+      {  case MCLD_EQT_SUPER
       :  return rdif == 0 ? TRUE : FALSE
       ;
 
-         case MCLD_EQ_SUB
+         case MCLD_EQT_SUB
       :  return ldif == 0 ? TRUE : FALSE
       ;
 
-         case MCLD_EQ_EQUAL
+         case MCLD_EQT_EQUAL
       :  return ldif + rdif == 0 ? TRUE : FALSE
       ;
 
-         case MCLD_EQ_DISJOINT
+         case MCLD_EQT_DISJOINT
       :  return meet == 0 ? TRUE : FALSE
       ;
 
-         case MCLD_EQ_TRISPHERE
+         case MCLD_EQT_TRISPHERE
       :  return ldif != 0 && rdif != 0 && meet != 0 ? TRUE : FALSE
       ;
 
-         case MCLD_EQ_LDIFF
+         case MCLD_EQT_LDIFF
       :  return ldif != 0 ? TRUE : FALSE
       ;
 
-         case MCLD_EQ_MEET
+         case MCLD_EQT_MEET
       :  return meet != 0 ? TRUE : FALSE
       ;
 
-         case MCLD_EQ_RDIFF
+         case MCLD_EQT_RDIFF
       :  return rdif != 0 ? TRUE : FALSE
       ;
 
@@ -1393,12 +1794,12 @@ mcxbool mcldEquate
 ;  }
 
 
-int mcldCountSet
+dim mcldCountSet
 (  const mclVector*  dom1
 ,  const mclVector*  dom2
-,  mcxbits     parts
+,  mcxbits           parts
 )
-   {  int meet, ldif, rdif, count = 0
+   {  dim meet, ldif, rdif, count = 0
    ;  mcldCountParts(dom1, dom2, &ldif, &meet, &rdif)
    ;  if (parts & MCLD_CT_LDIFF)
       count += ldif
@@ -1410,15 +1811,15 @@ int mcldCountSet
 ;  }
 
 
-void mcldCountParts
+dim mcldCountParts
 (  const mclVector* dom1
 ,  const mclVector* dom2
-,  int*       ld
-,  int*       mt
-,  int*       rd
+,  dim*       ld
+,  dim*       mt
+,  dim*       rd
 )
    {  mclIvp   *ivp1, *ivp2, *ivp1max, *ivp2max
-   ;  int meet = 0, ldif = 0, rdif = 0
+   ;  dim meet = 0, ldif = 0, rdif = 0, ret = 0
 
    ;  ivp1     =  dom1->ivps
    ;  ivp2     =  dom2->ivps
@@ -1442,40 +1843,48 @@ void mcldCountParts
       ldif += ivp1max - ivp1
    ;  rdif += ivp2max - ivp2
    ;  if (ld)
-      *ld = ldif
+         *ld = ldif
+      ,  ret += ldif
    ;  if (rd)
-      *rd = rdif
+         *rd = rdif
+      ,  ret += rdif
    ;  if (mt)
-      *mt = meet
+         *mt = meet
+      ,  ret += meet
+   ;  return ret
 ;  }
 
 
 mclv* mclvFromIvps
 (  mclv* dst
 ,  mclp* ivps
-,  int n_ivps
+,  dim   n_ivps
 )
-   {  return mclvFromIvps_x
-      (  dst, ivps, n_ivps, 0, 0, mclpMergeLeft, NULL )
-      /* second 0 argument: sortbits, 1 = sorted, 2 = no duplicates */
+   {  mclpAR ar
+   ;  ar.ivps    =  ivps
+   ;  ar.n_ivps  =  n_ivps
+   ;  ar.n_alloc =  n_ivps
+   ;  ar.sorted  =  0
+   ;  return mclvFromPAR(dst, &ar, 0, mclpMergeLeft, NULL )
 ;  }
 
 
 /* current dst content is thrown away if fltbinary not used */
-mclv* mclvFromIvps_x
-(  mclv* dst
-,  mclp* ivps
-,  int n_ivps
-,  mcxbits sortbits
-,  mcxbits warnbits
-,  void (*ivpmerge)(void* ivp1, const void* ivp2)
-,  double (*fltbinary)(pval val1, pval val2)
+mclv* mclvFromPAR
+(  mclv*      dst
+,  mclpAR*    par  
+,  mcxbits    warnbits
+,  void     (*ivpmerge)(void* ivp1, const void* ivp2)
+,  double   (*fltbinary)(pval val1, pval val2)
 )
    {  mcxbool warn_re = warnbits & MCLV_WARN_REPEAT_ENTRIES
    ;  mcxbool warn_rv = warnbits & MCLV_WARN_REPEAT_VECTORS
-   ;  int n_old = dst ? dst->n_ivps : 0
-   ;  const char* me = "mclvFromIvps_x"
-   ;  int n_re = 0, n_rv = 0
+   ;  mclp*      ivps      =  par->ivps
+   ;  dim        n_ivps    =  par->n_ivps
+   ;  mcxbits    sortbits  =  par->sorted
+   ;  dim n_old            =  dst ? dst->n_ivps : 0
+   ;  const char* me       =  "mclvFromPAR"
+   ;  dim n_re = 0, n_rv = 0
    ;  if (!dst)
       dst = mclvInit(NULL)
 
@@ -1498,7 +1907,7 @@ mclv* mclvFromIvps_x
       ;  }
          else
          {  if (dst->ivps == ivps)
-            mcxErr("mlcvFromIvps_x", "DANGER dst->ivps == ivps")
+            mcxErr(me, "DANGER dst->ivps == ivps")
 
          ;  mclvRenew(dst, ivps, n_ivps)
 
@@ -1542,10 +1951,10 @@ mclv* mclvFromIvps_x
 mcxbool mcldIsCanonical
 (  mclVector* vec
 )
-   {  int n = vec->n_ivps
+   {  dim n = vec->n_ivps
    ;  if (!n)
       return TRUE
-   ;  if (vec->ivps[0].idx == 0 && vec->ivps[n-1].idx == n-1)
+   ;  if (vec->ivps[0].idx == 0 && vec->ivps[n-1].idx == (long) (n-1))
       return TRUE
    ;  return FALSE
 ;  }
@@ -1554,10 +1963,33 @@ mcxbool mcldIsCanonical
 long mclvHighestIdx
 (  mclVector*  vec
 )
-   {  int n = vec->n_ivps
+   {  dim n = vec->n_ivps
    ;  if (!n)
       return -1
    ;  return vec->ivps[n-1].idx
+;  }
+
+
+double mclvHasLoop
+(  const mclVector*   vec
+)
+   {  mclp* ivp = mclvGetIvp(vec, vec->vid, NULL)
+   ;  return ivp ? 1.0 : 0.0
+;  }
+
+
+double mclvMinValue
+(  const mclVector*           vec
+)  
+   {  double min_val = FLT_MAX
+   ;  mclIvp* ivp    = vec->ivps  
+   ;  mclIvp* ivpmax = ivp + vec->n_ivps
+   ;  while (ivp<ivpmax)
+      {  if (ivp->val < min_val)
+         min_val = ivp->val
+      ;  ivp++
+   ;  }
+      return  min_val
 ;  }
 
 
@@ -1580,16 +2012,14 @@ long mclvUnaryList
 (  mclv*    vec
 ,  mclpAR*  ar       /* idx: MCLX_UNARY_mode, val: arg */
 )
-   {  int      n_ivps
+   {  dim      n_ivps
    ;  mclIvp   *src_ivp, *dst_ivp
-
-   ;  MCLV_CHECK(vec, "mclvUnary")
 
    ;  n_ivps   =  vec->n_ivps
    ;  src_ivp  =  vec->ivps
    ;  dst_ivp  =  vec->ivps
    
-   ;  while (--n_ivps >= 0)
+   ;  while (n_ivps-- > 0)    /* careful with unsignedness */
       {  double val =  mclpUnary(src_ivp, ar)
 
       ;  if (val != 0.0)
@@ -1603,4 +2033,82 @@ long mclvUnaryList
       mclvResize(vec, dst_ivp - vec->ivps)
    ;  return vec->n_ivps
 ;  }
+
+
+
+void mclvMean
+(  const mclv*    vec
+,  dim      N           /* vec does/might not store zeroes */
+,  double   *meanp
+,  double   *stdp
+)
+   {  dim d
+   ;  double sum, mean, std = 0.0
+
+   ;  *meanp = 0.0
+   ;  *stdp  = 0.0
+
+   ;  if (!N && !(N = vec->n_ivps))
+      return
+   ;  else if (N < vec->n_ivps)
+      mcxErr("mclvMean PBD", "N < vec->n_ivps (vid %ld)", (long) vec->vid)
+
+   ;  sum  = mclvSum(vec)
+   ;  mean = sum/N
+
+   ;  for (d=0;d<vec->n_ivps;d++)
+      {  double dif = vec->ivps[d].val - mean
+      ;  std += dif * dif
+   ;  }
+
+      if (N > vec->n_ivps)
+      std += (N-vec->n_ivps) * mean * mean
+
+   ;  *stdp = sqrt(std/N)
+   ;  *meanp = mean
+;  }
+
+
+void mclvMove
+(  mclv* vec
+,  double mean
+,  double std
+)
+   {  dim d
+
+   ;  if (std)
+      for (d=0;d<vec->n_ivps;d++)
+      vec->ivps[d].val = (vec->ivps[d].val - mean) / std
+   ;  else
+      for (d=0;d<vec->n_ivps;d++)
+      vec->ivps[d].val -= mean
+;  }
+
+
+void mclvSprintf
+(  mcxTing* scr
+,  mclv* vec
+,  int valdigits
+,  mcxbits modes
+)
+   {  dim j
+   ;  mcxTingEmpty(scr, 0)
+   ;  valdigits = get_interchange_digits(valdigits)
+
+   ;  if (modes & 1)
+      {  mcxTingPrintAfter(scr, "%ld", (long) vec->vid)
+      ;  if (modes & 2)
+         mcxTingPrintAfter(scr, ":%.*g", valdigits, (double) vec->val)
+   ;  }
+         
+      for (j=0;j<vec->n_ivps;j++)
+      {  mcxTingPrintAfter(scr, " %ld", (long) vec->ivps[j].idx)
+      ;  if (modes & 2)
+         mcxTingPrintAfter(scr, ":%.*g", valdigits, (double) vec->ivps[j].val)
+   ;  }
+
+      if (modes & 4)
+      mcxTingAppend(scr, " $")
+;  }
+
 

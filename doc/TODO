@@ -1,4 +1,8 @@
 
+-  move shade1 and leader to webindex.azm; remove style.css dependency.
+   Improve css classes etc.
+   instead of <style="text-align:justify"> use <p class="j"> etcetc.
+
 o  faq.zmm:
    there is a <br> at the end of \ans. Doing this with <div
    style="margin-bottom:1em"> inside the <td> element failed miserably in NS

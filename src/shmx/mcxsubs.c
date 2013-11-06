@@ -1,7 +1,8 @@
-/* (c) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -21,6 +22,12 @@
  *    for random selection you are required to do
  *       mcxsubs -imx small.mci -rfac 0.5 'dom(cr, I()), out(-)'
  *    which is a bit annoying.
+*/
+
+/* CAVEAT
+ *    size(<lq|gq>(num),del(1))
+ *    transforms the domains: does that conflict with any assumptions
+ *    in the rest of the code that touches domains?
 */
 
 /* TODO
@@ -51,7 +58,10 @@
 #include "impala/io.h"
 #include "impala/app.h"
 #include "impala/tab.h"
+
 #include "mcl/interpret.h"
+
+#include "gryphon/path.h"
 
 #include "util/types.h"
 #include "util/err.h"
@@ -61,6 +71,7 @@
 #include "util/opt.h"
 #include "util/array.h"
 #include "util/rand.h"
+#include "util/compile.h"
 
 #include "taurus/parse.h"
 #include "taurus/la.h"
@@ -70,6 +81,7 @@ enum
 {  MY_OPT_IMX
 ,  MY_OPT_DOMAIN
 ,  MY_OPT_TAB
+,  MY_OPT_TF
 ,  MY_OPT_BLOCK
 ,  MY_OPT_BLOCK2
 ,  MY_OPT_BLOCKC
@@ -142,6 +154,12 @@ mcxOptAnchor options[] =
    ,  MY_OPT_OUT
    ,  "<fname>"
    ,  "special purpose output file name"
+   }
+,  {  "-tf"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_TF
+   ,  "<tf-spec>"
+   ,  "first apply tf-spec to matrix"
    }
 ,  {  "--from-disk"
    ,  MCX_OPT_DEFAULT
@@ -238,6 +256,8 @@ mcxOptAnchor options[] =
 
 
 
+#define MCLX_EQT_CEIL    MCLX_EQT_UNUSED
+
 #define FIN_MISC_CHR     1
 #define FIN_MISC_TP      2
 #define FIN_MISC_DOMC    4
@@ -261,6 +281,8 @@ typedef struct
 ;  mclv*       rvec             /*  contains row indices    */
 ;  long        sz_min
 ;  long        sz_max
+;  long        sz_ceil
+;  long        sz_del
 ;  long        ext_disc         /* TODO remove ext_disc */
 ;  long        ext_cdisc
 ;  long        ext_rdisc
@@ -320,15 +342,14 @@ void thin_out
 (  mclv* universe
 ,  double fac
 )
-   {  int i
+   {  dim i
    ;  double zero = 0.0
    ;  for (i=0;i<universe->n_ivps;i++)
       {  long r = random()
-      ;  if (((double) r) / RANDOM_MAX > fac)
+      ;  if (((double) r) / RAND_MAX > fac)
          universe->ivps[i].val = 0.0
    ;  }
       mclvUnary(universe, fltxGT, &zero)
-;fprintf(stderr, "%d left\n", universe->n_ivps)
 ;  }
 
 
@@ -336,11 +357,11 @@ void prune_edges
 (  mclx* mx
 ,  double efac
 )
-   {  long c, i
+   {  dim c, i
    ;  for (c=0;c<N_COLS(mx);c++)
       {  mclv* vec   = mx->cols+c
       ;  for (i=0;i<vec->n_ivps;i++)
-         if (((double) random()) / RANDOM_MAX >= efac)
+         if (((double) random()) / RAND_MAX >= efac)
          vec->ivps[i].val = 0.0
 
       ;  mclvUnary(vec, fltxCopy, NULL)    /* removes zeros */
@@ -351,7 +372,7 @@ void prune_edges
 void spec_exec
 (  subspec_mt* spec
 ,  context_mt* ctxt
-,  mcxIO*   xfmx
+,  mcxIO*   xfmx_reread
 ,  double   efac
 ,  mcxbool  bCltag
 ,  int      digits
@@ -376,6 +397,8 @@ void spec_init
 
    ;  spec->sz_min         =  0
    ;  spec->sz_max         =  0
+   ;  spec->sz_ceil        =  0
+   ;  spec->sz_del         =  FALSE
 
    ;  spec->ext_disc       =  0
    ;  spec->ext_cdisc      =  0
@@ -402,7 +425,8 @@ int main
 (  int                  argc
 ,  const char*          argv[]
 )  
-   {  mcxIO *xfcl = NULL, *xfmx = NULL, *xftab = NULL
+   {  mcxIO *xfcl = NULL, *xftab = NULL
+   ;  mcxIO* xfmx = mcxIOnew("-", "r")
 
    ;  mclx *dom = NULL,*el2dom = NULL, *mx = NULL
    ;  mclv *universe_rows = NULL, *universe_cols = NULL
@@ -424,15 +448,17 @@ int main
    ;  mcxbool skin_read =  FALSE
    ;  mcxbool do_extend =  FALSE
    ;  int rand_mode     =  'i'
-   ;  unsigned int seed =  mcxSeed(0)
    ;  int n_arg_read    =  0
    ;  mcxbits do_block  =  0     /* 1 block, 2 blockc, 4 blocks2 */
+   ;  mcxTing* tfting   =  NULL
 
    ;  mcxstatus parseStatus = STATUS_OK
    ;  mcxOption* opts, *opt
 
-   ;  srandom(seed)
+   ;  srandom(mcxSeed(30847))
    ;  mcxBufInit(&spec_buf,  &specs, sizeof(subspec_mt), 30)
+
+   ;  mcxOptAnchorSortById(options, sizeof(options)/sizeof(mcxOptAnchor) -1)
 
    ;  if (argc==1)
       {  mcxOptApropos(stdout, me, syntax, 20, MCX_OPT_DISPLAY_SKIP, options)
@@ -440,8 +466,7 @@ int main
    ;  }
 
       mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
-
-   ;  mcxOptAnchorSortById(options, sizeof(options)/sizeof(mcxOptAnchor) -1)
+   ;  mclx_app_init(stderr)
 
    ;  if
       (!(opts = mcxOptExhaust(options, (char**) argv, argc, 1, &n_arg_read, &parseStatus)))
@@ -469,7 +494,7 @@ int main
          ;
 
             case MY_OPT_IMX
-         :  xfmx = mcxIOnew(opt->val, "r")
+         :  mcxIOnewName(xfmx, opt->val)
          ;  mcxIOopen(xfmx, EXIT_ON_FAIL)
          ;  break
          ;
@@ -481,7 +506,7 @@ int main
          ;
 
             case MY_OPT_BLOCKC
-         :  do_block = 2
+         :  do_block = 4
          ;  break
          ;
 
@@ -491,7 +516,7 @@ int main
          ;
 
             case MY_OPT_BLOCK2
-         :  do_block = 4
+         :  do_block = 2
          ;  break
          ;
 
@@ -522,6 +547,11 @@ int main
 
             case MY_OPT_DFAC
          :  dfac = atof(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_TF
+         :  tfting = mcxTingNew(opt->val)
          ;  break
          ;
 
@@ -631,7 +661,7 @@ int main
       if (dfac)
       {  randselect_cols = mclvClone(universe_cols)
       ;  thin_out(randselect_cols, dfac)
-      ;  if (mcldEquate(universe_rows, universe_cols, MCLD_EQ_EQUAL))
+      ;  if (mcldEquate(universe_rows, universe_cols, MCLD_EQT_EQUAL))
          randselect_rows = mclvClone(randselect_cols)
       ;  else
             randselect_rows = mclvClone(universe_rows)
@@ -656,33 +686,32 @@ int main
    ;  mcxIOfree(&xfcl)
 
    ;  if (do_block && mx && dom != mx)
-      {  mclx* block = NULL, *blockc = NULL
+      {  mclx* block = NULL
       
       ;  if (!dom)
          mcxDie(1, me, "need domain matrix (-dom option)")
 
-      ;  block = do_block & 4 ? mclxBlocks2(mx, dom) : mclxBlocks(mx, dom)
+      ;  if (do_block & 3)
+         block = do_block & 2 ? mclxBlocks2(mx, dom) : mclxBlocks(mx, dom)
+      ;  else
+         block = mclxBlocksC(mx, dom)     /* block-COMPLEMENT really */
 
-      ;  if (do_block == 2)
-         {  double minone = -1
-         ;  mclxUnary(block, fltxMul, &minone)
-         ;  blockc = mclxAdd(mx, block)
-      ;  }
-
-         mclxFree(&mx)
-      ;  if (blockc)
-         {  mclxFree(&block)
-         ;  mx = blockc
-      ;  }
-         else
-         mx = block
+      ;  mclxFree(&mx)
+      ;  mx = block
    ;  }
 
       if (!dom)
          mcxTell(me, "using -imx matrix for domain retrieval")
       ,  dom = mx
 
-   ;  if (bCltag)
+   ;  if (tfting)
+      {  mclpAR* tfar = mclpTFparse(NULL, tfting)
+      ;  if (!tfar)
+         mcxDie(1, me, "errors in tf-spec")
+      ;  mclxUnaryList(mx, tfar)
+   ;  }
+
+      if (bCltag)
       el2dom = mclxTranspose(dom)
 
    ;  ctxt.tab             =  tab
@@ -725,7 +754,7 @@ int main
 
 mcxstatus parse_fin
 (  mcxLink*    src
-,  int         n_args
+,  int         n_args  cpl__unused
 ,  subspec_mt* spec
 ,  context_mt* ctxt
 )
@@ -741,7 +770,7 @@ mcxstatus parse_fin
       ;  else if (!strcmp(key, "vdomr"))
          spec->fin_misc_opts |= FIN_MISC_DOMR
 
-      ;  else if (!strcmp(key, "empty"))
+      ;  else if (!strcmp(key, "skel"))
          spec->fin_misc_opts |= FIN_MISC_EMPTY
 
       ;  else if (!strcmp(key, "map"))
@@ -759,6 +788,8 @@ mcxstatus parse_fin
          spec->fin_map_opts |= FIN_MAP_UNI_COLS
 
       ;  else if (!strcmp(key, "weed"))
+         spec->fin_map_opts |= FIN_MAP_WEED_COLS | FIN_MAP_WEED_ROWS
+      ;  else if (!strcmp(key, "weedg"))
          spec->fin_map_opts |= FIN_MAP_WEED_GRAPH
       ;  else if (!strcmp(key, "weedc"))
          spec->fin_map_opts |= FIN_MAP_WEED_COLS
@@ -783,7 +814,7 @@ mcxstatus parse_out
 (  mcxLink*    src
 ,  int         n_args
 ,  subspec_mt* spec
-,  context_mt* ctxt
+,  context_mt* ctxt cpl__unused
 )
    {  mcxLink* lk = src->next
    ;  mcxTing* fn = lk->val
@@ -843,13 +874,13 @@ mcxstatus add_vec
 
    ;  mclv* invec2      =  NULL
 
-   ;  if (itype == 'i' || itype == 'I')   /* fixme danger const cast */
+   ;  if (strchr("iIcrCR", itype))        /* danger fixme cast */
       invec2 = (mclv*) invec              /* modify in 'd/D' case */
 
-   ;  else if (itype == 'd' || itype == 'D')
-      invec2 = mclxUnionv(ctxt->dom, invec, NULL)
+   ;  else if (strchr("dD", itype))
+      invec2 = mclgUnionv(ctxt->dom, invec, NULL, SCRATCH_READY, NULL)
 
-   ;  else if (itype == 't' || itype == 'T')
+   ;  else if (strchr("tT", itype))
       {  if (!ctxt->tab)
          {  mcxErr(me, "no tab file specified!")
          ;  return STATUS_FAIL
@@ -860,7 +891,7 @@ mcxstatus add_vec
       if (modec)
       {  mclv* invec_c = mclvClone(invec2)
 
-      ;  if (itype == 'I' || itype == 'T')
+      ;  if (itype == 'I' || itype == 'T' || itype == 'C' || itype == 'R')
          mcldMinus(universe_cols, invec_c, invec_c)
       ;  else if (itype == 'D')
          mcldMinus(ctxt->dom->dom_rows, invec_c, invec_c)
@@ -888,7 +919,7 @@ mcxstatus add_vec
       if (moder)
       {  mclv* invec_r = mclvClone(invec2)
 
-      ;  if (itype == 'I' || itype == 'T')
+      ;  if (itype == 'I' || itype == 'T' || itype == 'C' || itype == 'R')
          mcldMinus(universe_rows, invec_r, invec_r)
       ;  else if (itype == 'D')
          mcldMinus(ctxt->dom->dom_rows, invec_r, invec_r)
@@ -927,7 +958,7 @@ mcxstatus parse_dom
 )
    {  mcxLink* lk = src->next
    ;  const char* dtype =  ((mcxTing*)lk->val)->str
-   ;  int dlen          =  strlen(dtype)
+   ;  dim dlen          =  strlen(dtype)
    ;  mcxstatus status  =  STATUS_FAIL
 
    ;  if
@@ -991,7 +1022,7 @@ mcxstatus parse_dom
          ;  unsigned char itype  =  str[0]
          ;  long twilch = 0
 
-         ;  if (!strchr("iIdDtT", (int) itype))
+         ;  if (!strchr("iIdDtTcCrR", (int) itype))
             {  mcxErr(me, "unknown index type <%c>", (int) itype)
             ;  break
          ;  }
@@ -1002,21 +1033,27 @@ mcxstatus parse_dom
          ;  }
 
             if (itype == 'd' || itype == 'D')
-            {                       /* fixme/hackish control flow        */
-               if (!ctxt->dom)      /* may happen with reread + dom = mx */
+            {  if (!ctxt->dom)      /* may happen with reread + dom = mx */
                {  mcxErr(me, "did you use reread without -dom? PANIC!")
                ;  break
             ;  }
-               twilch = -2
-         ;  }
+            }
 
-            if             /* fixme really redundant for tab spec */
+            if (itype == 'r' || itype == 'R')
+            vec = mclvClone(ctxt->dom->dom_rows)
+
+         ;  else if (itype == 'c' || itype == 'C')
+            vec = mclvClone(ctxt->dom->dom_cols)
+
+                           /* fixme this is redundant for tab spec
+                            * unless we allow labels for tab
+                           */
+         ;  else if
             ( !(  vec 
                =  ilSpecToVec(tf.args->next, &twilch, NULL, RETURN_ON_FAIL)
                )
             )
             {  mcxErr(me, "error converting")
-            ;  mclvFree(&vec)
             ;  break
          ;  }
             mcxTokFuncFree(&tf)
@@ -1058,8 +1095,7 @@ mcxstatus parse_path
    ;  }
    
       while ((lk = lk->next))
-      {  mcxTokFunc tf
-      ;  mcxTing* ti = lk->val
+      {  mcxTing* ti = lk->val
       ;  int i = atoi(ti->str)
       ;  mclvInsertIdx(set, i, 1.0)
    ;  }
@@ -1161,17 +1197,19 @@ mcxstatus parse_size
 
             if (!strcmp(key, "gq"))
             bits = MCLX_EQT_GQ
-         ;  else if (!strcmp(key, "gt"))
-            bits = MCLX_EQT_GT
-         ;  else if (!strcmp(key, "lt"))
-            bits = MCLX_EQT_LT
          ;  else if (!strcmp(key, "lq"))
             bits = MCLX_EQT_LQ
-
-         ;  if (bits & (MCLX_EQT_GQ | MCLX_EQT_GT))
-            spec->sz_min = l
+         ;  else if (!strcmp(key, "ceil"))
+            bits = MCLX_EQT_CEIL
          ;  else
+            mcxDie(1, me, "unknown size functiator <%s>", key)
+
+         ;  if (bits & MCLX_EQT_GQ)
+            spec->sz_min = l
+         ;  else if (bits & MCLX_EQT_LQ)
             spec->sz_max = l
+         ;  else if (bits & MCLX_EQT_CEIL)
+            spec->sz_ceil  = l
 
          ;  spec->sel_sz_opts  |= bits
          ;  mcxTell(me, "selecting num entries <%s> <%ld>", key, l)
@@ -1269,7 +1307,7 @@ mcxstatus extend_path
 )
    /* NOTE dom is alias for spec->cvec or spec->rvec */
 
-   {  mclv* punters = mclxSSPd(ctxt->mx, path_set)
+   {  mclv* punters = mclgSSPd(ctxt->mx, path_set)
    ;  if (punters)
       {  mclvCopy(dom, punters)
       ;  mclvFree(&punters)
@@ -1288,16 +1326,25 @@ mcxstatus extend_disc
    /* NOTE dom is alias for spec->cvec or spec->rvec */
 
    {  mclx* mx = ctxt->mx
-   ;  mclv* wave = mclxUnionv(mx, dom, NULL)
-   ;  mclv* new  = mcldMinus(wave, dom, NULL)
+   ;  mclv* wave1 = mclvClone(dom), *wave2
 
-   ;  while (ext_disc-- && new->n_ivps)
-      {  mcldMerge(dom, new, dom)
-      ;  wave = mclxUnionv(mx, dom, wave)
-      ;  new  = mcldMinus(wave, dom, new)
+   ;  mclgUnionvInitList(mx, dom)
+      
+   ;  while (ext_disc-- && wave1->n_ivps)
+      {  wave2 = mclgUnionv(mx, wave1, NULL, SCRATCH_UPDATE, NULL)
+      ;  mcldMerge(dom, wave2, dom)
+#if 0
+;fprintf(stderr, "wave2 has %d ivps, pointer %p\n", wave2->n_ivps, (void*) wave2->ivps)
+#endif
+      ;  mclvFree(&wave1)
+      ;  wave1 = wave2
    ;  }
-      mclvFree(&wave)
-   ;  mclvFree(&new)
+      mclvFree(&wave1)
+
+   ;  mclgUnionvResetList(mx, dom)
+#if 0
+;mclvaDump(dom, stdout, 0, 0, FALSE)
+#endif
    ;  return STATUS_OK
 ;  }
 
@@ -1324,7 +1371,7 @@ mcxstatus spec_parse
 void spec_exec
 (  subspec_mt* spec
 ,  context_mt* ctxt
-,  mcxIO*   xfmx
+,  mcxIO*   xfmx_reread
 ,  double   efac
 ,  mcxbool  bCltag
 ,  int      digits
@@ -1421,38 +1468,35 @@ void spec_exec
    ;  else if (spec->do_extend)
       sub = mclxExtSub(mx, spec->cvec, spec->rvec)
 
-   ;  else if (xfmx)
-      sub = mclxSubRead
-            (  xfmx
-            ,  spec->cvec
-            ,  spec->rvec
-            ,  EXIT_ON_FAIL
-            )
-      ,  mcxIOclose(xfmx)
-      ,  mcxTell(me, "read matrix from disk")
-   ;  else                 /* fixme: must check subness */
-      sub =  mclxSub(mx, spec->cvec, spec->rvec)
+   ;  else if (xfmx_reread)
+      {  fprintf(stderr, "going in\n")
+      ;  mcxIOclose(xfmx_reread)
+      ;  sub = mclxSubRead
+               (  xfmx_reread
+               ,  spec->cvec
+               ,  spec->rvec
+               ,  EXIT_ON_FAIL
+               )
+      ;  mcxIOclose(xfmx_reread)
+      ;  mcxTell(me, "read matrix from disk")
+   ;  }
+      else                 /* fixme: must check subness */
+      sub = mclxSub(mx, spec->cvec, spec->rvec)
 
    ;  if (spec->sel_val)
       mclxUnaryList(sub, spec->sel_val)
 
-   ;  if (spec->sel_sz_opts)
-fprintf(stderr, "%ld %ld %ld\n", (long) spec->sel_sz_opts, spec->sz_min, spec->sz_max)
-,     mclxMakeSparse
-      (  sub
-      ,     spec->sel_sz_opts & MCLX_EQT_GQ
-         ?  spec->sz_min
-         :     spec->sel_sz_opts & MCLX_EQT_GT
-            ?  spec->sz_min + 1
-            :  0
-      ,     spec->sel_sz_opts & MCLX_EQT_LQ
-         ?  spec->sz_max
-         :     spec->sel_sz_opts & MCLX_EQT_LT
-            ?  spec->sz_max - 1
-            :  0
-      )
+   ;  if (spec->sel_sz_opts & MCLX_EQT)
+      {  mclv* sel =
+         mclgMakeSparse
+         (  sub
+         ,  spec->sz_min      /* keep vectors with #entries >= sz_min  */
+         ,  spec->sz_max      /* keep vectors with #entries <= sz_max  */
+         )
+      ;  mclvFree(&sel)
+   ;  }
 
-   ;  if (efac)
+      if (efac)
       prune_edges(sub, efac)
 
    ;  if ((spec->fin_map_opts & FIN_MAP_UNI_COLS) || (spec->fin_map_opts & FIN_MAP_UNI_ROWS))
@@ -1482,7 +1526,6 @@ fprintf(stderr, "%ld %ld %ld\n", (long) spec->sel_sz_opts, spec->sz_min, spec->s
          b |= MCLX_WEED_ROWS
       ;  if (spec->fin_map_opts & FIN_MAP_WEED_GRAPH)
          b |= MCLX_WEED_GRAPH
-;fprintf(stderr, "bits <%d>\n", b)
       ;  mclxWeed(sub, b)
    ;  }
 

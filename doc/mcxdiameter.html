@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<!-- Copyright (c) 2008 Stijn van Dongen -->
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<style type="text/css">
+body {
+text-align: justify;
+color: #001111;
+background: white;
+margin-left: 8%;
+margin-right: 8%;
+font-family: Helvetica, Univers, Verdana, sans-serif;
+}
+p.default {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+p.L53 { font-size: 30pt; }
+p.L52 { font-size: 20pt; }
+p.L51 { font-size: 15pt; }
+p.L50 { font-size: 12pt; }
+p.L49 { font-size: 10pt; }
+p.L48 { font-size: 9pt; }
+p.L47 { font-size: 8pt; }
+td {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+h3 { margin-top:1em; }
+h2 { margin-top:2em; }
+.left { text-align: left; align: left; }
+.right { text-align: right; align: right; }
+.center { text-align: center; align: center; }
+.nowrap { white-space: nowrap; }
+a:link { text-decoration: none; }
+a:active { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:link { color: #1111aa; }
+a:active { color: #1111aa; }
+a:visited { color: #111166; }
+a.local:link { color: #11aa11; }
+a.local:active { color: #11aa11; }
+a.local:visited { color: #116611; }
+a.intern:link { color: #1111aa; }
+a.intern:active { color: #1111aa; }
+a.intern:visited { color: #111166; }
+a.extern:link { color: #aa1111; }
+a.extern:active { color: #aa1111; }
+a.extern:visited { color: #661111; }
+a.quiet:link { color: black; }
+a.quiet:active { color: black; }
+a.quiet:visited { color: black; }
+div.copy
+{ font-size: 12pt;
+font-family: monospace;
+text-align: left;
+white-space: pre;
+margin-left: 2em;
+margin-top: 1em;
+margin-bottom: 1em;
+}
+div.indent
+{ margin-left: 8%;
+margin-right: 0%;
+}
+</style>
+<title>The mcx diameter manual</title>
+</head>
+<body>
+<p style="text-align:right">
+5 Jun 2008&nbsp;&nbsp;&nbsp;
+<a class="local" href="mcxdiameter.ps"><b>mcx diameter</b></a>
+1.007-grumpy-gryphon, 08-157
+</p>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr><td width=48 valign="top" class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#name">NAME</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#synopsis">SYNOPSIS</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#description">DESCRIPTION</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#options">OPTIONS</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#seealso">SEE ALSO</a>
+</div></td></tr>
+</table>
+
+</div>
+
+<a name="name"></a>
+<h2>NAME</h2>
+<p class="default L50" style="margin-bottom:0">
+mcx diameter - compute the diameter of a graph</p>
+
+<a name="synopsis"></a>
+<h2>SYNOPSIS</h2>
+<p class="default L50" style="margin-bottom:0">
+<b>mcx diameter</b> [options]</p>
+<p class="default L50" style="margin-bottom:0">mcxdiameter is not in actual fact a program. This manual
+page documents the behaviour and options of the mcx program when
+invoked in mode <i>diameter</i>. The options <b>-h</b>, <b>--apropos</b>,
+<b>--version</b>, <b>-set</b>, <b>--nop</b>, <b>-progress</b>&nbsp;<i>&lt;num&gt;</i>
+are accessible
+in all <b>mcx</b> modes. They are described
+in the <a class="local" href="mcx.html">mcx</a> manual page.</p>
+<p class="default L50" style="margin-bottom:0">
+<b>mcx diameter</b>
+<a class="intern" href="#opt-abc"><b>[-abc</b> &lt;fname&gt; (<i>specify label input</i>)<b>]</b></a>
+<a class="intern" href="#opt-imx"><b>[-imx</b> &lt;fname&gt; (<i>specify matrix input</i>)<b>]</b></a>
+<a class="intern" href="#opt--list"><b>[--list</b> (<i>list eccentricity for all nodes</i>)<b>]</b></a>
+<a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
+<a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print synopsis, exit</i>)<b>]</b></a>
+<a class="intern" href="#opt--version"><b>[--version</b> (<i>print version, exit</i>)<b>]</b></a>
+</p>
+
+<a name="description"></a>
+<h2>DESCRIPTION</h2>
+<p class="default L50" style="margin-bottom:0">
+<b>mcx diameter</b> computes the diameter of a graph. The input graph should be
+symmetric. Results will be unpredictable for directed graphs.
+For label input this is not important as <b>mcx diameter</b> will create
+a symmetric graph from the input.</p>
+<p class="default L50" style="margin-bottom:0">
+The input graph/matrix, if specified with the <b>-imx</b> option, has to
+be in mcl matrix/graph format. You can use label input instead by using the
+<b>-abc</b> option.
+Refer to <a class="local" href="mcxio.html">mcxio</a> for a description of these two input formats.
+By default <b>mcx diameter</b> reads from STDIN <i>and expects matrix format</i>.
+To specify label input from STDIN use <b>-abc</b>&nbsp;<b>-</b>.</p>
+
+<a name="options"></a>
+<h2>OPTIONS</h2>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr><td colspan=3><a name="opt-abc"></a><b>-abc</b> &lt;fname&gt; (<i>label input</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+The file name for input that is in label format.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>input matrix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+The file name for input that is in mcl native matrix format.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--list"></a><b>--list</b> (<i>list eccentricity for all nodes</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Print eccentricity for all nodes. The eccentricity of
+a node is the distance to any node that is the furthest
+away from it. The diameter of a graph is the maximum
+of the eccentricity taken over all nodes in a graph.
+In this mode <b>mcx diameter</b> will not output the diameter
+itself.</p>
+</div></td></tr>
+</table>
+
+</div>
+
+<a name="seealso"></a>
+<h2>SEE ALSO</h2>
+<p class="default L50" style="margin-bottom:0">
+<a class="local" href="mcxio.html">mcxio</a>,
+and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+and the utilities in the mcl family.</p>
+</body>
+</html>

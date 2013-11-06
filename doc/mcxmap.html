@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!-- Copyright (c) 2006 Stijn van Dongen -->
+<!-- Copyright (c) 2008 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <style type="text/css">
@@ -32,6 +32,7 @@ h2 { margin-top:2em; }
 .left { text-align: left; align: left; }
 .right { text-align: right; align: right; }
 .center { text-align: center; align: center; }
+.nowrap { white-space: nowrap; }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -68,27 +69,27 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-27 Feb 2006&nbsp;&nbsp;&nbsp;
+5 Jun 2008&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxmap.ps"><b>mcxmap</b></a>
-1.006, 06-058
+1.007-grumpy-gryphon, 08-157
 </p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=48 valign="top" class=left>1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr><td width=48 valign="top" class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#options">OPTIONS</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#examples">EXAMPLES</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#author">AUTHOR</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>7.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">7.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#seealso">SEE ALSO</a>
 </div></td></tr>
 </table>
@@ -102,8 +103,13 @@ mcxmap - permute or remap the indices of graphs and matrices.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
 <b>mcxmap</b>
+<a class="intern" href="#opt-imx"><b>-imx</b> fname (<i>input</i>)</a></p>
+<a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output</i>)<b>]</b></a>
+<a class="intern" href="#opt-cann"><b>[-cann</b> (<i>output map file name</i>)<b>]</b></a>
+<a class="intern" href="#opt-cannc"><b>[-cannc</b> (<i>output map file name</i>)<b>]</b></a>
+<a class="intern" href="#opt-cannr"><b>[-cannr</b> (<i>output map file name</i>)<b>]</b></a>
 <a class="intern" href="#opt-cmul"><b>[-cmul</b> a (<i>coefficient</i>)<b>]</b></a>
 <a class="intern" href="#opt-cshift"><b>[-cshift</b> b (<i>translate</i>)<b>]</b></a>
 <a class="intern" href="#opt-rmul"><b>[-rmul</b> c (<i>coefficient</i>)<b>]</b></a>
@@ -113,16 +119,14 @@ mcxmap - permute or remap the indices of graphs and matrices.</p>
 <a class="intern" href="#opt-map"><b>[-map</b> fname (<i>row/col map file</i>)<b>]</b></a>
 <a class="intern" href="#opt-rmap"><b>[-rmap</b> fname (<i>row map file</i>)<b>]</b></a>
 <a class="intern" href="#opt-cmap"><b>[-cmap</b> fname (<i>column map file</i>)<b>]</b></a>
-<a class="intern" href="#opt--invert"><b>[--invert</b> (<i>invert map file(s)</i>)<b>]</b></a>
-<a class="intern" href="#opt--invertc"><b>[--invertc</b> (<i>invert column map file</i>)<b>]</b></a>
-<a class="intern" href="#opt--invertr"><b>[--invertr</b> (<i>invert row map file</i>)<b>]</b></a>
-<a class="intern" href="#opt-digits"><b>[-digits</b> n (<i>digits width</i>)<b>]</b></a>
-<a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output</i>)<b>]</b></a>
-<a class="intern" href="#opt-imx"><b>-imx</b> fname (<i>input</i>)</a>
+<a class="intern" href="#opt-mapi"><b>[-mapi</b> fname (<i>row/col map file (use inverse)</i>)<b>]</b></a>
+<a class="intern" href="#opt-rmapi"><b>[-rmapi</b> fname (<i>row map file (use inverse)</i>)<b>]</b></a>
+<a class="intern" href="#opt-cmapi"><b>[-cmapi</b> fname (<i>column map file (use inverse)</i>)<b>]</b></a>
+<a class="intern" href="#opt-tab"><b>[-tab</b> fname (<i>read (and map) tab file</i>)<b>]</b></a>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
 This utility relabels graphs or matrices. Its main use is in applying a
 <i>map file</i> to a given matrix or graph. A map file contains a so called
 <i>map matrix</i> in mcl format that has some special properties (given
@@ -133,28 +137,31 @@ is simply the usual matrix product of a matrix and a map matrix. However,
 alone. When dealing with huge matrices, considerable gains in efficiency
 memory-wise and time-wise can be achieved by doing the mapping in-place.
 This is what mcxmap does. In the future, its functionality may be
-embedded in <b>mcx</b> with new mcx operators.
-<p class="default L50">
-The special properties of a map matrix are
+embedded in <b>mcx</b> with new mcx operators.</p>
+<p class="default L50" style="margin-bottom:0">
+The special properties of a map matrix are</p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=32 valign="top" class=right>*</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr><td width=32 valign="top" class=right>&bull;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 The column domain and row domain are
-of the same cardinality.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=32 valign="top" class=right>*</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Each column has exactly one entry.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=32 valign="top" class=right>*</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Each row domain index occurs in exactly one column.
+of the same cardinality.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=32 valign="top" class=right>&bull;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Each column has exactly one entry.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=32 valign="top" class=right>&bull;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Each row domain index occurs in exactly one column.</p>
 </div></td></tr>
 </table>
 
 </div>
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
 These properties imply that the matrix can be used
 as a map from the column domain onto the row domain.
-An example map matrix is found in the <a class="intern" href="#examples">EXAMPLES</a> Section.
+An example map matrix is found in the <a class="intern" href="#examples">EXAMPLES</a> Section.</p>
 
 <a name="options"></a>
 <h2>OPTIONS</h2>
@@ -163,27 +170,39 @@ An example map matrix is found in the <a class="intern" href="#examples">EXAMPLE
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
 <tr><td colspan=3><a name="opt-o"></a><b>-o</b> fname (<i>output file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Output file.
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Output file.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-imx"></a><b>-imx</b> fname (<i>input file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Input file.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-digits"></a><b>-digits</b> n (<i>digits width</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Number of digits output for values.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-cmul"></a><b>-cmul</b> a (<i>coefficient</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cshift"></a><b>-cshift</b> b (<i>translate</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cmap"></a><b>-cmap</b> fname (<i>col map file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-If the map file is specified, column indices will be mapped
-according to this file. Otherwise, if any of the first two
-options is used, column indices&nbsp;<tt>i</tt> are mapped to&nbsp;<tt>a*i+b</tt>.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt--invert"></a><b>--invert</b> (<i>invert map file(s)</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--invertc"></a><b>--invertc</b> (<i>invert column map file</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--invertr"></a><b>--invertr</b> (<i>invert row map file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Specifies to use the inverse of the map file(s) given.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-rmul"></a><b>-rmul</b> c (<i>coefficient</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-rshift"></a><b>-rshift</b> d (<i>translate</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-rmap"></a><b>-rmap</b> fname (<i>row map file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-If the map file is specified, row indices will be mapped
-according to this file. Otherwise, if any of the first two
-options is used, row indices&nbsp;<tt>i</tt> are mapped to&nbsp;<tt>c*i+d</tt>.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-mul"></a><b>-mul</b> e (<i>coefficient</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-shift"></a><b>-shift</b> f (<i>translate</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-map"></a><b>-map</b> fname (<i>row/col map file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-If the map file is specified, both column and row indices
-will be mapped according to it.
-Otherwise, if any of the two first options is specified,
-both column and row indices&nbsp;<tt>i</tt> will be mapped
-to&nbsp;<tt>e*i+f</tt>.
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Input file.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-map"></a><b>-map</b> fname (<i>row/col map file)</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-rmap"></a><b>-rmap</b> fname (<i>row map file</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cmap"></a><b>-cmap</b> fname (<i>column map file</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-mapi"></a><b>-mapi</b> fname (<i>row/col map file (use inverse)</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-rmapi"></a><b>-rmapi</b> fname (<i>row map fil (use inverse)</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cmapi"></a><b>-cmapi</b> fname (<i>column map fil (use inverse)</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Different ways to specify map files.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-cann"></a><b>-cann</b> (<i>output map file name</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cannc"></a><b>-cannc</b> (<i>output map file name</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cannr"></a><b>-cannr</b> (<i>output map file name</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Generate a map that maps the specified domain onto
+the appropriate canonical domain and write the map
+matrix to file.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-cmul"></a><b>-cmul</b> a (<i>coefficient</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cshift"></a><b>-cshift</b> b (<i>translate</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+These options have affect if neither a column map file nor column
+canonification is specified. If any of the first two options is used,
+column indices&nbsp;<tt>i</tt> are mapped to&nbsp;<tt>a*i+b</tt>.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-rmul"></a><b>-rmul</b> c (<i>coefficient</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-rshift"></a><b>-rshift</b> d (<i>translate</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+These options have affect if neither a row map file nor row
+canonification is specified. If any of the first two options is used,
+indices&nbsp;<tt>i</tt> are mapped to&nbsp;<tt>c*i+d</tt>.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-mul"></a><b>-mul</b> e (<i>coefficient</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-shift"></a><b>-shift</b> f (<i>translate</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+If a map file is specified for a given domain, neither a map file nor
+canonification is specified. If any of the first two options is used, the
+indices&nbsp;<tt>i</tt> will be mapped to&nbsp;<tt>e*i+f</tt>.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-tab"></a><b>-tab</b> fname (<i>read (and map) tab file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+This option requires the <b>-map</b> option. <b>mcxmap</b> will output the
+mapped tab definition.
+</p>
 </div></td></tr>
 </table>
 
@@ -191,10 +210,10 @@ to&nbsp;<tt>e*i+f</tt>.
 
 <a name="examples"></a>
 <h2>EXAMPLES</h2>
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
 The matrix below has two canonical domains which are identical.
 It denotes a map of the canonical domain onto itself, in which
-node 0 is relabeled to 8, node 1 is relabeled to 5, et cetera.
+node 0 is relabeled to 8, node 1 is relabeled to 5, et cetera.</p>
 <pre>(mclheader
 mcltype matrix
 dimensions 12x12

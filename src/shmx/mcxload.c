@@ -1,14 +1,18 @@
-/* (c) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
 
 
 /* NOTE: with --cleanup, this app should return all memory.
- *   TODO
+ * TODO
+ *    -  support values with etc/235 formats
+ *    -  option to ignore third column.
+ *    -  option to pick out columns
  *
 */
 
@@ -24,7 +28,6 @@
 #include "impala/ivp.h"
 #include "impala/app.h"
 #include "impala/pval.h"
-#include "impala/scan.h"
 #include "impala/app.h"
 
 #include "util/ting.h"
@@ -52,6 +55,8 @@ enum
 ,  MY_OPT_123
 ,  MY_OPT_ETC
 ,  MY_OPT_ETC_AI
+,  MY_OPT_235
+,  MY_OPT_235_AI
 ,  MY_OPT_PCK
 ,  MY_OPT_MIRROR
 ,  MY_OPT_GRAPH
@@ -76,7 +81,8 @@ enum
 ,  MY_OPT_IMAGE
 ,  MY_OPT_TRANSPOSE
 ,  MY_OPT_CLEANUP
-,  MY_OPT_BINARY
+,  MY_OPT_WB
+,  MY_OPT_PLUS
 ,  MY_OPT_DEBUG
 ,  MY_OPT_HELP
 ,  MY_OPT_APROPOS
@@ -104,9 +110,15 @@ mcxOptAnchor options[] =
    ,  NULL
    ,  "print this help"
    }
-,  {  "--binary"
+,  {  "+"
+   ,  MCX_OPT_HIDDEN
+   ,  MY_OPT_PLUS
+   ,  NULL
+   ,  "output matrix in binary format"
+   }
+,  {  "--write-binary"
    ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_BINARY
+   ,  MY_OPT_WB
    ,  NULL
    ,  "output matrix in binary format"
    }
@@ -152,19 +164,19 @@ mcxOptAnchor options[] =
    ,  "<fname>"
    ,  "output matrix to file <fname>"
    }
-,  {  "-cache-tab"
+,  {  "-write-tab"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_OUT_TAB
    ,  "<fname>"
    ,  "output domain tab to file <fname>"
    }
-,  {  "-cache-tabc"
+,  {  "-write-tabc"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_OUT_TABC
    ,  "<fname>"
    ,  "output column tab to file <fname>"
    }
-,  {  "-cache-tabr"
+,  {  "-write-tabr"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_OUT_TABR
    ,  "<fname>"
@@ -242,8 +254,20 @@ mcxOptAnchor options[] =
    ,  "<fname>"
    ,  "input file in etc format"
    }
-,  {  "-packed"
+,  {  "-235-ai"
    ,  MCX_OPT_HASARG
+   ,  MY_OPT_235_AI
+   ,  "<fname>"
+   ,  "input file in numerical etc format, auto-increment columns"
+   }
+,  {  "-235"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_235
+   ,  "<fname>"
+   ,  "input file in numerical etc format"
+   }
+,  {  "-packed"
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  MY_OPT_PCK
    ,  "<fname>"
    ,  "input file in packed format"
@@ -278,7 +302,7 @@ mcxOptAnchor options[] =
    ,  NULL
    ,  "take negative log of stream value"
    }
-,  {  "-t"
+,  {  "--transpose"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_TRANSPOSE
    ,  NULL
@@ -297,7 +321,7 @@ int main
 (  int                  argc
 ,  const char*          argv[]
 )  
-   {  mcxIO* xfin   =   mcxIOnew(argc > 1 ? argv[1] : "-", "r")
+   {  mcxIO* xfin   =   mcxIOnew("-", "r")
    ;  mcxIO* xfmx   =   mcxIOnew("-", "w")
    ;  mcxIO* xfcachetab  =   NULL
    ;  mcxIO* xfcachetabc =   NULL
@@ -342,6 +366,8 @@ int main
    ;  if (!opts)
       exit(0)
 
+   ;  mclx_app_init(stderr)
+
    ;  for (opt=opts;opt->anch;opt++)
       {  mcxOptAnchor* anch = opt->anch
       ;  int t = 0
@@ -363,7 +389,8 @@ int main
          ;  break
          ;
 
-            case MY_OPT_BINARY
+            case MY_OPT_WB
+         :  case MY_OPT_PLUS
          :  mclxSetBinaryIO()
          ;  break
          ;
@@ -457,6 +484,18 @@ int main
             case MY_OPT_ETC
          :  mcxIOrenew(xfin, opt->val, NULL)
          ;  bits_stream_input = MCLXIO_STREAM_ETC
+         ;  break
+         ;
+
+            case MY_OPT_235_AI
+         :  mcxIOrenew(xfin, opt->val, NULL)
+         ;  bits_stream_input = MCLXIO_STREAM_235 | MCLXIO_STREAM_235_AI
+         ;  break
+         ;
+
+            case MY_OPT_235
+         :  mcxIOrenew(xfin, opt->val, NULL)
+         ;  bits_stream_input = MCLXIO_STREAM_235
          ;  break
          ;
 
@@ -558,7 +597,7 @@ int main
       bits_stream_other |= MCLXIO_STREAM_TWODOMAINS
    ;  else
       {  if (xfcachetabr || xfcachetabc)
-         mcxErr(me, "useless use of -cache-tabc or -cachetabr")
+         mcxErr(me, "useless use of -write-tabc or -writetabr")
    ;  }
 
       if (read_tab)

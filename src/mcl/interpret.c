@@ -1,7 +1,8 @@
-/*  Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -12,7 +13,7 @@
 #include <float.h>
 #include <limits.h>
 
-#include "clm.h"
+#include "clew/clm.h"
 
 #include "util/types.h"
 #include "util/alloc.h"
@@ -20,7 +21,8 @@
 #include "util/err.h"
 
 #include "impala/io.h"
-#include "impala/scan.h"
+
+#include "clew/scan.h"
 
 #define  IS_ATTRACTIVE_RECURBOUND     20
 
@@ -72,7 +74,7 @@ mclMatrix* mclDag
 (  const mclMatrix*  A
 ,  const mclInterpretParam* ipp
 )
-   {  long col
+   {  dim d
 
    ;  double w_selfval= ipp ? ipp->w_selfval: 0.999
    ;  double w_maxval = ipp ? ipp->w_maxval : 0.001
@@ -82,9 +84,9 @@ mclMatrix* mclDag
                      (  mclvCopy(NULL, A->dom_cols)
                      ,  mclvCopy(NULL, A->dom_rows)
                      )
-   ;  for (col=0;col<N_COLS(A);col++)           /* thorough clean-up */
-      {  mclVector*  vec      =  A->cols+col
-      ;  mclVector*  dst      =  M->cols+col
+   ;  for (d=0;d<N_COLS(A);d++)           /* thorough clean-up */
+      {  mclVector*  vec      =  A->cols+d
+      ;  mclVector*  dst      =  M->cols+d
       ;  double      selfval  =  mclvIdxVal(vec, vec->vid, NULL)
       ;  double      maxval   =  mclvMaxValue(vec)
       ;  double      bar      =  selfval < maxval
@@ -94,8 +96,8 @@ mclMatrix* mclDag
                                  :     delta
                                     ?  selfval / (1 + delta)
                                     :  selfval
-      ;  int n_bar =  mclvCountGiven(vec, mclpGivenValGt, &bar)
-      ;  mclvCopyGiven(dst, vec, mclpGivenValGt, &bar, n_bar)
+      ;  int n_bar =  mclvCountGiven(vec, mclpGivenValGQ, &bar)
+      ;  mclvCopyGiven(dst, vec, mclpGivenValGQ, &bar, n_bar)
    ;  }
       return M
 ;  }
@@ -106,11 +108,11 @@ mclMatrix* mclDag
    classes are mapped back to neighbour lists, namely
    the merge of all the neighbours in a given class.
 
-fixme: attractor-in-chain is not write:
+fixme: attractor-in-chain is not right:
 spurious attr 505 in chain starting at 505 messages.
 */
 
-int calc_depth
+static int calc_depth
 (  mclx* m_transient
 ,  mclx* m_attr_to_classid
 ,  mclx* m_classid_to_jointnb
@@ -124,10 +126,10 @@ int calc_depth
    ;  mclv *seen_at  =  mclvInit(NULL)
    ;  const mclv* classid_single_attr = NULL /* don't free this one */
    ;  int maxdepth   =  0
-   ;  int i
+   ;  dim d
 
-   ;  for (i=0;i<N_COLS(m_transient);i++)
-      {  long cid = m_transient->cols[i].vid
+   ;  for (d=0;d<N_COLS(m_transient);d++)
+      {  long cid = m_transient->cols[d].vid
       ;  mcxbool  attr_in_chain = FALSE
       ;  long     attr_example  = -1
       ;  int      depth = 0
@@ -137,13 +139,13 @@ int calc_depth
             =  mclxGetVector(m_attr_to_classid, cid, RETURN_ON_FAIL, NULL)
             )
          )
-         {  mclxUnionv(m_classid_to_jointnb, classid_single_attr, wave)
+         {  mclgUnionv(m_classid_to_jointnb, classid_single_attr, NULL, SCRATCH_READY, wave)
          ;  if (wave->n_ivps)
                attr_in_chain =   TRUE
             ,  attr_example  =   cid
       ;  }
          else
-         mclvCopy(wave, m_transient->cols+i)
+         mclvCopy(wave, m_transient->cols+d)
 
       ;  mclvResize(seen_tr, 0)
       ;  mclvResize(seen_at, 0)
@@ -161,18 +163,18 @@ int calc_depth
                            /* 4. remove attractors from wave */
                            /* 5. create next wave by merging transient neighbour lists */
                            /* 6. merge attractor induced neighbours */
-                           /* 7. discards those we already saw */
+                           /* 7. discard those we already saw */
                            /* 8. update the seen list for next time around */
 
          ;  mcldMeet(wave, m_attr_to_classid->dom_cols, wave_attr)
-         ;  mclxUnionv(m_attr_to_classid, wave_attr, classid)
-         ;  mclxUnionv(m_classid_to_jointnb, classid, classnb)
+         ;  mclgUnionv(m_attr_to_classid, wave_attr, NULL, SCRATCH_READY, classid)
+         ;  mclgUnionv(m_classid_to_jointnb, classid, NULL, SCRATCH_READY, classnb)
          ;  if (wave_attr->n_ivps)
             mcldMinus(wave, wave_attr, wave)
          ;  if (!attr_in_chain && classnb->n_ivps && wave_attr->n_ivps)
                attr_in_chain =   TRUE
             ,  attr_example  =   wave_attr->ivps[0].idx
-         ;  mclxUnionv(m_transient, wave, new_wave)
+         ;  mclgUnionv(m_transient, wave, NULL, SCRATCH_READY, new_wave)
          ;  mcldMerge(new_wave, classnb, new_wave)
          ;  mcldMinus(new_wave, seen_tr, new_wave)
          ;  mcldMerge(seen_tr, new_wave, seen_tr)
@@ -232,7 +234,7 @@ int mclDagTest
    ;  mclx* m_attr      =  mclxAllocClone(dag)
    ;  mclx* m_transient =  mclxCopy(dag)
    ;  int maxdepth      =  0
-   ;  int i
+   ;  dim d
 
                        /*
                         *  m_attr
@@ -254,10 +256,10 @@ int mclDagTest
    ;  mcxIO *u_transient            =  mcxIOnew("u_transient", "w")
 #endif
 
-   ;  for (i=0;i<N_COLS(m_transient);i++)
-      {  mclv* col = m_transient->cols+i
+   ;  for (d=0;d<N_COLS(m_transient);d++)
+      {  mclv* col = m_transient->cols+d
       ;  if (mclvGetIvp(col, col->vid, NULL))   /* deemed attractor */
-            mclvCopy(m_attr->cols+i, col)
+            mclvCopy(m_attr->cols+d, col)
          ,  mclvResize(col, 0)                  /* remove from transient */
    ;  }
 
@@ -268,24 +270,24 @@ int mclDagTest
    ;  }
 
                                                 /* deemed attr systems */
-   ;  m_attr_classes       =  mclcComponents(m_attr, NULL)
+   ;  m_attr_classes       =  clmComponents(m_attr, NULL)
    ;  m_attr_to_classid    =  mclxTranspose(m_attr_classes)
    ;  m_classid_to_jointnb =  mclxAllocZero
                               (  mclvClone(m_attr_classes->dom_cols)
                               ,  mclvClone(dag->dom_cols)
                               )
 
-   ;  for (i=0;i<N_COLS(m_attr_classes);i++)
-      {  mclv* class =  m_attr_classes->cols+i
-      ;  mclv* joint =  m_classid_to_jointnb->cols+i
+   ;  for (d=0;d<N_COLS(m_attr_classes);d++)
+      {  mclv* class =  m_attr_classes->cols+d
+      ;  mclv* joint =  m_classid_to_jointnb->cols+d
       ;  mclv* nb    =  NULL
-      ;  int j
+      ;  dim j
       ;  for (j=0;j<class->n_ivps;j++)
          {  long id  = class->ivps[j].idx
          ;  nb = mclxGetVector(dag, id, EXIT_ON_FAIL, nb)
          ;  mcldMerge(joint, nb, joint)
       ;  }
-         mcldMinus(joint, m_attr_classes->cols+i, joint)
+         mcldMinus(joint, m_attr_classes->cols+d, joint)
         /*  if the above statement does something, we have a node
          *  (in joint) reached by one of the attractors that reaches back
          *  into the attractor set -- i.e. it is a loop.
@@ -322,10 +324,9 @@ mclMatrix* mclInterpret
 (  const mclMatrix* dag
 )
    {  mclx* clus2elem   =  NULL
-   ;  mclx* dagtp      =  mclxTranspose(dag)
-
-   ;  int n_cols =  N_COLS(dag)
-   ;  int col, i, startoffset, n_cluster
+   ;  mclx* dagtp       =  mclxTranspose(dag)
+   ;  dim startoffset, n_cluster
+   ;  dim n_cols = N_COLS(dag), d
 
    ;  int*           colProps = NULL
    ;  mclVector**    clusterNodes = NULL
@@ -346,24 +347,24 @@ mclMatrix* mclInterpret
          mcxMemDenied(stderr, "mclInterpret", "mclVector", n_cols+1)
       ,  mcxExit(1)
 
-   ;  for (i=0;i<n_cols;i++)
-      *(colProps+i) = 0
+   ;  for (d=0;d<n_cols;d++)
+      *(colProps+d) = 0
 
-   ;  for (col=0;col<n_cols;col++)
-      {  mclVector*  vec    =  dag->cols+col
-      ;  int offset
-                       /* vertex col has a loop */
+   ;  for (d=0;d<n_cols;d++)
+      {  mclVector*  vec    =  dag->cols+d
+      ;  ofs offset
+                       /* vertex d has a loop */
       ;  if (mclvIdxVal(vec, vec->vid, &offset), offset >= 0)
-         colProps[col] = colProps[col] | is_attractive
+         colProps[d] = colProps[d] | is_attractive
 
-                       /* vertex col has no parents (and thus not a loop) */
-      ;  if ((dagtp->cols+col)->n_ivps == 0)
-         colProps[col] = colProps[col] | is_unattractive
+                       /* vertex d has no parents (and thus not a loop) */
+      ;  if ((dagtp->cols+d)->n_ivps == 0)
+         colProps[d] = colProps[d] | is_unattractive
    ;  }
 
                        /* compute closure of Bool "has attractive parent" */
-   ;  for (col=0;col<n_cols;col++)
-      isAttractive (dagtp, colProps, col, 0)
+   ;  for (d=0;d<n_cols;d++)
+      isAttractive (dagtp, colProps, d, 0)
 
    ;  startoffset = 0
    ;  n_cluster = 0
@@ -448,13 +449,13 @@ mclMatrix* mclInterpret
                         (  mclvCanonical(NULL, n_cluster, 1.0)
                         ,  mclvCopy(NULL, dag->dom_cols)
                         )
-      ;  for (i=0;i<n_cluster;i++)
+      ;  for (d=0;d<n_cluster;d++)
          {  mclvRenew
-            (  clus2elem->cols+i
-            ,  (*(clusterNodes+i))->ivps 
-            ,  (*(clusterNodes+i))->n_ivps
+            (  clus2elem->cols+d
+            ,  (*(clusterNodes+d))->ivps 
+            ,  (*(clusterNodes+d))->n_ivps
             )
-         ;  mclvFree(clusterNodes+i)
+         ;  mclvFree(clusterNodes+d)
       ;  }
          mclxMakeCharacteristic(clus2elem)
       ;
@@ -474,7 +475,7 @@ int isAttractive
 ,  int colidx
 ,  int depth
 )
-   {  int   i
+   {  dim d
    ;  mclVector* parents = Mt->cols+colidx
 
    ;  if (colProps[colidx] & is_attractive)     /* already categorized */
@@ -488,8 +489,8 @@ int isAttractive
       ;  return 0
    ;  }
 
-   ;  for (i=0;i<parents->n_ivps;i++)
-      {  int j = mclxGetVectorOffset(Mt, parents->ivps[i].idx, EXIT_ON_FAIL,-1)
+   ;  for (d=0;d<parents->n_ivps;d++)
+      {  ofs j = mclxGetVectorOffset(Mt, parents->ivps[d].idx, EXIT_ON_FAIL,-1)
                                           /* fixme: return & check */
       ;  if
          (  isAttractive
@@ -516,11 +517,11 @@ void  clusterMeasure
 )
    {  int         clsize   =  N_COLS(clus)
    ;  int         clrange  =  N_ROWS(clus)
-   ;  int         i
    ;  double      ctr      =  0.0
+   ;  dim         d
 
-   ;  for (i=0;i<N_COLS(clus);i++)
-      ctr += pow((clus->cols+i)->n_ivps, 2.0)
+   ;  for (d=0;d<N_COLS(clus);d++)
+      ctr += pow((clus->cols+d)->n_ivps, 2.0)
 
    ;  if (clsize && clrange)
       ctr /= clrange
@@ -533,6 +534,10 @@ void  clusterMeasure
 ;  }
 
 
+            /* Keep it around as annotation of the idea
+             * it encodes. Not terribly exciting or useful.
+             * Reconsider at the next census.
+            */
 #if 0
 void mcxDiagnosticsAttractor
 (  const char*          ffn_attr
@@ -541,9 +546,9 @@ void mcxDiagnosticsAttractor
 )
    {  int         n_nodes     =  clus2elem->n_range
    ;  int         n_written   =  dumpParam->n_written
-   ;  int         i           =  0
    ;  mclMatrix*  mtx_Ascore  =  mclxAllocZero(n_written, n_nodes)
    ;  mcxIO*      xfOut       =  mcxIOnew(ffn_atr, "w")
+   ;  dim         d           =  0
 
    ;  if (mcxIOopen(xfOut, RETURN_ON_FAIL) == STATUS_FAIL)
       {  mclxFree(&mtx_Ascore)
@@ -551,8 +556,8 @@ void mcxDiagnosticsAttractor
       ;  return
    ;  }
 
-   ;  for(i=0; i<n_written; i++)
-      {  mclMatrix*  iterand     =  *(dumpParam->iterands+i)
+   ;  for(d=0; d<n_written; d++)
+      {  mclMatrix*  iterand     =  *(dumpParam->iterands+d)
       ;  mclVector*  vec_Ascore  =  NULL
 
       ;  if (iterands->n_cols != n_nodes || iterand->n_range != n_nodes)
@@ -561,7 +566,7 @@ void mcxDiagnosticsAttractor
       ;  }
 
          vec_Ascore  =  mcxAttractivityScale(iterand)
-      ;  mclvRenew((mtx_Ascore->cols+i), vec_Ascore->ivps, vec_Ascore->n_ivps)
+      ;  mclvRenew((mtx_Ascore->cols+d), vec_Ascore->ivps, vec_Ascore->n_ivps)
       ;  mclvFree(&vec_Ascore)
    ;  }
 
@@ -582,14 +587,14 @@ void mcxDiagnosticsPeriphery
 mclVector*  mcxAttractivityScale
 (  const mclMatrix*           M
 )
-   {  int n_cols = N_COLS(M)
-   ;  int col
+   {  dim n_cols = N_COLS(M)
+   ;  dim d
 
    ;  mclVector* vec_values = mclvResize(NULL, n_cols)
 
-   ;  for (col=0;col<n_cols;col++)
-      {  mclVector*  vec   =  M->cols+col
-      ;  double   selfval  =  mclvIdxVal(vec, col, NULL)
+   ;  for (d=0;d<n_cols;d++)
+      {  mclVector*  vec   =  M->cols+d
+      ;  double   selfval  =  mclvIdxVal(vec, d, NULL)
       ;  double   maxval   =  mclvMaxValue(vec)
       ;  if (maxval <= 0.0)
          {  mcxErr
@@ -598,8 +603,8 @@ mclVector*  mcxAttractivityScale
             )
          ;  maxval = 1.0  
       ;  }
-         (vec_values->ivps+col)->idx = col
-      ;  (vec_values->ivps+col)->val = selfval / maxval
+         (vec_values->ivps+d)->idx = d
+      ;  (vec_values->ivps+d)->val = selfval / maxval
    ;  }
       return vec_values
 ;  }
@@ -627,50 +632,6 @@ mclInterpretParam* mclInterpretParamNew
    ;  ipp->delta        =  0.01
 
    ;  return ipp
-;  }
-
-
-double mclxCoverage
-(  const mclMatrix*     mx
-,  const mclMatrix*     clus2elem
-,  double               *maxcoverage
-)
-   {  int               c
-   ;  double            coverage       =  0.0
-   ;  double            thismaxcoverage=  0.0
-   ;  unsigned long     clus2elem_size =  0       
-
-   ;  if (maxcoverage)
-      *maxcoverage = 0.0
-
-   ;  if (!mcldEquate(clus2elem->dom_rows, mx->dom_cols, MCLD_EQ_EQUAL))
-      {  mcxErr
-         (  "mclxCoverage"
-         ,  "node domains (sizes %ld, %ld) do not fit"
-         ,  (long) N_ROWS(clus2elem)
-         ,  (long) N_COLS(mx)
-         )
-      ;  return 0
-   ;  }
-
-  /*  fixme-urgent; need to have strict partitioning here (why again?) */
-
-      for (c=0;c<N_COLS(clus2elem);c++)
-      {  mclVector* clus = clus2elem->cols+c
-      ;  mclxScore xscore
-      ;  mclxSubScan(mx, clus, clus, &xscore)
-
-      ;  thismaxcoverage += xscore.covmax * clus->n_ivps
-      ;  coverage += xscore.cov * clus->n_ivps
-      ;  clus2elem_size += clus->n_ivps
-   ;  }
-
-      if (clus2elem_size)
-      {  if (maxcoverage)
-         *maxcoverage = thismaxcoverage / clus2elem_size
-      ;  return coverage/clus2elem_size
-   ;  }
-      return 0.0
 ;  }
 
 

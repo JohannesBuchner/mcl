@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!-- Copyright (c) 2006 Stijn van Dongen -->
+<!-- Copyright (c) 2008 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <style type="text/css">
@@ -32,6 +32,7 @@ h2 { margin-top:2em; }
 .left { text-align: left; align: left; }
 .right { text-align: right; align: right; }
 .center { text-align: center; align: center; }
+.nowrap { white-space: nowrap; }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -64,31 +65,31 @@ div.indent
 margin-right: 0%;
 }
 </style>
-<title>The clminfo manual</title>
+<title>The clm info manual</title>
 </head>
 <body>
 <p style="text-align:right">
-27 Feb 2006&nbsp;&nbsp;&nbsp;
-<a class="local" href="clminfo.ps"><b>clminfo</b></a>
-1.006, 06-058
+5 Jun 2008&nbsp;&nbsp;&nbsp;
+<a class="local" href="clminfo.ps"><b>clm info</b></a>
+1.007-grumpy-gryphon, 08-157
 </p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=48 valign="top" class=left>1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr><td width=48 valign="top" class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#_section_4">OPTIONS</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#author">AUTHOR</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#seealso">SEE ALSO</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>7.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">7.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#references">REFERENCES</a>
 </div></td></tr>
 </table>
@@ -98,57 +99,65 @@ cellpadding="0" summary="itemize">
 <a name="name"></a>
 <h2>NAME</h2>
 <p class="default L50" style="margin-bottom:0">
-clminfo - Compute performance measures for graphs and clusterings.</p>
+clm info - Compute performance measures for graphs and clusterings.</p>
+<p class="default L50" style="margin-bottom:0">clminfo is not in actual fact a program. This manual
+page documents the behaviour and options of the clm program when
+invoked in mode <i>info</i>. The options <b>-h</b>, <b>--apropos</b>,
+<b>--version</b>, <b>-set</b>, <b>--nop</b> are accessible
+in all <b>clm</b> modes. They are described
+in the <a class="local" href="clm.html">clm</a> manual page.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p class="default L50">
-<b>clminfo</b> [options] &lt;graph file&gt; &lt;cluster file&gt; &lt;cluster file&gt;*
-<p class="default L50">
-<b>clminfo</b>
-<a class="intern" href="#opt--adapt"><b>[--adapt</b> (<i>allow domain mismatch</i>)<b>]</b></a>
+<p class="default L50" style="margin-bottom:0">
+<b>clm info</b> [options] &lt;graph file&gt; &lt;cluster file&gt; &lt;cluster file&gt;*
+</p>
+<p class="default L50" style="margin-bottom:0">
+<b>clm info</b>
+<a class="intern" href="#opt-o"><b>[-o</b> fname (<i>write to file <b>fname</b></i>)<b>]</b></a>
 <a class="intern" href="#opt-pi"><b>[-pi</b> f (<i>apply inflation beforehand</i>)<b>]</b></a>
-<a class="intern" href="#opt--append-pf"><b>[--append-pf</b> (<i>append performance measures</i>)<b>]</b></a>
-<a class="intern" href="#opt--append-gr"><b>[--append-gr</b> (<i>append granularity measures</i>)<b>]</b></a>
-<a class="intern" href="#opt-tag"><b>[-tag</b> &lt;str&gt; (<i>write tag=&lt;str&gt; in performance section</i>)<b>]</b></a>
-&lt;graph file&gt; &lt;cluster file&gt; &lt;cluster file&gt;*
+<a class="intern" href="#opt-tf"><b>[-tf</b> spec (<i>apply tf-spec to input matrix</i>)<b>]</b></a>
+<a class="intern" href="#opt-cl-tree"><b>[-cl-tree</b> fname (<i>expect file with nested clusterings</i>)<b>]</b></a>
+<a class="intern" href="#opt-cl-ceil"><b>[-cl-ceil</b> &lt;num&gt; (<i>skip clusters of size exceeding &lt;num&gt;</i>)<b>]</b></a>
+<a class="intern" href="#opt-cat-max"><b>[-cat-max</b> num (<i>do at most <b>num</b> tree levels</i>)<b>]</b></a>
+<a class="intern" href="#opt--node-self-measures"><b>[--node-self-measures</b> (<i>dump measure for native cluster</i>)<b>]</b></a>
+<a class="intern" href="#opt--node-all-measures"><b>[--node-all-measures</b> (<i>dump measure for incident cluster</i>)<b>]</b></a>
+<a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
+<a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print synopsis, exit</i>)<b>]</b></a>
+<a class="intern" href="#opt--version"><b>[--version</b> (<i>print version, exit</i>)<b>]</b></a>
+&lt;matrix file&gt; &lt;cluster file&gt; &lt;cluster file&gt;*
+</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p class="default L50">
-<b>clminfo</b> computes several numbers indicative for the efficiency with
+<p class="default L50" style="margin-bottom:0">
+<b>clm info</b> computes several numbers indicative for the efficiency with
 with a clustering captures the edge mass of a given graph.
-Use it in conjunction with <b>clmdist</b> to determine which clusterings
-you accept. See the EXAMPLES section in <a class="local" href="clmdist.html">clmdist</a>
-for an example of <b>clmdist</b> and <b>clminfo</b> (and <b>clmmeet</b>) usage.
-Output can be generated for multiple clusterings at the same time.
-<p class="default L50">
-The first number is called the <b>efficiency</b> and is described in [1] (see
+Use it in conjunction with <b>clm dist</b> to determine which clusterings
+you accept. See the EXAMPLES section in <b>clm dist</b>
+for an example of <b>clm dist</b> and <b>clm info</b> (and <b>clm meet</b>) usage.
+Output can be generated for multiple clusterings at the same time.</p>
+<p class="default L50" style="margin-bottom:0">
+The <b>efficiency</b> factor is described in [1] (see
 the <a class="intern" href="#references">REFERENCES</a> section). It tries to balance the dual aims of
 capturing a lot of edges or edge weights and keeping the cluster footprint
 or area fraction small. The efficiency number has several appealing
 mathematical properties, cf. [1]. It is related to, but not derivable from,
 the second and third numbers, the <i>mass fraction</i> and the
-<i>area fraction</i>.
-<p class="default L50">
-The second number is the mass fraction, which is defined as follows.
+<i>area fraction</i>.</p>
+<p class="default L50" style="margin-bottom:0">
+The <b>mass fraction</b> is defined as follows.
 Let <b>e</b> be an edge of the graph. The clustering <i>captures</i> <b>e</b>
 if the two nodes associated with <b>e</b> are in the same cluster.
 Now the mass fraction is the joint weight of all captured edges divided
-by the joint weight of all edges in the input graph.
-<p class="default L50">
-The third number is the area fraction, which is roughly the sum of the
+by the joint weight of all edges in the input graph.</p>
+<p class="default L50" style="margin-bottom:0">
+The <b>area fraction</b> is roughly the sum of the
 squares of all cluster sizes for all clusters in the clustering, divided by
 the square of the number of nodes in the graph. It says <i>roughly</i>,
 because the actual formula uses the quantity <b>N</b>*(<b>N-1</b>) wherever it
 says square (of <b>N</b>) above. A low/high area fraction indicates a
-fine-grained/coarse clustering.
-<p class="default L50">
-The fourth number is the cluster link weight, which is the average
-edge weight over all edges captured by the clustering.
-<p class="default L50">
-The fifth number is the graph link weight, which is the average weight
-over all edges in the graph.
+fine-grained/coarse clustering.</p>
 
 <a name="_section_4"></a>
 <h2>OPTIONS</h2>
@@ -156,23 +165,38 @@ over all edges in the graph.
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td colspan=3><a name="opt--adapt"></a><b>--adapt</b> (<i>allow domain mismatch</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-The <b>--adapt</b> option allows the graph domain and cluster domain
-not to match. <b>clmdist</b> will take the appropriate subclustering and
-subgraph as it goes along.
+<tr><td colspan=3><a name="opt-o"></a><b>-o</b> fname (<i>output file name</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-pi"></a><b>-pi</b> f (<i>apply inflation beforehand</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Apply inflation to the graph matrix and compute the performance
-measures for the result.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--append-pf"></a><b>--append-pf</b> (<i>append performance measures</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-<b>clminfo</b> will reread each cluster file and append the computed
-performance measures to it.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--append-gr"></a><b>--append-gr</b> (<i>append granularity measures</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-<b>clminfo</b> will reread each cluster file and append the computed
-granularity measures to it.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-tag"></a><b>-tag</b> &lt;str&gt; (<i>write tag=&lt;str&gt; in performance section</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-When appending, <b>clminfo</b> will include tag=&lt;str&gt; in the
-performance section. This can be useful e.g. to indicate
-the pre-inflation value corresponding with the section.
+measures for the result.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-tf"></a><b>-tf</b> spec (<i>apply tf-spec to input matrix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Transform the input matrix values according
+to the syntax described in <a class="local" href="mcxio.html">mcxio</a>.
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-cl-tree"></a><b>-cl-tree</b> fname (<i>expect file with nested clusterings (cone format)</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cl-ceil"></a><b>-cl-ceil</b> &lt;num&gt; (<i>skip (nested) clusters of size exceeding &lt;num&gt;</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+The specified file should contain a hierarchy of nested
+clusterings such as generated by <b>mclcm</b>. The output is then
+in a special format, undocumented but easy to understand.
+Its purpose is to help cherrypick a single clustering
+from a tree, in conjunction with the slightly experimental
+and undocumented program <b>mlmfifofum</b>.
+</p>
+<p class="default L50" style="margin-bottom:0">
+The measure that is used is very slow to compute for large clusters, and
+generally it will be outside any interesting range (i.e. it will be small).
+Use <b>-cl-ceil</b> to skip clusters exceeding the specified size -
+<b>clm info</b> will directly proceed to subclusters if they exist.
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-cat-max"></a><b>-cat-max</b> num (<i>do at most <i>num</i> levels</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-bottom:0">
+This only has effect when used with <b>-cl-tree</b>.
+<b>clm info</b> will start at the most fine-grained level, working upwards.
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--node-all-measures"></a><b>--node-all-measures</b> (<i>dump node-wise criteria for all incident clusters</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--node-self-measures"></a><b>--node-self-measures</b> (<i>dump node-wise criteria for native cluster</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 </div></td></tr>
 </table>
 
@@ -180,23 +204,22 @@ the pre-inflation value corresponding with the section.
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p class="default L50">
-Stijn van Dongen.
+<p class="default L50" style="margin-bottom:0">
+Stijn van Dongen.</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
 <p class="default L50" style="margin-bottom:0">
 <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
-and the utilities in the mcl family.
-</p>
+and the utilities in the mcl family.</p>
 
 <a name="references"></a>
 <h2>REFERENCES</h2>
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
 [1] Stijn van Dongen. <i>Performance criteria for graph clustering and Markov
 cluster experiments</i>. Technical Report INS-R0012, National Research
 Institute for Mathematics and Computer Science in the Netherlands,
 Amsterdam, May 2000.<br>
-<a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z</a>
+<a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z</a></p>
 </body>
 </html>

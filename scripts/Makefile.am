@@ -1,7 +1,13 @@
 ## Process this file with automake to produce Makefile.in
-## $Id: Makefile.am,v 1.2 2006-02-22 12:43:39 flux Exp $
+## $Id: Makefile.am,v 1.3 2007-04-19 16:06:12 flux Exp $
 
-this = clxcoarse clxdo minimcl
+include $(top_srcdir)/include/include.am
 
-EXTRA_DIST = $(this)
+this = clxcoarse minimcl mlm-fifofum mlm-summary mlm-quilt \
+			piclo pichi clmsnare mlm-analyze docme
+
+noinst_SCRIPTS = clxdo tree3.pl
+
+EXTRA_DIST = $(this) $(noinst_SCRIPTS)
+
 

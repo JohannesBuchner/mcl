@@ -1,5 +1,5 @@
-.\" Copyright (c) 2006 Stijn van Dongen
-.TH "clmdist" 1 "27 Feb 2006" "clmdist 1\&.006, 06-058" "USER COMMANDS "
+.\" Copyright (c) 2008 Stijn van Dongen
+.TH "clm dist" 1 "5 Jun 2008" "clm dist 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -28,55 +28,80 @@
 .el .in 8m
 ..
 .SH NAME
-clmdist \- compute the distance between two or more partitions (clusterings)\&.
+clm dist \- compute the distance between two or more partitions (clusterings)\&.
 
-Distance can be any of
+The distance that is computed can be any of
 \fIsplit/join distance\fP, \fIvariance of information\fP,
-\fIMirkin metric\fP, or \fIscatter distance\fP\&.
+or \fIMirkin metric\fP\&.
+
+clmdist is not in actual fact a program\&. This manual
+page documents the behaviour and options of the clm program when
+invoked in mode \fIdist\fP\&. The options \fB-h\fP, \fB--apropos\fP,
+\fB--version\fP, \fB-set\fP, \fB--nop\fP are accessible
+in all \fBclm\fP modes\&. They are described
+in the \fBclm\fP manual page\&.
 .SH SYNOPSIS
 
-\fBclmdist\fP [options] <file name> <file name>+
+\fBclm dist\fP [options] <file name> <file name>+
 
-\fBclmdist\fP
-\fB[--adapt\fP (\fIallow domain mismatch\fP)\fB]\fP
+\fBclm dist\fP
 \fB[-mode\fP <sj|vi|mk|sc> (\fIdistance type\fP)\fB]\fP
+\fB[-o\fP fname (\fIoutput file\fP)\fB]\fP
 \fB[-digits\fP k (\fIoutput decimals\fP)\fB]\fP
 \fB[-width\fP k (\fItab width\fP)\fB]\fP
-\fB[--noindex\fP (\fIomit indices\fP)\fB]\fP
-\fB[-parts\fP <l|d|u>+ (\fIarray parts to print\fP)\fB]\fP
+\fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--apropos\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--version\fP (\fIprint version, exit\fP)\fB]\fP
 <file name> <file name>+
 .SH DESCRIPTION
 
-\fBclmdist\fP computes distances between clusterings\&. It can compute
-the \fIsplit/join distance\fP (described below),
-the \fIvariance of information measure\fP,
-the \fIMirkin metric\fP,
-and the \fIscatter\fP distance\&.
-It can compute the chosen distance for all pairs of distances in a set of
-clusterings\&. Clusterings must be in the mcl matrix format (Cf\&. \fBmcxio(5)\fP),
-and are supplied on the command line as the names of the files in which they
-are stored\&.
+\fBclm dist\fP computes distances between clusterings\&. It can compute the
+\fIsplit/join distance\fP (described below), the \fIvariance of information
+measure\fP, and the \fIMirkin metric\fP\&. It can compute the chosen distance
+for all pairs of distances in a set of clusterings\&. Clusterings must be in
+the mcl matrix format (cf\&. \fBmcxio(5)\fP), and are supplied on the command
+line as the names of the files in which they are stored\&.
 
-Currently, \fBclmdist\fP cannot compute different distance types simultaneously,
-with one exception\&. The scatter distance \fIcan\fP be computed simultaneously
-with any of the other three distances\&.
+Currently, \fBclm dist\fP cannot compute different distance types simultaneously\&.
 
-.ZI 3m "\fB--adapt\fP (\fIallow domain mismatch\fP)"
-\&
-.br
-Allow a pair of clusterings to pertain to different domains\&. \fBclmdist\fP will
-project both clusterings onto the meet of the domains\&.
-.in -3m
+The output is linewise, each line giving information about
+the distance between a pair of clusterings\&. A line has the
+following format:
 
-.ZI 3m "\fB-mode\fP <sj|vi|mk|sc> (\fIdistance type\fP)"
+.di ZV
+.in 0
+.nf \fC
+d  d1  d2  N  v  name1  name2  [v50,v75,v90,v95,v99]
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
+where \fCdT\fP is the distance between the two clusterings, \fCd1\fP is the
+distance from the first clustering to the greatest common subclustering
+(alternatively called GCS, intersection, or meet) of the two clusterings,
+\fCd2\fP is similarly the distance from the second clustering to the GCS,
+\fCN\fP is the number of nodes in the set over which the clusterings are
+defined, \fCname1\fP is the name of the file containing the first clustering,
+\fCname2\fP is the name of the file containing the second clustering, and
+\fCvXX\fP is the number of \fIvolatile nodes\fP at stringency factor \fC0\&.XX\fP
+(i\&.e\&. 0\&.5 for \fCv50\fP)\&. Refer to \fBclm vol\fP for a definition of
+\fIvolatile node\fP\&.
+.SH OPTIONS
+
+.ZI 3m "\fB-mode\fP <sj|vi|mk> (\fIdistance type\fP)"
 \&
 .br
 Use \fBsj\fP for the \fIsplit/join distance\fP (described below), \fBvi\fP for
-the \fIvariance of information measure\fP, \fBmk\fP for the \fIMirkin metric\fP,
-and \fBsc\fP for the \fIscatter distance\fP\&.
-The scatter distance \fIcan\fP be computed simultaneously
-with any of the other three distances\&. This is achieved e\&.g\&. by
-supplying \fB-mode\fP\ \&\fBsj\fP \fB-mode\fP\ \&\fBsc\fP\&.
+the \fIvariance of information measure\fP and \fBmk\fP for the \fIMirkin metric\fP\&.
+.in -3m
+
+.ZI 3m "\fB-o\fP fname (\fIoutput file\fP)"
+\&
+.br
 .in -3m
 
 .ZI 3m "\fB-digits\fP k (\fIoutput decimals\fP)"
@@ -90,22 +115,8 @@ The number of decimals printed when using the variance of information measure\&.
 .br
 The tabbing width in the output table\&.
 .in -3m
-
-.ZI 3m "\fB--noindex\fP (\fIomit indices\fP)"
-\&
-.br
-Do not print indices around the table\&.
-.in -3m
-
-.ZI 3m "\fB-parts\fP <l|d|u>+ (\fIarray parts to print\fP)"
-\&
-.br
-Use \fBl\fP to print the lower diagonal part of the table, use \fBd\fP
-to print the (boring) diagonal part of the table (it\&'s full of zeroes),
-use \fBu\fP to print the upper diagonal part of the table\&.
-You may use any combination of these\&.
-.in -3m
 .SH SPLIT/JOIN DISTANCE
+
 For each pair of clusterings \fBC1\fP, \fBC2\fP, two numbers are given,
 say \fBd1\fP and \fBd2\fP\&. Then \fBd1\fP + \fBd2\fP equals the number
 of nodes that have to be exchanged in order to transform any of the two
@@ -122,8 +133,8 @@ you need to switch to more expensive settings\&. The former is for finding out
 whether clusterings are identical, conflicting, or whether one is (almost) a
 subclustering of the other - mostly for comparing a set of clusterings of
 different granularity, made by letting the mcl parameter \fB-I\fP vary\&.
-The \fBEXAMPLES\fP section contains examples of all these \fBclmdist\fP uses,
-and the use of \fBclminfo(1)\fP and \fBclmmeet(1)\fP is also discussed there\&.
+The \fBEXAMPLES\fP section contains examples of all these \fBclm dist\fP uses,
+and the use of \fBclm info\fP and \fBclm meet\fP is also discussed there\&.
 
 \fBsjd\fP is a metric distance on the space of partitions of
 a set of a given fixed cardinality\&. It has the following linearity
@@ -140,17 +151,11 @@ a pointer to the technical report in which \fBsjd\fP was first defined (and in
 which the non-trivial triangle inequality is proven)\&.
 
 Because it is useful to know whether one partition (or clustering)
-is almost a subclustering of the other, \fBclmdist\fP returns the
+is almost a subclustering of the other, \fBclm dist\fP returns the
 two constituents \fBsjd\fP(\fBP1\fP,\fBD\fP) and \fBsjd\fP(\fBP2\fP,\fBD\fP)\&.
 
-The output of \fBclmdist\fP is slightly different depending on whether two or
-more than two clusterings are given\&. In the first case, one pair of numbers
-is returned (the \fBsjd\fP constituents)\&. In the latter case, an array is
-returned for which the upper triangular part contains all possible
-distances\&. The array is extended with the (file) names of the clusterings\&.
-
 Let \fBP1\fP and \fBP2\fP be two clusterings of a graph of cardinality \fBN\fP,
-and suppose \fBclmdist\fP returns the integers \fBd1\fP and \fBd2\fP\&. You can think of
+and suppose \fBclm dist\fP returns the integers \fBd1\fP and \fBd2\fP\&. You can think of
 \fB100 * (d1 + d2) / N\fP as the percentage that \fBP1\fP and \fBP2\fP differ\&.
 This interpretation is in fact slightly conservative\&.
 The numerator is the number of nodes that need to be exchanged in order to
@@ -159,7 +164,7 @@ transform one into the other\&. This number may grow as large as
 factor rather than 100\&.
 
 For example, if \fBA\fP and \fBB\fP are both clusterings of a graph
-on a set of 9058 nodes and \fBclmdist\fP returns [38, 2096], this conveys
+on a set of 9058 nodes and \fBclm dist\fP returns [38, 2096], this conveys
 that \fBA\fP is almost a subclustering of \fBB\fP (by splitting 38 nodes
 in \fBA\fP we obtain a clustering \fBD\fP that is a subclustering of \fBB\fP),
 and that \fBB\fP is much less granular than \fBA\fP\&. The latter is
@@ -174,11 +179,11 @@ different clusterings were generated for different values of the inflation
 parameter, which was respectively set to 1\&.2, 1\&.6, 2\&.0, 2\&.4, 2\&.8, and 3\&.2\&.
 It should be noted that protein graphs seem somewhat special in that an
 inflation parameter setting as low as 1\&.2 still produces a very acceptable
-clustering\&. The six clusterings are scrutinized using \fBclmdist\fP,
-\fBclminfo\fP, and \fBclmmeet\fP\&.
+clustering\&. The six clusterings are scrutinized using \fBclm dist\fP,
+\fBclm info\fP, and \fBclm meet\fP\&.
 In the second experiment, four different clusterings were generated
 with identical flow (i\&.e\&. inflation) parameter, but
-with different resource parameters\&. \fBclmdist\fP is used to choose
+with different resource parameters\&. \fBclm dist\fP is used to choose
 a sufficient resource level\&.
 
 High \fB-P/-S/-R\fP values make \fBmcl\fP more accurate but also
@@ -196,7 +201,7 @@ In this particular example, the validation tools do not reveal that one
 clustering in particular can be chosen as \&'best\&', because all clusterings
 seem at least acceptable\&. They do aid however in showing the relative
 merits of each clusterings\&. The most important issue in this respect is
-cluster granularity\&. The table below shows the output of \fBclminfo(1)\fP\&.
+cluster granularity\&. The table below shows the output of \fBclm info\fP\&.
 
 .di ZV
 .in 0
@@ -266,8 +271,8 @@ all the clusterings:
 .in 0
 .nf \fC
 
-clmmeet -o meet out12 out16 out20 out24 out28 out32
-clmdist meet out12 out16 out20 out24 out28 out32
+clm meet -o meet out12 out16 out20 out24 out28 out32
+clm dist meet out12 out16 out20 out24 out28 out32
 .fi \fR
 .in
 .di
@@ -300,7 +305,7 @@ one obtains a subclustering of all other clusterings\&.
 
 In the last experiment, \fBmcl\fP was run with inflation parameter 1\&.4,
 for each of the four different preset pruning schemes \fCk=1,2,3,4\fP\&.
-The \fBclmdist\fP distances between the different clusterings
+The \fBclm dist\fP distances between the different clusterings
 are shown below\&.
 
 .di ZV

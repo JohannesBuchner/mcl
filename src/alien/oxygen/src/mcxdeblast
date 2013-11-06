@@ -1,6 +1,8 @@
 #!/usr/bin/env perl
 
-# (c) Copyright 2002, 2003, 2004, 2005 Stijn van Dongen
+use Getopt::Long;
+
+# (c) Copyright 2002, 2003, 2004, 2005, 2006, 2007 Stijn van Dongen
 # (c) Copyright 2004 Jason Stajich (column output parsing)
 #
 # Other (C)ontributors;
@@ -9,11 +11,14 @@
 #     Daniel Lundin                 (regexp tweak, warning)
 #
 # You can redistribute and/or modify this program under the terms of the GNU
-# General Public License;  either version 2 of the License or (at your option)
+# General Public License;  either version 3 of the License or (at your option)
 # any later version.
 
 #
 # TODO
+#
+#  -  Optionally read from STDIN
+#  -  Require tab file for line-mode={123,packed}
 #
 #  -  Infer hsp_len from long output (?)
 #  -  (Perhaps) enable section parsing ala tribe, for finer control.   
@@ -21,29 +26,16 @@
 #  -  Is the m9/seenlfgt combination correct?
 #  -  Check whether m9 output state is correct if errors occur.
 
-#  -  Check values; check correct usage --key=val and --key
-#     (by associating type with key). Or just be sane, use Getopt::Long.
-# _____________________________________
-# general Getopt::Long / GNU style rant:
-# --size=24 and --size 24 should *NOT* mean the same. It's hideous
-# to have those syntaxes collapse. Pick one, not two.
-# What I find reasonable is to have --verbose mean default verbosity,
-# and --verbose=babbling or --verbose=richter-10 etc set the variants.
-# then -verbose babbling would be the two-token invocation.
-# I might give in though, as some stances are in vain or even in vanity.
-
 
 use strict;
 
-$::mode_sort = 'o';     # a lphabetical
-                        # o ccurrence
+$::mode_sort   = 'o';      # a lphabetical
+                           # o ccurrence
 
-$::mode_score = 'e';    # e value
-                        # b it
+$::mode_score  = 'e';      # e value
+                           # b it
 
-$::mode_parse  = 'long';   # or 'm9'.
-
-$::stream_out  =  "";      # don't stream by default.
+$::line_mode   = "";       # default is raw mode, not line mode
 $::name_out    =  '-';
 
 $::bcut = 0;
@@ -55,74 +47,53 @@ my $addfix = "";
 
 my $user_tabfile = "";
 
-my %stream_modes = qw ( abc 1 123 1 packed 1 );
+my %line_modes = qw ( abc 1 123 1 packed 1 );
 
 my $obase = "";
+my $stdhandler = 0;
 
-while ($ARGV[0] =~ /^--/) {
-   my $arg = shift @ARGV;
-   my ($val, $key) = ("", "");
-   if ($arg =~ /^--(.*?)(=(.*))?$/) {
-      $key = $1;
-      $val = $2 ? $3 : "";
-   }
-   else {
-      print "Arguments must be in <--key=val> or <--key> format\n";
+my $help = 0;
+my $m9 = 0;
+my $abc = 0;
+
+
+
+if
+(! GetOptions
+   (  "help"            =>    \$help
+   ,  "apropos"         =>    \$help
+   ,  "sort=s"          =>    \$::mode_sort
+   ,  "ecut=f"          =>    \$::ecut
+   ,  "bcut=f"          =>    \$::bcut
+   ,  "rcut=f"          =>    \$::rcut
+   ,  "score=s"         =>    \$::mode_score
+   ,  "m9"              =>    \$m9
+   ,  "tab=s"           =>    \$user_tabfile
+   ,  "xo-dat=s"        =>    \$addfix
+   ,  "xi-dat=s"        =>    \$blastfix
+   ,  "base=s"          =>    \$obase
+   ,  "stdhandler"      =>    \$stdhandler
+   ,  "line-mode=s"     =>    \$::line_mode
+   ,  "out=s"           =>    \$::name_out
+   )
+)
+   {  print STDERR "option processing failed\n";
       exit(1);
    }
 
-   if ($key eq 'sort') {
-      $::mode_sort = $val;
-      if ($::mode_sort !~ /^[ao]$/) {
-         die "unknown sort mode <$::mode_sort>\n";
-      }
-   }
+help() && exit(0) if $help;
 
-   elsif ($key eq 'm9')          { $::mode_parse= 'm9'; }
-   elsif ($key eq 'abc')         { $::mode_parse= 'abc'; }
-   elsif ($key eq 'ecut')        { $::ecut      = $val; }
-   elsif ($key eq 'bcut')        { $::bcut      = $val; }
-   elsif ($key eq 'rcut')        { $::rcut      = $val; }
-   elsif ($key eq 'tab')         { $user_tabfile= $val; }
-   elsif ($key eq 'xo-dat')      { $addfix      = $val; }
-   elsif ($key eq 'xi-dat')      { $blastfix    = $val; }
-   elsif ($key eq 'base')        { $obase       = $val; }
-
-   elsif ($key eq 'stream') {
-      $::stream_out  = $val;
-      if (!defined($stream_modes{$val})) {
-         die "unknown streaming mode <$val>";
-      }
-   }
-   elsif ($key eq 'out') {
-      $::name_out  = $val;
-   }
-   elsif ($key eq 'abc-out') {
-      $::name_out  = $val;
-      $::stream_out = 'abc';
-   }
-
-   elsif ($key eq 'score') {
-      $::mode_score = $val;
-      if ($::mode_score !~ /^[ebr]$/) {
-         die "unknown sort mode <$::mode_score>\n";
-      }
-   }
-   elsif ($key eq 'help') {
-      help();
-   }
-   else {
-      die "unknown argument $arg\n";
-   }
-}
-
-if (!@ARGV) {
-   help();
-   exit(0);
-}
+die "unknown sort mode <$::mode_sort>"
+   unless $::mode_sort =~ /^[ao]$/;
+die "unknown line mode <$::line_mode>"
+   unless !$::line_mode || defined($line_modes{$::line_mode});
+die "unknown sort mode <$::mode_score>"
+   unless $::mode_score =~ /^[ebr]$/;
+   
 
 my $fname = shift || die "please submit name of blast file\n";
 $obase = $fname unless $obase;
+
 
 if ($blastfix) {
    $obase = $fname;
@@ -143,11 +114,11 @@ $::seenrgt = {};
 my $tagTocc = {};
 my $me = "[$0] ";
 my $lc = 0;
-my $fh = \*STDIN;
+my $fhin = \*STDIN;
 
 if ($fname ne '-') {
    open(F_BLAST, "<$fname") || die "cannot open $fname\n";
-   $fh = \*F_BLAST;
+   $fhin = \*F_BLAST;
 }
 
 $::TAB_user = {};
@@ -160,46 +131,48 @@ if ($user_tabfile) {
 $::f_raw = undef;
 my $f_err = undef;
 
-if ($::stream_out) {
+if ($::line_mode) {
    if (!$::name_out || $::name_out eq '-') {
+      $::f_raw = \*STDOUT;
+   }
+   else {
       open(F_RAW, ">$::name_out") || die "cannot open $::name_out";
       $::f_raw = \*F_RAW;
    }
-   else {
-      $::f_raw = \*STDOUT;
-   }
    $f_err = \*STDERR;
 
-   if ($::stream_out eq 'abc') {
+   if ($::line_mode eq 'abc') {
       # print $::f_raw "#aa# (stream abc cookie)\n";
    }
-   elsif ($::stream_out eq '123') {
+   elsif ($::line_mode eq '123') {
       # print $::f_raw "#11# (stream abc cookie)\n";
    }
-   elsif ($::stream_out eq 'packed') {
+   elsif ($::line_mode eq 'packed') {
       # my $sentinel = 2+4+32+128;
       my $cookie     =  0x777700;      # 00000000111111111111111100000000
       # print $::f_raw "L", $cookie;
    }
 }
 else {
-   open(F_RAW, ">$obase.raw") || die "cannot open $obase.raw\n";
-   $::f_raw = \*F_RAW;
-   open(F_ERR, ">$obase.err") || die "cannot open $obase.err\n";
-   $f_err = \*F_ERR;
+   if ($stdhandler) {
+      $::f_raw = \*STDOUT;
+      $f_err = \*STDERR;
+   }
+   else {
+      open(F_RAW, ">$obase.raw") || die "cannot open $obase.raw\n";
+      $::f_raw = \*F_RAW;
+      open(F_ERR, ">$obase.err") || die "cannot open $obase.err\n";
+      $f_err = \*F_ERR;
+   }
 }
-
 
 $::ID = 0;
 
-if ($::mode_parse eq 'long') {
-   munge_long($fh, $::f_raw);
-}
-elsif ($::mode_parse eq 'm9' || $::mode_parse eq 'abc') {
-   munge_linewise($fh, $::f_raw, $::mode_parse);
+if ($m9) {
+   munge_linewise($fhin, $::f_raw);
 }
 else {
-   die "Unknown parse mode $::mode_parse\n";
+   munge_long($fhin, $::f_raw);
 }
 
 close $::f_raw;
@@ -209,7 +182,7 @@ $::CT = scalar keys %$::seenrgt;
 my $alnum = 0;
 my $occTmisc = {};
 
-if (!$user_tabfile && !$::stream_out) {
+if (!$user_tabfile && !$::line_mode) {
    open(F_HDR, ">$obase.hdr") || die "cannot open $obase.hdr\n";    # header
    open(F_MAP, ">$obase.map") || die "cannot open $obase.idx\n";    # map file
    open(F_TAB, ">$obase.tab") || die "cannot open $obase.idx\n";    # indices
@@ -275,14 +248,10 @@ else {
 }
 
 
-
-
-
 sub munge_linewise {
 
    my $fh_in   =  shift;
    my $fh_raw  =  shift;
-   my $mode    =  shift;
 
    my $gix_prev = "";
 
@@ -295,10 +264,7 @@ sub munge_linewise {
       my ($gix, $giy, $percent_id, $hsp_len, $mismatches, $gapsm,
           $qstart, $qend,$hstart, $hend, $e, $b)
           =
-          split
-      if $mode eq 'm9';
-                              # yes, ugly and lazy.
-      ($gix, $giy, $sc_abc) = split if $mode eq 'abc';
+          split;
 
       my $s = 0;
 
@@ -306,7 +272,7 @@ sub munge_linewise {
       next unless $idx >= 0;
 
       if ($gix_prev ne $gix) {
-          if (!$::stream_out) {
+          if (!$::sline_mode) {
              if ($gix_prev) {
                print $fh_raw "\$\n";
              }
@@ -317,13 +283,10 @@ sub munge_linewise {
       }
       my $idy = getid($giy, 0);
 
-      $s
-      =     $mode eq 'm9'
-         ?  getscore($e, $b, $hsp_len)
-         :  $sc_abc;
+      $s = getscore($e, $b, $hsp_len);
 
       if ($idy >= 0) {
-          if (!$::stream_out) {
+          if (!$::line_mode) {
              print $fh_raw "$idy:$s ";
           }
           else {
@@ -334,7 +297,7 @@ sub munge_linewise {
    }
 
    if ($gix_prev) {
-      print $fh_raw "\$\n" if !$::stream_out;
+      print $fh_raw "\$\n" if !$::line_mode;
    }
 }
 
@@ -362,7 +325,7 @@ sub munge_long {
          my $idx = getid($gix, 1);
 
          if ($idx >= 0) {
-            print $fh_raw "$idx " if !$::stream_out;
+            print $fh_raw "$idx " if !$::line_mode;
          }
          $state = $need_hits;
       }
@@ -376,7 +339,7 @@ sub munge_long {
       }
       elsif ($state == $need_hits && /no hits found/i) {
          print STDERR "no hits found for gi $gix\n";
-         print $fh_raw "\$\n" if !$::stream_out;
+         print $fh_raw "\$\n" if !$::line_mode;
          $state = $need_query;
       }
       elsif
@@ -400,7 +363,7 @@ sub munge_long {
          $s = getscore($e, $b, 0);
 
          if ($idy >= 0) {               # fixme, void or explain.
-            if (!$::stream_out) {
+            if (!$::line_mode) {
                print $fh_raw "$idy:$s ";
             }
             else {
@@ -416,7 +379,7 @@ sub munge_long {
          # this provides WU-blast compatibility.
       }
       elsif ($state == $need_gi) {
-         print $fh_raw "\$\n" if !$::stream_out;
+         print $fh_raw "\$\n" if !$::line_mode;
          $state = $need_query;
       }
    }
@@ -424,7 +387,7 @@ sub munge_long {
    if ($state == $need_gi) {
       print $f_err "run ended while expecting more secondary scores\n";
       print STDERR "run ended while expecting more secondary scores\n";
-      print $fh_raw "\$\n" if !$::stream_out;
+      print $fh_raw "\$\n" if !$::line_mode;
    }
 }
 
@@ -516,7 +479,7 @@ mcxdeblast will create
 where base is derived from or equal to file-name
 Options:
    --m9              Expect column (-m 9) input.
-   --abc             Expect simple ID1 ID2 SCORE input.
+   --line-mode=abc   Output simple ID1 ID2 SCORE format.
    --score=<b|e|r>   Use bit scores, E-values,
                         or bit scores normalized by hsp-length
    --sort=<a|o>      Use alphabetic sorting (default) or occurrence.
@@ -525,5 +488,8 @@ Options:
    --xo-dat=<suf>    Add <suf> to base name.
    --bcut=<val>      Ignore hits below bit score <val>
    --ecut=<val>      Ignore hits below E-value <val>
+   --rcut=<val>      Ignore hits below raw value <val>
+   --out=<fname>     Output file name ('-' for STDOUT)
 _help_
 }
+

@@ -1,5 +1,5 @@
-.\" Copyright (c) 2006 Stijn van Dongen
-.TH "clminfo" 1 "27 Feb 2006" "clminfo 1\&.006, 06-058" "USER COMMANDS "
+.\" Copyright (c) 2008 Stijn van Dongen
+.TH "clm info" 1 "5 Jun 2008" "clm info 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -28,28 +28,41 @@
 .el .in 8m
 ..
 .SH NAME
-clminfo \- Compute performance measures for graphs and clusterings\&.
+clm info \- Compute performance measures for graphs and clusterings\&.
+
+clminfo is not in actual fact a program\&. This manual
+page documents the behaviour and options of the clm program when
+invoked in mode \fIinfo\fP\&. The options \fB-h\fP, \fB--apropos\fP,
+\fB--version\fP, \fB-set\fP, \fB--nop\fP are accessible
+in all \fBclm\fP modes\&. They are described
+in the \fBclm\fP manual page\&.
 .SH SYNOPSIS
 
-\fBclminfo\fP [options] <graph file> <cluster file> <cluster file>*
+\fBclm info\fP [options] <graph file> <cluster file> <cluster file>*
 
-\fBclminfo\fP
-\fB[--adapt\fP (\fIallow domain mismatch\fP)\fB]\fP
+\fBclm info\fP
+\fB[-o\fP fname (\fIwrite to file \fBfname\fP\fP)\fB]\fP
 \fB[-pi\fP f (\fIapply inflation beforehand\fP)\fB]\fP
-\fB[--append-pf\fP (\fIappend performance measures\fP)\fB]\fP
-\fB[--append-gr\fP (\fIappend granularity measures\fP)\fB]\fP
-\fB[-tag\fP <str> (\fIwrite tag=<str> in performance section\fP)\fB]\fP
-<graph file> <cluster file> <cluster file>*
+\fB[-tf\fP spec (\fIapply tf-spec to input matrix\fP)\fB]\fP
+\fB[-cl-tree\fP fname (\fIexpect file with nested clusterings\fP)\fB]\fP
+\fB[-cl-ceil\fP <num> (\fIskip clusters of size exceeding <num>\fP)\fB]\fP
+\fB[-cat-max\fP num (\fIdo at most \fBnum\fP tree levels\fP)\fB]\fP
+\fB[--node-self-measures\fP (\fIdump measure for native cluster\fP)\fB]\fP
+\fB[--node-all-measures\fP (\fIdump measure for incident cluster\fP)\fB]\fP
+\fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--apropos\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--version\fP (\fIprint version, exit\fP)\fB]\fP
+<matrix file> <cluster file> <cluster file>*
 .SH DESCRIPTION
 
-\fBclminfo\fP computes several numbers indicative for the efficiency with
+\fBclm info\fP computes several numbers indicative for the efficiency with
 with a clustering captures the edge mass of a given graph\&.
-Use it in conjunction with \fBclmdist\fP to determine which clusterings
-you accept\&. See the EXAMPLES section in \fBclmdist(1)\fP
-for an example of \fBclmdist\fP and \fBclminfo\fP (and \fBclmmeet\fP) usage\&.
+Use it in conjunction with \fBclm dist\fP to determine which clusterings
+you accept\&. See the EXAMPLES section in \fBclm dist\fP
+for an example of \fBclm dist\fP and \fBclm info\fP (and \fBclm meet\fP) usage\&.
 Output can be generated for multiple clusterings at the same time\&.
 
-The first number is called the \fBefficiency\fP and is described in [1] (see
+The \fBefficiency\fP factor is described in [1] (see
 the \fBREFERENCES\fP section)\&. It tries to balance the dual aims of
 capturing a lot of edges or edge weights and keeping the cluster footprint
 or area fraction small\&. The efficiency number has several appealing
@@ -57,32 +70,23 @@ mathematical properties, cf\&. [1]\&. It is related to, but not derivable from,
 the second and third numbers, the \fImass fraction\fP and the
 \fIarea fraction\fP\&.
 
-The second number is the mass fraction, which is defined as follows\&.
+The \fBmass fraction\fP is defined as follows\&.
 Let \fBe\fP be an edge of the graph\&. The clustering \fIcaptures\fP \fBe\fP
 if the two nodes associated with \fBe\fP are in the same cluster\&.
 Now the mass fraction is the joint weight of all captured edges divided
 by the joint weight of all edges in the input graph\&.
 
-The third number is the area fraction, which is roughly the sum of the
+The \fBarea fraction\fP is roughly the sum of the
 squares of all cluster sizes for all clusters in the clustering, divided by
 the square of the number of nodes in the graph\&. It says \fIroughly\fP,
 because the actual formula uses the quantity \fBN\fP*(\fBN-1\fP) wherever it
 says square (of \fBN\fP) above\&. A low/high area fraction indicates a
 fine-grained/coarse clustering\&.
-
-The fourth number is the cluster link weight, which is the average
-edge weight over all edges captured by the clustering\&.
-
-The fifth number is the graph link weight, which is the average weight
-over all edges in the graph\&.
 .SH OPTIONS
 
-.ZI 3m "\fB--adapt\fP (\fIallow domain mismatch\fP)"
+.ZI 3m "\fB-o\fP fname (\fIoutput file name\fP)"
 \&
 .br
-The \fB--adapt\fP option allows the graph domain and cluster domain
-not to match\&. \fBclmdist\fP will take the appropriate subclustering and
-subgraph as it goes along\&.
 .in -3m
 
 .ZI 3m "\fB-pi\fP f (\fIapply inflation beforehand\fP)"
@@ -92,26 +96,51 @@ Apply inflation to the graph matrix and compute the performance
 measures for the result\&.
 .in -3m
 
-.ZI 3m "\fB--append-pf\fP (\fIappend performance measures\fP)"
+.ZI 3m "\fB-tf\fP spec (\fIapply tf-spec to input matrix\fP)"
 \&
 .br
-\fBclminfo\fP will reread each cluster file and append the computed
-performance measures to it\&.
+Transform the input matrix values according
+to the syntax described in \fBmcxio(5)\fP\&.
 .in -3m
 
-.ZI 3m "\fB--append-gr\fP (\fIappend granularity measures\fP)"
+.ZI 3m "\fB-cl-tree\fP fname (\fIexpect file with nested clusterings (cone format)\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-cl-ceil\fP <num> (\fIskip (nested) clusters of size exceeding <num>\fP)"
+\&
+'in -3m
+'in +3m
 \&
 .br
-\fBclminfo\fP will reread each cluster file and append the computed
-granularity measures to it\&.
+The specified file should contain a hierarchy of nested
+clusterings such as generated by \fBmclcm\fP\&. The output is then
+in a special format, undocumented but easy to understand\&.
+Its purpose is to help cherrypick a single clustering
+from a tree, in conjunction with the slightly experimental
+and undocumented program \fBmlmfifofum\fP\&.
+
+The measure that is used is very slow to compute for large clusters, and
+generally it will be outside any interesting range (i\&.e\&. it will be small)\&.
+Use \fB-cl-ceil\fP to skip clusters exceeding the specified size \-
+\fBclm info\fP will directly proceed to subclusters if they exist\&.
 .in -3m
 
-.ZI 3m "\fB-tag\fP <str> (\fIwrite tag=<str> in performance section\fP)"
+.ZI 3m "\fB-cat-max\fP num (\fIdo at most \fInum\fP levels\fP)"
 \&
 .br
-When appending, \fBclminfo\fP will include tag=<str> in the
-performance section\&. This can be useful e\&.g\&. to indicate
-the pre-inflation value corresponding with the section\&.
+
+This only has effect when used with \fB-cl-tree\fP\&.
+\fBclm info\fP will start at the most fine-grained level, working upwards\&.
+.in -3m
+
+.ZI 3m "\fB--node-all-measures\fP (\fIdump node-wise criteria for all incident clusters\fP)"
+\&
+.br
+.in -3m
+
+.ZI 3m "\fB--node-self-measures\fP (\fIdump node-wise criteria for native cluster\fP)"
+\&
+.br
 .in -3m
 .SH AUTHOR
 

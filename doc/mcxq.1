@@ -1,0 +1,91 @@
+.\" Copyright (c) 2008 Stijn van Dongen
+.TH "mcxq" 1 "5 Jun 2008" "mcxq 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
+.po 2m
+.de ZI
+.\" Zoem Indent/Itemize macro I.
+.br
+'in +\\$1
+.nr xa 0
+.nr xa -\\$1
+.nr xb \\$1
+.nr xb -\\w'\\$2'
+\h'|\\n(xau'\\$2\h'\\n(xbu'\\
+..
+.de ZJ
+.br
+.\" Zoem Indent/Itemize macro II.
+'in +\\$1
+'in +\\$2
+.nr xa 0
+.nr xa -\\$2
+.nr xa -\\w'\\$3'
+.nr xb \\$2
+\h'|\\n(xau'\\$3\h'\\n(xbu'\\
+..
+.if n .ll -2m
+.am SH
+.ie n .in 4m
+.el .in 8m
+..
+.SH NAME
+mcxq \- compute simple graph statistics
+.SH SYNOPSIS
+
+\fBmcxq\fP
+\fB[-imx\fP <fname> (\fIspecify matrix input\fP)\fB]\fP
+\fB[-o\fP <fname> (\fIoutput file name\fP)\fB]\fP
+\fB[--edge\fP (\fIlist simple edge statistics\fP)\fB]\fP
+\fB[--edge-list\fP (\fIlist edge statistics per node\fP)\fB]\fP
+\fB[--dim\fP (\fIonly list domain sizes\fP)\fB]\fP
+\fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--apropos\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--version\fP (\fIprint version, exit\fP)\fB]\fP
+.SH DESCRIPTION
+
+\fBmcxq\fP computes a number of simple statistics derived from the input
+graph\&. Among these are the number of arcs, the node neighbour count
+average, standard deviation, and median, and the edge weight
+average, standard deviation, and median\&.
+
+When instructed to, it can also compute other quantities related
+to the input graph\&. See below\&.
+.SH OPTIONS
+
+.ZI 3m "\fB-imx\fP <fname> (\fIinput matrix\fP)"
+\&
+.br
+The file name for input that is in mcl native matrix format\&.
+.in -3m
+
+.ZI 3m "\fB-o\fP <fname> (\fIoutput file name\fP)"
+\&
+.br
+Set the name of the file where output should be written to\&.
+.in -3m
+
+.ZI 3m "\fB--edge\fP (\fIcompute simple statistics\fP)"
+\&
+.br
+This is the default setting\&. If any other option (e\&.g\&. \fB--dim\fP)
+is used, \fB--edge\fP has to be specified if this output mode is to
+be activated in parallel\&.
+.in -3m
+
+.ZI 3m "\fB--edge-list\fP (\fIcompute simple statistics, node-wisel\fP)"
+\&
+.br
+This outputs for each node its neighbour count and the average
+weight of the edges connecting that node with those neighbours\&.
+.in -3m
+
+.ZI 3m "\fB--dim\fP (\fIonly list domain sizes\fP)"
+\&
+.br
+This outputs the format (native interchange or native binary)
+and the dimensions of the encoded matrix\&.
+.in -3m
+.SH SEE ALSO
+
+\fBmcxio(5)\fP,
+and \fBmclfamily(7)\fP for an overview of all the documentation
+and the utilities in the mcl family\&.

@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!-- Copyright (c) 2006 Stijn van Dongen -->
+<!-- Copyright (c) 2008 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <style type="text/css">
@@ -32,6 +32,7 @@ h2 { margin-top:2em; }
 .left { text-align: left; align: left; }
 .right { text-align: right; align: right; }
 .center { text-align: center; align: center; }
+.nowrap { white-space: nowrap; }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -64,27 +65,29 @@ div.indent
 margin-right: 0%;
 }
 </style>
-<title>The clmmeet manual</title>
+<title>The clm meet manual</title>
 </head>
 <body>
 <p style="text-align:right">
-27 Feb 2006&nbsp;&nbsp;&nbsp;
-<a class="local" href="clmmeet.ps"><b>clmmeet</b></a>
-1.006, 06-058
+5 Jun 2008&nbsp;&nbsp;&nbsp;
+<a class="local" href="clmmeet.ps"><b>clm meet</b></a>
+1.007-grumpy-gryphon, 08-157
 </p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=48 valign="top" class=left>1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr><td width=48 valign="top" class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#options">OPTIONS</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#author">AUTHOR</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#seealso">SEE ALSO</a>
 </div></td></tr>
 </table>
@@ -94,37 +97,61 @@ cellpadding="0" summary="itemize">
 <a name="name"></a>
 <h2>NAME</h2>
 <p class="default L50" style="margin-bottom:0">
-clmmeet - compute the intersection of a set of clusterings.</p>
+clm meet - compute the intersection of a set of clusterings.</p>
+<p class="default L50" style="margin-bottom:0">clmmeet is not in actual fact a program. This manual
+page documents the behaviour and options of the clm program when
+invoked in mode <i>meet</i>. The options <b>-h</b>, <b>--apropos</b>,
+<b>--version</b>, <b>-set</b>, <b>--nop</b> are accessible
+in all <b>clm</b> modes. They are described
+in the <a class="local" href="clm.html">clm</a> manual page.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p class="default L50">
-<b>clmmeet</b> [--adapt] [-o &lt;output file name&gt;] &lt;file name&gt;+
+<p class="default L50" style="margin-bottom:0">
+<b>clm meet</b>
+<a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output file name</i>)<b>]</b></a>
+<a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
+<a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print synopsis, exit</i>)<b>]</b></a>
+<a class="intern" href="#opt--version"><b>[--version</b> (<i>print version, exit</i>)<b>]</b></a>
+&lt;file name&gt;+
+</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p class="default L50">
-<b>clmmeet</b> computes the intersection of a set of clusterings, that is,
+<p class="default L50" style="margin-bottom:0">
+<b>clm meet</b> computes the intersection of a set of clusterings, that is,
 the largest clustering that is a subclustering of all the clusterings
 in the set. It stores the intersection (or meet) in the argument
 to the <b>-o</b> flag, which must be the first option given.
 All remaining arguments are interpreted as names of files containing
 clusterings in mcl format (see <a class="local" href="mcxio.html">mcxio</a>), which must all
 pertain to a set of the same cardinality.
-<p class="default L50">
+</p>
+<p class="default L50" style="margin-bottom:0">
 This utility can be useful in measuring (in conjunction with
-<a class="local" href="clmdist.html">clmdist</a>) the consistency of a set of clusterings at different
+<a class="local" href="clmdist.html">clm dist</a>) the consistency of a set of clusterings at different
 levels of granularity - if the meet of all those clusterings is close to
 being a subclustering of each of them, consistency is good. See
-<a class="local" href="clmdist.html">clmdist</a> for an example.
-<p class="default L50">
-The --adapt option allows domain mismatches to occur between clusterings.
-<b>clmmeet</b> will project the clusterings onto the meet of their domains.
+<a class="local" href="clmdist.html">clm dist</a> for an example.
+</p>
+
+<a name="options"></a>
+<h2>OPTIONS</h2>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr><td colspan=3><a name="opt-o"></a><b>-o</b> fname (<i>output file name</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr>
+</table>
+
+</div>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
 Stijn van Dongen.
+</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>

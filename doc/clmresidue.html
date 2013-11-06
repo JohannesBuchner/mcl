@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!-- Copyright (c) 2006 Stijn van Dongen -->
+<!-- Copyright (c) 2008 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <style type="text/css">
@@ -32,6 +32,7 @@ h2 { margin-top:2em; }
 .left { text-align: left; align: left; }
 .right { text-align: right; align: right; }
 .center { text-align: center; align: center; }
+.nowrap { white-space: nowrap; }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -64,29 +65,29 @@ div.indent
 margin-right: 0%;
 }
 </style>
-<title>The clmresidue manual</title>
+<title>The clm residue manual</title>
 </head>
 <body>
 <p style="text-align:right">
-27 Feb 2006&nbsp;&nbsp;&nbsp;
-<a class="local" href="clmresidue.ps"><b>clmresidue</b></a>
-1.006, 06-058
+5 Jun 2008&nbsp;&nbsp;&nbsp;
+<a class="local" href="clmresidue.ps"><b>clm residue</b></a>
+1.007-grumpy-gryphon, 08-157
 </p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=48 valign="top" class=left>1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr><td width=48 valign="top" class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#options">OPTIONS</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#author">AUTHOR</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#seealso">SEE ALSO</a>
 </div></td></tr>
 </table>
@@ -96,26 +97,33 @@ cellpadding="0" summary="itemize">
 <a name="name"></a>
 <h2>NAME</h2>
 <p class="default L50" style="margin-bottom:0">
-clmresidue - extend clustering of subgraph to clustering of graph.</p>
+clm residue - extend clustering of subgraph to clustering of graph.</p>
+<p class="default L50" style="margin-bottom:0">clmresidue is not in actual fact a program. This manual
+page documents the behaviour and options of the clm program when
+invoked in mode <i>residue</i>. The options <b>-h</b>, <b>--apropos</b>,
+<b>--version</b>, <b>-set</b>, <b>--nop</b> are accessible
+in all <b>clm</b> modes. They are described
+in the <a class="local" href="clm.html">clm</a> manual page.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p class="default L50">
-<b>clmresidue</b>
+<p class="default L50" style="margin-bottom:0">
+<b>clm residue</b>
 <a class="intern" href="#opt-icl"><b>-icl</b> fname (<i>input clustering</i>)</a>
 <a class="intern" href="#opt-imx"><b>-imx</b> fname (<i>input graph</i>)</a>
 <a class="intern" href="#opt-rpm"><b>[-rpm</b> fname (<i>residue projection matrix</i>)<b>]</b></a>
-<a class="intern" href="#opt--adapt"><b>[--adapt</b> (<i>allow domain mismatch</i>)<b>]</b></a>
-<a class="intern" href="#opt-mvp"><b>[-mvp</b> fname (<i>majority vote projection (clustering)</i>)<b>]</b></a>
+<a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output clustering file</i>)<b>]</b></a>
+</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
 The cluster file presumably contains a clustering of a subgraph of the
 graph&nbsp;<tt>G</tt> contained by the matrix file, implying that the row domain of
-that clustering is a subset of the node domain of the graph. clmresidue will
+that clustering is a subset of the node domain of the graph. <b>clm residue</b> will
 compute a simple upwards projection of that clustering, resulting in a
 clustering of&nbsp;<tt>G</tt>.
+</p>
 
 <a name="options"></a>
 <h2>OPTIONS</h2>
@@ -123,28 +131,34 @@ clustering of&nbsp;<tt>G</tt>.
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td colspan=3><a name="opt-rpm"></a><b>-rpm</b> fname (<i>residue projection matrix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr><td colspan=3><a name="opt-imx"></a><b>-imx</b> fname (<i>input graph</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-icl"></a><b>-icl</b> fname (<i>input clustering</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-rpm"></a><b>-rpm</b> fname (<i>residue projection matrix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 The name for the file in which the residue projection matrix is stored.
 It contains for each node and for each cluster in the input clustering
 the combined weight of the (edges to the) neighbours of that node
 in that cluster.
-<p class="default L50">
+</p>
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 The default output file name is <tt>out.rpm</tt>.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-mvp"></a><b>-mvp</b> fname (<i>majority vote projection (clustering)</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-o"></a><b>-o</b> fname (<i>output clustering file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 The name for the file in which the majority vote projection clustering
 is stored. Aka the majority vote projection clustering storage file name.
-<p class="default L50">
+</p>
+<p class="default L50" style="margin-bottom:0">
 This embodies a very crude approach to distributing the missing nodes in the
 input clustering onto that same cluster. For each node, the cluster is
 taken for which the residue projection is the largest (see above). The
 residue (i.e. the set of missing nodes) is initially viewed as a cluster;
 the set of nodes for which the projection is largest for the residue itself
 will form a new cluster, if it is not empty.
-<p class="default L50">
-The default output file name is <tt>out.mvp</tt>.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--adapt"></a><b>--adapt</b> (<i>allow domain mismatch</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Allow the clustering domain to contain nodes not present in the graph
-domain. <b>clmresidue</b> will take the appropriate subclustering.
+</p>
+<p class="default L50" style="margin-bottom:0">
+By default output is sent to STDOUT.
+</p>
 </div></td></tr>
 </table>
 
@@ -152,8 +166,9 @@ domain. <b>clmresidue</b> will take the appropriate subclustering.
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
 Stijn van Dongen.
+</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>

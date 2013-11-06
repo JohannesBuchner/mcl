@@ -1,35 +1,33 @@
-/* (c) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
- * under the terms of the GNU General Public License; either version 2 of the
+ * under the terms of the GNU General Public License; either version 3 of the
  * License or (at your option) any later version.  You should have received a
  * copy of the GPL along with tingea, in the file COPYING.
 */
 
-#ifndef util_array_h
-#define util_array_h
-
+#ifndef tingea_array_h
+#define tingea_array_h
 
 #include "types.h"
-#include "alloc.h"
-
 
 mcxstatus mcxSplice
 (  void*           base1pp   /*  _address_ of pointer to elements       */
 ,  const void*     base2p    /*  pointer to elements                    */
-,  int             size      /*  size of base1 and base2 members        */
-,  int          *n_base1     /*  total length of elements after base1   */
-,  int          *N_base1     /*  number of alloc'ed elements for base1  */
-,  int           o_base1     /*  splice relative to this ofset          */
-,  int           d_base1     /*  delete this number of elements         */
-,  int           c_base2     /*  number of elements to copy             */
+,  dim             size      /*  size of base1 and base2 members        */
+,  dim          *n_base1     /*  total length of elements after base1   */
+,  dim          *N_base1     /*  number of alloc'ed elements for base1  */
+,  ofs           o_base1     /*  splice relative to this ofset          */
+,  dim           d_base1     /*  delete this number of elements         */
+,  dim           c_base2     /*  number of elements to copy             */
 )  ;
 
 
-int mcxDedup
+dim mcxDedup
 (  void*          base     
-,  int            nmemb    
-,  int            size     
+,  dim            nmemb    
+,  dim            size     
 ,  int            (*cmp)(const void *, const void *)
 ,  void           (*merge)(void *, const void *)
 )  ;
@@ -37,9 +35,9 @@ int mcxDedup
 
 mcxstatus mcxResize
 (  void*          mempp
-,  int            size        /* ho hum, should be size_t */
-,  int*           ct          /* ho hum, should be size_t* */
-,  int            newct
+,  dim            size
+,  dim*           ct
+,  dim            newct
 ,  mcxOnFail      ON_FAIL
 )  ;
 
@@ -55,8 +53,8 @@ mcxstatus mcxResize
 void* mcxBsearchFloor
 (  const void *key
 ,  const void *base
-,  int nmemb
-,  int size
+,  dim nmemb
+,  dim size
 ,  int (*cmp)(const void *, const void *)
 )  ;
 
@@ -72,17 +70,17 @@ void* mcxBsearchFloor
 void* mcxBsearchCeil
 (  const void *key
 ,  const void *base
-,  int nmemb
-,  int size
+,  dim nmemb
+,  dim size
 ,  int (*cmp)(const void *, const void *)
 )  ;
 
 
 typedef struct
 {  void*       mempptr
-;  int         size
-;  int         n
-;  int         n_alloc
+;  dim         size
+;  dim         n
+;  dim         n_alloc
 ;  float       factor
 ;  mcxbool     bFinalized
 ;
@@ -97,8 +95,8 @@ typedef struct
 mcxstatus mcxBufInit
 (  mcxBuf*     buf
 ,  void*       mempptr
-,  int         size
-,  int         n
+,  dim         size
+,  dim         n
 )  ;
 
 
@@ -115,7 +113,7 @@ mcxstatus mcxBufInit
 
 void* mcxBufExtend
 (  mcxBuf*     buf
-,  int         n_request
+,  dim         n_request
 ,  mcxOnFail   ON_FAIL
 )  ;
 
@@ -124,11 +122,12 @@ void* mcxBufExtend
  *    Make superfluous memory reclaimable by system,
  *    prepare for discarding buf (but not *(buf->memptr)!)
  *
- *    If for some bizarre reason we cannot shrink (realloc), -1 is returned.
+ *    If for some bizarre reason we cannot shrink (realloc),
+ *    errno is set to ENOMEM.
  *    the original space is left intact. Its size is in buf.n .
 */
 
-int mcxBufFinalize
+dim mcxBufFinalize
 (  mcxBuf*  buf
 )  ;
 

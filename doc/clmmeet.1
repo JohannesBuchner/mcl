@@ -1,5 +1,5 @@
-.\" Copyright (c) 2006 Stijn van Dongen
-.TH "clmmeet" 1 "27 Feb 2006" "clmmeet 1\&.006, 06-058" "USER COMMANDS "
+.\" Copyright (c) 2008 Stijn van Dongen
+.TH "clm meet" 1 "5 Jun 2008" "clm meet 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -28,13 +28,25 @@
 .el .in 8m
 ..
 .SH NAME
-clmmeet \- compute the intersection of a set of clusterings\&.
+clm meet \- compute the intersection of a set of clusterings\&.
+
+clmmeet is not in actual fact a program\&. This manual
+page documents the behaviour and options of the clm program when
+invoked in mode \fImeet\fP\&. The options \fB-h\fP, \fB--apropos\fP,
+\fB--version\fP, \fB-set\fP, \fB--nop\fP are accessible
+in all \fBclm\fP modes\&. They are described
+in the \fBclm\fP manual page\&.
 .SH SYNOPSIS
 
-\fBclmmeet\fP [--adapt] [-o <output file name>] <file name>+
+\fBclm meet\fP
+\fB[-o\fP fname (\fIoutput file name\fP)\fB]\fP
+\fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--apropos\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--version\fP (\fIprint version, exit\fP)\fB]\fP
+<file name>+
 .SH DESCRIPTION
 
-\fBclmmeet\fP computes the intersection of a set of clusterings, that is,
+\fBclm meet\fP computes the intersection of a set of clusterings, that is,
 the largest clustering that is a subclustering of all the clusterings
 in the set\&. It stores the intersection (or meet) in the argument
 to the \fB-o\fP flag, which must be the first option given\&.
@@ -43,13 +55,16 @@ clusterings in mcl format (see \fBmcxio(5)\fP), which must all
 pertain to a set of the same cardinality\&.
 
 This utility can be useful in measuring (in conjunction with
-\fBclmdist(1)\fP) the consistency of a set of clusterings at different
+\fBclm dist\fP) the consistency of a set of clusterings at different
 levels of granularity \- if the meet of all those clusterings is close to
 being a subclustering of each of them, consistency is good\&. See
-\fBclmdist(1)\fP for an example\&.
+\fBclm dist\fP for an example\&.
+.SH OPTIONS
 
-The --adapt option allows domain mismatches to occur between clusterings\&.
-\fBclmmeet\fP will project the clusterings onto the meet of their domains\&.
+.ZI 3m "\fB-o\fP fname (\fIoutput file name\fP)"
+\&
+.br
+.in -3m
 .SH AUTHOR
 
 Stijn van Dongen\&.

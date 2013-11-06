@@ -1,5 +1,5 @@
-.\" Copyright (c) 2006 Stijn van Dongen
-.TH "clmclose" 1 "27 Feb 2006" "clmclose 1\&.006, 06-058" "USER COMMANDS "
+.\" Copyright (c) 2008 Stijn van Dongen
+.TH "clm close" 1 "5 Jun 2008" "clm close 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -28,33 +28,69 @@
 .el .in 8m
 ..
 .SH NAME
-clmclose \- Fetch connected components from graphs or subgraphs
+clm close \- Fetch connected components from graphs or subgraphs
+
+clmclose is not in actual fact a program\&. This manual
+page documents the behaviour and options of the clm program when
+invoked in mode \fIclose\fP\&. The options \fB-h\fP, \fB--apropos\fP,
+\fB--version\fP, \fB-set\fP, \fB--nop\fP are accessible
+in all \fBclm\fP modes\&. They are described
+in the \fBclm\fP manual page\&.
 .SH SYNOPSIS
 
-\fBclmclose\fP -imx <fname> [options]
+\fBclm close\fP -imx <fname> [options]
 
-\fBclmclose\fP
+\fBclm close\fP
 \fB-imx\fP fname (\fIinput file\fP)
 \fB-dom\fP fname (\fIinput domain/cluster file\fP)
-\fB[-o\fP fname (\fIoutput file\fP)\fB]\fP
-\fB[-cc\fP (\fIoutput connected components\fP)\fB]\fP
-\fB[-h\fP (\fIlist help\fP)\fB]\fP
-\fB[--apropos\fP (\fIlist synopsis of all options\fP)\fB]\fP
+\fB[-write-cc\fP fname (\fIoutput file\fP)\fB]\fP
+\fB[-cc-bound\fP num (\fIselect components with size at least num\fP)\fB]\fP
+\fB[-tf\fP spec (\fIapply tf-spec to input matrix\fP)\fB]\fP
+\fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--apropos\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--version\fP (\fIprint version, exit\fP)\fB]\fP
 .SH DESCRIPTION
 
-Currently, \fB-cc\fP is the only mode provided, implying
-its use is required\&.
-
-Use \fBclmclose\fP to fetch the connected components from a graph\&.
+Use \fBclm close\fP to fetch the connected components from a graph\&.
 They will be returned as a clustering file\&. Use this file
 in conjunction with \fBmcxsubs\fP and the graph file itself to
 retrieve individual subgraphs corresponding to connected components\&.
 
-If the \fB-dom\fP\ \&\fIfname\fP option is used, clmclose will
+If the \fB-dom\fP\ \&\fIfname\fP option is used, clm close will
 for each of the domains in file\ \&\fIfname\fP retrieve
 the associated subgraph from the input graph, decompose it into
 its connected components, and write each connected components
 as a separate domain/cluster in the output file\&.
+.SH OPTIONS
+
+.ZI 3m "\fB-imx\fP fname (\fIinput file\fP)"
+\&
+.br
+.in -3m
+
+.ZI 3m "\fB-dom\fP fname (\fIinput domain/cluster file\fP)"
+\&
+.br
+.in -3m
+
+.ZI 3m "\fB-write-cc\fP fname (\fIoutput connected components\fP)"
+\&
+.br
+
+Set the name of the file to be written to\&.
+.in -3m
+
+.ZI 3m "\fB-cc-bound\fP num (\fIselect components with size at least num\fP)"
+\&
+.br
+.in -3m
+
+.ZI 3m "\fB-tf\fP spec (\fIapply tf-spec to input matrix\fP)"
+\&
+.br
+Transform the input matrix values according
+to the syntax described in \fBmcxio(5)\fP\&.
+.in -3m
 .SH AUTHOR
 
 Stijn van Dongen\&.

@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!-- Copyright (c) 2006 Stijn van Dongen -->
+<!-- Copyright (c) 2008 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <style type="text/css">
@@ -32,6 +32,7 @@ h2 { margin-top:2em; }
 .left { text-align: left; align: left; }
 .right { text-align: right; align: right; }
 .center { text-align: center; align: center; }
+.nowrap { white-space: nowrap; }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -68,25 +69,25 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-27 Feb 2006&nbsp;&nbsp;&nbsp;
+5 Jun 2008&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxload.ps"><b>mcxload</b></a>
-1.006, 06-058
+1.007-grumpy-gryphon, 08-157
 </p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=48 valign="top" class=left>1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr><td width=48 valign="top" class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#options">OPTIONS</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#author">AUTHOR</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#seealso">SEE ALSO</a>
 </div></td></tr>
 </table>
@@ -104,13 +105,20 @@ mcxload - load matrices and tab files from label format</p>
 <b>mcxload</b> <a class="intern" href="#opt-abc"><b>-abc</b> &lt;fname&gt; (<i>label file</i>)</a>
 <a class="intern" href="#opt-o"><b>-o</b> &lt;fname&gt; (<i>output file</i>)</a></p>
 <p class="default L50" style="margin-bottom:0">
+<a class="intern" href="#opt-abc"><b>[-abc</b> &lt;fname&gt; (<i>label file</i>)<b>]</b></a>
+<a class="intern" href="#opt-123"><b>[-123</b> &lt;fname&gt; (<i>identifier file</i>)<b>]</b></a>
+<a class="intern" href="#opt-o"><b>[-o</b> &lt;fname&gt; (<i>output file</i>)<b>]</b></a>
 <a class="intern" href="#opt--stream-mirror"><b>[--stream-mirror</b> (<i>symmetrify, same domain</i>)<b>]</b></a>
 <a class="intern" href="#opt--graph"><b>[--graph</b> (<i>assume same domain</i>)<b>]</b></a>
 <a class="intern" href="#opt-re"><b>[-re</b> &lt;mode&gt; (<i>edge deduplication mode</i>)<b>]</b></a>
 <a class="intern" href="#opt-ri"><b>[-ri</b> &lt;mode&gt; (<i>image symmetrification mode</i>)<b>]</b></a>
-<a class="intern" href="#opt-cache-tab"><b>[-cache-tab</b> &lt;fname&gt; (<i>save domain tab</i>)<b>]</b></a>
-<a class="intern" href="#opt-cache-tabc"><b>[-cache-tabc</b> &lt;fname&gt; (<i>save column tab</i>)<b>]</b></a>
-<a class="intern" href="#opt-cache-tabr"><b>[-cache-tabr</b> &lt;fname&gt; (<i>save row tab</i>)<b>]</b></a>
+<a class="intern" href="#opt-etc"><b>[-etc</b> &lt;fname&gt; (<i>leader 'etc' label file</i>)<b>]</b></a>
+<a class="intern" href="#opt-etc-ai"><b>[-etc-ai</b> &lt;fname&gt; (<i>leaderless 'etc' label file</i>)<b>]</b></a>
+<a class="intern" href="#opt-235"><b>[-235</b> &lt;fname&gt; (<i>leader '235' label file</i>)<b>]</b></a>
+<a class="intern" href="#opt-235-ai"><b>[-235-ai</b> &lt;fname&gt; (<i>leaderless '235' label file</i>)<b>]</b></a>
+<a class="intern" href="#opt-write-tab"><b>[-write-tab</b> &lt;fname&gt; (<i>save domain tab</i>)<b>]</b></a>
+<a class="intern" href="#opt-write-tabc"><b>[-write-tabc</b> &lt;fname&gt; (<i>save column tab</i>)<b>]</b></a>
+<a class="intern" href="#opt-write-tabr"><b>[-write-tabr</b> &lt;fname&gt; (<i>save row tab</i>)<b>]</b></a>
 <a class="intern" href="#opt-strict-tab"><b>[-strict-tab</b> &lt;fname&gt; (<i>tab universe</i>)<b>]</b></a>
 <a class="intern" href="#opt-strict-tabc"><b>[-strict-tabc</b> &lt;fname&gt; (<i>tabc universe</i>)<b>]</b></a>
 <a class="intern" href="#opt-strict-tabr"><b>[-strict-tabr</b> &lt;fname&gt; (<i>tabr universe</i>)<b>]</b></a>
@@ -124,32 +132,45 @@ mcxload - load matrices and tab files from label format</p>
 <a class="intern" href="#opt--stream-neg-log"><b>[--stream-neg-log</b> (<i>minus log transform stream values</i>)<b>]</b></a>
 <a class="intern" href="#opt-stream-tf"><b>[-stream-tf</b> (<i>transform stream values</i>)<b>]</b></a>
 <a class="intern" href="#opt-tf"><b>[-tf</b> &lt;tf-spec&gt; (<i>transform (not so) final matrix</i>)<b>]</b></a>
-<a class="intern" href="#opt-etc"><b>[-etc</b> &lt;fname&gt; (<i>leader 'etc' label file</i>)<b>]</b></a>
-<a class="intern" href="#opt-etc-ai"><b>[-etc-ai</b> &lt;fname&gt; (<i>leaderless 'etc' label file</i>)<b>]</b></a>
-<a class="intern" href="#opt-t"><b>[-t</b> (<i>transpose</i>)<b>]</b></a>
-<a class="intern" href="#opt--binary"><b>[--binary</b> (<i>output binary format</i>)<b>]</b></a>
+<a class="intern" href="#opt--transpose"><b>[--transpose</b> (<i>transpose</i>)<b>]</b></a>
+<a class="intern" href="#opt--write-binary"><b>[--write-binary</b> (<i>output binary format</i>)<b>]</b></a>
 <a class="intern" href="#opt--debug"><b>[--debug</b> (<i>debug</i>)<b>]</b></a>
-<a class="intern" href="#opt-h"><b>[-h</b> (<i>option listing</i>)<b>]</b></a>
-<a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>option listing</i>)<b>]</b></a>
-<a class="intern" href="#opt--version"><b>[--version</b> (<i>version</i>)<b>]</b></a></p>
+<a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
+<a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print synopsis, exit</i>)<b>]</b></a>
+<a class="intern" href="#opt--version"><b>[--version</b> (<i>print version, exit</i>)<b>]</b></a>
+</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
-<b>mcxload</b> reads label input from a file. The format of the file
-should be line-based, each line containing two white-space separated
-strings (labels) and optionally a number separated from the second label
-by whitespace. In the absence of a value, mcxload will use the
-default value 1.0.</p>
+<b>mcxload</b> reads label input from a file. The format of the file should be
+line-based, each line containing two white-space separated strings (labels)
+and optionally a number separated from the second label by whitespace. In
+the absence of a value, mcxload will use the default value 1.0. If a tab is
+present on an input line, mcxload will assume that the tab character is the
+separator for that line. Lines for which the first non-whitespace character
+is an octothorpe ('<tt>#</tt>') are skipped.</p>
 <p class="default L50" style="margin-bottom:0">
-mcxload will transform the labels into mcl numerical identifiers and the
-pairs of labels into graph edges or equivalently matrix entries.
-The weight of an edge is the value associated with the associated
-labels. mcxload constructs dictionaries (sometimes just one) that
-map labels onto mcl identifiers as it goes along. It can optionally
-write these to file.
-In MCL (family) parlance, a such a dictionary written to file
-is called a <i>tab file</i>.</p>
+<b>mcxload</b> will transform the labels into mcl numerical identifiers and the
+pairs of labels into graph edges or equivalently matrix entries. The weight
+of an edge is the value associated with the associated labels. mcxload
+constructs dictionaries (sometimes just one) that map labels onto mcl
+identifiers as it goes along. It can optionally write these to file. In MCL
+(family) parlance, such a dictionary written to file is called a <i>tab
+file</i>.</p>
+<p class="default L50" style="margin-bottom:0">
+It is possible to specify numerical identifiers directly with
+the <a class="intern" href="#opt-123"><b>-123</b></a> option. In this case <b>mcxload</b> assumes a canonical
+domain (cf <a class="local" href="mcxio.html">mcxio</a>) and will create the minimal canonical
+domain that supports the data. Also bear in mind the caveat further
+below.</p>
+<p class="default L50" style="margin-bottom:0">
+It is possible to effectively predeclare labels and thus enforce
+an a-priori known mapping of labels onto numerical identifiers.
+Labels receive an identifier in the order in which they occur
+in the input. Predeclaring labels can be achieved by
+having them appear in the desired order and setting the edge
+weight to zero.</p>
 <p class="default L50" style="margin-bottom:0">
 A major mcxload modality is whether the input refers to a single
 domain or to two separate domains. An example of the first is where
@@ -176,7 +197,7 @@ A further mcxload modality is whether it constructs dictionaries
 on the fly, or whether it proceeds from a tab file already
 available.
 By default mcxload will construct dictionaries on the fly. You
-need to save them with the appropriate <b>cache</b> option(s).
+need to save them with the appropriate <b>-write</b> option(s).
 All the <b>strict</b> options read a tab file
 and require any labels in the <a class="intern" href="#opt-abc"><b>-abc</b>&nbsp;<i>label input</i></a>
 to be present in the corresponding tab file. mcxload will then fail in
@@ -186,7 +207,7 @@ not found in the corresponding tab file.
 The <b>extend</b> options extend the existing tab file with
 labels that are not found.
 It presumably only makes sense to do so if the corresponding
-<b>cache</b> options are used as well.</p>
+<b>-write</b> options are used as well.</p>
 <p class="default L50" style="margin-bottom:0">
 The input stream is deduplicated on a per-node neighbourhood basis
 using the <a class="intern" href="#opt-re"><b>-re</b></a> option.</p>
@@ -202,17 +223,27 @@ Refer to <a class="local" href="mcxio.html">mcxio</a> for a description of the s
 by the latter two options - it is a syntax accepted
 by a few more mcl siblings.
 Finally it is possible to transpose the final result
-using the <a class="intern" href="#opt-t"><b>-t</b></a> option. Keep in mind that
+using the <a class="intern" href="#opt--transpose"><b>--transpose</b></a> option. Keep in mind that
 mcxload does not accordingly change its idea of row and
 column domains.</p>
 <p class="default L50" style="margin-bottom:0">
 The final matrix can be symmetrified using the <a class="intern" href="#opt-ri"><b>-ri</b></a> option.</p>
 <p class="default L50" style="margin-bottom:0">
-The <a class="intern" href="#opt-etc"><b>-etc</b></a> options may be useful for the odd job.
-These options assume a format where all entries for a given
-column (or equivalently all neighbours for a given node)
-are joined onto a single line. This can be useful e.g. to read
-in externally generated clusterings.</p>
+The <a class="intern" href="#opt-etc"><b>-etc</b> and <b>-235</b></a> options may be useful for
+the odd job. These options assume a format where all entries for a given
+column (or equivalently all neighbours for a given node) are joined onto a
+single line. This can be useful e.g. to read in externally generated
+clusterings. The <b>-etc</b> options expects label input, whereas the
+<b>-235</b> options expects numbers in the input that are mapped
+directly onto mcl numerical identifiers.
+</p>
+<p class="default L50" style="margin-bottom:0"><b>CAVEAT</b><br>
+Please note that by feeding the line '1000000000 1' to <b>mcxload</b> with either
+of the <b>-235</b> or <b>-123</b> options it will try to allocate a
+matrix with one billion columns. This is most likely not what is wanted.
+Assuming that the input contains fewer than one billion unique labels, one
+should use the label options as described above and below.
+</p>
 <p class="default L50" style="margin-bottom:0"><b>STAGES</b><br>
 Conceptually, input matrix creation consists of the following stages</p>
 <div style="margin-top:1em">
@@ -247,7 +278,21 @@ Apply <a class="intern" href="#opt-tf"><b>-tf</b></a> transformation specificati
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
 <tr><td colspan=3><a name="opt-abc"></a><b>-abc</b> &lt;fname&gt; (<i>label file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">The file to read label data from.</p>
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+The file to read label data from. Labels are separated by white-space. The
+labels may optionally be followed by a value (again separated by
+white-space), which is taken as the edge weight between the nodes
+corresponding with the labels. If a tab is present on an input line it is
+presumed to be the separator for that line, including the value if present.
+Lines for which the first non-blank character is the octothorpe ('<tt>#</tt>')
+are skipped.
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-123"></a><b>-123</b> &lt;fname&gt; (<i>identifier file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+The file to read numerical data from. The format is the same as
+for label data, but the identifiers are directly mapped onto mcl identifiers
+as described earlier.
+</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-o"></a><b>-o</b> &lt;fname&gt; (<i>output file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">The output file where the constructed matrix is written.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--stream-mirror"></a><b>--stream-mirror</b> (<i>symmetrify, same domain</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
@@ -269,14 +314,14 @@ input stream. Note that <a class="intern" href="#opt--stream-mirror"><b>--stream
 duplicated entries if the input contains edge specifications in both ways.
 Also note that <b>first</b> and <b>last</b> might not result in
 symmetric input if only <b>--stream-mirror</b> is used.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-cache-tab"></a><b>-cache-tab</b> &lt;fname&gt; (<i>save domain tab</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-write-tab"></a><b>-write-tab</b> &lt;fname&gt; (<i>save domain tab</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Write the domain to file. It applies to both label types.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-cache-tabc"></a><b>-cache-tabc</b> &lt;fname&gt; (<i>save column tab</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-write-tabc"></a><b>-write-tabc</b> &lt;fname&gt; (<i>save column tab</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Write the column domain to file. It applies to the first label found
 on each input line.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-cache-tabr"></a><b>-cache-tabr</b> &lt;fname&gt; (<i>save row tab</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-write-tabr"></a><b>-write-tabr</b> &lt;fname&gt; (<i>save row tab</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Write the column domain to file. It applies to the second label found
 on each input line.</p>
@@ -340,11 +385,11 @@ either of these options. They indicate the operation used to combine the
 entries of the transposed matrix and the original matrix. <b>mul</b>
 is special in that it treats missing entries (which are normally considered
 zero in mcl matrix operations) as one.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-t"></a><b>-t</b> (<i>transpose</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--transpose"></a><b>--transpose</b> (<i>transpose</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Write the transposed matrix to file. This is obviously not useful
 when a symmetric matrix has been generated.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-etc"></a><b>-etc</b> &lt;fname&gt; (<i>leader 'etc' label file</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-etc-ai"></a><b>-etc-ai</b> &lt;fname&gt; (<i>leaderless 'etc' label file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-etc"></a><b>-etc</b> &lt;fname&gt; (<i>leader 'etc' label file</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-etc-ai"></a><b>-etc-ai</b> &lt;fname&gt; (<i>leaderless 'etc' label file</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-235"></a><b>-235</b> &lt;fname&gt; (<i>leader '235' label file</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-235-ai"></a><b>-235-ai</b> &lt;fname&gt; (<i>leaderless '235' label file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 The input is read in lines; each line is split on whitespace into labels.
 For <b>-etc</b> the first label is interpreted as the source node. All
@@ -355,24 +400,18 @@ destination nodes and mcxload automatically creates a source node for each
 line it reads. This option can be useful to read in files encoding a
 clustering, where each line represents a cluster of white-space separated
 labels.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--binary"></a><b>--binary</b> (<i>output binary format</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-bottom:0">
+The <b>-235</b> options are similar except that the input is not
+interpreted as labels but must consist of numbers that explicitly
+specify the matrix to be built.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--write-binary"></a><b>--write-binary</b> (<i>output binary format</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
-Write the output matrix in native binary format.
-This is generally smaller and faster to read, albeit not
-humanly unreadable.</p>
+The output matrix is written in native binary format - refer to
+<a class="local" href="mcxio.html">mcxio</a>.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--debug"></a><b>--debug</b> (<i>debug</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Among other things, this turns on warnings when <b>restrict</b> tab
 files are used and labels are found to be missing.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-h"></a><b>-h</b> (<i>option listing</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
-List short description of all options.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--apropos"></a><b>--apropos</b> (<i>option listing</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
-List short description of all options.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--version"></a><b>--version</b> (<i>version</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
-Output version information.</p>
 </div></td></tr>
 </table>
 
@@ -386,6 +425,7 @@ Stijn van Dongen.</p>
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<a class="local" href="mcxio.html">mcxio</a>,
 <a class="local" href="mcxdump.html">mcxdump</a>,
 <a class="local" href="mcl.html">mcl</a>,
 <a class="local" href="mclfaq.html">mclfaq</a>,

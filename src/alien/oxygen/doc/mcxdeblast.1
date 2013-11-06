@@ -1,5 +1,5 @@
-.\" Copyright (c) 2006 Stijn van Dongen
-.TH "mcxdeblast" 1 "27 Feb 2006" "mcxdeblast 1\&.006, 06-058" "USER COMMANDS "
+.\" Copyright (c) 2008 Stijn van Dongen
+.TH "mcxdeblast" 1 "5 Jun 2008" "mcxdeblast 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -36,8 +36,7 @@ output directly into mcl or write mcxassemble input\&.
 \fBmcxdeblast\fP
 \fB[--score=\fP<b|e|r> (\fIbit scores|e-values|normalize bit score\fP)\fB]\fP
 \fB[--m9\fP (\fIexpect BLAST column format\fP)\fB]\fP
-\fB[--abc-out\fP (\fIwrite ID1 ID2 score format\fP)\fB]\fP
-\fB[--abc\fP (\fIexpect ID1 ID2 score format\fP)\fB]\fP
+\fB[--line-mode\fP abc (\fIwrite ID1 ID2 score format\fP)\fB]\fP
 \fB[--sort=\fP<a|o> (\fIalphabetic|occurrence sorting\fP)\fB]\fP
 \fB[--xi-dat=\fP<suf> (\fIstrip <suf> from file-name\fP)\fB]\fP
 \fB[--xo-dat=\fP<suf> (\fIadd <suf> to base name\fP)\fB]\fP
@@ -45,16 +44,12 @@ output directly into mcl or write mcxassemble input\&.
 \fB[--ecut=\fP<val> (\fIE-value cutoff\fP)\fB]\fP
 \fB[--tab=\fP<fname> (\fItab file\fP)\fB]\fP
 <file-name>
-
-The \fB--abc\fP option is likely to go the way of the dodo
-now that the input format it requires can be directly streamed
-into \fBmcl\fP\&.
 .SH DESCRIPTION
 
 \fBmcxdeblast\fP parses BLAST files\&.
 
 In \fIstream mode\fP mcxdeblast output can be directly streamed to mcl by
-using the mcxdeblast \fB--abc-out\fP option and equipping mcl with
+using the mcxdeblast \fB--line-mode\fP=\fIabc\fP option and equipping mcl with
 either \fB--abc\fP or \fB--expect-abc\fP\&. This can be considered the
 easy, lightweight and fast track\&. This functionality was recently acquired
 by mcl\&.
@@ -64,7 +59,7 @@ creates output files suitable for use by mcxassemble\&. The latter can in
 turn create input suitable for mcl\&. This is the mode in which mcxdeblast is
 employed by \fBmclblastline\fP\&.
 .SH STREAM MODE
-Enter stream mode simply by specifiying \fB--abc-out\fP\&.
+Enter stream mode by specifiying \fB--line-mode\fP=\fIabc\fP\&.
 Use \fB--m9\fP if the input is in columnar output\&. Pipe the result
 to a file or directly to mcl\&. Example invocations can be found
 in \fBthe mcl manual\fP\&.
@@ -135,17 +130,12 @@ Specify how to sort labels\&.
 Use this option to parse BLAST output formatted with the -m 9 option\&.
 .in -3m
 
-.ZI 3m "\fB--abc\fP (\fIexpect ID1 ID2 SCORE format\fP)"
+.ZI 3m "\fB--line-mode\fP=abc (\fIwrite ID1 ID2 SCORE format\fP)"
 \&
 .br
-Use if each input line has the format ID1 ID2 SCORE\&.
-However, you can also use \fBmcl\fP with the \fB--abc\fP option\&.
-.in -3m
-
-.ZI 3m "\fB--abc-out\fP=fname (\fIwrite ID1 ID2 SCORE format\fP)"
-\&
-.br
-Use this to stream output directly into mcl\&.
+Use this to stream output directly into mcl\&. Here \fCabc\fP
+is a literal; \fB--line-mode\fP may acquire other line output
+modes\&.
 .in -3m
 
 .ZI 3m "\fB--xi-dat\fP=<suf> (\fIstrip <suf> from <file-name>\fP)"

@@ -1,16 +1,25 @@
-/* (c) Copyright 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2004, 2005, 2006, 2007 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
- * under the terms of the GNU General Public License; either version 2 of the
+ * under the terms of the GNU General Public License; either version 3 of the
  * License or (at your option) any later version.  You should have received a
  * copy of the GPL along with tingea, in the file COPYING.
 */
 
-#ifndef util_list_h
-#define util_list_h
+#ifndef tingea_list_h
+#define tingea_list_h
 
-#include "types.h"
 #include "gralloc.h"
+#include "types.h"
+
+/* TODO:
+ *    -  linkDelete  linkRemove semantics interface documentation.
+ *    -  make prev xor next link optional.
+ *    -  make hidden pointer optional.
+ *    -  provide interface that uses list struct.
+ *    -  convenience interface for tying two chains together.
+ *    -  list-to-array interface.
+*/
 
 
 /*
@@ -41,14 +50,6 @@
  *    nor on storage.
 */
 
-/* TODO:
- *    -  make prev xor next link optional.
- *    -  make hidden pointer optional.
- *    -  provide interface that uses list struct.
- *    -  convenience interface for tying two chains together.
- *    -  list-to-array interface.
-*/
-
 
 typedef struct mcxLink
 {  struct mcxLink*   next
@@ -58,15 +59,25 @@ typedef struct mcxLink
 }  mcxLink                 ;
 
 
-/* options:
+/* Options:
  * same as for mcxGrimNew
 */
 
-mcxLink*  mcxLinkNew
-(  long     capacity_start
-,  void*    val
+mcxLink*  mcxListSource
+(  dim      capacity_start
 ,  mcxbits  options
 )  ;
+
+/* 
+ * This removes all links that have the same parent link as lk. [huh?]
+ * BEWARE freeval doesn't do anything yet
+*/
+
+void  mcxListFree
+(  mcxLink**   lk
+,  void        freeval(void* valpp)    /* (yourtype1** valpp)     */
+)  ;
+
 
 
 /* Creates new chain, that can later be tied to other chains.
@@ -78,12 +89,25 @@ mcxLink*  mcxLinkSpawn
 )  ;
 
 
-/* !!!!! freeval doesn't do anything yet
+/* 
+ * This inspects prev and next and links them if possible.
+ *
+ * You can use the val pointer, immediately after deleting.
+ * That makes it unsafe in threads (but you need locking anyway).
+ * The feature is used in the hash library.
 */
 
-void  mcxLinkFree
-(  mcxLink**   lk
-,  void        freeval(void* valpp)    /* (yourtype1** valpp)     */
+mcxLink*  mcxLinkDelete
+(  mcxLink*    lk
+)  ;
+
+
+/*
+ * This just deallocates the link.
+*/
+
+void mcxLinkRemove
+(  mcxLink*    lk
 )  ;
 
 
@@ -97,19 +121,16 @@ mcxLink*  mcxLinkBefore
 ,  void*       val
 )  ;
 
-mcxstatus mcxLinkClose
-(  mcxLink* need_next
-,  mcxLink* need_prev
+
+void  mcxLinkClose
+(  mcxLink*    left
+,  mcxLink*    right
 )  ;
 
 
-/* You can use the val pointer, immediately after deleting.
+/*
+ * Get the grim that serves this list
 */
-
-mcxLink*  mcxLinkDelete
-(  mcxLink*    lk
-)  ;
-
 
 mcxGrim* mcxLinkGrim
 (  mcxLink* lk

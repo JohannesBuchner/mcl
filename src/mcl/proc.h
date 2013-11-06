@@ -1,7 +1,8 @@
-/*  Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -14,7 +15,6 @@
 
 #include "impala/matrix.h"
 #include "impala/tab.h"
-#include "taurus/ilist.h"
 
 #include "util/opt.h"
 #include "util/ting.h"
@@ -55,7 +55,7 @@ typedef struct
 
 ;  double               chaosLimit
 ;  double               lap
-;  int                  n_ite
+;  dim                  n_ite
 
 ;  mclVector*           vec_attr
 
@@ -67,9 +67,6 @@ typedef struct
                                                      
 ;  int                  printMatrix
 ;  int                  printDigits
-
-;  double               inflate_expanded
-;  mcxbool              expandOnly
 
 ;  mclInterpretParam*   ipp
 ;  int                  dimension /* of input matrix */
@@ -97,16 +94,15 @@ void mclProcPrintInfo
 
 
 /*
- * Functions in two different modes, depending whether map->mpp->expandOnly
- * is set or not. Returns intermediate matrix if yes, cluster matrix
- * otherwise.
- *
- * In cluster mode, writes last iterand into the first argument.
+ * If constmx then the matrix it receives will not be freed.
 */
 
 mclMatrix*  mclProcess
-(  mclMatrix**     mx0
-,  mclProcParam*   map
+(  mclMatrix**    mxstart
+,  mclProcParam*  map
+,  mcxbool        constmx    /* if true do not free *mxstart */
+,  mclx**         cachexp    /* if !NULL cache expanded */
+,  mclx**         limit      /* always write limit in limit */
 )  ;
 
 

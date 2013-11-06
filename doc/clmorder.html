@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!-- Copyright (c) 2006 Stijn van Dongen -->
+<!-- Copyright (c) 2008 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <style type="text/css">
@@ -32,6 +32,7 @@ h2 { margin-top:2em; }
 .left { text-align: left; align: left; }
 .right { text-align: right; align: right; }
 .center { text-align: center; align: center; }
+.nowrap { white-space: nowrap; }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -64,27 +65,29 @@ div.indent
 margin-right: 0%;
 }
 </style>
-<title>The clmorder manual</title>
+<title>The clm order manual</title>
 </head>
 <body>
 <p style="text-align:right">
-27 Feb 2006&nbsp;&nbsp;&nbsp;
-<a class="local" href="clmorder.ps"><b>clmorder</b></a>
-1.006, 06-058
+5 Jun 2008&nbsp;&nbsp;&nbsp;
+<a class="local" href="clmorder.ps"><b>clm order</b></a>
+1.007-grumpy-gryphon, 08-157
 </p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=48 valign="top" class=left>1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr><td width=48 valign="top" class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#options">OPTIONS</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#author">AUTHOR</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#seealso">SEE ALSO</a>
 </div></td></tr>
 </table>
@@ -94,37 +97,63 @@ cellpadding="0" summary="itemize">
 <a name="name"></a>
 <h2>NAME</h2>
 <p class="default L50" style="margin-bottom:0">
-clmorder - reorder indices to represent blocks from different clusterings.</p>
+clm order - reorder indices to represent blocks from different clusterings.</p>
+<p class="default L50" style="margin-bottom:0">clmorder is not in actual fact a program. This manual
+page documents the behaviour and options of the clm program when
+invoked in mode <i>order</i>. The options <b>-h</b>, <b>--apropos</b>,
+<b>--version</b>, <b>-set</b>, <b>--nop</b> are accessible
+in all <b>clm</b> modes. They are described
+in the <a class="local" href="clm.html">clm</a> manual page.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p class="default L50">
-<b>clmorder</b> &lt;file name&gt;+
+<p class="default L50" style="margin-bottom:0">
+<b>clm order</b>
+<a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output file</i>)<b>]</b></a>
+&lt;cl-stack-file&gt;
+</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p class="default L50">
-Given a set of input clusterings, <b>clmorder</b> reorders indices so that
+<p class="default L50" style="margin-bottom:0">
+Given a set of concatenated input clusterings (encoded in a single file/stream),
+<b>clm order</b> reorders indices so that
 the ordering represents blocks from different clusterings (which are
 preferably more or less hierarchically organized). It puts nodes that
 share many clusters over the different clusters nearby, and puts nodes
 in larger clusters earlier in the ordering. It is presumed that the
 clusterings are successive subclusterings, but it need not be strictly
-the case - <b>clmorder</b> will convert the input clusterings to a strictly
+the case - <b>clm order</b> will convert the input clusterings to a strictly
 nested sequence.
-<p class="default L50">
-<b>clmorder</b> interprets its arguments as names of files containing
-clusterings in mcl format (see <a class="local" href="mcxio.html">mcxio</a>).
+</p>
+<p class="default L50" style="margin-bottom:0">
+<b>clm order</b> expects a trailing file name argument for a file
+containing concatenated matrices (see <a class="local" href="mcxio.html">mcxio</a>).
+</p>
+
+<a name="options"></a>
+<h2>OPTIONS</h2>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr><td colspan=3><a name="opt-o"></a><b>-o</b> fname (<i>output file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr>
+</table>
+
+</div>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
 Stijn van Dongen.
+</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
 <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
+</p>
 </body>
 </html>

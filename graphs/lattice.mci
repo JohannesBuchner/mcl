@@ -1,4 +1,10 @@
 
+try e.g.
+   mcl lattice.mci -o -
+and
+   mcx /lattice.mci lm tp add /- wm | mcl - -o -
+(the mcx invocation transforms it to an undirected graph)
+
             11           
            /|\           
          9/ | \10        

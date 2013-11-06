@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!-- Copyright (c) 2006 Stijn van Dongen -->
+<!-- Copyright (c) 2008 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <style type="text/css">
@@ -32,6 +32,7 @@ h2 { margin-top:2em; }
 .left { text-align: left; align: left; }
 .right { text-align: right; align: right; }
 .center { text-align: center; align: center; }
+.nowrap { white-space: nowrap; }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -68,18 +69,20 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-27 Feb 2006&nbsp;&nbsp;&nbsp;
+5 Jun 2008&nbsp;&nbsp;&nbsp;
 <a class="local" href="mclfamily.ps"><b>The&nbsp;MCL&nbsp;family</b></a>
-1.006, 06-058
+1.007-grumpy-gryphon, 08-157
 </p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=48 valign="top" class=left>1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr><td width=48 valign="top" class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#description">DESCRIPTION</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#env">ENVIRONMENT</a>
 </div></td></tr>
 </table>
 
@@ -89,51 +92,59 @@ cellpadding="0" summary="itemize">
 <h2>NAME</h2>
 <p class="default L50" style="margin-bottom:0">
 mclfamily - a description of the mcl family of cluster applications.</p>
-<p class="default L50">
-<b>mcl</b> is the Amsterdam implementation of the Markov Cluster Algorithm.
+<p class="default L50" style="margin-bottom:0">
+<b>mcl</b> is an implementation of the Markov Cluster Algorithm, aka MCL algoritm.
 It is described in the <a class="local" href="mcl.html">mcl manual</a>.
 Several other utilities are part of the MCL distribution. This manual pages
-gives an overview.
-<p class="default L50">
+gives an overview.</p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=105 valign="top" class=left><a class="local" href="mcl.html">mcl</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> the cluster algorithm
-</div></td></tr><tr><td width=105 valign="top" class=left><a class="local" href="mclfamily.html">mclfamily</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> MCL Frequently Asked Questions
+<tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcl.html">mcl</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">the cluster algorithm</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mclfaq.html">mclfaq</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">MCL Frequently Asked Questions</p>
 </div></td></tr><tr><td width=105>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr>
-<tr><td width=105 valign="top" class=left><a class="local" href="mcxio.html">mcxio</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> the graph/matrix input/output format
+<tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcxio.html">mcxio</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">the graph/matrix input/output format</p>
 </div></td></tr><tr><td width=105>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr>
-<tr><td width=105 valign="top" class=left><a class="local" href="mcxconvert.html">mcxconvert</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> convert between interchange/binary storage types
-</div></td></tr><tr><td width=105 valign="top" class=left><a class="local" href="mcxassemble.html">mcxassemble</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> create matrices from raw data
-</div></td></tr><tr><td width=105 valign="top" class=left><a class="local" href="mcxdump.html">mcxdump</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> dump a matrix optionally with label substitions
-</div></td></tr><tr><td width=105 valign="top" class=left><a class="local" href="mcxload.html">mcxload</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> load label data into matrix and tab files
-</div></td></tr><tr><td width=105 valign="top" class=left><a class="local" href="mcxarray.html">mcxarray</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> transform array data to MCL matrices
-</div></td></tr><tr><td width=105 valign="top" class=left><a class="local" href="mcxmap.html">mcxmap</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> relabel indices in a graph/matrix
+<tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcx.html">mcx</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">general graph/matrix tasks</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcxconvert.html">mcx convert</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">convert between interchange/binary storage types</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcxdiameter.html">mcx diameter</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">compute diameter of a symmetric graph</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcxclcf.html">mcx clcf</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">compute clustering coefficient</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcxctty.html">mcx ctty</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">compute betweenness centrality</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcxerdos.html">mcx erdos</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">compute shortest paths in graphs</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcxq.html">mcx q</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">compute simple graph statistics</p>
 </div></td></tr><tr><td width=105>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr>
-<tr><td width=105 valign="top" class=left><a class="local" href="mcx.html">mcx</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> general matrix operations
-</div></td></tr><tr><td width=105 valign="top" class=left><a class="local" href="mcxsubs.html">mcxsubs</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> extracting submatrices in various ways
+<tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcxassemble.html">mcxassemble</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">create matrices from raw data</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcxdump.html">mcxdump</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">dump a matrix optionally with label substitions</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcxload.html">mcxload</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">load label data into matrix and tab files</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcxarray.html">mcxarray</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">transform array data to MCL matrices</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcxmap.html">mcxmap</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">relabel indices in a graph/matrix</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcxrand.html">mcxrand</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">randomly remove, add, and perturb edge weights</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcxsubs.html">mcxsubs</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">extracting submatrices in various ways</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcxi.html">mcxi</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">general matrix operations</p>
 </div></td></tr><tr><td width=105>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr>
-<tr><td width=105 valign="top" class=left><a class="local" href="clmdist.html">clmdist</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> compute split/join distance between clusterings
-</div></td></tr><tr><td width=105 valign="top" class=left><a class="local" href="clminfo.html">clminfo</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> compute performance measure for clusterings
-</div></td></tr><tr><td width=105 valign="top" class=left><a class="local" href="clmmeet.html">clmmeet</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> compute intersection of clusterings
-</div></td></tr><tr><td width=105 valign="top" class=left><a class="local" href="clmmate.html">clmmate</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> find best matching clusters between clusterings
-</div></td></tr><tr><td width=105 valign="top" class=left><a class="local" href="clmclose.html">clmclose</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> fetch connected components from graphs or subgraphs
-</div></td></tr><tr><td width=105 valign="top" class=left><a class="local" href="clmimac.html">clmimac</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> interpret MCL iterand/matrix as clustering
-</div></td></tr><tr><td width=105 valign="top" class=left><a class="local" href="clmresidue.html">clmresidue</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> extend subgraph clustering
-</div></td></tr><tr><td width=105 valign="top" class=left><a class="local" href="clmformat.html">clmformat</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> display clusters as html or txt files
-</div></td></tr><tr><td width=105 valign="top" class=left><a class="local" href="clmorder.html">clmorder</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> reorder indices to represent blocks from different clusterings
+<tr><td width=105 valign="top" class="left nowrap"><a class="local" href="clm.html">clm</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">general graph-clustering related tasks</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="clmdist.html">clm dist</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">compute split/join distance between clusterings</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="clmvol.html">clm vol</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">derive node volatility scores from a set of clusterings</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="clminfo.html">clm info</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">compute performance measure for clusterings</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="clmmeet.html">clm meet</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">compute intersection of clusterings</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="clmmate.html">clm mate</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">find best matching clusters between clusterings</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="clmclose.html">clm close</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">fetch connected components from graphs or subgraphs</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="clmimac.html">clm imac</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">interpret MCL iterand/matrix as clustering</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="clmresidue.html">clm residue</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">extend subgraph clustering</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="clmorder.html">clm order</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">reorder indices to represent blocks from different clusterings</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="clmformat.html">clmformat</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">display clusters as html or txt files</p>
 </div></td></tr><tr><td width=105>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr>
-<tr><td width=105 valign="top" class=left><a class="local" href="mclpipeline.html">mclpipeline</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> parsing/assembly/clustering/display
-</div></td></tr><tr><td width=105 valign="top" class=left><a class="local" href="mclblastline.html">mclblastline</a> <tt>*</tt></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> BLAST pipeline
-</div></td></tr><tr><td width=105 valign="top" class=left><a class="local" href="mcxdeblast.html">mcxdeblast</a> <tt>*</tt></td><td width=8>&nbsp;</td><td><div style="text-align:justify"> parse BLAST files
+<tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mclpipeline.html">mclpipeline</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">parsing/assembly/clustering/display</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mclblastline.html">mclblastline</a> <tt>*</tt></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">BLAST pipeline</p>
+</div></td></tr><tr><td width=105 valign="top" class="left nowrap"><a class="local" href="mcxdeblast.html">mcxdeblast</a> <tt>*</tt></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><p class="default L50" style="margin-top:0em; margin-bottom:0em">parse BLAST files</p>
 </div></td></tr>
 </table>
 
 </div>
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
 Entries marked <tt>*</tt> are not available if only a default
-install is done.
+install is done.</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
@@ -144,9 +155,6 @@ it has the ability to read in and cluster label input.</p>
 <a class="local" href="mclfamily.html">mclfamily</a> - Frequently Asked Questions.</p>
 <p class="default L50" style="margin-bottom:0">
 <a class="local" href="mcxio.html">mcxio</a> - a description of the mcl matrix format.</p>
-<p class="default L50" style="margin-bottom:0">
-<a class="local" href="mcxconvert.html">mcxconvert</a> - convert matrices from interchange mcl format to
-binary mcl format or vice versa.</p>
 <p class="default L50" style="margin-bottom:0">
 <a class="local" href="mcxassemble.html">mcxassemble</a> - assemble a matrix/graph from partial edge
 weight scores. Useful intermediate format to be used when transforming
@@ -173,7 +181,17 @@ and further tearing and pruning options can be applied.</p>
 <p class="default L50" style="margin-bottom:0">
 <a class="local" href="mcxmap.html">mcxmap</a> - relabel indices in a graph.</p>
 <p class="default L50" style="margin-bottom:0">
-<a class="local" href="mcx.html">mcx</a> - an interpreter for a stack language that enables
+<a class="local" href="mcxrand.html">mcxrand</a> - randomly remove, add, and perturb edge weights.
+</p>
+<p class="default L50" style="margin-bottom:0">
+<a class="local" href="mcxconvert.html">mcx convert</a> - convert matrices from interchange mcl format to
+binary mcl format or vice versa.</p>
+<p class="default L50" style="margin-bottom:0">
+<a class="local" href="mcxdiameter.html">mcx diameter</a> - compute the diameter of a graph.</p>
+<p class="default L50" style="margin-bottom:0">
+<a class="local" href="mcxclcf.html">mcx clcf</a> - compute the clustering coefficient of a graph.</p>
+<p class="default L50" style="margin-bottom:0">
+<a class="local" href="mcxi.html">mcxi</a> - an interpreter for a stack language that enables
 interaction with the <b>mcl</b> matrix libraries. It can be used both from the
 command line and interactively, and supports a rich set of operations such
 as transposition, scaling, column scaling, multiplication, Hadamard powers
@@ -199,42 +217,41 @@ and column index sets can be specified as lists of indices combined
 with list of clusters in a given clustering. Useful for inspecting
 local cluster structure.</p>
 <p class="default L50" style="margin-bottom:0">
-<a class="local" href="clmdist.html">clmdist</a> - compute the split/join distance between two
+<a class="local" href="clmdist.html">clm dist</a> - compute the split/join distance between two
 partitions. The split/join distance is better suited for measuring partition
 similarity than the long-known equivalence mismatch coefficient. The former
 measures the number of node moves required to transform one partition into
 the other, the latter measures differences between volumes of edges of
 unions of complete graphs associated with partitions.</p>
 <p class="default L50" style="margin-bottom:0">
-<a class="local" href="clminfo.html">clminfo</a> - compute a performance measure saying how well
+<a class="local" href="clminfo.html">clm info</a> - compute a performance measure saying how well
 a clustering captures the edge weights of the input graph. Useful
 for comparing different clusterings on the same graph, best used in
-conjunction with <b>clmdist</b> - because comparing clusterings at
+conjunction with <a class="local" href="clmdist.html">clm dist</a> - because comparing clusterings at
 different levels of granularity should somewhat change the performance
-interpretation. The latter issue is discussed in the <a class="local" href="clmdist.html">clmdist</a>
+interpretation. The latter issue is discussed in the <a class="local" href="clmdist.html">clm dist</a>
 entry.</p>
 <p class="default L50" style="margin-bottom:0">
-<a class="local" href="clmmeet.html">clmmeet</a> - compute the intersection of a set of clusterings,
+<a class="local" href="clmmeet.html">clm meet</a> - compute the intersection of a set of clusterings,
 i.e. the largest clustering that is a subclustering of all. Useful
 for measuring the consistency of a set of different clusterings
-at supposedly different levels of granularity (in conjunction with
-<b>clmdist</b>).</p>
+at supposedly different levels of granularity (in conjunction with <a class="local" href="clmdist.html">clm dist</a>).</p>
 <p class="default L50" style="margin-bottom:0">
-<a class="local" href="clmmate.html">clmmate</a> - find best matching clusters between two different
+<a class="local" href="clmmate.html">clm mate</a> - find best matching clusters between two different
 clusterings.</p>
 <p class="default L50" style="margin-bottom:0">
-<a class="local" href="clmclose.html">clmclose</a> - fetch connected components from graphs or subgraphs.</p>
+<a class="local" href="clmclose.html">clm close</a> - fetch connected components from graphs or subgraphs.</p>
 <p class="default L50" style="margin-bottom:0">
-<a class="local" href="clmimac.html">clmimac</a> - interpret MCL iterands as clusterings. The clusterings
+<a class="local" href="clmimac.html">clm imac</a> - interpret MCL iterands as clusterings. The clusterings
 associated with early iterands may contain overlap, should you be
 interested therein.</p>
 <p class="default L50" style="margin-bottom:0">
-<a class="local" href="clmresidue.html">clmresidue</a> - extend a clustering of a subgraph onto a clustering
+<a class="local" href="clmresidue.html">clm residue</a> - extend a clustering of a subgraph onto a clustering
 of the larger graph.</p>
 <p class="default L50" style="margin-bottom:0">
 <a class="local" href="clmformat.html">clmformat</a> - display clusters suitable for scrutinizing.</p>
 <p class="default L50" style="margin-bottom:0">
-<a class="local" href="clmorder.html">clmorder</a> - reorder indices to represent blocks from
+<a class="local" href="clmorder.html">clm order</a> - reorder indices to represent blocks from
 different clusterings.</p>
 <p class="default L50" style="margin-bottom:0">
 <a class="local" href="mclpipeline.html">mclpipeline</a> - set up a pipeline from data parsing stage
@@ -247,3 +264,17 @@ a graph into <b>mcl</b>. Can also prepare input for mcxassemble
 or can be plugged into the heavy-weight mclblastline.</p>
 </body>
 </html>
+
+<a name="env"></a>
+<h2>ENVIRONMENT</h2>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr><td colspan=3>MCXLOGTAG</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+An interface to the logging code used in much of the mcl libraries.</p>
+</div></td></tr>
+</table>
+
+</div>

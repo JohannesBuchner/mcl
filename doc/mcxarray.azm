@@ -15,92 +15,156 @@
 
 
 \sec{synopsis}{SYNOPSIS}
-   \par
-   \mcxarray [options] <array data matrix>
+\par{
+   \mcxarray [options]}
 
-   \par
+\par{
    \mcxarray
+   \synoptopt{-data}{fname}{input data file}
+   \synoptopt{-skipr}{<num>}{skip <num> data rows}
+   \synoptopt{-skipc}{<num>}{skip <num> data columns}
+   \synoptopt{-write-tab}{<fname>}{write row labels to file}
+   \synoptopt{-l}{<num>}{take labels from column <num>}
+   \synoptopt{-imx}{fname}{input matrix file}
+   \synoptopt{-n}{mode}{normalize input}
    \synoptopt{-o}{fname}{output file fname}
+   \synoptopt{-digits}{<num>}{output precision}
    \synoptopt{-co}{num}{cutoff for output values}
+   \synoptopt{-cutoff}{num}{cutoff for output values}
    \synoptopt{-gq}{num}{ignore input smaller than}
    \synoptopt{-lq}{num}{ignore input larger than}
-   \synoptopt{-t}{work with the transpose}
-   \synoptopt{-ctr}{num}{add center (for graph-type input)}
-   \synoptopt{--ctr}{add center with default value (for graph-type input)}
-   \synoptopt{--01}{remap output to [0,1] interval}
+   \synoptopt{--transpose}{work with the transpose}
    \synoptopt{--cosine}{use cosine}
    \synoptopt{--pearson}{use Pearson correlation (default)}
    \synoptopt{-tear}{num}{inflate input columns}
    \synoptopt{-teartp}{num}{inflate tranposed columns}
-   \synoptopt{-pi}{num}{inflate the result}
-   <fname> (\it{array data matrix})
+   \synoptopt{-pi}{num}{inflate the result}}
+   \synoptopt{--apropos}{print this help}
+   \synoptopt{-h}{print this help}
+   \synoptopt{--version}{print version information}
 
 \sec{description}{DESCRIPTION}
-
-   \mcxarray reads a data file satisfying the mcl input format
-   (refer to \mysib{mcxio}). By default it will work with the
-   columns as the data vectors (note that mcl matrices are
-   presented as a listing of columns). This can be changed using
-   the \optref{-t}{\genopt{-t} option}.
+\par{
+   \mcxarray can either read a flat file containing array data (\genopt{-data})
+   or a matrix file satisfying the mcl input format (\genopt{-imx}).  In the
+   former case it will by default work with the rows as the data vectors. In
+   the latter case it will by default work with the columns as the data
+   vectors (note that mcl matrices are presented as a listing of columns).
+   This can be changed for both using the
+   \optref{--transpose}{\genopt{--transpose} option}.
+   }
 
 \sec{options}{OPTIONS}
 
 \begin{itemize}
 
-\item{\defopt{-o}{fname}{output file fname}}
-      Indeed.
+\item{\defopt{-data}{fname}{input data file}}
+\car{
+   Specify the data file containing the expression values.
+   It should be tab-separated.
+   }
 
-\item{\defopt{-co}{num}{cutoff for output values}}
-      Output values smaller than \genarg{num} are removed (set to zero).
+\item{\defopt{-imx}{fname}{input matrix file}}
+\car{
+   The expression values are read from a file in mcl matrix format.
+   }
+
+\item{\defopt{-skipr}{<num>}{skip <num> data rows}}
+\car{
+   Skip the first \genarg{<num>} data rows.}
+
+\item{\defopt{-skipc}{<num>}{skip <num> data columns}}
+\car{
+   Ignore the first \genarg{<num>} data columns.}
+
+\item{\defopt{-l}{<num>}{take labels from column <num>}}
+\car{
+   Specifies to construct a tab of labels from this data column.
+   The tab can be written to file using \genoptref{-write-tab}{fname}.
+   }
+
+\item{\defopt{-write-tab}{<fname>}{write row labels to file}}
+\car{
+   Write a tab file. In the simple case where the labels are in the first
+   data column it is sufficient to issue \useopt{-skipc}{1}.
+   If more data columns need to be skipped one must explicitly specify
+   the data column to take labels from with \genopt{-l}{l}.
+   }
+
+\item{\defopt{-n}{mode}{normalization mode}}
+\car{
+   If \genarg{mode} is set to \usearg{z} the data will be normalized
+   based on z-score. No other modes are currently supported.}
+
+\item{\defopt{-o}{fname}{output file fname}}
+\car{
+   Output file name.}
+
+\item{\defopt{-digits}{<num>}{output precision}}
+\car{
+   Specify the precision to use in native interchange format.}
+
+\items{
+   {\defopt{-co}{num}{cutoff for output values}}
+   {\defopt{-cutoff}{num}{alias for \genopt{-co}}}
+}
+\car{
+   Output values smaller than \genarg{num} are removed (set to zero).}
 
 \item{\defopt{-gq}{num}{ignore input smaller than}}
-      Input values smaller than \genarg{num} are ignored.
+\car{
+   Input values smaller than \genarg{num} are ignored.}
 
 \item{\defopt{-lq}{num}{ignore input larger than}}
-      Input values larger than \genarg{num} are ignored.
+\car{
+   Input values larger than \genarg{num} are ignored.}
 
-\item{\defopt{-t}{work with the transpose}}
-      Work with the transpose of the input data matrix.
-
-\item{\defopt{-ctr}{num}{add center (for graph-type input)}}
-      Add diagonal values to the output according to a (so called)
-      \it{center} formula.
-
-\item{\defopt{--ctr}{add center with default value (for graph-type input)}}
-      Same as \useopt{-ctr}{1.0}.
-
-\item{\defopt{--01}{remap output to [0,1] interval}}
-      Rescale output values so that they are within the [0,1] interval.
+\item{\defopt{--transpose}{work with the transpose}}
+\car{
+   Work with the transpose of the input data matrix.}
 
 \item{\defopt{--cosine}{use cosine}}
-      Use the cosine as correlation measure.
+\car{
+   Use the cosine as correlation measure.}
 
 \item{\defopt{--pearson}{use Pearson correlation (default)}}
-      Compute the Pearson correleation coefficient as the
-      similarity between the data columns.
+\car{
+   Compute the Pearson correleation coefficient as the similarity between the
+   data columns.}
 
 \item{\defopt{-tear}{num}{inflate input columns}}
-      Apply (column-wise) inflation with parameter \genarg{num} to the input
-      values before further processing.
+\car{
+   Apply (column-wise) inflation with parameter \genarg{num} to the input
+   values before further processing.}
 
 \item{\defopt{-teartp}{num}{inflate tranposed columns}}
-      Apply (column-wise) inflation with parameter \genarg{num} to the input
-      values in the transposed matrix before further processing.
+\car{
+   Apply (column-wise) inflation with parameter \genarg{num} to the input
+   values in the transposed matrix before further processing.}
 
 \item{\defopt{-pi}{num}{inflate the result}}
-      Apply inflation with parameter \genarg{num} to the output values.
+\car{
+   Apply inflation with parameter \genarg{num} to the output values.}
+
+\items{
+   {\defopt{--apropos}{print help}}
+   {\defopt{-h}{print help}}
+}
+
+\item{\defopt{--version}{print version information}}
+
 
 \end{itemize}
 
 \sec{author}{AUTHOR}
-\par
-   Stijn van Dongen.
+\par{
+   Stijn van Dongen.}
 
 \sec{seealso}{SEE ALSO}
-
+\par{
    \mysib{mcl},
    \mysib{mclfaq},
    and \mysib{mclfamily} for an overview of all the documentation
-   and the utilities in the mcl family.
+   and the utilities in the mcl family.}
 
 \"man::postamble"

@@ -1,7 +1,8 @@
-/*      Copyright (C) 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -14,16 +15,20 @@
 
 #include <string.h>
 
+#include "clm.h"
 #include "report.h"
+#include "clmimac.h"
 
 #include "impala/matrix.h"
+#include "impala/cat.h"
 #include "impala/vector.h"
 #include "impala/ivp.h"
 #include "impala/io.h"
 #include "impala/app.h"
 
+#include "clew/clm.h"
+
 #include "mcl/interpret.h"
-#include "mcl/clm.h"
 
 #include "util/types.h"
 #include "util/err.h"
@@ -33,55 +38,37 @@
 #include "util/array.h"
 
 
+static const char* me = "clmmate";
+
+
 enum
-{  MY_OPT_INPUTFILE
-,  MY_OPT_OUTPUTFILE
+{  MY_OPT_OUTPUT = CLM_DISP_UNUSED
+,  MY_OPT_IMX
 ,  MY_OPT_DAG
+,  MY_OPT_STRICT
 ,  MY_OPT_ENSTRICT
 ,  MY_OPT_SORT
-,  MY_OPT_HELP
-,  MY_OPT_APROPOS
-,  MY_OPT_VERSION
 }  ;
 
-const char* syntax = "Usage: clmimac [options]";
 
-mcxOptAnchor options[] =
+static mcxOptAnchor imacOptions[] =
 {  {  "--enstrict"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_ENSTRICT   
    ,  NULL
    ,  "clean up clustering if not a partition"
    }
-,  {  "--version"
-   ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_VERSION
-   ,  NULL
-   ,  "output version information, exit"
-   }
 ,  {  "-o"
    ,  MCX_OPT_HASARG
-   ,  MY_OPT_OUTPUTFILE
+   ,  MY_OPT_OUTPUT
    ,  "<fname>"
    ,  "output cluster file"
    }
 ,  {  "-imx"
    ,  MCX_OPT_HASARG | MCX_OPT_REQUIRED
-   ,  MY_OPT_INPUTFILE
+   ,  MY_OPT_IMX
    ,  "<fname>"
    ,  "input matrix file, presumably dumped mcl iterand or dag"
-   }
-,  {  "--apropos"
-   ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_APROPOS
-   ,  NULL
-   ,  "this info"
-   }
-,  {  "-h"
-   ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_HELP
-   ,  NULL
-   ,  "this info"
    }
 ,  {  "-sort"
    ,  MCX_OPT_HASARG
@@ -95,109 +82,104 @@ mcxOptAnchor options[] =
    ,  "<fname>"
    ,  "output DAG associated with matrix"
    }
+,  {  "-strict"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_STRICT
+   ,  "<num>"
+   ,  "in (0..1)"
+   }
 ,  {  NULL ,  0 ,  0 ,  NULL, NULL}
 }  ;
 
 
-int main
+static mcxIO*  xfout    =  (void*) -1;
+mcxbool keep_overlap    =  -1;
+mcxIO* xfdag            =  (void*) -1;
+mcxIO* xfmx             =  (void*) -1;
+const char* sortmode    =  (void*) -1;
+static double strict    =  -1;
+
+
+static mcxstatus imacInit
+(  void
+)
+   {  xfout          =  mcxIOnew("-", "w")
+   ;  xfmx           =  NULL
+   ;  keep_overlap   =  TRUE
+   ;  xfdag          =  NULL
+   ;  sortmode       =  "revsize"
+   ;  strict         =  0.001
+   ;  return STATUS_OK
+;  }
+
+static mcxstatus imacArgHandle
+(  int optid
+,  const char* val
+)
+   {  switch(optid)
+      {  case MY_OPT_ENSTRICT
+      :  keep_overlap = FALSE
+      ;  break
+      ;
+
+         case MY_OPT_IMX
+      :  xfmx = mcxIOnew(val, "r")
+      ;  break
+      ;
+
+         case MY_OPT_OUTPUT
+      :  mcxIOnewName(xfout, val)
+      ;  break
+      ;
+
+         case MY_OPT_STRICT
+      :  strict = atof(val)
+      ;  if (strict <= 0)
+         strict = 0.00001
+      ;  if (strict > 1)
+         strict = 1
+      ;  break
+      ;
+
+         case MY_OPT_DAG
+      :  xfdag = mcxIOnew(val, "w")
+      ;  break
+      ;
+
+         case MY_OPT_SORT
+      :  sortmode = val
+      ;  break
+      ;
+
+         default
+      :  return STATUS_FAIL
+   ;  }
+      return STATUS_OK
+;  }
+
+
+
+
+static mcxstatus imacMain
 (  int                  argc
 ,  const char*          argv[]
-)  
-   {  mcxstatus parseStatus   =  STATUS_OK
+)
+   {  mclInterpretParam* ipp  =  mclInterpretParamNew()
 
-   ;  mcxbool keep_overlap    =  TRUE
-   ;  mclInterpretParam* ipp  =  mclInterpretParamNew()
-   ;  mcxTing* fname          =  mcxTingNew("out.imac")
-   ;  mcxIO* xfdag            =  NULL
-   ;  const char* sortmode    =  "revsize"
+   ;  mcxbits  flags =  0
+   ;  dim o = 0, m = 0, e = 0
 
-   ;  mcxbits  flags          =  0
-   ;  int o = 0, m = 0, e = 0
-
-   ;  mcxIO* xfin
    ;  mclx *mx = NULL, *dag = NULL, *cl = NULL
-   ;  const char* me = "clmimac"
-   ;  const char* arg_fnin = NULL
 
-   ;  mcxOption* opts, *opt
+   ;  ipp->w_maxval  =   strict;
+   ;  ipp->w_selfval = 1.0 - strict;
 
-   ;  if (argc <= 1)
-      {  mcxOptApropos(stdout, me, syntax, 0, 0, options)
-      ;  exit(0)
-   ;  }
+   ;  if (!xfmx)
+      mcxDie(1, me, "-imx option is required")
 
-      mcxOptAnchorSortById(options, sizeof(options)/sizeof(mcxOptAnchor) -1)
-   ;  opts = mcxOptParse(options, (char**) argv, argc, 1, 0, &parseStatus)
-
-   ;  if (parseStatus != STATUS_OK)
-      {  mcxErr(me, "initialization failed")
-      ;  exit(1)
-   ;  }
-
-      for (opt=opts;opt->anch;opt++)
-      {  mcxOptAnchor* anch = opt->anch
-
-      ;  if (anch->flags & MCX_OPT_UNUSED)          /* fixme, not functional */
-         {  mcxWarn
-            (  me
-            ,  "EXPERIMENTAL using option <%s>, may produce unexpected results"
-            ,  anch->tag
-            )
-      ;  }
-
-         switch(anch->id)
-         {  case MY_OPT_ENSTRICT
-         :  keep_overlap = FALSE
-         ;  break
-         ;
-
-            case MY_OPT_VERSION
-         :  app_report_version(me)
-         ;  exit(0)
-         ;
-
-            case MY_OPT_INPUTFILE
-         :  arg_fnin = opt->val
-         ;  break
-         ;
-
-            case MY_OPT_OUTPUTFILE
-         :  fname = mcxTingNew(opt->val)
-         ;  break
-         ;
-
-            case MY_OPT_HELP
-         :  case MY_OPT_APROPOS
-         :  mcxOptApropos(stdout, me, syntax, 0, 0, options)
-         ;  exit(0)
-         ;
-
-            case MY_OPT_DAG
-         :  xfdag = mcxIOnew(opt->val, "w")
-         ;  break
-         ;
-
-            case MY_OPT_SORT
-         :  sortmode = opt->val
-         ;  break
-         ;
-
-            default
-         :  mcxExit(1) 
-      ;  }
-      }
-
-      mcxOptFree(&opts)
-
-   ;  if (!arg_fnin)
-      {  mcxErr(me, "-imx option is required")
-      ;  mcxExit(0)
-   ;  }
-
-      xfin     =  mcxIOnew(arg_fnin, "r")
-   ;  mx       =  mclxReadx(xfin, EXIT_ON_FAIL, MCL_READX_GRAPH)
+   ;  mx = mclxReadx(xfmx, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH)
    ;  mclxMakeStochastic(mx)
-   ;  mcxIOfree(&xfin)
+   ;  mcxIOfree(&xfmx)
 
    ;  dag   =  mclDag(mx, ipp)
    ;  mclxFree(&mx)
@@ -211,17 +193,16 @@ int main
    ;  if (keep_overlap)
       flags |= ENSTRICT_KEEP_OVERLAP
 
-   ;  {  mcxIO* xfout = mcxIOnew(fname->str, "w")
-      ;  const char* did = keep_overlap ? "found" : "removed"
+   ;  {  const char* did = keep_overlap ? "found" : "removed"
       ;  mcxIOopen(xfout, EXIT_ON_FAIL)
 
-      ;  mclcEnstrict(cl, &o, &m, &e, flags)
+      ;  clmEnstrict(cl, &o, &m, &e, flags)
       ;  if (o)
-         mcxTell(me, "%s <%d> instances of overlap", did, o)
+         mcxTell(me, "%s <%lu> instances of overlap", did, (ulong) o)
       ;  if (m)
-         mcxTell(me, "collected <%d> missing nodes", m)
+         mcxTell(me, "collected <%lu> missing nodes", (ulong) m)
       ;  if (e)
-         mcxTell(me, "removed <%d> empty clusters", e)
+         mcxTell(me, "removed <%lu> empty clusters", (ulong) e)
 
       ;  if (!strcmp(sortmode, "size"))
          mclxColumnsRealign(cl, mclvSizeCmp)
@@ -240,8 +221,30 @@ int main
 
       mclxFree(&cl)
    ;  mclInterpretParamFree(&ipp)
-   ;  mcxTingFree(&fname)
-   ;  return 0
+   ;  return STATUS_OK
+;  }
+
+
+
+static mcxDispHook imacEntry
+=  {  "imac"
+   ,  "imac [options] -imx <mx file>"
+   ,  imacOptions
+   ,  sizeof(imacOptions)/sizeof(mcxOptAnchor) - 1
+   ,  imacArgHandle
+   ,  imacInit
+   ,  imacMain
+   ,  0
+   ,  0
+   ,  MCX_DISP_DEFAULT
+   }
+;
+
+
+mcxDispHook* mcxDispHookImac
+(  void
+)
+   {  return &imacEntry
 ;  }
 
 

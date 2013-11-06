@@ -2,8 +2,8 @@
 \def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{clmimac}
-\set{"man::html-title"}{The clmimac manual}
+\set{"man::name"}{clm imac}
+\set{"man::html-title"}{The clm imac manual}
 \set{"man::author"}{Stijn van Dongen}
 \set{"man::section"}{1}
 
@@ -11,81 +11,91 @@
 \${html}{\"man::maketoc"}
 
 \sec{name}{NAME}
-\NAME{clmimac}{Interpret Matrices (c.q. MCL iterands output by \mcl)\
+\NAME{clm imac}{Interpret Matrices (c.q. MCL iterands output by \mcl)\
  As Clusterings.}
+\disclaim_clm{imac}
 
 \sec{synopsis}{SYNOPSIS}
-   \par
-   \clmimac -imx <fname> [options]
+\par{
+   \clm{imac} -imx <fname> [options]
+   }
 
-   \par
-   \clmimac
+\par{
+   \clm{imac}
    \synreqopt{-imx}{fname}{input file}
    \synoptopt{-o}{fname}{name/stem for output}
    \synoptopt{-dag}{fname}{output DAG}
    \synoptopt{--enstrict}{remove overlap}
    \synoptopt{-sort}{str}{size|revsize|lex|none}
-   \synoptopt{-h}{list help}
-   \synoptopt{--apropos}{list synopsis of all options}
+   \synoptopt{-strict}{num}{in 0..1}
+   \stdsynopt
+   }
 
 \sec{description}{DESCRIPTION}
 
-\par
-   Use \clmimac to interpret matrices (as clusterings) output by \mcl using
-   \mcl's \useopt{-dump}{ite} option.
+\par{
+   Use \clm{imac} to interpret matrices (as clusterings) output by \mcl using
+   \mcl's \useopt{-dump}{ite} option.}
 
-\par
-   Use \clmimac only if you have a special reason; the normal usage
+\par{
+   Use \clm{imac} only if you have a special reason; the normal usage
    of \mcl is to do multiple runs for varying \genopt{-I} parameters
    and use the clusterings output by \mcl itself.
    One reason is if you are interested in clusterings with overlap;
    early MCL iterands generally induce clusterings possessing overlap.
    Another reason is to investigate how the cluster structure
-   associated with the MCL process evolves over time.
+   associated with the MCL process evolves over time.}
 
 \sec{options}{OPTIONS}
 
-\begin{itemize}
+\'begin{itemize}{\mcx_itemopts}
 
 \item{\defopt{-imx}{fname}{input file}}
+\car{
    The input file is presumably an MCL iterand resulting
-   from the mcl option \useopt{-dump}{ite}.
+   from the mcl option \useopt{-dump}{ite}.}
+
+\item{\defopt{-strict}{num}{in 0..1}}
+\car{
+   Higher values (up until 1) will thin out the DAG
+   constructed by \clmimac. The default value is 0.00001,
+   yielding the full DAG.
+   }
 
 \item{\defopt{-o}{fname}{file name/stem}}
-   Write to file named \genarg{fname}.
+\car{
+   Write to file named \genarg{fname}.}
 
 \item{\defopt{-dag}{fname}{output DAG}}
+\car{
    Write the DAG (directed acyclic graph) constructed from the input to
    file. This DAG is constructed according to the structure associated
    with diagonally positive semi-definite matrices as described
    in the PhD thesis \it{Graph clustering by flow simulation}.
-   Consult \mysib{mclfamily} for references.
+   Consult \mysib{mclfamily} for references.}
 
 \item{\defopt{-sort}{str}{size|revsize|lex|none}}
+\car{
    Sort the clusters either by increasing size, decreasing size,
    lexicographically by the indices they contain, or use the clustering
-   exactly as obtained from the interpretation routine.
+   exactly as obtained from the interpretation routine.}
 
 \item{\defopt{--enstrict}{remove overlap}}
+\car{
    Remove overlap should it be found, by allocating the nodes
-   in overlap to the first cluster in which they were found.
+   in overlap to the first cluster in which they were found.}
 
-\item{\defopt{-h}{list help}}
-   Print help, this could possibly be the same output as
-   supplied with \genopt{--apropos}.
-
-\item{\defopt{--apropos}{list synopsis of all options}}
-   List a one-line synopsis for all options.
+\stddefopt
 
 \end{itemize}
 
 \sec{author}{AUTHOR}
-\par
-   Stijn van Dongen.
+\par{
+   Stijn van Dongen.}
 
 \sec{seealso}{SEE ALSO}
-\par
+\par{
    \mysib{mclfamily} for an overview of all the documentation
-   and the utilities in the mcl family.
+   and the utilities in the mcl family.}
 
 \"man::postamble"

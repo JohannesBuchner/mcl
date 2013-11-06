@@ -1,13 +1,15 @@
-/*   Copyright (C) 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "ops.h"
 #include "stack.h"
@@ -58,6 +60,7 @@ int      opOpList             (  void  )  ;
 int      opFree               (  void  )  ;
 int      opHadamardPower      (  void  )  ;
 int      opInflate            (  void  )  ;
+int      opHighest            (  void  )  ;
 int      opExpand             (  void  )  ;
 int      opHadamard           (  void  )  ;
 int      opHelp               (  void  )  ;
@@ -756,7 +759,7 @@ int opViewMatrix
    ;  }
       else if (N_COLS(mx) <= 35)
       mclxBoolPrint(mx, 0)
-   ;  else if (N_COLS(mx) <= 75)
+   ;  else if (N_COLS(mx) <= 10000)
       mclxBoolPrint(mx, 1)
    ;  else
       {  long n_entries = mclxNrofEntries(mx)
@@ -823,7 +826,7 @@ int opDong
       else
       return 0
 
-   ;  vb = MAX(vb, 0)
+   ;  vb = MCX_MAX(vb, 0)
 
    ;  if (!vb) /* used as toggle */
       {  v_g = v_g ? 0 : 1

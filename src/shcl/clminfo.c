@@ -1,25 +1,47 @@
-/*      Copyright (C) 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
+*/
+
+
+/* NOTE
+ *    avgi is different for local and global, because we for each vector
+ *    sum_i represents the fraction of total edge weight.
+*/
+
+/* TODO
+ *    Perhaps pre-read clusterings in one go, both for stack and
+ *    herd (the default) cases.
+ *
+ *    create a sane output format.
+ *    Either s-expression based or line based.
 */
 
 
 #include <string.h>
 #include <stdio.h>
 
+#include "clm.h"
 #include "report.h"
+#include "clminfo.h"
 
 #include "impala/matrix.h"
+#include "impala/cat.h"
 #include "impala/vector.h"
-#include "impala/scan.h"
 #include "impala/io.h"
 #include "impala/app.h"
 #include "impala/iface.h"
+#include "impala/compose.h"
+
+#include "clew/claw.h"
+#include "clew/scan.h"
+#include "clew/clm.h"
+
 #include "mcl/interpret.h"
-#include "mcl/clm.h"
 
 #include "util/io.h"
 #include "util/err.h"
@@ -27,40 +49,40 @@
 #include "util/opt.h"
 #include "util/minmax.h"
 
+static const char* me  =  "clminfo";
+
 
 enum
-{  MY_OPT_HELP
-,  MY_OPT_APROPOS
-,  MY_OPT_VERSION
+{  MY_OPT_OUTPUT = CLM_DISP_UNUSED
+,  MY_OPT_CLTREE
+,  MY_OPT_CLCEIL
+,  MY_OPT_NCLMAX
 ,  MY_OPT_ADAPT
-,  MY_OPT_APPEND_GR
-,  MY_OPT_APPEND_PF
 ,  MY_OPT_PI
-,  MY_OPT_RULE
-,  MY_OPT_HEADER
-,  MY_OPT_TAG
+,  MY_OPT_TF
+,  MY_OPT_NOODLE
+,  MY_OPT_CABOODLE
 }  ;
 
-const char* syntax = "Usage: clminfo [options] <mx file> <cl file>+";
 
-mcxOptAnchor options[] =
-{  {  "--version"
-   ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_VERSION
-   ,  NULL
-   ,  "output version information, exit"
+static mcxOptAnchor infoOptions[] =
+{  {  "-o"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_OUTPUT
+   ,  "<fname>"
+   ,  "output file name"
    }
-,  {  "-h"
+,  {  "--node-self-measures"
    ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_HELP
+   ,  MY_OPT_NOODLE
    ,  NULL
-   ,  "this info (currently)"
+   ,  "dump node-wise criteria for native cluster"
    }
-,  {  "--apropos"
+,  {  "--node-all-measures"
    ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_APROPOS
+   ,  MY_OPT_CABOODLE
    ,  NULL
-   ,  "this info"
+   ,  "dump node-wise criteria for all incident clusters"
    }
 ,  {  "-pi"
    ,  MCX_OPT_HASARG
@@ -68,263 +90,287 @@ mcxOptAnchor options[] =
    ,  "<num>"
    ,  "apply inflation with parameter <num> beforehand"
    }
-,  {  "--adapt"
-   ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_ADAPT
-   ,  NULL
-   ,  "adapt cluster/matrix domains if they do not match"
-   }
-,  {  "--append-pf"
-   ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_APPEND_PF
-   ,  NULL
-   ,  "append performance measures to cluster file(s)"
-   }
-,  {  "--append-gr"
-   ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_APPEND_GR
-   ,  NULL
-   ,  "append granularity measures to cluster file(s)"
-   }
-,  {  "-tag"
+,  {  "-tf"
    ,  MCX_OPT_HASARG
-   ,  MY_OPT_TAG
-   ,  "<str>"
-   ,  "write tag=<str> in performance measure"
+   ,  MY_OPT_TF
+   ,  "<tf-spec>"
+   ,  "first apply tf-spec to matrix"
    }
-,  {  "--header"
-   ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_HEADER
-   ,  NULL
-   ,  "print header"
+,  {  "-cl-tree"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_CLTREE
+   ,  "<fname>"
+   ,  "assume mclcm-type hierarchical clusterings (stack format)"
    }
-,  {  "--rule"
-   ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_RULE
-   ,  NULL
-   ,  "print separating rule between results"
+,  {  "-cl-ceil"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_CLCEIL
+   ,  "<num>"
+   ,  "skip clusters with <num> or more members (with --cl-stack)"
+   }
+,  {  "-cat-max"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_NCLMAX
+   ,  "<num>"
+   ,  "do at most <num> levels of the hierarchy"
    }
 ,  {  NULL ,  0 ,  0 ,  NULL, NULL}
 }  ;
 
 
-int main
+static mcxIO*  xfout        =  (void*) -1;
+static mcxIO *xfmx          =  (void*) -1;
+static mcxIO* xfstack       =  (void*) -1;
+static mclx *mx             =  (void*) -1;
+static dim     clceil       =  -1;
+static dim     n_cl_max     =  -1;
+static double inflation     =  -1;
+static int preprune         =  -1;
+static mcxbool caboodle     =  -1;
+static mcxbool noodle       =  -1;
+static mcxbool cone         =  -1;
+static mcxTing* tfting      = (void*) -1;
+
+
+static mcxstatus infoInit
+(  void
+)
+   {  xfout          =  mcxIOnew("-", "w")
+   ;  xfmx           =  NULL
+   ;  xfstack        =  NULL
+   ;  mx             =  NULL
+   ;  clceil         =  0
+   ;  n_cl_max       =  0
+   ;  inflation      =  0.0
+   ;  preprune       =  0
+   ;  tfting         =  NULL
+   ;  caboodle       =  FALSE
+   ;  noodle         =  FALSE
+   ;  cone           =  FALSE
+   ;  return STATUS_OK
+;  }
+
+
+static mcxstatus infoArgHandle
+(  int optid
+,  const char* val
+)
+   {  switch(optid)
+      {  case MY_OPT_OUTPUT
+      :  mcxIOrenew(xfout, val, "w")
+      ;  break
+      ;
+
+         case MY_OPT_NCLMAX
+      :  n_cl_max = atoi(val)
+      ;  break
+      ;
+
+         case MY_OPT_CLCEIL
+      :  clceil = atoi(val)
+      ;  break
+      ;
+
+         case MY_OPT_CLTREE
+      :  xfstack = mcxIOnew(val, "r")
+      ;  break
+      ;
+
+         case MY_OPT_CABOODLE
+      :  caboodle = TRUE
+      ;  break
+      ;
+
+         case MY_OPT_TF
+      :  tfting = mcxTingNew(val)
+      ;  break
+      ;
+
+         case MY_OPT_NOODLE
+      :  noodle = TRUE
+      ;  break
+      ;
+
+         case MY_OPT_PI
+      :  inflation = atof (val)
+      ;  break
+      ;
+
+         default
+      :  return STATUS_FAIL
+      ;
+      }
+      return STATUS_OK
+;  }
+
+
+void do_stack
+(  mclx* mx
+,  mcxIO* xfstack
+,  mcxIO* xfout
+,  dim clceil
+,  dim n_cl_max
+)
+   {  mclxCat st
+   ;  dim i
+   ;  mcxstatus status
+      =  mclxCatRead
+         (  xfstack, &st, n_cl_max, NULL, mx->dom_rows
+         ,  MCLX_PRODUCE_DOMSTACK | MCLX_ENSURE_ROOT | MCLX_REQUIRE_PARTITION
+         )
+
+   ;  if (status)
+      mcxDie(1, me, "error reading stack")
+   ;  else if (!st.level)
+      mcxExit(0)
+
+   ;  for (i=1;i<st.n_level;i++)
+      {  mclx* cl = st.level[i].mx
+      ;  mclx* clchild = st.level[i-1].mx
+
+      ;  clmXPerformance(mx, clchild, cl, xfout, clceil)
+      ;  fprintf(xfout->fp, "===\n")
+   ;  }
+      clmXPerformance(mx, st.level[st.n_level-1].mx, NULL, xfout, clceil)
+;  }
+
+
+
+static mcxstatus infoMain
 (  int                  argc
 ,  const char*          argv[]
 )
-   {  mcxIO *xfmx          =  NULL
-   ;  mclMatrix *cl        =  NULL
-   ;  mclMatrix *mx        =  NULL
-   ;  const char* me       =  "clminfo"
-   ;  const char* tag      =  NULL
-   ;  double inflation     =  0.0
-   ;  int preprune         =  0
-   ;  mcxstatus parseStatus=  STATUS_OK
-
-   ;  mcxbool do_header    =  FALSE
-   ;  mcxbool do_rule      =  FALSE
-   ;  mcxbool append_granul=  FALSE
-   ;  mcxbool append_perf  =  FALSE
-   ;  mcxbool adapt        =  FALSE
-
-   ;  int a =  1
-   ;  int n_arg_read = 0
-   ;  int n_err = 0
+   {  int a =  0
    ;  mcxTing* ginfo = mcxTingEmpty(NULL, 40)
-   ;  mcxOption* opts, *opt
 
-   ;  if (argc <= 1)
-      {  mcxOptApropos(stdout, me, syntax, 0, 0, options)
-      ;  exit(0)
-   ;  }
+   ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_NO)
 
-      mcxOptAnchorSortById(options, sizeof(options)/sizeof(mcxOptAnchor) -1)
-   ;  opts = mcxOptExhaust
-            (options, (char**) argv, argc, 1, &n_arg_read, &parseStatus)
+   ;  if
+      (  (xfstack && 1 != argc)
+      || (!xfstack && 1 >= argc)
+      )
+      mcxDie
+      (  1
+      ,  me
+      ,  "need %smatrix file%s"
+      ,  xfstack ? "(just a) " : ""
+      ,  xfstack ? "" : " and cluster file(s)"
+      )
 
-   ;  if (parseStatus != STATUS_OK)
-      {  mcxErr(me, "initialization failed")
-      ;  exit(1)
-   ;  }
-
-   ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
-
-   ;  for (opt=opts;opt->anch;opt++)
-      {  mcxOptAnchor* anch = opt->anch
-
-      ;  switch(anch->id)
-         {  case MY_OPT_HELP
-         :  mcxOptApropos(stdout, me, syntax, 0, MCX_OPT_DISPLAY_SKIP, options)
-         ;  exit(0)
-         ;
-
-            case MY_OPT_APROPOS
-         :  mcxOptApropos(stdout, me, syntax, 0, MCX_OPT_DISPLAY_SKIP, options)
-         ;  exit(0)
-         ;
-
-            case MY_OPT_VERSION
-         :  app_report_version(me)
-         ;  exit(0)
-         ;
-
-            case MY_OPT_ADAPT
-         :  adapt = TRUE
-         ;  break
-         ;
-
-            case MY_OPT_APPEND_GR
-         :  append_granul = TRUE
-         ;  break
-         ;
-
-            case MY_OPT_APPEND_PF
-         :  append_perf = TRUE
-         ;  break
-         ;
-
-            case MY_OPT_PI
-         :  inflation = atof (opt->val)
-         ;  break
-         ;
-
-            case MY_OPT_RULE
-         :  do_rule = TRUE 
-         ;  break
-         ;
-
-            case MY_OPT_HEADER
-         :  do_header = TRUE 
-         ;  break
-         ;
-
-            case MY_OPT_TAG
-         :  tag = argv[a]
-         ;  break
-         ;
-
-            default
-         :  mcxExit(1) 
-         ;
-         }
-      }
-
-      a = 1 + n_arg_read
-
-   ;  if (a + 1 >= argc)
-      mcxDie(1, me, "need matrix file and cluster file")
+   ;  mcxIOopen(xfout, EXIT_ON_FAIL)
 
    ;  xfmx  =  mcxIOnew(argv[a++], "r")
-   ;  mx    =  mclxReadx(xfmx, EXIT_ON_FAIL, MCL_READX_GRAPH)
+   ;  mx    =  mclxReadx(xfmx, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH)
 
-   ;  if (tag)
-      mcxTingPrint
-      (  ginfo
-      ,  "tag=%s\n"
-      ,  tag
-      )
+   ;  if (tfting)
+      {  mclpAR* tfar = mclpTFparse(NULL, tfting)
+      ;  if (!tfar)
+         mcxDie(1, me, "errors in tf-spec")
+      ;  mclxUnaryList(mx, tfar)
+   ;  }
 
-   ;  mcxTingPrintAfter
-      (  ginfo
-      ,  "target-name=%s\n"
-      ,  xfmx->fn->str
-      )
-
-   ;  if (inflation)
+      if (inflation)
       {  mclxInflate(mx, inflation)
       ;  mcxTingPrintAfter(ginfo, "inflation=%.2f\n", (double) inflation)
    ;  }
 
+               /* fixme: should be some general transform option */
       if (preprune)
-      {  mclxMakeSparse(mx, 0, preprune)
+      {  mclv* sel = mclgMakeSparse(mx, 0, preprune)
+      ;  mclvFree(&sel)
       ;  mcxTingPrintAfter(ginfo, "preprune=%df\n", (int) preprune)
    ;  }
 
-      mcxIOfree(&xfmx)
+      mclxAdjustLoops(mx, mclxLoopCBmax, NULL)
+
+   ;  if (xfstack)
+         do_stack(mx, xfstack, xfout, clceil, n_cl_max)
+      ,  mcxExit(0)
+
+   ;  mcxIOfree(&xfmx)
 
    ;  while(a < argc)
-      {  mcxIO *xfcl =  mcxIOnew(argv[a], "r")
-      ;  mclMatrix* tmx = NULL
-      ;  int o, m, e
-      ;  cl =  mclxRead(xfcl, EXIT_ON_FAIL)
+      {  mcxIO *xfcl
+      ;  mclx *cl
+      ;  dim j
+      ;  mclxCat st
+      ;  mcxstatus status
 
-      ;  if (!mcldEquate(mx->dom_cols, cl->dom_rows, MCLD_EQ_EQUAL))
-         {  mclVector* meet = mcldMeet(mx->dom_cols, cl->dom_rows, NULL)
-         ;  mcxErr
-            (  me
-            ,  "Domain mismatch for matrix ('left') and clustering ('right')"
+      ;  if (!strcmp(argv[a], "--"))
+         {  a++
+         ;  fputc('\n', xfout->fp)
+         ;  continue
+      ;  }
+
+         xfcl =  mcxIOnew(argv[a], "r")
+
+      ;  if
+         (( status
+         =  mclxCatRead
+            (  xfcl, &st, n_cl_max, NULL, mx->dom_rows
+            ,  MCLX_PRODUCE_DOMSTACK | MCLX_REQUIRE_PARTITION
             )
-         ;  report_domain(me, N_ROWS(mx), N_ROWS(cl), meet->n_ivps)
-         ;  if (adapt)
-            {  mclMatrix* tcl = mclxSub(cl, cl->dom_cols, meet)
-            ;  report_fixit(me, n_err++)
-            ;  mclxFree(&cl)
-            ;  cl  = tcl
-            ;  tmx = mx
-            ;  mx  = mclxSub(tmx, meet, meet)
+         ))
+         mcxDie(1, me, "error reading stack")
+
+      ;  for (j=0;j<st.n_level;j++)
+         {  cl = st.level[j].mx
+
+         ;  if (noodle)
+            clmDumpNodeScores(xfcl->fn->str, mx, cl, CLM_NODE_SELF)
+
+         ;  else if (caboodle)
+            clmDumpNodeScores(xfcl->fn->str, mx, cl, CLM_NODE_INCIDENT)
+
+         ;  else
+            {  double vals[11]
+            ;  clmGranularityTable tbl
+            ;  clmPerformanceTable pftable
+            ;  mcxTing* linfo = mcxTingNew(ginfo->str)
+            ;  mcxTingPrintAfter(linfo, " source=%s", xfcl->fn->str)
+            ;  if (st.n_level > 1)
+               mcxTingPrintAfter(linfo, ":%03d", (int) (j+1))
+
+            ;  clmGranularity(cl, &tbl)
+            ;  clmGranularityPrint(xfout->fp, linfo->str, &tbl)
+
+            ;  clmPerformance(mx, cl, &pftable)
+            ;  clmPerformancePrint(xfout->fp, linfo->str, &pftable)
          ;  }
-            else
-            report_exit(me, SHCL_ERROR_DOMAIN)
-      ;  }
-
-         if (mclcEnstrict(cl, &o, &m, &e, ENSTRICT_KEEP_OVERLAP))
-         {  report_partition(me, cl, xfcl->fn, o, m, e)
-         ;  if (m || e)
-               adapt
-            ?  report_fixit(me, n_err++)
-            :  report_exit(me, SHCL_ERROR_PARTITION)
-      ;  }
-
-         mcxIOclose(xfcl)
-
-      ;  {  double vals[8]
-         ;  mcxTing* linfo = mcxTingNew(ginfo->str)
-         ;  mcxTingPrintAfter(linfo, "source-name=%s\n", xfcl->fn->str)
-
-         ;  if (do_rule)
-            {  mcxTing* rule = mcxTingKAppend(NULL, "=", 78)
-            ;  mcxTingPrintSplice(rule, 0, TING_INS_CENTER, " %s ", xfcl->fn->str)
-            ;  fprintf(stdout, "%s\n", rule->str)
-            ;  mcxTingFree(&rule)
-         ;  }
-
-            if (append_granul || append_perf)
-            {  mcxIOrenew(xfcl, NULL, "a")
-            ;  if (mcxIOopen(xfcl, RETURN_ON_FAIL))
-               {  mcxErr(me, "cannot open file %s for appending", xfcl->fn->str)
-               ;  append_granul = 0
-               ;  append_perf = 0
-            ;  }
-               else
-               mcxTell
-               (me, "appending performance measures to file %s", xfcl->fn->str)
-         ;  }
-
-            clmGranularity(cl, vals)
-         ;  clmGranularityPrint
-            (stdout, do_header ? linfo->str : NULL, vals, do_header)
-         ;  if (append_granul)
-            clmGranularityPrint (xfcl->fp, linfo->str, vals, 1)
-
-         ;  clmPerformance(mx, cl, vals)
-         ;  clmPerformancePrint
-            (stdout, do_header ? linfo->str : NULL, vals, do_header)
-         ;  if (append_perf)
-            clmPerformancePrint (xfcl->fp, linfo->str, vals, 1)
-      ;  }
-
-         mclxFree(&cl)
-      ;  if (tmx)
-         {  mclxFree(&mx)
-         ;  mx = tmx
+            if (a < argc-1 || j <st.n_level-1)
+            fprintf(xfout->fp, "===\n")
       ;  }
 
          mcxIOfree(&xfcl)
+      ;  /* todo: free stack */
       ;  a++
    ;  }
 
       mclxFree(&mx)
-   ;  return 0
+   ;  return STATUS_OK
+;  }
+
+
+
+static mcxDispHook infoEntry
+=  {  "info"
+   ,  "info [options] <mx file> <cl file>+"
+   ,  infoOptions
+   ,  sizeof(infoOptions)/sizeof(mcxOptAnchor) - 1
+   ,  infoArgHandle
+   ,  infoInit
+   ,  infoMain
+   ,  1
+   ,  -1
+   ,  MCX_DISP_DEFAULT
+   }
+;
+
+
+mcxDispHook* mcxDispHookInfo
+(  void
+)
+   {  return &infoEntry
 ;  }
 
 

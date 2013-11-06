@@ -11,7 +11,7 @@
 \${html}{\"man::maketoc"}
 
 \sec{*}{name}{NAME}
-\NAME{clmformat}{display cluster results in readable form}
+\NAME{clm format}{display cluster results in readable form}
 
 \par
    (optionally with labels and/or cohesion and stickiness measures
@@ -34,7 +34,7 @@
 
 \par{
    \clmformat has two different modes of output: \it{dump} and \it{fancy}.
-   If neither is specified, \it{fancy} is used. In this mode, clmformat
+   If neither is specified, \it{fancy} is used. In this mode, \clmformat
    generates a large arrary of performance measures related to nodes and
    clusters in both interlinked html output and plain text files.  The files
    will be contained in an output directory that is newly created if not yet
@@ -43,7 +43,7 @@
 }
 
 \par{
-   If \it{dump} is specified (see below how to do this) clmformat just
+   If \it{dump} is specified (see below how to do this) \clmformat just
    generates a dump file where each line
    contains a cluster in the form of tab-separated indices, or tab-separated
    labels in case the \genopt{-tab} option is used. This dump is easy to parse
@@ -63,27 +63,28 @@
 \par{\clmformat}
 
 \par{\begin{spacing}{{left}{12}}
-      \synreqopt{-icl}{fname}{input cluster file}\|
-      \synreqopt{-imx}{fname}{input matrix/graph file}\|
-      \synreqopt{-pi}{num}{apply pre-inflation to matrix}\|
-      \synreqopt{-tab}{fname}{read tab file}\|
-      \synreqopt{--lazy-tab}{allow mismatched tab-file}\|
-      \synreqopt{--dump}{write dump to dump.<icl-name>}\|
-      \synreqopt{-dump}{fname}{write dump to file}\|
-      \synreqopt{--dump-pairs}{write cluster/node pair per line}\|
-      \synreqopt{--dump-measures}{write simple performance measures}\|
-      \synreqopt{-dump-node-sep}{str}{separate entries with str}\|
-      \synreqopt{--fancy}{spawn information blizzard}\|
-      \synreqopt{-dir}{dirname}{write results to directory}\|
-      \synreqopt{-infix}{str}{use after base name/directory}\|
-      \synreqopt{-nsm}{fname}{output node stickiness file}\|
-      \synreqopt{-ccm}{fname}{output cluster cohesion file}\|
-      \synreqopt{--adapt}{allow domain mismatch}\|
-      \synreqopt{--subgraph}{take subgraph with --adapt}\|
-      \synreqopt{-zmm}{fname}{assume macro definitions are in fname}\|
-      \synreqopt{-fmt}{fname}{write to encoding file fname}\|
-      \synreqopt{--version}{print version}\|
-      \synreqopt{-h}{synopsis}
+      \synreqopt{-icl}{fname}{input cluster file}
+      \synreqopt{-imx}{fname}{input matrix/graph file}
+      \synoptopt{-tf}{spec}{apply tf-spec to input matrix}
+      \synoptopt{-pi}{num}{apply pre-inflation to matrix}
+      \synoptopt{-tab}{fname}{read tab file}
+      \synoptopt{--lazy-tab}{allow mismatched tab-file}
+      \synoptopt{-lump-count}{n}{node threshold}
+      \synoptopt{--dump}{write dump to dump.<icl-name>}
+      \synoptopt{-dump}{fname}{write dump to file}
+      \synoptopt{--dump-pairs}{write cluster/node pair per line}
+      \synoptopt{--dump-measures}{write simple performance measures}
+      \synoptopt{-dump-node-sep}{str}{separate entries with str}
+      \synoptopt{--fancy}{spawn information blizzard}
+      \synoptopt{-dir}{dirname}{write results to directory}
+      \synoptopt{-infix}{str}{use after base name/directory}
+      \synoptopt{-nsm}{fname}{output node stickiness file}
+      \synoptopt{-ccm}{fname}{output cluster cohesion file}
+      \synoptopt{--adapt}{allow domain mismatch}
+      \synoptopt{--subgraph}{take subgraph with --adapt}
+      \synoptopt{-zmm}{fname}{assume macro definitions are in fname}
+      \synoptopt{-fmt}{fname}{write to encoding file fname}
+      \stdsynopt
 \end{spacing}
 }
 
@@ -92,9 +93,9 @@
 
 \par{
    \clmformat generates in fancy mode a logical description of the
-   to-be-formatted content in a very small vocabulary of clmformat-specific
+   to-be-formatted content in a very small vocabulary of format-specific
    zoem macros.  The appearance of the output can be easily changed by adapting
-   a zoem macro definition file (also output by clmformat) that is used by the
+   a zoem macro definition file (also output by \clmformat) that is used by the
    zoem interpreter to interpret the logical elements.
 }
 
@@ -119,7 +120,7 @@
 
 \cpar{NOTE}{
    \clmformat output is in the form of \it{zoem} macros.
-   You need to have zoem installed in your system if you want clmformat
+   You need to have zoem installed in your system if you want \clmformat
    to be of use. Zoem will not be necessary if you are using
    the \genopt{-dump} option.
 }
@@ -138,7 +139,7 @@
    It is possible to simply output to the current directory, for that you need
    to specify \useopt{-dir}{./}. If \useopt{-dir} is not specified, the output
    directory \v{fmt.<clname>} will be used, where \v{<clname>} is the argument
-   to the \genopt{-cl} option. In the output directory, clmformat will
+   to the \genopt{-cl} option. In the output directory, \clmformat will
    normally write two files. One contains zoem macros encoding formatted output
    (the encoding file), and the second (the definition file) contains zoem
    macro definitions which are used by the former.
@@ -149,9 +150,9 @@
    (cf. the \optref{-fmt}{\genopt{-fmt}{fname}} option).
    It contains \it{zoem} macros. It imports the macro definition file
    called \v{clmformat.zmm}
-   that is normally also written by clmformat. Another macro definition
+   that is normally also written by \clmformat. Another macro definition
    file can be specified by using the \optref{-zmm}{\genopt{-zmm}{<defsname>}}
-   option. In this case clmformat will refrain from writing the definition
+   option. In this case \clmformat will refrain from writing the definition
    file and replace mentions of \v{clmformat.zmm} in the encoding file
    by \v{<defsname>}.
 }
@@ -199,94 +200,144 @@
 }
 
 \sec{options}{OPTIONS}
-\begin{itemize}
+
+\'begin{itemize}{\mcx_itemopts}
 
 \item{\defopt{-icl}{fname}{input cluster file}}
+\car{
    Name of the clustering file.
+   }
 
 \item{\defopt{-imx}{fname}{input matrix/graph file}}
+\car{
    Name of the graph/matrix file.
+   }
+
+\item{\defopt{-tf}{spec}{apply tf-spec to input matrix}}
+\car{
+   Transform the input matrix values according
+   to the syntax described in \mysib{mcxio}.
+   }
 
 \item{\defopt{-tab}{fname}{read tab file}}
+\car{
    The file \v{fname} should be in \it{tab format}. Refer
    to \mysib{mcxio}.
+   }
 
 \item{\defopt{--lazy-tab}{allow mismatched tab-file}}
+\car{
    Allow missing and spurious entries in the tab file.
+   }
 
 \item{\defopt{-dump}{fname}{write dump to file}}
+\car{
    Clusters are written to file. For each cluster a single line is written
    containing all indices of all nodes in that cluster.  The indices are
    separated by tabs. If a tab file is specified, the indices are replaced by
    the corresponding tab file entry.
+   }
 
 \item{\defopt{--dump}{write dump to file}}
+\car{
    As \genopt{-dump}{fname} except that \clmformat writes to the file
    named \v{dump.<icl-name>} where \v{<icl-name>} is the argument to
    the \genopt{-icl} option.
+   }
+
+\item{\defopt{-infix}{str}{incorporate in base name}}
+\car{
+   \genarg{str} is included in the output file names.
+   This can be used to store the results of different \clmformat runs
+   (e.g. with differing \genopt{-tf} arguments) in the same directory.
+   }
 
 \item{\defopt{--fancy}{force fancy mode}}
-   This enforces fany mode if either of \genopt{-dump} or \genopt{--dump}
+\car{
+   This enforces fancy mode if either of \genopt{-dump} or \genopt{--dump}
    is given. The dump file will be created in the output directory.
+   }
 
 \item{\defopt{--dump-pairs}{write cluster/node pair per line}}
+\car{
    Rather than writing a single cluster on each line, write a single
    cluster index/node (either tab entry or index) pair per line.
    Works in conjunction with the
    \optref{-tab}{\genopt{-tab}} and \optref{-imx}{\genopt{-imx}} options.
+   }
 
 \item{\defopt{--dump-measures}{write simple performance measures}}
+\car{
    If an input matrix is specified with \genopt{-imx}{fname}, three
    measures of efficiency are prepended, respectively the simple projection
    score, efficiency or coverage, and the max-efficiency or max-coverage.
+   }
 
 \item{\defopt{-dump-node-sep}{str}{separate entries with str}}
+\car{
    Separate entries in the dump file with \genopt{str}.
+   }
 
 \item{\defopt{-pi}{num}{apply pre-inflation to matrix}}
+\car{
    Apply pre-inflation to the matrix specified with the \genopt{-imx} option.
    This will cause the efficiency scores to place a higher reward on
    high-weight edges being covered by a clustering (assuming that
    \genarg{num} is larger than one).
+   }
 
-\par
+\par{
    This option is also useful when \mcl itself was instructed to use
    pre-inflation when clustering a graph.
+   }
 
 \item{\defopt{-lump-count}{n}{node threshold}}
+\car{
    The zoem file is created such that during zoem processing clusters are
    formatted and output within a single file until the node threshold has been
    exceeded. A new file is then opened and the procedure repeats itself.
+   }
 
 \item{\defopt{--adapt}{allow domain mismatch}}
+\car{
    Allow the cluster domain to differ from the graph domain. Presumably
    the clustering is a clustering of a subgraph.  The cohesion and stickiness
    measures will pertain to the relevant part of the graph only.
+   }
 \""{Refer also to the --subgraph option described below.}
 
 \item{\defopt{--subgraph}{use restriction}}
+\car{
    If the cluster domain is a subset of the graph domain, the cohesion and
    stickiness measures will by default still pertain to the entire graph.  By
    setting this option, the measures will pertain to the subgraph induced by
    the cluster domain.
+   }
 
 \item{\defopt{-dir}{dirname}{write results to directory}}
+\car{
    Use \usearg{dirname} as output directory. It will be created
    if it does not exist already.
+   }
 
 \item{\defopt{-fmt}{fname}{write to encoding file fname}}
+\car{
    Write to encoding file \usearg{fname} rather than the default \v{fmt.azm}.
    It is best to supply fname with the standard zoem suffix \v{.azm}.  Zoem
    will process file of any name, but those lacking the \v{.azm} suffix must be
    specified using the zoem \genopt{-I}{fname} option.
+   }
 
 \item{\defopt{-zmm}{defsname}{assume macro definitions are in fname}}
-   If this option is used, clmformat will not output the definition file,
+\car{
+   If this option is used, \clmformat will not output the definition file,
    and mentions of the definition file in the encoding file will use
    the file name \v{defsname}. This option assumes that a valid definition
    file by the name of \v{defsname} does exist.
+   }
 
 \item{\defopt{-nsm}{fname}{output node stickiness file}}
+\car{
    This option specifies the name in which to store (optionally) the \bf{node
    stickiness matrix}.  It has the following structure.  The columns range over
    all elements in the graph as specified by the \genopt{-imx} option.
@@ -295,8 +346,10 @@
    node onto that particular clusters, i.e. the sum of the weights of
    all arcs going out from the node to some node in that cluster, written
    as a fraction relative to the sum of weights of all outgoing arcs.
+   }
 
 \item{\defopt{-ccm}{fname}{output cluster cohesion file}}
+\car{
    This option specifies the name of the file in which to store (optionally)
    the \bf{cluster cohesion matrix}.  It has the following structure.
    Both columns and rows range over all clusters in the clustering as specified
@@ -304,9 +357,9 @@
    of one cluster onto another cluster, which is simply the average
    of the projection value onto the second cluster of all nodes in the
    first cluster.
+   }
 
-\item{\defopt{--version}{write version}}
-   Write version. Really.
+\stddefopt
 
 \end{itemize}
 

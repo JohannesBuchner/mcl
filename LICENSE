@@ -52,7 +52,5 @@
    and build files, consult the files themselves.
 
    The largest part of MCL is held copyright by Stijn van Dongen.  The build
-   part is copyright by Joost van Baal. Other copyright owners are EMBL-EBI and
-   Anton Enright (the tribe module), Jan van der Steen (util/pool.[ch]) and
-   Jason Stajich (part of mcxdeblast).
+   part is copyright by Joost van Baal.
 

@@ -83,8 +83,6 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BUILD_BLAST_FALSE = @BUILD_BLAST_FALSE@
 BUILD_BLAST_TRUE = @BUILD_BLAST_TRUE@
-BUILD_TRIBE_FALSE = @BUILD_TRIBE_FALSE@
-BUILD_TRIBE_TRUE = @BUILD_TRIBE_TRUE@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -166,7 +164,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-SUBDIRS = . util graphs doc src include scripts
+SUBDIRS = . util img graphs doc src include scripts testing
 EXTRA_DIST = \
    LICENSE VERSION README COPYING THANKS INSTALL AUTHORS \
    bootstrap \

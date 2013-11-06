@@ -1,5 +1,5 @@
-.\" Copyright (c) 2006 Stijn van Dongen
-.TH "mcxsubs" 1 "27 Feb 2006" "mcxsubs 1\&.006, 06-058" "USER COMMANDS "
+.\" Copyright (c) 2008 Stijn van Dongen
+.TH "mcxsubs" 1 "5 Jun 2008" "mcxsubs 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -61,8 +61,10 @@ and other miscellaneous operations\&.
 
 \fBmcxsubs\fP \fB-imx\fP <fname> [options] <specs>+
 
-\fBmcxsubs\fP \fB-imx\fP <fname> (\fIinput matrix\fP)
+\fBmcxsubs\fP
+\fB-imx\fP <fname> (\fIinput matrix\fP)
 \fB[-dom\fP <fname> (\fIdomain matrix\fP)\fB]\fP
+\fB[-tf\fP spec (\fIapply tf-spec to input matrix\fP)\fB]\fP
 \fB[--block\fP (\fIuse block matrix\fP)\fB]\fP
 \fB[--blockc\fP (\fIuse complement of block matrix\fP)\fB]\fP
 \fB[--skin-read\fP (\fIread domain structure without entries\fP)\fB]\fP
@@ -150,6 +152,13 @@ is exactly the same\&.
 This reads a skeleton matrix by only considering its domain structure
 and not reading any entries, pertaining to the matrix
 specified by the \fB-imx\fP option\&.
+.in -3m
+
+.ZI 3m "\fB-tf\fP spec (\fIapply tf-spec to input matrix\fP)"
+\&
+.br
+Transform the input matrix values according
+to the syntax described in \fBmcxio(5)\fP\&.
 .in -3m
 
 .ZI 3m "\fB-tab\fP (\fIread tab file\fP)"
@@ -340,12 +349,14 @@ Uppercase indicators indicate that the complement is being specified
 relative to the corresponding domain in the target matrix\&.
 
 \fIY\fP is the type indicator, it is exactly one of
-\fCi\fP, \fCI\fP, \fCd\fP, \fCD\fP, \fCt\fP, or \fCT\fP\&.
+\fCi\fP, \fCI\fP, \fCd\fP, \fCD\fP, \fCc\fP, \fCr\fP, \fCt\fP, or \fCT\fP\&.
 The \fCi/I\fP indicators specify
 that \fIispec\fP contains a simple index specifation\&.
 The \fCd/D\fP specify that \fIispec\fP contains domain indices\&.
 \fIispec\fP must contain a comma-separated list of integers or
 integer ranges (e\&.g\&. 2, 5, 4-8)\&.
+\fCc\fP and \fCr\fP are restricted indicators that refer
+to the domains in the \fIdomain matrix\fP\&.
 \fCt\fP and \fCT\fP are restricted indicators that refer
 to the domain encoded in the tab file as specified by the
 \fB-tab\fP option\&. Their usage is described further below\&.
@@ -354,8 +365,7 @@ For domain specifications (\fCd/D\fP) the columns indexed by
 these integers in the matrix specified in the \fB-dom\fP
 option will be fetched and merged\&. If \fB-dom\fP was not used
 the target matrix itself (as specified by the \fB-imx\fP option) will be
-used\&. The special value -1 denotes the domain matrix column domain, the
-value -2 denotes the domain matrix row domain\&. For simple specifications
+used\&. For simple specifications
 (\fCi/I\fP) the result is simply the list of integers itself\&. Uppercase
 indicators indicate that the complement is being specified\&.
 
@@ -420,12 +430,13 @@ The use of \&'D\&' is analogous to that of \&'C\&', \&'R\&', and \&'I\&'\&.
 Thus, \fCD(0-3,8,21-30)\fP specifies all indices which are in the
 complement of the set formed by taking the union of
 domains 0-3,8,21-30\&.
-
-There are two special domains \- use \fC-1\fP to obtain the row domain
-of the domain matrix, use \fC-2\fP to obtain its column domain\&.
 .in -3m
 
-The \fCt\fP and \fCT\fP indicators must be followed by a matching
+The \fCc\fP and \fCr\fP indicators must be followed by a
+pair of matching parentheses\&. They specify to take respectively
+the column domain and the row domain of the domain matrix (cf\&. \fB-dom\fP)\&.
+
+The \fCt\fP and \fCT\fP indicators must be followed by a
 pair of matching parentheses\&. They specify to take the domain
 found in the tab file or its complement\&.
 
@@ -477,7 +488,7 @@ specification syntax and the available transformation primitives\&.
 .br
 The size part is specified as
 
-\fBsize\fP( < \fBlt\fP(\fIx\fP) | \fBlq\fP(\fIx\fP) | \fBgq\fP(\fIx\fP) | \fBgt\fP(\fIx\fP) > + )
+\fBsize\fP( < \fBlt\fP(\fIx\fP) | \fBceil\fP(\fIx\fP) | \fBgq\fP(\fIx\fP) | \fBrmgq\fP(\fIx\fP) > + )
 
 Where \fIx\fP is a nonnegative integer, and multiple specifications
 are separated by commas\&.
@@ -488,13 +499,13 @@ The strings \&'lt\&', \&'lq\&', \&'gq\&', \&'gt\&', respectively denote
 and
 \fIgreater than\fP\&.
 
-This prunes or removes column vectors based on their size\&. If \fBlt\fP or
-\fBlq\fP is used, column vectors are removed if they have not as much entries
-as the corresponding lower bound\&. If \fBgt\fP or \fBgq\fP is used and a
-column vector has an excess of entries over the corresponding upper bound,
-the smallest entries are removed\&. Ties are not arbitrarily broken, implying
-that the resulting vector may still have more entries than the specified
-bound\&.
+This prunes or removes column vectors based on their size\&. If \fBlt\fP
+is used, column vectors are removed if the number of entries exceeds
+the specified bound\&. If \fBgq\fP is used, vectors are discarded
+if the number of entries is smaller than the specified bound\&. If a column
+vector has an excess of entries over the bound specified by \fBceil\fP, the
+smallest entries are removed\&. Ties are not arbitrarily broken, implying that
+the resulting vector may still have more entries than the specified bound\&.
 
 \fBFINALIZE\fP
 .br
@@ -506,7 +517,7 @@ according to the domain and value specifications\&. Exceptions are indicated
 below\&. Currently, there is a fixed order in which actions are considered,
 corresponding with the order in which they are listed below\&.
 
-.ZI 7m "empty"
+.ZI 7m "skel"
 \&
 .br
 This creates an empty submatrix on the specified domains, and does

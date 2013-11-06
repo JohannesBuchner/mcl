@@ -15,7 +15,7 @@
 @SET_MAKE@
 
 
-SOURCES = $(clmclose_SOURCES) $(clmdag_SOURCES) $(clmdist_SOURCES) $(clmformat_SOURCES) $(clmimac_SOURCES) $(clminfo_SOURCES) $(clmmate_SOURCES) $(clmmeet_SOURCES) $(clmorder_SOURCES) $(clmps_SOURCES) $(clmresidue_SOURCES)
+SOURCES = $(clm_SOURCES) $(clmdag_SOURCES) $(clmformat_SOURCES) $(clmframe_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -40,10 +40,8 @@ POST_UNINSTALL = :
 host_triplet = @host@
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/include/include.am
-bin_PROGRAMS = clmclose$(EXEEXT) clminfo$(EXEEXT) clmdist$(EXEEXT) \
-	clmmeet$(EXEEXT) clmimac$(EXEEXT) clmresidue$(EXEEXT) \
-	clmformat$(EXEEXT) clmmate$(EXEEXT) clmorder$(EXEEXT)
-noinst_PROGRAMS = clmps$(EXEEXT) clmdag$(EXEEXT)
+bin_PROGRAMS = clmformat$(EXEEXT) clm$(EXEEXT)
+noinst_PROGRAMS = clmdag$(EXEEXT) clmframe$(EXEEXT)
 subdir = src/shcl
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
@@ -56,60 +54,32 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
-am_clmclose_OBJECTS = clmclose.$(OBJEXT) report.$(OBJEXT)
-clmclose_OBJECTS = $(am_clmclose_OBJECTS)
-clmclose_LDADD = $(LDADD)
-clmclose_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
+am_clm_OBJECTS = clm.$(OBJEXT) clminfo.$(OBJEXT) clmimac.$(OBJEXT) \
+	clmresidue.$(OBJEXT) clmclose.$(OBJEXT) clmmate.$(OBJEXT) \
+	clmmeet.$(OBJEXT) clmps.$(OBJEXT) clmdist.$(OBJEXT) \
+	clmorder.$(OBJEXT) report.$(OBJEXT)
+clm_OBJECTS = $(am_clm_OBJECTS)
+clm_LDADD = $(LDADD)
+clm_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
+	../taurus/libtaurus.a ../gryphon/libgryphon.a \
 	../impala/libimpala.a ../../util/libutil.a
 am_clmdag_OBJECTS = clmdag.$(OBJEXT) report.$(OBJEXT)
 clmdag_OBJECTS = $(am_clmdag_OBJECTS)
 clmdag_LDADD = $(LDADD)
-clmdag_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
-	../impala/libimpala.a ../../util/libutil.a
-am_clmdist_OBJECTS = clmdist.$(OBJEXT) report.$(OBJEXT)
-clmdist_OBJECTS = $(am_clmdist_OBJECTS)
-clmdist_LDADD = $(LDADD)
-clmdist_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
+clmdag_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
+	../taurus/libtaurus.a ../gryphon/libgryphon.a \
 	../impala/libimpala.a ../../util/libutil.a
 am_clmformat_OBJECTS = clmformat.$(OBJEXT) report.$(OBJEXT)
 clmformat_OBJECTS = $(am_clmformat_OBJECTS)
 clmformat_LDADD = $(LDADD)
-clmformat_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
+clmformat_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
+	../taurus/libtaurus.a ../gryphon/libgryphon.a \
 	../impala/libimpala.a ../../util/libutil.a
-am_clmimac_OBJECTS = clmimac.$(OBJEXT) report.$(OBJEXT)
-clmimac_OBJECTS = $(am_clmimac_OBJECTS)
-clmimac_LDADD = $(LDADD)
-clmimac_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
-	../impala/libimpala.a ../../util/libutil.a
-am_clminfo_OBJECTS = clminfo.$(OBJEXT) report.$(OBJEXT)
-clminfo_OBJECTS = $(am_clminfo_OBJECTS)
-clminfo_LDADD = $(LDADD)
-clminfo_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
-	../impala/libimpala.a ../../util/libutil.a
-am_clmmate_OBJECTS = clmmate.$(OBJEXT) report.$(OBJEXT)
-clmmate_OBJECTS = $(am_clmmate_OBJECTS)
-clmmate_LDADD = $(LDADD)
-clmmate_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
-	../impala/libimpala.a ../../util/libutil.a
-am_clmmeet_OBJECTS = clmmeet.$(OBJEXT) report.$(OBJEXT)
-clmmeet_OBJECTS = $(am_clmmeet_OBJECTS)
-clmmeet_LDADD = $(LDADD)
-clmmeet_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
-	../impala/libimpala.a ../../util/libutil.a
-am_clmorder_OBJECTS = clmorder.$(OBJEXT) report.$(OBJEXT)
-clmorder_OBJECTS = $(am_clmorder_OBJECTS)
-clmorder_LDADD = $(LDADD)
-clmorder_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
-	../impala/libimpala.a ../../util/libutil.a
-am_clmps_OBJECTS = clmps.$(OBJEXT)
-clmps_OBJECTS = $(am_clmps_OBJECTS)
-clmps_LDADD = $(LDADD)
-clmps_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
-	../impala/libimpala.a ../../util/libutil.a
-am_clmresidue_OBJECTS = clmresidue.$(OBJEXT) report.$(OBJEXT)
-clmresidue_OBJECTS = $(am_clmresidue_OBJECTS)
-clmresidue_LDADD = $(LDADD)
-clmresidue_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
+am_clmframe_OBJECTS = clmframe.$(OBJEXT) report.$(OBJEXT)
+clmframe_OBJECTS = $(am_clmframe_OBJECTS)
+clmframe_LDADD = $(LDADD)
+clmframe_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
+	../taurus/libtaurus.a ../gryphon/libgryphon.a \
 	../impala/libimpala.a ../../util/libutil.a
 binSCRIPT_INSTALL = $(INSTALL_SCRIPT)
 SCRIPTS = $(bin_SCRIPTS) $(noinst_SCRIPTS)
@@ -120,14 +90,10 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(clmclose_SOURCES) $(clmdag_SOURCES) $(clmdist_SOURCES) \
-	$(clmformat_SOURCES) $(clmimac_SOURCES) $(clminfo_SOURCES) \
-	$(clmmate_SOURCES) $(clmmeet_SOURCES) $(clmorder_SOURCES) \
-	$(clmps_SOURCES) $(clmresidue_SOURCES)
-DIST_SOURCES = $(clmclose_SOURCES) $(clmdag_SOURCES) \
-	$(clmdist_SOURCES) $(clmformat_SOURCES) $(clmimac_SOURCES) \
-	$(clminfo_SOURCES) $(clmmate_SOURCES) $(clmmeet_SOURCES) \
-	$(clmorder_SOURCES) $(clmps_SOURCES) $(clmresidue_SOURCES)
+SOURCES = $(clm_SOURCES) $(clmdag_SOURCES) $(clmformat_SOURCES) \
+	$(clmframe_SOURCES)
+DIST_SOURCES = $(clm_SOURCES) $(clmdag_SOURCES) $(clmformat_SOURCES) \
+	$(clmframe_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -141,8 +107,6 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BUILD_BLAST_FALSE = @BUILD_BLAST_FALSE@
 BUILD_BLAST_TRUE = @BUILD_BLAST_TRUE@
-BUILD_TRIBE_FALSE = @BUILD_TRIBE_FALSE@
-BUILD_TRIBE_TRUE = @BUILD_TRIBE_TRUE@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -225,22 +189,21 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)
-LDADD = ../mcl/libmcl.a ../taurus/libtaurus.a ../impala/libimpala.a ../../util/libutil.a
-clmorder_SOURCES = clmorder.c report.c
-clminfo_SOURCES = clminfo.c report.c
-clmclose_SOURCES = clmclose.c report.c
-clmdist_SOURCES = clmdist.c report.c
-clmmeet_SOURCES = clmmeet.c report.c
-clmresidue_SOURCES = clmresidue.c report.c
-clmimac_SOURCES = clmimac.c report.c
+LDADD = ../mcl/libmcl.a ../clew/libclew.a ../taurus/libtaurus.a ../gryphon/libgryphon.a ../impala/libimpala.a ../../util/libutil.a
 clmformat_SOURCES = clmformat.c report.c
-clmmate_SOURCES = clmmate.c report.c
+clmframe_SOURCES = clmframe.c report.c
 clmdag_SOURCES = clmdag.c report.c
-clmps_SOURCES = clmps.c
+clm_SOURCES = clm.c clminfo.c clmimac.c clmresidue.c clmclose.c clmmate.c \
+					clmmeet.c clmps.c clmdist.c clmorder.c report.c
+
 bin_SCRIPTS = mclpipeline
 noinst_SCRIPTS = mclgraga mclgrep
-EXTRA_DIST = report.h report.c $(bin_SCRIPTS)\
-               mclgraga mclgrep clmformat.zmm clmformat.zmm.h
+EXTRA_DIST = clmorder.h clmdist.h clminfo.h clmclose.h clmmate.h clmmeet.h clm.h \
+					clmresidue.h clmimac.h clmps.h clmps.defs.h\
+					report.h report.c \
+					$(bin_SCRIPTS) \
+               mclgraga mclgrep clmformat.zmm clmformat.zmm.h \
+					clmps.defs clmps.defs.h
 
 all: all-am
 
@@ -301,39 +264,18 @@ clean-binPROGRAMS:
 
 clean-noinstPROGRAMS:
 	-test -z "$(noinst_PROGRAMS)" || rm -f $(noinst_PROGRAMS)
-clmclose$(EXEEXT): $(clmclose_OBJECTS) $(clmclose_DEPENDENCIES) 
-	@rm -f clmclose$(EXEEXT)
-	$(LINK) $(clmclose_LDFLAGS) $(clmclose_OBJECTS) $(clmclose_LDADD) $(LIBS)
+clm$(EXEEXT): $(clm_OBJECTS) $(clm_DEPENDENCIES) 
+	@rm -f clm$(EXEEXT)
+	$(LINK) $(clm_LDFLAGS) $(clm_OBJECTS) $(clm_LDADD) $(LIBS)
 clmdag$(EXEEXT): $(clmdag_OBJECTS) $(clmdag_DEPENDENCIES) 
 	@rm -f clmdag$(EXEEXT)
 	$(LINK) $(clmdag_LDFLAGS) $(clmdag_OBJECTS) $(clmdag_LDADD) $(LIBS)
-clmdist$(EXEEXT): $(clmdist_OBJECTS) $(clmdist_DEPENDENCIES) 
-	@rm -f clmdist$(EXEEXT)
-	$(LINK) $(clmdist_LDFLAGS) $(clmdist_OBJECTS) $(clmdist_LDADD) $(LIBS)
 clmformat$(EXEEXT): $(clmformat_OBJECTS) $(clmformat_DEPENDENCIES) 
 	@rm -f clmformat$(EXEEXT)
 	$(LINK) $(clmformat_LDFLAGS) $(clmformat_OBJECTS) $(clmformat_LDADD) $(LIBS)
-clmimac$(EXEEXT): $(clmimac_OBJECTS) $(clmimac_DEPENDENCIES) 
-	@rm -f clmimac$(EXEEXT)
-	$(LINK) $(clmimac_LDFLAGS) $(clmimac_OBJECTS) $(clmimac_LDADD) $(LIBS)
-clminfo$(EXEEXT): $(clminfo_OBJECTS) $(clminfo_DEPENDENCIES) 
-	@rm -f clminfo$(EXEEXT)
-	$(LINK) $(clminfo_LDFLAGS) $(clminfo_OBJECTS) $(clminfo_LDADD) $(LIBS)
-clmmate$(EXEEXT): $(clmmate_OBJECTS) $(clmmate_DEPENDENCIES) 
-	@rm -f clmmate$(EXEEXT)
-	$(LINK) $(clmmate_LDFLAGS) $(clmmate_OBJECTS) $(clmmate_LDADD) $(LIBS)
-clmmeet$(EXEEXT): $(clmmeet_OBJECTS) $(clmmeet_DEPENDENCIES) 
-	@rm -f clmmeet$(EXEEXT)
-	$(LINK) $(clmmeet_LDFLAGS) $(clmmeet_OBJECTS) $(clmmeet_LDADD) $(LIBS)
-clmorder$(EXEEXT): $(clmorder_OBJECTS) $(clmorder_DEPENDENCIES) 
-	@rm -f clmorder$(EXEEXT)
-	$(LINK) $(clmorder_LDFLAGS) $(clmorder_OBJECTS) $(clmorder_LDADD) $(LIBS)
-clmps$(EXEEXT): $(clmps_OBJECTS) $(clmps_DEPENDENCIES) 
-	@rm -f clmps$(EXEEXT)
-	$(LINK) $(clmps_LDFLAGS) $(clmps_OBJECTS) $(clmps_LDADD) $(LIBS)
-clmresidue$(EXEEXT): $(clmresidue_OBJECTS) $(clmresidue_DEPENDENCIES) 
-	@rm -f clmresidue$(EXEEXT)
-	$(LINK) $(clmresidue_LDFLAGS) $(clmresidue_OBJECTS) $(clmresidue_LDADD) $(LIBS)
+clmframe$(EXEEXT): $(clmframe_OBJECTS) $(clmframe_DEPENDENCIES) 
+	@rm -f clmframe$(EXEEXT)
+	$(LINK) $(clmframe_LDFLAGS) $(clmframe_OBJECTS) $(clmframe_LDADD) $(LIBS)
 install-binSCRIPTS: $(bin_SCRIPTS)
 	@$(NORMAL_INSTALL)
 	test -z "$(bindir)" || $(mkdir_p) "$(DESTDIR)$(bindir)"
@@ -360,10 +302,12 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clmclose.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clmdag.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clmdist.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clmformat.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clmframe.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clmimac.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clminfo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clmmate.Po@am__quote@
@@ -561,7 +505,10 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 
 
 clmformat.zmm.h: clmformat.zmm
-	./clmformat-update.pl
+	../../scripts/cfy clmformat.zmm clmformat.zmm.h defs_zmm
+
+clmps.defs.h: clmps.defs
+	../../scripts/cfy clmps.defs clmps.defs.h defs_ps
 
 clmformat.c: clmformat.zmm.h
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

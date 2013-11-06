@@ -15,10 +15,14 @@
 
 
 \sec{synopsis}{SYNOPSIS}
-   \par
+\par{
    \mcxdump
-   \synreqopt{-imx}{<fname>}{matrix file}
-   \synoptopt{-o}{<fname>}{dumpf file ('-' for stdout)}
+   \synoptopt{-imx}{<fname>}{matrix file}
+   \synoptopt{-imx-cat}{<fname>}{concatenation matrix file}
+   \synoptopt{-imx-tree}{<fname>}{concatenation cone file}
+   \synoptopt{--skeleton}{read empty matrix, honour domains}
+   \synoptopt{-o}{<fname>}{output file name ('-' for stdout)}
+   \synoptopt{-digits}{<num>}{output precision}
    \synoptopt{-tab}{<fname>}{row/column tab (label) file}
    \synoptopt{-tabc}{<fname>}{column tab file}
    \synoptopt{-tabr}{<fname>}{row tab file}
@@ -29,18 +33,38 @@
    \synoptopt{--force-loops}{force loops}
    \synoptopt{--dump-pairs}{emit pairs per line}
    \synoptopt{--dump-lines}{emit rows per line}
-   \synoptopt{--dump-rlines}{omit leading column node}
-   \synoptopt{--dump-tabc}{dump tab file on column domain}
-   \synoptopt{--dump-tabr}{dump tab file on row domain}
+   \synoptopt{--dump-rlines}{omit leading identifier}
+   \synoptopt{--dump-lead-off}{omit leading identifier}
+   \synoptopt{--dump-lower}{dump lower part excluding diagonal}
+   \synoptopt{--dump-loweri}{dump lower part including diagonal}
+   \synoptopt{--dump-upper}{dump upper part excluding diagonal}
+   \synoptopt{--dump-upperi}{dump upper part including diagonal}
+   \synoptopt{--write-tabc}{dump tab file on column domain}
+   \synoptopt{--write-tabr}{dump tab file on row domain}
+   \synoptopt{--dump-domc}{dump column domain}
+   \synoptopt{--dump-domr}{dump row domain}
+   \synoptopt{--dump-table}{dump table format}
+   \synoptopt{--dump-lead-off}{do not dump leading identifiers}
+   \synoptopt{-table-nfields}{<num>}{output first <num> fields}
+   \synoptopt{-table-nlines}{<num>}{output first <num> lines}
+   \synoptopt{--table-keys}{dump field/cell identifiers}
+   \synoptopt{--newick}{output newick format}
+   \synoptopt{-newick}{[NBI]+}{exclude Number|Branch-length|Indent}
+   \synoptopt{--write-matrix}{(deconcatenate) write matrices}
+   \synoptopt{-split-stem}{<str>}{(deconcatenate) matrices file name stem}
+   \synoptopt{-cat-max}{<num>}{(deconcatenate) write first <num> matrices}
    \synoptopt{-dump}{<fname>}{alias for -o}
    \synoptopt{-sep-value}{<str>}{node/value separator}
    \synoptopt{-sep-field}{<str>}{field separator}
    \synoptopt{-sep-lead}{<str>}{lead separator}
-   \synoptopt{-h}{list help}
-   \synoptopt{--apropos}{list synopsis of all options}
+   \synoptopt{-sep-cat}{<str>}{concatenation separator}
+   \synoptopt{-sort}{size-{ascending,descending}}{vector sort mode}
+   \stdsynopt
+   }
+
 
 \sec{description}{DESCRIPTION}
-
+\par{
    \mcxdump reads a data file satisfying the mcl input format
    (refer to \mysib{mcxio}).  It outputs a line-based format. The
    \useopt{--dump-pairs} option yields a single matrix entry per line,
@@ -50,6 +74,13 @@
    joining of all row entries on a single line, separated by the field
    separator. For both formats, the matrix value corresponding with
    a particular entry is by default output as well.
+   }
+
+\par{
+   \mcxdump can also act on files that contain concatenated
+   matrices. Refer to the group of options headed by
+   \genoptref{-imx-cat}{fname}.
+   }
 
 \sec{options}{OPTIONS}
 
@@ -57,83 +88,221 @@
 
 
 \item{\defopt{-imx}{<fname>}{matrix file}}
-   Input matrix.
+\car{
+   Input matrix.}
 
-\item{\defopt{-dump}{<fname>}{dumpf file ('-' for stdout)}}
-   Output stream.
+\item{\defopt{--transpose}{work with the transpose}}
+\car{
+   Work with the tranpsose of the input matrix.
+   }
+
+\item{\defopt{--skeleton}{read empty matrix, honour domains}}
+\car{
+   No entries are read, only domains.
+   }
+
+\item{\defopt{-o}{<fname>}{output file name}}
+\car{
+   Output stream. Use \v{-} for STDOUT.}
+
+\item{\defopt{-digits}{<num>}{output precision}}
+\car{
+   Specify the precision to use in native interchange format.}
 
 \item{\defopt{-tab}{<fname>}{row/column tab (label) file}}
+\car{
    Substitute column indices and row indices by labels from the tab file.
    Since the same tab file is used for both, this implies that the matrix
-   domains are identical.
+   domains are identical.}
 
 \item{\defopt{-tabc}{<fname>}{column tab file}}
-   Substitute column indices by labels from the tab file.
+\car{
+   Substitute column indices by labels from the tab file.}
 
 \item{\defopt{-tabr}{<fname>}{row tab file}}
-   Substitute row indices by labels from the tab file.
+\car{
+   Substitute row indices by labels from the tab file.}
 
 \item{\defopt{--lazy-tab}{allow tab/domain mismatch}}
+\car{
    If used, the tab file domain(s) do not necessarily need to match
    the corresponding domain in the input matrix. Entries missing in
-   the tab files will be replaced by a question mark.
+   the tab files will be replaced by a question mark.}
 
 \item{\defopt{--no-values}{omit values}}
-   Do not emit values.
+\car{
+   Do not emit values.}
 
 \item{\defopt{--no-loops}{omit loops}}
+\car{
    Do not output entries for which the row index equals the column index,
    if present.
-   Applies only to matrices for which column and row domains are equal.
+   Applies only to matrices for which column and row domains are equal.}
 
 \item{\defopt{--force-loops}{force loops}}
+\car{
    For each column, force output of a row entry that matches the
    column index.
-   Applies only to matrices for which column and row domains are equal.
+   Applies only to matrices for which column and row domains are equal.}
 
-\item{\defopt{--dump-pairs}{emit pairs per line}}
-   Output a single pair of column-identifier and row-identifier per line,
+\items{
+   {\defopt{--dump-pairs}{emit pairs per line}}
+   {\defopt{--dump-lines}{emit rows per line}}
+   {\defopt{--dump-rlines}{omit leading column node}}
+   {\defopt{--dump-lead-off}{do not dump leading identifiers}}
+   {\defopt{--dump-lower}{dump lower part excluding diagonal}}
+   {\defopt{--dump-loweri}{dump lower part including diagonal}}
+   {\defopt{--dump-upper}{dump upper part excluding diagonal}}
+   {\defopt{--dump-upperi}{dump upper part including diagonal}}
+}
+\car{
+   \genopt{--dump-pairs} is the default mode of output. Each matrix entry
+   is output as a single pair of column-identifier and row-identifier per line,
    optionally followed by the value of the corresponding matrix entry.
    All fields are separated by the field separator.
+   }
 
-\item{\defopt{--dump-lines}{emit rows per line}}
-   For each matrix column, the corresponding row is output on a
+\par{
+   With \genopt{--dump-lines}, each matrix column is output on a
    single line, with row identifiers separated by the field separator
    and values attached to the row identifier by the node/value separator.
    In this format, the column identifier is output as the leading field.
+   }
 
-\item{\defopt{--dump-rlines}{omit leading column node}}
-   As the option above, except that the column identifier is not output.
+\par{
+   \genopt{--dump-rlines} is as \genopt{--dump-lines},
+   except that the column identifier is not output.
+   Use \genopt{--dump-lead-off} to preclude the output of the leading
+   identifiers (for line-based outputs).
+   }
 
-\item{\defopt{--dump-tabc}{dump tab file on column domain}}
-   This will only infer the domains from the input matrix. It assumes
-   the input tab file envelopes the matrix column domain, and it outputs
-   a new tab file restricted to that domain.
+\par{
+   The options pertaining to \it{lower} and \it{upper} dumps currently
+   only work with \genopt{--dump-pairs}. They act to only output
+   the specified part of the matrix.
+   }
 
-\item{\defopt{--dump-tabr}{dump tab file on row domain}}
+\items{
+   {\defopt{--dump-table}{dump table format}}
+   {\defopt{-table-nfields}{field limit}}
+   {\defopt{-table-nlines}{line/row limit}}
+   {\defopt{--table-keys}{do dump field/cell identifiers}}
+}
+\car{
+   Output table format. In table format no indices are printed by default
+   and all values
+   are printed including zeroes.  The options \genopt{-table-nfields} and \genopt{-table-nlines}
+   can be used to limit
+   the number of fields and lines to be printed.  Note that fields correspond
+   to MCL matrix rows and that lines correspond to MCL matrix columns, as MCL
+   calls its primary indices column indices.
+   Use \genopt{--table-keys} to include identifiers (tab-derived if a tab file is specified).
+   Use \genopt{--dump-lead-off} to preclude the output of the leading
+   identifiers (for line-based outputs).
+   }
+
+\items{
+   {\defopt{--newick}{output newick format}}
+   {\defopt{-newick}{[NBI]+}{newick, exclude Number|Branch-length|Indent}}
+}
+\car{
+   Boo.
+   }
+
+\items{
+   {\defopt{--write-tabc}{dump tab file on column domain}}
+   {\defopt{--write-tabr}{dump tab file on row domain}}
+   {\defopt{--dump-domc}{dump column domain}}
+   {\defopt{--dump-domr}{dump row domain}}
+}
+\car{
+   These options work in conjunction with the \genoptref{-ixm}{fname} option.
+   Only the domains from the input matrix are read as if \genoptref{--skeleton}
+   was specified.
+   \genopt{--write-tabc} assumes the input tab file envelopes the matrix column
+   domain, and it outputs a new tab file restricted to that domain.
+   \genopt{--write-tabr} acts analogously for the row domain.
+   \genopt{--dump-domc} and \genopt{--dump-domr} respectively dump the column
+   and domain as a regular dump, outputting labels in case a tab file is
+   specified.
+   }
+
+\par{
+   These options are implemented as ensembles of other options.
+   For example, \genopt{--dump-domr} \genopt{-imx}{fname} corresponds with
+   \genopt{--dump-lines} \genopt{--transpose} \genopt{--skeleton}.
+   }
+
+\item{\defopt{--write-tabr}{dump tab file on row domain}}
+\car{
    This will only infer the domains from the input matrix. It assumes
    the input tab file envelopes the matrix row domain, and it outputs
-   a new tab file restricted to that domain.
+   a new tab file restricted to that domain.}
+
+\items{
+   {\defopt{-imx-cat}{<fname>}{concatenation matrix file}}
+   {\defopt{-imx-tree}{<fname>}{concatenation cone file}}
+   {\defopt{--write-matrix}{(deconcatenate) write matrices}}
+   {\defopt{-split-stem}{<str>}{(deconcatenate) matrices file name stem}}
+   {\defopt{-cat-max}{<num>}{(deconcatenate) write first <num> matrices}}
+}
+\car{
+   \genopt{-imx-cat} is like \genopt{-imx} except that the input is assumed to
+   contain multiple concatenated matrices.
+   The matrices are dumped separated by the
+   \it{cat separator} (cf. \genopt{-sep-cat}).
+   Alternatively, the matrices can be written to different files
+   using the \genopt{-split-stem} option.
+   In this case it is possible to output each matrix in native format
+   rather than as a dump by specifying \genopt{--write-matrix}.
+   This makes mcxdump effectively act as a deconcatenator.
+   In all cases (respectively dumping and writing matrices
+   to either the same stream or multiple files) the number of
+   matrices to be dumped can be limited with \genopt{-cat-max}.
+   }
+
+\par{
+   \genopt{-imx-tree} is like \genopt{-imx-cat} except that the input
+   is assumed to be in cone format (the format output by \mclcm).
+   This format encodes a tree as a concatenation of matrices with
+   nested domains. \mcxdump will project all levels of this tree
+   so that all row domains are the same as the bottom row domain.
+   This implies that a set of nested clusterings (on different node
+   sets, as the set of clusters of a given level is the node set
+   of the next level) is transformed
+   into a set of flattened clusterings, all on the same node set.
+   If you do not want this to happen, simply use \genopt{-imx-cat}.
+   }
 
 \item{\defopt{-sep-value}{<str>}{node/value separator}}
-   Set the node/value separator for line based row ensemble output.
+\car{
+   Set the node/value separator for line based row ensemble output.}
 
 \item{\defopt{-sep-field}{<str>}{field separator}}
-   Set the field separator for different row indices in a given column.
+\car{
+   Set the field separator for different row indices in a given column.}
 
 \item{\defopt{-sep-lead}{<str>}{lead separator}}
+\car{
    Set the lead separator. In the \genopt{--dump-lines} format it
    separates the leading column index from the following ensembl of
    row indices. It can be useful to make this different from the
    field separator. One can for example grep for columns that have
    more than one entry in a matrix mapping nodes to clusters. This
-   will find nodes in overlap.
+   will find nodes in overlap.}
 
-\item{\defopt{-h}{list help}}
-   Print help, same as \genopt{--apropos}.
+\item{\defopt{-sep-cat}{<str>}{concatenation separator}}
+\car{
+   Set the separator that is used between matrix dumps when a concatenation of
+   matrices is dumped.}
 
-\item{\defopt{--apropos}{list synopsis of all options}}
-   List a one-line synopsis for all options.
+\item{\defopt{-sort}{size-{ascending,descending}}{concatenation separator}}
+\car{
+   Reorder the matrix columns prior to dumping, based on the number of
+   nonzero entries in each column.
+   Do not use this in conjunction with a tab file for the column domain.}
+
+\stddefopt
 
 \end{itemize}
 

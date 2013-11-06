@@ -1,9 +1,14 @@
-/* (c) Copyright 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
- * under the terms of the GNU General Public License; either version 2 of the
+ * under the terms of the GNU General Public License; either version 3 of the
  * License or (at your option) any later version.  You should have received a
  * copy of the GPL along with tingea, in the file COPYING.
+*/
+
+/* TODO
+ *    does display skip account for hidden options?
 */
 
 #include <stdio.h>
@@ -12,10 +17,21 @@
 
 
 #include "opt.h"
+#include "alloc.h"
 #include "types.h"
+#include "ding.h"
 #include "err.h"
 #include "equate.h"
 #include "minmax.h"
+#include "compile.h"
+
+
+static int strcmp_void
+(  const void* s1
+,  const void* s2
+)
+   {  return strcmp(s1, s2)
+;  }
 
 
 mcxHash* mcxOptHash
@@ -27,9 +43,9 @@ mcxHash* mcxOptHash
    ;  hash  =  hash
                ?  hash
                :  mcxHashNew
-                  (  8
+                  (  100
                   ,  mcxStrHash
-                  ,  (int (*)(const void*, const void*))strcmp
+                  ,  strcmp_void
                   )
    ;  if (!hash)
       return NULL
@@ -96,7 +112,9 @@ mcxOption* mcxOptParse__
                                   /* fixme: very ugly internal iface*/
 
    ;  mcxOption* opts
-         =  mcxNAlloc(argc+1, sizeof(mcxOption), mcxOptInit, RETURN_ON_FAIL)
+      =  mcxNAlloc
+         (argc+1, sizeof(mcxOption), mcxOptInit, RETURN_ON_FAIL)
+
    ;  mcxOption* opt = opts
 
    ;  if (!opts)
@@ -117,17 +135,11 @@ mcxOption* mcxOptParse__
       ;  const char* eq       =  strchr(arg, '=')
 
       ;  if (!kv && eq)
-         {  char argcpy[201]
-         ;  if (eq - arg < 200)
-            {  strncpy(argcpy, arg, eq-arg)
+         {  char argcpy[501]
+         ;  if (eq - arg < 500)
+            {  strncpy(argcpy, arg, (eq-arg))
             ;  argcpy[eq-arg] = '\0'
             ;  if
-               (  (kv = mcxHashSearch(argcpy, opthash, MCX_DATUM_FIND))
-               && (anch = (mcxOptAnchor*) kv->val)
-               && (anch->flags & MCX_OPT_EMBEDDED)
-               )
-               embedded_val = eq+1
-            ;  else if
                (  !strncmp(argcpy, "--", 2)
                && (kv = mcxHashSearch(argcpy+1, opthash, MCX_DATUM_FIND))
                && (anch = (mcxOptAnchor*) kv->val)
@@ -137,12 +149,10 @@ mcxOption* mcxOptParse__
                kv = NULL
                ;
             }
+            else
+            {  /* fimxe do sth */
+            }
          }
-         else if
-         (  !strcmp(arg, "--")
-         && do_exhaust
-         )
-         (*n_elems_read)++
 
       ;  if (kv)
          {  opt->anch = anch
@@ -151,15 +161,7 @@ mcxOption* mcxOptParse__
 
          ;  if (embedded_val)
             opt->val = embedded_val
-         ;  else if
-            (  anch->flags & MCX_OPT_HASARG
-            && anch->flags & MCX_OPT_EMBEDDED
-            )
-            {  mcxErr("mcxOptParse", "option <%s> takes =value", anch->tag)
-            ;  *status  =  MCX_OPT_STATUS_NOARG
-            ;  break
-         ;  }
-            else if (anch->flags & MCX_OPT_HASARG) 
+         ;  else if (anch->flags & MCX_OPT_HASARG) 
             {  argp++
             ;  if (argp >= argl)
                {  mcxErr("mcxOptParse", "option <%s> takes value", anch->tag)
@@ -292,8 +294,8 @@ const char* rltSigns[8] =
 */
 
 static int checkBoundsUsage
-(  char        type
-,  void*       var
+(  unsigned char type
+,  void*       var   cpl__unused
 ,  int         (*lftRlt) (const void*, const void*)
 ,  void*       lftBound
 ,  int         (*rgtRlt) (const void*, const void*)
@@ -345,7 +347,7 @@ static int checkBoundsUsage
 enum { STATUS_CB_PBD = STATUS_UNUSED + 1 } ;
 
 static mcxstatus checkBounds
-(  char        type
+(  unsigned char type
 ,  void*       var
 ,  int         (*lftRlt) (const void*, const void*)
 ,  void*       lftBound
@@ -365,8 +367,8 @@ static mcxstatus checkBounds
 
 
 static mcxTing* checkBoundsRange
-(  char        type
-,  void*       var
+(  unsigned char type
+,  void*       var   cpl__unused
 ,  int         (*lftRlt) (const void*, const void*)
 ,  void*       lftBound
 ,  int         (*rgtRlt) (const void*, const void*)
@@ -438,7 +440,7 @@ static mcxTing* checkBoundsRange
 mcxbool mcxOptCheckBounds
 (  const char*    caller
 ,  const char*    flag
-,  char           type
+,  unsigned char  type
 ,  void*          var
 ,  int            (*lftRlt) (const void*, const void*)
 ,  void*          lftBound
@@ -484,7 +486,10 @@ int mcxOptAnchorCmpId
 (  const void *a1
 ,  const void *a2
 )
-   {  return (((mcxOptAnchor*) a1)->id - ((mcxOptAnchor*) a2)->id)
+   {  const mcxOptAnchor* A1 = a1
+   ;  const mcxOptAnchor* A2 = a2
+   ;  return
+      A1->id < A2->id ? -1 : A1->id - A2->id 
 ;  }
 
 
@@ -504,17 +509,19 @@ int mcxOptAnchorCmpTag
 
 void mcxOptAnchorSortByTag
 (  mcxOptAnchor *anchors
-,  int n_anchors
+,  dim n_anchors
 )
-   {  qsort(anchors, n_anchors, sizeof(mcxOptAnchor), mcxOptAnchorCmpTag)
+   {  if (n_anchors)
+      qsort(anchors, n_anchors, sizeof(mcxOptAnchor), mcxOptAnchorCmpTag)
 ;  }
 
 
 void mcxOptAnchorSortById
 (  mcxOptAnchor *anchors
-,  int n_anchors
+,  dim n_anchors
 )
-   {  qsort(anchors, n_anchors, sizeof(mcxOptAnchor), mcxOptAnchorCmpId)
+   {  if (n_anchors)
+      qsort(anchors, n_anchors, sizeof(mcxOptAnchor), mcxOptAnchorCmpId)
 ;  }
 
 
@@ -529,7 +536,7 @@ void parse_descr
    ;  const char* d = strstr(field, "\tD")
 
    ;  if (m && n)
-         *mark_width = n - m - 2
+         *mark_width =  n - m - 2      /* truncintok */
       ,  *markp = m + 2
    ;  else
          *markp = ""
@@ -541,7 +548,7 @@ void parse_descr
 
 void mcxOptApropos
 (  FILE* fp
-,  const char* me                /* unused currently */
+,  const char* me cpl__unused
 ,  const char* syntax
 ,  int width
 ,  mcxbits display
@@ -558,19 +565,19 @@ void mcxOptApropos
       fprintf(fp, "%s\n\n", syntax)
 
    ;  for (opt = baseopt; opt->tag; opt++)
-      {  int thislen = strlen(opt->tag)
+      {  int thislen = strlen(opt->tag)            /* truncintok */
       ;  if (opt->descr_arg)
-         thislen += 1 + strlen(opt->descr_arg)
+         thislen += 1 + strlen(opt->descr_arg)     /* truncintok */
       ;  if
          (  !(opt->flags & MCX_OPT_HIDDEN)
          || display & MCX_OPT_DISPLAY_HIDDEN
          )
-         mywidth = MAX(mywidth, thislen)
+         mywidth = MCX_MAX(mywidth, thislen)
 
       ;  if (opt->descr_usage)
          {  parse_descr
             (opt->descr_usage, &descr_usage, &descr_mark, &mark_width)
-         ;  mark_width_max = MAX(mark_width_max, mark_width)
+         ;  mark_width_max = MCX_MAX(mark_width_max, mark_width)
       ;  }
       }
 
@@ -591,17 +598,12 @@ void mcxOptApropos
          skip = "\n"
       ;  id_prev = opt->id
       
-      ;  if
-         (  (  opt->flags & MCX_OPT_HASARG
-            || opt->flags & MCX_OPT_EMBEDDED
-            )
-            && opt->descr_arg
-         )
+      ;  if (opt->flags & MCX_OPT_HASARG && opt->descr_arg)
          mcxTingPrint
          (  scr
          ,  "%s%c%s"
          ,  opt->tag
-         ,  opt->flags & MCX_OPT_EMBEDDED ? '=' : ' '
+         ,  ' '
          ,  opt->descr_arg
          )
       ;  else
@@ -628,5 +630,217 @@ void mcxOptApropos
       }
    }
 
+
+char** mcxOptParseString
+(  char* src
+,  int*  argc
+,  unsigned char delim
+)
+   {  dim srclen  =  strlen(src)
+   ;  dim n_delim =  mcxStrCountChar(src, delim, srclen)
+   ;  dim n_args  =  0
+   ;  char** argv
+   ;  char *z  =  src + srclen
+   ;  char *p = src, *os
+
+   ;  *argc = 0
+
+   ;  if (!srclen)
+      return NULL
+
+   ;  if (!(argv = mcxAlloc(sizeof(char*) * (n_delim+1), RETURN_ON_FAIL)))
+      return NULL
+
+   ;  while (p<z)
+      {  while ((unsigned char) p[0] == delim)
+         p++
+      ;  if (p>=z)
+         break
+      ;  os = p
+      ;  if (!(p = strchr(os, delim)))
+         p = z
+      ;  *p = '\0'
+      ;  argv[n_args++] = os
+      ;  p++
+   ;  }
+
+      *argc = n_args
+   ;  return argv
+;  }
+
+
+mcxbool mcxOptIsInfo
+(  const char*  arg
+,  mcxOptAnchor* options
+)
+   {  mcxOptAnchor* opt
+   ;  for (opt = options; opt->tag; opt++)
+      if (!strcmp(opt->tag, arg))
+      break
+   ;  return (opt->tag && opt->flags  & MCX_OPT_INFO) ? TRUE : FALSE
+;  }
+
+
+mcxTing* mcxOptArgLine
+(  const char** argv
+,  int argc
+,  int quote
+)
+   {  mcxTing* cl = mcxTingEmpty(NULL, 80)
+   ;  int i
+   ;  const char* ql = "*", *qr = "*"
+
+   ;  if (quote == '[')
+      ql = "[", qr = "]"
+   ;  else if (quote == '{')
+      ql = "{", qr = "}"
+   ;  else if (quote == '<')
+      ql = "<", qr = ">"
+   ;  else if (quote == '(')
+      ql = "(", qr = ")"
+   ;  else if (quote == '"')
+      ql = "\"", qr = "\""
+   ;  else if (quote == '\'')
+      ql = "'", qr = "'"
+
+   ;  if (argc)
+      mcxTingPrint(cl, "%s%s%s", ql, argv[0], qr)
+
+   ;  for (i=1;i<argc;i++)
+      mcxTingPrintAfter(cl, " %s%s%s", ql, argv[i], qr)
+   ;  return cl
+;  }
+
+
+int mcxDispatch
+(  mcxDispBundle* bundle  
+)
+   {  int            argc     =  bundle->disp_argc
+   ;  const char**   argv     =  bundle->disp_argv
+   ;  const char*    me       =  bundle->disp_name
+   ;  const char*    syntax   =  bundle->disp_syntax
+   ;  mcxOptAnchor*  dispatcher_options = bundle->disp_shared
+   ;  dim            n_options=  bundle->n_disp_shared
+   ;  mcxDispEntry*  entry_dir=  bundle->disp_table
+   ;  void           (*report_version)(const char* me) = bundle->disp_version
+
+   ;  const char* mode_str
+   ;  mcxDispHook* hk = NULL
+
+   ;  mcxOption* opts, *opt
+   ;  int n_arg_read = 0
+   ;  mcxstatus parseStatus = STATUS_FAIL
+   ;  mcxHash *clmOpts, *delgOpts, *mergedOpts
+   ;  mcxDispEntry* entry
+   ;  int help = argc <= 1 || !strcmp(argv[1], "-h") ? 1 : 0
+   ;  int delg_id_max
+   ;  int a
+
+   ;  mcxOptAnchorSortById(dispatcher_options, n_options)
+   ;  clmOpts = mcxOptHash(dispatcher_options, NULL)
+   ;  delg_id_max = dispatcher_options[n_options-1].id
+
+   ;  if (help)
+      {  entry = entry_dir+0
+      ;  fprintf(stdout, "%s\n\n", syntax)
+      ;  while(entry->id >= 0)
+         {  hk = entry->get_hk()
+         ;  if (!(hk->flags & MCX_DISP_HIDDEN))
+            fprintf(stdout, "%s %s\n", me, hk->syntax)
+         ;  entry++
+      ;  }
+         exit(0)
+   ;  }
+      else if (argc > 1 && !strcmp(argv[1], "--version"))
+      {  report_version(me)
+      ;  exit(0)
+   ;  }
+
+      mode_str = argv[1]
+
+                  /* Find the mode in which we are invoked */
+   ;  {  const char* name
+      ;  entry = entry_dir+0
+      ;  while (entry->id >= 0)
+         {  hk = entry->get_hk()
+         ;  name = hk->name
+         ;  if (!strcmp(name, mode_str))
+            break
+         ;  entry++
+      ;  }
+         if (entry->id < 0)
+         mcxDie(1, me, "unknown mode <%s>", mode_str)
+   ;  }
+
+
+      mcxOptAnchorSortById(hk->options, hk->n_options)
+
+            /* caller screwed up: it's IDs should top the
+             * largest ID in the shared options.
+            */
+   ;  if (delg_id_max >= hk->options[0].id)
+      mcxDie(1, me, "PBD option merge is pointless")
+
+   ;  delgOpts    =  mcxOptHash(hk->options, NULL)
+   ;  mergedOpts  =  mcxHashMerge(clmOpts, delgOpts, NULL, NULL)
+   ;  opts        =  mcxHOptExhaust
+                     (mergedOpts, (char**) argv, argc, 2, &n_arg_read, &parseStatus)
+
+   ;  a = 2 + n_arg_read
+
+         /* fixme: we should be able to check n_at_most and n_at_least
+          * right here, should we not?
+         */
+
+   ;  if (parseStatus != STATUS_OK)
+      {  mcxErr(me, "initialization failed")
+      ;  exit(1)
+   ;  }
+
+      if (hk->init())
+      mcxDie(1, me, "initialization failed for <%s>", hk->name)
+
+   ;  for (opt=opts;opt->anch;opt++)
+      {  mcxOptAnchor* anch = opt->anch
+      ;  if (anch->id <= delg_id_max)
+         {  if (bundle->shared_handler(anch->id, opt->val, hk, bundle))
+            mcxDie(1, me, "dispatcher curtains")
+      ;  }
+         else if (hk->arg_cb(anch->id, opt->val))
+         mcxDie(1, me, "dispatchee curtains")
+   ;  }
+
+            /* do the checks below after parsing:
+             * Parsing is needed to -h --help type flags
+             * and other type of meta-enquiry options.
+            */
+      if
+      (  a + hk->n_at_least > argc
+      || (hk->n_at_most >= 0 && a + hk->n_at_most < argc)
+      )
+      {  mcxTing* t
+         =  mcxTingPrint
+            (  NULL
+            ,  "mode %s needs %s %d trailing arguments"
+            ,  mode_str
+            ,  hk->n_at_least == hk->n_at_most ? "exactly" : "at least"
+            ,  hk->n_at_least
+            )
+      ;  if (hk->n_at_most > hk->n_at_most)
+         mcxTingPrintAfter(t, " and at most %d", hk->n_at_most)
+
+      ;  if (hk->n_at_most >= 0 && a + hk->n_at_most < argc)
+         mcxTingPrintAfter(t, " (found %s)", argv[a])
+
+      ;  mcxDie(1, me, t->str)
+   ;  }
+
+      mcxOptFree(&opts)
+   ;  mcxOptHashFree(&clmOpts)
+   ;  mcxOptHashFree(&delgOpts)
+   ;  mcxOptHashFree(&mergedOpts)
+
+   ;  return hk->main(argc-a, argv+a)
+;  }
 
 

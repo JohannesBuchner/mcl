@@ -53,7 +53,8 @@ PROGRAMS = $(noinst_PROGRAMS)
 am_mcxquery_OBJECTS = mcxquery.$(OBJEXT)
 mcxquery_OBJECTS = $(am_mcxquery_OBJECTS)
 mcxquery_LDADD = $(LDADD)
-mcxquery_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
+mcxquery_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
+	../taurus/libtaurus.a ../gryphon/libgryphon.a \
 	../impala/libimpala.a ../../util/libutil.a
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/autofoo/depcomp
@@ -77,8 +78,6 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BUILD_BLAST_FALSE = @BUILD_BLAST_FALSE@
 BUILD_BLAST_TRUE = @BUILD_BLAST_TRUE@
-BUILD_TRIBE_FALSE = @BUILD_TRIBE_FALSE@
-BUILD_TRIBE_TRUE = @BUILD_TRIBE_TRUE@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -161,7 +160,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)
-LDADD = ../mcl/libmcl.a ../taurus/libtaurus.a ../impala/libimpala.a ../../util/libutil.a
+LDADD = ../mcl/libmcl.a ../clew/libclew.a ../taurus/libtaurus.a ../gryphon/libgryphon.a ../impala/libimpala.a ../../util/libutil.a
 mcxquery_SOURCES = mcxquery.c
 all: all-am
 

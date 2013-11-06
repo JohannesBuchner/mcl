@@ -1,12 +1,19 @@
-/* (c) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
 
+
+#include <string.h>
+
+#include "mcx.h"
+
 #include "impala/matrix.h"
+#include "impala/cat.h"
 #include "impala/io.h"
 #include "impala/iface.h"
 #include "impala/app.h"
@@ -17,32 +24,191 @@
 #include "util/opt.h"
 
 
-const char* usagelines[] =
-{  "usage: "
-,  "   mcxconvert <fname in> <fname out>     (convert)"
-,  "   mcxconvert <fname>                    (report current format)"
-,  NULL
+static const char* me  =  "mcxconvert";
+
+
+enum
+{  MY_OPT_BINARY = MCX_DISP_UNUSED
+,  MY_OPT_C2S
+,  MY_OPT_S2C
+,  MY_OPT_CAT
+,  MY_OPT_CATMAX
 }  ;
 
 
-int main
+const char* syntax = "Usage: mcxconvert [options] matrix-argument(s)";
+
+
+mcxOptAnchor convertOptions[] =
+{  {  "--cone-to-stack"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_C2S
+   ,  NULL
+   ,  "transform cone file to stack file"
+   }
+,  {  "--stack-to-cone"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_S2C
+   ,  NULL
+   ,  "transform stack file to cone file"
+   }
+,  {  "--cat"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_CAT
+   ,  NULL
+   ,  "read and write cat format"
+   }
+,  {  "-cat-max"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_CATMAX
+   ,  "<num>"
+   ,  "limit the stack conversion to <num> matrices"
+   }
+,  {  "--write-binary"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_BINARY
+   ,  NULL
+   ,  "output native binary format"
+   }
+,  {  NULL ,  0 ,  0 ,  NULL, NULL}
+}  ;
+
+
+
+static mcxIO* xfin   =  (void*) -1;
+static mcxIO *xfout  =  (void*) -1;
+static int main_mode =  -1;
+static dim catmax    =  -1;
+static mcxbool docat =  -1;
+
+
+static mcxstatus convertInit
+(  void
+)
+   {  xfin = NULL
+   ;  xfout = NULL
+   ;  main_mode = 'f'
+   ;  catmax = 0
+   ;  docat = FALSE
+   ;  return STATUS_OK
+;  }
+
+
+
+static mcxstatus convertArgHandle
+(  int optid
+,  const char* val
+)
+   {  switch(optid)
+      {  case MY_OPT_BINARY
+      :  mclxSetBinaryIO()
+      ;  break
+      ;
+
+         case MY_OPT_CAT
+      :  docat = TRUE         /* unused, idling */
+      ;  main_mode = 'l'      /* level(s) */
+      ;  break
+      ;
+
+         case MY_OPT_CATMAX
+      :  catmax = atoi(val)
+      ;  break
+      ;
+
+         case MY_OPT_S2C
+      :  main_mode = 's'
+      ;  break
+      ;
+
+         case MY_OPT_C2S
+      :  main_mode = 'c'
+      ;  break
+      ;
+
+         default
+      :  mcxExit(1) 
+      ;
+      }
+      return STATUS_OK
+;  }
+
+
+static mcxstatus convertMain
 (  int                  argc
 ,  const char*          argv[]
 )
    {  mclMatrix*        mx
-   ;  const char*       me = "mcxconvert"
-   ;  long n_cols = 0, n_rows = 0
 
-   ;  if (argc == 1 || !strcmp(argv[1], "-h") || !strcmp(argv[1], "--apropos"))
-      {  mcxUsage(stdout, me, usagelines)
-      ;  mcxExit(0)
+   ;  mclxCat st
+
+   ;  xfin  = mcxIOnew(argv[0], "r")
+   ;  xfout = mcxIOnew(argv[1], "w")
+
+   ;  if (main_mode == 'l')
+      {  if (mclxCatRead(xfin, &st, catmax, NULL, NULL, 0))
+         mcxDie(1, me, "failure is, if not an option, the result after all")
+      ;  mclxCatWrite(xfout, &st, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
    ;  }
-      else if (!strcmp(argv[1], "--version"))
-      {  app_report_version(me)
-      ;  exit(0)
+      else if (main_mode == 'f')
+      {  int format
+      ;  mx = mclxRead(xfin, EXIT_ON_FAIL)
+      ;  format = mclxIOformat(xfin)
+      ;  mcxIOopen(xfout, EXIT_ON_FAIL)
+      ;  if (format == 'a')
+         mclxbWrite(mx, xfout, EXIT_ON_FAIL)
+      ;  else
+         mclxaWrite(mx, xfout, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
    ;  }
-      else if (argc == 2)
-      {  mcxIO* xf = mcxIOnew(argv[1], "r")
+      else
+      {  mcxbits bits
+         =     main_mode == 'c'
+            ?  MCLX_REQUIRE_DOMTREE | MCLX_CATREAD_CLUSTERSTACK
+            :  main_mode == 's'
+            ?  MCLX_REQUIRE_DOMSTACK | MCLX_CATREAD_CLUSTERTREE
+            :  0
+      ;  mcxIOopen(xfout, EXIT_ON_FAIL)
+
+      ;  if (mclxCatRead(xfin, &st, catmax, NULL, NULL, bits))
+         mcxDie(1, me, "failure is, if not an option, the result after all")
+
+      ;  mclxCatWrite(xfout, &st, MCLXIO_VALUE_NONE, EXIT_ON_FAIL)
+   ;  }
+
+      return 0
+;  }
+
+
+static mcxDispHook convertEntry
+=  {  "convert"
+   ,  "convert [options] <cl file>+"
+   ,  convertOptions
+   ,  sizeof(convertOptions)/sizeof(mcxOptAnchor) - 1
+
+
+   ,  convertArgHandle
+   ,  convertInit
+   ,  convertMain
+
+
+   ,  2
+   ,  2
+   ,  MCX_DISP_DEFAULT
+   }
+;
+
+
+mcxDispHook* mcxDispHookConvert
+(  void
+)
+   {  return &convertEntry
+;  }
+
+
+         /* fixme: query mode, currently lost */
+#if 0
+   ;  if (main_mode == 'q')
+      {  mcxIO* xf = mcxIOnew(argv[a], "r")
       ;  const char* fmt
       ;  int format
 
@@ -60,20 +226,4 @@ int main
          ,  n_cols
          )
    ;  }
-      else
-      {  mcxIO *xfin = mcxIOnew(argv[1], "r")
-      ;  mcxIO *xfout = mcxIOnew(argv[2], "w")
-      ;  int format
-      ;  mx = mclxRead(xfin, EXIT_ON_FAIL)
-
-      ;  format = mclxIOformat(xfin)
-      ;  mcxIOopen(xfout, EXIT_ON_FAIL)
-      ;  if (format == 'a')
-         mclxbWrite(mx, xfout, EXIT_ON_FAIL)
-      ;  else
-         mclxaWrite(mx, xfout, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
-   ;  }
-      return 0
-;  }
-
-
+#endif

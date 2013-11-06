@@ -1,32 +1,55 @@
-/* (c) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
 
 
+#include <stdio.h>
+#include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include <pthread.h>
+#include <unistd.h>
+#include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <limits.h>
+#include <string.h>
+#include <ctype.h>
+#include <signal.h>
+#include <time.h>
 
-#include "impala/matrix.h"
-#include "impala/vector.h"
-#include "impala/ivp.h"
-#include "impala/pval.h"
-#include "impala/scan.h"
 #include "impala/io.h"
+#include "impala/matrix.h"
+#include "impala/cat.h"
+#include "impala/tab.h"
+#include "impala/stream.h"
+#include "impala/ivp.h"
+#include "impala/compose.h"
+#include "impala/vector.h"
 #include "impala/app.h"
+#include "impala/iface.h"
 
-#include "util/ting.h"
-#include "util/err.h"
 #include "util/types.h"
+#include "util/ding.h"
+#include "util/ting.h"
+#include "util/io.h"
+#include "util/err.h"
+#include "util/equate.h"
+#include "util/rand.h"
+#include "util/opt.h"
 
+#include "mcl/proc.h"
+#include "mcl/procinit.h"
+#include "mcl/alg.h"
+
+#include "clew/clm.h"
 
 const char* usagelines[];
 
-const char* me = "mcxtest";
+const char* me = "mcxminusmeet";
 
 void usage
 (  const char**
@@ -37,48 +60,13 @@ int main
 (  int                  argc
 ,  const char*          argv[]
 )  
-   {  mclv* base =mclvCanonical(NULL, 20000, 1.0) 
-   ;  mclv* small = mclvCanonical(NULL, 200, 1.0/(200))
-
-   ;  int mode = argc > 1 ? atoi(argv[1]) : 0
-   ;  int small_delta = 1
-   ;  int j
-
-   ;  if (argc == 1)
-      {  fprintf(stdout,
-"  0  default\n"
-"  1  use mclvUpdateMeet, not mclvAdd\n"
-"  2  sparsify small over Z6\n"
-"  4  sparsify base to even numbers\n"
-"  8  set small to size 3000\n"
-)     ;  return 0
-   ;  }
-
-      if (mode & 8)
-      small = mclvCanonical(small, 3000, 1.0/3000)
-
-   ;  if (mode & 2)
-      {  small_delta = 4
-      ;  for (j=0;j<small->n_ivps;j++)
-         small->ivps[j].idx *= 4
-   ;  }
-
-      if (mode & 4)
-      for (j=0;j<base->n_ivps;j++)
-      base->ivps[j].idx *= 2
-
-   ;  while (MCLV_MAXID(small) < MCLV_MAXID(base))
-      {  if (mode & 1)
-         mclvUpdateMeet(base, small, fltAdd)
-      ;  else
-         mclvAdd(base, small, base)
-
-      ;  for (j=0;j<small->n_ivps;j++)
-         small->ivps[j].idx += small_delta
-   ;  }
-      for (j=small->n_ivps-10;j<small->n_ivps+9;j++)
-      fprintf(stdout, "%ld %.9f\n", (long) base->ivps[j].idx, (double) base->ivps[j].val)
-
+   {  mcxIO* xf = mcxIOnew(argv[1], "r")
+   ;  dim j
+   ;  mclxCat st
+   ;  if (mclxCatRead(xf, &st, 10, NULL, NULL, atoi(argv[2])))
+      mcxDie(1, "test", "nope")
+   ;  for (j=0;j<st.n_level;j++)
+      fprintf(stdout, "cols %d rows %d\n", (int) N_COLS(st.level[j].mx), (int) N_ROWS(st.level[j].mx))
    ;  return 0
 ;  }
 
@@ -86,6 +74,5 @@ int main
 const char* usagelines[] =
 {  NULL
 }  ;
-
 
 

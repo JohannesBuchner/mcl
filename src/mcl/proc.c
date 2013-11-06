@@ -1,23 +1,27 @@
-/*   Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
 
 #include <time.h>
 #include <signal.h>
+#include <string.h>
 
 #include "proc.h"
-#include "clm.h"
 #include "dpsd.h"
 #include "expand.h"
 #include "inflate.h"
 #include "procinit.h"
 
+#include "clew/clm.h"
+
 #include "impala/io.h"
 #include "impala/matrix.h"
+#include "impala/cat.h"
 
 #include "util/ting.h"
 #include "util/err.h"
@@ -25,6 +29,7 @@
 #include "util/types.h"
 #include "util/alloc.h"
 #include "util/minmax.h"
+#include "util/compile.h"
 
 #define ITERATION_INITIAL  1
 #define ITERATION_MAIN     2
@@ -56,7 +61,6 @@ void mclSigCatch
 (  int sig
 )
    {  abort_loop = 1
-   ;  signal(sig, mclSigCatch)
 ;  }
 
 
@@ -98,8 +102,6 @@ mclProcParam* mclProcParamNew
    ;  mpp->initInflation   =  2
    ;  mpp->initLoopLength  =  0
 
-   ;  mpp->inflate_expanded=  0.0
-
    ;  mpp->printDigits     =  3
    ;  mpp->printMatrix     =  0
 
@@ -123,23 +125,33 @@ void mclProcParamFree
 
 
 mclMatrix*  mclProcess
-(  mclMatrix** mx0
+(  mclMatrix** mxstart
 ,  mclProcParam* mpp
+,  mcxbool constmx            /* if true do not free *mxstart */
+,  mclx**  cachexp            /* if !NULL cache expanded */
+,  mclx**  limit
 )
-   {  mclMatrix*        mxEven      =  *mx0
+   {  mclMatrix*        mxEven      =  *mxstart
    ;  mclMatrix*        mxOdd       =  NULL
    ;  mclMatrix*        mxCluster   =  NULL
    ;  int               n_cols      =  N_COLS(mxEven)
    ;  int               digits      =  mpp->printDigits
    ;  mclExpandParam    *mxp        =  mpp->mxp
    ;  int               i           =  0
-   ;  FILE*             fv          =  stderr
    ;  clock_t           t1          =  clock()
+   ;  const char* me                =  "mclProcess"
+   ;  FILE*             fplog       =  mcxLogGetFILE()
+   ;  mcxbool           log_gauge   =  mcxLogGet(MCX_LOG_GAUGE) 
+   ;  mcxbool           log_stats   =  XPNVB(mpp->mxp, XPNVB_CLUSTERS)
 
+   ;  if (cachexp)
+      *cachexp =  NULL
+   ;  if (limit)
+      *limit   =  NULL
                                        /* mq check memleak for param and stats
                                         * structs and members
                                        */
-   ;  if (!mxp->stats)
+   ;  if (!mxp->stats)                 /* size dependent init stuff */
       mclExpandParamDim(mxp, mxEven)
 
    ;  mclExpandInitLog(mpp->massLog, mxp)
@@ -155,24 +167,16 @@ mclMatrix*  mclProcess
    ;  if (MCPVB(mpp, MCPVB_ITE))
       mclDumpMatrix(mxEven, mpp, "ite", "", 0, TRUE)
 
-   ;  if (XPNVB(mxp, XPNVB_VPROGRESS))
-      {  
-         if (!XPNVB(mxp, XPNVB_PRUNING))
-         fprintf(fv, " ite ")
-
-      ;  for (i=0;i<n_cols/mxp->vectorProgression;i++)
-         fputc('-', fv)
-
-      ;  fprintf(fv, XPNVB(mxp, XPNVB_PRUNING) ? "\n" : "  chaos  time\n")
-   ;  }
-      else if (XPNVB(mxp, XPNVB_MPROGRESS))
-      fprintf(fv, " ite  chaos  time\n")
-
-   ;  if (mpp->inflate_expanded)
-      {  if (mpp->n_ithreads)
-         mclxInflateBoss(mxEven, mpp->mainInflation, mpp)
-      ;  else
-         mclxInflate(mxEven, mpp->inflate_expanded)
+   ;  if (log_gauge || log_stats)
+      {  fprintf(fplog, " ite ")
+      ;  if (log_gauge)
+         {  for (i=0;i<n_cols/mxp->vectorProgression;i++)
+            fputc('-', fplog)
+         ;  fputs("  chaos  time", fplog)
+      ;  }
+         if (log_stats)
+         fputs("   E/V        cls       olap  dd", fplog)
+      ;  fputc('\n', fplog)
    ;  }
 
       for (i=0;i<mpp->initLoopLength;i++)
@@ -182,19 +186,25 @@ mclMatrix*  mclProcess
          ,  mpp
          ,  ITERATION_INITIAL
          )
-      ;  mclxFree(&mxEven)
+
+      ;  if
+         (  (i == 0 && !constmx)
+         || (i == 1 && !cachexp)
+         ||  i > 1
+         )
+         mclxFree(&mxEven)
+      ;  else if (i == 1 && cachexp)
+         *cachexp = mxEven
+
       ;  mpp->n_ite++
       ;  mxEven  =  mxOdd
    ;  }
 
-      if (  mpp->initLoopLength
-         && (  XPNVB(mxp, XPNVB_PRUNING)
-            || XPNVB(mxp, XPNVB_VPROGRESS)
-            )
-         )
-      fprintf
-      (  fv
-      ,  "====== Changing from initial to main inflation now ======\n"
+      if (mpp->initLoopLength)
+      mcxLog
+      (  MCX_LOG_MODULE
+      ,  me
+      ,  "====== Changing from initial to main inflation now ======"
       )
 
    ;  for (i=0;i<mpp->mainLoopLength;i++)
@@ -206,20 +216,32 @@ mclMatrix*  mclProcess
             ,  ITERATION_MAIN
             )
 
-      ;  mclxFree(&mxEven)
+      ;  if
+         (  mpp->initLoopLength
+         || (i == 0 && !constmx)
+         || (i == 1 && !cachexp)
+         ||  i > 1
+         )
+         mclxFree(&mxEven)
+      ;  else if (i == 1 && cachexp)
+         *cachexp = mxEven
+
       ;  mpp->n_ite++
       ;  mxEven  =  mxOdd
 
       ;  if (abort_loop || convergence)
          {  if (XPNVB(mxp, XPNVB_PRUNING))
-            fprintf(fv, "\n")
+            fprintf(fplog, "\n")
          ;  break
       ;  }
       }
 
-      mpp->lap = ((double) (clock() - t1)) / CLOCKS_PER_SEC
+      if (cachexp && ! *cachexp)
+      *cachexp = mxOdd
 
-   ;  *mx0 = mxEven
+   ;  mpp->lap = ((double) (clock() - t1)) / CLOCKS_PER_SEC
+
+   ;  *limit = mxEven
 
    ;  {  mclx* dag = mclDag(mxEven, mpp->ipp)
       ;  mxCluster = mclInterpret(dag)
@@ -230,6 +252,79 @@ mclMatrix*  mclProcess
 ;  }
 
 
+void mclInflate
+(  mclx*    mx
+,  double   power
+,  mclv*    homgVec
+,  double   homgAvg
+)
+   {  mcxbool   local  =   getenv("MCL_AUTO_LOCAL") ? TRUE : FALSE
+   ;  mcxbool   smooth =   getenv("MCL_AUTO_SMOOTH") ? TRUE : FALSE  
+   ;  mcxbool   test   =   getenv("MCL_AUTO_TEST") ? TRUE : FALSE  
+   ;  mcxbool   dump   =   getenv("MCL_AUTO_DUMP") ? TRUE : FALSE
+
+   ;  double    infl   =   power
+   ;  mclv*     vec_infl = NULL
+   ;  double hom_max = 0.0, hom_min = 10.0
+   ;  dim k, i
+
+   ;  if (local || smooth || test)
+      {  hom_max = mclvMaxValue(homgVec)
+      ;  hom_min = mclvMinValue(homgVec)
+      ;  vec_infl = mclvCanonical(NULL, N_COLS(mx), power)
+      ;  for (i=0;i<N_COLS(mx);i++)
+         {  double avg = 0.0
+         ;  double infllocal = power
+         ;  mclv* nblist = mx->cols+i
+         ;  mclp* ivp = NULL
+         ;  dim j
+
+         ;  if (smooth)
+            for (j=0;j<nblist->n_ivps;j++)
+            {  long idx = nblist->ivps[j].idx
+            ;  if ((ivp = mclvGetIvp(homgVec, idx, ivp)))
+               avg += nblist->ivps[j].val * ivp->val
+         ;  }
+            else
+            {  if ((ivp = mclvGetIvp(homgVec, mx->cols[i].vid, ivp)))
+               avg = ivp->val
+         ;  }
+
+if(dump)fprintf(stdout, "%d\t%.3f\n", (int) i, avg);
+
+                  /* If homogeneity is low, the reasoning is
+                   * that we can decrease inflation as apparently the local
+                   * topology of the graph already encourages skew.
+                   * Empirically, this seems to result in clusters that may be more
+                   * elongated.
+                   *
+                   * Roughly speaking, we may expect high homogeneity to correlate
+                   * with high clustering coefficient.
+                  */
+
+         ;  MCX_RESTRICT(avg, 0.333, 3)
+
+         ;  infllocal = pow(infllocal, avg)
+
+         ;  if (infllocal <= 1.1)
+            infllocal = 1.1
+         ;  if (infllocal >= 10.0)
+            infllocal = 10.0
+
+         ;  vec_infl->ivps[i].val  = infllocal
+      ;  }
+      }
+
+      if (dump)
+      fputc('\n', stdout)
+
+   ;  for (k=0;k<N_COLS(mx);k++)
+      mclvInflate(mx->cols+k, local || smooth ? vec_infl->ivps[k].val : infl)
+
+   ;  mclvFree(&vec_infl)
+;  }
+
+
 int doIteration
 (  mclMatrix**          mxin
 ,  mclMatrix**          mxout
@@ -237,97 +332,83 @@ int doIteration
 ,  int                  type
 )
    {  int               digits         =  mpp->printDigits
-   ;  FILE*             fv             =  stderr
    ;  mclExpandParam*   mxp            =  mpp->mxp  
    ;  mclExpandStats*   stats          =  mxp->stats
    ;  int               bInitial       =  (type == ITERATION_INITIAL)
    ;  const char        *when          =  bInitial ? "initial" : "main"
-   ;  int               n_ite          =  mpp->n_ite
+   ;  dim               n_ite          =  mpp->n_ite
    ;  char              msg[80]
+   ;  FILE*             fplog          =  mcxLogGetFILE()
    ;  double            inflation      =  bInitial
                                           ?  mpp->initInflation
                                           :  mpp->mainInflation
- 
-            
-   ;  if (XPNVB(mxp, XPNVB_VPROGRESS) && !XPNVB(mxp, XPNVB_PRUNING))
-      fprintf(fv, "%3d  ", (int) n_ite+1)
+   ;  mcxbool           log_gauge      =  mcxLogGet(MCX_LOG_GAUGE) 
+   ;  mcxbool           log_stats      =  XPNVB(mxp, XPNVB_CLUSTERS)
+   ;  double            homgAvg
+   ;  mclv*             homgVec
+
+   ;  mxp->inflation = inflation
+
+   ;  if (log_gauge || log_stats)
+      fprintf(fplog, "%3d  ", (int) n_ite+1)
 
    ;  *mxout =  mclExpand(*mxin, mxp)
+   ;  homgAvg = mxp->stats->homgAvg
 
-   ;  if (n_ite >= 0 && n_ite < 5)
+   ;  homgVec = mxp->stats->homgVec
+   ;  mxp->stats->homgVec = NULL       /* fixme ugly ownership */
+
+   ;  if (n_ite < 5)    /* fixme/document why just one? */
       mpp->marks[n_ite] = (int)(100.001*mxp->stats->mass_final_low[mxp->nj])
 
-   ;  if (n_ite >= 0 && n_ite < mxp->nl)
+   ;  if (n_ite < mxp->nl)
       mclExpandAppendLog(mpp->massLog, mxp->stats, n_ite)
 
    ;  if (MCPVB(mpp, MCPVB_CHR))
       {  mclMatrix* chr = mxp->stats->mx_chr
-      ;  int k
+      ;  dim k
 
       ;  for (k=0;k<N_COLS(chr);k++)
-         ((chr->cols+k)->ivps+0)->val
-         =  mclvIdxVal((*mxout)->cols+k, k, NULL)
+         ((chr->cols+k)->ivps+0)->val = mclvIdxVal((*mxout)->cols+k, k, NULL)
    ;  }
 
-      if (mpp->printMatrix)
-      {  snprintf
-         (  msg, sizeof msg, "%d%s%s%s"
-         ,  (int) 2*n_ite+1, " After expansion (", when, ")"
-         )
-      ;  if (XPNVB(mxp,XPNVB_VPROGRESS))
-         fprintf(stdout, "\n")
-      ;  mclFlowPrettyPrint(*mxout, stdout, digits, msg)
-   ;  }
-
-      if (XPNVB(mxp,XPNVB_VPROGRESS))
-      {  if (XPNVB(mxp,XPNVB_PRUNING))
-         fprintf
-         (  fv
-         ,  "\nchaos <%.2f> time <%.2f>\n"
-         ,  (double) mxp->stats->chaosMax
-         ,  (double) mxp->stats->lap
-         )
-      ;  else
-         fprintf
-         (fv, " %6.2f %5.2f\n", (double) stats->chaosMax, (double) stats->lap)
-   ;  }
-      else if (!XPNVB(mxp,XPNVB_PRUNING) && XPNVB(mxp,XPNVB_MPROGRESS))
+      if (log_gauge)
       fprintf
-      (  fv
-      ,  "%3d  %6.2f %5.2f\n"
-      ,  (int) n_ite+1
+      (  fplog
+      ,  " %6.2f %5.2f %.2f/%.2f/%.2f"
       ,  (double) stats->chaosMax
       ,  (double) stats->lap
+      ,  (double) stats->homgAvg
+      ,  (double) stats->homgMin
+      ,  (double) stats->homgMax
       )
 
-   ;  if (mpp->n_ite == 0 && mpp->fname_expanded)
-      {  mcxIO* xftmp = mcxIOnew(mpp->fname_expanded->str, "w")
-      ;  mclxWrite(*mxout, xftmp, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
-   ;  }
-
-      if (XPNVB(mxp,XPNVB_PRUNING))
-      {  if (mclVerbosityStart && XPNVB(mxp,XPNVB_EXPLAIN))
-         {  mclExpandStatsHeader(fv, stats, mxp)
-         ;  mclVerbosityStart = 0
-      ;  }
-         mclExpandStatsPrint(stats, fv)
-   ;  }
-
-      if (XPNVB(mxp, XPNVB_CLUSTERS) || MCPVB(mpp, (MCPVB_CLUSTERS | MCPVB_DAG)))
-      {  int o, m, e
+   ;  if (log_stats || MCPVB(mpp, (MCPVB_CLUSTERS | MCPVB_DAG)))
+      {  dim o, m, e
       ;  mclMatrix* dag  = mclDag(*mxout, mpp->ipp)
       ;  mclMatrix* clus = mclInterpret(dag)
       ;  int dagdepth = mclDagTest(dag)
-      ;  mclcEnstrict(clus, &o, &m, &e, ENSTRICT_KEEP_OVERLAP)
-      ;  fprintf
-         (  stderr
-         ,  "clusters <%d> overlap <%d> dagdepth <%d> m/e <%d/%d>\n"
-         ,  (int) N_COLS(clus)
-         ,  o
+#if 0
+;mcxIO *xfstdout = mcxIOnew("-", "w")
+#endif
+      ;  clmEnstrict(clus, &o, &m, &e, ENSTRICT_KEEP_OVERLAP)
+      ;  if (log_stats)
+         fprintf
+         (  fplog
+         ,  "%6.0f %10lu %10lu %3d"
+         ,     N_COLS(*mxout)
+            ? (double) mclxNrofEntries(*mxout) / N_COLS(*mxout)
+            :  0.0
+         ,  (ulong) N_COLS(clus)
+         ,  (ulong) o
          ,  dagdepth
-         ,  m
-         ,  e
          )
+      ;  if (m+e)
+         fprintf(fplog, " [!%lu]", (ulong) (m+e))
+#if 0
+;if (o)
+mclxWrite(*mxout, xfstdout, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+#endif
       ;  if (MCPVB(mpp, MCPVB_CLUSTERS))
          mclDumpMatrix(clus, mpp, "cls", "", n_ite+1, FALSE)
       ;  if (MCPVB(mpp, MCPVB_DAG))
@@ -336,17 +417,43 @@ int doIteration
       ;  mclxFree(&clus)
    ;  }
 
-      if (mpp->n_ithreads)
-      mclxInflateBoss(*mxout, inflation, mpp)
-   ;  else
-      mclxInflate(*mxout, inflation)
+      if (log_gauge || log_stats)
+      fputc('\n', fplog)
+
+   ;  if (mpp->printMatrix)
+      {  snprintf
+         (  msg, sizeof msg, "%d%s%s%s"
+         ,  (int) 2*n_ite+1, " After expansion (", when, ")"
+         )
+      ;  if (log_gauge)
+         fprintf(stdout, "\n")
+      ;  mclFlowPrettyPrint(*mxout, stdout, digits, msg)
+   ;  }
+
+      if (mpp->n_ite == 0 && mpp->fname_expanded)
+      {  mcxIO* xftmp = mcxIOnew(mpp->fname_expanded->str, "w")
+      ;  mclxWrite(*mxout, xftmp, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+      ;  mcxIOfree(&xftmp)
+   ;  }
+
+      if (XPNVB(mxp,XPNVB_PRUNING))
+      {  if (mclVerbosityStart && XPNVB(mxp,XPNVB_EXPLAIN))
+         {  mclExpandStatsHeader(fplog, stats, mxp)
+         ;  mclVerbosityStart = 0
+      ;  }
+         mclExpandStatsPrint(stats, fplog)
+   ;  }
+
+      mclInflate(*mxout, inflation, homgVec, homgAvg)
+
+   ;  mclvFree(&homgVec)
 
    ;  if (mpp->printMatrix)
       {  snprintf
          (  msg,  sizeof msg, "%d%s%s%s"
          ,  (int) 2*n_ite+2, " After inflation (", when, ")"
          )
-      ;  if (XPNVB(mxp, XPNVB_VPROGRESS))
+      ;  if (log_gauge)
          fprintf(stdout, "\n")
       ;  mclFlowPrettyPrint(*mxout, stdout, digits, msg)
    ;  }
@@ -362,7 +469,7 @@ int doIteration
 
       if (MCPVB(mpp, MCPVB_CHR))
       {  mclMatrix* chr = mxp->stats->mx_chr
-      ;  int k
+      ;  dim k
 
       ;  for (k=0;k<N_COLS(chr);k++)
          ((chr->cols+k)->ivps+1)->val
@@ -392,8 +499,8 @@ void mclDumpMatrix
    ;  mcxbool   cat     =  MCPVB(mpp, MCPVB_CAT)
 
    ;  mcxbits   dump_modes =     !strcmp(affix, "result")
-                              ?  MCLX_DUMP_RLINES
-                              :  MCLX_DUMP_PAIRS | MCLX_DUMP_VALUES
+                              ?  (MCLX_DUMP_LINES | MCLX_DUMP_NOLEAD)
+                              :  (MCLX_DUMP_PAIRS | MCLX_DUMP_VALUES)
 
    ;  if (!strcmp(affix, "result"))
 
@@ -424,11 +531,18 @@ void mclDumpMatrix
       else if (lines)
       {  mclxIOdumper dumper
       ;  mclxIOdumpSet(&dumper, dump_modes, NULL, NULL, NULL)
-      ;  dumper.threshold = 0.001
+      ;  dumper.threshold = 0.00001
       ;  if (cat)
          fprintf(xfdump->fp, "(mcldump %s %d\n", affix, (int) n)
       ;  mclxIOdump
-         (mx, xfdump, &dumper, mpp->dump_tab, mpp->dump_tab, RETURN_ON_FAIL)
+         (  mx
+         ,  xfdump
+         ,  &dumper
+         ,  mpp->dump_tab
+         ,  mpp->dump_tab
+         ,  MCLXIO_VALUE_GETENV
+         ,  RETURN_ON_FAIL
+         )
       ;  if (cat)
          fprintf(xfdump->fp, ")\n")
    ;  }

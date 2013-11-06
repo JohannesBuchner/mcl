@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-## $Id: Makefile.am,v 1.6 2006-02-26 23:19:36 flux Exp $
+## $Id: Makefile.am,v 1.16 2007-05-18 11:02:25 flux Exp $
 
 TROFF =  groff
 COL   =  col
@@ -14,15 +14,23 @@ docdir = $(datadir)/doc/$(PACKAGE)
 # mclfamily.html mclfamily.ps
 
 doc_DATA_dep = mcl.html mcl.ps mcl.txt \
+ mclcm.html mclcm.ps mclcm.txt \
  mclfaq.html mclfaq.ps mclfaq.txt \
  mclfamily.html mclfamily.ps \
  mcx.html mcx.ps \
+ mcxi.html mcxi.ps \
+ clm.html clm.ps \
  mcxconvert.html mcxconvert.ps \
  mcxarray.html mcxarray.ps \
  mcxdump.html mcxdump.ps \
+ mcxdiameter.html mcxdiameter.ps \
+ mcxclcf.html mcxclcf.ps \
+ mcxctty.html mcxctty.ps \
+ mcxrand.html mcxrand.ps \
  mcxload.html mcxload.ps \
  mcxsubs.html mcxsubs.ps \
  mcxmap.html mcxmap.ps \
+ mcxq.html mcxq.ps \
  mcxassemble.html mcxassemble.ps \
  mclpipeline.html mclpipeline.ps \
  index.html mclindex.ps \
@@ -30,21 +38,29 @@ doc_DATA_dep = mcl.html mcl.ps mcl.txt \
  clmclose.html clmclose.ps \
  clmresidue.html clmresidue.ps \
  clmdist.html clmdist.ps \
+ clmvol.html clmvol.ps \
  clminfo.html clminfo.ps \
  clmmate.html clmmate.ps \
  clmmeet.html clmmeet.ps \
  clmformat.html clmformat.ps \
  clmorder.html clmorder.ps \
  minimcl \
- mcxio.html mcxio.ps
+ mcxio.html mcxio.ps \
+ tingea.log.html tingea.log.ps
 
 doc_DATA = $(doc_DATA_dep) mclmcl.txt
 
-MAINTAINERCLEANFILES = mcl.1 mclfamily.7 mclfaq.7 mclindex.7 mcx.1 mcxio.5\
- mcxassemble.1 mcxmap.1 mcxdump.1 mcxload.1 \
- clmdist.1 clminfo.1 clmmate.1 clmmeet.1 clmorder.1 mcxconvert.1\
- clmresidue.1 clmformat.1 clmclose.1 clmimac.1 mcxarray.1 mcxsubs.1 mclpipeline.1\
- $(doc_DATA_dep)
+man_MANS = mcl.1 mclcm.1 clm.1 mclindex.7 mclfamily.7 mclfaq.7 mcx.1 mcxi.1 mcxio.5 \
+   clmresidue.1 clmclose.1 clmimac.1 clmmate.1 clmmeet.1 clmformat.1 \
+   clmvol.1 clmdist.1 clminfo.1 clmorder.1 \
+   mcxconvert.1 mcxassemble.1 mcxmap.1 mcxsubs.1 mcxload.1 mcxdump.1 mcxarray.1 mcxrand.1 \
+	mcxdiameter.1 mcxctty.1 mcxclcf.1 mcxq.1 \
+   mclpipeline.1 \
+	tingea.log.7
+
+
+
+MAINTAINERCLEANFILES = $(man_MANS) $(doc_DATA_dep)
 
 ALIENFILES = mcxdeblast.html mcxdeblast.ps mclblastline.html mclblastline.ps
 ## This is quite hackish (though not deep).
@@ -57,19 +73,15 @@ ALIENFILES = mcxdeblast.html mcxdeblast.ps mclblastline.html mclblastline.ps
 
 EXTRA_DIST = mclmcl.txt mcx.zmm\
  stamp.day stamp.month stamp.stamp stamp.tag stamp.year\
- clmformat.azm clmdist.azm clmmate.azm clminfo.azm clmmeet.azm\
- clmorder.azm mcl.azm\
- mclfamily.azm mclfaq.azm mcx.azm mclpipeline.azm\
+ clmformat.azm clmvol.azm clmdist.azm clmmate.azm clminfo.azm clmmeet.azm\
+ clm.azm clmorder.azm mcl.azm mclcm.azm\
+ mclfamily.azm mclfaq.azm mcxi.azm mcx.azm mcxq.azm mclpipeline.azm\
  mcxdump.azm mcxconvert.azm mcxio.azm clmresidue.azm clmclose.azm clmimac.azm mcxassemble.azm\
+ mcxdiameter.azm mcxctty.azm mcxclcf.azm mcxrand.azm\
  mcxload.azm mcxmap.azm mcxarray.azm mcxsubs.azm index.in.azm index.html distindex.html\
+ tingea.log.azm\
  $(ALIENFILES)\
  $(MAINTAINERCLEANFILES)
-
-man_MANS = mcl.1 mclindex.7 mclfamily.7 mclfaq.7 mcx.1 mcxio.5 \
-   clmresidue.1 clmclose.1 clmimac.1 clmmate.1 clmmeet.1 clmformat.1 \
-   clmdist.1 clminfo.1 clmorder.1 \
-   mcxconvert.1 mcxassemble.1 mcxmap.1 mcxsubs.1 mcxload.1 mcxdump.1 mcxarray.1 \
-   mclpipeline.1
 
 SUFFIXES = .1 .5 .7 .azm .html .ps .txt
 
@@ -108,6 +120,44 @@ SUFFIXES = .1 .5 .7 .azm .html .ps .txt
 	$(ZOEM) -d html -i $< -o $@
 	- $(TIDY) -e $@
 
+SHARE1 = "--exclude=version,h,apropos"
+SHARE2 = "--exclude=nop,version,set,h,apropos,debug,test,progress"
+
+# clm omitted
+# mcx omitted
+# mcxi omitted
+
+# ../scripts/docme --silent --exclude=version,h,apropos ../src/shmcl/mcl mcl.azm
+
+.PHONY: docme-test
+docme-test:
+	../scripts/docme --silent $(SHARE1) ../src/shmcl/mcl mcl.azm
+	../scripts/docme --silent $(SHARE1) ../src/shmcl/mclcm mclcm.azm
+	../scripts/docme --silent $(SHARE1) ../src/shmx/mcxdump mcxdump.azm
+	../scripts/docme --silent $(SHARE1) ../src/shmx/mcxload mcxload.azm
+	../scripts/docme --silent $(SHARE1) ../src/shmx/mcxarray mcxarray.azm
+	../scripts/docme --silent $(SHARE1) ../src/shmx/mcxrand mcxrand.azm
+	../scripts/docme --silent $(SHARE1) ../src/shcl/clmformat clmformat.azm
+	../scripts/docme --silent $(SHARE1) ../src/shmx/mcxsubs mcxsubs.azm
+	../scripts/docme --silent $(SHARE1) ../src/shmx/mcxmap mcxmap.azm
+	../scripts/docme --silent $(SHARE1) ../src/shmx/mcxassemble mcxassemble.azm
+	../scripts/docme --silent $(SHARE2) "../src/shcl/clm close" clmclose.azm
+	../scripts/docme --silent $(SHARE2) "../src/shcl/clm dist" clmdist.azm
+	../scripts/docme --silent $(SHARE2) "../src/shcl/clm order" clmorder.azm
+	../scripts/docme --silent $(SHARE2) "../src/shcl/clm mate" clmmate.azm
+	../scripts/docme --silent $(SHARE2) "../src/shcl/clm meet" clmmeet.azm
+	../scripts/docme --silent $(SHARE2) "../src/shcl/clm info" clminfo.azm
+	../scripts/docme --silent $(SHARE2) "../src/shcl/clm vol" clmvol.azm
+	../scripts/docme --silent $(SHARE2) "../src/shcl/clm residue" clmresidue.azm
+	../scripts/docme --silent $(SHARE2) "../src/shcl/clm imac" clmimac.azm
+	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx convert" mcxconvert.azm
+	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx diameter" mcxdiameter.azm
+	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx clcf" mcxclcf.azm
+	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx clcf" mcxctty.azm
+	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx q" mcxq.azm
+	../scripts/docme --silent ../src/shcl/mclpipeline mclpipeline.azm
+	../scripts/docme --silent ../src/alien/oxygen/src/mcxdeblast ../src/alien/oxygen/doc/mcxdeblast.azm
+
 
 mclindex.7: index.in.azm
 	$(ZOEM) -i index.in -d roff -o mclindex.7 -s install=1
@@ -119,11 +169,14 @@ index.html: index.in.azm
 
 
 mcl: mcl.txt            mcl.1            mcl.html            mcl.ps
+mclcm: mclcm.txt      mclcm.1          mclcm.html          mclcm.ps
 
+clm:                    clm.1            clm.html            clm.ps
 clminfo:            clminfo.1        clminfo.html        clminfo.ps
 clmmeet:            clmmeet.1        clmmeet.html        clmmeet.ps
 clmformat:        clmformat.1      clmformat.html      clmformat.ps
 clmdist:            clmdist.1        clmdist.html        clmdist.ps
+clmvol:              clmvol.1         clmvol.html         clmvol.ps
 clmmate:            clmmate.1        clmmate.html        clmmate.ps
 clmresidue:      clmresidue.1     clmresidue.html     clmresidue.ps
 clmimac:            clmimac.1        clmimac.html        clmimac.ps
@@ -131,6 +184,7 @@ clmclose:          clmclose.1       clmclose.html       clmclose.ps
 clmorder:          clmorder.1       clmorder.html       clmorder.ps
                                                       
 mcx:                    mcx.1            mcx.html            mcx.ps
+mcxi:                  mcxi.1           mcxi.html           mcxi.ps
 mcxassemble:    mcxassemble.1    mcxassemble.html    mcxassemble.ps
 mcxmap:              mcxmap.1         mcxmap.html         mcxmap.ps
 mcxsubs:            mcxsubs.1        mcxsubs.html        mcxsubs.ps
@@ -138,11 +192,18 @@ mcxarray:          mcxarray.1       mcxarray.html       mcxarray.ps
 mcxdump:            mcxdump.1        mcxdump.html        mcxdump.ps
 mcxload:            mcxload.1        mcxload.html        mcxload.ps
 mcxconvert:      mcxconvert.1     mcxconvert.html     mcxconvert.ps
+
+mcxdiameter:    mcxdiameter.1    mcxdiameter.html    mcxdiameter.ps
+mcxclcf:            mcxclcf.1        mcxclcf.html        mcxclcf.ps
+mcxctty:            mcxctty.1        mcxctty.html        mcxctty.ps
+mcxrand:            mcxrand.1        mcxrand.html        mcxrand.ps
+mcxq:            	     mcxq.1           mcxq.html           mcxq.ps
                                                      
 
 mclpipeline:    mclpipeline.1    mclpipeline.html    mclpipeline.ps
 
 mcxio:                mcxio.5          mcxio.html          mcxio.ps
+tingea.log:		  tingea.log.7		 tingea.log.html		tingea.log.ps
 
 mclfaq:  mclfaq.txt  mclfaq.7         mclfaq.html         mclfaq.ps	minimcl
 mclfamily:        mclfamily.7      mclfamily.html      mclfamily.ps
@@ -159,6 +220,18 @@ lit: litindex.html
 webindex.html: webindex.azm
 	$(ZOEM)  -i webindex.azm -o webindex.html -d html
 	- $(TIDY) -e webindex.html
+
+intro.html: intro.azm
+	$(ZOEM)  -i intro.azm -d html
+	- $(TIDY) -e intro.html
+
+intro2.html: intro2.azm
+	$(ZOEM)  -i intro2.azm -d html
+	- $(TIDY) -e intro2.html
+
+intro3.html: intro3.azm
+	$(ZOEM)  -i intro3.azm -d html
+	- $(TIDY) -e intro3.html
 
 litindex.html: litindex.azm 3Party
 	$(ZOEM)  -i litindex.azm -o litindex.html -d html

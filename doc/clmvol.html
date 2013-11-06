@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<!-- Copyright (c) 2008 Stijn van Dongen -->
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<style type="text/css">
+body {
+text-align: justify;
+color: #001111;
+background: white;
+margin-left: 8%;
+margin-right: 8%;
+font-family: Helvetica, Univers, Verdana, sans-serif;
+}
+p.default {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+p.L53 { font-size: 30pt; }
+p.L52 { font-size: 20pt; }
+p.L51 { font-size: 15pt; }
+p.L50 { font-size: 12pt; }
+p.L49 { font-size: 10pt; }
+p.L48 { font-size: 9pt; }
+p.L47 { font-size: 8pt; }
+td {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+h3 { margin-top:1em; }
+h2 { margin-top:2em; }
+.left { text-align: left; align: left; }
+.right { text-align: right; align: right; }
+.center { text-align: center; align: center; }
+.nowrap { white-space: nowrap; }
+a:link { text-decoration: none; }
+a:active { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:link { color: #1111aa; }
+a:active { color: #1111aa; }
+a:visited { color: #111166; }
+a.local:link { color: #11aa11; }
+a.local:active { color: #11aa11; }
+a.local:visited { color: #116611; }
+a.intern:link { color: #1111aa; }
+a.intern:active { color: #1111aa; }
+a.intern:visited { color: #111166; }
+a.extern:link { color: #aa1111; }
+a.extern:active { color: #aa1111; }
+a.extern:visited { color: #661111; }
+a.quiet:link { color: black; }
+a.quiet:active { color: black; }
+a.quiet:visited { color: black; }
+div.copy
+{ font-size: 12pt;
+font-family: monospace;
+text-align: left;
+white-space: pre;
+margin-left: 2em;
+margin-top: 1em;
+margin-bottom: 1em;
+}
+div.indent
+{ margin-left: 8%;
+margin-right: 0%;
+}
+</style>
+<title>The clm vol manual</title>
+</head>
+<body>
+<p style="text-align:right">
+5 Jun 2008&nbsp;&nbsp;&nbsp;
+<a class="local" href="clmvol.ps"><b>clm vol</b></a>
+1.007-grumpy-gryphon, 08-157
+</p>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr><td width=48 valign="top" class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#name">NAME</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#synopsis">SYNOPSIS</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#description">DESCRIPTION</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#author">AUTHOR</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#options">OPTIONS</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#seealso">SEE ALSO</a>
+</div></td></tr>
+</table>
+
+</div>
+
+<a name="name"></a>
+<h2>NAME</h2>
+<p class="default L50" style="margin-bottom:0">
+clm vol - compute volatile nodes from a set of clusterings</p>
+<p class="default L50" style="margin-bottom:0">clmvol is not in actual fact a program. This manual
+page documents the behaviour and options of the clm program when
+invoked in mode <i>vol</i>. The options <b>-h</b>, <b>--apropos</b>,
+<b>--version</b>, <b>-set</b>, <b>--nop</b> are accessible
+in all <b>clm</b> modes. They are described
+in the <a class="local" href="clm.html">clm</a> manual page.</p>
+
+<a name="synopsis"></a>
+<h2>SYNOPSIS</h2>
+<p class="default L50" style="margin-bottom:0">
+<b>clm vol</b>
+<a class="intern" href="#opt-nff-fac"><b>[-nff-fac</b> num (<i>nff factor</i>)<b>]</b></a>
+<a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output file</i>)<b>]</b></a>
+&lt;cl file&gt;+
+</p>
+
+<a name="description"></a>
+<h2>DESCRIPTION</h2>
+<p class="default L50" style="margin-bottom:0">
+<b>clm vol</b> computes a score for each node, which at a minimum is equal to one.
+The output is in the form of a matrix containing a single column. The score
+correlates with what is deemed to be volatile behaviour. For all pairs of
+clusterings the set of all intersections is computed, and these are
+considered in turn.
+An intersection is deemed to be volatile if the size of the intersection is
+less than half the size of either parent cluster.
+In this case, for each node in the intersection the score is incremented by
+one over the size of the intersection.
+The size comparison can be made more stringent by increasing
+the factor using <b>-nff-fac</b>&nbsp;<i>&lt;num&gt;</i> option. It is by default set to
+<tt>0.5</tt>, the fraction taken from the parent cluster sizes.
+If it is increased all the way up to 1.0, the implication is that an
+intersection is always considered volatile unless one of the parent
+clusters is a subset of the other parent cluster.
+</p>
+
+<a name="author"></a>
+<h2>AUTHOR</h2>
+<p class="default L50">
+Stijn van Dongen.
+
+<a name="options"></a>
+<h2>OPTIONS</h2>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr><td colspan=3><a name="opt-nff-fac"></a><b>-nff-fac</b> num (<i>nff factor</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">See the discussion at <a class="intern" href="#description">DESCRIPTION</a>.
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-o"></a><b>-o</b> fname (<i>output file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr>
+</table>
+
+</div>
+
+<a name="seealso"></a>
+<h2>SEE ALSO</h2>
+<p class="default L50" style="margin-bottom:0">
+<a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+and the utilities in the mcl family.
+</p>
+</body>
+</html>

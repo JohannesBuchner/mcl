@@ -1,13 +1,17 @@
-/*  (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
 
 
 /* TODO
+ *    Unify select routines, mclgMakeSparse.
+ *    Unify mclxColNums as mclxColSelect ?
+ *
  *    make callback/accumulator mechanism to obtain characteristic
  *    vectors for matrix (columns sum, max, self value).
  *
@@ -45,7 +49,10 @@ typedef struct
 /* INTEGRITY
  *    Remember the constraint on a vector: The idx members of the ivp array
  *    need to be nonnegative and ascending.  The val members are usually
- *    positive, but this is not mandated.
+ *    positive, but this is not mandated. A val member that is zero
+ *    will cause removal of the ivp it is contained in when a vector
+ *    is submitted to mclvUnary or mclvBinary. These routines are indirectly
+ *    called by many of the routines in this interface.
  *
  *    cols is an array of vectors. The count of vectors is equal to
  *    dom_cols->n_ivps (but always use the macro N_COLS(mx)). The successive
@@ -57,8 +64,8 @@ typedef struct
  *    operations require domain access, checking, and manipulation that can
  *    easily be formulated in terms of base vector methods.  Only when doing
  *    non-standard stuff with matrices one must take care to maintain data
- *    integrity; i.e. when adding a column to a matrix.  An example of this is
- *    found in mcl/clm.c
+ *    integrity; i.e. when adding a column to a matrix. mclxAccomodate
+ *    can be used for such a transformation.
  *
  *    The vectors accessible via cols have entries (i.e. ivp idx members) that
  *    must be present as indices (of the ivps in) in dom_rows.
@@ -86,14 +93,36 @@ typedef struct
 */
 
  /* only allowed as rvalue */
-#define N_COLS(mx) ((long) ((mx)->dom_cols->n_ivps * 1))
-#define N_ROWS(mx) ((long) ((mx)->dom_rows->n_ivps * 1))
+#define N_COLS(mx) ((dim) ((mx)->dom_cols->n_ivps * 1))
+#define N_ROWS(mx) ((dim) ((mx)->dom_rows->n_ivps * 1))
+
 #define MAXID_COLS(mx) (N_COLS(mx) ? ((mx)->dom_cols->ivps)[N_COLS(mx)-1].idx : 0)
 #define MAXID_ROWS(mx) (N_ROWS(mx) ? ((mx)->dom_rows->ivps)[N_ROWS(mx)-1].idx : 0)
 
-#define mclxRowCanonical(mx) mcldIsCanonical((mx)->dom_rows)
-#define mclxColCanonical(mx) mcldIsCanonical((mx)->dom_cols)
-#define mclxIsGraph(mx)  mcldEquate((mx)->dom_rows, (mx)->dom_cols, MCLD_EQ_EQUAL)
+#define mclxRowCanonical(mx) MCLV_IS_CANONICAL((mx)->dom_rows)
+#define mclxColCanonical(mx) MCLV_IS_CANONICAL((mx)->dom_cols)
+
+#define mclxDomCanonical(mx)     (mclxRowCanonical(mx) && mclxColCanonical(mx))
+#define mclxGraphCanonical(mx)   (mclxDomCanonical(mx) && N_ROWS(mx) == N_COLS(mx))
+
+#define mclxIsGraph(mx) (  mclxGraphCanonical(mx)           \
+                        || mcldEquate((mx)->dom_rows, (mx)->dom_cols, MCLD_EQT_EQUAL)  \
+                        )
+
+
+#define     MCLX_PRODUCE_DOMTREE       1 <<  0     /* */
+#define     MCLX_PRODUCE_DOMSTACK      1 <<  1
+#define     MCLX_REQUIRE_DOMTREE       1 <<  2
+#define     MCLX_REQUIRE_DOMSTACK      1 <<  3
+#define     MCLX_REQUIRE_NESTED        1 <<  4      /* with stack format */
+#define     MCLX_ENSURE_ROOT           1 <<  5
+#define     MCLX_REQUIRE_PARTITION     1 <<  6
+#define     MCLX_REQUIRE_CANONICALC    1 <<  7
+#define     MCLX_REQUIRE_CANONICALR    1 <<  8
+#define     MCLX_REQUIRE_CANONICAL     (MCLX_REQUIRE_CANONICALC | MCLX_REQUIRE_CANONICALR)
+#define     MCLX_REQUIRE_GRAPH         1 <<  9
+#define     MCLX_MODE_UNUSED           1 << 10
+
 
 /* args become members of object */
 
@@ -117,19 +146,22 @@ mclx* mclxCartesian
 )  ;
 
 
-/*    All arguments remain owned by caller.
- *    The select domains need not be subdomains of the matrix domains.
- *    They can take any form; mclxSub will do the appropriate thing
- *    (keeping those entries that are in line with the new domains).
- *
+/*    All arguments remain owned by caller.  The select domains need not be
+ *    subdomains of the matrix domains.  They can take any form; mclxSub will
+ *    do the appropriate thing (keeping those entries that are in line with the
+ *    new domains).
+
  *    The domains of the new matrix will always be clones of the selection
  *    domains as supplied by caller, even if those are not subdomains of the
- *    corresponding matrix domains.
- *    In this respect, the routine acts just like mclxChangeDomains,
- *    which is effectively an in-place variant of mclxSub.
+ *    corresponding matrix domains.  In this respect, the routine acts just
+ *    like mclxChangeDomains, which is effectively an in-place variant of
+ *    mclxSub.
+
+ *    If the select domains are wider than the matrix domains, nothing will be
+ *    removed and only the domains are changed.
  *
- *    If the select domains are wider than the matrix domains, nothing
- *    will be removed and only the domains are changed.
+ *    If a select domain is NULL it is interpreted as an empty vector.  NOTE
+ *    This is different from mclxSubRead[x] in io.h
 */
 
 mclx*  mclxSub
@@ -196,7 +228,7 @@ void mclxChangeDomains
  *    If the columns of dom induce a partition, this will be
  *    a block diagonal matrix.
  *    The domains of the returned matrix are both equal
- *    to the row domain of the dom matrix.
+ *    to the col domain of the mx matrix.
 */
 
 mclx*  mclxBlocks
@@ -207,6 +239,11 @@ mclx*  mclxBlocks
 mclx*  mclxBlocks2
 (  const mclx*     mx
 ,  const mclx*     domain
+)  ;
+
+mclMatrix*  mclxBlocksC
+(  const mclMatrix*     mx
+,  const mclMatrix*     domain
 )  ;
 
 
@@ -275,49 +312,76 @@ mclx* mclxConstDiag
 )  ;
 
 
-void mclxMakeSparse
-(  mclx*    mtx
-,  int      min
-,  int      max
-)  ;
-
-
 void mclxMakeStochastic
 (  mclx*    mx
 )  ;
 
 
+      /* Selects on column domain, but removes from row domain as well.
+       * Use this for undirected graphs.
+       * Returns the domain that was kept (note that domains of m
+       * are not touched)
+      */
+mclv* mclgMakeSparse
+(  mclMatrix* m
+,  dim        sel_gq
+,  dim        sel_lq
+)  ;
+
+
 mclx* mclxTranspose
-(  const mclx*   src
+(  const mclx*    m
 )  ;
 
 
 void mclxMakeCharacteristic
-(  mclx*     mtx
+(  mclx*          m
 )  ;
 
-long mclxNrofEntries
-(  const mclx*        m
+dim mclxNrofEntries
+(  const mclx*    m
 )  ;
 
 double mclxMass
-(  const mclx*  m
+(  const mclx*    m
 )  ;
 
 
 
-/* MCL_VECTOR_SPARSE or MCL_VECTOR_COMPLETE */
+   /* mode:
+    *    MCL_VECTOR_SPARSE
+    *    MCL_VECTOR_COMPLETE
+   */
 
 mclv* mclxColNums
-(  const mclx*  m
-,  double           (*f)(const mclv * vec)
-,  mcxenum           mode
+(  const mclx*    m
+,  double        (*f_cb)(const mclv * vec)
+,  mcxenum        mode
+)  ;
+
+
+   /* Returns a domain vector only including those (column) indices
+    * for which f_cb returned nonzero.
+   */
+mclv* mclxColSelect
+(  const mclx*    m
+,  double        (*f_cb)(const mclv*, void*)
+,  void*          arg_cb
+)  ;
+
+
+dim mclxSelectUpper
+(  mclx*  mx
+)  ;
+
+dim mclxSelectLower
+(  mclx*  mx
 )  ;
 
 
 mclx* mclxMax
-(  const mclx*  m1
-,  const mclx*  m2
+(  const mclx*    m1
+,  const mclx*    m2
 )  ;
 
 
@@ -358,24 +422,37 @@ void mclxInflate
 mclx* mclxBinary
 (  const mclx*  m1
 ,  const mclx*  m2
-,  double (*operation)(pval, pval)
+,  double (*f_cb)(pval, pval)
 )  ;
 
 
-/* inline merge; m1 is modified and returned.
- * result has
- *    col domain: the union of col domains
- *    row domain: the union of row domains
+/* Inline merge; m1 is modified and returned.  domains of m1 are *not* changed.
+ * any entries in m2 not in the domains of m1 is discarded.
+ *
+ * Note: this uses mclvBinary internally, which is inefficient for meet/diff
+ * type operations.
 */
 
-mclx* mclxMerge
+void mclxMerge
 (  mclx* m1
 ,  const mclx* m2
-,  double (*operation)(pval, pval)
+,  double (*f_cb)(pval, pval)
 ) ;
 
 
-size_t mclxNEntries
+/* inline add; m1 is modified.
+ * domains of m1 are *not* changed.
+ * any entries in m2 not in the domains of m1
+ * is discarded.
+*/
+
+void mclxAddto
+(  mclMatrix* m1
+,  const mclMatrix* m2
+)  ;
+
+
+dim mclxNEntries
 (  const mclx*     mx
 )  ;
 
@@ -391,88 +468,60 @@ double mclxMaxValue
 */
 
 mclv* mclxColSums
-(  const mclx*  m
-,  mcxenum           mode
+(  const mclx*    m
+,  mcxenum        mode
 )  ;
 
 mclv* mclxDiagValues
-(  const mclx*  m
-,  mcxenum           mode
+(  const mclx*    m
+,  mcxenum        mode
 )  ;
 
 
 mclv* mclxColSizes
-(  const mclx*  m
-,  mcxenum           mode
+(  const mclx*    m
+,  mcxenum        mode
 )  ;
 
 
-int mclxGetVectorOffset
-(  const mclx*  mx
-,  long              vid
-,  mcxOnFail         ON_FAIL
-,  long              offset
+ofs mclxGetVectorOffset
+(  const mclx*    mx
+,  long           vid
+,  mcxOnFail      ON_FAIL
+,  ofs            offset
 )  ;
 
 
 mclv* mclxGetVector
-(  const mclx*  mx
-,  long              vid
-,  mcxOnFail         ON_FAIL
-,  const mclv*  offset
+(  const mclx*    mx
+,  long           vid
+,  mcxOnFail      ON_FAIL
+,  const mclv*    offset
 )  ;
 
 
 mclv* mclxGetNextVector
-(  const mclx*  mx
-,  long              vid
-,  mcxOnFail         ON_FAIL
-,  const mclv*  offset
+(  const mclx*    mx
+,  long           vid
+,  mcxOnFail      ON_FAIL
+,  const mclv*    offset
 )  ;
 
 
 /* vids-column association is disrupted! */
 
 void  mclxColumnsRealign
-(  mclx*        m
-,  int              (*cmp)(const void* vec1, const void* vec2)
+(  mclx*          m
+,  int          (*cmp)(const void* vec1, const void* vec2)
 )  ;
 
 
-/* These can be used to map or permute domains.
- *
- * Permutation or mapping of a matrix can also be achieved using matrix
- * multiplication.  These two methods do in-place modification.
+
+/* ************************************************************************* */
+
+/* Map (necessarily) preserves ordering
+ * Use e.g. to canonify domains.
 */
-
-mcxstatus mclxMapRows
-(  mclx   *mx
-,  mclx  *map
-)  ;
-
-
-mcxstatus mclxMapCols
-(  mclx  *mx
-,  mclx  *map
-)  ;
-
-
-
-/*************************************
- * *
- **
- *
-*/
-
-void mclxAdjustLoops
-(  mclx*    mx
-,  double (*op)(mclv* vec, long r, void* data)
-,  void* data
-)  ;
-
-
-/*************************************/
-
 
 mclx* mclxMakeMap
 (  mclv*  dom_cols
@@ -480,50 +529,90 @@ mclx* mclxMakeMap
 )  ;
 
 
+/* Uses scratch in SCRATCH_READY mode
+*/
 
-/* Shortest-Simple-Paths between x and y.
+mcxbool mclxMapTest
+(  mclx*    map
+)  ;
+
+#define mclxMapInvert(map) (mclxMapTest(map) ? mclxTranspose(map) : NULL)
+
+/* dom should be subset of map->dom_cols.
+ *    if successful
+ *    -  returns the image of dom under map as an ordered set.
+ *    -  *ar_dompp contains the image of dom.
+*/
+
+mclv* mclxMapVectorPermute
+(  mclv  *dom
+,  mclx  *map
+,  mclpAR** ar_dompp
+)  ;
+
+
+/* These can be used to map domains (and the corresponding
+ * matrix entries accordingly).
  *
- * -  Nodes must be different.
- * -  Will fail mysteriously or rudely on directed graphs.
- * -  Returns participating nodes including x and y as a vector.
- * -  Optionally sets the associated track matrix in trackpp.
+ * Mapping of a matrix can also be achieved using matrix
+ * multiplication. These two methods do in-place modification.
+ * In matrix algrebra the mapping of a matrix is known as 
+ * a matrix permutation.
 */
 
-mclv* mclxSSPxy
-(  const mclx* graph
-,  long x
-,  long y
-,  mclx** trackpp
+mcxstatus mclxMapRows
+(  mclx     *mx
+,  mclx     *map
 )  ;
 
 
-/* All nodes participating in all shortest simple paths between all
- *       nodes in domain.
- * -  Nodes must be different.
- * -  Will fail mysteriously or rudely on directed graphs.
- * -  Current implemementation is not run-time efficient.
-*/
-
-mclv* mclxSSPd
-(  const mclx* graph
-,  const mclv* set
+mcxstatus mclxMapCols
+(  mclx     *mx
+,  mclx     *map
 )  ;
 
 
-/* TODO move mcxsub disc implementation to this file.
+/* ************************************************************************* */
+
+
+
+/*************************************
+ * *
+ **
+ * returns number of columns that had zero entries.
 */
 
-/* return union of columns with vid in dom.
- * fixme fixme fixme *VERY* ugly hack:
- *   idx -1 denotes cols
- *   idx -2 denotes rows
-*/
-
-mclv* mclxUnionv
-(  const mclx* mx
-,  const mclv* dom
-,  mclv* dst
+dim mclxAdjustLoops
+(  mclx*    mx
+,  double (*op)(mclv* vec, long r, void* data)
+,  void* data
 )  ;
+
+
+double mclxLoopCBremove
+(  mclv  *vec
+,  long r
+,  void*data
+)  ;
+
+
+double mclxLoopCBifEmpty
+(  mclv  *vec
+,  long r
+,  void*data
+)  ;
+
+
+/* returns 1.0 if vector has no entries */
+
+double mclxLoopCBmax
+(  mclv  *vec
+,  long r
+,  void*data
+)  ;
+
+
+/*************************************/
 
 
 #define MCLX_WEED_COLS 1
@@ -541,14 +630,158 @@ void mclxWeed
 
 void mclxUnary
 (  mclx*  m1
-,  double  (*operation)(pval, void*)
+,  double  (*f_cb)(pval, void*)
 ,  void*  arg           /* double*  */
 )  ;
 
-long mclxUnaryList
+dim mclxUnaryList
 (  mclx*    mx
 ,  mclpAR*  ar       /* idx: MCLX_UNARY_mode, val: arg */
 )  ;
+
+
+
+enum
+{  SCRATCH_READY
+,  SCRATCH_BUSY
+,  SCRATCH_UPDATE
+,  SCRATCH_DIRTY
+}  ;
+
+/* return union of columns with vid in dom.
+ *
+ * SCRATCH_READY:    mx->dom_rows is characteristic, will be used and reset.
+ * SCRATCH_BUSY:     do not use scratch.
+ * SCRATCH_DIRTY:    reset and use scratch, then leave it dirty.
+ * SCRATCH_UPDATE:   ignore nodes in scratch, add unseen nodes, do not reset.
+ *
+ *
+ * NOTE --- relevant for flood code that uses SCRATCH_UPDATE ---
+ *    mclgUnionv does not update scratch for the indices in dom_cols.
+ *    An example is clew/clm.c/clmComponents. The initial annotation,
+ *    if needed, is provided by mclgUnionvInitNode or mclgUnionvInitList
+*/
+
+#define MCLG_UNIONV_SENTINEL 1.5
+
+#define  mclgUnionvInitNode(mx, node) \
+         mclvInsertIdx(mx->dom_rows, node, MCLG_UNIONV_SENTINEL)
+
+#define  mclgUnionvInitList(mx, vec) \
+         mclvUpdateMeet(mx->dom_rows, vec, flt1p5)
+
+#define  mclgUnionvResetList(mx, vec) \
+         mclvUpdateMeet(mx->dom_rows, vec, flt1p0)
+
+#define  mclgUnionvReset(mx) \
+         mclvMakeCharacteristic(mx->dom_rows)
+
+mclv* mclgUnionv
+(  mclx* mx                   /*  mx->dom_rows used as scratch area     */
+,  const mclv* dom_cols       /*  take union over these columns in mx   */
+,  const mclv* restrict       /*  only consider row entries in restrict */
+,  mcxenum SCRATCH_STATUS     /*  if ready also returned ready          */
+,  mclv* dst
+)  ;
+
+
+
+#if 0
+typedef struct
+{  mclx*       mx
+;  mclx*       mxtp
+;  void*       usr
+;
+}  mclxAnnot   ;
+
+
+/* TODO
+ *    put mclxStackPush callback in the struct
+*/
+
+typedef struct
+{  mclxAnnot*  level
+;  dim         n_level
+;  dim         n_alloc  
+;  mcxTing*    name
+;
+}  mclxStack   ;
+
+
+void mclxStackInit
+(  mclxStack*  stack
+,  const char* str
+)  ;
+
+
+mcxstatus mclxStackPush
+(  mclxStack*  stack
+,  mclx*       mx
+,  mcxstatus   (*cb1) (mclx* mx, void* cb_data)
+,  void*       cb1_data
+,  mcxstatus   (*cb2) (mclx* left, mclx* right, void* cb_data)
+,  void*       cb2_data
+)  ;
+
+
+mcxstatus mclxStackRead
+(  mcxIO*      xf
+,  mclxStack*  stack
+,  dim         n_max
+,  mcxstatus   (*cb1) (mclx* mx, void* cb_data)
+,  void*       cb1_data
+,  mcxstatus   (*cb2) (mclx* left, mclx* right, void* cb_data)
+,  void*       cb2_data
+)  ;
+
+
+mcxstatus mclxStackReadArgv
+(  const char* argv[]
+,  int         argc
+,  mclxStack*  stack
+,  mcxstatus   (*cb1) (mclx* mx, void* cb_data)
+,  void*       cb1_data
+,  mcxstatus   (*cb2) (mclx* left, mclx* right, void* cb_data)
+,  void*       cb2_data
+)  ;
+
+
+mcxstatus mclxStackCBcone
+(  mclx* left
+,  mclx* right
+,  void* cb_data
+)  ;
+
+
+mcxstatus mclxStackCBstack
+(  mclx* left
+,  mclx* right
+,  void* cb_data
+)  ;
+
+
+mcxstatus mclxStackConify
+(  mclxStack* st
+)  ;
+
+
+mcxstatus mclxStackUnconify
+(  mclxStack* st
+)  ;
+
+
+void mclxStackReverse
+(  mclxStack*  stack
+)  ;
+
+
+mcxstatus mclxStackWrite
+(  mcxIO*      xf
+,  mclxStack*  stack
+,  int         valdigits
+,  mcxOnFail   ON_FAIL
+)  ;
+#endif
 
 
 #endif

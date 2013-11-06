@@ -1,5 +1,5 @@
-.\" Copyright (c) 2006 Stijn van Dongen
-.TH "clmresidue" 1 "27 Feb 2006" "clmresidue 1\&.006, 06-058" "USER COMMANDS "
+.\" Copyright (c) 2008 Stijn van Dongen
+.TH "clm residue" 1 "5 Jun 2008" "clm residue 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -28,23 +28,39 @@
 .el .in 8m
 ..
 .SH NAME
-clmresidue \- extend clustering of subgraph to clustering of graph\&.
+clm residue \- extend clustering of subgraph to clustering of graph\&.
+
+clmresidue is not in actual fact a program\&. This manual
+page documents the behaviour and options of the clm program when
+invoked in mode \fIresidue\fP\&. The options \fB-h\fP, \fB--apropos\fP,
+\fB--version\fP, \fB-set\fP, \fB--nop\fP are accessible
+in all \fBclm\fP modes\&. They are described
+in the \fBclm\fP manual page\&.
 .SH SYNOPSIS
 
-\fBclmresidue\fP
+\fBclm residue\fP
 \fB-icl\fP fname (\fIinput clustering\fP)
 \fB-imx\fP fname (\fIinput graph\fP)
 \fB[-rpm\fP fname (\fIresidue projection matrix\fP)\fB]\fP
-\fB[--adapt\fP (\fIallow domain mismatch\fP)\fB]\fP
-\fB[-mvp\fP fname (\fImajority vote projection (clustering)\fP)\fB]\fP
+\fB[-o\fP fname (\fIoutput clustering file\fP)\fB]\fP
 .SH DESCRIPTION
 
 The cluster file presumably contains a clustering of a subgraph of the
 graph\ \&\fCG\fP contained by the matrix file, implying that the row domain of
-that clustering is a subset of the node domain of the graph\&. clmresidue will
+that clustering is a subset of the node domain of the graph\&. \fBclm residue\fP will
 compute a simple upwards projection of that clustering, resulting in a
 clustering of\ \&\fCG\fP\&.
 .SH OPTIONS
+
+.ZI 3m "\fB-imx\fP fname (\fIinput graph\fP)"
+\&
+.br
+.in -3m
+
+.ZI 3m "\fB-icl\fP fname (\fIinput clustering\fP)"
+\&
+.br
+.in -3m
 
 .ZI 3m "\fB-rpm\fP fname (\fIresidue projection matrix\fP)"
 \&
@@ -53,11 +69,10 @@ The name for the file in which the residue projection matrix is stored\&.
 It contains for each node and for each cluster in the input clustering
 the combined weight of the (edges to the) neighbours of that node
 in that cluster\&.
-
 The default output file name is \fCout\&.rpm\fP\&.
 .in -3m
 
-.ZI 3m "\fB-mvp\fP fname (\fImajority vote projection (clustering)\fP)"
+.ZI 3m "\fB-o\fP fname (\fIoutput clustering file\fP)"
 \&
 .br
 The name for the file in which the majority vote projection clustering
@@ -70,14 +85,7 @@ residue (i\&.e\&. the set of missing nodes) is initially viewed as a cluster;
 the set of nodes for which the projection is largest for the residue itself
 will form a new cluster, if it is not empty\&.
 
-The default output file name is \fCout\&.mvp\fP\&.
-.in -3m
-
-.ZI 3m "\fB--adapt\fP (\fIallow domain mismatch\fP)"
-\&
-.br
-Allow the clustering domain to contain nodes not present in the graph
-domain\&. \fBclmresidue\fP will take the appropriate subclustering\&.
+By default output is sent to STDOUT\&.
 .in -3m
 .SH AUTHOR
 

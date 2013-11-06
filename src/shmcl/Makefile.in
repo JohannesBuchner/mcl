@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-SOURCES = $(mcl_SOURCES)
+SOURCES = $(mcl_SOURCES) $(mclcm_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -38,8 +38,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_triplet = @host@
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(top_srcdir)/include/include.am TODO
-bin_PROGRAMS = mcl$(EXEEXT)
+	$(top_srcdir)/include/include.am
+bin_PROGRAMS = mcl$(EXEEXT) mclcm$(EXEEXT)
 subdir = src/shmcl
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
@@ -55,7 +55,14 @@ PROGRAMS = $(bin_PROGRAMS)
 am_mcl_OBJECTS = mcl.$(OBJEXT)
 mcl_OBJECTS = $(am_mcl_OBJECTS)
 mcl_LDADD = $(LDADD)
-mcl_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
+mcl_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
+	../taurus/libtaurus.a ../gryphon/libgryphon.a \
+	../impala/libimpala.a ../../util/libutil.a
+am_mclcm_OBJECTS = mclcm.$(OBJEXT)
+mclcm_OBJECTS = $(am_mclcm_OBJECTS)
+mclcm_LDADD = $(LDADD)
+mclcm_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
+	../taurus/libtaurus.a ../gryphon/libgryphon.a \
 	../impala/libimpala.a ../../util/libutil.a
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/autofoo/depcomp
@@ -64,8 +71,8 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(mcl_SOURCES)
-DIST_SOURCES = $(mcl_SOURCES)
+SOURCES = $(mcl_SOURCES) $(mclcm_SOURCES)
+DIST_SOURCES = $(mcl_SOURCES) $(mclcm_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -79,8 +86,6 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BUILD_BLAST_FALSE = @BUILD_BLAST_FALSE@
 BUILD_BLAST_TRUE = @BUILD_BLAST_TRUE@
-BUILD_TRIBE_FALSE = @BUILD_TRIBE_FALSE@
-BUILD_TRIBE_TRUE = @BUILD_TRIBE_TRUE@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -163,8 +168,9 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)
-LDADD = ../mcl/libmcl.a ../taurus/libtaurus.a ../impala/libimpala.a ../../util/libutil.a
+LDADD = ../mcl/libmcl.a ../clew/libclew.a ../taurus/libtaurus.a ../gryphon/libgryphon.a ../impala/libimpala.a ../../util/libutil.a
 mcl_SOURCES = mcl.c
+mclcm_SOURCES = mclcm.c
 all: all-am
 
 .SUFFIXES:
@@ -224,6 +230,9 @@ clean-binPROGRAMS:
 mcl$(EXEEXT): $(mcl_OBJECTS) $(mcl_DEPENDENCIES) 
 	@rm -f mcl$(EXEEXT)
 	$(LINK) $(mcl_LDFLAGS) $(mcl_OBJECTS) $(mcl_LDADD) $(LIBS)
+mclcm$(EXEEXT): $(mclcm_OBJECTS) $(mclcm_DEPENDENCIES) 
+	@rm -f mclcm$(EXEEXT)
+	$(LINK) $(mclcm_LDFLAGS) $(mclcm_OBJECTS) $(mclcm_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -232,6 +241,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcl.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mclcm.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \

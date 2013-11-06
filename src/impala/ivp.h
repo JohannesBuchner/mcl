@@ -1,7 +1,8 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -57,7 +58,12 @@ void mclpFree
 
 /* arg should be of type double */
 
-mcxbool mclpGivenValGt
+mcxbool mclpGivenValGQ
+(  mclIvp*        ivp
+,  void*          arg
+)  ;
+
+mcxbool mclpGivenValLQ
 (  mclIvp*        ivp
 ,  void*          arg
 )  ;
@@ -119,6 +125,12 @@ void mclpMergeMax
 )  ;
 
 
+void mclpMergeMin
+(  void*                   ivp1
+,  const void*             ivp2
+)  ;
+
+
 void mclpMergeMul
 (  void*                   ivp1
 ,  const void*             ivp2
@@ -127,8 +139,8 @@ void mclpMergeMul
 
 typedef struct
 {  mclIvp*     ivps
-;  int         n_ivps
-;  int         n_alloc
+;  dim         n_ivps
+;  dim         n_alloc
 ;  mcxbits     sorted      /* 1 = sorted 2 = no-duplicates */
 ;
 }  mclpAR   ;
@@ -146,7 +158,7 @@ void* mclpARinit_v
 
 mclpAR* mclpARensure
 (  mclpAR*  mclpar
-,  int      n
+,  dim      n
 )  ;
 
 
@@ -157,10 +169,14 @@ mcxstatus mclpARextend
 )  ;
 
 
+void mclpARreset
+(  mclpAR*  ar
+)  ;
+
 mclpAR* mclpARfromIvps
 (  mclpAR*  mclpar
 ,  mclp*    ivps
-,  int      n
+,  dim      n
 )  ;
 
 
@@ -172,6 +188,34 @@ void mclpARfree
 double mclpUnary
 (  mclp*    ivp
 ,  mclpAR*  ar       /* idx: MCLX_UNARY_mode, val: arg */
+)  ;
+
+
+
+typedef struct
+{  double*     lft
+;  double*     rgt
+;  mcxbits     equate   /* 1: lq, 2: gq */
+;
+}  mclpVRange   ;
+
+mcxbool mclpSelectValues
+(  mclp     *ivp
+,  void     *range
+)  ;
+
+
+
+typedef struct
+{  long*       lft
+;  long*       rgt
+;  mcxbits     equate   /* 1: lq, 2: gq */
+;
+}  mclpIRange   ;
+
+mcxbool mclpSelectIdcs
+(  mclp     *ivp
+,  void     *range
 )  ;
 
 

@@ -1,7 +1,8 @@
-/* (c) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -22,171 +23,335 @@
 #include "util/opt.h"
 #include "util/types.h"
 
-mclMatrix* cmpProjection
-(  mclMatrix* mtx
-,  mclMatrix* dom
-,  mclMatrix* icl
-)  ;
 
-const char* usagelines[] =
-{  "Usage: mcxmap [options] -imx <in file>"
-,  ""
-,  "Options:"
-,  "  -cmap <fname>"
-,  "     Use map file for column indices"
-,  "  -cmul <int p>     [1]"
-,  "  -cshift <int q>   [0]"
-,  "     Column indices j are mapped to p*j + q"
-,  ""
-,  "  -rmap <fname>"
-,  "     Use map file for row indices"
-,  "  -rmul <int p>     [1]"
-,  "  -rshift <int q>   [0]"
-,  "     Row indices i are mapped to p*i + q"
-,  ""
-,  "  -map <fname>"
-,  "     Use map file for row and column indices"
-,  "  -mul <int p>"
-,  "  -shift <int q>"
-,  "     Use mul and shift values for row and column indices"
-,  ""
-,  "  --invert          invert the map file"
-,  "  --invertr         invert the row map file"
-,  "  --invertc         invert the column map file"
-,  "  -o <out file>"
-,  "  -digits <int d>"
-,  NULL
+enum
+{  MY_OPT_IMX
+,  MY_OPT_TAB
+,  MY_OPT_OUT
+,  MY_OPT_MUL
+,  MY_OPT_CMUL
+,  MY_OPT_RMUL
+,  MY_OPT_SHIFT
+,  MY_OPT_CSHIFT
+,  MY_OPT_RSHIFT
+,  MY_OPT_MAP
+,  MY_OPT_CMAP
+,  MY_OPT_RMAP
+,  MY_OPT_MAPI
+,  MY_OPT_CMAPI
+,  MY_OPT_RMAPI
+,  MY_OPT_CANN
+,  MY_OPT_CANNC
+,  MY_OPT_CANNR
+,  MY_OPT_HELP
+,  MY_OPT_APROPOS
+,  MY_OPT_VERSION
 }  ;
+
+
+const char* me = "mcxmap";
+const char* syntax = "Usage: mcxmap [options]";
+
+
+mcxOptAnchor options[] =
+{  {  "-h"
+   ,  MCX_OPT_DEFAULT | MCX_OPT_INFO
+   ,  MY_OPT_HELP
+   ,  NULL
+   ,  "print this help"
+   }
+,  {  "--version"
+   ,  MCX_OPT_DEFAULT | MCX_OPT_INFO
+   ,  MY_OPT_VERSION
+   ,  NULL
+   ,  "print version information"
+   }
+,  {  "--apropos"
+   ,  MCX_OPT_DEFAULT | MCX_OPT_INFO
+   ,  MY_OPT_APROPOS
+   ,  NULL
+   ,  "print this help"
+   }
+,  {  "-shift"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_SHIFT
+   ,  "<num>"
+   ,  "shift domain indices by <num>"
+   }
+,  {  "-cshift"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_CSHIFT
+   ,  "<num>"
+   ,  "shift column indices by <num>"
+   }
+,  {  "-rshift"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_RSHIFT
+   ,  "<num>"
+   ,  "shift row indices by <num>"
+   }
+,  {  "-mul"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_MUL
+   ,  "<num>"
+   ,  "multiply domain indices by <num>"
+   }
+,  {  "-cmul"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_CMUL
+   ,  "<num>"
+   ,  "multiply column indices by <num>"
+   }
+,  {  "-rmul"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_RMUL
+   ,  "<num>"
+   ,  "multiply row indices by <num>"
+   }
+,  {  "-map"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_MAP
+   ,  "<fname>"
+   ,  "map domain indices"
+   }
+,  {  "-cmap"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_CMAP
+   ,  "<fname>"
+   ,  "map column indices"
+   }
+,  {  "-rmap"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_RMAP
+   ,  "<fname>"
+   ,  "map row indices"
+   }
+,  {  "-mapi"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_MAPI
+   ,  "<fname>"
+   ,  "map domain indices with inverse"
+   }
+,  {  "-cmapi"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_CMAPI
+   ,  "<fname>"
+   ,  "map column indices with inverse"
+   }
+,  {  "-rmapi"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_RMAPI
+   ,  "<fname>"
+   ,  "map row indices with inverse"
+   }
+,  {  "-cann"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_CANN
+   ,  "<fname>"
+   ,  "canonify domain indices, write map files"
+   }
+,  {  "-cannc"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_CANNC
+   ,  "<fname>"
+   ,  "canonify column indices, write map file"
+   }
+,  {  "-cannr"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_CANNR
+   ,  "<fname>"
+   ,  "canonify row indices, write map file"
+   }
+,  {  "-o"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_OUT
+   ,  "<fname>"
+   ,  "write output to file <fname>"
+   }
+,  {  "-imx"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_IMX
+   ,  "<fname>"
+   ,  "use matrix from file <fname>"
+   }
+,  {  "-tab"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_TAB
+   ,  "<fname>"
+   ,  "use tab file from <fname>"
+   }
+,  {  NULL, 0, 0, NULL, NULL  }
+}  ;
+
 
 
 int main
 (  int                  argc
 ,  const char*          argv[]
 )
-   {  mcxIO             *xfin       =  NULL
-   ;  mcxIO             *xfout      =  NULL
-   ;  mclMatrix  *mx=NULL
+   {  mcxIO      *xfin        =  mcxIOnew("-", "r")
+   ;  mcxIO      *xfout       =  mcxIOnew("-", "w")
+   ;  mclMatrix  *mx          =  NULL
    ;  mclx* cmapx = NULL, *rmapx = NULL
    ;  const char* me          =  "mcxmap"
    ;  long        cshift      =  0
    ;  long        rshift      =  0
    ;  long        cmul        =  1
    ;  long        rmul        =  1
-   ;  int         a           =  1
-   ;  int digits = MCLXIO_VALUE_GETENV
+   ;  mcxIO*     xf_cannc     =  NULL
+   ;  mcxIO*     xf_cannr     =  NULL
    ;  mcxstatus   status      =  STATUS_OK
    ;  mcxbool     invert      =  FALSE
    ;  mcxbool     invertr     =  FALSE
    ;  mcxbool     invertc     =  FALSE
-   ;  mcxIO* xf_map_c = NULL, *xf_map_r = NULL, *xf_map = NULL
+   ;  mcxIO* xf_map_c = NULL, *xf_map_r = NULL, *xf_map = NULL, *xf_tab = NULL
+
+   ;  mcxOption* opts, *opt
+   ;  mcxstatus parseStatus = STATUS_OK
+
+   ;  mclx_app_init(stderr)
+   
+   ;  mcxOptAnchorSortById(options, sizeof(options)/sizeof(mcxOptAnchor) -1)
+   ;  opts = mcxOptParse(options, (char**) argv, argc, 1, 0, &parseStatus)
+
+   ;  if (!opts)
+      exit(0)
 
    ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_NO)
 
-   ;  if (argc == 1)
-      goto help
+   ;  for (opt=opts;opt->anch;opt++)
+      {  mcxOptAnchor* anch = opt->anch
 
-   ;  while (a<argc)
-      {  if (!strcmp(argv[a], "-h"))
-         {  help
-         :  mcxUsage(stdout, me, usagelines)
-         ;  return status
-      ;  }
-         else if (!strcmp(argv[a], "--invert"))
-         invert = TRUE
-      ;  else if (!strcmp(argv[a], "--invertc"))
-         invertc = TRUE
-      ;  else if (!strcmp(argv[a], "--invertr"))
-         invertr = TRUE
-      ;  else if (!strcmp(argv[a], "--version"))
-         {  app_report_version(me)
-         ;  exit(0)
-      ;  }
-         else if (!strcmp(argv[a], "-mul"))
-         {  if (a++ + 1 < argc)
-               cmul =  atol(argv[a])
-            ,  rmul = cmul
-         ;  else goto arg_missing
-      ;  }
-         else if (!strcmp(argv[a], "-shift"))
-         {  if (a++ + 1 < argc)
-               cshift =  atoi(argv[a])
-            ,  rshift =  cshift
-         ;  else goto arg_missing
-      ;  }
-         else if (!strcmp(argv[a], "-cmul"))
-         {  if (a++ + 1 < argc)
-            cmul =  atol(argv[a])
-         ;  else goto arg_missing
-      ;  }
-         else if (!strcmp(argv[a], "-cshift"))
-         {  if (a++ + 1 < argc)
-            cshift =  atoi(argv[a])
-         ;  else goto arg_missing
-      ;  }
-         else if (!strcmp(argv[a], "-cmap"))
-         {  if (a++ + 1 < argc)
-            xf_map_c =  mcxIOnew(argv[a], "r")
-         ;  else goto arg_missing
-      ;  }
-         else if (!strcmp(argv[a], "-map"))
-         {  if (a++ + 1 < argc)
-            xf_map =  mcxIOnew(argv[a], "r")
-         ;  else goto arg_missing
-      ;  }
-         else if (!strcmp(argv[a], "-rmul"))
-         {  if (a++ + 1 < argc)
-            rmul =  atol(argv[a])
-         ;  else goto arg_missing
-      ;  }
-         else if (!strcmp(argv[a], "-rshift"))
-         {  if (a++ + 1 < argc)
-            rshift =  atol(argv[a])
-         ;  else goto arg_missing
-      ;  }
-         else if (!strcmp(argv[a], "-rmap"))
-         {  if (a++ + 1 < argc)
-            xf_map_r =  mcxIOnew(argv[a], "r")
-         ;  else goto arg_missing
-      ;  }
-         else if (!strcmp(argv[a], "-digits"))
-         {  if (a++ + 1 < argc)
-            digits =  atol(argv[a])
-         ;  else goto arg_missing
-      ;  }
-         else if (!strcmp(argv[a], "-imx"))
-         {  if (a++ + 1 < argc)
-            {  xfin  =  mcxIOnew(argv[a], "r")
-            ;  mcxIOopen(xfin, EXIT_ON_FAIL)
-         ;  }
-            else goto arg_missing
-      ;  }
-         else if (!strcmp(argv[a], "-o"))
-         {  if (a++ + 1 < argc)
-            {  xfout  =  mcxIOnew(argv[a], "w")
-            ;  mcxIOopen(xfout, EXIT_ON_FAIL)
-         ;  }
-            else goto arg_missing
-      ;  }
-         else if (0)
-         {  arg_missing
-         :  mcxTell(me, "flag <%s> needs argument; see help (-h)", argv[argc-1])
-         ;  mcxExit(1)
+      ;  switch(anch->id)
+         {  case MY_OPT_HELP
+         :  case MY_OPT_APROPOS
+         :  mcxOptApropos(stdout, me, syntax, 0, 0, options)
+         ;  return 0
+         ;
+
+            case MY_OPT_VERSION
+         :  app_report_version(me)
+         ;  return 0
+         ;
+
+            case MY_OPT_IMX
+         :  mcxIOnewName(xfin, opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_OUT
+         :  mcxIOnewName(xfout, opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_MUL
+         :  cmul =  atol(opt->val)
+         ;  rmul =  cmul
+         ;  break
+         ;
+
+            case MY_OPT_CMUL
+         :  cmul =  atol(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_RMUL
+         :  rmul =  atol(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_SHIFT
+         :  cshift =  atol(opt->val)
+         ;  rshift =  atol(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_CSHIFT
+         :  cshift =  atol(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_RSHIFT
+         :  rshift =  atol(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_MAP
+         :  xf_map =  mcxIOnew(opt->val, "r")
+         ;  invert =  FALSE
+         ;  break
+         ;
+
+            case MY_OPT_CMAP
+         :  invertc  =  FALSE  
+         ;  xf_map_c =  mcxIOnew(opt->val, "r")
+         ;  break
+         ;
+
+            case MY_OPT_RMAP
+         :  invertr  =  FALSE  
+         ;  xf_map_r =  mcxIOnew(opt->val, "r")
+         ;  break
+         ;
+
+            case MY_OPT_MAPI
+         :  invert =  TRUE  
+         ;  xf_map =  mcxIOnew(opt->val, "r")
+         ;  break
+         ;
+
+            case MY_OPT_CMAPI
+         :  invertc  =  TRUE  
+         ;  xf_map_c =  mcxIOnew(opt->val, "r")
+         ;  break
+         ;
+
+            case MY_OPT_RMAPI
+         :  invertr  =  TRUE  
+         ;  xf_map_r =  mcxIOnew(opt->val, "r")
+         ;  break
+         ;
+
+            case MY_OPT_CANN
+         :  xf_cannc = mcxIOnew(opt->val, "w")
+         ;  xf_cannr = xf_cannc
+         ;  break
+         ;
+
+            case MY_OPT_CANNC
+         :  xf_cannc = mcxIOnew(opt->val, "w")
+         ;  break
+         ;
+
+            case MY_OPT_CANNR
+         :  xf_cannr = mcxIOnew(opt->val, "w")
+         ;  break
+         ;
+
+            case MY_OPT_TAB
+         :  xf_tab = mcxIOnew(opt->val, "r")
+         ;  break
+         ;
+         }
+      }
+
+                     /* little special case. restructure when it grows */
+      if (xf_tab)
+      {  mclTab* tab1, *tab2
+      ;  if (xf_map)
+         {  mcxIOopen(xf_map, EXIT_ON_FAIL)
+         ;  cmapx = mclxRead(xf_map, EXIT_ON_FAIL)  
       ;  }
          else
-         {  mcxErr(me, "not an option: <%s>", argv[a])
-         ;  return 1
-      ;  }
-         a++
-   ;  }
+         mcxDie(1, me, "-tab option requires -map option")
 
-      if (!xfin)
-      {  mcxErr(me, "-imx option is required (see -h for builtin help)")
-      ;  return 1
-   ;  }
+      ;  tab1 = mclTabRead(xf_tab, NULL, EXIT_ON_FAIL)
+      ;  if ((tab2 = mclTabMap(tab1, cmapx)))
+         mclTabWrite(tab2, xfout, NULL, EXIT_ON_FAIL)
+       ; else
+         mcxDie(1, me, "map file error (subsumption/bijection)")
 
-      if (!xfout)
-      {  xfout  =  mcxIOnew("out.map", "w")
-      ;  mcxIOopen(xfout, EXIT_ON_FAIL)
+      ;  return 0
    ;  }
 
       mx = mclxRead(xfin, EXIT_ON_FAIL)
@@ -197,27 +362,45 @@ int main
       ;  rmapx = cmapx
    ;  }
       else
-      {  if (xf_map_r)
-         {  mcxIOopen(xf_map_r, EXIT_ON_FAIL)
-         ;  rmapx = mclxRead(xf_map_r, EXIT_ON_FAIL)  
-      ;  }
-         else if (rshift || rmul > 1)
-         {  rmapx
-         =  mclxMakeMap
-            (  mclvCopy(NULL, mx->dom_rows)
-            ,  mclvMap(NULL, rmul, rshift, mx->dom_rows)
-            )
-      ;  }
-         if (xf_map_c)
+      {  if (xf_map_c)
          {  mcxIOopen(xf_map_c, EXIT_ON_FAIL)
          ;  cmapx = mclxRead(xf_map_c, EXIT_ON_FAIL)  
       ;  }
          else if (cshift || cmul > 1)
-         {  cmapx
+         cmapx
          =  mclxMakeMap
             (  mclvCopy(NULL, mx->dom_cols)
             ,  mclvMap(NULL, cmul, cshift, mx->dom_cols)
             )
+      ;  else if (xf_cannc)      /* fixme slightly flaky interface */
+         {  cmapx 
+            =  mclxMakeMap
+               (  mclvCopy(NULL, mx->dom_cols)
+               ,  mclvCanonical(NULL, mx->dom_cols->n_ivps, 1.0)
+               )
+         ;  mclxWrite(cmapx, xf_cannc, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+      ;  }
+
+         if (xf_map_r)
+         {  mcxIOopen(xf_map_r, EXIT_ON_FAIL)
+         ;  rmapx = mclxRead(xf_map_r, EXIT_ON_FAIL)  
+      ;  }
+         else if (rshift || rmul > 1)
+         rmapx
+         =  mclxMakeMap
+            (  mclvCopy(NULL, mx->dom_rows)
+            ,  mclvMap(NULL, rmul, rshift, mx->dom_rows)
+            )
+      ;  else if (xf_cannr)
+         {  rmapx 
+            =  mclxMakeMap
+               (  mclvCopy(NULL, mx->dom_rows)
+               ,  mclvCanonical(NULL, mx->dom_rows->n_ivps, 1.0)
+               )
+         ;  if (xf_cannr != xf_cannc)
+            mclxWrite(rmapx, xf_cannr, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+         ;  else if (!mclxIsGraph(mx))
+            mcxErr(me, "row map not written but matrix is not a graph")
       ;  }
       }
 
@@ -255,7 +438,7 @@ int main
       ;  return 1
    ;  }
 
-      mclxWrite(mx, xfout, digits, EXIT_ON_FAIL)
+      mclxWrite(mx, xfout, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
    ;  return 0
 ;  }
 

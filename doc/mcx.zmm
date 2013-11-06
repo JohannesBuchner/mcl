@@ -3,11 +3,23 @@
 \'if{\'cmp{gq}{\__version__}{\reqver}}{}{
 \'write{stderr}{txt}{Requires zoem version >= \reqver\|}\'exit}
 
-\: \setx{__searchpath__}{\__searchpath__\!{}{../../../zoem/mac}}
-\: Used this when using relative path through the micans tree.
-\: Nowadays I oblige myself to use the zoem installed on my system. 
+   \: \setx{__searchpath__}{\__searchpath__\!{}{../../../zoem/mac}}
+   \: Used this when using relative path through the micans tree.
+   \: Nowadays I oblige myself to use the zoem installed on my system. 
 
 \'input{man.zmm}
+
+   \: The three definitions below are for options defined in
+   \: an \items{ .. } macro.
+   \: The first option is the only one with a genuine \defopt
+   \: and creates the anchor for those  options.
+   \: Use the dummy macros on the other options so that documentation
+   \: analysis tools (like Stijn's docme) can pick them up
+   \: as definition instances and reconcile them with `prog --apropos`.
+
+\'set{dummydefopt#2}{\genopt{\1}{\2}}
+\'set{dummydefopt#3}{\genopt{\1}{\2}{\3}}
+\'set{dummydefkvp#3}{\defkvp{\1}{\2}{\3}}
 
 \'setx{"man::year"}{\'zinsert{stamp.year}}
 \'setx{"man::month"}{\'zinsert{stamp.month}}
@@ -25,20 +37,81 @@
 \'setx{"mcx::date"}{\"man::day" \"man::month" \"man::year"}
 
 \'def{mcl}{\bf{mcl}}
+\'def{mclcm}{\bf{mclcm}}
 \'def{mcx}{\bf{mcx}}
-\'def{clmdist}{\bf{clmdist}}
-\'def{clminfo}{\bf{clminfo}}
-\'def{clmmeet}{\bf{clmmeet}}
-\'def{clmclose}{\bf{clmclose}}
-\'def{clmformat}{\bf{clmformat}}
+\'def{mcxi}{\bf{mcxi}}
+
+\set{{modes}{vw}}{}{
+   {clm}       {\bf{clm}}
+   {clmdist}   {\bf{clm dist}}
+   {clmvol}    {\bf{clm vol}}
+   {clminfo}   {\bf{clm info}}
+   {clmmeet}   {\bf{clm meet}}
+   {clmclose}  {\bf{clm close}}
+   {clmformat} {\bf{clm format}}
+   {clmimac}   {\bf{clm imac}}
+   {clmmate}   {\bf{clm mate}}
+   {clmresidue}{\bf{clm residue}}
+   {clmorder}  {\bf{clm order}}
+}
+
+\'def{disclaim_mcx#1}{\par{mcx\1 is not in actual fact a program. This manual
+page documents the behaviour and options of the mcx program when
+invoked in mode \it{\1}. The options \genopt{-h}, \genopt{--apropos},
+\genopt{--version}, \genopt{-set}, \genopt{--nop}, \genopt{-progress}{<num>}
+are accessible
+in all \bf{mcx} modes. They are described
+in the \sibref{mcx} manual page.}}
+
+\'def{disclaim_clm#1}{\par{clm\1 is not in actual fact a program. This manual
+page documents the behaviour and options of the clm program when
+invoked in mode \it{\1}. The options \genopt{-h}, \genopt{--apropos},
+\genopt{--version}, \genopt{-set}, \genopt{--nop} are accessible
+in all \bf{clm} modes. They are described
+in the \sibref{clm} manual page.}}
+
+\'def{stddefopt}{
+   \if{0}{
+\items{
+   {\defopt{-h}{print synopsis, exit}}
+   {\defopt{--apropos}{print synopsis, exit}}
+}
+\item{\defopt{--version}{print version, exit}}
+      }{
+   }
+}
+
+\'def{stdsynopt}{\:/
+   \synoptopt{-h}{print synopsis, exit}
+   \synoptopt{--apropos}{print synopsis, exit}
+   \synoptopt{--version}{print version, exit}}
+
+\def{synoptopt#1}{
+   \switch{\1}{
+      {-tf}{\synoptopt{-tf}{spec}{apply tf-spec to input matrix}}
+      {\inform{not supported for synoptopt#1: \1}\exit}
+   }
+}
+
+\def{item_defopt#1}{
+   \switch{\1}{
+      {-tf}{\item{\defopt{-tf}{spec}{apply tf-spec to input matrix}}
+\car{
+   Transform the input matrix values according
+   to the syntax described in \mysib{mcxio}.
+   }}
+      {\inform{not supported for synoptopt#1: \1}\exit}
+   }
+}
+
 \'def{mcxload}{\bf{mcxload}}
-\'def{clmimac}{\bf{clmimac}}
-\'def{clmmate}{\bf{clmmate}}
-\'def{clmresidue}{\bf{clmresidue}}
-\'def{clmorder}{\bf{clmorder}}
 \'def{mcxconvert}{\bf{mcxconvert}}
 \'def{mcxarray}{\bf{mcxarray}}
 \'def{mcxdump}{\bf{mcxdump}}
+\'def{mcxdiameter}{\bf{mcxdiameter}}
+\'def{mcxclcf}{\bf{mcxclcf}}
+\'def{mcxq}{\bf{mcxq}}
+\'def{mcxrand}{\bf{mcxrand}}
 \'def{mcxdeblast}{\bf{mcxdeblast}}
 \'def{mclblastline}{\bf{mclblastline}}
 \'def{mclpipeline}{\bf{mclpipeline}}
@@ -47,7 +120,7 @@
 \'def{mcxmap}{\bf{mcxmap}}
 \'def{mcxassemble}{\bf{mcxassemble}}
 
-\'def{mcx_itemopts}{{w1}{2}{w2}{1}}
+\'def{mcx_itemopts}{{$w1}{2}{$w2}{1}}
 
 \: different conventions for html and roff.
 \: in roff I use 'section 5' of the manual pages.
@@ -58,23 +131,32 @@
    {mcxio}{5}
    {mclfaq}{7}
    {mclfamily}{7}
+   {tingea.log}{7}
 
    {mcl}{1}
+   {mclcm}{1}
    {mcx}{1}
+   {mcxi}{1}
 
    {mcxconvert}{1}
    {mcxarray}{1}
+   {mcxrand}{1}
+   {mcxdiameter}{1}
+   {mcxclcf}{1}
+   {mcxq}{1}
    {mcxdump}{1}
    {mcxload}{1}
    {mcxsubs}{1}
    {mcxmap}{1}
    {mcxassemble}{1}
 
+   {clm}{1}
    {clmimac}{1}
    {clmclose}{1}
    {clmresidue}{1}
    {clmdist}{1}
    {clminfo}{1}
+   {clmvol}{1}
    {clmmate}{1}
    {clmmeet}{1}
    {clmformat}{1}
@@ -84,6 +166,14 @@
    {mclblastline}{1}
    {mcxdeblast}{1}
 }
+
+\'def{clm#1}{\bf{clm \1}}
+\'def{clmref#1}{\sibref{clm\1}{clm \1}}
+\'def{clmref#2}{\sibref{clm\1}{\2}}
+
+\'def{mcx#1}{\bf{mcx \1}}
+\'def{mcxref#1}{\sibref{mcx\1}{mcx \1}}
+\'def{mcxref#2}{\sibref{mcx\1}{\2}}
 
 \'def{mysib#1}{\sibref{\1}{\1\'${roff}{(\%{sibroffmap}{\1})}}}
 \'def{mysib#2}{\sibref{\1}{\2}{\1\'${roff}{(\%{sibroffmap}{\1})}}}

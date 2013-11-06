@@ -1,7 +1,8 @@
-/*      Copyright (C)  2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright  2003, 2004, 2005 Stijn van Dongen
+ *   (C) Copyright 2006, 2007 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
+ * terms of the GNU General Public License; either version 3 of the License or
  * (at your option) any later version.  You should have received a copy of the
  * GPL along with MCL, in the file COPYING.
 */
@@ -18,15 +19,19 @@ void report_partition
 (  const char* me
 ,  mclMatrix* cl
 ,  mcxTing* fname
-,  int o
-,  int m
-,  int e
+,  dim o
+,  dim m
+,  dim e
 )
    {  mcxErr
       (  me
       ,  "Clustering in file <%s> is not a partition", fname->str
       )
-   ;  mcxErr(me, "Overlap <%d> Missing <%d> Empt(y/ied) <%d>", o, m, e)
+   ;  mcxErr
+      (  me
+      ,  "Overlap <%lu> Missing <%lu> Empt(y/ied) <%lu>"
+      ,  (ulong) o, (ulong) m, (ulong) e
+      )
 ;  }
 
 void report_exit
