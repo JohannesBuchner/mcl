@@ -1,4 +1,3 @@
-# $Id: README,v 1.33 2006-11-08 23:02:03 flux Exp $
 
    If you use MCL software in your research, cite it as you would cite a
    journal or a book. This includes papers published in regular or electronic
@@ -31,8 +30,8 @@
    libraries and offers many options and extensive configurability.  Use
    mcxdeblast to parse BLAST files, use mcxassemble to transform the parser's
    output to mcl input.
-      The Genome Protein view at ensembl.org uses these programs.
-      -----------------------------------------------------------
+      The Ensembl Families at ensembl.org are created with these programs.
+      --------------------------------------------------------------------
 
    It is also possible to use the pipeline script mclblastline that
    encapsulates mcxdeblast, mcxassemble, mcl, and clmformat (the latter
@@ -41,15 +40,14 @@
    Finally, with mcl's new label streaming facilities it is possible to cluster
    directly from BLAST files. Refer to the mcl website for examples.
 
-   
    MCL documentation is in doc/, in various formats. It gets installed in
    <prefix>/share/doc/mcl/. A few example input graphs are in graphs/, in the
    mcl matrix format; these are installed in <prefix>/share/doc/mcl/examples/.
    The MCL webpage is at http://micans.org/mcl/ .
 
-   MCL development is discussed on mcl-devel@lists.micans.org, info about this
-   list can be found at https://lists.micans.org/listinfo/mcl-devel. You can use
-   this forum also for asking any MCL-related question.
+   MCL usage and development is discussed on the  mcl-users mailing
+   list found at http://listserver.ebi.ac.uk/mailman/listinfo/mcl-users.
+   You can use this forum also for asking any MCL-related question.
 
    The version tag, which is of the form dd-ddd, encodes the year and day in
    year in which the distribution was made. So 02-058 encodes the 58-th day of
@@ -85,12 +83,7 @@ Synopsis
    pipeline script mclblastline. It encapsulates all the stages of parsing,
    matrix creation, running mcl, and formatting the result into a single
    application.  Enable them by adding --enable-blast to ./configure.
-
-   These scripts can be used in place of the now disabled TribeMCL
-   module.
-   TribeMCL module issue --enable-tribe. Be sure to read
-   http://micans.org/mcl/#mods first though. It is suggested you use the BLAST
-   module instead.
+   These scripts can be used in place of the now disabled TribeMCL module.
 
 See also
 

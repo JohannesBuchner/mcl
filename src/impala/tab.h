@@ -28,6 +28,9 @@ typedef struct
 ;
 }  mclTab       ;
 
+#define N_TAB(tab) ((tab)->domain->n_ivps)
+#define TAB_IS_NA(tab, label) (label == (tab)->na->str)
+
 
 
 /* If dom is nonNULL, demand equality. TODO: allow subsumption.
@@ -71,7 +74,7 @@ char* mclTabGet
  *    hash, *do* free the ting, do not free the str!  - use mcxTingAbandon
  *    callback.
  *
- *    Future: optionalize this if needed.
+ *    Future: remove this.
 */
 
 mclTab* mclTabFromMap
@@ -80,6 +83,11 @@ mclTab* mclTabFromMap
 
 mcxHash* mclTabHash
 (  mclTab* tab
+)  ;
+
+void mclTabHashSet
+(  mcxHash* hash
+,  ulong u
 )  ;
 
 void mclTabFree

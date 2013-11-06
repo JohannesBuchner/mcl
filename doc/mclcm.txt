@@ -206,4 +206,4 @@ mclcm(1)                        USER COMMANDS                         mclcm(1)
 
 
 
-  mclcm 1.007-grumpy-gryphon, 08-1575 Jun 2008                          mclcm(1)
+  mclcm 1.008, 08-312               7 Nov 2008                          mclcm(1)

@@ -24,13 +24,16 @@
 
       \synoptopt{-abc}{<fname>}{specify label input}
       \synoptopt{-imx}{<fname>}{specify matrix input}
+      \synoptopt{-tab}{<fname>}{use tab file}
       \synoptopt{--list}{list clustering coefficient for all nodes}
       \stdsynopt
    }
 
 \sec{description}{DESCRIPTION}
 \par{
-   \mcx{ctty} computes centrality betweenness for all nodes in a graph.}
+   \mcx{ctty} computes centrality betweenness for all nodes in a graph, using
+   the between centrality update algorithm from \refer{fabc}.
+   }
 
 \par{
    The input graph/matrix, if specified with the \genopt{-imx} option, has to
@@ -52,6 +55,16 @@
 \car{
    The file name for input. STDIN is assumed if not specified.}
 
+\item{\defopt{-tab}{<fname>}{use tab file}}
+\car{
+   This option causes the output to be printed with the labels
+   found in the tab file.
+   With \genopt{-abc} this option will, additionally, construct
+   a graph only on the labels found in the tab file.
+   If this option is used in conjunction with \genopt{-imx} the
+   tab domain and the matrix domain are required to be identical.
+   }
+
 \item{\defopt{--list}{print result for each node}}
 \car{
    Print clustering coefficient for all nodes.}
@@ -60,6 +73,14 @@
 
 \end{itemize}
 
+\sec{references}{REFERENCES}
+
+\par{
+\reference{fabc}
+Ulrik Brandes, \it{A Faster Algorithm for Betweenness Centrality}.
+Journal of Mathematical Sociology 25(2): 163-177, (2001).
+\httpref{http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.11.2024}
+   }
 
 \sec{seealso}{SEE ALSO}
 \par{

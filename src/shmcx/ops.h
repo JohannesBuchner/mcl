@@ -28,7 +28,7 @@
 #define     TOKEN_ROLL               "roll"
 #define     TOKEN_CLEAR              "clear"
 
-#define     TOKEN_BLOCK              "blocks"
+#define     TOKEN_BLOCK              "block"
 
 #define     TOKEN_MUL                "mul"
 #define     TOKEN_ADD                "add"
@@ -66,6 +66,8 @@
 #define     TOKEN_ALLONE             "jj"
 #define     TOKEN_LOADMATRIX         "lm"
 #define     TOKEN_HADAMARD           "hdm"
+#define     TOKEN_NEW                "new"
+#define     TOKEN_SET                "set"
 #define     TOKEN_IMAC               "imac"
 
 #define     TOKEN_MAKECHARACTERISTIC "ch"

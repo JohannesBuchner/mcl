@@ -1,4 +1,4 @@
-/*   (C) Copyright 2005, 2006, 2007 Stijn van Dongen
+/*   (C) Copyright 2005, 2006, 2007, 2008 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -7,13 +7,21 @@
 */
 
 /* TODO
- *    audit e.g. read_etc
- *    enforce stricter logic boundaries and cleaner logic.
- *    refactoring-wise it is mostly OK.
+ *    With -restrict-tabr?, what are the domains of the resulting matrix?
  *
- *    with 123 data, one might want to set domains a priori.
- *       danger of interface spaghetti?
- *    warn on strange combinations, e.g. tab[s] + 123.
+ *    err if *ai and tab_col_in both present.
+ *    _AI_ map logic was a bit bolted on. go over it and enforce clear logic.
+ *
+ *    handle_label could first look for labels. only insert if
+ *    necessary (so no deletion is needed).
+ *
+ *    max_seen update could be factored out of read_abc, read_etc,
+ *    and handle_label.
+ *
+ *    with 123 data, one might want to enable domains.
+ *
+ *    mclxIOstreamIn and its descendants should not die
+ *    but respect ON_FAIL
 */
 
 #include <unistd.h>
@@ -41,14 +49,20 @@
 #include "util/hash.h"
 #include "util/array.h"
 
-const char* strin = "mclxIOstreamIn";
+const char* module = "mclxIOstreamIn";
 
-#ifdef DEBUG
-#define DEBUG_SA DEBUG
-#else
+#define MCLXIO_STREAM_CTAB (MCLXIO_STREAM_CTAB_EXTEND | MCLXIO_STREAM_CTAB_STRICT | MCLXIO_STREAM_CTAB_RESTRICT)
+#define MCLXIO_STREAM_RTAB (MCLXIO_STREAM_RTAB_EXTEND | MCLXIO_STREAM_RTAB_STRICT | MCLXIO_STREAM_RTAB_RESTRICT)
+
+#define MCLXIO_STREAM_CTAB_RO (MCLXIO_STREAM_CTAB_STRICT | MCLXIO_STREAM_CTAB_RESTRICT)
+#define MCLXIO_STREAM_RTAB_RO (MCLXIO_STREAM_RTAB_STRICT | MCLXIO_STREAM_RTAB_RESTRICT)
+
 #define DEBUG 0
-#endif
+#define DEBUG2 0
+#define DEBUG3 0
 
+
+#if 0                   /* for packed machine format, one day */
 static mcxstatus write_u32_be
 (  unsigned long l
 ,  FILE* fp
@@ -85,99 +99,7 @@ static mcxstatus read_u32_be
       *lp = idx
    ;  return STATUS_OK
 ;  }
-
-
-#define SENTINEL_PACKED (2+4+32+128)
-
-static mcxstatus read_packed
-(  FILE* fp
-,  unsigned long* s
-,  unsigned long* x
-,  unsigned long* y
-,  double* value
-)
-   {  if
-      (  read_u32_be(s, fp)
-      || read_u32_be(x, fp)
-      || read_u32_be(y, fp)
-      )
-      return STATUS_DONE      /* fixme, more stringent EOF check */
-
-;if(0)fprintf(stderr, "read %lu %lu %lu %.3f\n", *s, *x, *y, (double) *value)
-
-   ;  if (*s >> 24 != SENTINEL_PACKED)
-      {  mcxErr(strin, "no sentinel!")
-      ;  return STATUS_FAIL
-   ;  }
-
-      if (1 != fread(value, sizeof(double), 1, fp))
-      return STATUS_FAIL
-
-   ;  return STATUS_OK
-;  }
-
-
-/* *keypp; if we free it caller can still free it as well
- * (because *keypp is set to NULL).
-*/
-
-static mcxstatus handle_label
-(  mcxTing** keypp
-,  mcxHash* map
-,  unsigned long* z
-,  long* z_max_seen        /* ummyes, fix|document (signedness) */
-,  mcxbits bits
-,  const char* mode
-)
-   {  mcxbool strict =  bits & MCLXIO_STREAM_TAB_STRICT
-   ;  mcxbool warn   =  bits & MCLXIO_STREAM_WARN
-   ;  mcxbool ro     =  bits & (MCLXIO_STREAM_TAB_STRICT | MCLXIO_STREAM_TAB_RESTRICT)
-   ;  mcxbool debug  =  bits & MCLXIO_STREAM_DEBUG
-
-   ;  mcxstatus status = STATUS_OK
-   ;  mcxKV* kv = mcxHashSearch
-                  (*keypp, map, ro ? MCX_DATUM_FIND : MCX_DATUM_INSERT)
-
-;if(DEBUG)fprintf(stderr, "mode %s ro %d label %s found %p warn %d\n", mode, ro, (*keypp)->str, (void*) kv, warn)
-;if(DEBUG && kv)
- fprintf(stderr, "map %s %s to %d\n", mode, (*keypp)->str, VOID_TO_UINT kv->val)
-;else if (DEBUG)
- fprintf(stderr, "no map for %s %s\n", mode, (*keypp)->str)
-   ;  if (!kv)      /* ro and not found */
-      {  if (strict)
-         {  mcxErr
-            (strin, "label <%s> not found (%s strict)", (*keypp)->str, mode)
-         ;  status = STATUS_FAIL
-      ;  }
-         else
-         {  if (warn)  /* restrict */
-            mcxTell
-            (strin, "label <%s> not found (%s restrict)", (*keypp)->str, mode)
-         ;  status = STATUS_IGNORE
-      ;  }
-   ;  }
-      else if (kv->key != *keypp)         /* seen */
-      {  mcxTingFree(keypp)
-      ;  *z = VOID_TO_UINT kv->val     /* fixme theoretical signedness issue */
-   ;  }
-      else                             /* INSERTed */
-      {  if (debug)
-         mcxTell
-         (  strin
-         ,  "label %s not found (%s extend %lu)"
-         ,  (*keypp)->str
-         ,  mode
-         ,  (*z_max_seen + 1)
-         )
-      ;  (*z_max_seen)++
-      ;  kv->val = UINT_TO_VOID *z_max_seen
-      ;  *z = *z_max_seen              /* fixme theoretical signedness issue */
-;if(DEBUG)fprintf(stderr, "set int to %d\n", (int) *z)
-      ;  status = STATUS_NEW
-   ;  }
-
-      return status
-;  }
+#endif
 
 
 
@@ -185,52 +107,153 @@ static mcxstatus handle_label
  *    fixme: improve documentation, organization
  *    possibly implement ':value'
  *
- *
  *    Returns IGNORE, FAIL or DONE
 */
 
-struct etc_state
+typedef struct
 {  mcxTing* etcbuf
 ;  dim      etcbuf_check
 ;  dim      etcbuf_ofs
-;  unsigned long x_prev
+;  unsigned long x_prev       /* NOTE we depend on unsigned wrap-around */
+;  dim      n_y
 ;
-}  ;
+}  etc_state;
 
-static mcxstatus read_etc
-(  mcxIO* xf
-,  mcxHash* mapc
-,  mcxHash* mapr           /* note: can be same as mapc */
-,  unsigned long* x
-,  unsigned long* y        /* note: can be same as x  */
-,  long* x_max_seen
-,  long* y_max_seen
-,  double* value
-,  mcxbits bits
-,  struct etc_state *state
+
+typedef struct
+{  mcxHash*    map
+;  mclTab*     tab
+;  long        max_seen
+;  ulong       n_seen
+;
+}  map_state  ;
+
+
+typedef struct
+{  map_state* map_c
+;  map_state* map_r
+;  ulong       x
+;  ulong       y              /* note: can be same as x  */
+;  mcxstatus   statusx
+;  mcxstatus   statusy
+;  mcxbits     bits
+
+;  mclpAR*     pars
+;  dim         pars_n_alloc
+;  dim         pars_n_used
+;
+}  stream_state   ;
+
+
+/* *keypp; if we free it caller can still free it as well
+ * (because *keypp is set to NULL).
+ *
+ * If handle_label fills z, this means (as a programmer's contract) that *z
+ * should always be used by the caller. This is a tight coupling necessitated
+ * by the internal implementation of the stream interface.
+ * may return:
+
+ *    STATUS_OK
+      STATUS_NEW
+      STATUS_IGNORE
+      STATUS_FAIL
+*/
+
+static mcxstatus handle_label
+(  mcxTing**      keypp
+,  unsigned long* z
+,  map_state*     map_z
+,  mcxbits        bits
+,  const char*    mode
 )
-   {  mcxstatus statusx = STATUS_OK, statusy = STATUS_OK, status = STATUS_OK
-   ;  mcxTing* ykey = NULL
-   ;  mcxTing* xkey = NULL
+   {  mcxbool strict =  bits & MCLXIO_STREAM_GTAB_STRICT
+   ;  mcxbool warn   =  bits & MCLXIO_STREAM_WARN
+   ;  mcxbool ro     =  bits & (MCLXIO_STREAM_GTAB_STRICT | MCLXIO_STREAM_GTAB_RESTRICT)
+   ;  mcxbool debug  =  bits & MCLXIO_STREAM_DEBUG
+
+   ;  mcxstatus status = STATUS_OK
+   ;  mcxKV* kv = mcxHashSearch(*keypp, map_z->map, ro ? MCX_DATUM_FIND : MCX_DATUM_INSERT)
+
+   ;  if (!kv)      /* ro and not found */
+      {  if (strict)
+         {  mcxErr
+            (module, "label <%s> not found (%s strict)", (*keypp)->str, mode)
+         ;  status = STATUS_FAIL
+      ;  }
+         else
+         {  if (warn)  /* restrict */
+            mcxTell
+            (module, "label <%s> not found (%s restrict)", (*keypp)->str, mode)
+         ;  status = STATUS_IGNORE
+      ;  }
+      }
+      else if (kv->key != *keypp)         /* seen */
+      {  mcxTingFree(keypp)
+      ;  *z = VOID_TO_ULONG kv->val     /* fixme theoretical signedness issue */
+   ;  }
+      else                             /* INSERTed */
+      {  if (debug)
+         mcxTell
+         (  module
+         ,  "label %s not found (%s extend %lu)"
+         ,  (*keypp)->str
+         ,  mode
+         ,  (map_z->max_seen + 1)
+         )
+      ;  map_z->n_seen++
+      ;  map_z->max_seen++
+      ;  kv->val = ULONG_TO_VOID map_z->max_seen
+      ;  *z = map_z->max_seen           /* fixme theoretical signedness issue */
+;if(DEBUG3)fprintf(stderr, "hl insert %s <%s> to %d\n", mode, keypp[0]->str, (int) *z)
+      ;  status = STATUS_NEW
+   ;  }
+
+;if(DEBUG2)fprintf(stderr, "hl final map to %d\n", (int) *z)
+   ;  return status
+;  }
+
+
+   /* Purpose: read a single x/y combination. The x may be cached
+    * due to the etc format, where a single line always refers to the same x
+    * and that x is listed only at the start or line, or omitted with
+    * the etc-ai format.
+    *
+    * state->x_prev may be read by read_etc in order to obtain the current x index (hierverder: check)
+   */
+static mcxstatus read_etc
+(  mcxIO*         xf
+,  stream_state  *iface
+,  etc_state     *state
+,  double*        value
+)
+   {  mcxbits bits      =  iface->bits
+   ;  FILE* stdbug      =  stdout
+
+   ;  mcxstatus status  =  STATUS_OK
+   ;  mcxTing* ykey     =  NULL
+   ;  mcxTing* xkey     =  NULL
    ;  const char* printable
 
    ;  mcxbool label_cbits = bits & (MCLXIO_STREAM_CTAB_STRICT | MCLXIO_STREAM_CTAB_RESTRICT)
    ;  mcxbool label_rbits = bits & (MCLXIO_STREAM_RTAB_STRICT | MCLXIO_STREAM_RTAB_RESTRICT)
    ;  mcxbool label_dbits = bits & (MCLXIO_STREAM_WARN | MCLXIO_STREAM_DEBUG)
 
-   ;  *value = 1
+   ;  iface->statusx    =  STATUS_OK
+   ;  iface->statusy    =  STATUS_OK
 
-   ;  *x = state->x_prev
-;if(DEBUG)fprintf(stderr, "read_etc initially set x to %d\n", (int) *x)
+   ;  iface->x =  state->x_prev
+   ;  *value   =  1.0
+
+;if(DEBUG)fprintf(stdbug, "read_etc initially set x to %d\n", (int) iface->x)
 
    ;  if (!state->etcbuf)
       state->etcbuf = mcxTingEmpty(NULL, 100)
 
    ;  do
-      {  int n_read = 0
+      {  int n_char_read = 0
       ;  if (state->etcbuf->len != state->etcbuf_check)
          {  mcxErr
-            (  strin
+            (  module
             ,  "read_etc sanity check failed %ld %ld"
             ,  (long) state->etcbuf->len
             ,  (long) state->etcbuf_check
@@ -238,9 +261,14 @@ static mcxstatus read_etc
          ;  status = STATUS_FAIL
          ;  break
       ;  }
-                                             /* do we need to read a line ? */
-         if (state->etcbuf_ofs == state->etcbuf->len)
+                                             /* do we need to read a line ?   */
+                                             /* -> then set iface->x          */
+               /* fixmefixme: funcify this */
+               /* iface->x can only be changed in this branch */
+/* ************************************************************************** */
+         if (state->etcbuf_ofs >= state->etcbuf->len)
          {  state->etcbuf_ofs  = 0
+         ;  state->n_y = 0
          ;  if ((status = mcxIOreadLine(xf, state->etcbuf, MCX_READLINE_CHOMP)))
             break
          ;  state->etcbuf_check = state->etcbuf->len
@@ -249,151 +277,192 @@ static mcxstatus read_etc
             (  !(printable = mcxStrChrAint(state->etcbuf->str, isspace, -1))
             || (unsigned char) *printable == '#'
             )
-            break
-
-         ;  xkey = mcxTingEmpty(NULL, state->etcbuf->len)
-         ;  if (bits & (MCLXIO_STREAM_ETC_AI | MCLXIO_STREAM_235_AI))
-               *x = state->x_prev + 1         /* works first time around */
-            ,  *x_max_seen = state->x_prev + 1
-         ;  else if (bits & MCLXIO_STREAM_235)
-            {  if (1 != sscanf(state->etcbuf->str, "%lu%n", x, &n_read))
-               break
-            ;  state->etcbuf_ofs += n_read
+            {  state->etcbuf_ofs = state->etcbuf->len
+            ;  iface->statusy = STATUS_IGNORE
+            ;  break    /* fixme: ^ statusx seems to work as well. cleanify design */
          ;  }
-            else
-            {  if (1 != sscanf(state->etcbuf->str, "%s%n", xkey->str, &n_read))
+
+         ;  if (bits & (MCLXIO_STREAM_ETC_AI | MCLXIO_STREAM_235_AI))
+            {
+            }
+                     /* In this branch we do not issue handle_label, so we take care of max_seen.
+                     */
+            else if (bits & MCLXIO_STREAM_235)
+            {  if (1 != sscanf(state->etcbuf->str, "%lu%n", &(iface->x), &n_char_read))
+               {  iface->statusx = STATUS_FAIL  
+               ;  break
+            ;  }
+               state->etcbuf_ofs += n_char_read
+            ;  if (iface->map_c->max_seen+1 < iface->x+1)      /* note mixed-sign comparison */
+               iface->map_c->max_seen = iface->x
+            ;  state->x_prev = iface->x
+         ;  }
+            else if (bits & MCLXIO_STREAM_ETC)
+            {  xkey = mcxTingEmpty(NULL, state->etcbuf->len)
+            ;  if (1 != sscanf(state->etcbuf->str, "%s%n", xkey->str, &n_char_read))
                break
-            ;  state->etcbuf_ofs += n_read
-                  /*
-            ;  if (!mcxStrChrAint(state->etcbuf->str+state->etcbuf_ofs, isspace, -1))
-               break
-                  */
+            ;  state->etcbuf_ofs += n_char_read
             ;  xkey->len = strlen(xkey->str)
             ;  xkey->str[xkey->len] = '\0'
-            ;  if
-               (( statusx
-                = handle_label
-                  (&xkey, mapc, x, x_max_seen, label_cbits | label_dbits, "col")
-                )
-               && statusx != STATUS_NEW
-               )
-               break
-;if(DEBUG)fprintf(stderr, "etc handle label we have %d\n", (int) *x)
+;if(DEBUG3)fprintf(stderr, "max %lu\n", (ulong) iface->map_c->max_seen)
+            ;  iface->statusx
+                = handle_label(&xkey, &(iface->x), iface->map_c, label_cbits | label_dbits, "col")
+;if(DEBUG3)fprintf(stderr, "max %lu x %lu\n", (ulong) iface->map_c->max_seen, (ulong) iface->x)
+            ;  if (iface->statusx == STATUS_IGNORE || iface->statusx == STATUS_FAIL)
+               {  /* iface->x = 141414  recentlyadded */
+;if(DEBUG3)fprintf(stderr, "max %lu\n", (ulong) iface->map_c->max_seen)
+               ;  break
+            ;  }
+                     /* ^ Consider what happens when we break here (x label not
+                      * accepted) with map_c->max_seen.  Basically x label is
+                      * indepedent of y, so we never need to undo the
+                      * handle_label action.
+                     */
+               state->x_prev = iface->x
          ;  }
-         }
+            else
+            mcxDie(1, module, "strange, really")
+      ;  }
+/* ************************************************************************** */
 
-      ;  if
+         if
          ( !(  printable
             =  mcxStrChrAint(state->etcbuf->str+state->etcbuf_ofs, isspace, -1)
             )
          || (uchar) *printable == '#'
          )
-         break
-
-      ;  else if (bits & (MCLXIO_STREAM_235_AI | MCLXIO_STREAM_235))
-         {  if
-            (  1
-            != sscanf
-               (state->etcbuf->str+state->etcbuf_ofs, "%lu%n", y, &n_read)
-            )
-            break
-         ;  state->etcbuf_ofs += n_read
+         {  state->etcbuf_ofs = state->etcbuf->len
+         ;  /* iface->y = 141414 recentlyadded */
+         ;  iface->statusy = STATUS_IGNORE
+         ;  break
       ;  }
-         else
-         {  ykey = mcxTingEmpty(NULL, state->etcbuf->len)
-         ;  if
-            (  1
-            != sscanf
-               (state->etcbuf->str+state->etcbuf_ofs, "%s%n", ykey->str, &n_read)
-            )
+         else if (bits & (MCLXIO_STREAM_235_AI | MCLXIO_STREAM_235))
+         {  if (1 != sscanf(state->etcbuf->str+state->etcbuf_ofs, "%lu%n", &(iface->y), &n_char_read))
+            {  char* s = state->etcbuf->str+state->etcbuf_ofs
+            ;  while(isspace((uchar) s[0]))
+               s++
+            ;  mcxErr
+               (  module
+               ,  "unexpected string starting with <%c> on line %lu"
+               ,  (int) ((uchar) s[0])
+               ,  xf->lc
+               )
+            ;  iface->statusy = STATUS_FAIL
+         ;  }
+            else
+            {
+;if(DEBUG3)fprintf(stdbug, "hit at %d\n", (int) state->etcbuf_ofs);
+               state->etcbuf_ofs += n_char_read
+            ;  if (iface->map_r->max_seen+1 < iface->y+1)      /* note mixed-sign comparison */
+               iface->map_r->max_seen = iface->y
+         ;  }
             break
+      ;  }
+         else  /* ETCANY */
+         {  ykey = mcxTingEmpty(NULL, state->etcbuf->len)
+         ;  if (1 != sscanf(state->etcbuf->str+state->etcbuf_ofs, "%s%n", ykey->str, &n_char_read))
+            break
+
          ;  ykey->len = strlen(ykey->str)
          ;  ykey->str[ykey->len] = '\0'
-         ;  state->etcbuf_ofs += n_read
-         ;  statusy
-            =  handle_label
-               (&ykey, mapr, y, y_max_seen, label_rbits | label_dbits, "row")
-         ;  if (statusy == STATUS_FAIL)
-            break
-         ;  else if (statusy == STATUS_IGNORE)
-            continue
+         ;  state->etcbuf_ofs += n_char_read
+
+         ;  iface->statusy
+            =  handle_label(&ykey, &(iface->y), iface->map_r, label_rbits | label_dbits, "row")
+
+                     /* this won't scale well in terms of organisation if  and when
+                      * tabs are allowed with 235 mode, because in that case,
+                      * with 235-ai and restrict-tabr and extend-tabc we will
+                      * need the stuff below duplicated in the 235 branch above.
+
+                      * what happens here is that we only decide now whether
+                      * the auto-increment is actually happening. It depends
+                      * on there being at least one y that was not rejected.
+                     */
+         ;  if
+            (  (bits & MCLXIO_STREAM_ETC_AI)
+            && (iface->statusy == STATUS_OK || iface->statusy == STATUS_NEW)
+            && !state->n_y
+            )
+            {  iface->x = state->x_prev + 1         /* works first time around */
+            ;  iface->map_c->max_seen = state->x_prev + 1
+            ;  state->n_y++
+            ;  state->x_prev = iface->x
+         ;  }
+;if(DEBUG2)fprintf(stdbug, "etc handle label we have y %d status %s\n", (int) iface->y, MCXSTATUS(iface->statusy))
       ;  }
       }
       while (0)
 
-   ;  state->x_prev = *x
-
+;if(DEBUG2)fprintf(stdbug, "status %s\n", MCXSTATUS(status))
    ;  do
-      {  if (status)    /* e.g. STATUS_DONE (readline) */
+      {  if (status)    /* e.g. STATUS_DONE (readline) [or STATUS_IGNORE (#)]*/
          break
 
-                        /* below statusy == STATUS_NEW should be impossible
-                         * given this clause and the code sequence earlier.
-                        */
-      ;  if (statusx == STATUS_FAIL || statusx == STATUS_IGNORE)
+                  /* below iface->statusy == STATUS_NEW should be impossible
+                   * given this clause and the code sequence earlier.
+                  */
+      ;  if (iface->statusx == STATUS_FAIL || iface->statusx == STATUS_IGNORE)
          {  mcxTingFree(&xkey)
-         ;  status = statusx
-;if(0)fprintf(stderr, "etc row max at %d\n", (int) *y_max_seen)
+         ;  status = iface->statusx
          ;  break
       ;  }
 
-                        /* case statusx == STATUS_NEW is *always* honored
-                        */
-      ;  if (statusy == STATUS_FAIL || statusy == STATUS_IGNORE)
-         {  status = statusy
+                  /* case iface->statusx == STATUS_NEW is *always* honored
+                  */
+      ;  if (iface->statusy == STATUS_FAIL || iface->statusy == STATUS_IGNORE)
+         {  mcxTingFree(&ykey)
+         ;  status = iface->statusy
          ;  break
       ;  }
-;if(0)fprintf(stderr, "etc col max at %d\n", (int) *x_max_seen)
-   ;  }
+      }
       while (0)
 
-;if(0)fprintf(stderr, "return status %d\n", status)
    ;  if (status == STATUS_IGNORE || status == STATUS_FAIL)
-      {  
-;if(0)fprintf(stderr, "freeing values, return status %d\n", status)
-      ;  mcxTingFree(&ykey)
-   ;  }
+      mcxTingFree(&ykey)
 
-      if
-      (  statusx == STATUS_IGNORE
+                  /* fixme, the action in this branch is done in other places too. cleanify design */
+   ;  if
+      (  iface->statusx == STATUS_IGNORE
       || !mcxStrChrAint(state->etcbuf->str+state->etcbuf_ofs, isspace, -1)
       )
       state->etcbuf_ofs = state->etcbuf->len
 
-;if(DEBUG)fprintf(stderr, "read_etc return x %d status %d\n", (int) *x, (int) status)
+;if(DEBUG3)fprintf
+( stdbug, "read_etc %s return x(%s -> %d stat=%s) y(%s -> %d stat=%s) status %s buf %d %d c_max_seen %lu\n"
+,  MCXSTATUS(status)
+, (xkey ? xkey->str : "-"), (int) iface->x, MCXSTATUS(iface->statusx)
+, (ykey ? ykey->str : "-"), (int) iface->y, MCXSTATUS(iface->statusy)
+, MCXSTATUS(status), (int) state->etcbuf->len, (int) state->etcbuf_ofs
+,  (ulong) iface->map_c->max_seen
+)
    ;  return status
 ;  }
 
 
-
-#define MCLXIO_STREAM_CTAB ((MCLXIO_STREAM_CTAB_EXTEND | MCLXIO_STREAM_CTAB_STRICT | MCLXIO_STREAM_CTAB_RESTRICT))
-#define MCLXIO_STREAM_RTAB ((MCLXIO_STREAM_RTAB_EXTEND | MCLXIO_STREAM_RTAB_STRICT | MCLXIO_STREAM_RTAB_RESTRICT))
-
 static mcxstatus read_abc
 (  mcxIO* xf
-,  mcxTing* buf         /* perhaps better make this static */
-,  mcxHash* mapc
-,  mcxHash* mapr           /* note: can be same as mapc */
-,  unsigned long* x
-,  unsigned long* y        /* note: can be same as x  */
-,  long* x_max_seen
-,  long* y_max_seen
+,  mcxTing* buf
+,  stream_state *iface
 ,  double* value
-,  mcxbits bits
 )
-   {  mcxstatus status = mcxIOreadLine(xf, buf, MCX_READLINE_CHOMP)
-   ;  mcxstatus statusx = STATUS_OK
-   ;  mcxstatus statusy = STATUS_OK
-   ;  mcxTing* xkey = mcxTingEmpty(NULL, buf->len)
-   ;  mcxTing* ykey = mcxTingEmpty(NULL, buf->len)
-   ;  const char* printable
-   ;  int cv = 0
-   ;  mcxbool strict =  bits & MCLXIO_STREAM_STRICT
-   ;  mcxbool warn   =  bits & MCLXIO_STREAM_WARN
+   {  mcxstatus status  =  mcxIOreadLine(xf, buf, MCX_READLINE_CHOMP)
+   ;  mcxTing* xkey     =  mcxTingEmpty(NULL, buf->len)
+   ;  mcxTing* ykey     =  mcxTingEmpty(NULL, buf->len)
+   ;  mcxbits bits      =  iface->bits
+
+   ;  mcxbool strict    =  bits & MCLXIO_STREAM_STRICT
+   ;  mcxbool warn      =  bits & MCLXIO_STREAM_WARN
 
    ;  mcxbool label_cbits = bits & (MCLXIO_STREAM_CTAB_STRICT | MCLXIO_STREAM_CTAB_RESTRICT)
    ;  mcxbool label_rbits = bits & (MCLXIO_STREAM_RTAB_STRICT | MCLXIO_STREAM_RTAB_RESTRICT)
    ;  mcxbool label_dbits = bits & (MCLXIO_STREAM_WARN | MCLXIO_STREAM_DEBUG)
+
+   ;  const char* printable
+   ;  int cv = 0
+
+   ;  iface->statusx =  STATUS_OK
+   ;  iface->statusy =  STATUS_OK
 
    ;  do
       {  int xlen = 0
@@ -403,7 +472,7 @@ static mcxstatus read_abc
          break
 
       ;  printable = mcxStrChrAint(buf->str, isspace, buf->len)
-      ;  if (printable && (unsigned char) printable[0] == '#')
+      ;  if (printable && (uchar) printable[0] == '#')
          {  status = mcxIOreadLine(xf, buf, MCX_READLINE_CHOMP)
          ;  continue
       ;  }
@@ -425,7 +494,7 @@ static mcxstatus read_abc
       ;  else if (cv != 3)
          {  if (warn || strict)
             mcxErr
-            (  "mclxIOstreamIn"
+            (  module
             ,  "abc-parser chokes at line %ld [%s]"
             ,  (long) xf->lc
             ,  buf->str
@@ -447,57 +516,56 @@ static mcxstatus read_abc
       ;  ykey->len = ylen
 
       ;     status
-         =  statusx
-         =  handle_label
-            (&xkey, mapc, x, x_max_seen, label_cbits | label_dbits, "col")
+         =  iface->statusx
+         =  handle_label(&xkey, &(iface->x), iface->map_c, label_cbits | label_dbits, "col")
 
-      ;  if (statusx == STATUS_FAIL || statusx == STATUS_IGNORE)
+      ;  if (status == STATUS_FAIL || status == STATUS_IGNORE)
          break
 
       ;     status
-         =  statusy
-         =  handle_label
-            (&ykey, mapr, y, y_max_seen, label_rbits | label_dbits, "row")
-      ;  if (statusy == STATUS_FAIL || statusy == STATUS_IGNORE)
+         =  iface->statusy
+         =  handle_label(&ykey, &(iface->y), iface->map_r, label_rbits | label_dbits, "row")
+      ;  if (status == STATUS_FAIL || status == STATUS_IGNORE)
          break
-                              /* Note: status can never be STATUS_NEW */
-      ;  status = STATUS_OK
+
+      ;  status = STATUS_OK     /* Note: status can never be STATUS_NEW */
       ;  break
    ;  }
       while (1)
 
+;if(DEBUG2) fprintf(stderr, "read_abc status %s\n", MCXSTATUS(status))
    ;  if (status == STATUS_NEW)
-      mcxErr("read_abc", "big time panic status == STATUS_NEW")
+      mcxErr(module, "read_abc panic, because status == STATUS_NEW")
 
                /* Below we remove the key from the map if it should be
                 * ignored. It will be freed in the block following this one.
                */
    ;  if
-      (   statusx == STATUS_NEW
-      && (statusy == STATUS_FAIL || statusy == STATUS_IGNORE)
+      (   iface->statusx == STATUS_NEW
+      && (iface->statusy == STATUS_FAIL || iface->statusy == STATUS_IGNORE)
       )
-      {  mcxHashSearch(xkey, mapc, MCX_DATUM_DELETE)
-      ;  (*x_max_seen)--
-;if(0)fprintf(stderr, "col max at %d\n", (int) *x_max_seen)
+      {  mcxHashSearch(xkey, iface->map_c->map, MCX_DATUM_DELETE)
+      ;  iface->map_c->max_seen--
+      ;  iface->statusx = STATUS_IGNORE
    ;  }
-      else if
-      (   statusy == STATUS_NEW
-      && (statusx == STATUS_FAIL || statusx == STATUS_IGNORE)
+      else if   /* Impossible (given that we break when iface->statusx) but defensive */
+      (   iface->statusy == STATUS_NEW
+      && (iface->statusx == STATUS_FAIL || iface->statusx == STATUS_IGNORE)
       )
-      {  mcxHashSearch(ykey, mapr, MCX_DATUM_DELETE)
-      ;  (*y_max_seen)--
-;if(0)fprintf(stderr, "row max at %d\n", (int) *y_max_seen)
+      {  mcxHashSearch(ykey, iface->map_r->map, MCX_DATUM_DELETE)
+      ;  iface->map_r->max_seen--
+      ;  iface->statusy = STATUS_IGNORE
    ;  }
 
-               /* NOTE handle_label might have set either to NULL but
-                * that's OK.  This is needed because handle_label(&xkey)
-                * might succeed and free xkey (because already present in
-                * mapc); then when handle_label(&ykey) fails we need to
-                * clean up.
-               */
+         /* NOTE handle_label might have set either to NULL but
+          * that's OK.  This is needed because handle_label(&xkey)
+          * might succeed and free xkey (because already present in
+          * map_c->map); then when handle_label(&ykey) fails we need to
+          * clean up.
+         */
    ;  if (status)
-      {  mcxTingFree(&xkey)   /* kv deleted if statusx == STATUS_NEW */
-      ;  mcxTingFree(&ykey)   /* kv deleted if statusy == STATUS_NEW */
+      {  mcxTingFree(&xkey)   /* kv deleted if iface->statusx == STATUS_NEW */
+      ;  mcxTingFree(&ykey)   /* kv deleted if iface->statusy == STATUS_NEW */
    ;  }
 
       return status
@@ -505,20 +573,24 @@ static mcxstatus read_abc
 
 
 
+               /* hierverder: include max_seen in interface, update when necessary
+               */
+
 static mcxstatus read_123
 (  mcxIO* xf
-,  mcxTing* buf         /* perhaps better make this static */
-,  unsigned long* x
-,  unsigned long* y
+,  mcxTing* buf
+,  stream_state* iface
+,  mclxIOstreamer* streamer
 ,  double* value
 ,  mcxbits bits
 )
    {  mcxstatus status = mcxIOreadLine(xf, buf, MCX_READLINE_CHOMP)
    ;  int cv = 0
    ;  const char* printable
-   ;  const char* me = strin
+   ;  const char* me = module
    ;  mcxbool strict = bits & MCLXIO_STREAM_STRICT
    ;  mcxbool warn   = bits & MCLXIO_STREAM_WARN
+   ;  unsigned long x = 0, y = 0
 
    ;  while (1)
       {  if (status)
@@ -532,11 +604,11 @@ static mcxstatus read_123
          ;  continue
       ;  }
 
-         cv = sscanf(buf->str, "%lu%lu%lf", x, y, value)
+         cv = sscanf(buf->str, "%lu%lu%lf", &x, &y, value)
 
-      ;  if (*x > LONG_MAX || *y > LONG_MAX)
+      ;  if (x > LONG_MAX || y > LONG_MAX)
          {  mcxErr
-            (me, "negative values in input stream? unsigned %lu %lu", *x, *y)
+            (me, "negative values in input stream? unsigned %lu %lu", x, y)
          ;  break
       ;  }
 
@@ -546,7 +618,7 @@ static mcxstatus read_123
       ;  else if (cv != 3)
          {  if (strict || warn)
             mcxErr
-            (  "mclxIOstreamIn"
+            (  module
             ,  "123-parser chokes at line %ld [%s]"
             ,  (long) xf->lc
             ,  buf->str
@@ -560,15 +632,29 @@ static mcxstatus read_123
          else if (!(*value < FLT_MAX))
          *value = 1.0
 
-      ;  status = STATUS_OK
+      ;  if (x >= streamer->cmax_123 || y >= streamer->rmax_123)
+         {  status = STATUS_IGNORE
+         ;  break
+      ;  }
+
+         status = STATUS_OK
       ;  break
+   ;  }
+
+      if (!status)
+      {  iface->x = x
+      ;  iface->y = y
+      ;  if (iface->map_c->max_seen+1 < x+1)    /* note mixed-sign comparison */
+         iface->map_c->max_seen = x
+      ;  if (iface->map_r->max_seen+1 < y+1)    /* note mixed-sign comparison */
+         iface->map_r->max_seen = y
    ;  }
 
       return status
 ;  }
 
 
-void* my_par_init_v
+static void* my_par_init_v
 (  void* arp_v
 )
    {  mclpAR* ar = arp_v
@@ -578,51 +664,186 @@ void* my_par_init_v
 ;  }
 
 
-#define use_tab_bits \
-(  MCLXIO_STREAM_CTAB_EXTEND | MCLXIO_STREAM_RTAB_EXTEND \
-|  MCLXIO_STREAM_CTAB_STRICT | MCLXIO_STREAM_RTAB_STRICT \
-|  MCLXIO_STREAM_CTAB_RESTRICT | MCLXIO_STREAM_RTAB_RESTRICT  )
-
-mcxbits mclxio_stream_usebits
-(  mcxbool symmetric
-,  mcxbits bits
+static mcxstatus pars_realloc
+(  stream_state* iface
+,  dim n_needed
 )
-   {  int n = 0
-   ;  mcxbits newbits = 0
-   ;  if (symmetric && (bits & use_tab_bits))
-      {  if (bits & (MCLXIO_STREAM_CTAB_STRICT | MCLXIO_STREAM_RTAB_STRICT))
-         {  newbits = MCLXIO_STREAM_CTAB_STRICT | MCLXIO_STREAM_RTAB_STRICT
-         ;  n++
-      ;  }
-         if (bits & (MCLXIO_STREAM_CTAB_RESTRICT | MCLXIO_STREAM_RTAB_RESTRICT))
-         {  newbits = MCLXIO_STREAM_CTAB_RESTRICT | MCLXIO_STREAM_RTAB_RESTRICT
-         ;  n++
-      ;  }
-         if (bits & (MCLXIO_STREAM_CTAB_EXTEND | MCLXIO_STREAM_RTAB_EXTEND))
-         {  newbits = MCLXIO_STREAM_CTAB_EXTEND | MCLXIO_STREAM_RTAB_EXTEND
-         ;  n++
-      ;  }
-         if (n > 1)
-         mcxErr(strin, "conflicting tab directives found (taking most lax)")
-      ;  else if (!n)
-            mcxErr(strin, "no tab directives found (entering strict mode)")
-         ,  newbits = MCLXIO_STREAM_CTAB_STRICT | MCLXIO_STREAM_RTAB_STRICT
-   ;  }
-      else
-      newbits = bits & use_tab_bits
+   {  dim n_alloc = MCX_MAX(n_needed+8, iface->pars_n_alloc * 1.2)
+   ;  mclpAR* p
 
-   ;  BIT_OFF(bits, use_tab_bits)
-   ;  BIT_ON(bits, newbits)
-   ;  return bits
+   ;  if (n_needed <= iface->pars_n_alloc)
+      {  if (n_needed > iface->pars_n_used)
+         iface->pars_n_used = n_needed
+      ;  return STATUS_OK
+   ;  }
+
+      p
+      =  mcxNRealloc
+         (  iface->pars
+         ,  n_alloc
+         ,  iface->pars_n_alloc
+         ,  sizeof p[0]
+         ,  my_par_init_v
+         ,  RETURN_ON_FAIL
+         )
+;if(DEBUG3)fprintf(stderr, "realloc pars %lu (requested = %lu)\n", (ulong) n_alloc, (ulong) n_needed)
+   ;  if (!p)
+      {  mcxErr(module, "failure allocing p array (%lu units)", (ulong) n_alloc)
+      ;  return STATUS_FAIL
+   ;  }
+
+      iface->pars = p
+   ;  iface->pars_n_used  = n_needed
+   ;  iface->pars_n_alloc = n_alloc
+   ;  return STATUS_OK
 ;  }
 
 
 
-/* Needs documentation and splitting up.
- * it does a lot in different modes.
- * Its length is *very* depressing - although largely caused by spacing.
- * fixmefixmefixme
+               /* sets iface.map_c and iface.map_r
+                * This includes
+                *    map (hash)
+                *    tab
+                *    max_seen
+               */
+
+static void stream_state_set_map
+(  mcxbool symmetric
+,  stream_state *iface
+,  mclxIOstreamer* streamer
+,  mcxbits* bitsp
+)
+   {  mcxbits newbits = 0
+
+   ;  if (symmetric)       /* work from input tab */
+      {  iface->map_c->tab = streamer->tab_sym_in
+      ;  if (iface->map_c->tab != NULL)
+         {  iface->map_c->map = mclTabHash(iface->map_c->tab)
+         ;  if (!(bitsp[0] & (MCLXIO_STREAM_CTAB | MCLXIO_STREAM_RTAB)))
+            {  mcxErr(module, "PBD suggest explicit tab mode (now extending)")
+            ;  newbits |= (MCLXIO_STREAM_CTAB_EXTEND | MCLXIO_STREAM_RTAB_EXTEND)
+         ;  }
+            iface->map_c->max_seen = MCLV_MAXID(iface->map_c->tab->domain)
+      ;  }
+         else
+         {  iface->map_c->map = mcxHashNew(1024, mcxTingDPhash, mcxTingCmp)
+      ;  }
+         iface->map_r = iface->map_c
+   ;  }
+      else
+      {  iface->map_c->tab = streamer->tab_col_in
+      ;  if (streamer->tab_col_in != NULL)
+         {  iface->map_c->map = mclTabHash(iface->map_c->tab)
+         ;  if (!(bitsp[0] & MCLXIO_STREAM_CTAB))
+            {  mcxErr(module, "PBD suggest explicit ctab mode (now extending)")
+            ;  newbits |= MCLXIO_STREAM_CTAB_EXTEND
+         ;  }
+            iface->map_c->max_seen = MCLV_MAXID(iface->map_c->tab->domain)
+      ;  }
+         else if (!(bitsp[0] & (MCLXIO_STREAM_ETC_AI | MCLXIO_STREAM_235_AI)))
+         iface->map_c->map = mcxHashNew(1024, mcxTingDPhash, mcxTingCmp)
+
+      ;  iface->map_r->tab = streamer->tab_row_in
+      ;  if (streamer->tab_row_in != NULL)
+         {  iface->map_r->map = mclTabHash(iface->map_r->tab)
+         ;  if (!(bitsp[0] & MCLXIO_STREAM_RTAB))
+            {  mcxErr(module, "PBD suggest explicit rtab mode (now extending)")
+            ;  newbits |= MCLXIO_STREAM_RTAB_EXTEND
+         ;  }
+            iface->map_r->max_seen = MCLV_MAXID(iface->map_r->tab->domain)
+      ;  }
+         else
+         iface->map_r->map = mcxHashNew(1024, mcxTingDPhash, mcxTingCmp)
+   ;  }
+
+         /* alloc number below is some positive number if a restrict or extend tab was given
+          * Otherwise it is 0.
+         */
+      pars_realloc(iface, (iface->map_c->max_seen + 1))
+   ;  bitsp[0] |= newbits
+;  }
+
+
+static mclx* make_mx_from_pars
+(  stream_state* iface
+,  void  (*ivpmerge)(void* ivp1, const void* ivp2)
+)
+   {  mclpAR* pars = iface->pars
+   ;  long dc_max_seen = iface->map_c->max_seen
+   ;  long dr_max_seen = iface->map_r->max_seen
+   ;  mclx* mx = NULL
+   ;  mclv* domc, *domr
+   ;  dim i
+
+;if(DEBUG3)fprintf(stderr, "maxc=%d maxr=%d\n", (int) dc_max_seen, (int) dr_max_seen)
+
+   ;  if (iface->pars_n_used != iface->map_c->max_seen+1)
+      mcxDie
+      (  1
+      ,  module
+      ,  "internal discrepancy: n_pars=%lu max_seen+1=%lu"
+      ,  (ulong) iface->pars_n_used
+      ,  (ulong) (iface->map_c->max_seen+1)
+      )
+
+   ;  if (dc_max_seen < 0 || dr_max_seen < 0)
+      {  if (dc_max_seen < -1 || dr_max_seen < -1)
+         {  mcxErr(module, "bad apples %ld %ld", dc_max_seen, dr_max_seen)
+         ;  return NULL
+      ;  }
+         else
+         mcxTell(module, "no assignments yield void/empty matrix")
+   ;  }
+
+                           /* fixme: with extend and same tab, should still copy.
+                            * then, there are still occasions where one would
+                            * want to go the sparse route
+                           */
+      domc  =     iface->map_c->tab && (iface->bits & MCLXIO_STREAM_CTAB_RO)
+               ?  mclvClone(iface->map_c->tab->domain)
+               :  mclvCanonical(NULL, dc_max_seen+1, 1.0)
+   ;  domr  =     iface->map_r->tab && (iface->bits & MCLXIO_STREAM_RTAB_RO)
+               ?  mclvClone(iface->map_r->tab->domain)
+               :  mclvCanonical(NULL, dr_max_seen+1, 1.0)
+      
+   ;  if (! (mx = mclxAllocZero(domc, domr)))
+      {  mclvFree(&domc)
+      ;  mclvFree(&domr)
+   ;  }
+      else
+      for (i=0;i<domc->n_ivps;i++)  /* careful with signedness */
+      {  long d = domc->ivps[i].idx
+;if(DEBUG3)fprintf(stderr, "column %d alloc %d\n", (int) d, (int) iface->pars_n_alloc);
+      ;  mclvFromPAR(mx->cols+i, pars+d, 0, ivpmerge, NULL)
+   ;  }
+      return mx
+;  }
+
+
+/* current, debatable, interface: if tab did not change return NULL.
 */
+
+static mclTab* make_tab
+(  map_state* map
+)
+   {  mclTab* tab = NULL
+   ;  if (!map->tab || map->tab->domain->n_ivps < (dim) (map->max_seen+1))
+      tab = mclTabFromMap(map->map)
+   ;  else
+      tab = map->tab
+   ;  return tab
+;  }
+
+
+static void free_pars
+(  stream_state* iface
+)
+   {  dim i
+   ;  for (i=0; i<iface->pars_n_alloc; i++)
+      mcxFree(iface->pars[i].ivps)
+   ;  mcxFree(iface->pars)
+   ;  iface->pars = NULL
+;  }
 
 
 mclx* mclxIOstreamIn
@@ -630,39 +851,31 @@ mclx* mclxIOstreamIn
 ,  mcxbits  bits
 ,  mclpAR*  transform
 ,  void    (*ivpmerge)(void* ivp1, const void* ivp2)
-,  mclTab** tabcpp
-,  mclTab** tabrpp
+,  mclxIOstreamer* streamer
 ,  mcxOnFail ON_FAIL
 )
-   {  dim c_max_alloc   =  10
-   ;  mcxstatus status  =  STATUS_FAIL
-   ;  const char* me    =  strin
+#define MCLXIO_STREAM_ETCANY (MCLXIO_STREAM_ETC | MCLXIO_STREAM_ETC_AI)
+#define MCLXIO_STREAM_235ANY (MCLXIO_STREAM_235 | MCLXIO_STREAM_235_AI)
+
+   {  mcxstatus status  =  STATUS_FAIL
+   ;  const char* me    =  module
+
+   ;  mcxbool symmetric =  bits & MCLXIO_STREAM_SYMMETRIC
    ;  mcxbool mirror    =  bits & MCLXIO_STREAM_MIRROR
-   ;  mcxbool packed    =  bits & MCLXIO_STREAM_PACKED ? TRUE : FALSE
-   ;  mcxbool one23     =  bits & MCLXIO_STREAM_123    ? TRUE : FALSE
+
    ;  mcxbool abc       =  bits & MCLXIO_STREAM_ABC    ? TRUE : FALSE
-   ;  mcxbool etc       =     bits & (MCLXIO_STREAM_ETC | MCLXIO_STREAM_235)
-                           ?  TRUE
-                           :  FALSE
-   ;  mcxbool etcai     =     bits & (MCLXIO_STREAM_ETC_AI | MCLXIO_STREAM_235_AI)
-                           ?  TRUE
-                           :  FALSE
-   ;  mcxbool symmetric =  !(bits & MCLXIO_STREAM_TWODOMAINS) || mirror
-   ;  mcxTing* buf      =  mcxTingEmpty(NULL, 100)
+   ;  mcxbool one23     =  bits & MCLXIO_STREAM_123    ? TRUE : FALSE
+   ;  mcxbool etc       =  bits & (MCLXIO_STREAM_ETC | MCLXIO_STREAM_ETC_AI) ? TRUE : FALSE
 
-   ;  mcxHash* mapc     =  NULL
-   ;  mcxHash* mapr     =  NULL
-   ;  mclpAR* pars      =  NULL
-   ;  mclTab* tabc      =  NULL
-   ;  mclTab* tabr      =  NULL
+   ;  mcxbool longlist  =  bits & (MCLXIO_STREAM_ETCANY | MCLXIO_STREAM_235ANY) ? TRUE : FALSE
 
-   ;  struct etc_state state
+   ;  mcxTing* linebuf  =  mcxTingEmpty(NULL, 100)
 
-   ;  long c_max_seen = -1, r_max_seen = -1
-   ;  dim  d = 0
+   ;  map_state  map_c  =  { NULL, NULL, -1 , 0}
+   ;  map_state  map_r  =  { NULL, NULL, -1 , 0}
 
-   ;  long* c_max_seenp = &c_max_seen
-   ;  long* r_max_seenp = symmetric ? &c_max_seen : &r_max_seen
+   ;  stream_state   iface
+   ;  etc_state      etcstate
 
    ;  unsigned long n_ite = 0
    ;  mclx* mx = NULL
@@ -670,84 +883,44 @@ mclx* mclxIOstreamIn
    ;  if (!ivpmerge)
       ivpmerge = mclpMergeMax
 
-   ;  bits = mclxio_stream_usebits(symmetric, bits)
+   ;  if (symmetric)
+         iface.map_c = &map_c    /* this bit of hidgery-pokery       */
+      ,  iface.map_r = &map_c    /* is a crucial interfacummathingy  */
+   ;  else
+         iface.map_c = &map_c
+      ,  iface.map_r = &map_r
 
-   ;  state.etcbuf = NULL
-   ;  state.etcbuf_ofs = 0
-   ;  state.etcbuf_check = 0
-   ;  state.x_prev = ULONG_MAX
+;if(DEBUG2)fprintf(stderr, "%s abc\n", abc ? "yes" : "no")
+   ;  etcstate.etcbuf = NULL
+   ;  etcstate.etcbuf_ofs = 0
+   ;  etcstate.etcbuf_check = 0
+   ;  etcstate.x_prev   =  ULONG_MAX      /* note we depend on ULONG_MAX + 1 == 0 */
+   ;  etcstate.n_y   =  0
 
-         /* pars can now be alloced short of c_max_seen in abc mode */
-         /* fixme: put the block below in a subroutine */
+         /* fixme incomplete and distributed initialization of iface */
+   ;  iface.pars = NULL
+   ;  iface.pars_n_alloc = 0
+   ;  iface.pars_n_used = 0
 
+;if(DEBUG3)fprintf(stderr, "1 + max c %lu\n", (ulong) (iface.map_c->max_seen+1))
+                                 /* fixme: put the block below in a subroutine */
    ;  while (1)
-      {  if (abc + one23 + packed + etc > TRUE)   /* OUCH */
-         {  mcxErr(strin, "multiple stream formats specified")
+      {  if (abc + one23 + longlist > TRUE)   /* OUCH */
+         {  mcxErr(module, "multiple stream formats specified")
          ;  break
       ;  }
-      
-         if ((!packed && !one23 && !abc && !etc) || (abc && !(tabcpp || tabrpp)))
-         {  mcxErr(strin, "not enough to get going")
+         if (!symmetric && streamer->tab_sym_in)
+         {  mcxErr(module, "for now disallowed, single tab, different domains")
+         ;  break
+      ;  }
+         if ((!one23 && !abc && !longlist))
+         {  mcxErr(module, "not enough to get going")
          ;  break
       ;  }
 
-         if (abc || etc)
-         {  if (tabcpp && *tabcpp != NULL)
-            {  tabc = *tabcpp
-            ;  if (!mcldIsCanonical(tabc->domain))
-               {  mcxErr(me, "only canonical tabc supported")
-               ;  break
-            ;  }
-               mapc = mclTabHash(tabc)
-
-            ;  if (!(bits & MCLXIO_STREAM_CTAB))
-                  mcxErr
-                  (  strin
-                  ,  "PBD suggest explicit ctab mode (now extending)"
-                  )
-               ,  bits |= MCLXIO_STREAM_CTAB_EXTEND
-            ;  c_max_seen = tabc->domain->n_ivps - 1
-         ;  }
-            else
-            mapc = mcxHashNew(1024, mcxTingDPhash, mcxTingCmp)
-
-         ;  if (!symmetric)
-            {  if (tabrpp && *tabrpp != NULL)
-               {  tabr = *tabrpp
-               ;  if (!mcldIsCanonical(tabr->domain))
-                  {  mcxErr(me, "only canonical tabr supported (ignoring)")
-                  ;  break
-               ;  }
-                  else
-                  mapr = mclTabHash(tabr)
-
-               ;  if (!(bits & MCLXIO_STREAM_RTAB))
-                     mcxErr
-                     (  strin
-                     ,  "PBD suggest explicit rtab mode (now extending)"
-                     )
-                  ,  bits |= MCLXIO_STREAM_RTAB_EXTEND
-               ;  r_max_seen = tabr->domain->n_ivps - 1
-            ;  }
-               else
-               mapr = mcxHashNew(1024, mcxTingDPhash, mcxTingCmp)
-         ;  }
-            else
-            mapr = mapc
-      ;  }
-
-         if (c_max_seen+1 > c_max_alloc)
-         c_max_alloc = c_max_seen + 1
-
-      ;  pars
-         =  mcxNAlloc
-            (  c_max_alloc
-            ,  sizeof pars[0]
-            ,  my_par_init_v
-            ,  RETURN_ON_FAIL
-            )
-      ;  if (!pars)
-         break
+                              /* todo hierverder: etc case supported below ? */
+         if (abc || etc)      /* These have maps associated with them */
+         stream_state_set_map(symmetric, &iface, streamer, &bits)
 
       ;  if (xf->fp == NULL && (mcxIOopen(xf, ON_FAIL) != STATUS_OK))
          {  mcxErr(me, "cannot open stream <%s>", xf->fn->str)
@@ -757,76 +930,74 @@ mclx* mclxIOstreamIn
       ;  break
    ;  }
 
-      if (!status)
+      iface.bits  =  bits
+
+   ;  if (!status)
       while (1)
-      {  unsigned long s = 0, x = 0, y = 0
+      {  unsigned long x = 876543210, y = 876543210
       ;  double value = 0
       ;  n_ite++
+
+      ;  iface.x =  0
+      ;  iface.y =  0
 
       ;  if (n_ite % 100000 == 0)
          fputc('.', stderr)
       ;  if (n_ite % 5000000 == 0)
          fprintf(stderr, " %ldM\n", (long) (n_ite / 1000000))
 
+                        /* 
+                         * -  the read routines largely manage iface, including
+                         * map_c->max_seen and map_r->max_seen.  It would be
+                         * nice to encapsulate that management in a single
+                         * place. Note the read_abc requirement that sometimes
+                         * a label may need to be deleted from a hash. The fact
+                         * that handle_label (called by read_etc and read_abc)
+                         * also manages max_seen complicate encapsulation though.
+                         *
+                         * -  read_etc manages its line buffer.
+                        */
       ;  status
-         =     packed
-            ?     read_packed(xf->fp, &s, &x, &y, &value)
-            :  one23
-            ?     read_123(xf, buf, &x, &y, &value, bits)
-            :  etc
-            ?     read_etc
-                  (  xf
-                  ,  mapc,mapr, &x, &y, c_max_seenp, r_max_seenp
-                  ,  &value, bits
-                  ,  &state
-                  )
-            :  abc
-            ?     read_abc
-                  (  xf, buf
-                  ,  mapc,mapr, &x, &y, c_max_seenp, r_max_seenp
-                  ,  &value, bits
-                  )
+         =     one23 ?     read_123(xf, linebuf, &iface, streamer, &value, bits)
+            :  abc   ?     read_abc(xf, linebuf, &iface, &value)
+            :  longlist ?  read_etc(xf, &iface, &etcstate, &value)
             :  STATUS_FAIL
 
+      ;  x = iface.x
+      ;  y = iface.y
+
+/* hierverder: etc status ignore could still expand column range.
+ * do we change the status and deal with not incorporating the row,
+ * or do we keep status, and change realloc/ignore logic below?
+*/
+;if(0)fprintf(stderr, "#x now %lu status %s\n", (ulong) (iface.map_c->max_seen+1), MCXSTATUS(status))
+                        /* etc/235 are special in that with NEW x and IGNORE y
+                         * we respect x
+                         * (fixme: should not do that for auto-increment).
+                        */
       ;  if (status == STATUS_IGNORE)     /* maybe restrict mode */
-         continue
-      ;  else if (status)                 /* FAIL or DONE */
+         {  if
+            (  longlist
+            && iface.statusx == STATUS_NEW
+            && iface.map_c->max_seen+1 > iface.pars_n_used    /* note mixed-sign comparison */
+            )
+            {  if ((status = pars_realloc(&iface, iface.map_c->max_seen+1)))
+               break
+         ;  }
+            continue
+      ;  }
+         else if (status)                 /* FAIL or DONE */
          break
 
-;if(DEBUG)fprintf(stderr, "read x y %d %d status %d\n", (int) x, (int) y, (int) status)
+      ;  if
+         (  iface.map_c->max_seen >= iface.pars_n_used     /* note mixed-sign comparison */
+         && (status = pars_realloc(&iface, iface.map_c->max_seen+1))
+         )
+         break
 
-                              /* needed for 123 and packed case */
-      ;  if (x+1 > (dim) (c_max_seen+1))  /* because of signedness c_max_seen */
-         c_max_seen = x
-      ;  if (y+1 > (dim) (r_max_seen+1))  /* because of signedness r_max_seen */
-         r_max_seen = y
-
-      ;  status = STATUS_FAIL
+      ;  status = STATUS_FAIL    /* fixme restructure logic, mid-re-initialization is ugly */
 
       ;  if
-         (  x >= c_max_alloc
-         || (symmetric && y >= c_max_alloc)
-         )
-         {  long c_old_alloc  =  c_max_alloc
-         ;  long z            =  symmetric ? MCX_MAX(x, y) : x
-         ;  c_max_alloc       =  MCX_MAX(z+1000, c_old_alloc* 1.44)
-         ;  if
-            ( !(  pars
-               =  mcxNRealloc
-                  (  pars
-                  ,  c_max_alloc
-                  ,  c_old_alloc
-                  ,  sizeof pars[0]
-                  ,  my_par_init_v
-                  ,  RETURN_ON_FAIL
-                  )
-            ) )
-            {  mcxErr(strin, "realloc failed")
-            ;  break
-         ;  }
-         }
-
-         if
          ( bits & (MCLXIO_STREAM_LOGTRANSFORM | MCLXIO_STREAM_NEGLOGTRANSFORM) )
          {  if (bits & MCLXIO_STREAM_LOGTRANSFORM)
             value = value > 0 ? log(value) : -DBL_MAX
@@ -841,13 +1012,14 @@ mclx* mclxIOstreamIn
          ;  value = mclpUnary(&bufivp, transform)
       ;  }
 
+                                 /* fixme: below we have canonical dependence, index as offset */
          if (value)
-         {  if(DEBUG)fprintf(stderr, "attempt to extend %d\n", (int) x)
-         ;  if (mclpARextend(pars+x, y, value))
+         {  if(DEBUG3)fprintf(stderr, "attempt to extend %d\n", (int) x)
+         ;  if (mclpARextend(iface.pars+x, y, value))
             {  mcxErr(me, "x-extend fails")
             ;  break
          ;  }
-            if (mirror && mclpARextend(pars+y, x, value))
+            if (mirror && mclpARextend(iface.pars+y, x, value))
             {  mcxErr(me, "y-extend fails")
             ;  break
          ;  }
@@ -858,127 +1030,48 @@ mclx* mclxIOstreamIn
       if (n_ite >= 1000000 && n_ite % 5000000)
       fputc('\n', stderr)
 
-   ;  mcxTingFree(&(state.etcbuf))
+   ;  mcxTingFree(&(etcstate.etcbuf))
 
-   ;  if ((status != STATUS_FAIL) && !ferror(xf->fp))
-      while (1)
-      {  long dc_max_seen = symmetric ? MCX_MAX(c_max_seen, r_max_seen) : c_max_seen
-      ;  long dr_max_seen = symmetric ? MCX_MAX(c_max_seen, r_max_seen) : r_max_seen
-
-      ;  status = STATUS_FAIL
-
-      ;  if (c_max_seen < 0 || (!symmetric && r_max_seen < 0))
-         {  if (c_max_seen < -1 || r_max_seen < -1)
-            {  mcxErr(me, "bad apples %ld %ld", c_max_seen, r_max_seen)
-            ;  break
-         ;  }
-            else
-            mcxTell(me, "no assignments yield void/empty matrix")
-      ;  }
-
-         if (! (  mx =  mclxAllocZero
-                  (  mclvCanonical(NULL, dc_max_seen+1, 1.0)
-                  ,  mclvCanonical(NULL, dr_max_seen+1, 1.0)
-            )  )  )
-         break
-
-      ;  for (d=0;d<(dim) (dc_max_seen+1);d++)   /* careful with signedness */
-         {  mclvFromPAR
-            (  mx->cols+d
-            ,  pars+d
-            ,  0
-            ,  ivpmerge
-            ,  NULL
-            )
-         ;  mcxFree(pars[d].ivps)     /* dangerous, s-e's property */
-      ;  }
-
-         for (d=(dim) (dc_max_seen+1); d<c_max_alloc; d++)
-         mcxFree(pars[d].ivps)
-      ;  mcxFree(pars)
-
-      ;  status = STATUS_OK
-      ;  break
+   ;  if (status == STATUS_FAIL || ferror(xf->fp))
+      mcxErr(me, "error occurred (status %d lc %d)", (int) status, (int) xf->lc)
+   ;  else
+      {  mx = make_mx_from_pars(&iface, ivpmerge)
+      ;  status = mx ? STATUS_OK : STATUS_FAIL
    ;  }
-      else if (status == STATUS_FAIL || ferror(xf->fp))
-      mcxErr
-      (me, "error occurred (status %d lc %d)", (int) status, (int) xf->lc)
 
-   ;  mcxTingFree(&buf)
+      mcxTingFree(&linebuf)
+   ;  free_pars(&iface)
 
-   ;  if (status == STATUS_FAIL)       /* STATUS_DONE otherwise */
-      {  mclxFree(&mx)
-      ;  if (ON_FAIL == EXIT_ON_FAIL)
+   ;  if (status == STATUS_FAIL)
+      {  if (ON_FAIL == EXIT_ON_FAIL)
          mcxDie(1, me, "fini")
    ;  }
 
-   /* fixmefixmefixme mem leak with hashes */
-
-                        /* with etcai there is simply no column tab */
-                        /* perhaps create a dummy one (integers* */
-      else if (abc || etc)
-      {  if (!etcai)
-         {  if (!tabc || tabc->domain->n_ivps < (dim) (c_max_seen+1))
-            {  tabc = mclTabFromMap(mapc)
-            ;  *tabcpp = tabc
-            ;  mcxHashFree(&mapc, mcxHashFreeScalar, NULL)
-         ;  }
-         }
-
-      ;  if (!symmetric)
-         {  if (!tabr || tabr->domain->n_ivps < (dim) (r_max_seen+1))
-            {  tabr = mclTabFromMap(mapr)
-            ;  *tabrpp = tabr
-            ;  mcxHashFree(&mapr, mcxHashFreeScalar, NULL)
-         ;  }
+               /* with 123, etcai there is simply no column tab
+                * todo: perhaps create a dummy one (integers).
+               */
+      if
+      (  !status
+      && (abc || (bits & (MCLXIO_STREAM_ETC | MCLXIO_STREAM_ETC_AI)))
+      )
+      {  if (symmetric)
+         streamer->tab_sym_out = make_tab(iface.map_c)
+      ;  else
+         {  if (!(bits & MCLXIO_STREAM_ETC_AI))
+            streamer->tab_col_out = make_tab(iface.map_c)
+;if(0)fprintf(stderr, "%p x %p\n", (void*) iface.map_c->map, (void*) iface.map_c->tab)
+;if(0)mcxHashStats(stdout, iface.map_c->map)
+         ;  streamer->tab_row_out = make_tab(iface.map_r)
       ;  }
       }
 
-      mcxHashFree(&mapc, mcxTingRelease, NULL)
+      mcxHashFree(&(iface.map_c->map), mcxTingRelease, NULL)
    ;  if (!symmetric)
-      mcxHashFree(&mapr, mcxTingRelease, NULL)
+      mcxHashFree(&(iface.map_r->map), mcxTingRelease, NULL)
 
    ;  return mx
 ;  }
 
 
-
-/* fixme wrongly named
-*/
-
-mcxstatus mclxIOstreamOut
-(  const mclx* mx
-,  mcxIO* xf
-,  mcxOnFail ON_FAIL
-)
-   {  unsigned long sentinel = SENTINEL_PACKED << 24
-   ;  dim d
-
-   ;  if (xf->fp == NULL && (mcxIOopen(xf, ON_FAIL) != STATUS_OK))
-      {  mcxErr("mclxIOstreamOut", "cannot open stream <%s>", xf->fn->str)
-      ;  return STATUS_FAIL
-   ;  }
-
-      for (d=0;d<N_COLS(mx);d++)
-      {  mclv* col   =  mx->cols+d
-      ;  long  cidx  =  col->vid
-      ;  dim e
-      ;  for (e=0;e<col->n_ivps;e++)
-         {  long  ridx  =  col->ivps[e].idx
-         ;  double val  =  col->ivps[e].val
-         ;  write_u32_be(sentinel, xf->fp)
-         ;  write_u32_be(cidx, xf->fp)
-         ;  write_u32_be(ridx, xf->fp)
-         ;  fwrite(&val, sizeof val, 1, xf->fp)
-      ;  }
-      }
-
-   ;  return STATUS_OK
-;  }
-
-
-#ifdef DEBUG_SA
-#define DEBUG DEBUG_SA
-#endif
-
+/* mcxIOstreamIn */
 

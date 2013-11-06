@@ -120,7 +120,7 @@ void clmVScanDomain
    ;  score->min_o    =  min_o
    ;  score->sum_o    =  sum_o
    ;  score->ssq_o    =  ssq_o
-   ;  score->sum_e    =  vec->val
+   ;  score->sum_e    =  vec->val   /* fixme; clmCastActors should have set this; but it is not always called */
 #undef STAT_MEET
 #undef STAT_VDIF
 #undef STAT_VDIF

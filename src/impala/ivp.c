@@ -226,9 +226,10 @@ int mclpValRevCmp
 ;  }
 
 
+   /* a noop apparently works, but this needs more documentation (caller's context) */
 void mclpMergeLeft
-(  void*                   i1
-,  const void*             i2
+(  void*                   ivp_unused1
+,  const void*             ivp_unused2
 )
    {
 ;  }
@@ -350,7 +351,7 @@ double mclpUnary
 (  mclp*    ivp
 ,  mclpAR*  ar       /* idx: MCLX_UNARY_mode, val: arg */
 )
-   {  int i
+   {  dim i
    ;  double val = ivp->val
    ;  for (i=0;i<ar->n_ivps;i++)
       {  int mode = ar->ivps[i].idx

@@ -30,11 +30,6 @@
 
 #include "mcx.h"
 
-#include "impala/matrix.h"
-#include "impala/io.h"
-#include "impala/tab.h"
-#include "impala/app.h"
-
 #include "util/types.h"
 #include "util/heap.h"
 #include "util/ding.h"
@@ -44,6 +39,12 @@
 #include "util/equate.h"
 #include "util/rand.h"
 #include "util/opt.h"
+#include "util/compile.h"
+
+#include "impala/matrix.h"
+#include "impala/io.h"
+#include "impala/tab.h"
+#include "impala/app.h"
 
 #include "clew/clm.h"
 #include "gryphon/path.h"
@@ -136,7 +137,7 @@ mcxstatus check_bounds
 (  const mclx* mx
 ,  long idx
 )
-   {  if (idx < 0 || idx >= N_COLS(mx))
+   {  if (idx < 0 || (dim) idx >= N_COLS(mx))
       {  fprintf(stdout, "-- ARGUMENT OUT OF BOUNDS (%ld)\n", idx)
       ;  return STATUS_FAIL
    ;  }
@@ -193,7 +194,7 @@ void handle_clcf
       ;  return
    ;  }
       else if (kv)
-      idx = (unsigned) kv->val
+      idx = VOID_TO_ULONG kv->val
    ;  else
       idx = atoi(sa->str)
 
@@ -217,7 +218,7 @@ void handle_look
       ;  return
    ;  }
       else if (kv)
-      idx = (unsigned) kv->val
+      idx = VOID_TO_ULONG kv->val
    ;  else
       idx = atoi(sa->str)
 
@@ -247,7 +248,7 @@ void handle_hairy
 
    ;  if (num <= 0)
       num = 100
-   ;  if (num > N_COLS(mx))
+   ;  if ((dim) num > N_COLS(mx))
       num = N_COLS(mx)
 
    ;  hp =  mcxHeapNew
@@ -298,8 +299,8 @@ void handle_query
 
 
 static mcxstatus erdosMain
-(  int          argc
-,  const char*  argv[]
+(  int          argc_unused      cpl__unused
+,  const char*  argv_unused[]    cpl__unused
 )  
    {  mcxIO* xq = mcxIOnew("-", "r")
    ;  mcxTing* line = mcxTingEmpty(NULL, 100)
@@ -380,14 +381,14 @@ static mcxstatus erdosMain
          {  mcxKV* kv
 
          ;  if ((kv = mcxHashSearch(sa, hsh_g, MCX_DATUM_FIND)))
-            a = (unsigned) kv->val     /* fixme (> 2G labels) */
+            a = VOID_TO_ULONG kv->val     /* fixme (> 2G labels) */
          ;  else
             {  label_not_found(sa)
             ;  continue
          ;  }
 
             if ((kv = mcxHashSearch(sb, hsh_g, MCX_DATUM_FIND)))
-            b = (unsigned) kv->val     /* fixme (> 2G labels) */
+            b = VOID_TO_ULONG kv->val     /* fixme (> 2G labels) */
          ;  else
             {  label_not_found(sb)
             ;  continue

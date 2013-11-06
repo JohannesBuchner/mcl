@@ -163,6 +163,7 @@ label format and the addition of the \genoptref{--abc} option.}
 \cpar{Baseline clustering options}{
    \synoptopt{-I}{<num>}{inflation}
    \synoptopt{-o}{str}{fname}
+   \synoptopt{-od}{str}{directory}
    \synoptopt{-scheme}{k}{resource scheme}
    \synoptopt{--shadow-vl}{shadow distant nodes}
    \synoptopt{-c}{<num>}{reweight loops}
@@ -502,6 +503,14 @@ label format and the addition of the \genoptref{--abc} option.}
    automatic naming constructions employed by \mcl if the \genopt{-o} option is
    not used.}
 
+\item{\defopt{-od}{<dir>}{directory}}
+\car{
+   Specify the directory where to output clusterings. This is useful
+   when you let mcl automatically construct the output file name,
+   but want the clustering in a directory different from the
+   one where the input graph resides.
+
+   }
 
 \items{
    {\defopt{-shadow}{mode}{apply shadowing}}
@@ -1745,7 +1754,7 @@ with value 0.8.}
 
 \sec{bugs}{BUGS}
 \par{
-   No known bugs at this time. Please send bug reports to mcl-devel@micans.org.}
+   No known bugs at this time.}
 
 \sec{author}{AUTHOR}
 \par{
@@ -1847,11 +1856,11 @@ with value 0.8.}
    in the mcl distribution and can be found online at
    \httpref{http://micans.org/mcl}.}
 
-\par{
-   \mcl development is discussed on \v{mcl-devel@lists.micans.org},
-   (subscribtion) information is at
-   \httpref{https://lists.micans.org:446/listinfo/mcl-devel} , this list is
-   archived at \httpref{https://lists.micans.org:446/pipermail/mcl-devel/}.}
+\: \par{
+\:    \mcl development is discussed on \v{mcl-devel@lists.micans.org},
+\:    (subscribtion) information is at
+\:    \httpref{https://lists.micans.org:446/listinfo/mcl-devel} , this list is
+\:    archived at \httpref{https://lists.micans.org:446/pipermail/mcl-devel/}.}
 
 \par{
    mcl's home at \httpref{http://micans.org/mcl/}.}
@@ -1862,6 +1871,13 @@ with value 0.8.}
    Stijn van Dongen, \it{Graph Clustering by Flow Simulation}.
    PhD thesis, University of Utrecht, May 2000.\|
    \httpref{http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm}}
+
+\par{
+   \reference{gcvdup}
+   Stijn van Dongen, \it{Graph Clustering Via a Discrete Uncoupling Process},
+   SIAM Journal on Matrix Analysis and Applications, 30(1):121-141, 2008.
+   \httpref{http://link.aip.org/link/?SJMAEL/30/121/1}
+   }
 
 \par{
    \reference{cafg}

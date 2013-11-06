@@ -81,7 +81,6 @@ enum
 ,  MY_OPT_DUMP_RDOM
 ,  MY_OPT_DUMP_CDOM
 ,  MY_OPT_SKEL
-,  MY_OPT_STREAM_PACKED
 ,  MY_OPT_SEP_LEAD
 ,  MY_OPT_SEP_FIELD
 ,  MY_OPT_SEP_VAL
@@ -116,12 +115,6 @@ mcxOptAnchor options[] =
    ,  MY_OPT_LAZY_TAB
    ,  NULL
    ,  "tab file(s) may mismatch matrix domain(s)"
-   }
-,  {  "--stream-packed"
-   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
-   ,  MY_OPT_STREAM_PACKED
-   ,  NULL
-   ,  "stream matrix in packed format"
    }
 ,  {  "-imx"
    ,  MCX_OPT_HASARG | MCX_OPT_REQUIRED
@@ -288,8 +281,8 @@ mcxOptAnchor options[] =
 ,  {  "-newick"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_NEWICK_MODE
-   ,  "[NBI]+"
-   ,  "no Number, no Branch length, no Indent"
+   ,  "[NBIS]+"
+   ,  "no Number, no Branch length, no Indent, no Singleton parentheses"
    }
 ,  {  "--dump-table"
    ,  MCX_OPT_DEFAULT
@@ -382,7 +375,6 @@ int main
    ;  mcxbool lazy_tab  =  FALSE
    ;  mcxbool write_tabc =  FALSE
    ;  mcxbool write_tabr =  FALSE
-   ;  mcxbool stream_packed =  FALSE
    ;  mcxbool cat       =  FALSE
    ;  mcxbool tree      =  FALSE
    ;  mcxbool skel      =  FALSE
@@ -410,6 +402,9 @@ int main
    ;  mcxOption* opts, *opt
    ;  mcxstatus parseStatus = STATUS_OK
 
+   ;  mcxLogLevel =
+      MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
+   ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
    ;  mclx_app_init(stderr)
    
    ;  mcxOptAnchorSortById(options, sizeof(options)/sizeof(mcxOptAnchor) -1)
@@ -417,8 +412,6 @@ int main
 
    ;  if (!opts)
       exit(0)
-
-   ;  mclx_app_init(stderr)
 
    ;  for (opt=opts;opt->anch;opt++)
       {  mcxOptAnchor* anch = opt->anch
@@ -560,11 +553,6 @@ int main
          ;  break
          ;
 
-            case MY_OPT_STREAM_PACKED
-         :  stream_packed = TRUE
-         ;  break
-         ;
-
             case MY_OPT_IMX
          :  mcxIOnewName(xf_mx, opt->val)
          ;  break
@@ -625,6 +613,8 @@ int main
             newick_bits |= MCLX_NEWICK_NOINDENT
          ;  if (strchr(opt->val, 'B'))
             newick_bits |= MCLX_NEWICK_NONUM
+         ;  if (strchr(opt->val, 'S'))
+            newick_bits |= MCLX_NEWICK_NOPTHS
          ;  newick = TRUE
          ;  break
          ;
@@ -749,10 +739,6 @@ int main
                mcxErr(me, "unknown sort mode <%s>", sort_mode)
             ;  if (catmax != 1)
                mcxErr(me, "-sort option and cat mode may fail or corrupt")
-         ;  }
-
-            if (stream_packed)
-            {  return mclxIOstreamOut(mx, xfout, EXIT_ON_FAIL)
          ;  }
 
             if (xf_tab && !tabr)

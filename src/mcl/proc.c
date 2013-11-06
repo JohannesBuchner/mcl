@@ -60,7 +60,8 @@ int doIteration
 void mclSigCatch
 (  int sig
 )
-   {  abort_loop = 1
+   {  if (sig == SIGALRM)
+      abort_loop = 1
 ;  }
 
 
@@ -256,7 +257,6 @@ void mclInflate
 (  mclx*    mx
 ,  double   power
 ,  mclv*    homgVec
-,  double   homgAvg
 )
    {  mcxbool   local  =   getenv("MCL_AUTO_LOCAL") ? TRUE : FALSE
    ;  mcxbool   smooth =   getenv("MCL_AUTO_SMOOTH") ? TRUE : FALSE  
@@ -423,7 +423,7 @@ mclxWrite(*mxout, xfstdout, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
    ;  if (mpp->printMatrix)
       {  snprintf
          (  msg, sizeof msg, "%d%s%s%s"
-         ,  (int) 2*n_ite+1, " After expansion (", when, ")"
+         ,  (int) (2*n_ite+1), " After expansion (", when, ")"
          )
       ;  if (log_gauge)
          fprintf(stdout, "\n")
@@ -444,14 +444,14 @@ mclxWrite(*mxout, xfstdout, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
          mclExpandStatsPrint(stats, fplog)
    ;  }
 
-      mclInflate(*mxout, inflation, homgVec, homgAvg)
+      mclInflate(*mxout, inflation, homgVec)
 
    ;  mclvFree(&homgVec)
 
    ;  if (mpp->printMatrix)
       {  snprintf
          (  msg,  sizeof msg, "%d%s%s%s"
-         ,  (int) 2*n_ite+2, " After inflation (", when, ")"
+         ,  (int) (2*n_ite+2), " After inflation (", when, ")"
          )
       ;  if (log_gauge)
          fprintf(stdout, "\n")

@@ -141,8 +141,8 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)
 LDADD = ../mcl/libmcl.a ../clew/libclew.a ../taurus/libtaurus.a ../gryphon/libgryphon.a ../impala/libimpala.a ../../util/libutil.a
-this = abc-pairs.pl* abc-test.sh* abc.pl* az.tab 
-extra_DIST = $(this)
+this = abc-pairs.pl abc-test.sh abc.pl az.tab 
+EXTRA_DIST = $(this)
 all: all-am
 
 .SUFFIXES:

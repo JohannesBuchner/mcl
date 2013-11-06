@@ -7,6 +7,12 @@
  * GPL along with MCL, in the file COPYING.
 */
 
+/* TODO.
+ *    clean up UTYPE_INT
+ *    e.g. return zgPush(UTYPE_INT, &(mx->dom_rows->n_ivps))
+ *    make it UTYPE_LONG to start with.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,6 +30,7 @@
 #include "util/opt.h"
 
 #include "impala/matrix.h"
+#include "impala/vector.h"
 #include "impala/compose.h"
 #include "impala/io.h"
 #include "mcl/interpret.h"
@@ -64,11 +71,13 @@ int      opHighest            (  void  )  ;
 int      opExpand             (  void  )  ;
 int      opHadamard           (  void  )  ;
 int      opHelp               (  void  )  ;
+int      opSet                (  void  )  ;
 int      opTut                (  void  )  ;
 int      opInfo               (  void  )  ;
 int      opTell               (  void  )  ;
 int      opSearch             (  void  )  ;
 int      opIdentity           (  void  )  ;
+int      opNew                (  void  )  ;
 int      opLoadMatrix         (  void  )  ;
 int      opLoadFile           (  void  )  ;
 int      opMakeCharacteristic (  void  )  ;
@@ -164,7 +173,7 @@ opHook opHookDir[] =
    ,  TOKEN_BLOCK
    ,  "compute block matrix and its complement"
    ,  "<mx> <dom>"
-   ,  "<mx> <blc> <bl>"
+   ,  "<blc> <bl>"
    }
 ,  {  opPow
    ,  TOKEN_POW
@@ -212,7 +221,7 @@ opHook opHookDir[] =
    ,  TOKEN_COLDIMENSION
    ,  "push col dimension"
    ,  "<m>"
-   ,  "<m> <i>"
+   ,  "<i>"
    }
 ,  {  opMakeCharacteristic
    ,  TOKEN_MAKECHARACTERISTIC
@@ -292,11 +301,23 @@ opHook opHookDir[] =
    ,  "<m> <d>"
    ,  "<m'>"
    }
+,  {  opNew
+   ,  TOKEN_NEW
+   ,  "create new matrix with M columns, N rows"
+   ,  "<M> <N>"
+   ,  "<m>"
+   }
 ,  {  opIdentity
    ,  TOKEN_IDENTITY
-   ,  "push identity matrix"
+   ,  "push identity matrix"  /* fixme; should take dom of matrix, if present */
    ,  "<i>"
    ,  "<m>"
+   }
+,  {  opSet
+   ,  TOKEN_SET
+   ,  "set matrix entry"
+   ,  "<mx> <col> <row> <val>"
+   ,  "<mx>"
    }
 ,  {  opTut
    ,  TOKEN_TUT
@@ -374,7 +395,7 @@ opHook opHookDir[] =
    ,  TOKEN_ROWDIMENSION
    ,  "push row dimension"
    ,  "<m>"
-   ,  "<m> <i>"
+   ,  "<i>"
    }
 ,  {  opGq
    ,  TOKEN_GQ
@@ -837,7 +858,7 @@ int opDong
       ;  while (--vb)
          v_g = (v_g << 1) | 1
    ;  }
-   ;  return 1
+      return 1
 ;  }
 
 
@@ -1003,6 +1024,8 @@ int opBlock
 
    ;  block    =  mclxBlocks(mx, dom)
    ;  blockc   =  mclxMinus(mx, block)
+
+   ;  zsPop()
    ;  zsPop()
 
    ;  zgPush(UTYPE_MX, blockc)
@@ -1116,7 +1139,7 @@ int opMin
       {  zsExch()
       ;  zsPop()
    ;  }
-   ;  zgFree(&o3)
+      zgFree(&o3)
    ;  return 1
 ;  }
 
@@ -1232,6 +1255,86 @@ int opInflate
    ;  mclxInflate(mx, *dp)
    ;  zsPop()
    ;  return 1
+;  }
+
+
+int opSet
+(  void
+)
+   {  mclx *mx =  zsGetOb(3, UTYPE_MX)
+   ;  const int  *c  =  zsGetOb(2, UTYPE_INT)
+   ;  const int  *r  =  zsGetOb(1, UTYPE_INT)
+   ;  const double* v=  zsGetOb(0, UTYPE_DBL)
+
+   ;  mclp* col = NULL, *row = NULL
+
+   ;  if (!mx || !c || !r || !v) return 0
+
+   ;  if (*c < 0 || *r < 0)
+      {  zmTell
+         (  'e'
+         ,  "[%s] nonnegative indices please (got %d and %d)\n"
+         ,  TOKEN_IDENTITY
+         ,  *c
+         ,  *r
+         )
+      ;  return 0
+   ;  }
+
+      col = mclvGetIvp(mx->dom_cols, c[0], NULL)
+   ;  row = mclvGetIvp(mx->dom_rows, r[0], NULL)
+
+   ;  if (col && row)
+      {  mclv* vec = mx->cols + (col - mx->dom_cols->ivps)
+      ;  if (vec)
+         mclvInsertIdx(vec, r[0], v[0])
+   ;  }
+      else
+      {  zmTell
+         (  'e'
+         ,  "[%s] entry col=%d row=%d not found\n"
+         ,  TOKEN_IDENTITY
+         ,  *c
+         ,  *r
+         )
+      ;  return 0
+   ;  }
+
+      zsPop()
+   ;  zsPop()
+   ;  zsPop()
+   ;  return 1
+;  }
+
+
+int opNew
+(  void
+)
+   {  int *x = zsGetOb(1, UTYPE_INT)
+   ;  int *y = zsGetOb(0, UTYPE_INT)
+   ;  mclx *z = NULL
+
+   ;  if (!x || !y) return 0
+
+   ;  if (*x < 0 || *y < 0)
+      {  zmTell
+         (  'e'
+         ,  "[%s] nonnegative dimension please (got %d and %d)\n"
+         ,  TOKEN_IDENTITY
+         ,  *x
+         ,  *y
+         )
+      ;  return 0
+   ;  }
+      z
+      =  mclxAllocZero
+         (  mclvCanonical(NULL, (dim) x[0], 1.0)
+         ,  mclvCanonical(NULL, (dim) y[0], 1.0)
+         )
+
+   ;  zsPop()
+   ;  zsPop()
+   ;  return zgPush(UTYPE_MX, z)
 ;  }
 
 
@@ -1487,6 +1590,7 @@ int opRowDimension
 )
    {  mclx* mx = zsGetOb(0, UTYPE_MX)
    ;  if (!mx) return 0
+   ;  zsPop()
    ;  return zgPush(UTYPE_INT, &(mx->dom_rows->n_ivps))
 ;  }
 
@@ -1496,6 +1600,7 @@ int opColDimension
 )
    {  mclx* mx = zsGetOb(0, UTYPE_MX)
    ;  if (!mx) return 0
+   ;  zsPop()
    ;  return zgPush(UTYPE_INT, &(mx->dom_cols->n_ivps))
 ;  }
 

@@ -45,7 +45,7 @@ dim mcxStrCountChar
    {  const char* z = p
    ;  dim      ct =  0
 
-   ;  z += (len >= 0) ? len : strlen(p)
+   ;  z += (len >= 0) ? (dim) len : strlen(p)
 
    ;  while (p<z)       /* ho hum will pass embedded nil bytes */
       if (*p++ == c)
@@ -392,8 +392,8 @@ int mcxEditDistance
 ,  const char* t
 ,  int* lcs
 )
-   {  int ls = strlen(s)
-   ;  int lt = strlen(t)
+   {  dim ls = strlen(s)
+   ;  dim lt = strlen(t)
    ;  int* tbl
    ;  dim i, j
    ;  int min_val = 0

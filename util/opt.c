@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 
 #include "opt.h"
@@ -749,12 +750,50 @@ int mcxDispatch
             fprintf(stdout, "%s %s\n", me, hk->syntax)
          ;  entry++
       ;  }
-         exit(0)
+         fprintf
+         (  stdout
+         ,  "\n%s help <mode> (invoke manual page for <mode>)\n"
+            "help pages are available for:"
+         ,  me
+         )
+      ;  entry = entry_dir+0
+      ;  while(entry->id >= 0)
+         {  hk = entry->get_hk()
+         ;  if (!(hk->flags & MCX_DISP_HIDDEN) && (hk->flags & MCX_DISP_MANUAL))
+            fprintf(stdout, " %s", hk->name)
+         ;  entry++
+      ;  }
+         fputc('\n', stdout)
+      ;  exit(0)
    ;  }
       else if (argc > 1 && !strcmp(argv[1], "--version"))
       {  report_version(me)
       ;  exit(0)
    ;  }
+      else if (argc > 1 && !strcmp(argv[1], "help"))
+      {  mcxTing* minime = mcxTingNew(me)
+      ;  if (argc != 3)
+         mcxDie
+         (  1
+         ,  me
+         ,  "help mode requires single trailing mode argument, e.g. %s help %s"
+         ,  me, (entry_dir+0)->get_hk()->name
+         )
+      ;  entry = entry_dir+0     /* todo unify all entry walking code */
+      ;  while (entry->id >= 0)
+         {  hk = entry->get_hk()
+         ;  if (!strcmp(hk->name, argv[2]))
+            {  mcxTingPrintAfter(minime, hk->name)
+            ;  execlp("man", "man", minime->str, NULL)
+            ;  mcxErr(minime->str, "the 'man' program was not found")
+            ;  mcxDie(1, me, "make sure PATH is set correctly")
+         ;  }
+            entry++
+      ;  }
+         if (entry->id < 0)
+         mcxDie(1, me, "unknown mode <%s>", argv[2])
+   ;  }
+      /* todo emit warning to check for right version of manual page */
 
       mode_str = argv[1]
 

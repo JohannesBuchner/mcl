@@ -264,7 +264,7 @@ int mclDagTest
    ;  }
 
                                                 /* coldom on attrs only */
-      {  mclxWeed(m_attr, MCLX_WEED_COLS)
+      {  mclxScrub(m_attr, MCLX_SCRUB_COLS)
       ;  mclxAddTranspose(m_attr, 1.0)          /* symmetrify */
       ;  mclxMakeCharacteristic(m_attr)
    ;  }

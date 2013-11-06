@@ -101,8 +101,8 @@
    \clminfo will directly proceed to subclusters if they exist.
    }
 
-\item{\defopt{-cat-max}{num}{do at most \genarg{num} levels}}
-\par{
+\item{\defopt{-cat-max}{num}{do at most num levels}}
+\car{
    This only has effect when used with \genopt{-cl-tree}.
    \clm{info} will start at the most fine-grained level, working upwards.
    }

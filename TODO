@@ -1,20 +1,34 @@
-regularia projectia diligentia
+ This is a very messy and svd-centric TODO.  The items predominantly
+ relate to other graph-related applications and helper applications,
+ mostly *NOT* to mcl.
 
-mclfaq (loops, granularity)
+#ifdef IEEE_754
+if (ISNAN(x) || ISNAN(r) || ISNAN(b) || ISNAN(n))
+   return x + r + b + n;
+#endif
 
-    This is a very messy and svd-centric TODO.  The items predominantly
-    relate to other graph-related applications and helper applications,
-    mostly *NOT* to mcl.
-
-    mcl has been stable/mature for a long time now.
-
-     _____________________________________
++todo_____________________________________
     |                                     |
     |                                     |
     |_____________________________________|
-    / make mcl available as library call (then java jni)
+    - \"man::html-keywords"
+   $$ is dagdepth correct these days?
+    ! make a vector-dump-debug routine that I am happy with. perhaps build on the one in mcxdump
+    - adapt-local: check what it does when mcl iterands become very directed. Only before?
+  $$$ pick up mcx mcxsubs unification. mcx unionv operator.
+    - in mcl/alg.c the cache/reread/transform logic is too intricate.
+    - mcxi more powerful  primitives, such as domc domr makematrix and domc  1 2 3 3 vector makematrix
+      vectors in mcxi - to encode sets
+    $ clm lint
+    $ mcxdump optionally do not parenthesize singletons.
     ! adapt-local. optimize the fundament |
+    - visual unify of 'clm <mode> -h' and 'clm help <mode>' in clm -h
+    - check referenceable va_list autoconf macro. necessary on x86_64 + gcc ?
     - tree distance based on average node pair subtree leaf set hamming distance, IYKWIM
+    - mcxrand -gen 1000 -add 2000 | mx/mcxdump | mx/mcxload -abc - --stream-mirror | tee ttt | cl/clm close
+         mcxdump does not dump all nodes, so mcxload reads in a smaller domain
+         with -123 instead of -abc, gaps (except for the last, if present!)
+         are filled.
     - read in newick format               |
     - mcxarray make -tf option            |
     - mcxarray: accept '-', 'na', 'nan'   |
@@ -24,9 +38,8 @@ mclfaq (loops, granularity)
     - mcx q: dump nblist sizes directly   |
     - add env variable for verbosity on non-matching domains
     - taking submatrix with same domains, is that slow?
-   $  mclxRead with "w" filehandle does not generate warning.
-   $  mclxWrite with "r" filehandle does not generate warning.
-  $$$ mclblastline; how about emitting a Makefile ?
+    $ mclxRead with "w" filehandle does not generate warning.
+    $ mclxWrite with "r" filehandle does not generate warning.
     - test mcxarray pearson, e.g. centering. default formula centers data?
     $ mcxdump: upper/lower; do this as -tf transformation
       -> requires new engine for ivp.idx access.
@@ -37,8 +50,6 @@ mclfaq (loops, granularity)
     $ compare mlmfifofum and clmframe     |
    ?$ mcxdump: --dump-rlines, --dump-lines no-empty option.
     ? ../mclcm small.mci --dispatch -write stack -b2 "" -- "-if 2 -I 2" (check)
-    - mcxload -etc tab option to not extend col if no row label is accepted.
-    - mcxload -abc tab option to extend row/col even if col/row label is rejected
     $ standalone generator of shadow matrices mcx x?x
     $ transform to add diagonals in diamonds. (lattice application).
   $$$ true tree representation            |
@@ -47,7 +58,6 @@ mclfaq (loops, granularity)
     $ cleverer read routines (domainequatinglywise): {stack,tab,io}.h
    $$ simplify mcl/alg.c {stream:1/0} vs {cache:1/0} vs {transforms} framework.
     - can scatter distance be fixed?      |
-    - mcxload: reverse column/row while reading (transpose)
     - try to cut back size of impala library - unify select routines.
   $$$ transform mcxsubs to use nesting mini-language
     - logical line based clmformat output |
@@ -74,7 +84,7 @@ mclfaq (loops, granularity)
    $$ mcxdump (and others): do not construct the entire matrix in memory
     $ mclxicflags (see below)             |
     ~ mcxquery scripting language         |
-    ~ extend mcx with data structures|scripting language. ruby/lua/R.
+    ~ extend mcxi with data structures|scripting language. ruby/lua/R.
     ~ enable io annotation of matrix header (e.g. creation info)
     ~ general interchange s-expression type input syntax
     ~ framework for functions of virtual vectors (meet, join)
@@ -85,7 +95,7 @@ mclfaq (loops, granularity)
     - in what other scenarios might we want to optimize mclvBinary?
     -  there is currently no way to have lint without lint-k as k=0 has special meaning internally.
     - domain checks in clew/*.c; document/code requirements
-    - buffer mcl interchange input        |
+    - buffer mcl interchange input (mcxExpectNum,Integer problematic)
     - internally replace tab by hash.     |
     - clean up and document tab/streamIn implementation
     - try to spot/frame siphoning         |
@@ -108,132 +118,26 @@ mclfaq (loops, granularity)
    @@ mcl libs do not unwind on memory errors. (culprit: vector)
     |_____________________________________|
 
-
-$$$
-   enable central clm options (merge with mcx/opt:clm options).
-   clm would declare an array of shared options.
-   dispatchees would pass in a subarray of options they'd like to support.
-
-$$$
-   Given a tree-derived clustering it would be nice to know
-   its further merge history, especially if
-   we want to create e.g. an ordered heatplot.
-   This means: root a cone at a given clustering.
-   mcxconvert -root-cone tdclfoo
-      Given levels Li and a clustering t, create clusters Ti
-      by making Ti the minimal superclustering of t that is
-      a superclustering of Li. This can be done by merging those
-      clusters in Li that map to the same cluster in t.
-
-RRR
-   very high disp for gene expression network.
-
-!!! mclcm
-   does --shadow help with big grid with satellites? check.
-   map pathway data onto mir22 analysis.
-
-$  mcxdump -imx-cat FOO -tabr BAR:
-   only use tab as long as its domain agrees with matrix domain, or put this
-   under control of the user.
-
 -  if there is no annotation in a part of the tree, what does mlmimpromptu do?
-
--  adapt-{local/global} at the moment scale inflation linearly. How about doing inflation ** dispAvg ?
-
-$  mclcm hierarchical small ones pulling together large ones: problematic? quantify.
-
-$  test --adapt-local on 2 dense parts,
-   with in each dense part nodes with only few neighbours.
-   Let's say dense part: 16 nodes.
-   5 neighbours on average.
-   2 neighbours 
-
-$ can fninterpro/SP branch be removed from mlmfifofum?
-
-$$$
-   lint processing as a standalone tool (useful);
-   further modularization of code (nice).
-   also take into account clmformat (nicer).
-      clm lint
-      clm cast
-
-!??  coarsening: use efficiency as cluster->node similarity?
-
-mcxsubs foo bar nonsense waits for STDIN; it should check specs first?
-
-$$$   falkner.mci taxi  -I 1.4 node 32 in 6-7-8 cluster;
-      linting:
-      alien cluster is very large, so alien coverage measures
-      are not that good.
-      Perhaps we should attach greater weight to neighbouring
-      nodes: Compute coverage on a subset of the clusters
-      or e.g. use inflation on the pivotal outgoing arcs.
-      However, this will be insufficient with large cluster
-      size imbalances.
-   
-$$$
-   shadowing:
-      when comparing average link weight, A-B edge weight is removed
-      from one of the two hoods but not both.
-      Fix or document.
-
-#  mclxMerge and mclxAddto
-   semi-require domain subsumption probably good: otherwise this behaviour
-   would require taking submatrix.
-
--  with clmAdjust,
-   consider what happens with small clusters / singletons
-   with nodes in it with many neighbours, in conjunction with
-   mcl's ability to make many of those small clusters.
-
--  mclcm may pull A and B together while excluding C with
-   A closer to C than A is to B.
-   -  anecdotally, increasing shadow_s is a remedy.
-   -  study contraction step
-   -  quantify problem: find those A,B,C exhibiting this.
-
-$  -  how does base matrix relate to shadowed matrix?
-      (write down here and #-ify it)
-   -  does -b1 work in conjunction with -c?
-
-$$ routine to save vector as matrix.
-   mclvWrite(vec, digits, ON_FAIL, modes)
-   modes: binary yes/no
-
--  volatility could possibly be computed for each process
-   separately by keeping track of dag-derived clusterings
-   (split overlap).
-
-?  output mcl.vol based on DAG-derived clusterings.
-
-mcxsubs:
-   specify by label: load a list of labels from file, or read from command line.
-
+!? coarsening: use efficiency as cluster->node similarity?
+-  mcxsubs foo bar nonsense waits for STDIN; it should check specs first?
+?? mcxsubs: specify by label: load a list of labels from file, or read from command line.
 $$ mcxrand noise interface is cumbersome.
 $  clmdist mode where only the chain is done.
 ?  report n_cls, n_cls - n_meet for both.
 -  make clxdo work on multiple file arguments.
 -  compare with David-Goliath index:
-   how about computing the cluster size and rank where the 50/50 split is?
-
-$$$
-   analyze behaviour of shadowing with components of
-   very different sizes.
-
+   -> how about computing the cluster size and rank where the 50/50 split is?
 d  mcxdump write-tabc write-tabr
 d  mcxdump --dump-{upper,lower}[i]
 -  implement mcxdump --write-tabr-shadow
-
 #  residue no longer adapt, s/-mvp/-o/
 #  clm close no longer -cc
-
 #  mcxsubs fin(weed) symmetrifies the domains. (introduced weedg)
 $  enable stack reads with argv type input. mclxStackReadArgv
--> clminfo, clmmeet will use this, except when they don't want
+   -> clminfo, clmmeet will use this, except when they don't want
    to hold everything in memory of course.
-
 -  check mclcm with input clustering. fully consistent, same flow?
-
 -  allow tab-write with empty tab
 -  stress-test clm_split_overlap
 -  mcxsubs: read domain from file .. ?
@@ -242,101 +146,18 @@ $  enable stack reads with argv type input. mclxStackReadArgv
 -  mclvUpdate{Meet,Diff} speed gains are at most 25%.  worth the complexity?
 -  mlmfifofum/weave should do sth sane with loops.
 -  b 1 matrix, mclcm; does it include the max loops?
-
-
-
 !  stress-test subreads from binary format.  make this a unit test.
-
-?  clminfo:
-?     would be nice to know the #subclusters + neffective for a cluster.
-?     #subclusters
-?     size of 3 largest subclusters
-?     performance for those .. (?)
-?     n_effective
-
-#  mlmfifofum
-      may introduce genuine singleton by e.g. splitting 9 into 5+4+1.
-      but that's an example of a more general phenomenon:
-      a local optimum may also cause degredation of satellite regions.
-
-#  io.[ch] make routine to read stack from multiple files.
-
-#  what with mclcm x -b 2 -- "--shadow=y"
-   is the matrix unshadowed?  --write-expanded writes shadow matrix.
-   yes alg.c unshadows the matrix.
-
-#  mclcm x.mci "-I 3 --write-expanded=xx.mci"
-   mclcm xx.mci "-if 3" -b 1
-   does not yield same result because postprocessing is done on a different
-   graph.
-
 ~  binary/ascii format: in both write number of entries.
-
--  mcxload -restrict-{nc,nr,nd}, -extend-{nc,nr,nd}
-   for 123 format.
-
+-  mcxload -restrict-{nc,nr,nd}, -extend-{nc,nr,nd} for 123 format.
 /  readx REMOVE_LOOPS, SET_LOOPS_MAX, FORCE_LOOPS, UPPER, LOWER UPPERINC LOWERINC
-
-#  made mclTabMap; remap tab file, to be used by mcxmap.
-#  mcxmap + canonify
--  tab + mcxsubs
-
-$$$ documentation.
--  move as much TODOs to the code to which they pertain, when applicable.
--  document which utils/routines expect an undirected graph,
-      or a characteristically undirected graph.
-
--  n_alloc overallocation would be relatively small.
-   perhaps 10%.  but perhaps the UpdateMeet and UpdateMinus and mcldMeet and
-   mcldMinus rewrites are already sufficient.  for insertion of single nodes we
-   might overalloc with 1 ivp and have a flag raised or not.
-
--  CHECK
-   -pp for clminfo and mcl have changed semantics currently.
-   both should no longer use mclgMakeSparse
-
 -  write ivp size in binary format and have mcxconvert report it.
-
--  mclDagTest / mclInterpret: why two different routines?
-      mclInterpret perhaps tries to work on all graphs?
--  mclInterpret
-      uses mclxUnionv and lots of other stuff.
-      does it use flood type code?
-
+-  CHECK -pp for clminfo and mcl have changed semantics currently.
+   -> both should no longer use mclgMakeSparse
 -  progress bar for reading tab.
-
-mcxerdos:
-   -  compute total number of paths (doable in pathmx?)
-   -  change protocol: cookie character 
-   ?q <node> <node>
-
 -  method for adding v1 + fac* v2
-
-?  is dagdepth correct these days?
-
-$  a general and easy way to highlight nodes in graphs
-   using presumably clmps and recol and node annotation
-
-$  clmps: a way to show hierarchichal clusters by mapping clusters
-   to attractors ..
-
--  retrieve script that ranks nodes in overlappiness (nijmegen xxx).
-
--  compute histogram for binned edge weights, vector sizes.
->  should pbb be simple perl script in mcxdump pipe. except
-   for large matrices.
-
 -  last taurus dependency: expand.[ch], il_levels_*
-
--  mcl gnf.mcx-i686.70 on alpha segfaults (malloc related).  not good.
-
--  contraction step should in theory yield sth 0/1 symmetric. why does
-   it > 0 occasions not do so in practice (abel apo graph) somehow rounding errors?
-
-mcx /out.falkner.mci.I40s6 lm tp exch st /falkner.mci lm exch mul mul st /cttd wm
-mcx /out.falkner.mci.I40s6 lm tp exch /falkner.mci lm exch mul mul ch tp -1 mul add /cttd wm
-
-
+-  mcxerdos compute total number of paths (doable in pathmx?)
+-  mcxerdos change protocol: cookie character ?q <node> <node>
 -  mcl + stdin + lint: set cache to yes.
 /  change distances to work with dim. (sj distance done)
 ?  mclcm allow shared options inbetween trailing options.
@@ -350,256 +171,24 @@ mcx /out.falkner.mci.I40s6 lm tp exch /falkner.mci lm exch mul mul ch tp -1 mul 
 -  document clewCastActors transformations on input arguments.
 -  can include libraries LFLAGS be made more finegrained?
 -  mcx max does not work for matrices: it even moans about lt.
-
 -  mcxdump: optify dumping empty vectors/lines.
 -  clmformat: option to skip small clusters
 ?  mclvCascade ?  sum, powsum, max, min
 -  check mclvAdd usage; can it be supplanted by mclvUpdateMeet(,,fltAdd) ?
-
--  the rewrite of mclxSub may lead the way to a more general setup,
-   with a callback mechanism similar to mclxMerge.  what happens if mcldmeet is
-   explicitly parameterized as fltLaR ?  (and one takes fltLoR etc etc).
-   meet_the_joneses would take that additional parameter.  This would enable
-   adding in a submatrix without actually creating the submatrix. So it is
-   mclxMaskedMerge. And we would indeed need mclvTernary, as we need first to
-   select the row-sub-domain, then apply our callback.
-!>
-   implement blockc as subroutine. There is a lot of shared code
-   with meet_the_joneses. It uses fltLoR, rather than fltLaR.
-!>
-   mclvBinaryGiven(v1, v2, binop_select(v1, v2), binop_value(v1, v2))
-   mclvTernaryGiven(v1, v2, v3, binop_select(v1, v2), binop_value(v1, v3))
-   mclvTernaryGivenx(v1, v2, v3, binop_select(v1, v2), triop_value(v1, v2, v3))
-   update variants? horrors. small building blocks.
-
-!/ force-connected=y fails with directed graphs.
-   made quick fix I believe to work with transpose as well.
-
--  (mcx?) option to fill a matrix with all ones. onify.
+!/ force-connected=y fails with directed graphs. made quick fix I believe to work with transpose as well.
 ? -dir nm option to make mcl output in nm ?
 -  is mcxassemble fully capable of doing asymmetric domains?
-
-scripting language needed to avoid making primitives out of
-   'colsizes' etc.
-   many issues, one of which is sparseness.
-
-!  make a vector-dump-debug routine that I am happy with.
-   perhaps build on the one in mcxdump
-
--  sth to make matrices symmetric; by add or max or mul ..
-   generalize addTranspose to mclxMergeTranspose
-
-?  transformations that make difficult graphs more amenable.
-   (large diameter/segmentation)
-
-clmimac
-   *  better dag analysis; check attractor systems before symmetrification.
-   *  reasonable edge weights for dag.
-   *  dump mode with attractors tagged.
-   *  dump mode with overlap tagged.
-   *  mclDagTest ok with missing nodes?
-   *  optify dumper.threshold.
-
-clmformat
-   *  fancy mode: directory should perhaps be emptied.
-   *  nsm and ccm created in directory?
-   *  adapt functional?
-   The stuff below probably requires re-designing the architecture.
-   *  allow overlap.
-      need separate section for those  nodes.
-      'self value' no longer defined -> duplicated.
-      alien selection may need to enforce all explicit clusters.
-      mclvScore no longer well defined (the array, print_el_scores).
-      -  interesting if nodes have neighbours in overlap?
-   !  chunked indexes.
-   ?  make refs back to index
-   -  create node stickiness matrix from mclvScore array.
-   -  add more info at cluster header (cov max min etc)
-   -  write hash of indices -> fname, so that it can be changed in zoem space.
-   ?  enable index sorted on label [but sorting begets intricacy] (?)
-
-mcxdump:
-   *  cleanup option.
-
-mclpipeline:
-   *  should check empty/impossible val for many options.
-   *  allow multiple blastfiles?
-   *  can rewrite it with Getopt::Long ? (option forwarding possible?)
-   *  perhaps cut down on all the filename customizability.
-
-mcxsubs
-   *  fin(noloop, oneloop)
-   *  is it far from memclean ?
-   *  think about evolution towards more modular chained approach.
-   *   --block still seems to take ridiculously long. slow.  profile.
-   *  option indicating that it should extend the
-      selected domain with all neighbours.
-      Perhaps j and e tags.  The first number indicates the level.
-   *  option to specify all the nodes in all shortest paths for
-      a set of nodes.
-      p8,20-30
-   *  smart complement of blocks requires different mclxSub coding
-      -  Simply using a callback generalizing mcldMeet is difficult because
-         domain operation is now tied to row domain of target matrix.
-      -  There are also problems with complementing overlapping blocks.
-      -  For singletons it is a costly operation to build the complementary
-         domain, so for mclxBlockx-complemented might need sth smarter than
-         simply use mclxSub-complemented.
-      -  Allow column complementation in the interface, or should the caller
-         take care of that?
-   *  implement mcxsubs --extend as spec option.
-   *  is mcxsubs efficient if new domains include the old domains?
-   *  mcxsubs reading domains from
-      domain matrix should also be supported from disk.
-   *  blocks from disk not yet supported.
-   *  -1, -2 domain tags, horrid interface AND implementation.
-
-clmps
-   -  only require node locations as input.
-   -  compactify ps code, input.
-   -  change colouring scheme so that 0.3 0.3 0.4 does not pale next to 1.0 or 0.8 0.2
-   !-  base blackness on v / ctr
-    -  base line width on v.
-   -  allow definition of BBLL etc in same coordinates as vertices;
-         automatically compute (in app logic, not PS) PS coordinates.
-   -  provision for ranges? e.g.
-      [0-25, 25-75, 75-125 ... 925-975, 975-1000] / 1000.
-
--  clmformat, others:
-      compute clustering coefficient, global and localized to clusters.
-
-######
-14:01|589 ecs2d ~/graphs-> mcl hsf.mcx -I 2 -scheme 6
-   Segmentation fault (core dumped)
-   Cause: read long 135171210771160
-   mclvResize succeeds with int 31448 (sth like l % (INT_MAX+1))
-   fread fails with size_t ..
-
--  faq symcheck: mention clxdo script.
-
 -  prune usage of ugly mcxResize.
-
--  clean up all the interface enums in io.h
-   some are not used.
-
-===============================================================================
-_REGULAR_, _NEW_RELEASE_
-regularia
-
--  mclblastline --blast-tab=<foobar> does not seem to work :(
-      hdr file has to be specified map file has to be omitted
-      do not use mcxassemble -b option 
-
--  when reading in matrix, try to spot overflow. possible with fscanf
-
--  remove temporary warning code in mclcEnstrict
-   permanent solution?
-
-#  implemented more binary read integrity checking.
--  tell that - can always be used to specify stdout.
--  mcl overlap: make mode where union is taken.
-?  runinfo tables can be stored as matrices .. for what it's worth.
-?  make environment variables for leadwidth / overflow length.
-
-/  mclxaSubReadRaw recognizes vec->val; other places?  (guess not)
-
--  mcxarray: make '\n' endtoken for vector read, adjust whitespace
-   handling so that line-based stuff can be done.
-
-
-test tab related stuff, mcl (new mcxIOreadLine semantics).
-
+-  clean up all the interface enums in io.h. some are not used.
+-  sth to make matrices symmetric; by add or max or mul ..
+   -> generalize addTranspose to mclxMergeTranspose
+?  transformations that make difficult graphs more amenable.
+   -> (large diameter/segmentation)
+-  mcxarray: make '\n' endtoken for vector read, adjust whitespace handling so that line-based stuff can be done.
 !/ remove exit's from matrix library.
 !  check every thing that might fail mem-wise (that's a loooottttt).
 !  could copy util ON_ALLOC_FAILURE compile option.
-
--  make warning mode for mcxassemble mirror image step.
-
-===============================================================================
-_NETWORKED_
-
-   refactor pruning, verbosity information management. make it more modular,
-   to prepare for networked computing.
-
-   assemble all verbosity information in chr matrix or similar structure,
-   using callback function with callback argument.
-
-   after multiplication is completed, log stats can be created from the
-   chr matrix.
-
-   chr matrix can be created in parts (networked variant) and assembled
-   from the parts.
-
-   the one thing remaining is: how does the callback get to fill chr?
-   Well, there are a number of parameters and measures evidently present,
-   and the compose routine could also present the callback with the
-   vector being composed, even at various stages.
-
-   mclMatrixCompose will be changed to act on *two* matrices, and neither
-   needs be square/graph-type. It will be silently assumed they are
-   stochastic.
-
-   move to separate file, estats.[ch]
-   track mclExpandStats, sketch call-graph.
-
-   *  one node is master and keeps track which network nodes own which
-      graph nodes.
-      this node assembles the DAG matrix and computes intermediate
-      clusterings. It uses these to achieve better load balancing.
-
-   *  initially it is assumed that each node can compute its load
-      in one go - so each node needs assemble its matrix only once.
-      in a smarter scheme, a node might need to assemble several times.
-
-      NO, we need the smarter scheme immediately, as the straightforward
-      scheme is simply too error-prone.
-
-      perhaps, conceptually, view the nodes just as a pool.
-      so a single node-network should work too.
-      the estimated memory size should be a parameter too, so that
-      a node knows when to quit assembling a matrix and start doing
-      the multiplication.
-
-   *  a node assembles a matrix by asking the master node which network
-      nodes it needs to query for its matrix columns.
-      it gets a characteristic vector from the master node representing
-      the columns it needs to compute.
-      In order to compute a set of columns, it first obtains them.
-      It then merges all of them; that vector represents the indices
-      of the matrix columns that must be obtained.
-
-   *  implement fault-tolerance; a partial multiplication has succeeded
-      only when the results are written to disk (in master node and/or
-      in slave node?)
-
-   *  intermediate results are save to file.
-
-_NETWORKED_
-===============================================================================
-
 -  convert stack code in /shmcx/stack.[ch] to generic code using callbacks.
-   do better job at type handling.
-
+   -> do better job at type handling.
 -  perhaps remove propagation stuff from vectorUnary,
-   make vectorCascade instead.
-
-===============================================================================
-
-corrupted matrices due to alien entries in vectors.
- # suppose a corrupted matrix has additional alien indices.
- # which part blows up?  why not a panic?
- # compose creates overly long vectors, whereas it reckons
- # they cannot get any bigger than the relevant domain size.  So, should create
- # check in compose ..?  others, e.g. mclxBinary?
-
-===============================================================================
-_HACKING_
-
-x implement mclvTernary ?
-   x y z, f, g
-      if g(y, z) apply f(x,y)
-   This will help streamline mclxBlocks, for one thing.
-   Would one want to iterate over columns also based on some ternary criterion,
-   rather than simple meet?
-
-
+   -> make vectorCascade instead.

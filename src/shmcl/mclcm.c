@@ -640,7 +640,7 @@ int main
    ;  int multiplex_idx = 1
    ;  int N = 0
    ;  int n_ite = 0
-   ;  int n_components = 0
+   ;  dim n_components = 0
 
 
    ;  int a =  1, i= 0
@@ -842,7 +842,13 @@ int main
 
    ;  if (a < argc)
       {  if (strcmp(argv[a], "--"))
-         mcxDie(1, me, "trailing mcl options require standalone '--' separator")
+         mcxDie
+         (  1
+         ,  me
+         ,  "trailing %s options require standalone '--' separator (found %s)"
+         ,  integrate_g ? "integrate" : "mcl"
+         ,  argv[a]
+         )
       ;  a++
    ;  }
 

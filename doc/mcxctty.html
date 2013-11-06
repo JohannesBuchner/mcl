@@ -3,6 +3,7 @@
 <!-- Copyright (c) 2008 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta name="keywords" content="manual">
 <style type="text/css">
 body {
 text-align: justify;
@@ -69,9 +70,9 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-5 Jun 2008&nbsp;&nbsp;&nbsp;
+7 Nov 2008&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxctty.ps"><b>mcx ctty</b></a>
-1.007-grumpy-gryphon, 08-157
+1.008, 08-312
 </p>
 <div style="margin-top:1em">
 <table
@@ -86,6 +87,8 @@ cellpadding="0" summary="itemize">
 </div></td></tr><tr><td width=48 valign="top" class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#options">OPTIONS</a>
 </div></td></tr><tr><td width=48 valign="top" class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#references">REFERENCES</a>
+</div></td></tr><tr><td width=48 valign="top" class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#seealso">SEE ALSO</a>
 </div></td></tr>
 </table>
@@ -112,6 +115,7 @@ in the <a class="local" href="mcx.html">mcx</a> manual page.</p>
 <b>mcx ctty</b>
 <a class="intern" href="#opt-abc"><b>[-abc</b> &lt;fname&gt; (<i>specify label input</i>)<b>]</b></a>
 <a class="intern" href="#opt-imx"><b>[-imx</b> &lt;fname&gt; (<i>specify matrix input</i>)<b>]</b></a>
+<a class="intern" href="#opt-tab"><b>[-tab</b> &lt;fname&gt; (<i>use tab file</i>)<b>]</b></a>
 <a class="intern" href="#opt--list"><b>[--list</b> (<i>list clustering coefficient for all nodes</i>)<b>]</b></a>
 <a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
 <a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print synopsis, exit</i>)<b>]</b></a>
@@ -121,7 +125,9 @@ in the <a class="local" href="mcx.html">mcx</a> manual page.</p>
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
 <p class="default L50" style="margin-bottom:0">
-<b>mcx ctty</b> computes centrality betweenness for all nodes in a graph.</p>
+<b>mcx ctty</b> computes centrality betweenness for all nodes in a graph, using
+the between centrality update algorithm from <a class="intern" href="#fabc">[1]</a>.
+</p>
 <p class="default L50" style="margin-bottom:0">
 The input graph/matrix, if specified with the <b>-imx</b> option, has to
 be in mcl matrix/graph format. You can use label input instead by using the
@@ -142,6 +148,15 @@ The file name for input that is in label format.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>input matrix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 The file name for input. STDIN is assumed if not specified.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-tab"></a><b>-tab</b> &lt;fname&gt; (<i>use tab file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+This option causes the output to be printed with the labels
+found in the tab file.
+With <b>-abc</b> this option will, additionally, construct
+a graph only on the labels found in the tab file.
+If this option is used in conjunction with <b>-imx</b> the
+tab domain and the matrix domain are required to be identical.
+</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--list"></a><b>--list</b> (<i>print result for each node</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Print clustering coefficient for all nodes.</p>
@@ -149,6 +164,15 @@ Print clustering coefficient for all nodes.</p>
 </table>
 
 </div>
+
+<a name="references"></a>
+<h2>REFERENCES</h2>
+<p class="default L50" style="margin-bottom:0">
+<a name="fabc">[1]</a>
+Ulrik Brandes, <i>A Faster Algorithm for Betweenness Centrality</i>.
+Journal of Mathematical Sociology 25(2): 163-177, (2001).
+<a class="extern" href="http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.11.2024">http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.11.2024</a>
+</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>

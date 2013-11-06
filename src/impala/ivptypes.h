@@ -11,6 +11,7 @@
 #define impala_ivptypes_h
 
 #include <limits.h>
+#include <float.h>
 
 #ifdef VALUE_AS_DOUBLE
       typedef  double pval;

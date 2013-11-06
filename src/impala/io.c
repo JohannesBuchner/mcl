@@ -171,9 +171,9 @@ static const char *mclxar = "mclxaRead";
 
 
 static double loop_adjust_discard
-(  mclv*vec  cpl__unused 
-,  long r    cpl__unused 
-,  void*data cpl__unused
+(  mclv * vec_unused    cpl__unused 
+,  long  r_unused       cpl__unused 
+,  void * data_unused   cpl__unused
 )
    {  return 0.0
 ;  }
@@ -182,7 +182,7 @@ static double loop_adjust_discard
 static double loop_adjust_force
 (  mclv* vec
 ,  long  r
-,  void* data cpl__unused 
+,  void* data_unused    cpl__unused 
 )
    {  mclp* ivp = mclvGetIvp(vec, r, NULL)
    ;  return ivp && ivp->val ? ivp->val : 1.0
@@ -339,10 +339,10 @@ mcxbool mclxIOgetQMode
 )
    {  int mode = get_quad_mode(opt)
    ;  if (mode & 3)              /* 1, 2 */
-      return 0
+      return FALSE
    ;  else if (mode & 12)        /* 4, 8 */
-      return 1
-   ;  return 1
+      return TRUE
+   ;  return TRUE
 ;  }
 
 
@@ -468,7 +468,7 @@ static mclx* mclxReadBody
 mclx* mclxReadSkeleton
 (  mcxIO*    xf
 ,  mcxbits   bits
-,  mcxbool   flushmatrix
+,  mcxbool   flushmatrix_unused     /* not implemented */
 )
    {  mclv* dom_cols = mclvInit(NULL)
    ;  mclv* dom_rows = mclvInit(NULL)
@@ -633,8 +633,6 @@ static mclx* mclxb_read_body_all
 ,  mcxOnFail ON_FAIL
 )
    {  mclx* mx          =  NULL
-   ;  long n_rows       =  0
-   ;  long n_cols       =  0
    ;  int level         =  0
    ;  int szl           =  sizeof(long)
    ;  mcxstatus status  =  STATUS_FAIL
@@ -653,8 +651,7 @@ static mclx* mclxb_read_body_all
       )
 
    ;  while (1)
-      {  n_cols = dom_cols->n_ivps
-      ;  n_rows = dom_rows->n_ivps
+      {  dim n_cols = dom_cols->n_ivps
 
       ;  n_mod = MCX_MAX(1+(n_cols-1)/40, 1)
 
@@ -713,9 +710,9 @@ static mclx* mclxb_read_body_all
       {  mcxErr
          (  "mclIO"
          ,  "failed to read native binary "
-            "%ldx%ld matrix from stream <%s> at level <%ld>"
-         ,  (long) N_ROWS(mx)
-         ,  (long) N_COLS(mx)
+            "%lux%lu matrix from stream <%s> at level <%ld>"
+         ,  (ulong) N_ROWS(mx)
+         ,  (ulong) N_COLS(mx)
          ,  xf->fn->str
          ,  (long) level
          )
@@ -1457,7 +1454,7 @@ mcxstatus mclxaWrite
 (  const mclx*      mx
 ,  mcxIO*           xfout
 ,  int              valdigits
-,  mcxOnFail        ON_FAIL cpl__unused
+,  mcxOnFail        ON_FAIL
 )
    {  dim d
                   /* fixme; need more sanity checks on N_ROWS(mx) ? ? */
@@ -2346,9 +2343,9 @@ mcxstatus mclxIOdump
       ;  char* labelc = "", *labelr = ""
       ;  mcxbits half =    modes
                         &  (  MCLX_DUMP_PART_UPPER 
-                           || MCLX_DUMP_PART_UPPERI
-                           || MCLX_DUMP_PART_LOWERI
-                           || MCLX_DUMP_PART_LOWER
+                           |  MCLX_DUMP_PART_UPPERI
+                           |  MCLX_DUMP_PART_LOWERI
+                           |  MCLX_DUMP_PART_LOWER
                            )
 
       ;  for (d=0;d<N_COLS(mx);d++)

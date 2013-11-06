@@ -5,7 +5,7 @@
 # $Id: configure.ac.in,v 1.36 2006-11-03 13:06:53 flux Exp $
 
 AC_PREREQ(2.50)
-AC_INIT(mcl, 08-157, mcl-devel@lists.micans.org)
+AC_INIT(mcl, 08-312, mcl-devel@lists.micans.org)
 
 PACKAGE=$PACKAGE_NAME
 VERSION=$PACKAGE_VERSION
@@ -68,7 +68,7 @@ if test "$ac_cv_c_void_uint" = "failed"; then
 cat <<EOM
   /\  custom check: num <-> void* failed: do not use --abc options.
  /\/\ Consider contacting the author (http://micans.org/stijn/contact.html
- \/\/ or https://lists.micans.org/listinfo/mcl-devel).
+ \/\/
   \/  Please include the file config.log.
 EOM
 fi
@@ -161,6 +161,8 @@ AC_FUNC_MALLOC
 AC_FUNC_MEMCMP
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([floor memset pow rint sqrt strchr strpbrk strstr])
+
+AC_CHECK_VA_COPY
 
 # AC_CONFIG_FILES([Makefile])
 AC_OUTPUT([

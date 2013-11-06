@@ -18,6 +18,8 @@
 #include "mcxdiameter.h"
 #include "mcxerdos.h"
 #include "mcxclcf.h"
+#include "mcxcollect.h"
+#include "mcxtab.h"
 
 #include "impala/matrix.h"
 #include "impala/io.h"
@@ -43,11 +45,13 @@ const char* mcx_syntax =
 enum
 {  ID_CONVERT = 0
 ,  ID_Q
-,  ID_DIAMETER
-,  ID_CLCF
 ,  ID_QUERY
 ,  ID_ERDOS
 ,  ID_CTTY
+,  ID_DIAMETER
+,  ID_CLCF
+,  ID_COLLECT
+,  ID_TAB
 ,  ID_UNUSED
 }  ;
 
@@ -59,6 +63,8 @@ mcxDispEntry mcx_dir[] =
 ,  {  ID_CLCF     ,  mcxDispHookClcf         }
 ,  {  ID_ERDOS    ,  mcxDispHookErdos        }
 ,  {  ID_CTTY     ,  mcxDispHookCtty         }
+,  {  ID_COLLECT  ,  mcxDispHookCollect      }
+,  {  ID_TAB      ,  mcxDispHookTab          }
 ,  {  -1          ,  NULL                    }
 }  ;
 
@@ -230,6 +236,10 @@ int main
 )
    {  mcxDispBundle bundle
    ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
+
+   ;  mcxLogLevel =
+      MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
+
    ;  mclx_app_init(stderr)
 
    ;  bundle.disp_argc     =  argc

@@ -282,61 +282,89 @@ void mcxBufReset
 
 
 
+   /* Return a larger or equal element; the smallest of these.
+    * The result is the minimal element at least as big as pivot.
+    * and a 'ceil' for pivot.
+   */
 void* mcxBsearchCeil
-(  const void *key
+(  const void *pivot
 ,  const void *base
 ,  dim nmemb
 ,  dim size
 ,  int (*cmp)(const void *, const void *)
 )
-   {  ofs lft                 /* fixme (consider -1 initialization) */
-   ;  dim bar, rgt
-   ;  if (!nmemb || cmp(key, ((char*)base) + (nmemb-1) * size) > 0)
+   {  dim lft = 0, rgt = nmemb, bar = rgt/2
+
+                           /* nothing, or nothing that is larger than pivot */
+   ;  if (!nmemb || cmp(pivot, ((char*)base) + (nmemb-1) * size) > 0)
       return NULL
 
-   ;  if (cmp(key, base) <= 0)
-
-   ;  lft = -1
+   ;  lft = 0
    ;  rgt = nmemb
    ;  bar = nmemb / 2
 
-   ;  while (lft < 0 || bar < (dim) rgt)
-      {  if (cmp(key, ((char*) base) + bar*size) > 0)
+            /* invariant: lft points to a
+             * a member that is smaller than pivot or it
+             * points to the first member.
+            */
+   ;  while (lft+1 < rgt)
+      {                    /* bar is smaller than pivot, move lft inward */
+         if (cmp(pivot, ((char*) base) + bar*size) > 0)
          lft = bar
+                           /* bar is larger or equal element, move rgt inward */ 
       ;  else
          rgt = bar
+#if 0
+;fprintf(stderr, "lft bar rgt = %d %d %d rgt-lft/2 = %lu\n", (int) lft, (int) bar, (int) rgt, (long) ((rgt -lft)/2))
+#endif
+                           /* update bar to be the middle of lft and rgt */
       ;  bar = rgt - (rgt-lft) / 2;
    ;  }
-      return (((char*) base) + bar * size)
+
+            /* if lft never moved, it may in fact be larger than base */
+      if (!lft && cmp(pivot, base) <= 0)
+      bar = 0
+
+   ;  return (((char*) base) + bar * size)
 ;  }
 
 
 
+   /* Return a smaller or equal element; the largest of these.
+    * The result is the maximal element not exceeding pivot,
+    * and a 'floor' for pivot.
+   */
 void* mcxBsearchFloor
-(  const void *key
+(  const void *pivot
 ,  const void *base
 ,  dim nmemb
 ,  dim size
 ,  int (*cmp)(const void *, const void *)
 )
-   {  ofs lft
-   ;  dim bar, rgt
-   ;  if (!nmemb || cmp(key, base) < 0)
+   {  dim lft = 0, rgt = nmemb, bar = nmemb / 2
+
+                        /* nothing, or nothing that is smaller than pivot */
+   ;  if (!nmemb || cmp(pivot, base) < 0)
       return NULL
 
-   ;  lft = -1
-   ;  rgt = nmemb
-   ;  bar = nmemb / 2
-
-   ;  while (lft < 0 || bar > (dim) lft)
-      {  if (cmp(key, ((char*) base) + bar*size) < 0)
+            /* invariant: rgt points to a
+             * a member that is larger than pivot or it
+             * points to the last member.
+            */
+   ;  while (lft+1 < rgt)
+      {           /* bar is greater than pivot, move right inward */
+         if (cmp(pivot, ((char*) base) + bar*size) < 0)
          rgt = bar
+                  /* bar is smaller than (or equal to) pivot element, move lft inward */
       ;  else
          lft = bar
+#if 0
+;fprintf(stderr, "lft bar rgt = %d %d %d rgt-lft/2 = %lu\n", (int) lft, (int) bar, (int) rgt, (long) ((rgt -lft)/2))
+#endif
+                  /* update bar to be the middle of lft and rgt */
       ;  bar = lft + (rgt-lft) / 2;
    ;  }
       return (((char*) base) + bar * size)
 ;  }
-
 
 

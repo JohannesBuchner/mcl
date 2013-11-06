@@ -116,7 +116,7 @@ mcxstatus mclxMapCols
       new_dom_cols = mclvCanonical(NULL, N_COLS(mx), 1.0)
 
    ;  for (d=0; d<N_COLS(mx); d++)
-      mx->cols[d].vid = ar_dom ? ar_dom->ivps[d].idx : d
+      mx->cols[d].vid = ar_dom ? ar_dom->ivps[d].idx : (ofs) d
 
    ;  if (ar_dom)
       qsort(mx->cols, N_COLS(mx), sizeof(mclv), mclvVidCmp)
@@ -960,7 +960,7 @@ mclv* mclxGetVector
       || vid > mx->cols[n_cols-1].vid
       )
       found = NULL
-   ;  else if (mx->cols[0].vid == 0 && mx->cols[n_cols-1].vid == n_cols-1)
+   ;  else if (mx->cols[0].vid == 0 && mx->cols[n_cols-1].vid == (ofs) (n_cols-1))
       {  if (mx->cols[vid].vid == vid)
          found = mx->cols+vid
       ;  else
@@ -1274,17 +1274,17 @@ mclx* mclxHadamard
 
 double mclxLoopCBifEmpty
 (  mclv  *vec
-,  long r cpl__unused
-,  void*data cpl__unused
+,  long r_unused           cpl__unused
+,  void*data_unused        cpl__unused
 )
    {  return vec->n_ivps ? 0.0 : 1.0
 ;  }
 
 
 double mclxLoopCBremove
-(  mclv  *vec
-,  long r cpl__unused
-,  void*data cpl__unused
+(  mclv  *  vec            cpl__unused
+,  long     r_unused       cpl__unused
+,  void  *  data_unused    cpl__unused
 )
    {  return 0.0
 ;  }
@@ -1292,8 +1292,8 @@ double mclxLoopCBremove
 
 double mclxLoopCBmax
 (  mclv  *vec
-,  long r cpl__unused
-,  void*data cpl__unused
+,  long r_unused           cpl__unused
+,  void*data_unused        cpl__unused
 )
    {  double max = mclvMaxValue(vec)
    ;  if (vec->n_ivps && max)
@@ -1333,21 +1333,21 @@ dim mclxAdjustLoops
 ;  }
 
 
-void mclxWeed
+void mclxScrub
 (  mclx* mx
 ,  mcxbits bits
 )
    {  mclv* colselect
-      =     bits & (MCLX_WEED_COLS | MCLX_WEED_GRAPH)
+      =     bits & (MCLX_SCRUB_COLS | MCLX_SCRUB_GRAPH)
          ?  mclxColNums(mx, mclvSize, MCL_VECTOR_SPARSE)
          :  NULL
 
    ;  mclv* rowselect                     /* fixme, cheaper way? */
-      =     bits & (MCLX_WEED_ROWS | MCLX_WEED_GRAPH)
+      =     bits & (MCLX_SCRUB_ROWS | MCLX_SCRUB_GRAPH)
          ?  mclgUnionv(mx, NULL, NULL, SCRATCH_DIRTY, NULL)
          :  NULL
 
-   ;  if (bits & MCLX_WEED_GRAPH)
+   ;  if (bits & MCLX_SCRUB_GRAPH)
       {  mcldMerge(colselect, rowselect, colselect)
       ;  mclvCopy(rowselect, colselect)
    ;  }
@@ -1377,6 +1377,18 @@ mclv* mclgUnionv
 ,  mcxenum scratch_STATUS
 ,  mclv* dst
 )
+   {  return mclgUnionv2(mx, coldom, restrict, scratch_STATUS, dst, mx->dom_rows)
+;  }
+
+
+mclv* mclgUnionv2
+(  const mclx* mx
+,  const mclv* coldom
+,  const mclv* restrict
+,  mcxenum scratch_STATUS
+,  mclv* dst
+,  mclv* scratch
+)
    {  const mclv* dvec = NULL
    ;  mclv *row_scratch = NULL
    ;  mcxbool canonical = mclxRowCanonical(mx)
@@ -1392,9 +1404,9 @@ mclv* mclgUnionv
       coldom = mx->dom_cols
 
    ;  if (scratch_STATUS == SCRATCH_BUSY)
-      row_scratch = mclvClone(mx->dom_rows)
+      row_scratch = mclvClone(scratch)
    ;  else
-      row_scratch = mx->dom_rows
+      row_scratch = scratch
       
    ;  if (scratch_STATUS != SCRATCH_READY && scratch_STATUS != SCRATCH_UPDATE)
       mclvMakeCharacteristic(row_scratch)

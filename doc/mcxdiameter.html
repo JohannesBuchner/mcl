@@ -3,6 +3,7 @@
 <!-- Copyright (c) 2008 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta name="keywords" content="manual">
 <style type="text/css">
 body {
 text-align: justify;
@@ -69,9 +70,9 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-5 Jun 2008&nbsp;&nbsp;&nbsp;
+7 Nov 2008&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxdiameter.ps"><b>mcx diameter</b></a>
-1.007-grumpy-gryphon, 08-157
+1.008, 08-312
 </p>
 <div style="margin-top:1em">
 <table
@@ -112,6 +113,7 @@ in the <a class="local" href="mcx.html">mcx</a> manual page.</p>
 <b>mcx diameter</b>
 <a class="intern" href="#opt-abc"><b>[-abc</b> &lt;fname&gt; (<i>specify label input</i>)<b>]</b></a>
 <a class="intern" href="#opt-imx"><b>[-imx</b> &lt;fname&gt; (<i>specify matrix input</i>)<b>]</b></a>
+<a class="intern" href="#opt-tab"><b>[-tab</b> &lt;fname&gt; (<i>use tab file</i>)<b>]</b></a>
 <a class="intern" href="#opt--list"><b>[--list</b> (<i>list eccentricity for all nodes</i>)<b>]</b></a>
 <a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
 <a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print synopsis, exit</i>)<b>]</b></a>
@@ -123,7 +125,7 @@ in the <a class="local" href="mcx.html">mcx</a> manual page.</p>
 <p class="default L50" style="margin-bottom:0">
 <b>mcx diameter</b> computes the diameter of a graph. The input graph should be
 symmetric. Results will be unpredictable for directed graphs.
-For label input this is not important as <b>mcx diameter</b> will create
+For label input this is irrelevant as <b>mcx diameter</b> will create
 a symmetric graph from the input.</p>
 <p class="default L50" style="margin-bottom:0">
 The input graph/matrix, if specified with the <b>-imx</b> option, has to
@@ -145,6 +147,15 @@ The file name for input that is in label format.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>input matrix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 The file name for input that is in mcl native matrix format.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-tab"></a><b>-tab</b> &lt;fname&gt; (<i>use tab file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+This option causes the output to be printed with the labels
+found in the tab file.
+With <b>-abc</b> this option will, additionally, construct
+a graph only on the labels found in the tab file.
+If this option is used in conjunction with <b>-imx</b> the
+tab domain and the matrix domain are required to be identical.
+</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--list"></a><b>--list</b> (<i>list eccentricity for all nodes</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Print eccentricity for all nodes. The eccentricity of

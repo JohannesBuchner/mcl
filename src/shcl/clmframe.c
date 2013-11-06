@@ -82,6 +82,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "util/types.h"
+#include "util/list.h"
+#include "util/gralloc.h"
+#include "util/err.h"
+#include "util/opt.h"
+#include "util/compile.h"
+
 #include "impala/matrix.h"
 #include "impala/compose.h"
 #include "impala/io.h"
@@ -92,12 +99,6 @@
 #include "taurus/la.h"
 
 #include "clew/clm.h"
-
-#include "util/types.h"
-#include "util/list.h"
-#include "util/gralloc.h"
-#include "util/err.h"
-#include "util/opt.h"
 
 static int ascend_counter_g = 0;
 
@@ -449,7 +450,7 @@ void report_treenode
       ,  (int) tn->clid
       ,  (void*) tn
       ,  (int) tn->descend_stable
-      ,  (int) (tn->ascend_parent ? tn->ascend_parent->level : -1)
+      ,  (int) (tn->ascend_parent ? tn->ascend_parent->level : -1)   /* note: mixed sign expression */
       ,  (int) (tn->ascend_parent ? tn->ascend_parent->clid : -1)
 
       ,  (int) tn->onto_target
@@ -983,7 +984,7 @@ void fun_ascend_state_update
 (  mcxbool do_ascend
 ,  treenode* dummy_parent
 ,  mcxLink*  frame_start
-,  mcxLink*  frame_curr
+,  mcxLink*  frame_curr_unused cpl__unused
 ,  mcxLink*  frame_skipstart
 )
    {  mcxLink* frame_skipiter = frame_skipstart
@@ -1235,7 +1236,7 @@ mcxLink* fun_ascend_tree_predict
       {  treenode* tn = iter->val
       ;  dim this_level = tn->level, this_clid = tn->clid
 
-      ;  if (tn->level == parent_level && tn->clid == parent_clid)
+      ;  if (tn->level == parent_level && tn->clid == parent_clid)   /* note: mixed sign comparison */
          mcxDie
          (  1
          ,  me
@@ -1334,7 +1335,7 @@ void fun_ascend_the_tree
          ;  int ascend = 0
          ;  mcxbool stable_in_selection = FALSE
 
-         ;  if (tnpivot->ascend_ctr > ascend_counter_g)
+         ;  if (tnpivot->ascend_ctr > ascend_counter_g)  /* note: mixed sign comparison */
             continue
 
          ;  if (tnpivot->level == n_clstack_g-1)
@@ -1598,6 +1599,7 @@ int main
 
    ;  mcxLogLevel =
       MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
+   ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
    ;  mclx_app_init(stderr)
 
    ;  if (parseStatus != STATUS_OK)

@@ -557,12 +557,13 @@ It does not matter whether more than one subgraph is specified.
 \item{cc}
    The resulting submatrix is made characteristic.
 
-\items{{weedc}{weedr}{weed}}
+\items{{scrubc}{scrubr}{scrubg}{scrub}}
    Domains are shrunk if there are no corresponding entries in the matrix.
-   This is done for both domains if \v{weed} is specified, for the
-   column domain if \v{weedc} is specified, and for the row domain
-   if \v{weedr} is specified. Thus, with \v{weedc} columns are removed
+   This is done for both domains if \v{scrub} is specified, for the
+   column domain if \v{scrubc} is specified, and for the row domain
+   if \v{scrubr} is specified. Thus, with \v{scrubc} columns are removed
    from the domain and the matrix if they are empty.
+   With \v{scrubg} the union of the resulting domains is taken.
 
 \items{{mapc}{mapr}{map}}
    The appropriate domains are mapped onto consecutive indices starting at zero.

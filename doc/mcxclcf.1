@@ -1,5 +1,5 @@
 .\" Copyright (c) 2008 Stijn van Dongen
-.TH "mcx clcf" 1 "5 Jun 2008" "mcx clcf 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
+.TH "mcx clcf" 1 "7 Nov 2008" "mcx clcf 1\&.008, 08-312" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -44,6 +44,7 @@ in the \fBmcx\fP manual page\&.
 \fBmcx clcf\fP
 \fB[-abc\fP <fname> (\fIspecify label input\fP)\fB]\fP
 \fB[-imx\fP <fname> (\fIspecify matrix input\fP)\fB]\fP
+\fB[-tab\fP <fname> (\fIuse tab file\fP)\fB]\fP
 \fB[--list\fP (\fIlist clustering coefficient for all nodes\fP)\fB]\fP
 \fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
 \fB[--apropos\fP (\fIprint synopsis, exit\fP)\fB]\fP
@@ -70,6 +71,17 @@ The file name for input that is in label format\&.
 \&
 .br
 The file name for input\&. STDIN is assumed if not specified\&.
+.in -3m
+
+.ZI 3m "\fB-tab\fP <fname> (\fIuse tab file\fP)"
+\&
+.br
+This option causes the output to be printed with the labels
+found in the tab file\&.
+With \fB-abc\fP this option will, additionally, construct
+a graph only on the labels found in the tab file\&.
+If this option is used in conjunction with \fB-imx\fP the
+tab domain and the matrix domain are required to be identical\&.
 .in -3m
 
 .ZI 3m "\fB--list\fP (\fIprint result for each node\fP)"

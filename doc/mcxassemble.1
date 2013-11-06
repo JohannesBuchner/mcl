@@ -1,5 +1,5 @@
 .\" Copyright (c) 2008 Stijn van Dongen
-.TH "mcxassemble" 1 "5 Jun 2008" "mcxassemble 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
+.TH "mcxassemble" 1 "7 Nov 2008" "mcxassemble 1\&.008, 08-312" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -420,16 +420,16 @@ Refer to \fBmcxio(5)\fP for documentation on the transformation
 spec syntax\&.
 .in -3m
 
-.ZI 3m "\fB-rv\fP add|max|mul|left|right (\fIaction for repeated vectors\fP)"
+.ZI 3m "\fB-rv\fP add|max|min|mul|left|right (\fIaction for repeated vectors\fP)"
 \&
 'in -3m
-.ZI 3m "\fB-re\fP add|max|mul|left|right (\fIaction for repeated entries\fP)"
+.ZI 3m "\fB-re\fP add|max|min|mul|left|right (\fIaction for repeated entries\fP)"
 \&
 'in -3m
-.ZI 3m "\fB-ri\fP add|max|mul (\fIadding mirror image\fP)"
+.ZI 3m "\fB-ri\fP add|max|min|mul (\fIadding mirror image\fP)"
 \&
 'in -3m
-.ZI 3m "\fB-r\fP add|max|mul|left|right (\fIsame for entries and vectors\fP)"
+.ZI 3m "\fB-r\fP add|max|min|mul|left|right (\fIsame for entries and vectors\fP)"
 \&
 'in -3m
 'in +3m
@@ -449,6 +449,9 @@ first\&. It is applied \fIafter\fP the column has its entries sorted, so the
 \fCleft\fP and \fCright\fP options are not garantueed to follow the order found
 in the raw input\&. The \fBrv\fP option, for repeats over different columns,
 is carried out second\&.
+
+The option \fB-ri\fP\ \&\fBmin\fP can assist in implementing
+a (top-list) best reciprocal hit criterion\&.
 
 \fBExamples\fP
 .br

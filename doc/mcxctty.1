@@ -1,5 +1,5 @@
 .\" Copyright (c) 2008 Stijn van Dongen
-.TH "mcx ctty" 1 "5 Jun 2008" "mcx ctty 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
+.TH "mcx ctty" 1 "7 Nov 2008" "mcx ctty 1\&.008, 08-312" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -44,13 +44,15 @@ in the \fBmcx\fP manual page\&.
 \fBmcx ctty\fP
 \fB[-abc\fP <fname> (\fIspecify label input\fP)\fB]\fP
 \fB[-imx\fP <fname> (\fIspecify matrix input\fP)\fB]\fP
+\fB[-tab\fP <fname> (\fIuse tab file\fP)\fB]\fP
 \fB[--list\fP (\fIlist clustering coefficient for all nodes\fP)\fB]\fP
 \fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
 \fB[--apropos\fP (\fIprint synopsis, exit\fP)\fB]\fP
 \fB[--version\fP (\fIprint version, exit\fP)\fB]\fP
 .SH DESCRIPTION
 
-\fBmcx ctty\fP computes centrality betweenness for all nodes in a graph\&.
+\fBmcx ctty\fP computes centrality betweenness for all nodes in a graph, using
+the between centrality update algorithm from [1]\&.
 
 The input graph/matrix, if specified with the \fB-imx\fP option, has to
 be in mcl matrix/graph format\&. You can use label input instead by using the
@@ -72,11 +74,28 @@ The file name for input that is in label format\&.
 The file name for input\&. STDIN is assumed if not specified\&.
 .in -3m
 
+.ZI 3m "\fB-tab\fP <fname> (\fIuse tab file\fP)"
+\&
+.br
+This option causes the output to be printed with the labels
+found in the tab file\&.
+With \fB-abc\fP this option will, additionally, construct
+a graph only on the labels found in the tab file\&.
+If this option is used in conjunction with \fB-imx\fP the
+tab domain and the matrix domain are required to be identical\&.
+.in -3m
+
 .ZI 3m "\fB--list\fP (\fIprint result for each node\fP)"
 \&
 .br
 Print clustering coefficient for all nodes\&.
 .in -3m
+.SH REFERENCES
+
+[1]
+Ulrik Brandes, \fIA Faster Algorithm for Betweenness Centrality\fP\&.
+Journal of Mathematical Sociology 25(2): 163-177, (2001)\&.
+http://citeseerx\&.ist\&.psu\&.edu/viewdoc/summary?doi=10\&.1\&.1\&.11\&.2024
 .SH SEE ALSO
 
 \fBmcxio(5)\fP,

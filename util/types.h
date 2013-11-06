@@ -25,6 +25,8 @@ typedef unsigned long mcxenum  ;
 
 #define VOID_TO_UINT (unsigned)
 #define UINT_TO_VOID (void*)
+#define VOID_TO_ULONG (unsigned long)
+#define ULONG_TO_VOID (void*)
 
 #define NOTHING   do { } while (0)
 
@@ -59,7 +61,13 @@ typedef enum
 ,  STATUS_UNUSED           /* use this as lower bound for new statuses     */
 }  mcxstatus         ;
 
+extern const char* mcx_status_list[];
 
+#define MCXSTATUS(status)           \
+      (  status <= STATUS_UNUSED    \
+      ?  mcx_status_list[status]    \
+      :  "NO_such_status!"          \
+      )
 
 #ifndef FALSE
    typedef enum

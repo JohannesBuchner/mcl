@@ -11,13 +11,14 @@
 
 #include "util/ting.h"
 #include "util/err.h"
+#include "util/compile.h"
 #include "impala/matrix.h"
 
 
 
 void report_partition
 (  const char* me
-,  mclMatrix* cl
+,  mclMatrix* cl_unused cpl__unused
 ,  mcxTing* fname
 ,  dim o
 ,  dim m

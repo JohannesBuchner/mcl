@@ -198,6 +198,7 @@ mclMatrix*  clmContingency
 #define  MCLX_NEWICK_NONL        1 << 0
 #define  MCLX_NEWICK_NOINDENT    1 << 1
 #define  MCLX_NEWICK_NONUM       1 << 2
+#define  MCLX_NEWICK_NOPTHS      1 << 3      /* singletons do not get parentheses */
 
 mcxTing* mclxCatNewick
 (  mclxCat*  cat

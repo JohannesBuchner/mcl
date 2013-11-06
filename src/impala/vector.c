@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -1112,7 +1112,7 @@ mclVector* mclvCanonicalExtend
 
    ;  if (N_old)
       {  idx = dst->ivps[N_old-1].idx+1
-      ;  if (idx != N_old)
+      ;  if ((dim) idx != N_old)
          mcxErr("mclvCanonicalExtend", "argument not canonical (proceeding)")
    ;  }
       else
@@ -1426,7 +1426,7 @@ double mclvIdxVal
 ;  }
 
 
-mcxstatus mclvReplace
+mcxstatus mclvReplaceIdx
 (  mclVector*     vec
 ,  long           ofs
 ,  long           idx
@@ -1434,7 +1434,7 @@ mcxstatus mclvReplace
 )
    {  mclp piv, *dst
 
-   ;  if (!vec || vec->n_ivps <= ofs || ofs < 0)
+   ;  if (!vec || ofs < 0 || vec->n_ivps <= (dim) ofs)
       return STATUS_FAIL
 
    ;  if (mclvGetIvp(vec, idx, NULL))
@@ -1705,7 +1705,7 @@ mclVector* mcldMeet
 ,  const mclVector*  rgt
 ,  mclVector*  dst
 )
-#ifdef MCLD_PLAIN
+#if 1
    {  return mclvBinary(lft, rgt, dst, fltLaR)
 ;  }
 #else
@@ -1907,7 +1907,7 @@ mclv* mclvFromPAR
       ;  }
          else
          {  if (dst->ivps == ivps)
-            mcxErr(me, "DANGER dst->ivps == ivps")
+            mcxErr(me, "DANGER dst->ivps == ivps (dst vid %d)", (int) dst->vid)
 
          ;  mclvRenew(dst, ivps, n_ivps)
 

@@ -3,9 +3,6 @@
 
 SUBDIRS = . util img graphs doc src include scripts testing
 
-VERSION: ChangeLog NEWS
-	./setversion
-
 VERSION = @VERSION@
 
 configure.ac: configure.ac.in VERSION

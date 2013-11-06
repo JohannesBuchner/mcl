@@ -16,7 +16,7 @@
 #include "pval.h"
 
 double fltxConst
-(  pval     d
+(  pval     p_unused
 ,  void*    arg
 )
    {  return *((double*)arg)
@@ -57,7 +57,7 @@ double fltxLQ
 
 double fltxCopy
 (  pval     flt
-,  void*    ignore
+,  void*    arg_unused
 )
    {  return flt
 ;  }
@@ -169,14 +169,14 @@ double fltxPropagateMax
 
 double fltLeft
 (  pval     d1
-,  pval     d2
+,  pval     arg_unused
 )
    {  return d1
 ;  }
 
 
 double fltRight
-(  pval     d1
+(  pval     p_unused
 ,  pval     d2
 )
    {  return d2
@@ -192,32 +192,32 @@ double fltAdd
 
 
 double flt0p0
-(  pval     d1
-,  pval     d2
+(  pval     p_unused1
+,  pval     p_unused2
 )
    {  return 0.0
 ;  }
 
 
 double flt0p5
-(  pval     d1
-,  pval     d2
+(  pval     p_unused1
+,  pval     p_unused2
 )
    {  return 0.5
 ;  }
 
 
 double flt1p0
-(  pval     d1
-,  pval     d2
+(  pval     p_unused1
+,  pval     p_unused2
 )
    {  return 1.0
 ;  }
 
 
 double flt1p5
-(  pval     d1
-,  pval     d2
+(  pval     p_unused1
+,  pval     p_unused2
 )
    {  return 1.5
 ;  }

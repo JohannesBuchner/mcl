@@ -3,8 +3,8 @@
 
 include $(top_srcdir)/include/include.am
 
-this = abc-pairs.pl* abc-test.sh* abc.pl* az.tab 
+this = abc-pairs.pl abc-test.sh abc.pl az.tab 
 
-extra_DIST = $(this)
+EXTRA_DIST = $(this)
 
 

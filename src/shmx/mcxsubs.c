@@ -269,9 +269,9 @@ mcxOptAnchor options[] =
 #define FIN_MAP_CAN_ROWS 2
 #define FIN_MAP_UNI_COLS 4
 #define FIN_MAP_UNI_ROWS 8
-#define FIN_MAP_WEED_COLS 16
-#define FIN_MAP_WEED_ROWS 32
-#define FIN_MAP_WEED_GRAPH 64
+#define FIN_MAP_SCRUB_COLS 16
+#define FIN_MAP_SCRUB_ROWS 32
+#define FIN_MAP_SCRUB_GRAPH 64
 #define FIN_WB           128
 
 typedef struct
@@ -465,7 +465,9 @@ int main
       ;  exit(0)
    ;  }
 
-      mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
+      mcxLogLevel =
+      MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
+   ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
    ;  mclx_app_init(stderr)
 
    ;  if
@@ -754,9 +756,9 @@ int main
 
 mcxstatus parse_fin
 (  mcxLink*    src
-,  int         n_args  cpl__unused
+,  int         n_args_unused  cpl__unused
 ,  subspec_mt* spec
-,  context_mt* ctxt
+,  context_mt* ctxt_unused cpl__unused
 )
    {  mcxLink* lk = src
 
@@ -787,14 +789,14 @@ mcxstatus parse_fin
       ;  else if (!strcmp(key, "unic"))
          spec->fin_map_opts |= FIN_MAP_UNI_COLS
 
-      ;  else if (!strcmp(key, "weed"))
-         spec->fin_map_opts |= FIN_MAP_WEED_COLS | FIN_MAP_WEED_ROWS
-      ;  else if (!strcmp(key, "weedg"))
-         spec->fin_map_opts |= FIN_MAP_WEED_GRAPH
-      ;  else if (!strcmp(key, "weedc"))
-         spec->fin_map_opts |= FIN_MAP_WEED_COLS
-      ;  else if (!strcmp(key, "weedr"))
-         spec->fin_map_opts |= FIN_MAP_WEED_ROWS
+      ;  else if (!strcmp(key, "scrub"))
+         spec->fin_map_opts |= FIN_MAP_SCRUB_COLS | FIN_MAP_SCRUB_ROWS
+      ;  else if (!strcmp(key, "scrubg"))
+         spec->fin_map_opts |= FIN_MAP_SCRUB_GRAPH
+      ;  else if (!strcmp(key, "scrubc"))
+         spec->fin_map_opts |= FIN_MAP_SCRUB_COLS
+      ;  else if (!strcmp(key, "scrubr"))
+         spec->fin_map_opts |= FIN_MAP_SCRUB_ROWS
 
       ;  else if (!strcmp(key, "tp"))
          spec->fin_misc_opts |= FIN_MISC_TP
@@ -812,7 +814,7 @@ mcxstatus parse_fin
 
 mcxstatus parse_out
 (  mcxLink*    src
-,  int         n_args
+,  int         n_args_unused cpl__unused
 ,  subspec_mt* spec
 ,  context_mt* ctxt cpl__unused
 )
@@ -952,7 +954,7 @@ mcxstatus add_vec
 
 mcxstatus parse_dom
 (  mcxLink*    src
-,  int         n_args
+,  int         n_args_unused cpl__unused
 ,  subspec_mt* spec
 ,  context_mt* ctxt
 )
@@ -1082,7 +1084,7 @@ mcxstatus parse_dom
 
 mcxstatus parse_path
 (  mcxLink*    src
-,  int         n_args
+,  int         n_args_unused cpl__unused
 ,  subspec_mt* spec
 ,  context_mt* ctxt
 )
@@ -1112,7 +1114,7 @@ mcxstatus parse_path
 
 mcxstatus parse_ext
 (  mcxLink*    src
-,  int         n_args
+,  int         n_args_unused cpl__unused
 ,  subspec_mt* spec
 ,  context_mt* ctxt
 )
@@ -1167,9 +1169,9 @@ mcxstatus parse_ext
 
 mcxstatus parse_size
 (  mcxLink*    src
-,  int         n_args
+,  int         n_args_unused cpl__unused
 ,  subspec_mt* spec
-,  context_mt* ctxt
+,  context_mt* ctxt_unused cpl__unused
 )
    {  mcxLink* lk = src
    
@@ -1517,16 +1519,16 @@ void spec_exec
 
    ;  if
       (  spec->fin_map_opts
-      &  (FIN_MAP_WEED_COLS | FIN_MAP_WEED_ROWS | FIN_MAP_WEED_GRAPH)
+      &  (FIN_MAP_SCRUB_COLS | FIN_MAP_SCRUB_ROWS | FIN_MAP_SCRUB_GRAPH)
       )
       {  mcxbits b = 0
-      ;  if (spec->fin_map_opts & FIN_MAP_WEED_COLS)
-         b |= MCLX_WEED_COLS
-      ;  if (spec->fin_map_opts & FIN_MAP_WEED_ROWS)
-         b |= MCLX_WEED_ROWS
-      ;  if (spec->fin_map_opts & FIN_MAP_WEED_GRAPH)
-         b |= MCLX_WEED_GRAPH
-      ;  mclxWeed(sub, b)
+      ;  if (spec->fin_map_opts & FIN_MAP_SCRUB_COLS)
+         b |= MCLX_SCRUB_COLS
+      ;  if (spec->fin_map_opts & FIN_MAP_SCRUB_ROWS)
+         b |= MCLX_SCRUB_ROWS
+      ;  if (spec->fin_map_opts & FIN_MAP_SCRUB_GRAPH)
+         b |= MCLX_SCRUB_GRAPH
+      ;  mclxScrub(sub, b)
    ;  }
 
       if (spec->fin_map_opts & FIN_MAP_CAN_COLS)

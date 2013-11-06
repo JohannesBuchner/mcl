@@ -204,9 +204,9 @@ mcxOptAnchor options[]
 }  ;
 
 
-                     /* user rows will be columns. naming below is extremely confusing.
-                      * user rows/cols are mcl cols/rows.
-                     */
+      /* user rows will be columns. naming below is extremely confusing.
+       * user rows/cols are mcl cols/rows.
+      */
 static mclx* read_data
 (  mcxIO* xfin
 ,  mcxIO* xftab
@@ -215,7 +215,7 @@ static mclx* read_data
 ,  unsigned labelidx
 )
    {  mcxTing* line = mcxTingEmpty(NULL, 1000)
-   ;  int  N_cols =  0
+   ;  dim  N_cols =  0
    ;  int  n_rows =  0
    ;  int  N_rows =  100
    ;  mclv* cols  =  mcxNAlloc(N_rows, sizeof(mclVector), mclvInit_v, EXIT_ON_FAIL)
@@ -228,7 +228,7 @@ static mclx* read_data
       {  const char* p = line->str
       ;  const char* z = p + line->len
       ;  int n_read = 0
-      ;  int  n_cols =  0
+      ;  dim  n_cols =  0
       ;  double val = 0.0
       ;  unsigned skipcc = skipc
 
@@ -274,7 +274,7 @@ static mclx* read_data
       ;  else if (!N_cols)
          N_cols = n_cols
       ;  else if (n_cols != N_cols)
-         mcxDie(1, "mcxarray", "different column counts: %d vs %d", N_cols, n_cols)
+         mcxDie(1, "mcxarray", "different column counts: %lu vs %lu", (ulong) N_cols, (ulong) n_cols)
 
       ;  if (n_rows == N_rows)
          {  N_rows *= 1.44
@@ -328,6 +328,9 @@ int main
       (!(opts = mcxOptParse(options, (char**) argv, argc, 1, 0, &parseStatus)))
       exit(0)
 
+   ;  mcxLogLevel =
+      MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
+   ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
    ;  mclx_app_init(stderr)
 
    ;  for (opt=opts;opt->anch;opt++)

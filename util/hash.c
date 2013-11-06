@@ -173,7 +173,7 @@ mcxHash* mcxHashNew
    ;  }
 
       if (!ok)
-      {  mcxGrimFree(&h->src_link)
+      {  mcxGrimFree(&(h->src_link))
       ;  mcxFree(h)
       ;  return NULL
    ;  }
@@ -284,7 +284,7 @@ void mcxHashStats
       )
    ;  for (k=0;k<4;k++)
       {  for (j=k*8;j<(k+1)*8;j++)
-         fprintf(fp, "%3.0f ",  (1000 * (float)distr[j]) / entries)
+         fprintf(fp, "%3.0f ",  entries ? (1000 * (float)distr[j]) / entries : 0.0)
       ;  fprintf(fp, "        ");
       ;  for (j=k*8;j<(k+1)*8;j++)
          fprintf(fp, "%3d ",  promilles[j])
@@ -392,7 +392,7 @@ static hash_link* mcx_bucket_search
          link = NULL
 
       ;  else if (ACTION == MCX_DATUM_INSERT)
-         {  new = mcxGrimGet(h->src_link)
+         {  new = mcxGrimGet(h->src_link)            /* fixme could be NULL */
          ;  new->next   = NULL
          ;  new->kv.val = NULL
          ;  new->kv.key = ob
@@ -448,7 +448,7 @@ static hash_link* mcx_bucket_search
          link = NULL
 
       ;  else if (ACTION == MCX_DATUM_INSERT)
-         {  new = mcxGrimGet(h->src_link)
+         {  new = mcxGrimGet(h->src_link)          /* fixme could be NULL */
          ;  new->next   = NULL
          ;  new->kv.val = NULL
          ;  new->kv.key = ob
@@ -497,7 +497,7 @@ mcxKV* mcxHashSearchx
    ;  link = mcx_bucket_search(h, key, ACTION, NULL)
 
    ;  if (delta)
-      *delta = h->n_entries < n_entries ? -1 : h->n_entries - n_entries
+      *delta = h->n_entries < n_entries ? -1 : (int) (h->n_entries - n_entries)
 
    ;  return link ? &link->kv : NULL
 ;  }
@@ -553,9 +553,10 @@ static void** hash_array
       ;  d++
    ;  }
       if (d != hash->n_entries)
-      mcxErr(me, "PANIC inconsistent state (n_entries %d)", hash->n_entries)
+      mcxErr(me, "PANIC inconsistent state (n_entries %lu)", (ulong) hash->n_entries)
 
-   ;  qsort(obs, d, sizeof(void*), cmp)
+   ;  if (cmp)
+      qsort(obs, d, sizeof(void*), cmp)
    ;  mcxHashWalkFree(&walk)
 
    ;  *n_entries = d
@@ -1116,4 +1117,21 @@ int bitcount
    ;  return ct
 ;  }
 
+
+
+#if 0
+/* The old legacy hash */
+static __u32 dx_hack_hash (const char *name, int len)
+{
+        __u32 hash0 = 0x12a3fe2d, hash1 = 0x37abe8f9;
+        while (len--) {
+                __u32 hash = hash1 + (hash0 ^ (*name++ * 7152373));
+
+                if (hash & 0x80000000) hash -= 0x7fffffff;
+                hash1 = hash0;
+                hash0 = hash;
+        }
+        return (hash0 << 1);
+}
+#endif
 

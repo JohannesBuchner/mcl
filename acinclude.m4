@@ -1,3 +1,7 @@
+
+## va_copy check
+##
+
 dnl Available from the GNU Autoconf Macro Archive at:
 dnl http://www.gnu.org/software/ac-archive/htmldoc/acx_pthread.html
 dnl
@@ -197,3 +201,180 @@ else
 fi
 AC_LANG_RESTORE
 ])dnl ACX_PTHREAD
+
+
+
+## va_copy check
+##
+
+dnl ##
+dnl ##  NAME:
+dnl ##    AC_CHECK_VA_COPY -- Check for C99 va_copy
+dnl ##
+dnl ##  COPYRIGHT
+dnl ##    Copyright (c) 2006 Ralf S. Engelschall <rse@engelschall.com>
+dnl ##
+dnl ##  DESCRIPTION:
+dnl ##    This macro checks for C99 va_copy() implementation and
+dnl ##    provides fallback implementation if neccessary. Notice: this
+dnl ##    check is rather complex because first because we really have
+dnl ##    to try various possible implementations in sequence and
+dnl ##    second, we cannot define a macro in config.h with parameters
+dnl ##    directly.
+dnl ##
+dnl ##  USAGE:
+dnl ##    configure.in:
+dnl ##      AC_CHECK_VA_COPY
+dnl ##    foo.c:
+dnl ##      #include "config.h"
+dnl ##      [...]
+dnl ##      va_copy(d,s)
+dnl ##
+
+dnl #   test program for va_copy() implementation
+changequote(<<,>>)
+m4_define(__va_copy_test, <<[
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#define DO_VA_COPY(d, s) $1
+void test(char *str, ...)
+{
+    va_list ap, ap2;
+    int i;
+    va_start(ap, str);
+    DO_VA_COPY(ap2, ap);
+    for (i = 1; i <= 9; i++) {
+        int k = (int)va_arg(ap, int);
+        if (k != i)
+            abort();
+    }
+    DO_VA_COPY(ap, ap2);
+    for (i = 1; i <= 9; i++) {
+        int k = (int)va_arg(ap, int);
+        if (k != i)
+            abort();
+    }
+    va_end(ap);
+}
+int main(int argc, char *argv[])
+{
+    test("test", 1, 2, 3, 4, 5, 6, 7, 8, 9);
+    exit(0);
+}
+]>>)
+changequote([,])
+
+dnl #   test driver for va_copy() implementation
+m4_define(__va_copy_check, [
+    AH_VERBATIM($1,
+[/* Predefined possible va_copy() implementation (id: $1) */
+#define __VA_COPY_USE_$1(d, s) $2])
+    if test ".$ac_cv_va_copy" = .; then
+        AC_TRY_RUN(__va_copy_test($2), [ac_cv_va_copy="$1"])
+    fi
+])
+
+dnl #   Autoconf check for va_copy() implementation checking
+AC_DEFUN([AC_CHECK_VA_COPY],[
+  dnl #   provide Autoconf display check message
+  AC_MSG_CHECKING(for va_copy() function)
+  dnl #   check for various implementations in priorized sequence   
+  AC_CACHE_VAL(ac_cv_va_copy, [
+    ac_cv_va_copy=""
+    dnl #   1. check for standardized C99 macro
+    __va_copy_check(C99, [va_copy((d), (s))])
+    dnl #   2. check for alternative/deprecated GCC macro
+    __va_copy_check(GCM, [VA_COPY((d), (s))])
+    dnl #   3. check for internal GCC macro (high-level define)
+    __va_copy_check(GCH, [__va_copy((d), (s))])
+    dnl #   4. check for internal GCC macro (built-in function)
+    __va_copy_check(GCB, [__builtin_va_copy((d), (s))])
+    dnl #   5. check for assignment approach (assuming va_list is a struct)
+    __va_copy_check(ASS, [do { (d) = (s); } while (0)])
+    dnl #   6. check for assignment approach (assuming va_list is a pointer)
+    __va_copy_check(ASP, [do { *(d) = *(s); } while (0)])
+    dnl #   7. check for memory copying approach (assuming va_list is a struct)
+    __va_copy_check(CPS, [memcpy((void *)&(d), (void *)&(s)), sizeof((s))])
+    dnl #   8. check for memory copying approach (assuming va_list is a pointer)
+    __va_copy_check(CPP, [memcpy((void *)(d), (void *)(s)), sizeof(*(s))])
+    if test ".$ac_cv_va_copy" = .; then
+        AC_ERROR([no working implementation found])
+    fi
+  ])
+  dnl #   optionally activate the fallback implementation
+  if test ".$ac_cv_va_copy" = ".C99"; then
+      AC_DEFINE(HAVE_VA_COPY, 1, [Define if va_copy() macro exists (and no fallback implementation is required)])
+  fi
+  dnl #   declare which fallback implementation to actually use
+  AC_DEFINE_UNQUOTED([__VA_COPY_USE], [__VA_COPY_USE_$ac_cv_va_copy],
+      [Define to id of used va_copy() implementation])
+  dnl #   provide activation hook for fallback implementation
+  AH_VERBATIM([__VA_COPY_ACTIVATION],
+[/* Optional va_copy() implementation activation */
+#ifndef HAVE_VA_COPY
+#define va_copy(d, s) __VA_COPY_USE(d, s)
+#define HAVE_VA_COPY 1
+#endif
+])
+  dnl #   provide Autoconf display result message
+  if test ".$ac_cv_va_copy" = ".C99"; then
+      AC_MSG_RESULT([yes])
+  else
+      AC_MSG_RESULT([no (using fallback implementation)])
+  fi
+])
+
+
+
+## Referenceable va_list
+##
+
+# http://autoconf-archive.cryp.to/ax_c_referenceable_passed_va_list.html
+
+
+
+AC_DEFUN([AX_C_REFERENCEABLE_PASSED_VA_LIST], [
+  AC_CACHE_CHECK([whether f(va_list va){ &va; } works as expected],
+    [ax_cv_c_referenceable_passed_va_list],
+    [AC_LINK_IFELSE([[
+#include <stdarg.h>
+
+volatile va_list g_va;
+
+void
+vf(va_list callee_va)
+{
+  /* typeof(callee_va) differs from typeof(caller_va) by a compiler trick, if
+   * va_list is implemented as an array. On such environment, this copy
+   * operation fails. */
+  g_va = callee_va;
+}
+
+void
+f(int last, ...)
+{
+  va_list caller_va;
+
+  va_start(caller_va, last);
+  vf(caller_va);  /* passed as &caller_va[0] if va_list is an array type */
+  va_end(caller_va);
+}
+
+int
+main(int argc, char *argv[])
+{
+  f(0xdeadbeef, 0xfedbeef, 0xfeedee);
+
+  return 0;
+}
+      ]],
+      [ax_cv_c_referenceable_passed_va_list=yes],
+      [ax_cv_c_referenceable_passed_va_list=no])])
+  if test "x$ax_cv_c_referenceable_passed_va_list" = xyes; then
+    AC_DEFINE([HAVE_REFERENCEABLE_PASSED_VA_LIST], [1],
+              [Define to 1 if f(va_list va){ &va; } works as expected.])
+  fi
+])
+
+

@@ -56,7 +56,7 @@ am_libutil_a_OBJECTS = alloc.$(OBJEXT) array.$(OBJEXT) rand.$(OBJEXT) \
 	equate.$(OBJEXT) opt.$(OBJEXT) io.$(OBJEXT) err.$(OBJEXT) \
 	hash.$(OBJEXT) heap.$(OBJEXT) let.$(OBJEXT) list.$(OBJEXT) \
 	gralloc.$(OBJEXT) tok.$(OBJEXT) ting.$(OBJEXT) ding.$(OBJEXT) \
-	tr.$(OBJEXT)
+	tr.$(OBJEXT) types.$(OBJEXT)
 libutil_a_OBJECTS = $(am_libutil_a_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/autofoo/depcomp
@@ -165,7 +165,7 @@ INCLUDES = -I$(top_srcdir)
 noinst_LIBRARIES = libutil.a
 libutil_a_SOURCES = alloc.c array.c rand.c equate.c opt.c io.c \
  err.c hash.c heap.c let.c list.c gralloc.c tok.c ting.c ding.c \
- tr.c
+ tr.c types.c
 
 EXTRA_DIST = alloc.h array.h rand.h equate.h hash.h heap.h let.h io.h \
    opt.h err.h tok.h ting.h ding.h list.h gralloc.h tok.h \
@@ -234,6 +234,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ting.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tok.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tr.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/types.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \

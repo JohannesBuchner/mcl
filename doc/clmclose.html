@@ -3,6 +3,7 @@
 <!-- Copyright (c) 2008 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta name="keywords" content="manual">
 <style type="text/css">
 body {
 text-align: justify;
@@ -69,9 +70,9 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-5 Jun 2008&nbsp;&nbsp;&nbsp;
+7 Nov 2008&nbsp;&nbsp;&nbsp;
 <a class="local" href="clmclose.ps"><b>clm close</b></a>
-1.007-grumpy-gryphon, 08-157
+1.008, 08-312
 </p>
 <div style="margin-top:1em">
 <table
@@ -112,9 +113,13 @@ in the <a class="local" href="clm.html">clm</a> manual page.</p>
 </p>
 <p class="default L50" style="margin-bottom:0">
 <b>clm close</b>
-<a class="intern" href="#opt-imx"><b>-imx</b> fname (<i>input file</i>)</a>
+<a class="intern" href="#opt-imx"><b>-imx</b> fname (<i>specify matrix input</i>)</a>
+<a class="intern" href="#opt-abc"><b>-abc</b> fname (<i>specify label input</i>)</a>
 <a class="intern" href="#opt-dom"><b>-dom</b> fname (<i>input domain/cluster file</i>)</a>
-<a class="intern" href="#opt-write-cc"><b>[-write-cc</b> fname (<i>output file</i>)<b>]</b></a>
+<a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output file</i>)<b>]</b></a>
+<a class="intern" href="#opt--write-count"><b>[--write-count</b> (<i>output component count</i>)<b>]</b></a>
+<a class="intern" href="#opt--write-sizes"><b>[--write-sizes</b> (<i>output component sizes (default)</i>)<b>]</b></a>
+<a class="intern" href="#opt--write-cc"><b>[--write-cc</b> (<i>output components as clustering</i>)<b>]</b></a>
 <a class="intern" href="#opt-cc-bound"><b>[-cc-bound</b> num (<i>select components with size at least num</i>)<b>]</b></a>
 <a class="intern" href="#opt-tf"><b>[-tf</b> spec (<i>apply tf-spec to input matrix</i>)<b>]</b></a>
 <a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
@@ -125,17 +130,11 @@ in the <a class="local" href="clm.html">clm</a> manual page.</p>
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
 <p class="default L50" style="margin-bottom:0">
-Use <b>clm close</b> to fetch the connected components from a graph.
-They will be returned as a clustering file. Use this file
-in conjunction with <b>mcxsubs</b> and the graph file itself to
-retrieve individual subgraphs corresponding to connected components.
-</p>
-<p class="default L50" style="margin-bottom:0">
-If the <b>-dom</b>&nbsp;<i>fname</i> option is used, clm close will
-for each of the domains in file&nbsp;<i>fname</i> retrieve
-the associated subgraph from the input graph, decompose it into
-its connected components, and write each connected components
-as a separate domain/cluster in the output file.
+Use <b>clm close</b> to fetch the connected components from a graph. Different
+output modes are supported (see below). In matrix mode (i.e. using
+the <b>-imx</b> option) the output returned with
+<b>--write-cc</b> can be used in conjunction with <b>mcxsubs</b>
+to retrieve individual subgraphs corresponding to connected components.
 </p>
 
 <a name="options"></a>
@@ -144,11 +143,31 @@ as a separate domain/cluster in the output file.
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td colspan=3><a name="opt-imx"></a><b>-imx</b> fname (<i>input file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr><td colspan=3><a name="opt-abc"></a><b>-abc</b> &lt;fname&gt; (<i>label input</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+The file name for input that is in label format.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>input matrix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+The file name for input that is in mcl native matrix format.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-o"></a><b>-o</b> fname (<i>output file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Specify the file where output is sent to. The default is STDOUT.
+</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-dom"></a><b>-dom</b> fname (<i>input domain/cluster file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-write-cc"></a><b>-write-cc</b> fname (<i>output connected components</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-<p class="default L50" style="margin-bottom:0">
-Set the name of the file to be written to.
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+If this option is used, clm close will, as a first step,
+for each of the domains in file&nbsp;<i>fname</i> retrieve the associated
+subgraph from the input graph. These are then further decomposed into
+connected components, and the program will process these in the normal
+manner.
+</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt--write-count"></a><b>--write-count</b> (<i>output component count</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--write-sizes"></a><b>--write-sizes</b> (<i>output component sizes (default)</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--write-cc"></a><b>--write-cc</b> (<i>output components as clustering</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+The default behaviour is currently to output the sizes of the
+connected components. It is also possible to simply output
+the number of components with <b>--write-count</b> or to
+write the components as a clustering in mcl format with
+<b>-write-cc</b>.
 </p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-cc-bound"></a><b>-cc-bound</b> num (<i>select components with size at least num</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-tf"></a><b>-tf</b> spec (<i>apply tf-spec to input matrix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">

@@ -375,10 +375,10 @@ begin
    spec syntax.} 
 
 \items{
-   {\defopt{-rv}{add|max|mul|left|right}{action for repeated vectors}}
-   {\defopt{-re}{add|max|mul|left|right}{action for repeated entries}}
-   {\defopt{-ri}{add|max|mul}{adding mirror image}}
-   {\defopt{-r}{add|max|mul|left|right}{same for entries and vectors}}
+   {\defopt{-rv}{add|max|min|mul|left|right}{action for repeated vectors}}
+   {\defopt{-re}{add|max|min|mul|left|right}{action for repeated entries}}
+   {\defopt{-ri}{add|max|min|mul}{adding mirror image}}
+   {\defopt{-r}{add|max|min|mul|left|right}{same for entries and vectors}}
 }
 \car{
    Merge options, dictating the behaviour when repeated entries are
@@ -397,6 +397,12 @@ begin
    \v{left} and \v{right} options are not garantueed to follow the order found
    in the raw input.  The \bf{rv} option, for repeats over different columns,
    is carried out second.
+   }
+
+\par{
+   The option \useopt{-ri}{min} can assist in implementing
+   a (top-list) best reciprocal hit criterion.
+
    }
 
 \cpar{Examples}{

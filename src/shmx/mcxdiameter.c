@@ -1,4 +1,4 @@
-/*   (C) Copyright 2006, 2007 Stijn van Dongen
+/*   (C) Copyright 2006, 2007, 2008 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -21,6 +21,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -32,37 +33,46 @@
 
 #include "mcx.h"
 
-#include "impala/matrix.h"
-#include "impala/tab.h"
-#include "impala/io.h"
-#include "impala/stream.h"
-
 #include "util/types.h"
 #include "util/ding.h"
 #include "util/ting.h"
 #include "util/io.h"
 #include "util/err.h"
 #include "util/opt.h"
+#include "util/compile.h"
+
+#include "impala/matrix.h"
+#include "impala/tab.h"
+#include "impala/io.h"
+#include "impala/stream.h"
 
 #include "clew/clm.h"
 #include "gryphon/path.h"
 
+static const char* mediam = "mcx diameter";
+static const char* mectty = "mcx ctty";
 
-dim diameter_rough
+
+         /* this aids in finding heuristically likely starting points
+          * for long shortest paths, by looking at dead ends
+          * in the lattice.
+          * experimental and oefully underdocumented.
+         */
+static dim diameter_rough
 (  mclv*       vec
 ,  mclx*       mx
-,  u8*         scratch
-,  long*       scratch_priority
+,  u8*         rough_scratch
+,  long*       rough_priority
 )
    {  mclv* curr  =  mclvInsertIdx(NULL, vec->vid, 1.0) 
    ;  mclpAR* par =  mclpARensure(NULL, 1024)
 
    ;  dim d = 0, n_dead_ends = 0, n_dead_ends_res = 0
 
-   ;  memset(scratch, 0, N_COLS(mx))
+   ;  memset(rough_scratch, 0, N_COLS(mx))
 
-   ;  scratch[vec->vid] = 1                        /* seen */
-   ;  scratch_priority[vec->vid] = -1              /* remove from priority list */
+   ;  rough_scratch[vec->vid] = 1                        /* seen */
+   ;  rough_priority[vec->vid] = -1              /* remove from priority list */
 
    ;  while (1)
       {  mclp* currivp = curr->ivps
@@ -73,7 +83,7 @@ dim diameter_rough
          ;  mclp* newivp = ls->ivps
          ;  int hit = 0
          ;  while (newivp < ls->ivps + ls->n_ivps)
-            {  u8* tst = scratch+newivp->idx
+            {  u8* tst = rough_scratch+newivp->idx
             ;  if (!*tst || *tst & 2)
                {  if (!*tst)
                   mclpARextend(par, newivp->idx, 1.0)
@@ -82,17 +92,17 @@ dim diameter_rough
             ;  }
                newivp++
          ;  }
-            if (!hit && scratch_priority[currivp->idx] >= 0)
-               scratch_priority[currivp->idx] += d+1
+            if (!hit && rough_priority[currivp->idx] >= 0)
+               rough_priority[currivp->idx] += d+1
             ,  n_dead_ends_res++
          ;  else if (!hit)
             n_dead_ends++
-/* ,fprintf(stderr, "[%ld->%ld]", (long) currivp->idx, (long) scratch_priority[currivp->idx])
+/* ,fprintf(stderr, "[%ld->%ld]", (long) currivp->idx, (long) rough_priority[currivp->idx])
 */
 ;
 #if 0
 if (currivp->idx == 115 || currivp->idx == 128)
-fprintf(stdout, "pivot %d node %d d %d dead %d pri %d\n", (int) vec->vid, (int) currivp->idx, d, (int) (1-hit), (int) scratch_priority[currivp->idx])
+fprintf(stdout, "pivot %d node %d d %d dead %d pri %d\n", (int) vec->vid, (int) currivp->idx, d, (int) (1-hit), (int) rough_priority[currivp->idx])
 #endif
          ;  currivp++
       ;  }
@@ -101,7 +111,7 @@ fprintf(stdout, "pivot %d node %d d %d dead %d pri %d\n", (int) vec->vid, (int) 
       ;  d++
       ;  mclvFromIvps(curr, par->ivps, par->n_ivps)
       ;  for (t=0;t<curr->n_ivps;t++)
-         scratch[curr->ivps[t].idx] = 1
+         rough_scratch[curr->ivps[t].idx] = 1
    ;  }
 
       mclvFree(&curr)
@@ -126,9 +136,12 @@ typedef struct
 enum
 {  MY_OPT_ABC    =   MCX_DISP_UNUSED
 ,  MY_OPT_IMX
+,  MY_OPT_TAB
+,  MY_OPT_LIST_MAX
 ,  MY_OPT_LIST_NODES
-,  MY_OPT_X
-,  MY_OPT_Y
+,  MY_OPT_T
+,  MY_OPT_START
+,  MY_OPT_END
 ,  MY_OPT_INCLUDE_ENDS
 ,  MY_OPT_MOD
 ,  MY_OPT_ROUGH
@@ -148,17 +161,47 @@ mcxOptAnchor diameterOptions[] =
    ,  "<fname>"
    ,  "specify input using label pairs"
    }
+,  {  "-tab"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_TAB
+   ,  "<fname>"
+   ,  "specify tab file to be used with matrix input"
+   }
+,  {  "-t"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_T
+   ,  "<int>"
+   ,  "number of threads to use"
+   }
+,  {  "-start"
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MY_OPT_START
+   ,  "<int>"
+   ,  "start index (inclusive)"
+   }
+,  {  "-end"
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MY_OPT_END
+   ,  "<int>"
+   ,  "end index (exclusive)"
+   }
 ,  {  "--rough"
    ,  MCX_OPT_HIDDEN
    ,  MY_OPT_ROUGH
    ,  NULL
    ,  "use direct computation (testing only)"
    }
+,  {  "--summary"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_LIST_MAX
+   ,  NULL
+   ,  "return length of longest shortest path"
+   }
 ,  {  "--list"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_LIST_NODES
    ,  NULL
-   ,  "list eccentricity for all nodes"
+   ,  "list eccentricity for all nodes (default)"
    }
 ,  {  NULL, 0, 0, NULL, NULL }
 }  ;
@@ -177,17 +220,29 @@ mcxOptAnchor cttyOptions[] =
    ,  "<fname>"
    ,  "specify input using label pairs"
    }
-,  {  "-x"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
-   ,  MY_OPT_X
-   ,  "<int>"
-   ,  "start index"
+,  {  "-tab"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_TAB
+   ,  "<fname>"
+   ,  "specify tab file to be used with matrix input"
    }
-,  {  "-y"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
-   ,  MY_OPT_Y
+,  {  "-t"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_T
    ,  "<int>"
-   ,  "end index"
+   ,  "number of threads to use"
+   }
+,  {  "-start"
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MY_OPT_START
+   ,  "<int>"
+   ,  "start index (inclusive)"
+   }
+,  {  "-end"
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MY_OPT_END
+   ,  "<int>"
+   ,  "end index (exclusive)"
    }
 ,  {  "--with-ends"
    ,  MCX_OPT_DEFAULT
@@ -214,6 +269,7 @@ static  unsigned debug_g   =   -1;
 
 static  mcxIO* xfmx_g      =   (void*) -1;
 static  mcxIO* xfabc_g     =   (void*) -1;
+static  mcxIO* xftab_g     =   (void*) -1;
 static  mclTab* tab_g      =   (void*) -1;
 static  dim progress_g     =   -1;
 static  mcxbool rough      =   -1;
@@ -221,21 +277,24 @@ static  mcxbool list_nodes =   -1;
 static  mcxbool mod_up     =   -1;
 
 static mcxbool include_ends_g  =  -1;
-static ofs start_g      =  -1;
-static ofs end_g        =  -1;
+static dim start_g         =  -1;
+static dim end_g           =  -1;
+static dim n_thread_g      =  -1;
 
 static mcxstatus allInit
 (  void
 )
    {  xfmx_g         =  mcxIOnew("-", "r")
    ;  xfabc_g        =  NULL
+   ;  xftab_g        =  NULL
    ;  tab_g          =  NULL
    ;  progress_g     =  0
    ;  rough          =  FALSE
-   ;  list_nodes     =  FALSE
+   ;  list_nodes     =  TRUE
    ;  mod_up         =  FALSE
    ;  start_g        =  0
    ;  end_g          =  0
+   ;  n_thread_g     =  0
    ;  include_ends_g =  FALSE
    ;  debug_g        =  0
    ;  return STATUS_OK
@@ -257,6 +316,11 @@ static mcxstatus cttyArgHandle
       ;  break
       ;
 
+         case MY_OPT_TAB
+      :  xftab_g = mcxIOnew(val, "r")
+      ;  break
+      ;
+
          case MY_OPT_INCLUDE_ENDS
       :  include_ends_g = TRUE
       ;  break
@@ -266,12 +330,17 @@ static mcxstatus cttyArgHandle
       :  break
       ;
 
-         case MY_OPT_Y
+         case MY_OPT_T
+      :  n_thread_g = (unsigned) atoi(val)
+      ;  break
+      ;
+
+         case MY_OPT_END
       :  end_g = atoi(val)
       ;  break
       ;
 
-         case MY_OPT_X
+         case MY_OPT_START
       :  start_g = atoi(val)
       ;  break
       ;
@@ -304,8 +373,33 @@ static mcxstatus diameterArgHandle
       ;  break
       ;
 
+         case MY_OPT_T
+      :  n_thread_g = (unsigned) atoi(val)
+      ;  break
+      ;
+
+         case MY_OPT_END
+      :  end_g = atoi(val)
+      ;  break
+      ;
+
+         case MY_OPT_START
+      :  start_g = atoi(val)
+      ;  break
+      ;
+
+         case MY_OPT_LIST_MAX
+      :  list_nodes = FALSE
+      ;  break
+      ;
+
          case MY_OPT_ROUGH
       :  rough = TRUE
+      ;  break
+      ;
+
+         case MY_OPT_TAB
+      :  xftab_g = mcxIOnew(val, "r")
       ;  break
       ;
 
@@ -322,173 +416,232 @@ static mcxstatus diameterArgHandle
 ;  }
 
 
-static mcxstatus diameterMain
-(  int                  argc
-,  const char*          argv[]
+static void rough_it
+(  mclx* mx
+,  dim* tabulator
+,  dim i
+,  u8* rough_scratch
+,  long* rough_priority
+,  dim* pri
 )
-   {  mclx* mx                =  NULL
-   ;  u8* scratch             =  NULL
-   ;  long* scratch_priority  =  NULL
-   ;  mcxbool canonical       =  FALSE
-
-   ;  double sum = 0.0
-
-   ;  dim d = 0
-   ;  dim i
-
-   ;  dim last[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }
-   ;  dim l        =  0
-   ;  double last10 =  0.0
-
-   ;  progress_g  =  mcx_progress_g
-   ;  debug_g     =  mcx_debug_g
-
-   ;  if (xfabc_g)
-      mx
-      =  mclxIOstreamIn
-         (  xfabc_g
-         ,  MCLXIO_STREAM_ABC | MCLXIO_STREAM_MIRROR
-         ,  NULL
-         ,  mclpMergeMax
-         ,  &tab_g
-         ,  NULL
-         ,  EXIT_ON_FAIL
-         )
-   ;  else
-      mx = mclxReadx(xfmx_g, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH)
-
-   ;  canonical = MCLV_IS_CANONICAL(mx->dom_cols)
-   ;  scratch   =  calloc(N_COLS(mx), sizeof scratch[0])
-
-   ;  scratch_priority = malloc(N_COLS(mx) * sizeof scratch_priority[0])
-   ;  for (i=0;i<N_COLS(mx);i++)
-      scratch_priority[i] = 0
-
-   ;  if (rough && !mclxGraphCanonical(mx))
-      mcxDie(1, "mcxdiameter", "rough needs canonical domains")
-
-   ;  for (i=0;i<N_COLS(mx);i++)
-      {  dim dd = 0, p = i, p1 = 0, p2 = 0, priority = 0, p1p2 = 0
-         
-      ;  if (rough)
-         {  dim j = 0
-         ;  for (j=0;j<N_COLS(mx);j++)
-            {  if (1)
-               {  if (scratch_priority[j] >= scratch_priority[p1])
-                     p2 = p1
-                  ,  p1 = j
-               ;  else if (scratch_priority[j] >= scratch_priority[p2])
-                  p2 = j
-            ;  }
-               else
-               {  if (!p1 && scratch_priority[j] >= 1)
-                  p1 = j
-            ;  }
-            }
-            p = p1
-         ;  priority = scratch_priority[p]
-         ;  p1p2 = scratch_priority[p1] + scratch_priority[p2]
-         ;  dd = diameter_rough(mx->cols+p, mx, scratch, scratch_priority)
+   {  dim dd = 0, p = i, p1 = 0, p2 = 0, priority = 0, p1p2 = 0, j = 0
+      
+   ;  for (j=0;j<N_COLS(mx);j++)
+      {  if (1)
+         {  if (rough_priority[j] >= rough_priority[p1])
+               p2 = p1
+            ,  p1 = j
+         ;  else if (rough_priority[j] >= rough_priority[p2])
+            p2 = j
+      ;  }
+         else
+         {  if (!p1 && rough_priority[j] >= 1)
+            p1 = j
+      ;  }
+      }
+      p = p1
+   ;  priority = rough_priority[p]
+   ;  p1p2 = rough_priority[p1] + rough_priority[p2]
+   ;  dd = diameter_rough(mx->cols+p, mx, rough_scratch, rough_priority)
 ;if (0)
 fprintf
 (  stdout
 ,  "guard %6d--%-6d %6d %6d NODE %6d ECC %6d PRI\n"
-,  p1p2
+,  (int) p1p2
 ,  (int) (i * dd)
 ,  (int) i
 ,  (int) p
 ,  (int) dd
 ,  (int) priority
 )
+   ;  *pri = priority
+   ;  tabulator[p] = dd
+;  }
+
+
+static void ecc_compute
+(  dim* tabulator
+,  const mclx* mx
+,  dim offset
+,  dim inc
+,  mclv* scratch
+)
+   {  dim i
+   ;  for (i=offset;i<end_g;i+=inc)
+      {  dim dd = mclgEcc2(mx->cols+i, mx, scratch)
+      ;  tabulator[i] = dd
+   ;  }
+   }
+
+
+typedef struct
+{  dim      offset
+;  dim      inc
+;  const    mclx* mx
+;  dim*     tabulator
+;  mclv*    scratch
+;
+}  diam_data   ;
+
+
+static void* diam_thread
+(  void* arg
+)
+   {  diam_data* data = arg
+   ;  ecc_compute(data->tabulator, data->mx, data->offset, data->inc, data->scratch)
+   ;  return NULL
+;  }
+
+
+static mcxstatus diameterMain
+(  int          argc_unused      cpl__unused
+,  const char*  argv_unused[]    cpl__unused
+)
+   {  mclx* mx                =  NULL
+   ;  mcxbool canonical       =  FALSE
+
+   ;  u8* rough_scratch       =  NULL
+   ;  long* rough_priority    =  NULL
+   ;  dim* tabulator          =  NULL
+
+   ;  mclv* ecc_scratch       =  NULL
+
+   ;  double sum = 0.0
+
+   ;  dim thediameter = 0
+   ;  dim i
+
+   ;  mclxIOstreamer streamer = { 0 }
+
+   ;  progress_g  =  mcx_progress_g
+   ;  debug_g     =  mcx_debug_g
+
+   ;  if (xfabc_g)
+      {  if (xftab_g)
+            tab_g = mclTabRead(xftab_g, NULL, EXIT_ON_FAIL)
+         ,  streamer.tab_sym_in = tab_g
+      ;  mx
+      =  mclxIOstreamIn
+         (  xfabc_g
+         ,     MCLXIO_STREAM_ABC       |  MCLXIO_STREAM_MIRROR
+            |  MCLXIO_STREAM_SYMMETRIC |  MCLXIO_STREAM_GTAB_RESTRICT
+         ,  NULL
+         ,  mclpMergeMax
+         ,  &streamer
+         ,  EXIT_ON_FAIL
+         )
+      ;  tab_g = streamer.tab_sym_out
+   ;  }
+      else
+      {  mx = mclxReadx(xfmx_g, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH)
+      ;  if (xftab_g)
+         tab_g = mclTabRead(xftab_g, mx->dom_cols, EXIT_ON_FAIL)
+   ;  }
+
+      if (!end_g || end_g > N_COLS(mx))
+      end_g = N_COLS(mx)
+
+   ;  if (n_thread_g < 1)
+      n_thread_g = 1
+
+   ;  rough_scratch  =  calloc(N_COLS(mx), sizeof rough_scratch[0])
+   ;  rough_priority =  mcxAlloc(N_COLS(mx) * sizeof rough_priority[0], EXIT_ON_FAIL)
+   ;  tabulator      =  calloc(N_COLS(mx), sizeof tabulator[0])
+   ;  ecc_scratch    =  mclvCopy(NULL, mx->dom_rows)
+                                       /* ^ used as ecc scratch: should have values 1.0 */
+
+   ;  for (i=0;i<N_COLS(mx);i++)
+      rough_priority[i] = 0
+
+   ;  canonical = MCLV_IS_CANONICAL(mx->dom_cols)
+
+   ;  if (rough && !mclxGraphCanonical(mx))
+      mcxDie(1, mediam, "rough needs canonical domains")
+
+   ;  if (rough)
+      {  for (i=0;i<N_COLS(mx);i++)
+         {  dim priority = 0
+         ;  rough_it(mx, tabulator, i, rough_scratch, rough_priority, &priority)
       ;  }
-         else
-         dd = mclgEcc(mx->cols+p, mx)
-
-      ;  l = l % 10
-      ;  last[l++] = dd
-      ;  if (progress_g && !((i+1)%10))
-         {  dim j
-         ;  double sum10 = 0.0
-         ;  for (j=0;j<10;j++)
-            sum10 += last[j]
-         ;  fputc( sum10 > last10 ? '+' : '-', stderr)
-         ;  last10 = sum10
+      }
+      else if (n_thread_g == 1)
+      ecc_compute(tabulator, mx, start_g, 1, ecc_scratch)
+   ;  else
+      {  dim t
+      ;  mclx* scratchen            /* annoying UNIXen-type plural */
+         =  mclxCartesian(mclvCanonical(NULL, n_thread_g, 1.0), mclvClone(mx->dom_rows), 1.0)
+      ;  pthread_t *threads_diam
+         =  mcxAlloc(n_thread_g * sizeof threads_diam[0], EXIT_ON_FAIL)
+      ;  pthread_attr_t  t_attr
+      ;  pthread_attr_init(&t_attr)
+      ;  for (t=0;t<n_thread_g;t++)
+         {  diam_data* data = mcxAlloc(sizeof data[0], EXIT_ON_FAIL)
+         ;  data->offset   =  start_g + t
+         ;  data->inc      =  n_thread_g
+         ;  data->mx       =  mx
+         ;  data->scratch  =  scratchen->cols+t
+         ;  data->tabulator = tabulator
+         ;  if (pthread_create(threads_diam+t, &t_attr, diam_thread, data))
+            mcxDie(1, mectty, "error creating thread %d", (int) t)
       ;  }
+         for (t=0; t < n_thread_g; t++)
+         {  pthread_join(threads_diam[t], NULL)
+      ;  }
+         mcxFree(threads_diam)
+      ;  mclxFree(&scratchen)
+   ;  }
 
-
-#if 0
-;fprintf(stderr, " %d,%d", (int) dd, (int) priority)
-#elif 0
-;fprintf(stderr, " %d", (int) dd)
-#endif
+      for (i=0;i<N_COLS(mx);i++)    /* report everything so that results can be collected */
+      {  dim dd = tabulator[i]
       ;  sum += dd
 
       ;  if (list_nodes)
-         {  long vid = mx->cols[p].vid
+         {  long vid = mx->cols[i].vid
          ;  if (tab_g)
             {  const char* label = mclTabGet(tab_g, vid, NULL)
-            ;  if (!label) mcxDie(1, "diameter", "panic label %ld not found", vid)
+            ;  if (!label) mcxDie(1, mediam, "panic label %ld not found", vid)
             ;  fprintf(stdout, "%s\t%ld\n", label, (long) dd)
          ;  }
             else
             fprintf(stdout, "%ld\t%ld\n", vid, (long) dd)
       ;  }
 
-         if (progress_g && dd > d)
-         fprintf
-         (  stderr
-         ,  "ite %u pri %lu new max vec %u ecc %u\n"
-         ,  (unsigned) i
-         ,  (ulong) priority
-         ,  (unsigned) mx->cols[p].vid
-         ,  (unsigned) dd
-         )
+         if (dd > thediameter)
+         thediameter = dd
+   ;  }
 
-      ;  if (dd > d)
-         d = dd
-
-      ;  if (progress_g && !((i+1)% progress_g))
-         fprintf
-         (  stderr
-         ,  "%u average %.3f\n"
-         ,  (unsigned) (i+1)
-         ,  (double) (sum/(i+1))
+      if (!list_nodes && N_COLS(mx))
+      {  sum /= N_COLS(mx)
+      ;  fprintf
+         (  stdout
+         ,  "%d\t%.3f\n"
+         ,  (unsigned) thediameter
+         ,  (double) sum
          )
    ;  }
 
-      sum /= N_COLS(mx)
-   ;  if (!list_nodes)
-      fprintf
-      (  stdout
-      ,  "%d\t%.3f\n"
-      ,  (unsigned) d
-      ,  (double) sum
-      )
-   ;  return 0
+      return 0
 ;  }
-
-
-static mcxDispHook diameterEntry
-=  {  "diameter"
-   ,  "diameter [options]"
-   ,  diameterOptions
-   ,  sizeof(diameterOptions)/sizeof(mcxOptAnchor) - 1
-
-   ,  diameterArgHandle
-   ,  allInit
-   ,  diameterMain
-
-   ,  0
-   ,  0
-   ,  MCX_DISP_DEFAULT
-   }
-;
 
 
 mcxDispHook* mcxDispHookDiameter
 (  void
 )
-   {  return &diameterEntry
+   {  static mcxDispHook diameterEntry
+   =  {  "diameter"
+      ,  "diameter [options]"
+      ,  diameterOptions
+      ,  sizeof(diameterOptions)/sizeof(mcxOptAnchor) - 1
+
+      ,  diameterArgHandle
+      ,  allInit
+      ,  diameterMain
+
+      ,  0
+      ,  0
+      ,  MCX_DISP_MANUAL
+      }
+   ;  return &diameterEntry
 ;  }
 
 
@@ -652,10 +805,10 @@ void lattice_print_edges
 
 void mclgSSPmakeLattice
 (  mclx* pathmx
-,  mclx* mx
+,  const mclx* mx
 ,  SSPnode* nodes
 )
-   {  dim i, i_layer = 0
+   {  dim i
 #if 0
    ;  for (i=0;i<N_COLS(pathmx);i++)
       mclvaDump2(pathmx->cols+i, stdout, MCLXIO_VALUE_GETENV, " ", 0)
@@ -670,7 +823,6 @@ void mclgSSPmakeLattice
       ;  for (v=0;v<tails->n_ivps;v++)
          {  dim j
          ;  ofs lft_idx = tails->ivps[v].idx
-;if(0)fprintf(stderr, "%ld\n", lft_idx)
          ;  mclv* nb = mclxGetVector(mx, lft_idx, EXIT_ON_FAIL, NULL)
          ;  if (heads)
             mcldMeet(nb, heads, relevant)
@@ -688,23 +840,23 @@ void mclgSSPmakeLattice
 
 
 mclx* cttyFlood
-(  mclx* mx
-,  SSPnode* nodes
+(  const mclx* mx
+,  SSPnode* nodes_unused   cpl__unused
 ,  ofs root
 )
    {  mclv* wave
    ;  mclx* pathmx = mclxAllocClone(mx)
+   ;  mclv* scratch = mclvCopy(NULL, mx->dom_cols)
 
    ;  dim n_wave = 0
 
    ;  mclvInsertIdx(pathmx->cols+0, root, 1.0)
-   ;  mclgUnionvInitNode(mx, root)
+   ;  mclgUnionvInitNode2(scratch, root)
    ;  wave = mclvClone(pathmx->cols+0)
    ;  n_wave = 1
 
    ;  while (1)
-      {  dim i
-      ;  mclv* wave2 = mclgUnionv(mx, wave, NULL, SCRATCH_UPDATE, NULL)
+      {  mclv* wave2 = mclgUnionv2(mx, wave, NULL, SCRATCH_UPDATE, NULL, scratch)
 ; if (debug_g)
 mclvaDump2(wave2, stdout, MCLXIO_VALUE_GETENV, " ", MCLVA_DUMP_VID_NO)
       ;  if (wave2->n_ivps)
@@ -721,45 +873,23 @@ mclvaDump2(wave2, stdout, MCLXIO_VALUE_GETENV, " ", MCLVA_DUMP_VID_NO)
 
       mclvFree(&wave)
    ;  mclvResize(pathmx->dom_cols, n_wave)
-   ;  mclgUnionvReset(mx)
+   ;  mclvFree(&scratch)
    ;  return pathmx
 ;  }
 
 
-   /* TODO: different counting modes:
-   */
-
-static mcxstatus cttyMain
-(  int          argc
-,  const char*  argv[]
+static void ctty_compute
+(  const mclx* mx
+,  mclv*       ctty
+,  dim         offset
+,  dim         inc
 )  
-   {  mclx* mx
-   ;  SSPnode* nodes
-   ;  mcxLink* src_link
-
-   ;  if (xfabc_g)
-      mx
-      =  mclxIOstreamIn
-         (  xfabc_g
-         ,  MCLXIO_STREAM_ABC | MCLXIO_STREAM_MIRROR
-         ,  NULL
-         ,  mclpMergeMax
-         ,  &tab_g
-         ,  NULL
-         ,  EXIT_ON_FAIL
-         )
-   ;  else
-      mx = mclxReadx(xfmx_g, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH | MCLX_REQUIRE_CANONICAL)
-
-   ;  nodes    =  mcxAlloc(N_COLS(mx) * sizeof nodes[0], EXIT_ON_FAIL)
-   ;  src_link =  mcxListSource(N_COLS(mx), 0)
-
-   ;  debug_g  =  mcx_debug_g
-   ;  progress_g =mcx_progress_g
-
+   {  SSPnode* nodes    =  mcxAlloc(N_COLS(mx) * sizeof nodes[0], EXIT_ON_FAIL)
+   ;  mcxLink* src_link =  mcxListSource(N_COLS(mx), 0)
    ;  dim i
-   ;  if (!end_g)
-      end_g = N_COLS(mx)
+
+   ;  if (offset < start_g)
+      mcxDie(1, mectty, "offset error")
 
    ;  for (i=0;i<N_COLS(mx);i++)
       {  nodes[i].node_idx =  i
@@ -771,7 +901,7 @@ static mcxstatus cttyMain
       ;  nodes[i].n_paths_lft = 0
    ;  }
 
-      for (i=start_g;i<end_g;i++)
+      for (i=offset;i<end_g;i+=inc)
       {  long vid = mx->cols[i].vid
       ;  mclx* pathmx = cttyFlood(mx, nodes, vid)
 
@@ -795,46 +925,150 @@ static mcxstatus cttyMain
       fputc('\n', stderr)
 
    ;  for (i=0;i<N_COLS(mx);i++)
-      {  long vid = mx->cols[i].vid
-      ;  double ctt = nodes[i].acc_wtd_global
-      ;  if (tab_g)
-         {  const char* label = mclTabGet(tab_g, vid, NULL)
-         ;  if (!label) mcxDie(1, "ctty", "panic label %ld not found", vid)
-         ;  fprintf(stdout, "%s\t%.2f\n", label, ctt)
-      ;  }
-         else
-         fprintf(stdout, "%ld\t%.2f\n",  vid, ctt)
+      {  ctty->ivps[i].val += nodes[i].acc_wtd_global
    ;  }
 
       mcxFree(nodes)
    ;  mcxListFree(&src_link, NULL)
-   ;  mclxFree(&mx)
-   ;  mcxIOfree(&xfmx_g)
-   ;  return 0
 ;  }
 
 
-static mcxDispHook cttyEntry
-=  {  "ctty"
-   ,  "ctty [options]"
-   ,  cttyOptions
-   ,  sizeof(cttyOptions)/sizeof(mcxOptAnchor) - 1
-
-   ,  cttyArgHandle
-   ,  allInit
-   ,  cttyMain
-
-   ,  0
-   ,  0
-   ,  MCX_DISP_DEFAULT
-   }
+typedef struct
+{  dim      offset
+;  dim      inc
+;  const    mclx* mx
+;  mclv*    ctty
 ;
+}  ctty_data   ;
+
+
+static void* ctty_thread
+(  void* arg
+)
+   {  ctty_data* data = arg
+   ;  ctty_compute(data->mx, data->ctty, data->offset, data->inc)
+   ;  return NULL
+;  }
+
+
+
+static mcxstatus cttyMain
+(  int          argc_unused      cpl__unused
+,  const char*  argv_unused[]    cpl__unused
+)  
+   {  mclx* mx, *ctty
+   ;  mclxIOstreamer streamer = { 0 }
+   ;  dim i
+
+   ;  if (xfabc_g)
+      {  if (xftab_g)
+            tab_g = mclTabRead(xftab_g, NULL, EXIT_ON_FAIL)
+         ,  streamer.tab_sym_in = tab_g
+      ;  mx
+      =  mclxIOstreamIn
+         (  xfabc_g
+         ,     MCLXIO_STREAM_ABC       |  MCLXIO_STREAM_MIRROR
+            |  MCLXIO_STREAM_SYMMETRIC |  MCLXIO_STREAM_GTAB_RESTRICT
+         ,  NULL
+         ,  mclpMergeMax
+         ,  &streamer
+         ,  EXIT_ON_FAIL
+         )
+      ;  tab_g = streamer.tab_sym_out
+   ;  }
+      else
+      {  mx = mclxReadx(xfmx_g, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH | MCLX_REQUIRE_CANONICAL)
+      ;  if (xftab_g)
+         tab_g = mclTabRead(xftab_g, mx->dom_cols, EXIT_ON_FAIL)
+   ;  }
+
+      mcxIOfree(&xfmx_g)
+
+   ;  if (n_thread_g < 1)
+      n_thread_g = 1
+
+   ;  ctty
+      =  mclxCartesian(mclvCanonical(NULL, n_thread_g, 1.0), mclvClone(mx->dom_rows), 0.0)
+
+   ;  debug_g     =  mcx_debug_g
+   ;  progress_g  =  mcx_progress_g
+
+   ;  if (!end_g || end_g > N_COLS(mx))
+      end_g = N_COLS(mx)
+
+   ;  if (n_thread_g == 1)
+      ctty_compute(mx, ctty->cols+0, start_g, 1)
+   ;  else
+      {  dim t
+      ;  pthread_t *threads_ctty
+         =  mcxAlloc(n_thread_g * sizeof threads_ctty[0], EXIT_ON_FAIL)
+      ;  pthread_attr_t  t_attr
+      ;  pthread_attr_init(&t_attr)
+      ;  for (t=0;t<n_thread_g;t++)
+         {  ctty_data* data = mcxAlloc(sizeof data[0], EXIT_ON_FAIL)
+         ;  data->offset   =  start_g + t
+         ;  data->inc      =  n_thread_g
+         ;  data->mx       =  mx
+         ;  data->ctty     =  ctty->cols+t
+         ;  if (pthread_create(threads_ctty+t, &t_attr, ctty_thread, data))
+            mcxDie(1, mectty, "error creating thread %d", (int) t)
+      ;  }
+         for (t=0; t < n_thread_g; t++)
+         {  pthread_join(threads_ctty[t], NULL)
+      ;  }
+         mcxFree(threads_ctty)
+   ;  }
+
+      if (ctty->cols[0].n_ivps != N_COLS(mx))
+      mcxDie(1, mectty, "internal error, tabulator miscount")
+
+                     /* add subtotals to first vector */
+   ;  for (i=1;i<N_COLS(ctty);i++)
+      {  mclv* vec = ctty->cols+i
+      ;  dim j
+      ;  if (vec->n_ivps != N_COLS(mx))
+         mcxDie(1, mectty, "internal error, tabulator miscount")
+      ;  for (j=0;j<vec->n_ivps;j++)
+         ctty->cols[0].ivps[j].val += vec->ivps[j].val
+   ;  }
+
+                     /* and report first vector, optionally with labels */
+      {  mclv* v = ctty->cols+0
+      ;  for (i=0;i<v->n_ivps;i++)
+         {  double ctt  =  v->ivps[i].val
+         ;  long  vid   =  v->ivps[i].idx
+         ;  if (tab_g)
+            {  const char* label = mclTabGet(tab_g, vid, NULL)
+            ;  if (!label) mcxDie(1, mectty, "panic label %ld not found", vid)
+            ;  fprintf(stdout, "%s\t%.8g\n", label, ctt)
+         ;  }
+            else
+            fprintf(stdout, "%ld\t%.8g\n",  vid, ctt)
+      ;  }
+      }
+
+      return 0
+;  }
 
 
 mcxDispHook* mcxDispHookCtty
 (  void
 )
-   {  return &cttyEntry
+   {  static mcxDispHook cttyEntry
+   =  {  "ctty"
+      ,  "ctty [options]"
+      ,  cttyOptions
+      ,  sizeof(cttyOptions)/sizeof(mcxOptAnchor) - 1
+
+      ,  cttyArgHandle
+      ,  allInit
+      ,  cttyMain
+
+      ,  0
+      ,  0
+      ,  MCX_DISP_MANUAL
+      }
+   ;  return &cttyEntry
 ;  }
 
 

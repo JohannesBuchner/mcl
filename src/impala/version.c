@@ -1,2 +1,2 @@
-const char *mclDateTag = "08-157";
-const char *mclNumTag = "1.007-grumpy-gryphon";
+const char *mclDateTag = "08-312";
+const char *mclNumTag = "1.008";

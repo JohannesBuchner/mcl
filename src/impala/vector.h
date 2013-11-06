@@ -474,7 +474,7 @@ mclVector* mclvInsertIdx
  * If !vec or ofs >= vec->n_ivps STATUS_FAIL is returned.
 */
 
-mcxstatus mclvReplace
+mcxstatus mclvReplaceIdx
 (  mclVector*     vec
 ,  long           ofs
 ,  long           idx

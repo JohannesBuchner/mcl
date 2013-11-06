@@ -1,4 +1,58 @@
 
+Fri, 07 Nov 2008
+
+   *  mcl-08-312 released (fixes bug in mcxdeblast).
+
+   *  Fixed a bug in mcxdeblast, reported by Zhenxiang Xi.
+
+   *  clm and mcx have acquired a help mode, for example
+         clm help info
+      will invoke the manual page for the info mode. It is fully equivalent to
+      'man clminfo'. All the modes that have a manual page are listed if mcx or
+      clm is invoked without arguments.  This does require that the manual
+      pages are installed either in a directory listed in MANPATH or in
+      a standard location known to the 'man' program.
+
+   *  Both mcx ctty (betweenness centrality) and mcx diameter can be run in
+      multiple threads with the -t option.  In addition, the computation can
+      be split among different machines (each machine optionally running
+      multiple threads). The correct result is obtained by adding the partial
+      results of all the distributed runs, using 'mcx collect' (for diameter
+      subsequently, the maximum has to be taken over the resulting values).
+      This implies that mcx ctty and mcx diameter can now be sped up
+      arbitrarily by increasing the computation resources. Example:
+
+      HOST1:  mcx ctty -imx graph.mci -t 4 -start 0 -end 1000 > graph.ctty1
+      HOST2:  mcx ctty -imx graph.mci -t 4 -start 1000 -end 2000 > graph.ctty2
+      HOST3:  mcx ctty -imx graph.mci -t 4 -start 2000 -end 3000 > graph.ctty3
+      HOST4:  mcx ctty -imx graph.mci -t 4 -start 3000 -end 4000 > graph.ctty4
+
+      mcx collect graph.ctty1 graph.ctty2 graph.ctty3 graph.ctty3 > graph.CTTY
+
+   *  clm close has new modes of output: The number of components,
+      and the list of component sizes.
+
+   *  clm close accepts label type input with the -abc option
+      similar to mcx diameter, mcx ctty, mcx clcf and others.
+
+   *  Added reference to Ulrik Brandes' paper on centrality betweenness
+      update algorithm.
+
+   *  fixed bug in mcxdump that causes --dump-upper, --dump-upperi, --dump-lower,
+      and --dump-loweri to be ignored.
+
+   *  A small R script called mcxplotlines.R was added to the scripts
+      directory. Use it to visualize per-cluster expression profiles
+      for clusterings of networks derived from expression data.
+
+   *  mcxdump in newick mode has a modality to output singleton
+      labels without enclosing parentheses; -newick S.
+
+   *  The layer responsible for handling label input (including
+      the format where each line consists of LABEL1 LABEL2 WEIGHT) was
+      rewritten. It is now in a more maintainable state, although
+      work still needs to be done.
+
 
 Thu, 05 Jun 2008
 

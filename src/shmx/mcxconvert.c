@@ -12,16 +12,17 @@
 
 #include "mcx.h"
 
+#include "util/io.h"
+#include "util/types.h"
+#include "util/err.h"
+#include "util/opt.h"
+#include "util/compile.h"
+
 #include "impala/matrix.h"
 #include "impala/cat.h"
 #include "impala/io.h"
 #include "impala/iface.h"
 #include "impala/app.h"
-
-#include "util/io.h"
-#include "util/types.h"
-#include "util/err.h"
-#include "util/opt.h"
 
 
 static const char* me  =  "mcxconvert";
@@ -135,8 +136,8 @@ static mcxstatus convertArgHandle
 
 
 static mcxstatus convertMain
-(  int                  argc
-,  const char*          argv[]
+(  int          argc_unused   cpl__unused
+,  const char*  argv[]
 )
    {  mclMatrix*        mx
 
@@ -179,29 +180,24 @@ static mcxstatus convertMain
 ;  }
 
 
-static mcxDispHook convertEntry
-=  {  "convert"
-   ,  "convert [options] <cl file>+"
-   ,  convertOptions
-   ,  sizeof(convertOptions)/sizeof(mcxOptAnchor) - 1
-
-
-   ,  convertArgHandle
-   ,  convertInit
-   ,  convertMain
-
-
-   ,  2
-   ,  2
-   ,  MCX_DISP_DEFAULT
-   }
-;
-
-
 mcxDispHook* mcxDispHookConvert
 (  void
 )
-   {  return &convertEntry
+   {  static mcxDispHook convertEntry
+   =  {  "convert"
+      ,  "convert [options] <cl file>+"
+      ,  convertOptions
+      ,  sizeof(convertOptions)/sizeof(mcxOptAnchor) - 1
+
+      ,  convertArgHandle
+      ,  convertInit
+      ,  convertMain
+
+      ,  2
+      ,  2
+      ,  MCX_DISP_MANUAL
+      }
+   ;  return &convertEntry
 ;  }
 
 

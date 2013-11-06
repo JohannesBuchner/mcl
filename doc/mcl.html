@@ -3,6 +3,7 @@
 <!-- Copyright (c) 2008 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta name="keywords" content="manual">
 <style type="text/css">
 body {
 text-align: justify;
@@ -69,9 +70,9 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-5 Jun 2008&nbsp;&nbsp;&nbsp;
+7 Nov 2008&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcl.ps"><b>mcl</b></a>
-1.007-grumpy-gryphon, 08-157
+1.008, 08-312
 </p>
 <div style="margin-top:1em">
 <table
@@ -238,6 +239,7 @@ for those who are interested, so it has many options.</p>
 <p class="default L50" style="margin-bottom:0"><b>Baseline clustering options</b><br>
 <a class="intern" href="#opt-I"><b>[-I</b> &lt;num&gt; (<i>inflation</i>)<b>]</b></a>
 <a class="intern" href="#opt-o"><b>[-o</b> str (<i>fname</i>)<b>]</b></a>
+<a class="intern" href="#opt-od"><b>[-od</b> str (<i>directory</i>)<b>]</b></a>
 <a class="intern" href="#opt-scheme"><b>[-scheme</b> k (<i>resource scheme</i>)<b>]</b></a>
 <a class="intern" href="#opt--shadow-vl"><b>[--shadow-vl</b> (<i>shadow distant nodes</i>)<b>]</b></a>
 <a class="intern" href="#opt-c"><b>[-c</b> &lt;num&gt; (<i>reweight loops</i>)<b>]</b></a>
@@ -538,6 +540,13 @@ discussed at <a class="intern" href="#opt--abc"><b>--abc</b></a>.</p>
 Look at the <a class="intern" href="#opt-ap"><b>-ap</b>&nbsp;<i>prefix</i></a> option and its siblings for the
 automatic naming constructions employed by <b>mcl</b> if the <b>-o</b> option is
 not used.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-od"></a><b>-od</b> &lt;dir&gt; (<i>directory</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Specify the directory where to output clusterings. This is useful
+when you let mcl automatically construct the output file name,
+but want the clustering in a directory different from the
+one where the input graph resides.
+</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-shadow"></a><b>-shadow</b> mode (<i>apply shadowing</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-shadow-s"></a><b>-shadow-s</b> &lt;num&gt; (<i>boost factor (experimental)</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--shadow-vl"></a><b>--shadow-vl</b> (<i>shadow distant nodes</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-bottom:0"><b>EXPERIMENTAL</b><br>
 <i>These options are intended and useful for hierarchical
@@ -744,7 +753,7 @@ denser cluster into which they would fit beautifully. This is fully in line
 with the flow characteristics of mcl but a largely unwanted phenomenon. The
 postprocessing step was added as a remedy for this problem should it
 manifest itself. It is based on the efficiency criterion described in
-<a class="intern" href="#gcbfs">[1]</a> and <a class="intern" href="#pcfgcmce">[4]</a> (there called <i>coverage</i>).</p>
+<a class="intern" href="#gcbfs">[1]</a> and <a class="intern" href="#pcfgcmce">[5]</a> (there called <i>coverage</i>).</p>
 <p class="default L50" style="margin-bottom:0">
 With <b>-lint-l</b> a node is tentatively reallocated if this will improve
 its effiency, and if it is initially in a cluster of size at most <i>numl</i>.
@@ -1563,7 +1572,7 @@ The mcl matrix format is described in the <a class="local" href="mcxio.html">mcx
 <a name="bugs"></a>
 <h2>BUGS</h2>
 <p class="default L50" style="margin-bottom:0">
-No known bugs at this time. Please send bug reports to mcl-devel@micans.org.</p>
+No known bugs at this time.</p>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
@@ -1654,11 +1663,6 @@ and the utilities in the mcl family.</p>
 in the mcl distribution and can be found online at
 <a class="extern" href="http://micans.org/mcl">http://micans.org/mcl</a>.</p>
 <p class="default L50" style="margin-bottom:0">
-<b>mcl</b> development is discussed on <tt>mcl-devel@lists.micans.org</tt>,
-(subscribtion) information is at
-<a class="extern" href="https://lists.micans.org:446/listinfo/mcl-devel">https://lists.micans.org:446/listinfo/mcl-devel</a> , this list is
-archived at <a class="extern" href="https://lists.micans.org:446/pipermail/mcl-devel/">https://lists.micans.org:446/pipermail/mcl-devel/</a>.</p>
-<p class="default L50" style="margin-bottom:0">
 mcl's home at <a class="extern" href="http://micans.org/mcl/">http://micans.org/mcl/</a>.</p>
 
 <a name="references"></a>
@@ -1669,26 +1673,32 @@ Stijn van Dongen, <i>Graph Clustering by Flow Simulation</i>.
 PhD thesis, University of Utrecht, May 2000.<br>
 <a class="extern" href="http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm">http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm</a></p>
 <p class="default L50" style="margin-bottom:0">
-<a name="cafg">[2]</a>
+<a name="gcvdup">[2]</a>
+Stijn van Dongen, <i>Graph Clustering Via a Discrete Uncoupling Process</i>,
+SIAM Journal on Matrix Analysis and Applications, 30(1):121-141, 2008.
+<a class="extern" href="http://link.aip.org/link/?SJMAEL/30/121/1">http://link.aip.org/link/?SJMAEL/30/121/1</a>
+</p>
+<p class="default L50" style="margin-bottom:0">
+<a name="cafg">[3]</a>
 Stijn van Dongen. <i>A cluster algorithm for graphs</i>.
 Technical Report INS-R0010, National Research Institute for Mathematics and
 Computer Science in the Netherlands, Amsterdam, May 2000.<br>
 <a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z</a></p>
 <p class="default L50" style="margin-bottom:0">
-<a name="supfg">[3]</a>
+<a name="supfg">[4]</a>
 Stijn van Dongen. <i>A stochastic uncoupling process for graphs</i>.
 Technical Report INS-R0011, National Research Institute for Mathematics and
 Computer Science in the Netherlands, Amsterdam, May 2000.<br>
 <a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z</a></p>
 <p class="default L50" style="margin-bottom:0">
-<a name="pcfgcmce">[4]</a>
+<a name="pcfgcmce">[5]</a>
 Stijn van Dongen. <i>Performance criteria for graph clustering and Markov
 cluster experiments</i>. Technical Report INS-R0012, National Research
 Institute for Mathematics and Computer Science in the Netherlands,
 Amsterdam, May 2000.<br>
 <a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z</a></p>
 <p class="default L50" style="margin-bottom:0">
-<a name="eaflsdopf">[5]</a>
+<a name="eaflsdopf">[6]</a>
 Enright A.J., Van Dongen S., Ouzounis C.A.
 <i>An efficient algorithm for large-scale detection of protein families</i>,
 Nucleic Acids Research 30(7):1575-1584 (2002).</p>

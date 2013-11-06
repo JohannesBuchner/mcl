@@ -45,6 +45,7 @@
 #include    "util/minmax.h"
 #include    "util/tok.h"
 #include    "util/list.h"
+#include    "util/compile.h"
 
 #include "impala/matrix.h"
 
@@ -290,8 +291,8 @@ mclVector* ilSpecToVec
 
 struct ispec* parse_int_set
 (  mcxLink*       string
-,  long*          min
-,  long*          max
+,  long*          min_unused cpl__unused
+,  long*          max_unused cpl__unused
 ,  mcxOnFail      ON_FAIL
 ,  int*           n_ispecs
 )

@@ -1,8 +1,8 @@
-#!/usr/bin/env perl
+#!/usr/local/bin/perl -w
 
 use Getopt::Long;
 
-# (c) Copyright 2002, 2003, 2004, 2005, 2006, 2007 Stijn van Dongen
+# (c) Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008 Stijn van Dongen
 # (c) Copyright 2004 Jason Stajich (column output parsing)
 #
 # Other (C)ontributors;
@@ -27,6 +27,7 @@ use Getopt::Long;
 #  -  Check whether m9 output state is correct if errors occur.
 
 
+$^W = 1;
 use strict;
 
 $::mode_sort   = 'o';      # a lphabetical
@@ -35,7 +36,7 @@ $::mode_sort   = 'o';      # a lphabetical
 $::mode_score  = 'e';      # e value
                            # b it
 
-$::line_mode   = "";       # default is raw mode, not line mode
+my $line_mode  =  "";      # default is raw mode, not line mode
 $::name_out    =  '-';
 
 $::bcut = 0;
@@ -47,7 +48,7 @@ my $addfix = "";
 
 my $user_tabfile = "";
 
-my %line_modes = qw ( abc 1 123 1 packed 1 );
+my %line_modes = qw ( abc 1 123 1);
 
 my $obase = "";
 my $stdhandler = 0;
@@ -73,7 +74,7 @@ if
    ,  "xi-dat=s"        =>    \$blastfix
    ,  "base=s"          =>    \$obase
    ,  "stdhandler"      =>    \$stdhandler
-   ,  "line-mode=s"     =>    \$::line_mode
+   ,  "line-mode=s"     =>    \$line_mode
    ,  "out=s"           =>    \$::name_out
    )
 )
@@ -85,8 +86,8 @@ help() && exit(0) if $help;
 
 die "unknown sort mode <$::mode_sort>"
    unless $::mode_sort =~ /^[ao]$/;
-die "unknown line mode <$::line_mode>"
-   unless !$::line_mode || defined($line_modes{$::line_mode});
+die "unknown line mode <$line_mode>"
+   if ($line_mode && !defined($line_modes{$line_mode}));
 die "unknown sort mode <$::mode_score>"
    unless $::mode_score =~ /^[ebr]$/;
    
@@ -131,7 +132,7 @@ if ($user_tabfile) {
 $::f_raw = undef;
 my $f_err = undef;
 
-if ($::line_mode) {
+if ($line_mode) {
    if (!$::name_out || $::name_out eq '-') {
       $::f_raw = \*STDOUT;
    }
@@ -141,16 +142,11 @@ if ($::line_mode) {
    }
    $f_err = \*STDERR;
 
-   if ($::line_mode eq 'abc') {
+   if ($line_mode eq 'abc') {
       # print $::f_raw "#aa# (stream abc cookie)\n";
    }
-   elsif ($::line_mode eq '123') {
+   elsif ($line_mode eq '123') {
       # print $::f_raw "#11# (stream abc cookie)\n";
-   }
-   elsif ($::line_mode eq 'packed') {
-      # my $sentinel = 2+4+32+128;
-      my $cookie     =  0x777700;      # 00000000111111111111111100000000
-      # print $::f_raw "L", $cookie;
    }
 }
 else {
@@ -169,10 +165,10 @@ else {
 $::ID = 0;
 
 if ($m9) {
-   munge_linewise($fhin, $::f_raw);
+   munge_linewise($fhin, $::f_raw, $line_mode);
 }
 else {
-   munge_long($fhin, $::f_raw);
+   munge_long($fhin, $::f_raw, $line_mode);
 }
 
 close $::f_raw;
@@ -182,7 +178,7 @@ $::CT = scalar keys %$::seenrgt;
 my $alnum = 0;
 my $occTmisc = {};
 
-if (!$user_tabfile && !$::line_mode) {
+if (!$user_tabfile && !$line_mode) {
    open(F_HDR, ">$obase.hdr") || die "cannot open $obase.hdr\n";    # header
    open(F_MAP, ">$obase.map") || die "cannot open $obase.idx\n";    # map file
    open(F_TAB, ">$obase.tab") || die "cannot open $obase.idx\n";    # indices
@@ -250,8 +246,7 @@ else {
 
 sub munge_linewise {
 
-   my $fh_in   =  shift;
-   my $fh_raw  =  shift;
+   my ($fh_in, $fh_raw, $line_mode) = @_;
 
    my $gix_prev = "";
 
@@ -272,7 +267,7 @@ sub munge_linewise {
       next unless $idx >= 0;
 
       if ($gix_prev ne $gix) {
-          if (!$::sline_mode) {
+          if (!$line_mode) {
              if ($gix_prev) {
                print $fh_raw "\$\n";
              }
@@ -286,7 +281,7 @@ sub munge_linewise {
       $s = getscore($e, $b, $hsp_len);
 
       if ($idy >= 0) {
-          if (!$::line_mode) {
+          if (!$line_mode) {
              print $fh_raw "$idy:$s ";
           }
           else {
@@ -297,15 +292,14 @@ sub munge_linewise {
    }
 
    if ($gix_prev) {
-      print $fh_raw "\$\n" if !$::line_mode;
+      print $fh_raw "\$\n" if !$line_mode;
    }
 }
 
 
 sub munge_long {
 
-   my $fh_in = shift;
-   my $fh_raw = shift;
+   my ($fh_in, $fh_raw, $line_mode) = @_;
 
    my $need_query = 1;
    my $need_hits = 2;
@@ -325,7 +319,7 @@ sub munge_long {
          my $idx = getid($gix, 1);
 
          if ($idx >= 0) {
-            print $fh_raw "$idx " if !$::line_mode;
+            print $fh_raw "$idx " if !$line_mode;
          }
          $state = $need_hits;
       }
@@ -339,7 +333,7 @@ sub munge_long {
       }
       elsif ($state == $need_hits && /no hits found/i) {
          print STDERR "no hits found for gi $gix\n";
-         print $fh_raw "\$\n" if !$::line_mode;
+         print $fh_raw "\$\n" if !$line_mode;
          $state = $need_query;
       }
       elsif
@@ -363,7 +357,7 @@ sub munge_long {
          $s = getscore($e, $b, 0);
 
          if ($idy >= 0) {               # fixme, void or explain.
-            if (!$::line_mode) {
+            if (!$line_mode) {
                print $fh_raw "$idy:$s ";
             }
             else {
@@ -379,7 +373,7 @@ sub munge_long {
          # this provides WU-blast compatibility.
       }
       elsif ($state == $need_gi) {
-         print $fh_raw "\$\n" if !$::line_mode;
+         print $fh_raw "\$\n" if !$line_mode;
          $state = $need_query;
       }
    }
@@ -387,7 +381,7 @@ sub munge_long {
    if ($state == $need_gi) {
       print $f_err "run ended while expecting more secondary scores\n";
       print STDERR "run ended while expecting more secondary scores\n";
-      print $fh_raw "\$\n" if !$::line_mode;
+      print $fh_raw "\$\n" if !$line_mode;
    }
 }
 
@@ -397,7 +391,7 @@ sub munge_long {
 sub read_tab {
    my $file = shift;
    my $tab = shift;
-   open (U_TAB, "<$file") || "die cannot open $file\n";
+   open (U_TAB, "<$file") || die "cannot open $file\n";
    while (<U_TAB>) {
       if (/^\s*#/) {
          next;

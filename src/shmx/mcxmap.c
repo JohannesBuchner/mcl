@@ -40,9 +40,9 @@ enum
 ,  MY_OPT_MAPI
 ,  MY_OPT_CMAPI
 ,  MY_OPT_RMAPI
-,  MY_OPT_CANN
-,  MY_OPT_CANNC
-,  MY_OPT_CANNR
+,  MY_OPT_MAKE_MAP
+,  MY_OPT_MAKE_MAPC
+,  MY_OPT_MAKE_MAPR
 ,  MY_OPT_HELP
 ,  MY_OPT_APROPOS
 ,  MY_OPT_VERSION
@@ -144,21 +144,21 @@ mcxOptAnchor options[] =
    ,  "<fname>"
    ,  "map row indices with inverse"
    }
-,  {  "-cann"
+,  {  "-make-map"
    ,  MCX_OPT_HASARG
-   ,  MY_OPT_CANN
+   ,  MY_OPT_MAKE_MAP
    ,  "<fname>"
-   ,  "canonify domain indices, write map files"
+   ,  "canonify domain indices, write map file"
    }
-,  {  "-cannc"
+,  {  "-make-mapc"
    ,  MCX_OPT_HASARG
-   ,  MY_OPT_CANNC
+   ,  MY_OPT_MAKE_MAPC
    ,  "<fname>"
    ,  "canonify column indices, write map file"
    }
-,  {  "-cannr"
+,  {  "-make-mapr"
    ,  MCX_OPT_HASARG
-   ,  MY_OPT_CANNR
+   ,  MY_OPT_MAKE_MAPR
    ,  "<fname>"
    ,  "canonify row indices, write map file"
    }
@@ -209,6 +209,9 @@ int main
    ;  mcxOption* opts, *opt
    ;  mcxstatus parseStatus = STATUS_OK
 
+   ;  mcxLogLevel =
+      MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
+   ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_NO)
    ;  mclx_app_init(stderr)
    
    ;  mcxOptAnchorSortById(options, sizeof(options)/sizeof(mcxOptAnchor) -1)
@@ -216,8 +219,6 @@ int main
 
    ;  if (!opts)
       exit(0)
-
-   ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_NO)
 
    ;  for (opt=opts;opt->anch;opt++)
       {  mcxOptAnchor* anch = opt->anch
@@ -312,18 +313,18 @@ int main
          ;  break
          ;
 
-            case MY_OPT_CANN
+            case MY_OPT_MAKE_MAP
          :  xf_cannc = mcxIOnew(opt->val, "w")
          ;  xf_cannr = xf_cannc
          ;  break
          ;
 
-            case MY_OPT_CANNC
+            case MY_OPT_MAKE_MAPC
          :  xf_cannc = mcxIOnew(opt->val, "w")
          ;  break
          ;
 
-            case MY_OPT_CANNR
+            case MY_OPT_MAKE_MAPR
          :  xf_cannr = mcxIOnew(opt->val, "w")
          ;  break
          ;

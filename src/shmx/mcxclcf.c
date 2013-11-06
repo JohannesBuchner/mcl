@@ -23,15 +23,16 @@
 
 #include "mcx.h"
 
-#include "impala/io.h"
-#include "impala/matrix.h"
-#include "impala/tab.h"
-#include "impala/stream.h"
-
 #include "util/types.h"
 #include "util/io.h"
 #include "util/err.h"
 #include "util/opt.h"
+#include "util/compile.h"
+
+#include "impala/io.h"
+#include "impala/matrix.h"
+#include "impala/tab.h"
+#include "impala/stream.h"
 
 #include "gryphon/path.h"
 
@@ -39,6 +40,7 @@
 enum
 {  MY_OPT_ABC = MCX_DISP_UNUSED
 ,  MY_OPT_IMX
+,  MY_OPT_TAB
 ,  MY_OPT_TEST_LOOPS
 ,  MY_OPT_LIST_NODES
 }  ;
@@ -56,6 +58,12 @@ mcxOptAnchor clcfOptions[] =
    ,  MY_OPT_ABC
    ,  "<fname>"
    ,  "specify input using label pairs"
+   }
+,  {  "-tab"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_TAB
+   ,  "<fname>"
+   ,  "specify tab file to be used with matrix input"
    }
 ,  {  "--list"
    ,  MCX_OPT_DEFAULT
@@ -78,6 +86,7 @@ static  mcxbool list_g = FALSE;
 static  mcxbool test_loop_g = FALSE;
 static  mcxIO* xfmx_g = (void*) -1;
 static  mcxIO* xfabc_g = (void*) -1;
+static  mcxIO* xftab_g = (void*) -1;
 static  mclTab* tab_g = (void*) -1;
 
 
@@ -89,6 +98,7 @@ static mcxstatus clcfInit
    ;  test_loop_g =  FALSE
    ;  xfmx_g      =  mcxIOnew("-", "r")
    ;  xfabc_g     =  NULL
+   ;  xftab_g     =  NULL
    ;  tab_g       =  NULL
    ;  return STATUS_OK
 ;  }
@@ -106,6 +116,11 @@ static mcxstatus clcfArgHandle
 
          case MY_OPT_ABC
       :  xfabc_g = mcxIOnew(val, "r")
+      ;  break
+      ;
+
+         case MY_OPT_TAB
+      :  xftab_g = mcxIOnew(val, "r")
       ;  break
       ;
 
@@ -128,30 +143,39 @@ static mcxstatus clcfArgHandle
 
 
 static mcxstatus clcfMain
-(  int                  argc
-,  const char*          argv[]
+(  int          argc_unused      cpl__unused
+,  const char*  argv_unused[]    cpl__unused
 )
    {  mclx* mx
    ;  mclv* has_loops
+   ;  mclxIOstreamer streamer = { 0 }
 
    ;  double clcf = 0.0, ccmax = 0.0
    ;  dim i
 
    ;  if (xfabc_g)
-      mx
+      {  if (xftab_g)
+            tab_g = mclTabRead(xftab_g, NULL, EXIT_ON_FAIL)
+         ,  streamer.tab_sym_in = tab_g
+      ;  mx
       =  mclxIOstreamIn
          (  xfabc_g
-         ,  MCLXIO_STREAM_ABC | MCLXIO_STREAM_MIRROR
+         ,     MCLXIO_STREAM_ABC       |  MCLXIO_STREAM_MIRROR
+            |  MCLXIO_STREAM_SYMMETRIC |  MCLXIO_STREAM_GTAB_RESTRICT
          ,  NULL
          ,  mclpMergeMax
-         ,  &tab_g
-         ,  NULL
+         ,  &streamer
          ,  EXIT_ON_FAIL
          )
-   ;  else
-      mx = mclxReadx(xfmx_g, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH)
+      ;  tab_g = streamer.tab_sym_out
+   ;  }
+      else
+      {  mx = mclxReadx(xfmx_g, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH)
+      ;  if (xftab_g)
+         tab_g = mclTabRead(xftab_g, mx->dom_cols, EXIT_ON_FAIL)
+   ;  }
 
-   ;  has_loops   =  mclxColNums(mx, mclvHasLoop, MCL_VECTOR_SPARSE)
+      has_loops   =  mclxColNums(mx, mclvHasLoop, MCL_VECTOR_SPARSE)
    ;  progress_g  =  mcx_progress_g
 
    ;  if (!test_loop_g)
@@ -192,27 +216,24 @@ static mcxstatus clcfMain
 ;  }
 
 
-static mcxDispHook clcfEntry
-=  {  "clcf"
-   ,  "clcf [options]"
-   ,  clcfOptions
-   ,  sizeof(clcfOptions)/sizeof(mcxOptAnchor) - 1
-
-   ,  clcfArgHandle
-   ,  clcfInit
-   ,  clcfMain
-
-   ,  0
-   ,  0
-   ,  MCX_DISP_DEFAULT
-   }
-;
-
-
 mcxDispHook* mcxDispHookClcf
 (  void
 )
-   {  return &clcfEntry
+   {  static mcxDispHook clcfEntry
+   =  {  "clcf"
+      ,  "clcf [options]"
+      ,  clcfOptions
+      ,  sizeof(clcfOptions)/sizeof(mcxOptAnchor) - 1
+
+      ,  clcfArgHandle
+      ,  clcfInit
+      ,  clcfMain
+
+      ,  0
+      ,  0
+      ,  MCX_DISP_MANUAL
+      }
+   ;  return &clcfEntry
 ;  }
 
 

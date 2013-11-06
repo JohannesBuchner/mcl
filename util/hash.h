@@ -151,11 +151,11 @@ void mcxHashGetSettings
  *    You may want to destroy one of the two keys and decide what to do
  *    with the value.
  *
- *    When deleting, the key-value pair is removed from the hash
- *    *AND RETURNED TO CALLER* - you have to decide yourself what to do
- *    with it. If the key was not present, a value of NULL is returned.
- *    You have to fetch the val and key members of the returned mcxKV
- *    object immediately: Subsequent inserts in the hash may reuse it.
+ *    When deleting, the key-value pair is removed from the hash *AND RETURNED
+ *    TO CALLER* - you have to decide yourself what to do with it.  You have to
+ *    fetch the val and key members of the returned mcxKV object immediately:
+ *    Subsequent inserts in the hash may reuse it.  If the key was not present,
+ *    a value of NULL is returned.
  *
  *    When finding, life is simple. NULL if absent, matching kv otherwise.
  *
@@ -254,7 +254,7 @@ void mcxHashFreeScalar
 void** mcxHashKeys
 (  mcxHash*    hash
 ,  dim*        n_entries
-,  int       (*cmp)(const void*, const void*)
+,  int       (*cmp)(const void*, const void*)         /* works on keys */
 ,  mcxbits     opts        /* unused yet */
 )  ;
                            /* Future options: SORT, SORT_DESC */

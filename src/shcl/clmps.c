@@ -27,6 +27,16 @@
 #include "clmps.h"
 #include "clmps.defs.h"
 
+#include "util/io.h"
+#include "util/types.h"
+#include "util/err.h"
+#include "util/rand.h"
+#include "util/opt.h"
+#include "util/opt.h"
+#include "util/minmax.h"
+#include "util/ding.h"
+#include "util/compile.h"
+
 #include "impala/matrix.h"
 #include "impala/cat.h"
 #include "impala/vector.h"
@@ -37,15 +47,6 @@
 #include "impala/app.h"
 
 #include "mcl/interpret.h"
-
-#include "util/io.h"
-#include "util/types.h"
-#include "util/err.h"
-#include "util/rand.h"
-#include "util/opt.h"
-#include "util/opt.h"
-#include "util/minmax.h"
-#include "util/ding.h"
 
 
 static const char *me = "clm ps";
@@ -315,7 +316,7 @@ void write_params
       {  const char* o = line[0]
       ;  const char* p = strstr(o, "usr_")
       ;  while (p)
-         {  fprintf(fp, "%.*s", (p-o), o)
+         {  fprintf(fp, "%.*s", (int) (p-o), o)
          ;  if (1 != sscanf(p+4, "%[a-z]", buf))
             mcxDie(1, me, "parse error")
          ;  kvhook[0] = buf
@@ -537,8 +538,8 @@ static mcxstatus PSArgHandle
 
 
 static mcxstatus PSMain
-(  int                  argc
-,  const char*          argv[]
+(  int         argc_unused    cpl__unused
+,  const char* argv_unused[]  cpl__unused
 )
    {  mclx *mx = NULL, *mt = NULL
    ;  mclv* sums = NULL, *diagv = NULL
@@ -592,6 +593,7 @@ static mcxstatus PSMain
       ;  }
 
          fputc('\n', xfout->fp)
+      ;  fprintf(xfout->fp, "%s\n", usr_defs->str)
 
       ;  for (l=0;val_ofs<val_lim && l<n_bins;l++)
          {  double lo = val_ofs + l*(val_lim-val_ofs)/n_bins
@@ -640,10 +642,9 @@ fprintf(stderr, "%%> level %.2f-%.2f put %d\n", lo, hi, (int) n_put)
             fputc('\n', xfout->fp)
       ;  }
 
+                        /* fixme: document xfstack semantics */
          if (!xfstack)
-         {  fprintf(xfout->fp, "%s", usr_defs->str)
-               
-         ;  for (i=0;i<sums->n_ivps;i++)
+         {  for (i=0;i<sums->n_ivps;i++)
             fprintf
             (  xfout->fp
             ,  "v%ld %.2f n\n"

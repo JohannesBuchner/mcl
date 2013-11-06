@@ -3,6 +3,7 @@
 <!-- Copyright (c) 2008 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta name="keywords" content="manual">
 <style type="text/css">
 body {
 text-align: justify;
@@ -69,9 +70,9 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-5 Jun 2008&nbsp;&nbsp;&nbsp;
+7 Nov 2008&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxsubs.ps"><b>mcxsubs</b></a>
-1.007-grumpy-gryphon, 08-157
+1.008, 08-312
 </p>
 <div style="margin-top:1em">
 <table
@@ -559,12 +560,13 @@ are changed to mirror one or both of the domains of the source matrix.
 The resulting submatrix is replaced by its transpose.
 </div></td></tr><tr><td width=96>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3>cc</td></tr><tr><td width=96>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 The resulting submatrix is made characteristic.
-</div></td></tr><tr><td width=96>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left>weedc</td></tr><tr><td colspan=3 class=left>weedr</td></tr><tr><td colspan=3 class=left>weed</td></tr><tr><td width=96>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=96>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left>scrubc</td></tr><tr><td colspan=3 class=left>scrubr</td></tr><tr><td colspan=3 class=left>scrubg</td></tr><tr><td colspan=3 class=left>scrub</td></tr><tr><td width=96>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Domains are shrunk if there are no corresponding entries in the matrix.
-This is done for both domains if <tt>weed</tt> is specified, for the
-column domain if <tt>weedc</tt> is specified, and for the row domain
-if <tt>weedr</tt> is specified. Thus, with <tt>weedc</tt> columns are removed
+This is done for both domains if <tt>scrub</tt> is specified, for the
+column domain if <tt>scrubc</tt> is specified, and for the row domain
+if <tt>scrubr</tt> is specified. Thus, with <tt>scrubc</tt> columns are removed
 from the domain and the matrix if they are empty.
+With <tt>scrubg</tt> the union of the resulting domains is taken.
 </div></td></tr><tr><td width=96>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left>mapc</td></tr><tr><td colspan=3 class=left>mapr</td></tr><tr><td colspan=3 class=left>map</td></tr><tr><td width=96>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 The appropriate domains are mapped onto consecutive indices starting at zero.
 </div></td></tr>

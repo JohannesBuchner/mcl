@@ -1,5 +1,5 @@
 /*   (C) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -14,6 +14,13 @@
 #include "report.h"
 #include "clmclose.h"
 
+#include "util/io.h"
+#include "util/err.h"
+#include "util/types.h"
+#include "util/opt.h"
+#include "util/minmax.h"
+#include "util/compile.h"
+
 #include "impala/matrix.h"
 #include "impala/vector.h"
 #include "impala/io.h"
@@ -25,12 +32,6 @@
 #include "clew/scan.h"
 #include "clew/clm.h"
 
-#include "util/io.h"
-#include "util/err.h"
-#include "util/types.h"
-#include "util/opt.h"
-#include "util/minmax.h"
-
 
 #include "impala/matrix.h"
 #include "impala/io.h"
@@ -38,6 +39,7 @@
 #include "impala/compose.h"
 #include "impala/ivp.h"
 #include "impala/app.h"
+#include "impala/stream.h"
 #include "taurus/ilist.h"
 #include "taurus/la.h"
 
@@ -51,8 +53,12 @@ static const char* me = "clmclose";
 
 enum
 {  MY_OPT_IMX = CLM_DISP_UNUSED
+,  MY_OPT_ABC
 ,  MY_OPT_DOMAIN
 ,  MY_OPT_OUTPUT
+,  MY_OPT_WRITECC
+,  MY_OPT_WRITECOUNT
+,  MY_OPT_WRITESIZES
 ,  MY_OPT_CCBOUND
 ,  MY_OPT_TABIN
 ,  MY_OPT_MXOUT
@@ -65,17 +71,41 @@ enum
 
 
 mcxOptAnchor closeOptions[] =
-{  {  "-write-cc"
+{  {  "-o"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_OUTPUT
    ,  "<fname>"
-   ,  "output cluster/connected-component file"
+   ,  "output file name"
    }
 ,  {  "-imx"
    ,  MCX_OPT_HASARG | MCX_OPT_REQUIRED
    ,  MY_OPT_IMX
    ,  "<fname>"
    ,  "input matrix file, presumably dumped mcl iterand or dag"
+   }
+,  {  "-abc"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_ABC
+   ,  "<fname>"
+   ,  "specify input using label pairs"
+   }
+,  {  "--write-cc"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_WRITECC
+   ,  NULL
+   ,  "output cluster/connected-component file"
+   }
+,  {  "--write-sizes"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_WRITESIZES
+   ,  NULL
+   ,  "output list of component sizes"
+   }
+,  {  "--write-count"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_WRITECOUNT
+   ,  NULL
+   ,  "output number of components"
    }
 ,  {  "-cc-bound"
    ,  MCX_OPT_HASARG
@@ -135,8 +165,9 @@ mcxOptAnchor closeOptions[] =
 }  ;
 
 
-static mcxIO*  xfclout  =  (void*) -1;
+static mcxIO*  xfout    =  (void*) -1;
 static mcxIO*  xfmx     =  (void*) -1;
+static mcxIO*  xfabc    =  (void*) -1;
 static mcxIO*  xftabin  =  (void*) -1;
 static mcxIO*  xftabout =  (void*) -1;
 static mcxIO*  xftabxout=  (void*) -1;
@@ -146,18 +177,21 @@ static mcxIO*  xfdom    =  (void*) -1;
 static mcxTing* tfting  =  (void*) -1;
 static dim     ccbound_num  =  -1;
 static mcxbool canonical=  -1;
+static mcxmode write_mode = -1;
 
 
 static mcxstatus closeInit
 (  void
 )
-   {  xfclout  =  NULL
+   {  xfout    =  mcxIOnew("-", "w")
+   ;  write_mode = MY_OPT_WRITESIZES
    ;  xfmapout =  NULL
    ;  xfmxout  =  NULL
    ;  xftabout =  NULL
    ;  xftabxout=  NULL
    ;  xftabin  =  NULL
-   ;  xfmx     =  NULL
+   ;  xfmx     =  mcxIOnew("-", "r")
+   ;  xfabc    =  NULL
    ;  xfdom    =  NULL
    ;  tfting   =  NULL
    ;  ccbound_num  =  0
@@ -172,12 +206,32 @@ static mcxstatus closeArgHandle
 )
    {  switch(optid)
       {  case MY_OPT_IMX
-      :  xfmx = mcxIOnew(val, "r")
+      :  mcxIOnewName(xfmx, val)
+      ;  break
+      ;
+
+         case MY_OPT_ABC
+      :  xfabc = mcxIOnew(val, "r")
       ;  break
       ;
 
          case MY_OPT_OUTPUT
-      :  xfclout = mcxIOnew(val, "w")
+      :  mcxIOnewName(xfout, val)
+      ;  break
+      ;
+
+         case MY_OPT_WRITECC
+      :  write_mode = MY_OPT_WRITECC
+      ;  break
+      ;
+
+         case MY_OPT_WRITECOUNT
+      :  write_mode = MY_OPT_WRITECOUNT
+      ;  break
+      ;
+
+         case MY_OPT_WRITESIZES
+      :  write_mode = MY_OPT_WRITESIZES
       ;  break
       ;
 
@@ -243,8 +297,8 @@ static double mclv_check_ccbound
 
 
 static mcxstatus closeMain
-(  int                  argc
-,  const char*          argv[]
+(  int          argc_unused      cpl__unused
+,  const char*  argv_unused[]    cpl__unused
 )
    {  mclx *dom =  NULL, *cc = NULL, *ccbound = NULL
    ;  mclx *mx  =  NULL
@@ -255,13 +309,30 @@ static mcxstatus closeMain
    ;  dim N_start = 0
    ;  dim N_bound = 0
 
-   ;  if (!xfmx)
-      mcxDie(1, me, "-imx argument required")
+   ;  mclxIOstreamer streamer = { 0 }
 
    ;  if ((xftabout || xftabxout) && !xftabin)
-      mcxDie(1, me, "-write-tab currently requires -tab")
+      mcxDie(1, me, "-write-tab currently requires -tab or -abc")
 
-   ;  mx = mclxReadx(xfmx, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH)
+   ;  if (xftabin)
+      streamer.tab_sym_in = mclTabRead(xftabin, NULL, EXIT_ON_FAIL)
+
+   ;  mcxIOopen(xfout, EXIT_ON_FAIL)
+
+   ;  if (xfabc)
+      mx
+      =  mclxIOstreamIn
+         (  xfabc
+         ,     MCLXIO_STREAM_ABC       |  MCLXIO_STREAM_MIRROR
+            |  MCLXIO_STREAM_SYMMETRIC |  MCLXIO_STREAM_GTAB_STRICT
+         ,  NULL
+         ,  mclpMergeMax
+         ,  &streamer
+         ,  EXIT_ON_FAIL
+         )
+   ;  else
+      mx = mclxReadx(xfmx, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH)
+
    ;  dom =    xfdom
             ?  mclxRead(xfdom, EXIT_ON_FAIL)
             :  NULL
@@ -272,9 +343,15 @@ static mcxstatus closeMain
    ;  N_start = N_ROWS(mx)
 
    ;  if (xftabout || xftabxout)
-      tab = mclTabRead(xftabin, mx->dom_cols, EXIT_ON_FAIL)
+      {  if (streamer.tab_sym_out)
+         tab = streamer.tab_sym_out
+      ;  else if (streamer.tab_sym_in)
+         tab = streamer.tab_sym_in
+      ;  else
+         mcxDie(1, me, "no tab read, no tab created")
+   ;  }
 
-   ;  if (tfting)
+      if (tfting)
       {  mclpAR* tfar = mclpTFparse(NULL, tfting)
       ;  if (!tfar)
          mcxDie(1, me, "errors in tf-spec")
@@ -330,11 +407,10 @@ static mcxstatus closeMain
          mclxWrite(mx, xfmxout, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
    ;  }
 
-
       if (xftabxout)
       {  mclv* deselect = mcldMinus(tab->domain, ccbound->dom_rows, NULL)
       ;  if (canonical)
-         NOTHING                 /* fixme: DOIT */
+         mcxErr(me, "--canonical and writing tab not yet implemented. beerware.")
       ;  else
          mclTabWrite(tab, xftabxout, deselect, RETURN_ON_FAIL)
       ;  mclvFree(&deselect)
@@ -343,7 +419,6 @@ static mcxstatus closeMain
 
       if (xftabout)
       {  mclTab* tabsel = mclTabSelect(tab, ccbound->dom_rows), *tabout
-      ;  mclTabFree(&tab)
       ;  if (map)
             tabout = mclTabMap(tabsel, map)
          ,  mclTabFree(&tabsel)
@@ -353,26 +428,57 @@ static mcxstatus closeMain
          mcxDie(1, me, "no tab, baton")
       ;  mclTabWrite(tabout, xftabout, NULL, RETURN_ON_FAIL)
 
-      ;  mclTabFree(&tabsel)
       ;  mclTabFree(&tabout)
    ;  }
 
-      if (xfclout)
-      {  if (map)
-         {  if (mclxMapRows(ccbound, map))
-            mcxDie(1, me, "cannot map rows")
+      if (map)
+      {  if (mclxMapRows(ccbound, map))
+         mcxDie(1, me, "cannot map rows")
 
-         ;  if (mclxMapCols(ccbound, NULL))
-            mcxDie(1, me, "cannot map cols")
+      ;  if (mclxMapCols(ccbound, NULL))
+         mcxDie(1, me, "cannot map cols")
+   ;  }
+
+      if (write_mode == MY_OPT_WRITECC)
+      {  if (streamer.tab_sym_out)
+         {  mclxIOdumper dumper
+         ;  mclxIOdumpSet(&dumper, MCLX_DUMP_LINES | MCLX_DUMP_NOLEAD, NULL, NULL, NULL)
+         ;  mclxIOdump
+            (  ccbound
+            ,  xfout
+            ,  &dumper
+            ,  NULL
+            ,  streamer.tab_sym_out
+            ,  MCLXIO_VALUE_NONE
+            ,  EXIT_ON_FAIL
+            )
       ;  }
-         mclxaWrite(ccbound, xfclout, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
+         else
+         mclxaWrite(ccbound, xfout, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
+   ;  }
+
+      else if (write_mode == MY_OPT_WRITECOUNT)
+      fprintf(xfout->fp, "%lu\n", (ulong) N_COLS(ccbound))
+
+   ;  else if (write_mode == MY_OPT_WRITESIZES)
+      {  dim j 
+      ;  for (j=0;j<N_COLS(ccbound);j++)
+         {  if (j)
+            fprintf(xfout->fp, " %lu", (ulong) ccbound->cols[j].n_ivps)
+         ;  else
+            fprintf(xfout->fp, "%lu", (ulong) ccbound->cols[j].n_ivps)
+      ;  }
+         fputc('\n', xfout->fp)
    ;  }
 
       if (xfmapout && map)
       mclxaWrite(map, xfmapout, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
 
    ;  mcxIOfree(&xfmx)
-   ;  mcxIOfree(&xfclout)
+   ;  mcxIOfree(&xfabc)
+   ;  mcxIOfree(&xfout)
+
+   ;  mclTabFree(&(streamer.tab_sym_out))
 
    ;  mclxFree(&mx)
    ;  mclxFree(&cc)
@@ -381,25 +487,22 @@ static mcxstatus closeMain
 ;  }
 
 
-static mcxDispHook closeEntry
-=  {  "close"
-   ,  "close [options] -imx <mx file>"
-   ,  closeOptions
-   ,  sizeof(closeOptions)/sizeof(mcxOptAnchor) - 1
-   ,  closeArgHandle
-   ,  closeInit
-   ,  closeMain
-   ,  0
-   ,  0
-   ,  MCX_DISP_DEFAULT
-   }
-;
-
-
 mcxDispHook* mcxDispHookClose
 (  void
 )
-   {  return &closeEntry
+   {  static mcxDispHook closeEntry
+   =  {  "close"
+      ,  "close [options] -imx <mx file>"
+      ,  closeOptions
+      ,  sizeof(closeOptions)/sizeof(mcxOptAnchor) - 1
+      ,  closeArgHandle
+      ,  closeInit
+      ,  closeMain
+      ,  0
+      ,  0
+      ,  MCX_DISP_MANUAL
+      }
+   ;  return &closeEntry
 ;  }
 
 

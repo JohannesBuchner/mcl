@@ -1,5 +1,5 @@
 .\" Copyright (c) 2008 Stijn van Dongen
-.TH "mcxsubs" 1 "5 Jun 2008" "mcxsubs 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
+.TH "mcxsubs" 1 "7 Nov 2008" "mcxsubs 1\&.008, 08-312" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -555,23 +555,27 @@ The resulting submatrix is replaced by its transpose\&.
 The resulting submatrix is made characteristic\&.
 .in -7m
 
-.ZI 7m "weedc"
+.ZI 7m "scrubc"
 \&
 'in -7m
-.ZI 7m "weedr"
+.ZI 7m "scrubr"
 \&
 'in -7m
-.ZI 7m "weed"
+.ZI 7m "scrubg"
+\&
+'in -7m
+.ZI 7m "scrub"
 \&
 'in -7m
 'in +7m
 \&
 .br
 Domains are shrunk if there are no corresponding entries in the matrix\&.
-This is done for both domains if \fCweed\fP is specified, for the
-column domain if \fCweedc\fP is specified, and for the row domain
-if \fCweedr\fP is specified\&. Thus, with \fCweedc\fP columns are removed
+This is done for both domains if \fCscrub\fP is specified, for the
+column domain if \fCscrubc\fP is specified, and for the row domain
+if \fCscrubr\fP is specified\&. Thus, with \fCscrubc\fP columns are removed
 from the domain and the matrix if they are empty\&.
+With \fCscrubg\fP the union of the resulting domains is taken\&.
 .in -7m
 
 .ZI 7m "mapc"

@@ -304,6 +304,11 @@ int main
       (!(opts = mcxOptParse(options, (char**) argv, argc, 1, 0, &parseStatus)))
       exit(0)
 
+   ;  mcxLogLevel =
+      MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
+   ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
+   ;  mclx_app_init(stderr)
+
    ;  for (opt=opts;opt->anch;opt++)
       {  mcxOptAnchor* anch = opt->anch
 
@@ -499,7 +504,7 @@ int main
          ;  yro   =  edge_y - offsets[vyo]
 
                            /* Offset computation gone haywire */
-         ;  if (xro >= vecxl->n_ivps || yro >= vecyl->n_ivps)
+         ;  if (xro >= vecxl->n_ivps || yro >= vecyl->n_ivps)     /* note: mixed sign comparison */
             mcxDie(1, me, "paradox 1 in %ld or %ld", xl, yl)
 
          ;  xr = vecxl->ivps[xro].idx
@@ -561,10 +566,10 @@ int main
                          * vecyr <-> yl   becomes vecyr <-> xr
                         */
                ;  if
-                  (  mclvReplace(vecxl, xro, yl, xrval)
-                  || mclvReplace(vecyl, yro, xl, xrval)
-                  || mclvReplace(vecxr, xlo, yr, ylval)
-                  || mclvReplace(vecyr, ylo, xr, ylval)
+                  (  mclvReplaceIdx(vecxl, xro, yl, xrval)
+                  || mclvReplaceIdx(vecyl, yro, xl, xrval)
+                  || mclvReplaceIdx(vecxr, xlo, yr, ylval)
+                  || mclvReplaceIdx(vecyr, ylo, xr, ylval)
                   )
                   mcxDie(1, me, "parallel replacement failure\n")
 #if DEBUG
@@ -579,10 +584,10 @@ int main
                          * vecyr -> yl   becomes vecyr <-> xl
                         */
                   if
-                  (  mclvReplace(vecxl, xro, yr, xrval)
-                  || mclvReplace(vecyr, ylo, xl, xlval)
-                  || mclvReplace(vecxr, xlo, yl, yrval)
-                  || mclvReplace(vecyl, yro, xr, yrval)
+                  (  mclvReplaceIdx(vecxl, xro, yr, xrval)
+                  || mclvReplaceIdx(vecyr, ylo, xl, xlval)
+                  || mclvReplaceIdx(vecxr, xlo, yl, yrval)
+                  || mclvReplaceIdx(vecyl, yro, xr, yrval)
                   )
                   mcxDie(1, me, "cross replacement failure\n")
 #if DEBUG
@@ -621,7 +626,7 @@ int main
       ;  vecx = mx->cols+xo;
       ;  yo = e - offsets[xo]
 
-      ;  if (yo >= vecx->n_ivps)
+      ;  if (yo >= vecx->n_ivps)    /*  note: mixed sign comparison */
          mcxDie
          (  1
          ,  me

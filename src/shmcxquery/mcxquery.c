@@ -11,6 +11,16 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#include "util/types.h"
+#include "util/err.h"
+#include "util/ting.h"
+#include "util/ding.h"
+#include "util/tok.h"
+#include "util/opt.h"
+#include "util/array.h"
+#include "util/rand.h"
+#include "util/compile.h"
+
 #include "impala/matrix.h"
 #include "impala/vector.h"
 #include "impala/ivp.h"
@@ -20,22 +30,13 @@
 #include "impala/tab.h"
 #include "mcl/interpret.h"
 
-#include "util/types.h"
-#include "util/err.h"
-#include "util/ting.h"
-#include "util/ding.h"
-#include "util/tok.h"
-#include "util/opt.h"
-#include "util/array.h"
-#include "util/rand.h"
-
 #include "taurus/parse.h"
 #include "taurus/la.h"
 
 
 int main
-(  int                  argc
-,  const char*          argv[]
+(  int                  argc_unused      cpl__unused
+,  const char*          argv_unused[]    cpl__unused
 )  
    {  return 0
 ;  }

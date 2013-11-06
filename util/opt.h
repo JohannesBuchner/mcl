@@ -87,7 +87,6 @@ typedef struct mcxOptAnchor
 ;  int            id             /* ID                                  */
 ;  char*          descr_arg      /* "<fname>" or "<num>", NULL ok       */
 ;  char*          descr_usage    /* NULL allowed                        */
-;  mcxbits        usr_bits       /* not used here                       */
 ;
 }  mcxOptAnchor   ;
 
@@ -274,6 +273,7 @@ mcxTing* mcxOptArgLine
 
 #define  MCX_DISP_DEFAULT  0
 #define  MCX_DISP_HIDDEN   1
+#define  MCX_DISP_MANUAL   2
 
 typedef struct
 {  const char*    name

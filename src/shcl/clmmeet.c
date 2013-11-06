@@ -156,25 +156,21 @@ static mcxstatus meetMain
 ;  }
 
 
-
-static mcxDispHook meetEntry
-=  {  "meet"
-   ,  "meet [options] <cl file>+"
-   ,  meetOptions
-   ,  sizeof(meetOptions)/sizeof(mcxOptAnchor) - 1
-   ,  meetArgHandle
-   ,  meetInit
-   ,  meetMain
-   ,  1
-   ,  -1
-   ,  MCX_DISP_DEFAULT
-   }
-;
-
-
 mcxDispHook* mcxDispHookMeet
 (  void
 )
-   {  return &meetEntry
+   {  static mcxDispHook meetEntry
+   =  {  "meet"
+      ,  "meet [options] <cl file>+"
+      ,  meetOptions
+      ,  sizeof(meetOptions)/sizeof(mcxOptAnchor) - 1
+      ,  meetArgHandle
+      ,  meetInit
+      ,  meetMain
+      ,  1
+      ,  -1
+      ,  MCX_DISP_MANUAL
+      }
+   ;  return &meetEntry
 ;  }
 

@@ -615,11 +615,11 @@ double mclxLoopCBmax
 /*************************************/
 
 
-#define MCLX_WEED_COLS 1
-#define MCLX_WEED_ROWS 2
-#define MCLX_WEED_GRAPH 4
+#define MCLX_SCRUB_COLS 1
+#define MCLX_SCRUB_ROWS 2
+#define MCLX_SCRUB_GRAPH 4
 
-void mclxWeed
+void mclxScrub
 (  mclx* mx
 ,  mcxbits bits
 )  ;
@@ -660,6 +660,14 @@ enum
  *    mclgUnionv does not update scratch for the indices in dom_cols.
  *    An example is clew/clm.c/clmComponents. The initial annotation,
  *    if needed, is provided by mclgUnionvInitNode or mclgUnionvInitList
+ *
+ * NOTE --- added mclgUnionv2 variants, that pass in a scratch area
+ *    of their own (so that mclgUnionv2 can be used in a thread-safe way).
+ *    This means the interface looks a bit kludgy by virtue of duplication. 
+ *    This observation may lead to more changes, possibly mclgUnionv2
+ *    will take over entirely (at the moment, mclgUnionv dispatches
+ *    to mclgUnionv2).
+ *
 */
 
 #define MCLG_UNIONV_SENTINEL 1.5
@@ -682,6 +690,28 @@ mclv* mclgUnionv
 ,  const mclv* restrict       /*  only consider row entries in restrict */
 ,  mcxenum SCRATCH_STATUS     /*  if ready also returned ready          */
 ,  mclv* dst
+)  ;
+
+
+#define  mclgUnionvInitNode2(vec, node) \
+         mclvInsertIdx(vec, node, MCLG_UNIONV_SENTINEL)
+
+#define  mclgUnionvInitList2(vec, list) \
+         mclvUpdateMeet(vec, list, flt1p5)
+
+#define  mclgUnionvResetList2(vec, list) \
+         mclvUpdateMeet(vec, list, flt1p0)
+
+#define  mclgUnionvReset2(vec) \
+         mclvMakeCharacteristic(vec)
+
+mclv* mclgUnionv2             /*  This one has a const matrix argument, additional scratch */
+(  const mclx* mx
+,  const mclv* dom_cols
+,  const mclv* restrict
+,  mcxenum SCRATCH_STATUS
+,  mclv* dst
+,  mclv* scratch
 )  ;
 
 

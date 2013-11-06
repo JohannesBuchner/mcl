@@ -6,9 +6,9 @@
 
 set -x
 
-exit
+# exit
 
-TAG=1.007-grumpy-gryphon
+TAG=1.008
 
 VERSION=`date '+%y-%j'`
 MONTHDAY=$(date '+%e')

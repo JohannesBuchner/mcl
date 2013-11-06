@@ -20,6 +20,11 @@
 #include "clm.h"
 #include "clmmate.h"
 
+#include "util/types.h"
+#include "util/err.h"
+#include "util/opt.h"
+#include "util/compile.h"
+
 #include "impala/matrix.h"
 #include "impala/io.h"
 #include "impala/iface.h"
@@ -30,10 +35,6 @@
 #include "taurus/la.h"
 
 #include "clew/clm.h"
-
-#include "util/types.h"
-#include "util/err.h"
-#include "util/opt.h"
 
 static const char* me = "clmmate";
 
@@ -111,8 +112,8 @@ static mcxstatus mateArgHandle
 
 
 static mcxstatus mateMain
-(  int                  argc
-,  const char*          argv[]
+(  int         argc_unused    cpl__unused
+,  const char* argv[]
 )
    {  mcxIO* xfx, *xfy
    ;  mclx* mx, *my, *meet, *teem, *myt
@@ -195,26 +196,22 @@ static mcxstatus mateMain
 ;  }
 
 
-
-static mcxDispHook mateEntry
-=  {  "mate"
-   ,  "mate [options] <cl file> <cl file>"
-   ,  mateOptions
-   ,  sizeof(mateOptions)/sizeof(mcxOptAnchor) - 1
-   ,  mateArgHandle
-   ,  mateInit
-   ,  mateMain
-   ,  2
-   ,  2
-   ,  MCX_DISP_DEFAULT
-   }
-;
-
-
 mcxDispHook* mcxDispHookMate
 (  void
 )
-   {  return &mateEntry
+   {  static mcxDispHook mateEntry
+   =  {  "mate"
+      ,  "mate [options] <cl file> <cl file>"
+      ,  mateOptions
+      ,  sizeof(mateOptions)/sizeof(mcxOptAnchor) - 1
+      ,  mateArgHandle
+      ,  mateInit
+      ,  mateMain
+      ,  2
+      ,  2
+      ,  MCX_DISP_MANUAL
+      }
+   ;  return &mateEntry
 ;  }
 
 

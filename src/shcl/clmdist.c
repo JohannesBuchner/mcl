@@ -275,9 +275,8 @@ static mcxstatus distMain
       {  mcxIO *xfcl    =  mcxIOnew(argv[i], "r")
       ;  mclx*   cl     =  mclxRead(xfcl, EXIT_ON_FAIL)
       ;  dim o, m, e, err
-      ;  if ((err = clmEnstrict(cl, &o, &m, &e, ENSTRICT_TRULY)))
-            report_partition("clm dist/vol", cl, xfcl->fn, o, m, e)
-         ,  exit(1)
+      ;  if ((err = clmEnstrict(cl, &o, &m, &e, 0)))
+         report_partition("clm dist/vol", cl, xfcl->fn, o, m, e)
       ;  if 
          (  n_clusterings
          && !  mcldEquate
@@ -445,47 +444,41 @@ static mcxstatus distMain
 ;  }
 
 
-static mcxDispHook volEntry
-=  {  "vol"
-   ,  "vol [options] <cl file>+"
-   ,  volOptions
-   ,  sizeof(volOptions)/sizeof(mcxOptAnchor) - 1
-   ,  volArgHandle
-   ,  volInit
-   ,  distMain
-   ,  1
-   ,  -1
-   ,  MCX_DISP_DEFAULT
-   }
-;
-
-
-static mcxDispHook distEntry
-=  {  "dist"
-   ,  "dist [options] <cl file>+"
-   ,  distOptions
-   ,  sizeof(distOptions)/sizeof(mcxOptAnchor) - 1
-   ,  distArgHandle
-   ,  distInit
-   ,  distMain
-   ,  0
-   ,  -1
-   ,  MCX_DISP_DEFAULT
-   }
-;
-
-
 mcxDispHook* mcxDispHookDist
 (  void
 )
-   {  return &distEntry
+   {  static mcxDispHook distEntry
+   =  {  "dist"
+      ,  "dist [options] <cl file>+"
+      ,  distOptions
+      ,  sizeof(distOptions)/sizeof(mcxOptAnchor) - 1
+      ,  distArgHandle
+      ,  distInit
+      ,  distMain
+      ,  0
+      ,  -1
+      ,  MCX_DISP_MANUAL
+      }
+   ;  return &distEntry
 ;  }
 
 
 mcxDispHook* mcxDispHookVol
 (  void
 )
-   {  return &volEntry
+   {  static mcxDispHook volEntry
+   =  {  "vol"
+      ,  "vol [options] <cl file>+"
+      ,  volOptions
+      ,  sizeof(volOptions)/sizeof(mcxOptAnchor) - 1
+      ,  volArgHandle
+      ,  volInit
+      ,  distMain
+      ,  1
+      ,  -1
+      ,  MCX_DISP_MANUAL
+      }
+   ;  return &volEntry
 ;  }
 
 

@@ -3,6 +3,7 @@
 <!-- Copyright (c) 2008 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta name="keywords" content="manual">
 <style type="text/css">
 body {
 text-align: justify;
@@ -69,9 +70,9 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-5 Jun 2008&nbsp;&nbsp;&nbsp;
+7 Nov 2008&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxassemble.ps"><b>mcxassemble</b></a>
-1.007-grumpy-gryphon, 08-157
+1.008, 08-312
 </p>
 <div style="margin-top:1em">
 <table
@@ -407,7 +408,7 @@ spec to the primary matrix. The third applies its transformation
 step to the symmetrified matrix.
 Refer to <a class="local" href="mcxio.html">mcxio</a> for documentation on the transformation
 spec syntax.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-rv"></a><b>-rv</b> add|max|mul|left|right (<i>action for repeated vectors</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-re"></a><b>-re</b> add|max|mul|left|right (<i>action for repeated entries</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-ri"></a><b>-ri</b> add|max|mul (<i>adding mirror image</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-r"></a><b>-r</b> add|max|mul|left|right (<i>same for entries and vectors</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-rv"></a><b>-rv</b> add|max|min|mul|left|right (<i>action for repeated vectors</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-re"></a><b>-re</b> add|max|min|mul|left|right (<i>action for repeated entries</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-ri"></a><b>-ri</b> add|max|min|mul (<i>adding mirror image</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-r"></a><b>-r</b> add|max|min|mul|left|right (<i>same for entries and vectors</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Merge options, dictating the behaviour when repeated entries are
 found. A distinction is made between entries that are repeated within
@@ -424,6 +425,10 @@ first. It is applied <i>after</i> the column has its entries sorted, so the
 <tt>left</tt> and <tt>right</tt> options are not garantueed to follow the order found
 in the raw input. The <b>rv</b> option, for repeats over different columns,
 is carried out second.
+</p>
+<p class="default L50" style="margin-bottom:0">
+The option <b>-ri</b>&nbsp;<b>min</b> can assist in implementing
+a (top-list) best reciprocal hit criterion.
 </p>
 <p class="default L50" style="margin-bottom:0"><b>Examples</b><br>
 The column

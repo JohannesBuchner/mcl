@@ -1,5 +1,5 @@
 .\" Copyright (c) 2008 Stijn van Dongen
-.TH "mcl" 1 "5 Jun 2008" "mcl 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
+.TH "mcl" 1 "7 Nov 2008" "mcl 1\&.008, 08-312" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -200,6 +200,7 @@ for those who are interested, so it has many options\&.
 .br
 \fB[-I\fP <num> (\fIinflation\fP)\fB]\fP
 \fB[-o\fP str (\fIfname\fP)\fB]\fP
+\fB[-od\fP str (\fIdirectory\fP)\fB]\fP
 \fB[-scheme\fP k (\fIresource scheme\fP)\fB]\fP
 \fB[--shadow-vl\fP (\fIshadow distant nodes\fP)\fB]\fP
 \fB[-c\fP <num> (\fIreweight loops\fP)\fB]\fP
@@ -534,6 +535,15 @@ automatic naming constructions employed by \fBmcl\fP if the \fB-o\fP option is
 not used\&.
 .in -3m
 
+.ZI 3m "\fB-od\fP <dir> (\fIdirectory\fP)"
+\&
+.br
+Specify the directory where to output clusterings\&. This is useful
+when you let mcl automatically construct the output file name,
+but want the clustering in a directory different from the
+one where the input graph resides\&.
+.in -3m
+
 .ZI 3m "\fB-shadow\fP mode (\fIapply shadowing\fP)"
 \&
 'in -3m
@@ -856,7 +866,7 @@ denser cluster into which they would fit beautifully\&. This is fully in line
 with the flow characteristics of mcl but a largely unwanted phenomenon\&. The
 postprocessing step was added as a remedy for this problem should it
 manifest itself\&. It is based on the efficiency criterion described in
-[1] and [4] (there called \fIcoverage\fP)\&.
+[1] and [5] (there called \fIcoverage\fP)\&.
 
 With \fB-lint-l\fP a node is tentatively reallocated if this will improve
 its effiency, and if it is initially in a cluster of size at most \fInuml\fP\&.
@@ -1950,7 +1960,7 @@ because the input matrix could not be parsed succesfully\&.
 The mcl matrix format is described in the \fBmcxio(5)\fP section\&.
 .SH BUGS
 
-No known bugs at this time\&. Please send bug reports to mcl-devel@micans\&.org\&.
+No known bugs at this time\&.
 .SH AUTHOR
 
 Stijn van Dongen\&.
@@ -2035,11 +2045,6 @@ and the utilities in the mcl family\&.
 in the mcl distribution and can be found online at
 http://micans\&.org/mcl\&.
 
-\fBmcl\fP development is discussed on \fCmcl-devel@lists\&.micans\&.org\fP,
-(subscribtion) information is at
-https://lists\&.micans\&.org:446/listinfo/mcl-devel , this list is
-archived at https://lists\&.micans\&.org:446/pipermail/mcl-devel/\&.
-
 mcl\&'s home at http://micans\&.org/mcl/\&.
 .SH REFERENCES
 
@@ -2050,20 +2055,25 @@ PhD thesis, University of Utrecht, May 2000\&.
 http://www\&.library\&.uu\&.nl/digiarchief/dip/diss/1895620/inhoud\&.htm
 
 [2]
+Stijn van Dongen, \fIGraph Clustering Via a Discrete Uncoupling Process\fP,
+SIAM Journal on Matrix Analysis and Applications, 30(1):121-141, 2008\&.
+http://link\&.aip\&.org/link/?SJMAEL/30/121/1
+
+[3]
 Stijn van Dongen\&. \fIA cluster algorithm for graphs\fP\&.
 Technical Report INS-R0010, National Research Institute for Mathematics and
 Computer Science in the Netherlands, Amsterdam, May 2000\&.
 .br
 http://www\&.cwi\&.nl/ftp/CWIreports/INS/INS-R0010\&.ps\&.Z
 
-[3]
+[4]
 Stijn van Dongen\&. \fIA stochastic uncoupling process for graphs\fP\&.
 Technical Report INS-R0011, National Research Institute for Mathematics and
 Computer Science in the Netherlands, Amsterdam, May 2000\&.
 .br
 http://www\&.cwi\&.nl/ftp/CWIreports/INS/INS-R0011\&.ps\&.Z
 
-[4]
+[5]
 Stijn van Dongen\&. \fIPerformance criteria for graph clustering and Markov
 cluster experiments\fP\&. Technical Report INS-R0012, National Research
 Institute for Mathematics and Computer Science in the Netherlands,
@@ -2071,7 +2081,7 @@ Amsterdam, May 2000\&.
 .br
 http://www\&.cwi\&.nl/ftp/CWIreports/INS/INS-R0012\&.ps\&.Z
 
-[5]
+[6]
 Enright A\&.J\&., Van Dongen S\&., Ouzounis C\&.A\&.
 \fIAn efficient algorithm for large-scale detection of protein families\fP,
 Nucleic Acids Research 30(7):1575-1584 (2002)\&.

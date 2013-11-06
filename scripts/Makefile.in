@@ -144,7 +144,7 @@ target_alias = @target_alias@
 INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)
 LDADD = ../mcl/libmcl.a ../clew/libclew.a ../taurus/libtaurus.a ../gryphon/libgryphon.a ../impala/libimpala.a ../../util/libutil.a
 this = clxcoarse minimcl mlm-fifofum mlm-summary mlm-quilt \
-			piclo pichi clmsnare mlm-analyze docme
+			piclo pichi clmsnare mlm-analyze docme mcxplotlines.R
 
 noinst_SCRIPTS = clxdo tree3.pl
 EXTRA_DIST = $(this) $(noinst_SCRIPTS)

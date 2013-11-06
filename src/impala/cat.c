@@ -19,6 +19,7 @@
 
 #include "cat.h"
 #include "util/err.h"
+#include "util/compile.h"
 
 #include "io.h"
 #include "compose.h"
@@ -157,7 +158,7 @@ mcxstatus mclxCatUnconify
 mcxstatus mclxCBdomTree
 (  mclx* left
 ,  mclx* right
-,  void* cb_data
+,  void* cb_data_unused cpl__unused
 )
    {  return
          MCLD_EQUAL(left->dom_cols, right->dom_rows)
@@ -169,7 +170,7 @@ mcxstatus mclxCBdomTree
 mcxstatus mclxCBdomStack
 (  mclx* left
 ,  mclx* right
-,  void* cb_data
+,  void* cb_data_unused cpl__unused
 )
    {  return
          mcldEquate(left->dom_rows, right->dom_rows, MCLD_EQT_EQUAL)
@@ -278,8 +279,6 @@ static void compute_branch_length
 
    ;  usrvec->ivps[v].val = value
 
-;if(0)fprintf(stdout, "set level %d id %d to %.3f\n", lev, v, usrvec->ivps[v].val)
-
    ;  if (lev > 0)
       for (i=0;i<vec->n_ivps;i++)
       compute_branch_length(cat, lev-1, vec->ivps[i].idx, new_value)
@@ -301,8 +300,6 @@ static void compute_trivial_count
    ;  dim i
 
    ;  vec->val = value
-
-;if(0)fprintf(stdout, "set level %d id %d to %.3f\n", lev, v, vec->val)
 
    ;  if (lev > 0)
       for (i=0;i<vec->n_ivps;i++)
@@ -387,9 +384,10 @@ mcxTing* mclxCatNewick
       ;  pivot = nklast[j].node
 
       ;  if (!(bits & MCLX_NEWICK_NOINDENT))
-         mcxTingPrint(pivot, "%s", prefix+1+((int)vec->val))
+         mcxTingPrint(pivot, "%s", prefix+1+((int)vec->val))      /* apparently denotes depth .. */
 
-      ;  mcxTingNAppend(pivot, "(", 1)
+      ;  if (vec->n_ivps > 1 || !(bits & MCLX_NEWICK_NOPTHS))
+         mcxTingNAppend(pivot, "(", 1)
 
       ;  if (tab)
          mcxTingPrintAfter(pivot, "%s", tab->labels[vec->ivps[0].idx])
@@ -403,6 +401,7 @@ mcxTing* mclxCatNewick
             mcxTingPrintAfter(pivot, ",%ld", (long) vec->ivps[k].idx)
       ;  }
 
+         if (vec->n_ivps > 1 || !(bits & MCLX_NEWICK_NOPTHS))
          mcxTingNAppend(pivot, ")", 1)
 
       ;  if (!(bits & MCLX_NEWICK_NONUM))
@@ -676,7 +675,7 @@ mcxstatus mclxCatRead
       mclxFree(&mx)
 
    ;  if (err)
-      mcxErr(me, "%s at level %d", err, st->n_level)
+      mcxErr(me, "%s at level %lu", err, (ulong) st->n_level)
 
    ;  if (!status && stack_or_cone)
       {  if (have_stack && (bits & MCLX_PRODUCE_DOMTREE))
@@ -858,11 +857,17 @@ dim  clmEnstrict
       {  mclIvp*  ivp      =  (cl->cols+c)->ivps
       ;  mclIvp*  ivpmax   =  ivp + (cl->cols+c)->n_ivps
       ;  dim      olap     =  0
-      ;  int      l        =  -1
+      ;  long     l        =  -1
 
       ;  while(ivp< ivpmax)
          {  if ((l = mclvGetIvpOffset(cl->dom_rows, ivp->idx, l)) < 0)
-               mcxErr(me, "index <%ld> not in domain", (long) ivp->idx)
+               mcxErr
+               (  me
+               ,  "index <%ld> rank <%ld> not in domain for cluster <%ld>"
+               ,  (long) ivp->idx
+               ,  (long) (ivp - cl->cols[c].ivps)
+               ,  (long) cl->cols[c].vid
+               )
             ,  mcxExit(1)     /* fixme do not exit; create clustering */
 
                                          /* already seen (overlap) */
@@ -901,7 +906,6 @@ dim  clmEnstrict
                ,  1.0
                )
             ;  cloldsize++ 
-            ;  mcxErr(me, "missing entry %ld", (long) cl->dom_rows->ivps[z].idx)
          ;  }
          }
      /*  NOW N_COLS(cl) has changed */

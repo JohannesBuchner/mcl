@@ -142,7 +142,7 @@ target_alias = @target_alias@
 INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)
 LDADD = ../mcl/libmcl.a ../clew/libclew.a ../taurus/libtaurus.a ../gryphon/libgryphon.a ../impala/libimpala.a ../../util/libutil.a
 this = blastfile blastfile9
-extra_DIST = $(this)
+EXTRA_DIST = $(this)
 all: all-am
 
 .SUFFIXES:

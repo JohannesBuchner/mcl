@@ -23,6 +23,7 @@
    \mcx{diameter}
    \synoptopt{-abc}{<fname>}{specify label input}
    \synoptopt{-imx}{<fname>}{specify matrix input}
+   \synoptopt{-tab}{<fname>}{use tab file}
    \synoptopt{--list}{list eccentricity for all nodes}
    \stdsynopt
    }
@@ -31,7 +32,7 @@
 \par{
    \mcx{diameter} computes the diameter of a graph.  The input graph should be
    symmetric.  Results will be unpredictable for directed graphs.
-   For label input this is not important as \mcx{diameter} will create
+   For label input this is irrelevant as \mcx{diameter} will create
    a symmetric graph from the input.}
 
 \par{
@@ -40,7 +41,7 @@
    \genopt{-abc} option.
    Refer to \mysib{mcxio} for a description of these two input formats.
    By default \mcx{diameter} reads from STDIN \it{and expects matrix format}.
-   To specify label  input from STDIN use \useopt{-abc}{-}.}
+   To specify label input from STDIN use \useopt{-abc}{-}.}
 
 
 \sec{options}{OPTIONS}
@@ -54,6 +55,16 @@
 \item{\defopt{-imx}{<fname>}{input matrix}}
 \car{
    The file name for input that is in mcl native matrix format.}
+
+\item{\defopt{-tab}{<fname>}{use tab file}}
+\car{
+   This option causes the output to be printed with the labels
+   found in the tab file.
+   With \genopt{-abc} this option will, additionally, construct
+   a graph only on the labels found in the tab file.
+   If this option is used in conjunction with \genopt{-imx} the
+   tab domain and the matrix domain are required to be identical.
+   }
 
 \item{\defopt{--list}{list eccentricity for all nodes}}
 \car{

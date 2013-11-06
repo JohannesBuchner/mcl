@@ -45,10 +45,10 @@
    The manual pages for all the utilities that come with \mcl;
    refer to \mysib{mclfamily} for an overview.}
 
-\par{
-   mcl development is discussed on mcl-devel@micans.org,
-   list information is at
-   \httpref{https://lists.micans.org/listinfo/mcl-devel}.}
+\: \par{
+\:    mcl development is discussed on mcl-devel@micans.org,
+\:    list information is at
+\:    \httpref{https://lists.micans.org/listinfo/mcl-devel}.}
 
 \par{
    See the \secref{references} Section for publications detailing the
@@ -189,9 +189,9 @@ is it labeled 'Markov cluster' anyway?}
 \par{
    This MCL implementation should also build successfully on Mac OS X.}
 
-\par{
-   If you have further questions or news about this issue, contact
-   mcl-devel <at> lists <dot> micans <dot> org.}
+\: \par{
+\:    If you have further questions or news about this issue, contact
+\:    mcl-devel <at> lists <dot> micans <dot> org.}
 
 \faq{versioning}{How does mcl's versioning scheme work?}
 \car{

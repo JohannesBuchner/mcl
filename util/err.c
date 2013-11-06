@@ -12,9 +12,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
 
 #include "err.h"
 #include "types.h"
+#include "compile.h"
 
 /* TODO unify code.
 */
@@ -277,11 +279,14 @@ void mcxLog
 )
    {  FILE* fp = mcxLogFILE ? mcxLogFILE : stderr  
    ;  va_list  args
+   ;  mcxbool ok = FALSE
 
-   ;  if (!mcxLogLevel || mcxLogLevel & MCX_LOG_NULL)
+   ;  if (!mcxLogLevel || (mcxLogLevel & MCX_LOG_NULL))
       return
 
-   ;  if (mcxLogGet(level_programmer))
+   ;  ok = mcxLogGet(level_programmer)
+
+   ;  if (ok)
       {  va_start(args, fmt)
       ;  mcx_write_f(fp, tag, fmt, &args)
       ;  va_end(args)
@@ -333,12 +338,12 @@ static int mcx_level_setnum
 ;  }
 
 
-volatile int mcxLogSigGuard = 0;
+volatile sig_atomic_t mcxLogSigGuard = 0;
 
 void mcxLogSig
 (  int sig
 )
-   {  mcxLogSigGuard = 1;
+   {  mcxLogSigGuard = sig
 ;  }
 
 

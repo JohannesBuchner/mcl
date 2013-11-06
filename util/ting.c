@@ -12,6 +12,7 @@
 #include <stdarg.h>
 #include <math.h>
 
+#include "../config.h"
 #include "ting.h"
 #include "ding.h"
 #include "minmax.h"
@@ -112,34 +113,66 @@ mcxTing* mcxTingEnsure
       return ting
 ;  }
 
+#ifndef HAVE_VA_COPY
+#define HAVE_VA_COPY 1
+#endif
 
 static mcxTing*  mcx_ting_print
 (  mcxTing*    dst
 ,  const char* fmt
 ,  va_list     *args
 )
-#define PRINT_BUF_SIZE 200
+#define PRINT_BUF_SIZE 512
    {  char buf[PRINT_BUF_SIZE], *src
    ;  mcxTing* txtbuf = NULL
    ;  dim m = PRINT_BUF_SIZE
    ;  int npf
 
+         /* Perhaps hook this #definery with configure options that
+          * benefit from autoconf machinery.
+         */
+#if HAVE_VA_COPY
+   ;  va_list  args2
+   ;  va_copy(args2, *args)
+   ;  npf = vsnprintf(buf, PRINT_BUF_SIZE, fmt, args2)
+   ;  va_end(args2)
+#else
    ;  npf = vsnprintf(buf, PRINT_BUF_SIZE, fmt, *args)
+#endif
 
          /* from reading standards it seems that npf >= PRINT_BUF_SIZE
           * should be sufficient. However, alpha OSF1 provides
           * a counterexample. And from reading standard annotations
-          * it also seems that vsnprintf is widely ill-implemented
+          * it seems that vsnprintf is widely ill-implemented
          */
-   ;  if (npf < 0 || npf+1 >= PRINT_BUF_SIZE)
-      {  m  =  ((dim) npf) >= PRINT_BUF_SIZE ? ((dim) npf) : 2 * m
+
+   ;  if (npf < 0 || npf >= PRINT_BUF_SIZE - 1)
+      {  
+         m  =  (npf >= 0 && npf >= PRINT_BUF_SIZE - 1) ?  ((dim) npf) + 1 : 2 * m
+
+         /* Suppose m is set to npf+1. Then mcxTingEmpty will malloc npf+2
+          * bytes and vnsprintf is given m+1=npf+2 as size argument,
+          * which is > PRINT_BUF_SIZE.
+         */
       ;  while (1)
          {  if (!(txtbuf = mcxTingEmpty(txtbuf, m)))
             {  mcxTingFree(&txtbuf)
             ;  return NULL
          ;  }
-            npf = vsnprintf(txtbuf->str, m+1, fmt, *args)
-         ;  if (npf < 0 || (dim) (npf+1) > m)
+#if HAVE_VA_COPY
+            va_copy(args2, *args)
+         ;  npf = vsnprintf(txtbuf->str, m+1, fmt, args2)
+         ;  va_end(args2)
+#else
+         ;  npf = vsnprintf(txtbuf->str, m+1, fmt, *args)
+#endif
+
+            /* Only the npf < 0 case is expected below.
+             * The other check is defensive coding. We gave
+             * vsnprintf m+1 as size argument, so the check is
+             * against one less than that (alpha OSF1 example).
+            */
+         ;  if (npf < 0 || (dim) npf >= m)
             m *= 2
          ;  else
             break
@@ -153,7 +186,6 @@ static mcxTing*  mcx_ting_print
 
    ;  mcxTingFree(&txtbuf)
    ;  return dst
-#undef PRINT_BUF_SIZE
 ;  }
 
 

@@ -38,6 +38,12 @@
 #include "report.h"
 #include "clmorder.h"
 
+#include "util/io.h"
+#include "util/types.h"
+#include "util/err.h"
+#include "util/opt.h"
+#include "util/compile.h"
+
 #include "impala/matrix.h"
 #include "impala/cat.h"
 #include "impala/vector.h"
@@ -47,11 +53,6 @@
 #include "impala/app.h"
 
 #include "clew/clm.h"
-
-#include "util/io.h"
-#include "util/types.h"
-#include "util/err.h"
-#include "util/opt.h"
 
 static const char* me = "clmorder";
 
@@ -142,8 +143,8 @@ static mcxstatus rerank
 
 
 static mcxstatus orderMain
-(  int                  argc
-,  const char*          argv[]
+(  int          argc_unused  cpl__unused
+,  const char*  argv[]
 )
    {  mcxIO       *xfin    =  mcxIOnew(argv[0], "r")
    ;  mcxTing     *fname   =  NULL
@@ -284,23 +285,20 @@ static mcxstatus rerank
 ;  }
 
 
-static mcxDispHook orderEntry
-=  {  "order"
-   ,  "order [options] <cl stack file>"
-   ,  orderOptions
-   ,  sizeof(orderOptions)/sizeof(mcxOptAnchor) - 1
-   ,  orderArgHandle
-   ,  orderInit
-   ,  orderMain
-   ,  1
-   ,  1
-   ,  MCX_DISP_DEFAULT
-   }
-;
-
-
 mcxDispHook* mcxDispHookOrder
 (  void
 )
-   {  return &orderEntry
+   {  static mcxDispHook orderEntry
+   =  {  "order"
+      ,  "order [options] <cl stack file>"
+      ,  orderOptions
+      ,  sizeof(orderOptions)/sizeof(mcxOptAnchor) - 1
+      ,  orderArgHandle
+      ,  orderInit
+      ,  orderMain
+      ,  1
+      ,  1
+      ,  MCX_DISP_MANUAL
+      }
+   ;  return &orderEntry
 ;  }

@@ -168,6 +168,17 @@ mclTab*   mclTabRead
 ;  }
 
 
+void mclTabHashSet
+(  mcxHash* hash
+,  ulong u
+)
+   {  mcxHashWalk* walk = mcxHashWalkInit(hash)
+   ;  mcxKV* kv
+   ;  while ((kv = mcxHashWalkStep(walk, NULL)))
+      kv->val = ULONG_TO_VOID u
+;  }
+
+
 mcxHash* mclTabHash
 (  mclTab* tab
 )
@@ -203,7 +214,7 @@ mcxHash* mclTabHash
             )
       ;  }
          index = tab->domain->ivps[d].idx
-      ;  kv->val = UINT_TO_VOID index
+      ;  kv->val = ULONG_TO_VOID index
    ;  }
       return h
 ;  }
@@ -229,31 +240,40 @@ mclTab* mclTabFromMap
    ;  for (d=0;d<n_keys;d++)
       tab->labels[d] = NULL
 
+                              /* first create the domain */
    ;  for (d=0;d<n_keys;d++)
       {  mcxTing* lbl   =  keys[d]
       ;  mcxKV*  kv     =  mcxHashSearch(lbl, map, MCX_DATUM_FIND)
-      ;  unsigned long  idx = kv ? VOID_TO_UINT kv->val : 0
+      ;  unsigned long  idx = kv ? VOID_TO_ULONG kv->val : 0
 
       ;  if (!kv)
          {  mcxErr("mclTabFromMap panic", "cannot retrieve <%s>!?", lbl->str)
          ;  return NULL
       ;  }
-         if (idx >= n_keys)
-         {  mcxErr("mclTabFromMap panic", "index %lu >= %ld", idx, (long) n_keys)
+         tab->domain->ivps[d].idx = idx     /* dangersign */
+   ;  }
+
+      mclvSort(tab->domain, mclpIdxCmp)
+   ;  if (mclvCheck(tab->domain, -1, -1, 0, RETURN_ON_FAIL))      /* fixme memleak */
+      return NULL
+
+   ;  for (d=0;d<n_keys;d++)
+      {  mcxTing* lbl   =  keys[d]
+      ;  mcxKV*  kv     =  mcxHashSearch(lbl, map, MCX_DATUM_FIND)
+      ;  unsigned long  idx = kv ? VOID_TO_ULONG kv->val : 0
+      ;  ofs offset = -1
+
+      ;  if (!kv)
+         {  mcxErr("mclTabFromMap panic", "cannot retrieve <%s>!?", lbl->str)
          ;  return NULL
       ;  }
 
-         if (tab->labels[idx])
-         mcxErr
-         (  "mclTabFromMap panic"
-         ,  "duplicates for index %lu: <%s> <%s>"
-         ,  idx
-         ,  lbl->str
-         ,  tab->labels[idx]
-         )
-      ;  else
-         tab->labels[idx] =  lbl->str
-;if(0)fprintf(stderr, "TAB %lu %s\n", idx, lbl->str)
+         if (0 > (offset = mclvGetIvpOffset(tab->domain, idx, offset)))
+         {  mcxErr("mclTabFromMap panic", "cannot find %lu in tab", (ulong) idx)
+         ;  return NULL
+      ;  }
+
+         tab->labels[offset] =  mcxTingStr(lbl)
    ;  }
 
       tab->labels[n_keys] = NULL
@@ -284,8 +304,9 @@ mcxstatus mclTabWriteDomain
       {  long idx = select->ivps[d].idx
       ;  fprintf(xfout->fp, "%ld\t%ld\n", idx, idx)
    ;  }
-      mcxTell
-      (  "mclIO"
+      mcxLog
+      (  MCX_LOG_IO  
+      ,  "mclIO"
       ,  "wrote %ld tab entries to stream <%s>"
       ,  (long) select->n_ivps
       ,  xfout->fn->str
@@ -301,8 +322,9 @@ mcxstatus mclTabWrite
 ,  const mclv*    select   /* if NULL, use all */
 ,  mcxOnFail      ON_FAIL
 )
-   {  long label_o = -1, i
+   {  long label_o = -1
    ;  long miss = 1
+   ;  dim i
 
    ;  if (!tab)
       {  mcxErr("mclTabWrite", "no tab! target file: <%s>", xfout->fn->str)
@@ -328,8 +350,9 @@ mcxstatus mclTabWrite
       ;  else
          fprintf(xfout->fp, "%ld\t%s\n", idx, label)
    ;  }
-      mcxTell
-      (  "mclIO"
+      mcxLog
+      (  MCX_LOG_IO
+      ,  "mclIO"
       ,  "wrote %ld tab entries to stream <%s>"
       ,  (long) select->n_ivps
       ,  xfout->fn->str

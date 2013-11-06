@@ -98,9 +98,17 @@ double mclgCLCF
 
 
 
+   /* This one requires a clean mx->dom_rows */
 dim mclgEcc
 (  mclv*       vec
 ,  mclx*       mx
+)  ;
+
+
+dim mclgEcc2
+(  mclv*       vec
+,  const mclx* mx
+,  mclv*       scratch
 )  ;
 
 

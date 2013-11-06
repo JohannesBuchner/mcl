@@ -84,7 +84,7 @@ void mclgSSPxyReset
 ;  }
 
 
-static void sspx_dump_aow
+static void sspx_dump_aow_unused
 (  u8* seen
 ,  long* aow
 ,  dim sz_aow
@@ -355,7 +355,7 @@ mcxstatus mclgSSPxyQuery
          ;  break
       ;  }
 
-         if (a == b || a < 0 || b < 0 || a >= N || b >= N)
+         if (a == b || a < 0 || b < 0 || (dim) a >= N || (dim) b >= N)
          {  msg = "start/end range error"
          ;  break
       ;  }
@@ -467,13 +467,22 @@ dim mclgEcc
 (  mclv*       vec
 ,  mclx*       mx
 )
+   {  return mclgEcc2(vec, mx, mx->dom_rows)
+;  }
+
+
+dim mclgEcc2
+(  mclv*          vec
+,  const mclx*    mx
+,  mclv*          scratch
+)
    {  mclv* wave1 =  mclvInsertIdx(NULL, vec->vid, 1.0), *wave2
    ;  dim ecc = 0
 
-   ;  mclgUnionvInitNode(mx, vec->vid)
+   ;  mclgUnionvInitNode2(scratch, vec->vid)
 
    ;  while (1)
-      {  wave2 = mclgUnionv(mx, wave1, NULL, SCRATCH_UPDATE, NULL)
+      {  wave2 = mclgUnionv2(mx, wave1, NULL, SCRATCH_UPDATE, NULL, scratch)
       ;  mclvFree(&wave1)
       ;  wave1 = wave2
       ;  if (!wave1->n_ivps)
@@ -482,7 +491,7 @@ dim mclgEcc
    ;  }
 
       mclvFree(&wave1)
-   ;  mclgUnionvReset(mx)
+   ;  mclgUnionvReset2(scratch)
    ;  return ecc
 ;  }
 

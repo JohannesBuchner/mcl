@@ -45,7 +45,7 @@ struct mclxComposeHelper
 
 mclxComposeHelper* mclxComposePrepare
 (  const mclMatrix*  mx1
-,  const mclMatrix*  mx2 cpl__unused
+,  const mclMatrix*  mx2_unused  cpl__unused
 )
    {  mclxComposeHelper* ch
                   =     mcxRealloc

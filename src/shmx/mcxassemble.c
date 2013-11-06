@@ -341,13 +341,15 @@ int main
 
    ;  char* qmode = mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
 
+   ;  mcxLogLevel =
+      MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
+   ;  mclx_app_init(stderr)
+
    ;  mcxOptAnchorSortById(options, sizeof(options)/sizeof(mcxOptAnchor) -1)
 
    ;  if
       (!(opts = mcxOptParse(options, (char**) argv, argc, 1, 0, &parseStatus)))
       exit(0)
-
-   ;  mclx_app_init(stderr)
 
    ;  for (opt=opts;opt->anch;opt++)
       {  mcxOptAnchor* anch = opt->anch

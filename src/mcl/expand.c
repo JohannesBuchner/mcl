@@ -115,7 +115,7 @@ static double get_homg
       else
       {  double homg_num   =  mclvPowSum(src, 2.0) * pow(mclvPowSum(dst, inflation), 2.0)
       ;  double homg_nom   =  mclvPowSum(dst, 2.0 * inflation)
-;if(0)fprintf(stdout, "-> %d\t%.4f\t%.4f\n", src->vid, homg_nom, homg_num)
+;if(0)fprintf(stdout, "-> %ld\t%.4f\t%.4f\n", (long) src->vid, homg_nom, homg_num)
       ;  return   homg_nom
                ?  homg_num / homg_nom
                :  1.0
@@ -209,7 +209,7 @@ void mclExpandParamFree
 void* mclExpandVectorLine
 (  void* arg
 )
-   {  mclExpandVectorLine_arg *a =  (mclExpandVectorLine_arg *) arg
+   {  mclExpandVectorLine_arg *a =  arg
    ;  const mclx*    mxs      =  a->mxs
    ;  mclx*          mxd      =  a->mxd
    ;  mclv*          chaosVec =  a->chaosVec
@@ -554,10 +554,9 @@ mclMatrix* mclExpand
 
    ;  if (mxp->n_ethreads)
       {  pthread_t *threads_expand  
-                           =  (pthread_t *) mcxAlloc
-                              (mxp->n_ethreads*sizeof(pthread_t), EXIT_ON_FAIL)
+         =  mcxAlloc(mxp->n_ethreads*sizeof(pthread_t), EXIT_ON_FAIL)
       ;  pthread_attr_t  pthread_custom_attr
-      ;  int   i
+      ;  int i
 
       ;  pthread_mutex_init(&(stats->mutex), NULL)
       ;  pthread_attr_init(&pthread_custom_attr)
@@ -580,17 +579,20 @@ mclMatrix* mclExpand
 
                            /* TODO: non-overflow accounting of lap times */
          ;  pthread_create
-            (  &threads_expand[i]
+            (  threads_expand+i
             ,  &pthread_custom_attr
             ,  mclExpandVectorLine
             ,  a
             )
       ;  }
 
+;fprintf(stderr, "start threads\n")
       ;  for (i = 0; i < mxp->n_ethreads; i++)
-         pthread_join(threads_expand[i], NULL)
+         {  pthread_join(threads_expand[i], NULL)
+      ;  }
+;fprintf(stderr, "start threads\n");
 
-      ;  mcxFree(threads_expand)
+         mcxFree(threads_expand)
    ;  }      /* glob a is destroyed by mclExpandVectorLine */
 
       else
@@ -637,12 +639,12 @@ mclMatrix* mclExpand
    ;  }
 
       if (getenv("MCL_SPEW"))    /* lisp homg: lame TODO fixfixmefixme : remove */
-      {  int i
+      {  dim i
       ;  for (i=0;i<N_COLS(mx);i++)
          {  mclv* nblist = mx->cols+i
          ;  long nb = -1
          ;  double homg = 0.0
-         ;  int j
+         ;  dim j
          ;  for (j=0;j<nblist->n_ivps;j++)
             {  long ofs = mclvGetIvpOffset(homgVec, nblist->ivps[j].idx, nb)
             ;  if (ofs >=0)

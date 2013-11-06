@@ -14,6 +14,12 @@
 #include "report.h"
 #include "clmresidue.h"
 
+#include "util/io.h"
+#include "util/types.h"
+#include "util/err.h"
+#include "util/opt.h"
+#include "util/compile.h"
+
 #include "impala/matrix.h"
 #include "impala/cat.h"
 #include "impala/vector.h"
@@ -24,11 +30,6 @@
 
 #include "mcl/interpret.h"
 #include "clew/clm.h"
-
-#include "util/io.h"
-#include "util/types.h"
-#include "util/err.h"
-#include "util/opt.h"
 
 /*
  *    Ideal scenario: only read in the vectors that are needed, i.e. with a mask.
@@ -127,8 +128,8 @@ static mcxstatus residueArgHandle
 
 
 static mcxstatus residueMain
-(  int                  argc
-,  const char*          argv[]
+(  int         argc_unused    cpl__unused
+,  const char* argv_unused[]  cpl__unused
 )
    {  mclMatrix   *cl         =  NULL
    ;  mclMatrix   *cl2el      =  NULL
@@ -235,28 +236,23 @@ static mcxstatus residueMain
 ;  }
 
 
-static mcxDispHook residueEntry
-=  {  "residue"
-   ,  "residue [options] -icl <cl-file> -imx <mx-file>"
-   ,  residueOptions
-   ,  sizeof(residueOptions)/sizeof(mcxOptAnchor) - 1
-   ,  residueArgHandle
-   ,  residueInit
-   ,  residueMain
-   ,  0
-   ,  -1
-   ,  MCX_DISP_DEFAULT
-   }
-;
-
-
 mcxDispHook* mcxDispHookResidue
 (  void
 )
-   {  return &residueEntry
+   {  static mcxDispHook residueEntry
+   =  {  "residue"
+      ,  "residue [options] -icl <cl-file> -imx <mx-file>"
+      ,  residueOptions
+      ,  sizeof(residueOptions)/sizeof(mcxOptAnchor) - 1
+      ,  residueArgHandle
+      ,  residueInit
+      ,  residueMain
+      ,  0
+      ,  -1
+      ,  MCX_DISP_MANUAL
+      }
+   ;  return &residueEntry
 ;  }
-
-
 
 
 static mcxOptAnchor enstrictOptions[] =
@@ -309,8 +305,8 @@ static mcxstatus enstrictInit
 
 
 static mcxstatus enstrictMain
-(  int                  argc
-,  const char*          argv[]
+(  int         argc_unused    cpl__unused
+,  const char* argv_unused[]  cpl__unused
 )
    {  mclx* cl
    ;  dim o, m, e
@@ -321,25 +317,22 @@ static mcxstatus enstrictMain
 ;  }
 
 
-static mcxDispHook enstrictEntry
-=  {  "enstrict"
-   ,  "enstrict [-o <cl-file>] <cl-file>"
-   ,  enstrictOptions
-   ,  sizeof(enstrictOptions)/sizeof(mcxOptAnchor) - 1
-   ,  enstrictArgHandle
-   ,  enstrictInit
-   ,  enstrictMain
-   ,  0
-   ,  0
-   ,  MCX_DISP_DEFAULT
-   }
-;
-
-
 mcxDispHook* mcxDispHookEnstrict
 (  void
 )
-   {  return &enstrictEntry
+   {  static mcxDispHook enstrictEntry
+   =  {  "enstrict"
+      ,  "enstrict [-o <cl-file>] <cl-file>"
+      ,  enstrictOptions
+      ,  sizeof(enstrictOptions)/sizeof(mcxOptAnchor) - 1
+      ,  enstrictArgHandle
+      ,  enstrictInit
+      ,  enstrictMain
+      ,  0
+      ,  0
+      ,  MCX_DISP_DEFAULT
+      }
+   ;  return &enstrictEntry
 ;  }
 
 

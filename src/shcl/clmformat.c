@@ -17,6 +17,13 @@
 #include "report.h"
 #include "clmformat.zmm.h"
 
+#include "util/io.h"
+#include "util/types.h"
+#include "util/err.h"
+#include "util/opt.h"
+#include "util/minmax.h"
+#include "util/compile.h"
+
 #include "impala/matrix.h"
 #include "impala/cat.h"
 #include "impala/vector.h"
@@ -31,12 +38,6 @@
 #include "clew/clm.h"
 
 #include "mcl/interpret.h"
-
-#include "util/io.h"
-#include "util/types.h"
-#include "util/err.h"
-#include "util/opt.h"
-#include "util/minmax.h"
 
 /*
  *    how about using key-val encoding: {{sz}{3}{nb}{2}{cv}{2-3}} ?
@@ -511,7 +512,7 @@ long getclusid
 void mkanindex
 (  const char* ind1
 ,  const char* ind2
-,  char* title_ind2
+,  char* title_ind2_unused cpl__unused
 ,  mclMatrix* mx
 ,  mclMatrix* cl
 ,  mclMatrix* el_to_cl

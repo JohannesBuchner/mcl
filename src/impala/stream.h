@@ -36,12 +36,13 @@ mcxstatus mclxIOstreamOut
 #define MCLXIO_STREAM_235_AI        1 <<  6     /* autoincrement: no column labels */
 
 #define MCLXIO_STREAM_READ  (MCLXIO_STREAM_PACKED | MCLXIO_STREAM_ABC | MCLXIO_STREAM_123 | MCLXIO_STREAM_ETC)
+#define MCLXIO_STREAM_NUMERIC (MCLXIO_STREAM_123 | MCLXIO_STREAM_235 | MCLXIO_STREAM_235_AI)
 
 #define MCLXIO_STREAM_WARN          1 <<  7     /* a/1 warn on parse miss */
 #define MCLXIO_STREAM_STRICT        1 <<  8     /* a/1 fail on parse miss */
 
 #define MCLXIO_STREAM_MIRROR        1 <<  9     /* seeing x-y-f, add y-x-f */
-#define MCLXIO_STREAM_TWODOMAINS    1 << 10     /* construct bipartite graph  */
+#define MCLXIO_STREAM_SYMMETRIC     1 << 10     /* domains are the same */
 #define MCLXIO_STREAM_DEBUG         1 << 11     /* debug */
 
 #define MCLXIO_STREAM_CTAB_EXTEND   1 << 12     /* on miss extend tab */
@@ -54,29 +55,33 @@ mcxstatus mclxIOstreamOut
 #define MCLXIO_STREAM_LOGTRANSFORM     1 << 18
 #define MCLXIO_STREAM_NEGLOGTRANSFORM  1 << 19
 
+#define MCLXIO_STREAM_GTAB_EXTEND (MCLXIO_STREAM_RTAB_EXTEND | MCLXIO_STREAM_CTAB_EXTEND)
+#define MCLXIO_STREAM_GTAB_RESTRICT (MCLXIO_STREAM_RTAB_RESTRICT | MCLXIO_STREAM_CTAB_RESTRICT)
+#define MCLXIO_STREAM_GTAB_STRICT (MCLXIO_STREAM_RTAB_STRICT | MCLXIO_STREAM_CTAB_STRICT)
 
-#define MCLXIO_STREAM_TAB_EXTEND (MCLXIO_STREAM_CTAB_EXTEND | MCLXIO_STREAM_RTAB_EXTEND)
-#define MCLXIO_STREAM_TAB_STRICT (MCLXIO_STREAM_CTAB_STRICT | MCLXIO_STREAM_RTAB_STRICT)
-#define MCLXIO_STREAM_TAB_RESTRICT (MCLXIO_STREAM_CTAB_RESTRICT | MCLXIO_STREAM_RTAB_RESTRICT)
 
 
-/* If *tabcpp != NULL, the tab is taken as the starting point.
- * if mclxIOstreamIn is allowed to expand this tab, it will
- * write *ANOTHER* tab back into this argument, but only
- * if it really expanded the tab.
- *
- * Callers that ship a tab should thus have code like this:
- *
- *       mclTab* tab = myHappyTab()
- *       mclTab* tabxch = tab
- *
- *       mclxIOstreamIn(... , &tabxch , ...)
- *
- *       if (tabxch != tab)     // new tab
- *       else                   // same tab
- *
- * In abc mode, it tries to separate on tab if it spots a tab;
+/* In abc mode, it tries to separate on tab if it spots a tab;
  * otherwise it separates on whitespace.
+ *
+ * This interface is underdocumented. fixme.
+*/
+
+typedef struct
+{  mclTab*        tab_sym_in
+;  mclTab*        tab_sym_out
+;  mclTab*        tab_col_in
+;  mclTab*        tab_col_out
+;  mclTab*        tab_row_in
+;  mclTab*        tab_row_out
+;  dim            cmax_123
+;  dim            rmax_123
+;
+}  mclxIOstreamer ;
+
+
+/* In symmetric mode, tab_sym_out will be a newly created tab.
+ * Otherwise, tab_{col,row}_out will be two newly created tabs.
 */
 
 mclx* mclxIOstreamIn
@@ -84,10 +89,10 @@ mclx* mclxIOstreamIn
 ,  mcxbits  bits
 ,  mclpAR*  transform
 ,  void (*ivpmerge)(void* ivp1, const void* ivp2)
-,  mclTab** tabcpp
-,  mclTab** tabrpp
+,  mclxIOstreamer* streamer
 ,  mcxOnFail ON_FAIL
 )  ;
+
 
 #endif
 

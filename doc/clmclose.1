@@ -1,5 +1,5 @@
 .\" Copyright (c) 2008 Stijn van Dongen
-.TH "clm close" 1 "5 Jun 2008" "clm close 1\&.007-grumpy-gryphon, 08-157" "USER COMMANDS "
+.TH "clm close" 1 "7 Nov 2008" "clm close 1\&.008, 08-312" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -41,9 +41,13 @@ in the \fBclm\fP manual page\&.
 \fBclm close\fP -imx <fname> [options]
 
 \fBclm close\fP
-\fB-imx\fP fname (\fIinput file\fP)
+\fB-imx\fP fname (\fIspecify matrix input\fP)
+\fB-abc\fP fname (\fIspecify label input\fP)
 \fB-dom\fP fname (\fIinput domain/cluster file\fP)
-\fB[-write-cc\fP fname (\fIoutput file\fP)\fB]\fP
+\fB[-o\fP fname (\fIoutput file\fP)\fB]\fP
+\fB[--write-count\fP (\fIoutput component count\fP)\fB]\fP
+\fB[--write-sizes\fP (\fIoutput component sizes (default)\fP)\fB]\fP
+\fB[--write-cc\fP (\fIoutput components as clustering\fP)\fB]\fP
 \fB[-cc-bound\fP num (\fIselect components with size at least num\fP)\fB]\fP
 \fB[-tf\fP spec (\fIapply tf-spec to input matrix\fP)\fB]\fP
 \fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
@@ -51,33 +55,58 @@ in the \fBclm\fP manual page\&.
 \fB[--version\fP (\fIprint version, exit\fP)\fB]\fP
 .SH DESCRIPTION
 
-Use \fBclm close\fP to fetch the connected components from a graph\&.
-They will be returned as a clustering file\&. Use this file
-in conjunction with \fBmcxsubs\fP and the graph file itself to
-retrieve individual subgraphs corresponding to connected components\&.
-
-If the \fB-dom\fP\ \&\fIfname\fP option is used, clm close will
-for each of the domains in file\ \&\fIfname\fP retrieve
-the associated subgraph from the input graph, decompose it into
-its connected components, and write each connected components
-as a separate domain/cluster in the output file\&.
+Use \fBclm close\fP to fetch the connected components from a graph\&. Different
+output modes are supported (see below)\&. In matrix mode (i\&.e\&. using
+the \fB-imx\fP option) the output returned with
+\fB--write-cc\fP can be used in conjunction with \fBmcxsubs\fP
+to retrieve individual subgraphs corresponding to connected components\&.
 .SH OPTIONS
 
-.ZI 3m "\fB-imx\fP fname (\fIinput file\fP)"
+.ZI 3m "\fB-abc\fP <fname> (\fIlabel input\fP)"
 \&
 .br
+The file name for input that is in label format\&.
+.in -3m
+
+.ZI 3m "\fB-imx\fP <fname> (\fIinput matrix\fP)"
+\&
+.br
+The file name for input that is in mcl native matrix format\&.
+.in -3m
+
+.ZI 3m "\fB-o\fP fname (\fIoutput file\fP)"
+\&
+.br
+Specify the file where output is sent to\&. The default is STDOUT\&.
 .in -3m
 
 .ZI 3m "\fB-dom\fP fname (\fIinput domain/cluster file\fP)"
 \&
 .br
+If this option is used, clm close will, as a first step,
+for each of the domains in file\ \&\fIfname\fP retrieve the associated
+subgraph from the input graph\&. These are then further decomposed into
+connected components, and the program will process these in the normal
+manner\&.
 .in -3m
 
-.ZI 3m "\fB-write-cc\fP fname (\fIoutput connected components\fP)"
+.ZI 3m "\fB--write-count\fP (\fIoutput component count\fP)"
+\&
+'in -3m
+.ZI 3m "\fB--write-sizes\fP (\fIoutput component sizes (default)\fP)"
+\&
+'in -3m
+.ZI 3m "\fB--write-cc\fP (\fIoutput components as clustering\fP)"
+\&
+'in -3m
+'in +3m
 \&
 .br
-
-Set the name of the file to be written to\&.
+The default behaviour is currently to output the sizes of the
+connected components\&. It is also possible to simply output
+the number of components with \fB--write-count\fP or to
+write the components as a clustering in mcl format with
+\fB-write-cc\fP\&.
 .in -3m
 
 .ZI 3m "\fB-cc-bound\fP num (\fIselect components with size at least num\fP)"

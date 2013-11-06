@@ -24,6 +24,7 @@
 
       \synoptopt{-abc}{<fname>}{specify label input}
       \synoptopt{-imx}{<fname>}{specify matrix input}
+      \synoptopt{-tab}{<fname>}{use tab file}
       \synoptopt{--list}{list clustering coefficient for all nodes}
       \stdsynopt
    }
@@ -51,6 +52,16 @@
 \item{\defopt{-imx}{<fname>}{input matrix}}
 \car{
    The file name for input. STDIN is assumed if not specified.}
+
+\item{\defopt{-tab}{<fname>}{use tab file}}
+\car{
+   This option causes the output to be printed with the labels
+   found in the tab file.
+   With \genopt{-abc} this option will, additionally, construct
+   a graph only on the labels found in the tab file.
+   If this option is used in conjunction with \genopt{-imx} the
+   tab domain and the matrix domain are required to be identical.
+   }
 
 \item{\defopt{--list}{print result for each node}}
 \car{

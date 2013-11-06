@@ -19,6 +19,14 @@
 #include "report.h"
 #include "clmimac.h"
 
+#include "util/types.h"
+#include "util/err.h"
+#include "util/ting.h"
+#include "util/minmax.h"
+#include "util/opt.h"
+#include "util/array.h"
+#include "util/compile.h"
+
 #include "impala/matrix.h"
 #include "impala/cat.h"
 #include "impala/vector.h"
@@ -29,13 +37,6 @@
 #include "clew/clm.h"
 
 #include "mcl/interpret.h"
-
-#include "util/types.h"
-#include "util/err.h"
-#include "util/ting.h"
-#include "util/minmax.h"
-#include "util/opt.h"
-#include "util/array.h"
 
 
 static const char* me = "clmmate";
@@ -161,8 +162,8 @@ static mcxstatus imacArgHandle
 
 
 static mcxstatus imacMain
-(  int                  argc
-,  const char*          argv[]
+(  int         argc_unused    cpl__unused
+,  const char* argv_unused[]  cpl__unused
 )
    {  mclInterpretParam* ipp  =  mclInterpretParamNew()
 
@@ -225,26 +226,22 @@ static mcxstatus imacMain
 ;  }
 
 
-
-static mcxDispHook imacEntry
-=  {  "imac"
-   ,  "imac [options] -imx <mx file>"
-   ,  imacOptions
-   ,  sizeof(imacOptions)/sizeof(mcxOptAnchor) - 1
-   ,  imacArgHandle
-   ,  imacInit
-   ,  imacMain
-   ,  0
-   ,  0
-   ,  MCX_DISP_DEFAULT
-   }
-;
-
-
 mcxDispHook* mcxDispHookImac
 (  void
 )
-   {  return &imacEntry
+   {  static mcxDispHook imacEntry
+   =  {  "imac"
+      ,  "imac [options] -imx <mx file>"
+      ,  imacOptions
+      ,  sizeof(imacOptions)/sizeof(mcxOptAnchor) - 1
+      ,  imacArgHandle
+      ,  imacInit
+      ,  imacMain
+      ,  0
+      ,  0
+      ,  MCX_DISP_MANUAL
+      }
+   ;  return &imacEntry
 ;  }
 
 

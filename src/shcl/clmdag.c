@@ -48,6 +48,9 @@ int main
    ;  int a = 1
    ;  dim i
 
+   ;  mcxLogLevel =
+      MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
+   ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
    ;  mclx_app_init(stderr)
 
    ;  while(a < argc)

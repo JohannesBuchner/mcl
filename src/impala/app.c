@@ -36,7 +36,7 @@ void mclxSetBinaryIO
 (  void
 )
    {  mcxTing* tmp = mcxTingPrint(NULL, "MCLXIOFORMAT=8")
-   ;  const char* str = mcxTinguish(tmp)
+   ;  char* str = mcxTinguish(tmp)
    ;  putenv(str)
 ;  }
 
@@ -45,7 +45,7 @@ void mclxSetInterchangeIO
 (  void
 )
    {  mcxTing* tmp = mcxTingPrint(NULL, "MCLXIOFORMAT=2")
-   ;  const char* str = mcxTinguish(tmp)
+   ;  char* str = mcxTinguish(tmp)
    ;  putenv(str)
 ;  }
 
@@ -53,7 +53,7 @@ void mclxSetInterchangeIO
 void mclx_app_init
 (  FILE* fp
 )
-   {  mcxLogSetFILE(stderr, TRUE)
+   {  mcxLogSetFILE(fp, TRUE)
 ;  }
 
 

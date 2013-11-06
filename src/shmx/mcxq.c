@@ -23,15 +23,16 @@
 
 #include "mcx.h"
 
-#include "impala/matrix.h"
-#include "impala/io.h"
-
 #include "util/types.h"
 #include "util/ding.h"
 #include "util/ting.h"
 #include "util/io.h"
 #include "util/err.h"
 #include "util/opt.h"
+#include "util/compile.h"
+
+#include "impala/matrix.h"
+#include "impala/io.h"
 
 
 int valcmp
@@ -144,8 +145,8 @@ static mcxstatus qArgHandle
 
 
 static mcxstatus qMain
-(  int                  argc
-,  const char*          argv[]
+(  int          argc_unused      cpl__unused
+,  const char*  argv_unused[]    cpl__unused
 )
    {  if (get_dim + get_stat + get_stat_list == 0)
       get_stat = TRUE
@@ -248,7 +249,7 @@ static mcxstatus qMain
          {  dim o = (noe * i) / 8
          ;  if (o >= noe)
             o = noe-1
-         ;  fprintf(xfout->fp, " val_oc%d=%.3f", i, allvals[o])
+         ;  fprintf(xfout->fp, " val_oc%lu=%.3f", (ulong) i, allvals[o])
       ;  }
          fputc('\n', xfout->fp)
    ;  }
@@ -269,27 +270,24 @@ static mcxstatus qMain
 ;  }
 
 
-static mcxDispHook qEntry
-=  {  "q"
-   ,  "q [options]"
-   ,  qOptions
-   ,  sizeof(qOptions)/sizeof(mcxOptAnchor) - 1
-
-   ,  qArgHandle
-   ,  qInit
-   ,  qMain
-
-   ,  0
-   ,  0
-   ,  MCX_DISP_DEFAULT
-   }
-;
-
-
 mcxDispHook* mcxDispHookq
 (  void
 )
-   {  return &qEntry
+   {  static mcxDispHook qEntry
+   =  {  "q"
+      ,  "q [options]"
+      ,  qOptions
+      ,  sizeof(qOptions)/sizeof(mcxOptAnchor) - 1
+
+      ,  qArgHandle
+      ,  qInit
+      ,  qMain
+
+      ,  0
+      ,  0
+      ,  MCX_DISP_MANUAL
+      }
+   ;  return &qEntry
 ;  }
 
 

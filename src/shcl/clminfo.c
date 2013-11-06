@@ -1,5 +1,5 @@
 /*   (C) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -323,8 +323,7 @@ static mcxstatus infoMain
             clmDumpNodeScores(xfcl->fn->str, mx, cl, CLM_NODE_INCIDENT)
 
          ;  else
-            {  double vals[11]
-            ;  clmGranularityTable tbl
+            {  clmGranularityTable tbl
             ;  clmPerformanceTable pftable
             ;  mcxTing* linfo = mcxTingNew(ginfo->str)
             ;  mcxTingPrintAfter(linfo, " source=%s", xfcl->fn->str)
@@ -351,26 +350,22 @@ static mcxstatus infoMain
 ;  }
 
 
-
-static mcxDispHook infoEntry
-=  {  "info"
-   ,  "info [options] <mx file> <cl file>+"
-   ,  infoOptions
-   ,  sizeof(infoOptions)/sizeof(mcxOptAnchor) - 1
-   ,  infoArgHandle
-   ,  infoInit
-   ,  infoMain
-   ,  1
-   ,  -1
-   ,  MCX_DISP_DEFAULT
-   }
-;
-
-
 mcxDispHook* mcxDispHookInfo
 (  void
 )
-   {  return &infoEntry
+   {  static mcxDispHook infoEntry
+   =  {  "info"
+      ,  "info [options] <mx file> <cl file>+"
+      ,  infoOptions
+      ,  sizeof(infoOptions)/sizeof(mcxOptAnchor) - 1
+      ,  infoArgHandle
+      ,  infoInit
+      ,  infoMain
+      ,  1
+      ,  -1
+      ,  MCX_DISP_MANUAL
+      }
+   ;  return &infoEntry
 ;  }
 
 

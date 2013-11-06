@@ -5,6 +5,6 @@ include $(top_srcdir)/include/include.am
 
 this = blastfile blastfile9
 
-extra_DIST = $(this)
+EXTRA_DIST = $(this)
 
 

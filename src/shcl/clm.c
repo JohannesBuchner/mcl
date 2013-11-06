@@ -73,6 +73,10 @@ enum
 }  ;
 
 
+/* help function should get the name from the hook callback
+ * function in clm_dir.
+*/
+
 mcxDispEntry clm_dir[] =
 {  {  ID_MATE,    mcxDispHookMate  }
 ,  {  ID_MEET,    mcxDispHookMeet  }
@@ -255,6 +259,9 @@ int main
 ,  const char*          argv[]
 )
    {  mcxDispBundle bundle 
+
+   ;  mcxLogLevel =
+      MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
    ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
    ;  mclx_app_init(stderr)
 

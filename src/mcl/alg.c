@@ -107,8 +107,6 @@ enum
 ,  ALG_OPT_ABC_TRANSFORM
 ,  ALG_OPT_ABC_LOGTRANSFORM
 ,  ALG_OPT_ABC_NEGLOGTRANSFORM
-,  ALG_OPT_EXPECT_123
-,  ALG_OPT_EXPECT_PACKED
 ,  ALG_OPT_TAB_EXTEND
 ,  ALG_OPT_TAB_RESTRICT
 ,  ALG_OPT_TAB_STRICT
@@ -120,6 +118,7 @@ enum
                         ,  ALG_OPT_WRITE_TAB
 ,  ALG_OPT_ANNOT        =  ALG_OPT_WRITE_TAB + 2
 ,  ALG_OPT_AUTOAPPEND
+,  ALG_OPT_OUTPUTDIR
 ,  ALG_OPT_AUTOBOUNCENAME
 ,  ALG_OPT_AUTOBOUNCEFIX
                         ,  ALG_OPT_AUTOPREFIX
@@ -393,18 +392,6 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "tf-spec"
    ,  "transform matrix values"
    }
-,  {  "--expect-123"
-   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
-   ,  ALG_OPT_EXPECT_123
-   ,  NULL
-   ,  "expect <num1> <num2> [value] format"
-   }
-,  {  "--expect-packed"
-   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
-   ,  ALG_OPT_EXPECT_PACKED
-   ,  NULL
-   ,  "expect packed format"
-   }
 ,  {  "-write-tab"
    ,  MCX_OPT_HASARG
    ,  ALG_OPT_WRITE_TAB
@@ -530,6 +517,12 @@ mcxOptAnchor mclAlgOptions[] =
    ,  ALG_OPT_OUTPUTFILE
    ,  "<fname>"
    ,  "\tM!\tDwrite output to file <fname>"
+   }
+,  {  "-od"
+   ,  MCX_OPT_HASARG
+   ,  ALG_OPT_OUTPUTDIR
+   ,  "<directory>"
+   ,  "\tM!\tDuse this directory for output"
    }
 ,  {  "-annot"
    ,  MCX_OPT_HASARG
@@ -1100,6 +1093,7 @@ void make_output_name
 ,  mcxTing* suf
 ,  const char* mkappend
 ,  const char* mkprefix
+,  const char* dirout
 )
    {  mcxTing* name = mcxTingEmpty(NULL, 40)
    ;  mclProcParam* mpp = mlp->mpp
@@ -1150,7 +1144,25 @@ void make_output_name
    ;  }
 
       mcxTingPrintAfter(name, ".%s", suf->str)
-   ;  mcxTingWrite(mlp->xfout->fn, name->str)
+
+   ;  if (dirout)
+      {  const char* slash = strrchr(name->str, '/')
+      ;  dim diroutlen = strlen(dirout)
+      ;  int delta = diroutlen && (uchar) dirout[diroutlen-1] == '/'
+      ;  if (slash)
+         {  if (!strcmp(dirout, "."))
+            mcxTingDelete(name, 0, slash - name->str + 1)
+         ;  else
+            mcxTingSplice(name, dirout, 0, slash - name->str, diroutlen-delta)
+      ;  }
+         else if (strcmp(dirout, "."))
+         {  if (!delta)
+            mcxTingInsert(name, "/", 0)
+         ;  mcxTingInsert(name, dirout, 0)
+      ;  }
+      }
+
+      mcxTingWrite(mlp->xfout->fn, name->str)
 
    ;  if (!mpp->dump_stem->len)
       mcxTingPrint(mpp->dump_stem, "%s.%s", mlp->fnin->str, suf->str)
@@ -1177,6 +1189,7 @@ mcxstatus mclAlgorithmInit
    ;  int i_10    =  10
    ;  int i
    ;  long l
+   ;  const char* dirout = NULL
 
    ;  if (fname)
       {  if (mlp->mx_input)
@@ -1209,18 +1222,8 @@ mcxstatus mclAlgorithmInit
          ;  break
          ;
 
-            case ALG_OPT_EXPECT_123
-         :  mlp->stream_modes |= MCLXIO_STREAM_123
-         ;  break
-         ;
-
             case ALG_OPT_WRITE_XP
          :  mlp->mpp->fname_expanded =  mcxTingNew(opt->val)
-         ;  break
-         ;
-
-            case ALG_OPT_EXPECT_PACKED
-         :  mlp->stream_modes |= MCLXIO_STREAM_PACKED
          ;  break
          ;
 
@@ -1253,19 +1256,19 @@ mcxstatus mclAlgorithmInit
 
             case ALG_OPT_TAB_RESTRICT
          :  mcxTingWrite(mlp->fn_read_tab, opt->val)
-         ;  mlp->stream_modes |= MCLXIO_STREAM_TAB_RESTRICT
+         ;  mlp->stream_modes |= MCLXIO_STREAM_GTAB_RESTRICT
          ;  break
          ;
 
             case ALG_OPT_TAB_EXTEND
          :  mcxTingWrite(mlp->fn_read_tab, opt->val)
-         ;  mlp->stream_modes |= MCLXIO_STREAM_TAB_EXTEND
+         ;  mlp->stream_modes |= MCLXIO_STREAM_GTAB_EXTEND
          ;  break
          ;
 
             case ALG_OPT_TAB_STRICT
          :  mcxTingWrite(mlp->fn_read_tab, opt->val)
-         ;  mlp->stream_modes |= MCLXIO_STREAM_TAB_STRICT
+         ;  mlp->stream_modes |= MCLXIO_STREAM_GTAB_STRICT
          ;  break
          ;
 
@@ -1296,7 +1299,7 @@ mcxstatus mclAlgorithmInit
          ;
 
             case ALG_OPT_UNCHECKED
-         :  {  const char* e = mcxStrDup("MCLXIOUNCHECKED=1")
+         :  {  char* e = mcxStrDup("MCLXIOUNCHECKED=1")
             ;  putenv(e)
          ;  }
             break
@@ -1455,6 +1458,11 @@ mcxstatus mclAlgorithmInit
          :  break
          ;
 
+            case ALG_OPT_OUTPUTDIR
+         :  dirout = opt->val
+         ;  break
+         ;
+
             case ALG_OPT_AUTOAPPEND
          :  mkappend = opt->val
          ;  break
@@ -1569,7 +1577,7 @@ mcxstatus mclAlgorithmInit
    ;  }
 
       if (!mlp->xfout->fn->len && mlp->modes & ALG_DO_IO)
-      make_output_name(mlp, suf, mkappend, mkprefix)
+      make_output_name(mlp, suf, mkappend, mkprefix, dirout)
             /* ^ in mcl mode */
    ;  else if (mlp->xfout->fn->len && !(mlp->modes & ALG_DO_IO))
       mlp->modes |= ALG_DO_IO
@@ -1634,7 +1642,6 @@ void showSettings
 static mclAlgParam* mclAlgParamNew
 (  mclProcParam*  mpp
 ,  mclx*          mx_input
-,  const char*    fn_input
 )  
    {  mclAlgParam* mlp     =     mcxAlloc(sizeof(mclAlgParam), EXIT_ON_FAIL)
    ;  if (!mpp)
@@ -1861,6 +1868,9 @@ void mclAlgOptionsInit
 ;  }
 
 
+/* This tests the matrix domain against the tab domain.
+*/
+
 static mclx* test_tab
 (  mclx* mx
 ,  mclAlgParam* mlp
@@ -1873,13 +1883,13 @@ static mclx* test_tab
 
                         /* DangerSign fixme TODO */
                         /* we are (ab)using the stream interface here */
-   ;  if (mlp->stream_modes & MCLXIO_STREAM_TAB_STRICT)
+   ;  if (mlp->stream_modes & MCLXIO_STREAM_GTAB_STRICT)
       {  if (!mcldEquate(mx->dom_cols, dom, MCLD_EQT_SUB))
          mcxDie(1, "mcl", "tab domain does not subsume matrix domain")
    ;  }
                         /* DangerSign fixme TODO */
                         /* we are (ab)using the stream interface here */
-      else if (mlp->stream_modes & MCLXIO_STREAM_TAB_RESTRICT)
+      else if (mlp->stream_modes & MCLXIO_STREAM_GTAB_RESTRICT)
       {  if (!mcldEquate(mx->dom_cols, dom, MCLD_EQT_EQUAL))
          {  mclx* sub = mclxSub(mx, dom, dom)
          ;  mclxFree(&mx)
@@ -1895,48 +1905,47 @@ static mclx* mclAlgorithmStreamIn
 ,  mclAlgParam* mlp
 ,  mcxbool reread
 )
-   {  mclTab* tabxch = mlp->tab
-   ;  mcxbool abc = mlp->stream_modes & MCLXIO_STREAM_ABC
-   ;  mclx* mx = NULL
-   ;  mcxbits stream_tab_modes =    MCLXIO_STREAM_TAB_EXTEND
-                                 |  MCLXIO_STREAM_TAB_STRICT
-                                 |  MCLXIO_STREAM_TAB_RESTRICT
+   {  mclx* mx = NULL
+   ;  mcxbits stream_tab_modes =    MCLXIO_STREAM_GTAB_EXTEND
+                                 |  MCLXIO_STREAM_GTAB_STRICT
+                                 |  MCLXIO_STREAM_GTAB_RESTRICT
+   ;  mclxIOstreamer streamer = { 0 }
+
+   ;  streamer.tab_sym_in = mlp->tab
 
    ;  if (reread && mlp->tab)
       {  BIT_OFF(mlp->stream_modes, stream_tab_modes)
-      ;  BIT_ON(mlp->stream_modes, MCLXIO_STREAM_TAB_RESTRICT)
+      ;  BIT_ON(mlp->stream_modes, MCLXIO_STREAM_GTAB_RESTRICT)
       ;  mcxLog(MCX_LOG_MODULE, "mclAlgorithmStreamIn", "reconstricting matrix")
    ;  }
 
       mx
       =  mclxIOstreamIn
          (  xfin
-         ,  mlp->stream_modes | MCLXIO_STREAM_MIRROR
+         ,  mlp->stream_modes | MCLXIO_STREAM_MIRROR | MCLXIO_STREAM_SYMMETRIC
          ,  mlp->stream_transform
          ,  mclpMergeMax
-         ,  &tabxch
-         ,  NULL
+         ,  &streamer
          ,  EXIT_ON_FAIL
          )
 
-   ;  if (abc)
-      {  if (!mlp->tab || mlp->tab != tabxch)
-         {  mcxLog(MCX_LOG_MODULE, "mcl", "new tab created")
-         ;  mclTabFree(&(mlp->tab))
-      ;  }
+   ;  if (mlp->fn_write_tab)
+      {  mcxIO* xftab = mcxIOnew(mlp->fn_write_tab->str, "w")
+      ;  mcxIOopen(xftab, EXIT_ON_FAIL)
+      ;  if (streamer.tab_sym_out)
+         mclTabWrite(streamer.tab_sym_out, xftab, NULL, RETURN_ON_FAIL)
+      ;  else
+         mclTabWrite(streamer.tab_sym_in, xftab, NULL, RETURN_ON_FAIL)
+      ;  mcxIOfree(&xftab)
+   ;  }
 
-         mlp->tab = tabxch
-      ;  mlp->mpp->dump_tab = mlp->tab
+      if (streamer.tab_sym_out)
+      {  mcxLog(MCX_LOG_MODULE, "mcl", "new tab created")
+      ;  mclTabFree(&(mlp->tab))
+      ;  mlp->tab = streamer.tab_sym_out
+   ;  }
 
-      ;  if (mlp->tab && mlp->fn_write_tab)
-         {  mcxIO* xftab = mcxIOnew(mlp->fn_write_tab->str, "w")
-         ;  mcxIOopen(xftab, EXIT_ON_FAIL)
-         ;  mclTabWrite(tabxch, xftab, NULL, RETURN_ON_FAIL)
-         ;  mcxIOfree(&xftab)
-      ;  }
-      }
-      else
-      mx = test_tab(mx, mlp)
+      mlp->mpp->dump_tab = mlp->tab
 
    ;  return mx
 ;  }
@@ -2179,7 +2188,7 @@ mcxstatus mclAlgorithmStart
          ;  break
       ;  }
 
-         if (mlp->stream_modes & MCLXIO_STREAM_READ)
+         if (mlp->stream_modes & MCLXIO_STREAM_ABC)
          mx_input = mclAlgorithmStreamIn(xfin, mlp, reread)
       ;  else
          {  mx_input = mclxReadx(xfin, RETURN_ON_FAIL, MCLX_REQUIRE_GRAPH)
@@ -2207,7 +2216,7 @@ mcxstatus mclAlgorithmStart
       {  mx_start = mclxCopy(mx_input)
       ;  mlp->mx_input = mx_input
    ;  }
-      else
+      else                      /* fixme somewhat ugly input/start+cache semantics */
          mx_start = mx_input
       ,  mlp->mx_input = NULL
 
@@ -2237,7 +2246,7 @@ mcxstatus mclAlgInterface
    ;  mcxstatus      mainStatus  =  STATUS_FAIL
    ;  mcxstatus      parseStatus =  STATUS_FAIL
    ;  const char*    me          =  "mcl"
-   ;  mclAlgParam*   mlp         =  mclAlgParamNew(mpp, mx_input, fn_input)
+   ;  mclAlgParam*   mlp         =  mclAlgParamNew(mpp, mx_input)
 
    ;  mcxHash        *procOpts, *algOpts, *mergedOpts
    ;  mcxOption      *opts

@@ -95,11 +95,13 @@ void clmDumpNodeScores
          ;  for (e=0;e<clsize;e++)
             {  long idx = cl->cols[d].ivps[e].idx
             ;  o = mclxGetVectorOffset(mx, idx, EXIT_ON_FAIL, o)
+            ;  mx->cols[o].val = mclvSum(mx->cols+o)
             ;  clmVScanDomain(mx->cols+o, cl->cols+d, &sc)
             ;  clm_dump_line
                (name, &sc, idx, cl->cols[d].vid, mx->cols[o].n_ivps, clsize, 0)
          ;  }
          }
+         /* fixme: sum_e not set, pbb due to missing clmCastActors */
       }
       else if (mode == CLM_NODE_INCIDENT)
       {  mclx *el_to_cl = NULL
