@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "clmformat" 1 "27 Oct 2005" "clmformat 1\&.005, 05-300" "USER COMMANDS "
+.TH "clmformat" 1 "10 Nov 2005" "clmformat 1\&.006, 05-314" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -223,14 +223,8 @@ Name of the graph/matrix file\&.
 .ZI 3m "\fB-tab\fP fname (\fIread tab file\fP)"
 \&
 .br
-The file \fCfname\fP should be in \fItab format\fP; each line starts
-with a unique number which is an index used in the matrix input
-file and the cluster input file\&. The rest of the line contains a
-descriptive string associated with the number\&. Lines starting with
-\fC#\fP are considered comment and are disregarded\&. A single unique
-line should be present for each node/index of the cluster row domain
-(or the graph/matrix domain optionally specified with the \fB-imx\fP
-option)\&. The leading indices should be in ascending order\&.
+The file \fCfname\fP should be in \fItab format\fP\&. Refer
+to \fBmcxio(5)\fP\&.
 .in -3m
 
 .ZI 3m "\fB--lazy-tab\fP (\fIallow mismatched tab-file\fP)"

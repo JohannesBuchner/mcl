@@ -1,4 +1,4 @@
-/*   Copyright (C) 2003, 2004, 2005 Stijn van Dongen
+/* (c) Copyright 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 2 of the License or
@@ -12,6 +12,9 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+
+#include "impala/io.h"
+#include "impala/stream.h"
 
 #include "impala/matrix.h"
 #include "impala/vector.h"
@@ -50,6 +53,7 @@ enum
 ,  MY_OPT_DUMP_RLINES
 ,  MY_OPT_DUMP_TABC
 ,  MY_OPT_DUMP_TABR
+,  MY_OPT_STREAM_PACKED
 ,  MY_OPT_SEP_LEAD
 ,  MY_OPT_SEP_FIELD
 ,  MY_OPT_SEP_VAL
@@ -83,6 +87,12 @@ mcxOptAnchor options[] =
    ,  MY_OPT_LAZY_TAB
    ,  NULL
    ,  "tab file(s) may mismatch matrix domain(s)"
+   }
+,  {  "--stream-packed"
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
+   ,  MY_OPT_STREAM_PACKED
+   ,  NULL
+   ,  "stream matrix in packed format"
    }
 ,  {  "-imx"
    ,  MCX_OPT_HASARG | MCX_OPT_REQUIRED
@@ -203,7 +213,7 @@ int main
    ;  mcxIO* xf_tabr    =  NULL
    ;  mcxIO* xf_tabc    =  NULL
    ;  mcxIO* xf_mx      =  NULL
-   ;  mcxIO* xf_dump    =  NULL
+   ;  mcxIO* xfout    =  NULL
    ;  const char*  fndump  =  "-"
    ;  mclTab* tabr      =  NULL
    ;  mclTab* tabc      =  NULL
@@ -212,15 +222,16 @@ int main
    ;  mcxbool lazy_tab  =  FALSE
    ;  mcxbool dump_tabc =  FALSE
    ;  mcxbool dump_tabr =  FALSE
-   ;  mcxstatus parseStatus = STATUS_OK
+   ;  mcxbool stream_packed =  FALSE
 
-   ;  mcxbits modes     =  MCX_DUMP_VALUES
+   ;  mcxbits modes     =  MCLX_DUMP_VALUES
 
-   ;  mcxbits mode_dump =  MCX_DUMP_PAIRS
-   ;  mcxbits mode_loop =  MCX_DUMP_LOOP_ASIS
+   ;  mcxbits mode_dump =  MCLX_DUMP_PAIRS
+   ;  mcxbits mode_loop =  MCLX_DUMP_LOOP_ASIS
 
-   ;  mcxOption* opts, *opt
    ;  mclxIOdumper dumper
+   ;  mcxOption* opts, *opt
+   ;  mcxstatus parseStatus = STATUS_OK
    
    ;  mcxOptAnchorSortById(options, sizeof(options)/sizeof(mcxOptAnchor) -1)
    ;  opts = mcxOptParse(options, (char**) argv, argc, 1, 0, &parseStatus)
@@ -289,32 +300,37 @@ int main
          ;
 
             case MY_OPT_NO_VALUES
-         :  BIT_OFF(modes, MCX_DUMP_VALUES)
+         :  BIT_OFF(modes, MCLX_DUMP_VALUES)
          ;  break
          ;
 
             case MY_OPT_DUMP_RLINES
-         :  mode_dump = MCX_DUMP_RLINES
+         :  mode_dump = MCLX_DUMP_RLINES
          ;  break
          ;
 
             case MY_OPT_DUMP_LINES
-         :  mode_dump = MCX_DUMP_LINES
+         :  mode_dump = MCLX_DUMP_LINES
          ;  break
          ;
 
             case MY_OPT_NO_LOOPS
-         :  mode_loop = MCX_DUMP_LOOP_NONE
+         :  mode_loop = MCLX_DUMP_LOOP_NONE
          ;  break
          ;
 
             case MY_OPT_FORCE_LOOPS
-         :  mode_loop = MCX_DUMP_LOOP_FORCE
+         :  mode_loop = MCLX_DUMP_LOOP_FORCE
          ;  break
          ;
 
             case MY_OPT_DUMP_TABC
          :  dump_tabc = TRUE
+         ;  break
+         ;
+
+            case MY_OPT_STREAM_PACKED
+         :  stream_packed = TRUE
          ;  break
          ;
 
@@ -329,7 +345,7 @@ int main
          ;
 
             case MY_OPT_DUMP_PAIRS
-         :  mode_dump = MCX_DUMP_PAIRS
+         :  mode_dump = MCLX_DUMP_PAIRS
          ;  break
       ;  }
       }
@@ -341,8 +357,8 @@ int main
    ;  if (!xf_mx)
       mcxDie(1, me, "-imx argument required")
 
-   ;  xf_dump = mcxIOnew(fndump, "w")
-   ;  mcxIOopen(xf_dump, EXIT_ON_FAIL)
+   ;  xfout = mcxIOnew(fndump, "w")
+   ;  mcxIOopen(xfout, EXIT_ON_FAIL)
 
    ;  mcxIOopen(xf_mx, EXIT_ON_FAIL)
 
@@ -353,8 +369,6 @@ int main
       {  mclv* dom_cols = mclvInit(NULL)
       ;  mclv* dom_rows = mclvInit(NULL)
       ;  mclv* dom = dump_tabc ? dom_cols : dom_rows
-      ;  long label_o = -1, i
-      ;  long miss = 1
 
       ;  if (!(tabc =  mclTabRead(xf_tab, NULL, RETURN_ON_FAIL)))
          mcxDie(1, me, "error reading tab file")
@@ -363,16 +377,10 @@ int main
          mcxDie(1, me, "error reading matrix file")
       ;  mcxIOclose(xf_mx)
 
-      ;  for (i=0;i<dom->n_ivps;i++)
-         {  long idx = dom->ivps[i].idx
-         ;  const char* label = mclTabGet(tabc, idx, &label_o)
-         ;  if (label == tabc->na)
-               mcxErr(me, "warning index %ld not found", idx)
-            ,  fprintf(xf_dump->fp, "%ld\t%s%ld\n", idx, label, miss)
-         ;  else
-            fprintf(xf_dump->fp, "%ld\t%s\n", idx, label)
-      ;  }
-         mcxIOclose(xf_dump)
+                                       /* fixme check status */
+      ;  mclTabWrite(tabc, xfout, dom, RETURN_ON_FAIL) 
+
+      ;  mcxIOclose(xfout)
       ;  return 0
    ;  }
 
@@ -388,6 +396,10 @@ int main
       {  mclx* tp = mclxTranspose(mx)
       ;  mclxFree(&mx)
       ;  mx = tp
+   ;  }
+
+      if (stream_packed)
+      {  return mclxIOstreamOut(mx, xfout, EXIT_ON_FAIL)
    ;  }
 
       if (xf_tab)
@@ -432,10 +444,10 @@ int main
 
       mclxIOdumpSet(&dumper, modes, sep_lead_g, sep_row_g, sep_val_g)
 
-   ;  if (mclxIOdump(mx, xf_dump, &dumper, tabc, tabr, RETURN_ON_FAIL))
+   ;  if (mclxIOdump(mx, xfout, &dumper, tabc, tabr, RETURN_ON_FAIL))
       mcxDie(1, me, "something suboptimal")
 
-   ;  mcxIOfree(&xf_dump)
+   ;  mcxIOfree(&xfout)
    ;  return 0
 ;  }
 

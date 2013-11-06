@@ -105,7 +105,12 @@ mcxHash* mcxHashNew
       
    ;  int n_bits   =  0
 
-   ;  if (!(h = mcxAlloc(sizeof(mcxHash), RETURN_ON_FAIL)))
+   ;  if (n_buckets <= 0)
+      {  mcxErr("mcxHashNew strange", "alloc request %d", n_buckets)
+      ;  n_buckets = 2
+   ;  }
+
+      if (!(h = mcxAlloc(sizeof(mcxHash), RETURN_ON_FAIL)))
       return NULL
 
    ;  h->mask           =  --n_buckets

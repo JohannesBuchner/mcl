@@ -1,0 +1,391 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<!-- Copyright (c) 2005 Stijn van Dongen -->
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<style type="text/css">
+body {
+text-align: justify;
+color: #001111;
+background: white;
+margin-left: 8%;
+margin-right: 8%;
+font-family: Helvetica, Univers, Verdana, sans-serif;
+}
+p.default {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+p.L53 { font-size: 30pt; }
+p.L52 { font-size: 20pt; }
+p.L51 { font-size: 15pt; }
+p.L50 { font-size: 12pt; }
+p.L49 { font-size: 10pt; }
+p.L48 { font-size: 9pt; }
+p.L47 { font-size: 8pt; }
+td {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+h3 { margin-top:1em; }
+h2 { margin-top:2em; }
+.left { text-align: left; align: left; }
+.right { text-align: right; align: right; }
+.center { text-align: center; align: center; }
+a:link { text-decoration: none; }
+a:active { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:link { color: #1111aa; }
+a:active { color: #1111aa; }
+a:visited { color: #111166; }
+a.local:link { color: #11aa11; }
+a.local:active { color: #11aa11; }
+a.local:visited { color: #116611; }
+a.intern:link { color: #1111aa; }
+a.intern:active { color: #1111aa; }
+a.intern:visited { color: #111166; }
+a.extern:link { color: #aa1111; }
+a.extern:active { color: #aa1111; }
+a.extern:visited { color: #661111; }
+a.quiet:link { color: black; }
+a.quiet:active { color: black; }
+a.quiet:visited { color: black; }
+div.copy
+{ font-size: 12pt;
+font-family: monospace;
+text-align: left;
+white-space: pre;
+margin-left: 2em;
+margin-top: 1em;
+margin-bottom: 1em;
+}
+div.indent
+{ margin-left: 8%;
+margin-right: 0%;
+}
+</style>
+<title>The mcxload manual</title>
+</head>
+<body>
+<p style="text-align:right">
+10 Nov 2005&nbsp;&nbsp;&nbsp;
+<a class="local" href="mcxload.ps"><b>mcxload</b></a>
+1.006, 05-314
+</p>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr><td width=48 valign="top" class=left>1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#name">NAME</a>
+</div></td></tr><tr><td width=48 valign="top" class=left>2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#synopsis">SYNOPSIS</a>
+</div></td></tr><tr><td width=48 valign="top" class=left>3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#description">DESCRIPTION</a>
+</div></td></tr><tr><td width=48 valign="top" class=left>4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#options">OPTIONS</a>
+</div></td></tr><tr><td width=48 valign="top" class=left>5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#author">AUTHOR</a>
+</div></td></tr><tr><td width=48 valign="top" class=left>6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#seealso">SEE ALSO</a>
+</div></td></tr>
+</table>
+
+</div>
+
+<a name="name"></a>
+<h2>NAME</h2>
+<p class="default L50" style="margin-bottom:0">
+mcxload - load matrices and tab files from label format</p>
+
+<a name="synopsis"></a>
+<h2>SYNOPSIS</h2>
+<p class="default L50" style="margin-bottom:0">
+<b>mcxload</b> <a class="intern" href="#opt-abc"><b>-abc</b> &lt;fname&gt; (<i>label file</i>)</a>
+<a class="intern" href="#opt-o"><b>-o</b> &lt;fname&gt; (<i>output file</i>)</a></p>
+<p class="default L50" style="margin-bottom:0">
+<a class="intern" href="#opt--stream-mirror"><b>[--stream-mirror</b> (<i>symmetrify, same domain</i>)<b>]</b></a>
+<a class="intern" href="#opt--graph"><b>[--graph</b> (<i>assume same domain</i>)<b>]</b></a>
+<a class="intern" href="#opt-re"><b>[-re</b> &lt;mode&gt; (<i>edge deduplication mode</i>)<b>]</b></a>
+<a class="intern" href="#opt-ri"><b>[-ri</b> &lt;mode&gt; (<i>image symmetrification mode</i>)<b>]</b></a>
+<a class="intern" href="#opt-cache-tab"><b>[-cache-tab</b> &lt;fname&gt; (<i>save domain tab</i>)<b>]</b></a>
+<a class="intern" href="#opt-cache-tabc"><b>[-cache-tabc</b> &lt;fname&gt; (<i>save column tab</i>)<b>]</b></a>
+<a class="intern" href="#opt-cache-tabr"><b>[-cache-tabr</b> &lt;fname&gt; (<i>save row tab</i>)<b>]</b></a>
+<a class="intern" href="#opt-strict-tab"><b>[-strict-tab</b> &lt;fname&gt; (<i>tab universe</i>)<b>]</b></a>
+<a class="intern" href="#opt-strict-tabc"><b>[-strict-tabc</b> &lt;fname&gt; (<i>tabc universe</i>)<b>]</b></a>
+<a class="intern" href="#opt-strict-tabr"><b>[-strict-tabr</b> &lt;fname&gt; (<i>tabr universe</i>)<b>]</b></a>
+<a class="intern" href="#opt-restrict-tab"><b>[-restrict-tab</b> &lt;fname&gt; (<i>tab world</i>)<b>]</b></a>
+<a class="intern" href="#opt-restrict-tabc"><b>[-restrict-tabc</b> &lt;fname&gt; (<i>tabc world</i>)<b>]</b></a>
+<a class="intern" href="#opt-restrict-tabr"><b>[-restrict-tabr</b> &lt;fname&gt; (<i>tabr world</i>)<b>]</b></a>
+<a class="intern" href="#opt-extend-tab"><b>[-extend-tab</b> &lt;fname&gt; (<i>tab launch</i>)<b>]</b></a>
+<a class="intern" href="#opt-extend-tabc"><b>[-extend-tabc</b> &lt;fname&gt; (<i>tabc launch</i>)<b>]</b></a>
+<a class="intern" href="#opt-extend-tabr"><b>[-extend-tabr</b> &lt;fname&gt; (<i>tabr launch</i>)<b>]</b></a>
+<a class="intern" href="#opt-s"><b>[-s</b> [io]&lt;lq|gq|ceil|floor&gt;=&lt;num&gt; (<i>select/bound input/output</i>)<b>]</b></a>
+<a class="intern" href="#opt-log"><b>[-log</b> &lt;base&gt; (<i>log transform</i>)<b>]</b></a>
+<a class="intern" href="#opt-neglog"><b>[-neglog</b> &lt;base&gt; (<i>-log transform</i>)<b>]</b></a>
+<a class="intern" href="#opt-add"><b>[-add</b> &lt;num&gt; (<i>shift</i>)<b>]</b></a>
+<a class="intern" href="#opt-pow"><b>[-pow</b> &lt;power&gt; (<i>raise</i>)<b>]</b></a>
+<a class="intern" href="#opt-t"><b>[-t</b> (<i>transpose</i>)<b>]</b></a>
+<a class="intern" href="#opt--binary"><b>[--binary</b> (<i>output binary format</i>)<b>]</b></a>
+<a class="intern" href="#opt--debug"><b>[--debug</b> (<i>debug</i>)<b>]</b></a>
+<a class="intern" href="#opt-h"><b>[-h</b> (<i>option listing</i>)<b>]</b></a>
+<a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>option listing</i>)<b>]</b></a>
+<a class="intern" href="#opt--version"><b>[--version</b> (<i>version</i>)<b>]</b></a></p>
+
+<a name="description"></a>
+<h2>DESCRIPTION</h2>
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<b>mcxload</b> reads label input from a file. The format of the file
+should be line-based, each line containing two white-space separated
+strings (labels) and optionally a number separated from the second label
+by whitespace. In the absence of a value, mcxload will use the
+default value 1.0.</p>
+<p class="default L50" style="margin-bottom:0">
+mcxload will transform the labels into mcl numerical identifiers and the
+pairs of labels into graph edges or equivalently matrix entries.
+The weight of an edge is the value associated with the associated
+labels. mcxload constructs dictionaries (sometimes just one) that
+map labels onto mcl identifiers as it goes along. It can optionally
+write these to file.
+In MCL (family) parlance, a such a dictionary written to file
+is called a <i>tab file</i>.</p>
+<p class="default L50" style="margin-bottom:0">
+A major mcxload modality is whether the input refers to a single
+domain or to two separate domains. An example of the first is where
+labels are names of people and the value is the extent to which they
+like one another. This encodes a <i>likability</i> graph where all
+the nodes represent people. The reasonable thing to do in this
+case is to create a single dictionary with all names wherever
+they occur. All <b>tab</b> options (as opposed to <b>tabc</b> and <b>tabr</b>)
+pertain to this scenario and likewise for the options <a class="intern" href="#opt--graph"><b>--graph</b></a>
+and <a class="intern" href="#opt--stream-mirror"><b>--stream-mirror</b></a>.</p>
+<p class="default L50" style="margin-bottom:0">
+An example of the second mode is where the first label is again the name of
+a person, the second label is the name of an animal species, and the value
+is the extent to which that person appreciates the species. In this case,
+the reasonable thing to do is to create two dictionaries, one for persons
+and one for species. All <b>tabc</b> and <b>tabr</b> options pertain to
+this scenario. The <b>tabc</b> options <i>always refer to the first label</i>
+and the <b>tabr</b> options <i>always refer to the second label</i>.
+The letters <b>c</b> and <b>r</b> refer to <i>column</i> and <i>row</i> respectively.
+The latter are the names of the matrix domains corresponding
+to the input domains. Refer to <a class="local" href="mcxio.html">mcxio</a>.</p>
+<p class="default L50" style="margin-bottom:0">
+A further mcxload modality is whether it constructs dictionaries
+on the fly, or whether it proceeds from a tab file already
+available.
+By default mcxload will construct dictionaries on the fly. You
+need to save them with the appropriate <b>cache</b> option(s).
+All the <b>strict</b> options read a tab file
+and require any labels in the <a class="intern" href="#opt-abc"><b>-abc</b>&nbsp;<i>label input</i></a>
+to be present in the corresponding tab file. mcxload will then fail in
+the face of absent labels.
+All the <b>restrict</b> options simply ignore labels that are
+not found in the corresponding tab file.
+The <b>extend</b> options extend the existing tab file with
+labels that are not found.
+It presumably only makes sense to do so if the corresponding
+<b>cache</b> options are used as well.</p>
+<p class="default L50" style="margin-bottom:0">
+The input stream is deduplicated on a per-node neighbourhood basis
+using the <a class="intern" href="#opt-re"><b>-re</b></a> option.</p>
+<p class="default L50" style="margin-bottom:0">
+mcxload has many options to transform or select based on
+the values of the input. These are
+<a class="intern" href="#opt-add"><b>-add</b></a>,
+<a class="intern" href="#opt-pow"><b>-pow</b></a>,
+<a class="intern" href="#opt-log"><b>-log</b></a> and
+<a class="intern" href="#opt-neglog"><b>-neglog</b></a> for unary transformations of the input.
+Use <a class="intern" href="#opt-s"><b>-s</b></a> to select edges based on their values.
+It is possible to select edges both before and after unary
+transformations have been applied.
+Finally it is possible to transpose the final result
+using the <a class="intern" href="#opt-t"><b>-t</b></a> option. Keep in mind that
+mcxload does not accordingly change its idea of row and
+column domains.</p>
+<p class="default L50" style="margin-bottom:0">
+The final matrix can be symmetrified using the <a class="intern" href="#opt-ri"><b>-ri</b></a> option.</p>
+<p class="default L50" style="margin-bottom:0"><b>STAGES</b><br>
+Conceptually, input matrix creation consists of the following stages</p>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr><td width=64 valign="top" class=right>i</td><td width=24>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Read the input stream, optionally push reverse elements
+(<a class="intern" href="#opt--stream-mirror"><b>--stream-mirror</b></a>).</p>
+</div></td></tr><tr><td width=64 valign="top" class=right>ii</td><td width=24>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Deduplicate edges in the context of all edges/arcs originating from
+a given node.</p>
+</div></td></tr><tr><td width=64 valign="top" class=right>iii</td><td width=24>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Apply input bound and select options -
+those in the syntax <tt>i&lt;lq|lt|gq|gt|ceil|floor&gt;</tt>.</p>
+</div></td></tr><tr><td width=64 valign="top" class=right>iv</td><td width=24>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Apply unary transformations.</p>
+</div></td></tr><tr><td width=64 valign="top" class=right>v</td><td width=24>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Apply output bound and select options -
+those in the syntax <tt>o&lt;lq|lt|gq|gt|ceil|floor&gt;</tt>.</p>
+</div></td></tr><tr><td width=64 valign="top" class=right>vi</td><td width=24>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Apply transpose symmetrification according to the
+<a class="intern" href="#opt-ri"><b>-ri</b></a> option, if used.</p>
+</div></td></tr>
+</table>
+
+</div>
+
+<a name="options"></a>
+<h2>OPTIONS</h2>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr><td colspan=3><a name="opt-abc"></a><b>-abc</b> &lt;fname&gt; (<i>label file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">The file to read label data from.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-o"></a><b>-o</b> &lt;fname&gt; (<i>output file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">The output file where the constructed matrix is written.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--stream-mirror"></a><b>--stream-mirror</b> (<i>symmetrify, same domain</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Whenever <i>label1</i> <i>label2</i> <i>value</i>
+is encountered in the input, mcxload inserts
+<i>label2</i> <i>label1</i> <i>value</i> in the input
+stream as well. This option implies that both labels
+belong to the same domain.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--graph"></a><b>--graph</b> (<i>assume same domain</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+This tells mcxload that both labels belong to the same domain.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-re"></a><b>-re</b> &lt;max|add|mul|first|last&gt; (<i>deduplication mode</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+This specifies how mcxload should collapse repeated entries, that is edges
+for which a value is specified multiple times. This is done relative to a
+single node at a time, taking into account all neighbours assembled from the
+input stream. Note that <a class="intern" href="#opt--stream-mirror"><b>--stream-mirror</b></a> will result in
+duplicated entries if the input contains edge specifications in both ways.
+Also note that <b>first</b> and <b>last</b> might not result in
+symmetric input if only <b>--stream-mirror</b> is used.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-cache-tab"></a><b>-cache-tab</b> &lt;fname&gt; (<i>save domain tab</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Write the domain to file. It applies to both label types.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-cache-tabc"></a><b>-cache-tabc</b> &lt;fname&gt; (<i>save column tab</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Write the column domain to file. It applies to the first label found
+on each input line.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-cache-tabr"></a><b>-cache-tabr</b> &lt;fname&gt; (<i>save row tab</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Write the column domain to file. It applies to the second label found
+on each input line.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-strict-tab"></a><b>-strict-tab</b> &lt;fname&gt; (<i>tab universe</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Read a dictionary from file and require each label to be present in the
+dictionary. mcxload will exit on absentees.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-strict-tabc"></a><b>-strict-tabc</b> &lt;fname&gt; (<i>tabc universe</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Read a dictionary from file and require the first label on each line
+to be present in the dictionary. mcxload will exit on absentees.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-strict-tabr"></a><b>-strict-tabr</b> &lt;fname&gt; (<i>tabr universe</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Read a dictionary from file and require the second label on each line
+to be present in the dictionary. mcxload will exit on absentees.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-restrict-tab"></a><b>-restrict-tab</b> &lt;fname&gt; (<i>tab world</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Read a dictionary from file and only accept input lines (edges)
+for which both labels are present in the dictionary.
+mcxload will ignore absentees.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-restrict-tabc"></a><b>-restrict-tabc</b> &lt;fname&gt; (<i>tabc world</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Read a dictionary from file and ignore input lines
+for which the first label is absent from the dictionary.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-restrict-tabr"></a><b>-restrict-tabr</b> &lt;fname&gt; (<i>tabr world</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Read a dictionary from file and ignore input lines
+for which the second label is absent from the dictionary.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-extend-tab"></a><b>-extend-tab</b> &lt;fname&gt; (<i>tab launch</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Read a dictionary from file and extend it with any
+label from the input not yet present in the dictionary.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-extend-tabc"></a><b>-extend-tabc</b> &lt;fname&gt; (<i>tabc launch</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Read a dictionary from file and extend it with all
+first labels from the input not yet present in the dictionary.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-extend-tabr"></a><b>-extend-tabr</b> &lt;fname&gt; (<i>tabr launch</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Read a dictionary from file and extend it with all
+second labels from the input not yet present in the dictionary.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-log"></a><b>-log</b> &lt;base&gt; (<i>log transform</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Replace each entry by its log in base <i>&lt;base&gt;</i>.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-neglog"></a><b>-neglog</b> &lt;base&gt; (<i>-log transform</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Replace each entry by its negative log in base <i>&lt;base&gt;</i>.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-add"></a><b>-add</b> &lt;num&gt; (<i>shift</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Add <i>&lt;shift&gt;</i> to each non-zero entry.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-pow"></a><b>-pow</b> &lt;power&gt; (<i>raise</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Raise each entry to the power <i>&lt;power&gt;</i>.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-s"></a><b>-s</b> [io]&lt;lq|gq|ceil|floor&gt;=&lt;num&gt; (<i>select/bound input/output</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Combine <b>i</b> or <b>o</b> with any of the modifiers to select or bound
+input or output. Example:</p>
+<pre>-s igq=5 -s oceil=10</pre>
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+This selects only entries in the input that are greater than or
+equal to 5 and it setes any entry larger than 10 to 10.</p>
+<p class="default L50" style="margin-bottom:0"><b>NOTE</b><br>
+Output is in this context the stage immediately after unary
+transformation and before symmetrification using the transposed
+matrix.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-ri"></a><b>-ri</b> (<i>&lt;max|add|mul&gt;</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+After the initial matrix has been assembled, it can be symmetrified by
+either of these options. They indicate the operation used to combine the
+entries of the transposed matrix and the original matrix. <b>mul</b>
+is special in that it treats missing entries (which are normally considered
+zero in mcl matrix operations) as one.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-t"></a><b>-t</b> (<i>transpose</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Write the transposed matrix to file. This is obviously not useful
+when a symmetric matrix has been generated.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--binary"></a><b>--binary</b> (<i>output binary format</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Write the output matrix in native binary format.
+This is generally smaller and faster to read, albeit not
+humanly unreadable.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--debug"></a><b>--debug</b> (<i>debug</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Among other things, this turns on warnings when <b>restrict</b> tab
+files are used and labels are found to be missing.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-h"></a><b>-h</b> (<i>option listing</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+List short description of all options.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--apropos"></a><b>--apropos</b> (<i>option listing</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+List short description of all options.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--version"></a><b>--version</b> (<i>version</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Output version information.</p>
+</div></td></tr>
+</table>
+
+</div>
+
+<a name="author"></a>
+<h2>AUTHOR</h2>
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Stijn van Dongen.</p>
+
+<a name="seealso"></a>
+<h2>SEE ALSO</h2>
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<a class="local" href="mcxdump.html">mcxdump</a>,
+<a class="local" href="mcl.html">mcl</a>,
+<a class="local" href="mclfaq.html">mclfaq</a>,
+and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+and the utilities in the mcl family.</p>
+</body>
+</html>

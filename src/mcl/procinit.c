@@ -47,6 +47,7 @@ enum
 ,  PROC_OPT_MAINLENGTH
 ,  PROC_OPT_INITINFLATION
 ,  PROC_OPT_MAININFLATION
+,  PROC_OPT_XPNDINFLATION
 ,  PROC_OPT_SCHEME
 ,  PROC_OPT_MY_SCHEME
                         ,  PROC_OPT_ETHREADS
@@ -66,19 +67,15 @@ enum
                         ,  PROC_OPT_PCT
 ,  PROC_OPT_NJ          =  PROC_OPT_PCT + 2
 ,  PROC_OPT_WARNFACTOR
-,  PROC_OPT_WARNPCT
-,  PROC_OPT_INFLATEFIRST
-                        ,  PROC_OPT_EXPANDONLY
-,  PROC_OPT_DUMPSTEM    =  PROC_OPT_EXPANDONLY + 2
+                        ,  PROC_OPT_WARNPCT
+,  PROC_OPT_DUMPSTEM    =  PROC_OPT_WARNPCT + 2
 ,  PROC_OPT_DUMP
 ,  PROC_OPT_DUMPSUBI
 ,  PROC_OPT_DUMPSUBD
 ,  PROC_OPT_DUMPDOM
 ,  PROC_OPT_DUMPINTERVAL
                         ,  PROC_OPT_DUMPMODULO
-,  PROC_OPT_CLONE       =  PROC_OPT_DUMPMODULO + 2
-,  PROC_OPT_CLONEAT
-,  PROC_OPT_TRACK
+,  PROC_OPT_TRACK       =  PROC_OPT_DUMPMODULO + 2
 ,  PROC_OPT_TRACKI
 ,  PROC_OPT_TRACKM
 ,  PROC_OPT_DEVEL
@@ -127,18 +124,6 @@ mcxOptAnchor mclProcOptions[] =
    ,  NULL
    ,  "does nothing"
    }
-,  {  "--clone"
-   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
-   ,  PROC_OPT_CLONE
-   ,  NULL
-   ,  "clone matrix (do-not-use)"
-   }
-,  {  "-cloneat"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
-   ,  PROC_OPT_CLONEAT
-   ,  NULL
-   ,  "clone at this nrof entries per column, average"
-   }
 ,  {  "--rigid"
    ,  MCX_OPT_DEFAULT
    ,  PROC_OPT_RIGID
@@ -181,17 +166,11 @@ mcxOptAnchor mclProcOptions[] =
    ,  NULL
    ,  "(small graphs only [#<20]) dump iterands to *screen*"
    }
-,  {  "--inflate-first"
-   ,  MCX_OPT_DEFAULT
-   ,  PROC_OPT_INFLATEFIRST
-   ,  NULL
+,  {  "-ei"
+   ,  MCX_OPT_HASARG
+   ,  PROC_OPT_XPNDINFLATION
+   ,  "<num>"
    ,  "apply inflation first (use e.g. with --expand-only)"
-   }
-,  {  "--expand-only"
-   ,  MCX_OPT_DEFAULT
-   ,  PROC_OPT_EXPANDONLY
-   ,  NULL
-   ,  "apply expansion, write result, and quit"
    }
 ,  {  "-l"
    ,  MCX_OPT_HASARG
@@ -627,32 +606,17 @@ mcxstatus mclProcessInit
          ;  break
          ;
 
-            case PROC_OPT_CLONE
-         :  mxp->cloneMatrices=  TRUE
-         ;  break
-         ;
-
-            case PROC_OPT_CLONEAT
-         :  i = atoi(opt->val)
-         ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_1, NULL, NULL)
-         ;  if (vok) mxp->cloneBarrier = i
-         ;  break
-         ;
-
             case PROC_OPT_SHOW
          :  mpp->printMatrix  =  TRUE
          ;  break
          ;
 
-            case PROC_OPT_EXPANDONLY
-         :  mpp->expandOnly   =  TRUE
+#if 0
+            case PROC_OPT_CACHE_XP
+         :  mpp->fname_expanded =  mcxTingNew(opt->val)
          ;  break
          ;
-
-            case PROC_OPT_INFLATEFIRST
-         :  mpp->inflateFirst =  TRUE
-         ;  break
-         ;
+#endif
 
             case PROC_OPT_DENSE
          :  n_recover =  0
@@ -667,8 +631,8 @@ mcxstatus mclProcessInit
          ;  if (vok && (f<1.1 || f>5.0))
             mcxWarn
             (  "mcl"
-            ,  "warning: conceivable/normal ranges for -i are "
-               "(1.0, 5.0] / [1.2, 3.0]"
+            ,  "warning: extreme/conceivable/normal ranges for -I are "
+               "(1.0, 8.0] / [1.1, 5.0] / [1.2, 3.0]"
             )
          ;  if (vok) mpp->initInflation = f
          ;  break
@@ -680,10 +644,23 @@ mcxstatus mclProcessInit
          ;  if (vok && (f<1.1 || f>5.0))
             mcxWarn
             (  "mcl"
-            ,  "warning: conceivable/normal ranges for -I are "
-               "(1.0, 5.0] / [1.2, 3.0]"
+            ,  "warning: extreme/conceivable/normal ranges for -I are "
+               "(1.0, 8.0] / [1.1, 5.0] / [1.2, 3.0]"
             )
          ;  if (vok) mpp->mainInflation = f
+         ;  break
+         ;
+
+            case PROC_OPT_XPNDINFLATION
+         :  f = atof(opt->val)
+         ;  vok = CHB(anch->tag, 'f', &f, fltGq, &f_e1, fltLq, &f_30)
+         ;  if (vok && (f<1.1 || f>5.0))
+            mcxWarn
+            (  "mcl"
+            ,  "warning: extreme/conceivable/normal ranges for -I are "
+               "(1.0, 8.0] / [1.1, 5.0] / [1.2, 3.0]"
+            )
+         ;  if (vok) mpp->inflate_expanded = f
          ;  break
          ;
 
@@ -999,6 +976,8 @@ mcxstatus mclProcessInit
             BIT_ON(mpp->dumping, MCPVB_LINES)
          ;  if (strstr(arg, "cat"))
             BIT_ON(mpp->dumping, MCPVB_CAT)
+         ;  if (strstr(arg, "labels"))
+            BIT_ON(mpp->dumping, MCPVB_TAB)
          ;  break
          ;
 
@@ -1192,26 +1171,18 @@ void mclShowSettings
 
    ;  if (user) fprintf
       (  fp ,  "%-40s%8d%8s%s\n"
-            ,  "warn-factor"
-            ,  mxp->warnFactor
-            ,  ""
-            ,  "[-warn-factor k]"
-      )
-
-   ;  if (user) fprintf
-      (  fp ,  "%-40s%8d%8s%s\n"
             ,  "warn-pct"
             ,  (int) ((100.0 * mxp->warnPct) + 0.5)
             ,  ""
             ,  "[-warn-pct k]"
       )
 
-   ;  if (user || mxp->cloneMatrices) fprintf
+   ;  if (user) fprintf
       (  fp ,  "%-40s%8d%8s%s\n"
-            ,  "Clone threshold (vector density)"
-            ,  mxp->cloneBarrier
+            ,  "warn-factor"
+            ,  mxp->warnFactor
             ,  ""
-            ,  "[-cloneat f]"
+            ,  "[-warn-factor k]"
       )
 
    ;  if (user) fprintf

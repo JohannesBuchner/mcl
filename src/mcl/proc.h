@@ -13,6 +13,7 @@
 #include "expand.h"
 
 #include "impala/matrix.h"
+#include "impala/tab.h"
 #include "taurus/ilist.h"
 
 #include "util/opt.h"
@@ -22,14 +23,10 @@
 
 
 typedef struct
-{  mcxIO*               outFile
-
-;  int                  n_ithreads
-
+{  int                  n_ithreads
 ;  int                  n_ethreads
-;  mcxbool              cloneMatrices
-;  mcxbool              cloneBarrier
 
+;  mcxTing*             fname_expanded
 ;  mclExpandParam       *mxp
 
 ;  int                  marks[5]
@@ -46,6 +43,7 @@ typedef struct
 #define  MCPVB_SUB       1 << 4     /* dump submatrices                    */
 #define  MCPVB_LINES     1 << 5     /* line based dump                     */
 #define  MCPVB_CAT       1 << 6     /* all to same destination (dump_stem) */
+#define  MCPVB_TAB       1 << 8     /* use tab                             */
 
 ;  mcxbits              dumping
 ;  int                  dump_modulo
@@ -53,6 +51,7 @@ typedef struct
 ;  int                  dump_bound
 ;  mcxTing*             dump_stem
 ;  mclv*                dump_list
+;  const mclTab*        dump_tab
 
 ;  double               chaosLimit
 ;  double               lap
@@ -69,7 +68,7 @@ typedef struct
 ;  int                  printMatrix
 ;  int                  printDigits
 
-;  mcxbool              inflateFirst
+;  double               inflate_expanded
 ;  mcxbool              expandOnly
 
 ;  mclInterpretParam*   ipp

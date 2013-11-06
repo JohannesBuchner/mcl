@@ -44,7 +44,6 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
 
   2...... Input format
    2.1... How can I get my data into the MCL matrix format?
-   2.2... Can I get my graph into MCL format by directly streaming it?
 
   3...... What kind of graphs
    3.1... What is legal input for MCL?
@@ -230,7 +229,7 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
           the year 2002. This date stamp agrees (as of April  2000)  with  the
           (differently  presented) date stamp used in all manual pages shipped
           with that release.  For example, the date stamp of the FAQ  you  are
-          reading is 27 Oct 2005, which corresponds with the MCL stamp 05-300.
+          reading is 10 Nov 2005, which corresponds with the MCL stamp 05-314.
           The Changelog file contains a list of what's changed/added with each
           release. Currently, the date stamp is the primary way of identifying
           an mcl release. When asked for its version by using  --version,  mcl
@@ -251,13 +250,9 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
 
    2.1    How can I get my data into the MCL matrix format?
 
-          NOTE
-          The program mcxdeblast referenced below is only available if mcl was
-          configured with --enable-blast.
-
-          One  of  the  easiest ways is if you have a list of label pairs with
-          similarities attached to the pairs.  Put  this  information  into  a
-          file  with  each  pair  of labels and the associated similarity on a
+          One of the easiest ways is if you have a list of  label  pairs  with
+          similarities  attached  to  the  pairs.  Put this information into a
+          file with each pair of labels and the  associated  similarity  on  a
           single line separated by whitespace. Example:
 
           apples    oranges    2.14
@@ -265,53 +260,31 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
           oranges   apples     1.57
           pears     apples     1.01
 
-          Suppose the file is called mydata.  The following converts your data
-          to MCL format.
+          Suppose  the  file is called mydata.  You can simply cluster it like
+          this:
 
-             mcxdeblast --abc mydata             # create mydata.hdr, mydata.raw
-             mcxassemble -b mydata -r max --map  # create mydata.sym
+             mcl mydata --abc -I 2.0 -o mydata.cls-I20
+             mcl mydata --abc -I 2.4 -o mydata.cls-I24
+             mcl mydata --abc -I 2.8 -o mydata.cls-I28
 
-          mcxdeblast  first converts your label input to numerical identifiers
-          and stores it in a so called raw format.  mcxassemble then  converts
-          the  raw  format to MCL format, and it makes sure that the result is
-          symmetric. The result is stored in the file  mydata.sym.  It  should
-          look like this:
+          In this example a few  runs  were  shown  with  different  inflation
+          parameters.   This  is nonsensical with this particular 4-node input
+          but a good idea in general. mcl provides many options to  cache  the
+          intermediate  matrix  input  and the intermediate tab file. Refer to
+          the mcl manual page.
 
-          (mclheader
-          mcltype matrix
-          dimensions 3x3
-          )
-          (mclmatrix
-          begin
-          0 1:0.7800 2:2.1400 $
-          1 0:0.7800 2:1.0100 $
-          2 0:2.1400 1:1.0100 $
-          )
+          NOTE
+          Simply doing
 
-          The  -r max option causes repeated entries (i.e. the same label pair
-          specified more than once) to be  collapsed  by  taking  the  maximum
-          value.  Another  option  is  to add them by using -r add.  The --map
-          option tells mcxassemble to look for a file mydata.map that  relates
-          the  tab file to the raw format. This file is also created by mcxde-
-          blast.  Do not forget to use --map!  Refer to mcxassemble  for  more
-          information on these and other options.
+             mcl mydata --abc -I 2.0
+             mcl mydata --abc -I 2.4
+             mcl mydata --abc -I 2.8
 
-          By  default  mcxdeblast  creates a tab file ordered by occurrence of
-          labels in the input file  (mydata  in  this  cases).   This  can  be
-          changed  by  supplying  it  with  --sort=a which triggers alphabetic
-          sorting.
-
-   2.2    Can I get my graph into MCL format by directly streaming it?
-
-          For large graphs it becomes inconvenient to have to go via  interme-
-          diate  formats,  as  it  can  take a substantial amount of time. The
-          problem is that currently MCL insists on knowing the  domains  of  a
-          matrix  before  it will load the matrix itself, but often parsers or
-          loaders that stream from a  file  or  database  cannot  supply  this
-          information  in time.  Directly streaming a matrix into MCL requires
-          an adaptive-loading mechanism. This is not yet implemented but it is
-          high  on  the TODO list. Adaptive loading will only be supported for
-          canonical domains (cf mcxio(5)).
+          will result in the output files out.mydata.I20s6,  out.mydata.I24s6,
+          and  out.mydata.I28s6. The s6 bit indicates the resource scheme used
+          by mcl. The automatic naming facility is very convenient -  try  it.
+          If  you  need  to  script mcl use the -az option to capture the name
+          that mcl would generate given the rest of the command-line.
 
                                   What kind of graphs
 
@@ -435,25 +408,24 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
 
    3.11   How do I check that my graph/matrix is symmetric/undirected?
 
-          Whether your graph is created  by  third-party  software  (e.g.  the
-          TribeMCL  module (maintained by Anton Enright)) or by custom sofware
-          written by someone you know (e.g. yourself), it is advisable to test
-          whether  the software generates symmetric matrices. This can be done
-          as follows using the mcx utility, assuming that you want to test the
-          matrix  stored  in file matrix.mci. The mcx utility should be avail-
-          able on your system if mcl was installed in the normal way.
+          Whether your graph is created by third-party software or  by  custom
+          sofware written by someone you know (e.g. yourself), it is advisable
+          to test whether the software generates symmetric matrices. This  can
+          be  done as follows using the mcx utility, assuming that you want to
+          test the matrix stored in file matrix.mci. The mcx utility should be
+          available on your system if mcl was installed in the normal way.
 
           mcx /matrix.mci lm tp -1 mul add /check wm
 
-          This loads the graph/matrix stored in matrix.mci into  mcx's  memory
-          with  the  mcx  lm primitive. - the leading slash is how strings are
-          introduced in the stack language interpreted by mcx.  The  transpose
+          This  loads  the graph/matrix stored in matrix.mci into mcx's memory
+          with the mcx lm primitive. - the leading slash is  how  strings  are
+          introduced  in  the stack language interpreted by mcx. The transpose
           of that matrix is then pushed on the stack with the tp primitive and
-          multiplied by minus one. The two matrices are added, and the  result
+          multiplied  by minus one. The two matrices are added, and the result
           is written to the file check.  The transposed matrix is the mirrored
-          version  of  the  original  matrix  stored  in  matrix.mci.   If   a
-          graph/matrix  is  undirected/symmetric, the mirrored image is neces-
-          sarily the same, so if you subtract one from  the  other  it  should
+          version   of   the  original  matrix  stored  in  matrix.mci.  If  a
+          graph/matrix is undirected/symmetric, the mirrored image  is  neces-
+          sarily  the  same,  so  if you subtract one from the other it should
           yield an all zero matrix.
 
           Thus, the file check should look like this:
@@ -466,9 +438,9 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
           begin
           )
 
-          Where  <num>  is  the same as in the file matrix.mci. If this is not
+          Where <num> is the same as in the file matrix.mci. If  this  is  not
           the case, find out what's prohibiting you from feeding mcl symmetric
-          matrices.  Note  that any nonzero entries found in the matrix stored
+          matrices. Note that any nonzero entries found in the  matrix  stored
           as check correspond to node pairs for which the arcs in the two pos-
           sible directions have different weight.
 
@@ -477,53 +449,53 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
    4.1    How fast is mcl/MCL?
 
           It's fast - here is how and why. Let N be the number of nodes in the
-          input graph. A straigtforward implementation of MCL will  have  time
+          input  graph.  A straigtforward implementation of MCL will have time
           and space complexity respecively O(N^3) (i.e. cubic in N) and O(N^2)
           (quadratic in N).  So you don't want one of those.
 
-          mcl implements a slightly perturbed version of the MCL  process,  as
+          mcl  implements  a slightly perturbed version of the MCL process, as
           discussed in section Resource tuning / accuracy.  Refer to that sec-
-          tion for a more extensive discussion of all  the  aspects  involved.
-          This  section  is  only concerned with the high-level view of things
+          tion  for  a  more extensive discussion of all the aspects involved.
+          This section is only concerned with the high-level  view  of  things
           and the nitty gritty complexity details.
 
-          While computing the square of a matrix (the product of  that  matrix
+          While  computing  the square of a matrix (the product of that matrix
           with itself), mcl keeps the matrix sparse by allowing a certain max-
           imum number of nonzero entries per stochastic column. The maximum is
           one of the mcl parameters, and it is typically set somewhere between
           500 and 1000.  Call the maximum K.
 
           mcl's time complexity is governed by the complexity of matrix squar-
-          ing.   There  are  two  sub-algorithms to consider. The first is the
+          ing.  There are two sub-algorithms to consider.  The  first  is  the
           algorithm responsible for assembling a new vector during matrix mul-
-          tiplication.  This  algorithm  has worst case complexity O(K^2). The
-          pruning algorithm (which uses heap selection) has  worst  case  com-
-          plexity  O(L*log(K)),  where  L is how large a newly computed matrix
+          tiplication. This algorithm has worst case  complexity  O(K^2).  The
+          pruning  algorithm  (which  uses heap selection) has worst case com-
+          plexity O(L*log(K)), where L is how large a  newly  computed  matrix
           column can get before it is reduced to at most K entries. L is bound
-          by  the smallest of the two numbers N and K^2 (the square of K), but
-          on average L will be much smaller than  that,  as  the  presence  of
+          by the smallest of the two numbers N and K^2 (the square of K),  but
+          on  average  L  will  be  much smaller than that, as the presence of
           cluster structure aids in keeping the factor L low. [Related to this
-          is the fact that clustering algorithms are actually used to  compute
-          matrix  splittings  that  minimize  the number of cross-computations
-          when carrying out matrix multiplication among multiple  processors.]
-          In  actual  cases of heavy usage, L is of order in the tens of thou-
+          is  the fact that clustering algorithms are actually used to compute
+          matrix splittings that minimize  the  number  of  cross-computations
+          when  carrying out matrix multiplication among multiple processors.]
+          In actual cases of heavy usage, L is of order in the tens  of  thou-
           sands, and K is in the order of several hundreds up to a thousand.
 
-          It is safe to say that in general the worst case complexity  of  mcl
-          is  of  order  O(N*K^2);  for  extremely tight and dense graphs this
-          might become O(N*N*log(K)). Still, these are worst  case  estimates,
-          and  observed  running  times  for actual usage are much better than
+          It  is  safe to say that in general the worst case complexity of mcl
+          is of order O(N*K^2); for extremely  tight  and  dense  graphs  this
+          might  become  O(N*N*log(K)). Still, these are worst case estimates,
+          and observed running times for actual usage  are  much  better  than
           that.  (refer to faq 4.2).
 
-          In this analysis, the number of iterations required by mcl  was  not
-          included.  It  is  nearly  always  far below 100. Only the first few
-          iterations are genuinely time consuming; the  first  few  iterations
+          In  this  analysis, the number of iterations required by mcl was not
+          included. It is nearly always far below  100.  Only  the  first  few
+          iterations  are  genuinely  time consuming; the first few iterations
           (some number below 10) are usually responsible for more than 95 per-
           cent of the running time.
 
-          The process of removing the smallest entries of a vector  is  called
-          pruning.  mcl  provides extensive facilities for monitoring and con-
-          trolling the effect of pruning, and it will output statistics and  a
+          The  process  of removing the smallest entries of a vector is called
+          pruning. mcl provides extensive facilities for monitoring  and  con-
+          trolling  the effect of pruning, and it will output statistics and a
           summary once it is done. More information is provided in the pruning
           section of the mcl manual and Section 5 in this FAQ.
 
@@ -531,106 +503,106 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
 
    4.2    What statistics are available?
 
-          Few. Some experiments are described in [4], and [5]  mentions  large
-          graphs  being clustered in very reasonable time. In protein cluster-
-          ing, mcl has been applied to graphs with up to  one  million  nodes,
-          and  on  high-end hardware such graphs can be clustered within a few
+          Few.  Some  experiments are described in [4], and [5] mentions large
+          graphs being clustered in very reasonable time. In protein  cluster-
+          ing,  mcl  has  been applied to graphs with up to one million nodes,
+          and on high-end hardware such graphs can be clustered within  a  few
           hours.
 
    4.3    Does this implementation need to sort vectors?
 
           No, it does not. You might expect that one needs to sort a vector in
-          order  to  obtain  the  K  largest  entries, but a simpler mechanism
-          called heap selection does the job nicely.  Selecting the K  largest
-          entries  from a set of L by sorting would require O(L*log(L)) opera-
+          order to obtain the K  largest  entries,  but  a  simpler  mechanism
+          called  heap selection does the job nicely.  Selecting the K largest
+          entries from a set of L by sorting would require O(L*log(L))  opera-
           tions; heap selection requires O(L*log(K)) operations.
 
    4.4    mcl does not compute the ideal MCL process!
 
-          Indeed it does not. What are the ramifications? Several  entries  in
-          section  Resource tuning / accuracy discuss this issue. For a synop-
+          Indeed  it  does not. What are the ramifications? Several entries in
+          section Resource tuning / accuracy discuss this issue. For a  synop-
           sis, consider two ends of a spectrum.
 
           On the one end, a graph that has very strong cluster structure, with
-          clearly  (and  not  necessarity  fully) separated clusters. This mcl
-          implementation will certainly retrieve those clusters if the  graphs
-          falls  into  the category of graphs for which mcl is applicable.  On
+          clearly (and not necessarity fully)  separated  clusters.  This  mcl
+          implementation  will certainly retrieve those clusters if the graphs
+          falls into the category of graphs for which mcl is  applicable.   On
           the other end, consider a graph that has only weak cluster structure
-          superimposed  on  a background of a more or less random graph. There
+          superimposed on a background of a more or less random  graph.  There
           might sooner be a difference between the clustering that should ide-
-          ally  result  and  the one computed by mcl. Such a graph will have a
-          large number of whimsical nodes that might end  up  either  here  or
-          there,  nodes  that  are  of  a peripheral nature, and for which the
-          (cluster) destination is very sensitive  to  fluctutations  in  edge
+          ally result and the one computed by mcl. Such a graph  will  have  a
+          large  number  of  whimsical  nodes that might end up either here or
+          there, nodes that are of a peripheral  nature,  and  for  which  the
+          (cluster)  destination  is  very  sensitive to fluctutations in edge
           weights or algorithm parametrizations (any algorithm, not just mcl).
 
-          One can say that the perturbation  effect  of  the  pruning  process
+          One  can  say  that  the  perturbation effect of the pruning process
           applied by mcl is just a small source of noise. Additionally, graphs
-          at the noisy end of the spectrum will generally be very  susceptible
-          to  changes in parametrization of the MCL algorithm and process, and
-          the perturbation caused by computing an imperfect process will  gen-
-          erally  be  small  compared with the effect of changing parametriza-
+          at  the noisy end of the spectrum will generally be very susceptible
+          to changes in parametrization of the MCL algorithm and process,  and
+          the  perturbation caused by computing an imperfect process will gen-
+          erally be small compared with the effect  of  changing  parametriza-
           tions.
 
-          Of course, there is the issue of very large and very  dense  graphs.
-          The  act  of pruning will have a larger impact as graphs grow larger
+          Of  course,  there is the issue of very large and very dense graphs.
+          The act of pruning will have a larger impact as graphs  grow  larger
           and denser.  Obviously, mcl will have trouble dealing with such very
           large and very dense graphs - so will other methods.
 
-          Finally,  there is the engineering approach, which offers the possi-
-          bility of pruning a whole lot of  speculation.  Do  the  experiments
+          Finally, there is the engineering approach, which offers the  possi-
+          bility  of  pruning  a  whole lot of speculation. Do the experiments
           with mcl, try it out, and see what's there to like and dislike.
 
    4.5    I've read elsewhere that MCL is slow [compared with XYZ]
 
           Presumably, they did not know mcl, and did not read the parts in [1]
-          and [2] that discuss implementation. Perhaps they assume  or  insist
-          that  the  only  way to implement MCL is to implement the ideal pro-
+          and  [2]  that discuss implementation. Perhaps they assume or insist
+          that the only way to implement MCL is to implement  the  ideal  pro-
           cess. And there is always the genuine possibility of a really stupi-
-          fyingly  fast  algorithm.   [One  such publication is Ulrik Brandes,
+          fyingly fast algorithm.  [One such  publication  is  Ulrik  Brandes,
           Marco Gaertler, and Dorothea Wagner: Experiments on Graph Clustering
-          Algorithms.  Proc.  11th Europ. Symp. Algorithms (ESA '03), Springer
+          Algorithms. Proc. 11th Europ. Symp. Algorithms (ESA  '03),  Springer
           LNCS].
 
                                Resource tuning / accuracy
 
    5.1    What do you mean by resource tuning?
 
-          mcl computes a process in which stochastic matrices are  alternately
+          mcl  computes a process in which stochastic matrices are alternately
           expanded and inflated. Expansion is nothing but standard matrix mul-
-          tiplication, inflation is a particular way of rescaling  the  matrix
+          tiplication,  inflation  is a particular way of rescaling the matrix
           entries.
 
           Expansion causes problems in terms of both time and space. mcl works
-          with matrices of dimension N, where N is the number of nodes in  the
-          input  graph.  If no precautions are taken, the number of entries in
-          the mcl iterands (which are stochastic matrices) will soon  approach
-          the  square of N. The time it takes to compute such a matrix will be
-          proportional to the cube of N.  If  your  input  graph  has  100.000
-          nodes,  the  memory  requirements  become  infeasible  and  the time
+          with  matrices of dimension N, where N is the number of nodes in the
+          input graph.  If no precautions are taken, the number of entries  in
+          the  mcl iterands (which are stochastic matrices) will soon approach
+          the square of N. The time it takes to compute such a matrix will  be
+          proportional  to  the  cube  of  N.  If your input graph has 100.000
+          nodes, the  memory  requirements  become  infeasible  and  the  time
           requirements become impossible.
 
-          What mcl does is perturbing the process  it  computes  a  little  by
-          removing  the smallest entries - it keeps its matrices sparse.  This
-          is a natural thing to do, because  the  matrices  are  sparse  in  a
-          weighted  sense  (a  very  high proportion of the stochastic mass is
-          contained in relatively few entries), and the process  converges  to
-          matrices  that  are  extremely  sparse,  with usually no more than N
-          entries.  It is thus known that the MCL iterands  are  sparse  in  a
-          weighted  sense and are usually very close to truly sparse matrices.
-          The way mcl perturbs its matrices is by  the  strategy  of  pruning,
-          selection,  and  recovery  that  is extensively described in the mcl
-          manual page.  The question then is: What is the effect of this  per-
+          What  mcl  does  is  perturbing  the process it computes a little by
+          removing the smallest entries - it keeps its matrices sparse.   This
+          is  a  natural  thing  to  do,  because the matrices are sparse in a
+          weighted sense (a very high proportion of  the  stochastic  mass  is
+          contained  in  relatively few entries), and the process converges to
+          matrices that are extremely sparse, with  usually  no  more  than  N
+          entries.   It  is  thus  known that the MCL iterands are sparse in a
+          weighted sense and are usually very close to truly sparse  matrices.
+          The  way  mcl  perturbs  its matrices is by the strategy of pruning,
+          selection, and recovery that is extensively  described  in  the  mcl
+          manual  page.  The question then is: What is the effect of this per-
           turbation on the resulting clustering, i.e. how would the clustering
-          resulting from a perfectly computed mcl  process  compare  with  the
+          resulting  from  a  perfectly  computed mcl process compare with the
           clustering I have on disk?  Faq entry 5.3 discusses this issue.
 
           The amount of resources used by mcl is bounded in terms of the maxi-
           mum number of neighbours a node is allowed to have during all compu-
-          tations.   Equivalently,  this  is  the  maximum  number  of nonzero
-          entries a matrix column can possibly have. This number, finally,  is
-          the  maximum  of  the  the  values  corresponding with the -S and -R
-          options.  The latter two are listed when using the  -z  option  (see
+          tations.  Equivalently,  this  is  the  maximum  number  of  nonzero
+          entries  a matrix column can possibly have. This number, finally, is
+          the maximum of the the values  corresponding  with  the  -S  and  -R
+          options.   The  latter  two are listed when using the -z option (see
           faq 9.1).
 
    5.2    How do I compute the maximum amount of RAM needed by mcl?
@@ -640,18 +612,18 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
           2 * s * K * N
 
           bytes, where 2 is the number of matrices held in memory by mcl, s is
-          the size of a single cell (c.q. matrix entry or node/arc  specifica-
-          tion),  N  is the number of nodes in the input graph, and where K is
-          the maximum of the values corresponding with the -S and  -R  options
-          (and  this  assumes  that the average node degree in the input graph
-          does not exceed K either). The value of s can be found by using  the
-          -z  option.  It is listed in one of the first lines of the resulting
-          output. s equals the size of an int plus the size of a float,  which
+          the  size of a single cell (c.q. matrix entry or node/arc specifica-
+          tion), N is the number of nodes in the input graph, and where  K  is
+          the  maximum  of the values corresponding with the -S and -R options
+          (and this assumes that the average node degree in  the  input  graph
+          does  not exceed K either). The value of s can be found by using the
+          -z option. It is listed in one of the first lines of  the  resulting
+          output.  s equals the size of an int plus the size of a float, which
           will be 8 on most systems.  The estimate above will in most cases be
           way too pessimistic (meaning you do not need that amount of memory).
 
-          The  -how-much-ram option is provided by mcl for computing the bound
-          given above. This options takes as argument the number of  nodes  in
+          The -how-much-ram option is provided by mcl for computing the  bound
+          given  above.  This options takes as argument the number of nodes in
           the input graph.
 
           The theoretically more precise upper bound is slightly larger due to
@@ -662,45 +634,45 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
           where c is 5 or so, but one should not pay attention to such a small
           difference anyway.
 
-   5.3    How  much does the mcl clustering differ from the clustering result-
+   5.3    How much does the mcl clustering differ from the clustering  result-
           ing from a perfectly computed MCL process?
 
-          For graphs with up until a few thousand nodes a  perfectly  computed
-          MCL  process  can  be  achieved by abstaining from pruning and doing
+          For  graphs  with up until a few thousand nodes a perfectly computed
+          MCL process can be achieved by abstaining  from  pruning  and  doing
           full-blown matrix arithmetic. Of course, this still leaves the issue
           of machine precision, but let us wholeheartedly ignore that.
 
-          Such  experiments  give evidence (albeit incidental) that pruning is
-          indeed really what it is thought to be - a  small  perturbation.  In
-          many  cases,  the  'approximated'  clustering  is  identical  to the
-          'exact' clustering. In other cases, they  are  very  close  to  each
-          other  in  terms  of  the  metric split/join distance as computed by
-          clmdist.  Some experiments  with  randomly  generated  test  graphs,
+          Such experiments give evidence (albeit incidental) that  pruning  is
+          indeed  really  what  it is thought to be - a small perturbation. In
+          many cases,  the  'approximated'  clustering  is  identical  to  the
+          'exact'  clustering.  In  other  cases,  they are very close to each
+          other in terms of the metric  split/join  distance  as  computed  by
+          clmdist.   Some  experiments  with  randomly  generated test graphs,
           clustering, and pruning are described in [4].
 
-          On  a different level of abstraction, note that perturbations of the
+          On a different level of abstraction, note that perturbations of  the
           inflation parameter will also lead to perturbations in the resulting
-          clusterings,  and  surely,  large changes in the inflation parameter
-          will in general lead to large shifts in the clusterings.  Node/clus-
-          ter  pairs  that  are  different  for the approximated and the exact
-          clustering will very likely correspond with  nodes  that  are  in  a
-          boundary  region between two or more clusters anyway, as the pertur-
-          bation is not likely to move a node from one core of  attraction  to
+          clusterings, and surely, large changes in  the  inflation  parameter
+          will  in general lead to large shifts in the clusterings. Node/clus-
+          ter pairs that are different for  the  approximated  and  the  exact
+          clustering  will  very  likely  correspond  with nodes that are in a
+          boundary region between two or more clusters anyway, as the  pertur-
+          bation  is  not likely to move a node from one core of attraction to
           another.
 
           Faq entry 5.6 has more to say about this subject.
 
    5.4    How do I know that I am using enough resources?
 
-          In  mcl parlance, this becomes how do I know that my -scheme parame-
+          In mcl parlance, this becomes how do I know that my -scheme  parame-
           ter is high enough or more elaborately how do I know that the values
           of the {-P, -S, -R, -pct} combo are high enough?
 
-          There  are  several aspects. First, watch the jury marks reported by
-          mcl when it's done.  The jury marks are three grades,  each  out  of
-          100.  They  indicate  how well pruning went. If the marks are in the
-          seventies, eighties, or nineties, mcl is  probably  doing  fine.  If
-          they  are  in  the  eighties or lower, try to see if you can get the
+          There are several aspects. First, watch the jury marks  reported  by
+          mcl  when  it's  done.  The jury marks are three grades, each out of
+          100. They indicate how well pruning went. If the marks  are  in  the
+          seventies,  eighties,  or  nineties,  mcl is probably doing fine. If
+          they are in the eighties or lower, try to see if  you  can  get  the
           marks higher by spending more resources (e.g. increase the parameter
           to the -scheme option).
 
@@ -716,9 +688,9 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
 
    5.6    What qualitative statements can be made about the effect of pruning?
 
-          The more severe pruning is, the more the computed process will  tend
-          to  converge  prematurely. This will generally lead to finer-grained
-          clusterings.  In cases where pruning was severe, the mcl  clustering
+          The  more severe pruning is, the more the computed process will tend
+          to converge prematurely. This will generally lead  to  finer-grained
+          clusterings.   In cases where pruning was severe, the mcl clustering
           will likely be closer to a clustering ideally resulting from another
           MCL process with higher inflation value, than to the clustering ide-
           ally resulting from the same MCL process. Strong support for this is
@@ -731,8 +703,8 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
 
           v   =  0.474 0.211 0.211 0.053 0.013 0.013 0.013 0.013
 
-          Now  suppose  we  first  apply  pruning to u such that the 3 largest
-          entries 0.300, 0.200 and 0.200 survive, throwing away 30 percent  of
+          Now suppose we first apply pruning to u  such  that  the  3  largest
+          entries  0.300, 0.200 and 0.200 survive, throwing away 30 percent of
           the stochastic mass (which is quite a lot by all means).  We rescale
           those three entries and obtain
 
@@ -742,145 +714,146 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
 
           v'  =  0.529 0.235 0.235 0.000 0.000 0.000 0.000 0.000
 
-          If we had applied inflation with inflation value 2.5 to u, we  would
+          If  we had applied inflation with inflation value 2.5 to u, we would
           have obtained
 
           v'' =  0.531 0.201 0.201 0.038 0.007 0.007 0.007 0.007
 
-          The  vectors  v'  and  v''  are  much  closer to each other than the
-          vectors v' and v, illustrating the general idea.
+          The vectors v' and v'' are much closer to each other than  the  vec-
+          tors v' and v, illustrating the general idea.
 
-          In practice, mcl should (on average) do much  better  than  in  this
+          In  practice,  mcl  should  (on average) do much better than in this
           example.
 
-   5.7    At  different high resource levels my clusterings are not identical.
+   5.7    At different high resource levels my clusterings are not  identical.
           How can I trust the output clustering?
 
-          Did you read all other entries in this  section?  That  should  have
+          Did  you  read  all  other entries in this section? That should have
           reassured you somewhat, except perhaps for Faq answer 5.5.
 
-          You  need  not  feel  uncomfortable with the clusterings still being
+          You need not feel uncomfortable with  the  clusterings  still  being
           different at high resource levels, if ever so slightly. In all like-
-          lihood,  there are anyway nodes which are not in any core of attrac-
-          tion, and that are on the boundary between two or more  clusterings.
-          They  may  go one way or another, and these are the nodes which will
-          go different ways even at high resource levels. Such  nodes  may  be
-          stable  in  clusterings  obtained  for  lower inflation values (i.e.
-          coarser clusterings), in which the different clusters to which  they
+          lihood, there are anyway nodes which are not in any core of  attrac-
+          tion,  and that are on the boundary between two or more clusterings.
+          They may go one way or another, and these are the nodes  which  will
+          go  different  ways  even at high resource levels. Such nodes may be
+          stable in clusterings obtained  for  lower  inflation  values  (i.e.
+          coarser  clusterings), in which the different clusters to which they
           are attracted are merged.
 
-          By  the  way,  you do know all about clmdist, don't you? Because the
-          statement that clusterings are not identical should  be  quantified:
+          By the way, you do know all about clmdist, don't  you?  Because  the
+          statement  that  clusterings are not identical should be quantified:
           How much do they differ? This issue is discussed in the clmdist man-
           ual page - clmdist gives you a robust measure for the distance (dis-
           similarity) between two clusterings.
 
-          There  are  other  means of gaining trust in a clustering, and there
-          are different issues at play. There is the matter of how  accurately
-          this  mcl  computed  the mcl process, and there is the matter of how
-          well the chosen inflation parameter fits the data. The first can  be
-          judged  by  looking at the jury marks (faq 5.4) and applying clmdist
-          to different clusterings. The second can be  judged  by  measurement
+          There are other means of gaining trust in a  clustering,  and  there
+          are  different issues at play. There is the matter of how accurately
+          this mcl computed the mcl process, and there is the  matter  of  how
+          well  the chosen inflation parameter fits the data. The first can be
+          judged by looking at the jury marks (faq 5.4) and  applying  clmdist
+          to  different  clusterings.  The second can be judged by measurement
           (e.g. use clminfo) and/or inspection (use your judgment).
 
                                Tuning cluster granularity
 
    6.1    How do I tune cluster granularity?
 
-          There  are  several  ways for influencing cluster granularity. These
+          There are several ways for influencing  cluster  granularity.  These
           ways and their relative merits are successively discussed below. The
           clmdist(1) manual contains an example of doing multiple mcl runs for
-          finding granularily different clusterings,  using  the  most  common
+          finding  granularily  different  clusterings,  using the most common
           approach, namely that of varying inflation.
 
    6.2    The effect of inflation on cluster granularity.
 
-          The  main  handle  for  changing inflation is the -I option. This is
+          The main handle for changing inflation is the  -I  option.  This  is
           also the principal handle for regulating cluster granularity. Unless
-          you  are  mangling  huge  graphs it could be the only mcl option you
+          you are mangling huge graphs it could be the  only  mcl  option  you
           ever need besides the output redirection option -o.
 
-          Increasing the value of -I will increase cluster granularity.   Con-
+          Increasing  the value of -I will increase cluster granularity.  Con-
           ceivable values are from 1.1 to 5.0 or so, but the range of suitable
-          values will certainly depend on your input graph. For  many  graphs,
-          1.1  will be far too low, and for many other graphs, 5.0 will be far
-          too high. You will have to find the right value or range  of  values
-          by  experimenting,  using your judgment, and using measurement tools
-          such as clmdist and clminfo. The default 2.0  is  a  good  value  to
+          values  will  certainly depend on your input graph. For many graphs,
+          1.1 will be far too low, and for many other graphs, 5.0 will be  far
+          too  high.  You will have to find the right value or range of values
+          by experimenting, using your judgment, and using  measurement  tools
+          such  as  clmdist  and  clminfo.  The default 2.0 is a good value to
           begin the experimental stage with.
 
-          For  experiments that are more subtle with respect to inflation, mcl
+          For experiments that are more subtle with respect to inflation,  mcl
           provides the -i option in conjunction with the -l (small letter ell)
-          option.  Do  this  only  if you have the intention of playing around
-          with mcl in order to study the characteristics of the  process  that
-          it  computes, and maybe, just maybe, use it in a production environ-
+          option. Do this only if you have the  intention  of  playing  around
+          with  mcl  in order to study the characteristics of the process that
+          it computes, and maybe, just maybe, use it in a production  environ-
           ment if you find it useful. In the first vein, you may be interested
           to know that mcx is a stack language/interpreter in which the entire
-          MCL algorithm can be written in three lines  of  code.  It  provides
+          MCL  algorithm  can  be  written in three lines of code. It provides
           comprehensive access to the MCL graph and matrix libraries. However,
           the mcx interface to the MCL pruning facilities is not yet satisfac-
           tory at this time.
 
-   6.3    The  effect of similarity distribution homogeneity on cluster granu-
+   6.3    The effect of similarity distribution homogeneity on cluster  granu-
           larity.
 
-          How similarities in  the  input  graph  were  derived,  constructed,
-          adapted,  filtered  (et cetera) will affect cluster granularity.  It
+          How  similarities  in  the  input  graph  were derived, constructed,
+          adapted, filtered (et cetera) will affect cluster  granularity.   It
           is important that the similarities are honest; refer to faq 3.8.
 
-          Another issue is that homogeneous similarities  tend  to  result  in
-          more  coarse-grained clusterings. You can make a set of similarities
-          more homogeneous by applying some function to all of them, e.g.  for
+          Another  issue  is  that  homogeneous similarities tend to result in
+          more coarse-grained clusterings. You can make a set of  similarities
+          more  homogeneous by applying some function to all of them, e.g. for
           all pairs of nodes (x y) replace S(x,y) by the square root, the log-
-          arithm, or some other convex function. Note that you need not  worry
-          about  scaling,  i.e. the possibly large changes in magnitude of the
+          arithm,  or some other convex function. Note that you need not worry
+          about scaling, i.e. the possibly large changes in magnitude  of  the
           similarities. MCL is not affected by absolute magnitudes, it is only
           affected by magnitudes taken relative to each other.
 
           UPDATE
-          As  of  version 03-154, mcl supports the pre-inflation -pi f option,
+          As of version 03-154, mcl supports the pre-inflation  -pi f  option,
           where f is the inflation parameter described below.  Use this option
-          rather  than  the  convoluted procedure described below.  Read on to
+          rather than the convoluted procedure described below.   Read  on  to
           find out what it does.
 
-          Here is how to make a graph more homogeneous  with  respect  to  the
-          weight  function.  Given  orig.mci,  clustering  revised.mci as con-
+          Here  is  how  to  make a graph more homogeneous with respect to the
+          weight function. Given  orig.mci,  clustering  revised.mci  as  con-
           structed below should generally lead to coarser clusterings.
 
           mcx /orig.mci lm 0.5 hdp /revised.mci wm
 
-          This simply applies inflation with parameter 0.5  to  orig.mci.   In
-          the  mcx  language, hdp stands for Hadamard power (entrywise power),
-          which is equivalent to inflation except that the normalization  step
-          is  omitted.   This step is not needed since it is part of mcl (ini-
+          This  simply  applies  inflation with parameter 0.5 to orig.mci.  In
+          the mcx language, hdp stands for Hadamard power  (entrywise  power),
+          which  is equivalent to inflation except that the normalization step
+          is omitted.  This step is not needed since it is part of  mcl  (ini-
           tialization) itself.  The parameter 0.5 can be changed to other val-
           ues in the range [0..1.0].  The closer it is to zero, the more clus-
           terings will tend to be coarse.
 
-          If the parameter is  chosen  larger  than  1.0,  say  in  the  range
-          [1.2..5.0]  then clusterings will tend to be more finer-grained. For
+          If  the  parameter  is  chosen  larger  than  1.0,  say in the range
+          [1.2..5.0] then clusterings will tend to be more finer-grained.  For
           example,
 
           mcx /orig.mci lm 3.0 hdp /revised.mci wm
 
    6.4    The effect of initial centering on cluster granularity.
 
-          This refers to the -c parameter,  which  adds  loops  to  the  input
+          This  refers  to  the  -c  parameter,  which adds loops to the input
           graph. Its default value is 1.0, which results in loops of a somehow
           'neutral' weight to be added. If you need to really fine-tune granu-
           larity, this option can be of use, otherwise you should abstain from
           using it.  Increasing its value will increase cluster granularity.
 
-          Conceivable/normal values are in the range 1.0 to 5.0,  but  nothing
-          stops  you from going higher or slightly lower. Going lower than 0.5
+          Conceivable/normal  values  are in the range 1.0 to 5.0, but nothing
+          stops you from going higher or slightly lower. Going lower than  0.5
           is definitely not a good idea.
 
-          If you are into clustering at high levels of granularity,  there  is
-          the  issue  whether  to  further  increase  -I,  or whether to start
-          increasing or further increase -c. It  will  really  depend  on  the
+          If  you  are into clustering at high levels of granularity, there is
+          the issue whether to  further  increase  -I,  or  whether  to  start
+          increasing  or  further  increase  -c.  It will really depend on the
           characteristics of the graph you are working with, and at this point
-          in time I cannot even give advice in terms of a general  categoriza-
-          tion. Experiment, learn, and let me know the results if you like.
+          in  time I cannot even give advice in terms of a general categoriza-
+          tion. Experiment, learn, and let me know the results  if  you  like.
+          ""{
 
    6.5    How to implement two-level approaches using mcl.
 
@@ -927,7 +900,7 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
           Now projected.mco should be a coarse cluster for orig.mci.
 
           There  are  a lot of parameters to play with here; e.g. the 5.0, 3.0
-          and 2.0, and 1.0. These seem reasonable defaults.
+          and 2.0, and 1.0. These seem reasonable defaults.  }
 
                              Implementing the MCL algorithm
 
@@ -1123,4 +1096,4 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
 
 
 
-  MCL FAQ 1.005, 05-300             27 Oct 2005                       MCL FAQ(7)
+  MCL FAQ 1.006, 05-314             10 Nov 2005                       MCL FAQ(7)

@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "The\ MCL\ family" 7 "27 Oct 2005" "The\ MCL\ family 1\&.005, 05-300" "MISCELLANEOUS "
+.TH "The\ MCL\ family" 7 "10 Nov 2005" "The\ MCL\ family 1\&.006, 05-314" "MISCELLANEOUS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -41,8 +41,13 @@ the cluster algorithm
 .ZI 16m "\fBmclfaq(7)\fP"
 MCL Frequently Asked Questions
 .in -16m
+
 .ZI 16m "\fBmcxio(5)\fP"
 the graph/matrix input/output format
+.in -16m
+
+.ZI 16m "\fBmcxconvert\fP"
+convert between ascii/binary storage types
 .in -16m
 .ZI 16m "\fBmcxassemble\fP"
 create matrices from raw data
@@ -50,11 +55,14 @@ create matrices from raw data
 .ZI 16m "\fBmcxdump\fP"
 dump a matrix optionally with label substitions
 .in -16m
+.ZI 16m "\fBmcxload\fP"
+load label data into matrix and tab files
+.in -16m
 .ZI 16m "\fBmcxarray\fP"
 transform array data to MCL matrices
 .in -16m
-.ZI 16m "\fBmcxconvert\fP"
-convert between ascii/binary storage types
+.ZI 16m "\fBmcxmap\fP"
+relabel indices in a graph/matrix
 .in -16m
 
 .ZI 16m "\fBmcx\fP"
@@ -63,33 +71,30 @@ general matrix operations
 .ZI 16m "\fBmcxsubs\fP"
 extracting submatrices in various ways
 .in -16m
-.ZI 16m "\fBmcxmap\fP"
-relabel indices in a graph/matrix
-.in -16m
 
-.ZI 16m "\fBclmformat\fP"
-display clusters as html or txt files
-.in -16m
 .ZI 16m "\fBclmdist\fP"
 compute split/join distance between clusterings
-.in -16m
-.ZI 16m "\fBclmmate\fP"
-find best matching clusters between clusterings
 .in -16m
 .ZI 16m "\fBclminfo\fP"
 compute performance measure for clusterings
 .in -16m
-.ZI 16m "\fBclmclose\fP"
-fetch connected components from graphs or subgraphs
-.in -16m
 .ZI 16m "\fBclmmeet\fP"
 compute intersection of clusterings
+.in -16m
+.ZI 16m "\fBclmmate\fP"
+find best matching clusters between clusterings
+.in -16m
+.ZI 16m "\fBclmclose\fP"
+fetch connected components from graphs or subgraphs
 .in -16m
 .ZI 16m "\fBclmimac\fP"
 interpret MCL iterand/matrix as clustering
 .in -16m
 .ZI 16m "\fBclmresidue\fP"
 extend subgraph clustering
+.in -16m
+.ZI 16m "\fBclmformat\fP"
+display clusters as html or txt files
 .in -16m
 .ZI 16m "\fBclmorder\fP"
 reorder indices to represent blocks from different clusterings
@@ -109,17 +114,31 @@ Entries marked \fC*\fP are not available if only a default
 install is done\&.
 .SH DESCRIPTION
 
+\fBmcl\fP - the clustering program\&. Since the 05-314 release
+it has the ability to read in and cluster label input\&.
+
 \fBmclfaq(7)\fP - Frequently Asked Questions\&.
 
 \fBmcxio(5)\fP - a description of the mcl matrix format\&.
 
+\fBmcxconvert\fP - convert matrices from ascii mcl format to
+binary mcl format or vice versa\&.
+
 \fBmcxassemble\fP - assemble a matrix/graph from partial edge
 weight scores\&. Useful intermediate format to be used when transforming
 application specific data into an mcl input matrix\&.
+However, \fBmcl\fP has now acquired the ability to read graphs directly
+from label input, removing the need for \fBmcxassemble\fP in most cases\&.
 
 \fBmcxdump\fP - dump matrices in a line-based format, optionally map
 indices to labels\&. Either a node pair (matrix entry) or a node list
 (matrix row) is output per line\&.
+
+\fBmcxload\fP - load matrices and tab files
+from a line-based ID1 ID2 format\&.
+It can load bipartite structures in which the two columns
+contain labels from different domains\&. It has many options
+to further symmetrize and transform the input\&.
 
 \fBmcxarray\fP - transform array data to MCL matrices\&. The data
 may be of rectangular \fCM\ x\ N\fP type\&. Either an \fCM\ x\ M\fP
@@ -127,6 +146,8 @@ or an \fCN\ x\ N\fP dimensional matrix can be made, by computing
 correlation scores between the vectors in one of the to domains\&.
 The Pearson correlation coefficient and the cosine are supported,
 and further tearing and pruning options can be applied\&.
+
+\fBmcxmap\fP - relabel indices in a graph\&.
 
 \fBmcx\fP - an interpreter for a stack language that enables
 interaction with the \fBmcl\fP matrix libraries\&. It can be used both from the
@@ -165,19 +186,12 @@ and column index sets can be specified as lists of indices combined
 with list of clusters in a given clustering\&. Useful for inspecting
 local cluster structure\&.
 
-\fBmcxmap\fP - relabel indices in a graph\&.
-
-\fBclmformat\fP - display clusters suitable for scrutinizing\&.
-
 \fBclmdist\fP - compute the split/join distance between two
 partitions\&. The split/join distance is better suited for measuring partition
 similarity than the long-known equivalence mismatch coefficient\&. The former
 measures the number of node moves required to transform one partition into
 the other, the latter measures differences between volumes of edges of
 unions of complete graphs associated with partitions\&.
-
-\fBclmmate\fP - find best matching clusters between two different
-clusterings\&.
 
 \fBclminfo\fP - compute a performance measure saying how well
 a clustering captures the edge weights of the input graph\&. Useful
@@ -193,6 +207,11 @@ for measuring the consistency of a set of different clusterings
 at supposedly different levels of granularity (in conjunction with
 \fBclmdist\fP)\&.
 
+\fBclmmate\fP - find best matching clusters between two different
+clusterings\&.
+
+\fBclmclose\fP - fetch connected components from graphs or subgraphs\&.
+
 \fBclmimac\fP - interpret MCL iterands as clusterings\&. The clusterings
 associated with early iterands may contain overlap, should you be
 interested therein\&.
@@ -200,14 +219,16 @@ interested therein\&.
 \fBclmresidue\fP - extend a clustering of a subgraph onto a clustering
 of the larger graph\&.
 
+\fBclmformat\fP - display clusters suitable for scrutinizing\&.
+
+\fBclmorder\fP - reorder indices to represent blocks from
+different clusterings\&.
+
 \fBmclpipeline\fP - set up a pipeline from data parsing stage
 unto clustering format/display stage\&.
 
-\fBmcxdeblast\fP - BLAST parser\&. Can be used in conjunction
-with mcxassemble (for fully controlling how to generate MCL input
-matrices) or one can use mclblastline with which it is integrated\&.
-
 \fBmclblastline\fP - BLAST specific pipeline\&.
 
-\fBmcxconvert\fP - convert matrices from ascii mcl format to
-binary mcl format or vice versa\&.
+\fBmcxdeblast\fP - BLAST parser\&. Can be used to directly stream
+a graph into \fBmcl\fP\&. Can also prepare input for mcxassemble
+or can be plugged into the heavy-weight mclblastline\&.

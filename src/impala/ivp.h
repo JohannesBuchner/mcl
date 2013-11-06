@@ -1,4 +1,4 @@
-/*   Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 2 of the License or
@@ -129,6 +129,7 @@ typedef struct
 {  mclIvp*     ivps
 ;  int         n_ivps
 ;  int         n_alloc
+;  mcxbits     sorted      /* 1 = sorted 2 = no-duplicates */
 ;
 }  mclpAR   ;
 
@@ -138,9 +139,21 @@ mclpAR* mclpARinit
 )  ;
 
 
+void* mclpARinit_v
+(  void* mclpar
+)  ;
+
+
 mclpAR* mclpARensure
 (  mclpAR*  mclpar
 ,  int      n
+)  ;
+
+
+mcxstatus mclpARextend
+(  mclpAR*  ar
+,  long     idx
+,  double   val
 )  ;
 
 

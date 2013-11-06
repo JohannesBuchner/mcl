@@ -15,6 +15,7 @@
 #include "util/hash.h"
 
 #include "proc.h"
+#include "impala/tab.h"
 
 
 #define ALG_OPT_INFO MCX_OPT_UNUSED
@@ -47,7 +48,15 @@ typedef struct
 
 #  define   ALG_DO_FULL_MONTY    ((unsigned long) ~0)
 
-;  long                 modes
+;  mcxbits              modes
+
+;  mcxbits              stream_modes
+;  mclTab*              tab
+;  mcxTing*             stream_tab_wname
+;  mcxTing*             stream_tab_rname
+;  mcxbool              stream_write_labels
+;  mcxTing*             stream_mx_wname
+;  mcxTing*             stream_yield
 
 ;  int                  writeMode
 ;  int                  sortMode
@@ -90,6 +99,12 @@ mcxstatus mclAlgorithm
 (  mclMatrix*     themx
 ,  mclAlgParam*   map
 )  ;
+
+mclx* mclAlgorithmRead
+(  mcxIO* xfin
+,  mclAlgParam* map
+)  ;
+
 
 #endif
 

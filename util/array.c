@@ -213,11 +213,7 @@ void* mcxBufExtend
             ,  (int) (buf->n + n_request)
             )
 
-      ;  dummy       =  mcxRealloc
-                        (  *usrpptr
-                        ,  n_new * buf->size
-                        ,  ON_FAIL
-                        )
+      ;  dummy = mcxRealloc(*usrpptr, n_new * buf->size, ON_FAIL)
 
       ;  if (n_new && !dummy)
          {  mcxMemDenied(stderr,"mcxBufExtend","char",buf->n*buf->size)

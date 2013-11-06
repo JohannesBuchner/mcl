@@ -1,4 +1,4 @@
-/*  Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*  (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 2 of the License or
@@ -13,10 +13,10 @@
 #include "ivptypes.h"
 
 
-#define  MCLX_LT  1
-#define  MCLX_LQ  2
-#define  MCLX_GQ  4
-#define  MCLX_GT  8
+#define  MCLX_EQT_LT  1
+#define  MCLX_EQT_LQ  2
+#define  MCLX_EQT_GQ  4
+#define  MCLX_EQT_GT  8
 
 
 double fltConstant
@@ -26,6 +26,16 @@ double fltConstant
 
 
 double fltGqBar
+(  pval     d
+,  void*    arg
+)  ;
+
+double fltCeil
+(  pval     d
+,  void*    arg
+)  ;
+
+double fltFloor
 (  pval     d
 ,  void*    arg
 )  ;
@@ -67,6 +77,21 @@ double fltPropagateMax
 double fltPower
 (  pval     flt
 ,  void*    power
+)  ;
+
+double fltShift
+(  pval     flt
+,  void*    shift
+)  ;
+
+double fltLog
+(  pval     flt
+,  void*    base
+)  ;
+
+double fltNeglog
+(  pval     flt
+,  void*    base
 )  ;
 
 

@@ -31,10 +31,32 @@ void mcxTingRelease
 ;  }
 
 
+void mcxTingFree
+(  mcxTing            **tingpp
+)
+   {  mcxTing*  ting   =    *tingpp
+
+   ;  if (ting)
+      {  if (ting->str)
+         mcxFree(ting->str)
+      ;  mcxFree(ting)
+      ;  *tingpp = NULL
+   ;  }
+   }
+
+
 void mcxTingFree_v
 (  void  *tingpp
 )
    {  mcxTingFree((mcxTing**) tingpp)
+;  }
+
+
+void mcxTingAbandon
+(  void  *tingpp
+)
+   {  mcxTing* ting = *((mcxTing**) tingpp)
+   ;  mcxFree(ting)
 ;  }
 
 
@@ -307,20 +329,6 @@ void* mcxTingInit
 
    ;  return  ting
 ;  }
-
-
-void mcxTingFree
-(  mcxTing            **tingpp
-)
-   {  mcxTing*  ting   =    *tingpp
-
-   ;  if (ting)
-      {  if (ting->str)
-         mcxFree(ting->str)
-      ;  mcxFree(ting)
-      ;  *tingpp = NULL
-   ;  }
-   }
 
 
 /*

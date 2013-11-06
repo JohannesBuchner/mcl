@@ -8,12 +8,15 @@
 
 
 /* TODO
- * !! write regression test.
+ * -  xtr_get_token does not check repeat pointer. crashable?
+ * -  something that translates \012 to the byte value.
+ * -  write regression test.
  * -  More error codes
+ * -  Have a magic repeat operator that does not stop on boundaries.
  * -  Do sane things to implicit \0 (e.g. as result of complement) and
  *       characters outside ascii range.
  * -  [*a*256] leads to count 0.
- * #  tr a-z   A-C[*#*]X-Z    will not (never) lookahead
+ * #  tr a-z   A-C[*#*]X-Z    will not (now nor ever) lookahead
  * -  what about alpha tr(1) capabilities?
  *    6.  In the POSIX locale, to translate all ASCII characters that are not
  *        specified, enter:
@@ -101,13 +104,16 @@ enum
 ,  C_RANGESTART
 ,  C_RANGEEND
 
-,  C_REPEAT       /* next token encodes repeat */
+,  C_REPEAT    /* next token encodes repeat (stops on boundary)*/
+,  C_FLOOD     /* next token encodeѕ flood  (floods all) */
+
 ,  C_EOF
+
 }  ;
 
 
 #define ISCLASS(cl) ((cl) > C_CLASSSTART && (cl) < C_CLASSEND)
-#define ISREPEAT(cl) ((cl) == C_REPEAT)
+#define ISREPEAT(cl) ((cl) == C_REPEAT || (cl) == C_FLOOD)
 
 #define ISUCHARRANGE(i) \
    ( (i) >= 0 && (i) < 256 )
@@ -143,6 +149,33 @@ int (*isit[13])(int c) =
 ,  isupper
 ,  isxdigit
 }  ;
+
+
+mcxTing* mcxTRsplash
+(  mcxTR*   tr
+,  mcxbits  bits
+)
+   {  int i,j
+   ;  u32* tbl = tr->tlt
+   ;  mcxTing* splash = mcxTingEmpty(NULL, 256)
+
+   ;  for (i=1,j=0;i<256;i++)          /* NOTE: \000 excluded */
+      {  u32 tok     =  tbl[i]
+      ;  u32 meta    =  tok >> 8
+
+      ;  if
+         (  ((bits & MCX_TR_SOURCE)     &&    (meta & MCX_TR_TRANSLATE))
+         || ((bits & MCX_TR_SOURCE_C)   && !  (meta & MCX_TR_TRANSLATE))
+         || ((bits & MCX_TR_SQUASH)     &&    (meta & MCX_TR_SQUASH))
+         || ((bits & MCX_TR_SQUASH_C)   && !  (meta & MCX_TR_SQUASH))
+         || ((bits & MCX_TR_DELETE)     &&    (meta & MCX_TR_DELETE))
+         || ((bits & MCX_TR_DELETE_C)   && !  (meta & MCX_TR_DELETE))
+         )
+         splash->str[j++] = i
+   ;  }
+      splash->str[j] = '\0'
+   ;  return splash
+;  }
 
 
 int mcxTRtranslate
@@ -197,14 +230,14 @@ int mcxTingTr
 ,  mcxbits        modes
 )
    {  mcxTR tr
-   ;  if (mcxTRloadTable(src, dst, delete, squash, &tr, modes))
+   ;  if (mcxTRloadTable(&tr, src, dst, delete, squash, modes))
       return -1
    ;  txt->len = mcxTRtranslate(txt->str, &tr)
    ;  return txt->len
 ;  }
 
 
-const char* xtr_get_token
+static const char* xtr_get_token
 (  const char *p
 ,  const char *z
 ,  u8* classp
@@ -294,7 +327,7 @@ const char* xtr_get_token
    /*************************************************************************/
 
          else if (c == '[')
-         {  if (!class_ok)
+         {  if (!class_ok)                /* fixme: could just accept '[' */
             {  mcx_tr_err = X_CLASS_UNEXPECTED
             ;  error_break
          ;  }
@@ -333,7 +366,14 @@ const char* xtr_get_token
                if (!(q = xtr_get_token(p+2, z, NULL, &value2, NULL)))
                error_break
 
-            ;  if (UC(q) != '*')
+            ;  if (UC(q) == '*' && UC(q+1) == ']')
+               class = C_FLOOD
+            ;  else if
+               (  (UC(q) == '#' && UC(q+1) == ']')
+               || (UC(q) == '*')
+               )
+               class = C_REPEAT
+            ;  else
                {  mcx_tr_err = X_REPEAT_SYNTAX
                ;  error_break
             ;  }
@@ -347,11 +387,12 @@ const char* xtr_get_token
                ;  if (!(q = strchr(q, ']')))          break
                ;  if (num < 0 || num > 256)           break
                ;  *repeat = num
+               ;  if (!num)
+                  class = C_FLOOD
             ;  }
                   /* q[0] should be ']' now */
 
                value =  value2
-            ;  class =  C_REPEAT
             ;  np    =  (q+1) - p
          ;  }
 
@@ -388,6 +429,24 @@ if (mcx_tr_debug) fprintf(stdout, "xtr_get_token (%d | %d)\n", value, class)
 
 
 
+char* mcxStrEscapedValue
+(  const char* p
+,  const char* z
+,  int   *value
+)
+   {  u8 val = p[0]
+   ;  const char* q = NULL
+   ;  if (val != '\\')
+      {  *value = val
+      ;  return (char*) (p+1)
+   ;  }
+      if (!(q = xtr_get_token(p, z, NULL, &val, NULL)))
+      return NULL
+   ;  *value = val
+   ;  return (char*) q
+;  }
+
+
 
 /* Sets either
  *    value to something in the range 0-255 and length * to something >= 1
@@ -397,7 +456,7 @@ if (mcx_tr_debug) fprintf(stdout, "xtr_get_token (%d | %d)\n", value, class)
  * Returns the next parsable character or NULL for failure.
 */
 
-const char* xtr_get_set
+static const char* xtr_get_set
 (  const char *p
 ,  const char *z
 ,  u8  *classp
@@ -431,7 +490,7 @@ const char* xtr_get_set
 ;  }
 
 
-void mcx_tr_enc_dump
+static void mcx_tr_enc_dump
 (  u32* enc
 ,  const char* tag
 )
@@ -450,7 +509,7 @@ void mcx_tr_enc_dump
 
 
 
-mcxstatus xtr_get_spec
+static mcxstatus xtr_get_spec
 (  const char* spec
 ,  mcxTR*      tr
 ,  u32*        tbl         /* size MAX_SPEC_INDEX+1 */
@@ -484,7 +543,7 @@ mcxstatus xtr_get_spec
             {  mcx_tr_err = X_REPEAT_UNEXPECTED
             ;  break
          ;  }
-            tbl[ofs++] = (C_REPEAT << 8) | value
+            tbl[ofs++] = (class << 8) | value
          ;  if (ofs >= MAX_SPEC_INDEX)
             break
          ;  tbl[ofs++] = count & 0377
@@ -537,7 +596,7 @@ mcxstatus xtr_get_spec
 ;  }
 
 
-mcxstatus mcx_tr_encode_boolean
+static mcxstatus mcx_tr_encode_boolean
 (  mcxTR*   tr
 ,  u32*     enc
 ,  mcxbits  bit
@@ -558,7 +617,7 @@ mcxstatus mcx_tr_encode_boolean
 ;  }
 
 
-mcxstatus mcx_tr_translate_encode
+static mcxstatus mcx_tr_translate_encode
 (  mcxTR* tr
 ,  u32*   srcenc
 ,  u32*   dstenc
@@ -566,14 +625,14 @@ mcxstatus mcx_tr_translate_encode
    {  int X = -1, Y = -1
    ;  int s = 0, d = 0
    ;  int star_count = 0
-   ;  mcxbool star_fill = FALSE
    ;  mcxbool
-         src_end = FALSE
-      ,  dst_end = FALSE
-   ;  mcxbool
-         to_lower = FALSE
-      ,  to_upper = FALSE
-   ;  mcxbool src_class_end = FALSE
+         star_fill   =  FALSE
+      ,  flood_fill  =  FALSE
+      ,  src_end     =  FALSE
+      ,  dst_end     =  FALSE
+      ,  to_lower    =  FALSE
+      ,  to_upper    =  FALSE
+      ,  src_class_end = FALSE
  
    ;  while (1)
       {  u32 src_tok = 0 ;  u32 src_cls = 0 ;  u32 src_val = 0
@@ -591,7 +650,7 @@ mcxstatus mcx_tr_translate_encode
          ;  X = -1
          ;  if (star_count)
             star_count--
-         ;  if (!star_count && !star_fill)
+         ;  if (!star_count && !star_fill && !flood_fill)
             Y = -1
       ;  }
          else if (s || d)
@@ -603,8 +662,8 @@ mcxstatus mcx_tr_translate_encode
       ;  src_val = src_tok & 0377
 
 /* consider both
-*    ttr 'abcdef[:digit:]'  '[*_*][*#*]'   (magic ends with f)
-*    ttr '[:digit:]abcdef'  '[*#*][*_*]'     (magic ends before a)
+*    tring -x 'abcdef[:digit:]' -y '[*_#][*##]'   (magic ends with f)
+*    tring -x '[:digit:]abcdef' -y '[*##][*_#]'     (magic ends before a)
 */
       ;  if (ISBOUNDARY(src_cls))
          star_fill = FALSE
@@ -615,7 +674,7 @@ mcxstatus mcx_tr_translate_encode
          ,  src_val =   src_tok & 0377
          ,  src_class_end =  TRUE
       
-      ;  if (!star_count && !star_fill)
+      ;  if (!star_count && !star_fill && !flood_fill)
          {  dst_tok = dstenc[d++]
          ;  dst_cls = dst_tok >> 8
          ;  dst_val = dst_tok & 0377
@@ -640,17 +699,21 @@ mcxstatus mcx_tr_translate_encode
          ,  to_upper = FALSE
 
 /* check repeat */
-      ;  if (dst_cls == C_REPEAT)
+      ;  if (ISREPEAT(dst_cls))
          {  Y = dst_val
          ;  star_count = dstenc[d++]
-         ;  if (!star_count)
+
+         ;  if (dst_cls == C_FLOOD)
+            flood_fill = TRUE
+         ;  else if (!star_count)
             star_fill = TRUE
-;if (mcx_tr_debug) fprintf(stdout, "star count/fill %d/%d\n", star_count, star_fill)
+;if (mcx_tr_debug)
+fprintf(stdout, "star count/fill/flood %d %d %d\n", star_count, star_fill, flood_fill)
       ;  }
 
 ;if (mcx_tr_debug && (to_upper || to_lower)) fprintf(stdout, "case mapping\n")
 
-      ;  if (!star_count && !star_fill)
+      ;  if (!star_count && !star_fill && !flood_fill)
          {  if (ISSTART(dst_cls))
             Y = dstenc[d++]
          ;  else
@@ -693,14 +756,14 @@ mcxstatus mcx_tr_translate_encode
 
       if (!src_end)
       mcxErr(us, "trailing spunk in src")
-   ;  if (!dst_end && !(star_fill && dstenc[d] >> 8 == C_EOF))
+   ;  if (!dst_end && !((star_fill || flood_fill) && dstenc[d] >> 8 == C_EOF))
       mcxErr(us, "trailing spunk in dst")
 
    ;  return STATUS_OK        /* specs parsed alright, just ignore spurious stuff */
 ;  }
 
 
-void mcx_tr_complement
+static void mcx_tr_complement
 (  u32* enc
 )
    {  u32 tmp[256]
@@ -749,7 +812,7 @@ void mcx_tr_complement
  *    carryon
 */
 
-mcxstatus mcx_tr_encode
+static mcxstatus mcx_tr_encode
 (  mcxTR* tr
 ,  const char* src
 ,  const char* dst
@@ -825,11 +888,11 @@ mcxstatus mcx_tr_encode
 
 
 mcxstatus mcxTRloadTable
-(  const char* src
+(  mcxTR*      tr
+,  const char* src
 ,  const char* dst
 ,  const char* delete
 ,  const char* squash
-,  mcxTR*      tr
 ,  mcxbits     modes
 )
    {  const char* me =  "mcxTRloadTable"

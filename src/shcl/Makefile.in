@@ -43,7 +43,7 @@ DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 bin_PROGRAMS = clmclose$(EXEEXT) clminfo$(EXEEXT) clmdist$(EXEEXT) \
 	clmmeet$(EXEEXT) clmimac$(EXEEXT) clmresidue$(EXEEXT) \
 	clmformat$(EXEEXT) clmmate$(EXEEXT) clmorder$(EXEEXT)
-noinst_PROGRAMS = clmps$(EXEEXT) clmdag$(EXEEXT) clmorder$(EXEEXT)
+noinst_PROGRAMS = clmps$(EXEEXT) clmdag$(EXEEXT)
 subdir = src/shcl
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \

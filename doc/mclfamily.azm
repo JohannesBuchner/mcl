@@ -25,7 +25,7 @@
 \: using these utilities.
 
 \par
-\begin{itemize}{{compact}{1}{contiguous}{1}{w1}{15}}
+\begin{itemize}{{compact}{1}{contiguous}{1}{w1}{15}{f1}{7}}
 \apply{_#2\!{{
       \switch{\1}{
          {skip}{\itemskip}
@@ -36,24 +36,27 @@
 }}{
    {\sib{mcl}}{the cluster algorithm}
    {\sibmclfaq}{MCL Frequently Asked Questions}
+{skip}{}
    {\sibmcxio}{the graph/matrix input/output format}
+{skip}{}
+   {\sib{mcxconvert}}{convert between ascii/binary storage types}
    {\sib{mcxassemble}}{create matrices from raw data}
    {\sib{mcxdump}}{dump a matrix optionally with label substitions}
+   {\sib{mcxload}}{load label data into matrix and tab files}
    {\sib{mcxarray}}{transform array data to MCL matrices}
-   {\sib{mcxconvert}}{convert between ascii/binary storage types}
+   {\sib{mcxmap}}{relabel indices in a graph/matrix}
 {skip}{}
    {\sib{mcx}}{general matrix operations}
    {\sib{mcxsubs}}{extracting submatrices in various ways}
-   {\sib{mcxmap}}{relabel indices in a graph/matrix}
 {skip}{}
-   {\sib{clmformat}}{display clusters as html or txt files}
    {\sib{clmdist}}{compute split/join distance between clusterings}
-   {\sib{clmmate}}{find best matching clusters between clusterings}
    {\sib{clminfo}}{compute performance measure for clusterings}
-   {\sib{clmclose}}{fetch connected components from graphs or subgraphs}
    {\sib{clmmeet}}{compute intersection of clusterings}
+   {\sib{clmmate}}{find best matching clusters between clusterings}
+   {\sib{clmclose}}{fetch connected components from graphs or subgraphs}
    {\sib{clmimac}}{interpret MCL iterand/matrix as clustering}
    {\sib{clmresidue}}{extend subgraph clustering}
+   {\sib{clmformat}}{display clusters as html or txt files}
    {\sib{clmorder}}{reorder indices to represent blocks from different clusterings}
 {skip}{}
    {\sib{mclpipeline}}{parsing/assembly/clustering/display}
@@ -68,32 +71,51 @@
 
 \sec{description}{DESCRIPTION}
 
-\par
-   \sibmclfaq - Frequently Asked Questions.
+\par{
+   \sib{mcl} - the clustering program. Since the 05-314 release
+   it has the ability to read in and cluster label input.}
 
-\par
-   \sibmcxio - a description of the mcl matrix format.
+\par{
+   \sibmclfaq - Frequently Asked Questions.}
 
-\par
+\par{
+   \sibmcxio - a description of the mcl matrix format.}
+
+\par{
+   \sib{mcxconvert} - convert matrices from ascii mcl format to
+   binary mcl format or vice versa.}
+
+\par{
    \sib{mcxassemble} - assemble a matrix/graph from partial edge
    weight scores. Useful intermediate format to be used when transforming
    application specific data into an mcl input matrix.
+   However, \mcl has now acquired the ability to read graphs directly
+   from label input, removing the need for \mcxassemble in most cases.}
 
-\par
+\par{
    \sib{mcxdump} - dump matrices in a line-based format, optionally map
    indices to labels.  Either a node pair (matrix entry) or a node list
-   (matrix row) is output per line.
+   (matrix row) is output per line.}
 
-\par
+\par{
+   \sib{mcxload} - load matrices and tab files
+   from a line-based ID1 ID2 format.
+   It can load bipartite structures in which the two columns
+   contain labels from different domains. It has many options
+   to further symmetrize and transform the input.}
+
+\par{
    \sib{mcxarray} - transform array data to MCL matrices. The data
    may be of rectangular \v{M\~x\~N} type. Either an \v{M\~x\~M}
    or an \v{N\~x\~N} dimensional matrix can be made, by computing
    correlation scores between the vectors in one of the to domains.
    The Pearson correlation coefficient and the cosine are supported,
-   and further tearing and pruning options can be applied.
+   and further tearing and pruning options can be applied.}
 
+\par{
+   \sib{mcxmap} - relabel indices in a graph.}
 
-\par
+\par{
    \sib{mcx} - an interpreter for a stack language that enables
    interaction with the \mcl matrix libraries.  It can be used both from the
    command line and interactively, and supports a rich set of operations such
@@ -101,9 +123,9 @@
    and products, et cetera. The general aim is to provide handles for simple
    number and matrix arithmetic,
    and for graph, set, and clustering operations.  The following is
-   a very simple example of implementing and using \mcl in this language.
+   a very simple example of implementing and using \mcl in this language.}
 
-\verbatim{\
+\verbatim{\:/
  2.0 .i def                    # define inflation value.
  /small lm                     # load matrix in file 'small'.
  dim id add                    # add identity matrix.
@@ -113,76 +135,75 @@
  imac                          # interpret matrix as clustering.
  vm                            # view matrix (clustering).}
 
-\car
+\car{
    One of the more interesting things that can be done is doing mcl runs
    with more complicated inflation profiles than the two-constant approach used
-   in \mcl itself.
+   in \mcl itself.}
 
-\par
+\par{
    \sib{mcxsubs} - compute a submatrix of a given matrix, where row
    and column index sets can be specified as lists of indices combined
    with list of clusters in a given clustering. Useful for inspecting
-   local cluster structure.
+   local cluster structure.}
 
-\par
-   \sib{mcxmap} - relabel indices in a graph.
-
-\par
-   \sib{clmformat} - display clusters suitable for scrutinizing.
-
-\par
+\par{
    \sib{clmdist} - compute the split/join distance between two 
    partitions. The split/join distance is better suited for measuring partition
    similarity than the long-known equivalence mismatch coefficient. The former
    measures the number of node moves required to transform one partition into
    the other, the latter measures differences between volumes of edges of
-   unions of complete graphs associated with partitions.
+   unions of complete graphs associated with partitions.}
 
-\par
-   \sib{clmmate} - find best matching clusters between two different
-   clusterings.
-
-\par
+\par{
    \sib{clminfo} - compute a performance measure saying how well
    a clustering captures the edge weights of the input graph. Useful
    for comparing different clusterings on the same graph, best used in
    conjunction with \clmdist - because comparing clusterings at
    different levels of granularity should somewhat change the performance
    interpretation. The latter issue is discussed in the \sib{clmdist}
-   entry.
+   entry.}
 
-\par
+\par{
    \sib{clmmeet} - compute the intersection of a set of clusterings,
    i.e. the largest clustering that is a subclustering of all. Useful
    for measuring the consistency of a set of different clusterings
    at supposedly different levels of granularity (in conjunction with
-   \clmdist).
-
-\par
-   \sib{clmimac} - interpret MCL iterands as clusterings. The clusterings
-   associated with early iterands may contain overlap, should you be
-   interested therein.
-
-\par
-   \sib{clmresidue} - extend a clustering of a subgraph onto a clustering
-   of the larger graph.
-
-\par
-   \sib{mclpipeline} - set up a pipeline from data parsing stage
-   unto clustering format/display stage.
-
-\par
-   \sib{mcxdeblast} - BLAST parser. Can be used in conjunction
-   with mcxassemble (for fully controlling how to generate MCL input
-   matrices) or one can use mclblastline with which it is integrated.
-
-\par
-   \sib{mclblastline} - BLAST specific pipeline.
+   \clmdist).}
 
 \par{
-   \sib{mcxconvert} - convert matrices from ascii mcl format to
-   binary mcl format or vice versa.
-}
+   \sib{clmmate} - find best matching clusters between two different
+   clusterings.}
+
+\par{
+   \sib{clmclose} - fetch connected components from graphs or subgraphs.}
+
+\par{
+   \sib{clmimac} - interpret MCL iterands as clusterings. The clusterings
+   associated with early iterands may contain overlap, should you be
+   interested therein.}
+
+\par{
+   \sib{clmresidue} - extend a clustering of a subgraph onto a clustering
+   of the larger graph.}
+
+\par{
+   \sib{clmformat} - display clusters suitable for scrutinizing.}
+
+\par{
+   \sib{clmorder} - reorder indices to represent blocks from
+   different clusterings.}
+
+\par{
+   \sib{mclpipeline} - set up a pipeline from data parsing stage
+   unto clustering format/display stage.}
+
+\par{
+   \sib{mclblastline} - BLAST specific pipeline.}
+
+\par{
+   \sib{mcxdeblast} - BLAST parser. Can be used to directly stream
+   a graph into \mcl. Can also prepare input for mcxassemble
+   or can be plugged into the heavy-weight mclblastline.}
 
 \"man::postamble"
 

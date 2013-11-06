@@ -1,4 +1,4 @@
-/*  Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*  (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 2 of the License or
@@ -238,7 +238,7 @@ double  mclxSelectValues
 (  mclx*  mx
 ,  double      *lft        /* NULL for turning of lft comparison        */
 ,  double      *rgt        /* NULL for turning of rgt comparison        */
-,  mcxbits     equate      /*  0, 1, or 2 of { MCLX_GT,  MCLX_LT } [1]  */
+,  mcxbits     equate      /*  0,1, or 2 of { MCLX_EQT_GT, MCLX_EQT_LT } [1] */
 )  ;
                            /*  [1] Default, LQ and/or GQ are assumed    */
 
@@ -301,6 +301,10 @@ void mclxHdp
 ,  double                   power
 )  ; 
 
+void mclxLog
+(  mclMatrix*  mx
+,  double      base
+)  ;  
 
 long mclxNrofEntries
 (  const mclx*        m
@@ -317,7 +321,7 @@ double mclxMass
 void mclxUnary
 (  mclx*  m1
 ,  double  (*operation)(pval, void*)
-,  void*  arg
+,  void*  arg           /* double*  */
 )  ;
 
 

@@ -71,6 +71,7 @@ mclProcParam* mclProcParamNew
    ;  mpp->ipp             =  mclInterpretParamNew()
 
    ;  mpp->n_ithreads      =  0
+   ;  mpp->fname_expanded  =  NULL
 
    ;  for (i=0;i<5;i++)
       mpp->marks[i]        =  100
@@ -84,6 +85,7 @@ mclProcParam* mclProcParamNew
    ;  mpp->dump_bound      =  5
    ;  mpp->dump_stem       =  mcxTingNew("")
    ;  mpp->dump_list       =  mclvInit(NULL)
+   ;  mpp->dump_tab        =  NULL
 
    ;  mpp->chaosLimit      =  0.0001
    ;  mpp->lap             =  0.0
@@ -96,8 +98,7 @@ mclProcParam* mclProcParamNew
    ;  mpp->initInflation   =  2
    ;  mpp->initLoopLength  =  0
 
-   ;  mpp->inflateFirst    =  FALSE
-   ;  mpp->expandOnly      =  FALSE
+   ;  mpp->inflate_expanded=  0.0
 
    ;  mpp->printDigits     =  3
    ;  mpp->printMatrix     =  0
@@ -167,21 +168,11 @@ mclMatrix*  mclProcess
       else if (XPNVB(mxp, XPNVB_MPROGRESS))
       fprintf(fv, " ite  chaos  time\n")
 
-   ;  if (mpp->inflateFirst)
+   ;  if (mpp->inflate_expanded)
       {  if (mpp->n_ithreads)
          mclxInflateBoss(mxEven, mpp->mainInflation, mpp)
       ;  else
-         mclxInflate(mxEven, mpp->mainInflation)
-   ;  }
-
-                              /*  mq this is somewhat close to a hack      */
-                              /*  doIteration inspects expandOnly as well  */
-                              /*  and mclAlgorithm does so too             */
-      if (mpp->expandOnly)
-      {  doIteration(&mxEven, &mxOdd, mpp, ITERATION_MAIN) 
-      ;  mclxFree(&mxEven)
-      ;  mxEven = mxOdd
-      ;  return mxEven
+         mclxInflate(mxEven, mpp->inflate_expanded)
    ;  }
 
       for (i=0;i<mpp->initLoopLength;i++)
@@ -230,8 +221,9 @@ mclMatrix*  mclProcess
 
    ;  *mx0 = mxEven
 
-   ;  {  mclx* mxDag = mclDag(mxEven, mpp->ipp)
-      ;  mxCluster = mclInterpret(mxDag)
+   ;  {  mclx* dag = mclDag(mxEven, mpp->ipp)
+      ;  mxCluster = mclInterpret(dag)
+      ;  mclxFree(&dag)
    ;  }
 
       return mxCluster
@@ -318,10 +310,12 @@ int doIteration
       ,  (double) stats->lap
       )
 
-   ;  if (mpp->expandOnly)
-      return 1
+   ;  if (mpp->n_ite == 0 && mpp->fname_expanded)
+      {  mcxIO* xftmp = mcxIOnew(mpp->fname_expanded->str, "w")
+      ;  mclxWrite(*mxout, xftmp, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+   ;  }
 
-   ;  if (XPNVB(mxp,XPNVB_PRUNING))
+      if (XPNVB(mxp,XPNVB_PRUNING))
       {  if (mclVerbosityStart && XPNVB(mxp,XPNVB_EXPLAIN))
          {  mclExpandStatsHeader(fv, stats, mxp)
          ;  mclVerbosityStart = 0
@@ -408,8 +402,8 @@ void mclDumpMatrix
    ;  mcxbool   cat     =  MCPVB(mpp, MCPVB_CAT)
 
    ;  mcxbits   dump_modes =     !strcmp(affix, "result")
-                              ?  MCX_DUMP_RLINES
-                              :  MCX_DUMP_PAIRS | MCX_DUMP_VALUES
+                              ?  MCLX_DUMP_RLINES
+                              :  MCLX_DUMP_PAIRS | MCLX_DUMP_VALUES
 
    ;  if (!strcmp(affix, "result"))
 
@@ -443,7 +437,8 @@ void mclDumpMatrix
       ;  dumper.threshold = 0.001
       ;  if (cat)
          fprintf(xfdump->fp, "(mcldump %s %d\n", affix, (int) n)
-      ;  mclxIOdump(mx, xfdump, &dumper, NULL, NULL, RETURN_ON_FAIL)
+      ;  mclxIOdump
+         (mx, xfdump, &dumper, mpp->dump_tab, mpp->dump_tab, RETURN_ON_FAIL)
       ;  if (cat)
          fprintf(xfdump->fp, ")\n")
    ;  }

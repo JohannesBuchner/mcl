@@ -1,4 +1,51 @@
 
+Fri, 11 Nov 2005
+
+   *  mcl-05-314 released - major new features.
+
+   *  GRATUITOUS. Bumped the gratuitous version tag to 1.006 - because of
+      mcl's new label input munging abilities.
+
+   *  mcl can read label input.
+
+         mcl <fname> --abc [options]
+
+      will read a line based white-space separated label format:
+         label1 label2 [value]
+
+      The current default is to resolve repeated entries by taking the maximum
+      of the values.
+
+      --abc or --expect-abc
+         input is expected to be in label format.
+
+      --abc or --yield-abc
+         cluster output will be done with labels.
+
+      -cache-tab <fname> (assumes label input)
+         the name of the file mcl writes the tab file too.
+
+      -cache-graph <fname> (assumes label input)
+         the name of the file mcl writes the input matrix.
+
+      -strict-tab <fname> (assumes label input)
+         makes MCL use the named tab file and die if labels
+         are not found.
+
+      -restrict-tab <fname> (assumes label input)
+         makes MCL use the named tab file and warn if labels
+         are not found.
+
+      -extend-tab <fname> (assumes label input)
+         makes MCL use the named tab file and extend it if labels
+         are not found.
+
+   *  new utility mcxload with many custom options for reading in
+      label data and transforming the associated numerical values,
+      storing mappings in tab files and saving a graph in native mcl
+      input format.
+
+   *  mcxdeblast acquired --abc-out to stream label input into mcl.
 
 Thu 27 Oct 2005
 

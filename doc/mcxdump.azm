@@ -143,6 +143,7 @@
 
 \sec{seealso}{SEE ALSO}
 
+   \sib{mcxload},
    \sib{mcl},
    \sib{mclfaq},
    and \sibmclfamily for an overview of all the documentation

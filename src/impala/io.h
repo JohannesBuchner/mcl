@@ -1,4 +1,4 @@
-/*   Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 2 of the License or
@@ -334,13 +334,13 @@ void mclvaDump2
 */
 
 
-#define MCX_DUMP_VALUES          1 <<  0
-#define MCX_DUMP_PAIRS           1 <<  1
-#define MCX_DUMP_LINES           1 <<  2
-#define MCX_DUMP_RLINES          1 <<  3
-#define MCX_DUMP_LOOP_ASIS       1 <<  4
-#define MCX_DUMP_LOOP_NONE       1 <<  5
-#define MCX_DUMP_LOOP_FORCE      1 <<  6
+#define MCLX_DUMP_VALUES          1 <<  0
+#define MCLX_DUMP_PAIRS           1 <<  1
+#define MCLX_DUMP_LINES           1 <<  2
+#define MCLX_DUMP_RLINES          1 <<  3
+#define MCLX_DUMP_LOOP_ASIS       1 <<  4
+#define MCLX_DUMP_LOOP_NONE       1 <<  5
+#define MCLX_DUMP_LOOP_FORCE      1 <<  6
 
 typedef struct
 {  mcxbits        modes
@@ -369,8 +369,8 @@ mcxstatus mclxIOdump
 (  mclx*       mx
 ,  mcxIO*      xf_dump
 ,  mclxIOdumper* dump
-,  mclTab*     tabc
-,  mclTab*     tabr
+,  const mclTab*  tabc
+,  const mclTab*  tabr
 ,  mcxOnFail   ON_FAIL
 )  ;
 

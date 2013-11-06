@@ -1,4 +1,4 @@
-/*   Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 2 of the License or
@@ -154,7 +154,7 @@ mclVector* mclvInstantiate
 
    ;  if
       ( !(  dst_vec->ivps
-         =  (mclIvp*) mcxRealloc
+         =  mcxRealloc
             (  dst_vec->ivps
             ,  new_n_ivps * sizeof(mclIvp)
             ,  RETURN_ON_FAIL
@@ -546,13 +546,13 @@ mcxbool mclpSelectValues
       (  (  rgt
          && 
             (  val > rgt[0]
-            || (rng->equate & MCLX_LT && val >= rgt[0])
+            || (rng->equate & MCLX_EQT_LT && val >= rgt[0])
             )
          )
       || (  lft
          && 
             (  val < lft[0]
-            || (rng->equate & MCLX_GT && val <= lft[0])
+            || (rng->equate & MCLX_EQT_GT && val <= lft[0])
             )
          )
       )
@@ -1187,11 +1187,11 @@ mcxbool mcldEquate
 
    ;  switch(mode)
       {  case MCLD_EQ_SUPER
-      :  return ldif == 0 ? TRUE : FALSE
+      :  return rdif == 0 ? TRUE : FALSE
       ;
 
          case MCLD_EQ_SUB
-      :  return rdif == 0 ? TRUE : FALSE
+      :  return ldif == 0 ? TRUE : FALSE
       ;
 
          case MCLD_EQ_EQUAL
@@ -1288,7 +1288,8 @@ mclv* mclvFromIvps
 ,  mclp* ivps
 ,  int n_ivps
 )
-   {  return mclvFromIvps_x(dst, ivps, n_ivps, 0, 0, mclpMergeLeft, NULL)
+   {  return mclvFromIvps_x
+      (  dst, ivps, n_ivps, 0, 0, mclpMergeLeft, NULL )
       /* second 0 argument: sortbits, 1 = sorted, 2 = no duplicates */
 ;  }
 
@@ -1298,8 +1299,8 @@ mclv* mclvFromIvps_x
 (  mclv* dst
 ,  mclp* ivps
 ,  int n_ivps
-,  mcxbits warnbits
 ,  mcxbits sortbits
+,  mcxbits warnbits
 ,  void (*ivpmerge)(void* ivp1, const void* ivp2)
 ,  double (*fltbinary)(pval val1, pval val2)
 )

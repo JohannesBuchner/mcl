@@ -17,8 +17,8 @@ typedef unsigned long mcxenum  ;
          /* mcxstatus   defined below */
          /* mcxbool     defined below */
 
-#define BIT_ON(var, bit)   (var) |= (bit)
-#define BIT_OFF(var, bit)  (var) |= (bit), (var) ^= (bit)
+#define BIT_ON(var, bits)   (var) |= (bits)
+#define BIT_OFF(var, bits)  (var) |= (bits), (var) ^= (bits)
 
 /*  **************************************************************************
  * *
@@ -43,6 +43,7 @@ typedef enum
 {  STATUS_OK      =  0
 ,  STATUS_FAIL
 ,  STATUS_DONE             /* for iterator type interfaces (e.g. readLine) */
+,  STATUS_IGNORE           /* for iterator type interfaces (line parser)   */
 ,  STATUS_NOMEM
 ,  STATUS_ABORT            /* e.g. user response                           */
 ,  STATUS_UNUSED           /* use this as lower bound for new statuses     */

@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mclpipeline" 1 "27 Oct 2005" "mclpipeline 1\&.005, 05-300" "USER COMMANDS "
+.TH "mclpipeline" 1 "10 Nov 2005" "mclpipeline 1\&.006, 05-314" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -29,15 +29,23 @@
 ..
 .SH NAME
 mclpipeline \- a generic pipeline for generating and scrutinizing mcl clusterings\&.
+
+\fBNOTE\fP
+.br
+\fBmcl\fP has acquired the ability to manipulate label input directly\&. This
+enables a very lightweight mechanism of generating clusterings by teaming up
+mcl with a lightweight parser\&. You might want to use this mechanism\&.
+Example invocations using the \fBmcxdeblast\fP BLAST parser are documented in the
+\fBmcl manual\fP\&.
 .SH SYNOPSIS
 
 \fBmclpipeline\fP [options] <file-name>
 .br
 
-where <file-name> is either the name of the data input file, or its base name\&.
-In the latter case the \fB--xi-dat\fP option is required\&.
-In case mclpipeline is indeed used to control all stages from the data
-input file onwards, usage will often be like this:
+where <file-name> is either the name of the data input file, or its base
+name\&. In the latter case the \fB--xi-dat\fP option is required\&. In case
+mclpipeline is indeed used to control all stages from the data input file
+onwards, usage will often be like this:
 
 .nf \fC
    mclpipeline [prepare options] --prepare-mcl <file-name>

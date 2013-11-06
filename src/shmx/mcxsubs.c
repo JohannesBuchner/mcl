@@ -1,4 +1,4 @@
-/*  Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/* (c) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 2 of the License or
@@ -1118,15 +1118,15 @@ mcxstatus parse_size
          ;  }
 
             if (!strcmp(key, "gq"))
-            bits = MCLX_GQ
+            bits = MCLX_EQT_GQ
          ;  else if (!strcmp(key, "gt"))
-            bits = MCLX_GT
+            bits = MCLX_EQT_GT
          ;  else if (!strcmp(key, "lt"))
-            bits = MCLX_LT
+            bits = MCLX_EQT_LT
          ;  else if (!strcmp(key, "lq"))
-            bits = MCLX_LQ
+            bits = MCLX_EQT_LQ
 
-         ;  if (bits & (MCLX_GQ | MCLX_GT))
+         ;  if (bits & (MCLX_EQT_GQ | MCLX_EQT_GT))
             spec->sz_min = l
          ;  else
             spec->sz_max = l
@@ -1172,15 +1172,15 @@ mcxstatus parse_val
          ;  }
 
             if (!strcmp(key, "gq"))
-            bits = MCLX_GQ
+            bits = MCLX_EQT_GQ
          ;  else if (!strcmp(key, "gt"))
-            bits = MCLX_GT
+            bits = MCLX_EQT_GT
          ;  else if (!strcmp(key, "lt"))
-            bits = MCLX_LT
+            bits = MCLX_EQT_LT
          ;  else if (!strcmp(key, "lq"))
-            bits = MCLX_LQ
+            bits = MCLX_EQT_LQ
 
-         ;  if (bits & (MCLX_GQ | MCLX_GT))
+         ;  if (bits & (MCLX_EQT_GQ | MCLX_EQT_GT))
             spec->val_min = d
          ;  else
             spec->val_max = d
@@ -1418,8 +1418,8 @@ void spec_exec
    ;  if (spec->sel_val_opts)
       mclxSelectValues
       (  sub
-      ,  spec->sel_val_opts & (MCLX_GQ | MCLX_GT) ? &(spec->val_min) : NULL
-      ,  spec->sel_val_opts & (MCLX_LQ | MCLX_LT) ? &(spec->val_max) : NULL
+      ,  spec->sel_val_opts & (MCLX_EQT_GQ | MCLX_EQT_GT) ? &(spec->val_min) : NULL
+      ,  spec->sel_val_opts & (MCLX_EQT_LQ | MCLX_EQT_LT) ? &(spec->val_max) : NULL
       ,  spec->sel_val_opts
       )
 
@@ -1427,14 +1427,14 @@ void spec_exec
 fprintf(stderr, "%ld %ld %ld\n", (long) spec->sel_sz_opts, spec->sz_min, spec->sz_max)
 ,     mclxMakeSparse
       (  sub
-      ,     spec->sel_sz_opts & MCLX_GQ
+      ,     spec->sel_sz_opts & MCLX_EQT_GQ
          ?  spec->sz_min
-         :     spec->sel_sz_opts & MCLX_GT
+         :     spec->sel_sz_opts & MCLX_EQT_GT
             ?  spec->sz_min + 1
             :  0
-      ,     spec->sel_sz_opts & MCLX_LQ
+      ,     spec->sel_sz_opts & MCLX_EQT_LQ
          ?  spec->sz_max
-         :     spec->sel_sz_opts & MCLX_LT
+         :     spec->sel_sz_opts & MCLX_EQT_LT
             ?  spec->sz_max - 1
             :  0
       )

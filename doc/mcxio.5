@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcxio" 5 "27 Oct 2005" "mcxio 1\&.005, 05-300" "FILE FORMATS "
+.TH "mcxio" 5 "10 Nov 2005" "mcxio 1\&.006, 05-314" "FILE FORMATS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -36,6 +36,9 @@ format\fP used by \fBmcxassemble\fP\&.
 The two formats (generic and raw) are in fact
 identical at the vector level; they are distinguished by the error reporting
 implied by the generic format\&.
+Also described here is the \fItab format\fP used by mcl to convert
+between meaningful labels describing the input data and the numerical
+identifiers used internally\&.
 
 A remark on the sloppy naming conventions used for \fBmcl\fP and its sibling
 utilities may be in order here\&. The prefix \fBmcx\fP is used for generic
@@ -67,9 +70,12 @@ Additional notes
 Raw format
 .in -4m
 .ZI 4m "8\&."
-SEE ALSO
+Tab format / label information
 .in -4m
 .ZI 4m "9\&."
+SEE ALSO
+.in -4m
+.ZI 4m "10\&."
 AUTHOR
 .in -4m
 .SH Internal representation of matrices in MCL
@@ -107,16 +113,16 @@ nonzero values will be stored internally\&. In the MCL matrix format, the
 matrix domains must be specified explicitly if they are not canonical (more
 below)\&.
 
-\fBStrictly as an aside\fP, the domains primarily exist to ensure data integrity\&.
-When combining matrices with addition or multiplication (e\&.g\&. using the \fBmcx\fP
-utility), MCL will happily combine matrices for which the domains do not
-match, although it will usually issue a warning\&. Conceptually, matrices
-auto-expand to the dimensions required for the operation\&.
-Alternatively, a matrix can be viewed as an infinite
-quadrant, with the domains delimiting the parts in which nonzero entries may
-exist\&. In the future, facilities could be added to MCL (c\&.q\&. \fBmcx\fP) to
-allow for placing strict domain requirements on matrices when submitted to
-binary operations such as addition and multiplication\&.
+\fBStrictly as an aside\fP, the domains primarily exist to ensure data
+integrity\&. When combining matrices with addition or multiplication (e\&.g\&.
+using the \fBmcx\fP utility), MCL will happily combine matrices for which the
+domains do not match, although it will usually issue a warning\&.
+Conceptually, matrices auto-expand to the dimensions required for the
+operation\&. Alternatively, a matrix can be viewed as an infinite quadrant,
+with the domains delimiting the parts in which nonzero entries may exist\&.
+In the future, facilities could be added to MCL (c\&.q\&. \fBmcx\fP) to allow for
+placing strict domain requirements on matrices when submitted to binary
+operations such as addition and multiplication\&.
 .SH Specifying matrices
 
 From here on, all statements about matrices and graphs are really statements
@@ -137,13 +143,11 @@ The parts are:
 .ZI 3m "Header specification"
 \&
 .br
-
 This specifies the dimensions K and L of the matrix, where K is the
 size of the row domain, and L is the size of the column domain\&.
 It looks as follows:
 
 .nf \fC
-
 (mclheader
 mcltype matrix
 dimensions 9x14
@@ -157,7 +161,6 @@ domain has dimension 9 and the column domain has dimension 14\&.
 .ZI 3m "Domain specification"
 \&
 .br
-
 The domain specification can have various forms: if nothing is specified,
 the matrix will have canonical domains and a canonical representation,
 similar to the representation encountered in textbooks\&. Alternatively, the
@@ -172,7 +175,6 @@ given in the header\&.
 An example where both a row domain and a column domain are specified:
 
 .nf \fC
-
 (mclrows
  100 200 300 400 500 600 700 800 900 $
 )
@@ -183,8 +185,8 @@ An example where both a row domain and a column domain are specified:
 
 This example combines with the header given above, as the dimensions fit\&.
 Had the row domain specification been omitted, the row domain would
-automatically be set to the integers \fC0,1,\&.\&.8\fP\&. Had the column specification
-been omitted, it would be set to \fC0,1,\&.\&.13\fP\&.
+automatically be set to the integers \fC0,1,\&.\&.8\fP\&. Had the column
+specification been omitted, it would be set to \fC0,1,\&.\&.13\fP\&.
 
 Suppose now that the header did specify the dimensions 10x10\&.
 Because the dimensions are identical, this raises the possibility
@@ -192,7 +194,6 @@ that the domains be identical\&.
 A valid way to specify the row domain and column domain in one go is this\&.
 
 .nf \fC
-
 (mcldoms
  11 22 33 44 55 66 77 88 99 100 $
 )
@@ -203,29 +204,25 @@ A valid way to specify the row domain and column domain in one go is this\&.
 .ZI 3m "Matrix specification"
 \&
 .br
-
 The matrix specification starts with the sequence
 
 .nf \fC
-
 (mclmatrix
 begin
 .fi \fR
 
-The \&'begin\&' keyword in the \&'(mclmatrix\&' part is followed by a list of listings,
-where the primary list ranges over all column indices in M (i\&.e\&. indices
-in the column domain), and where each
-secondary lists encodes all positive entries in the corresponding
-column\&. A secondary list (or matrix column) starts with the index c
-of the column, and then contains a listing of all row entries in c
-(these are matrix entries M[r,c] for varying r)\&. The entry M[r,c] is
-specified either as \&'r\&' or as \&'r:f\&', where f is a float\&. In the first
-case, the entry M[r,c] defaults to 1\&.0, in the second case, it is set
-to f\&. The secondary list is closed with the \&`$\&' character\&.
-A full fledged examples thus looks as follows:
+The \&'begin\&' keyword in the \&'(mclmatrix\&' part is followed by a list of
+listings, where the primary list ranges over all column indices in M (i\&.e\&.
+indices in the column domain), and where each secondary lists encodes all
+positive entries in the corresponding column\&. A secondary list (or matrix
+column) starts with the index c of the column, and then contains a listing
+of all row entries in c (these are matrix entries M[r,c] for varying r)\&. The
+entry M[r,c] is specified either as \&'r\&' or as \&'r:f\&', where f is a float\&. In
+the first case, the entry M[r,c] defaults to 1\&.0, in the second case, it is
+set to f\&. The secondary list is closed with the \&`$\&' character\&. A full
+fledged examples thus looks as follows:
 
 .nf \fC
-
 (mclheader
 mcltype matrix
 dimensions 12x3
@@ -248,12 +245,10 @@ Note that the column domain is canonical; its specifiation could have been
 omitted\&. In this example, no values were specified\&. See below for more\&.
 .in -3m
 .SH Specifying graphs
-
 A graph is simply a matrix where the row domain is the same as the column
 domain\&. Graphs should have positive entries only\&. Example:
 
 .nf \fC
-
 (mclheader
 mcltype matrix
 dimensions 12x12
@@ -285,7 +280,6 @@ The following example shows the same graph, now represented on a
 canonical domain, and with all values implicitly set to 1\&.0:
 
 .nf \fC
-
 (mclheader
 mcltype matrix
 dimensions 12x12
@@ -336,10 +330,41 @@ file/format, generate raw data during the parse and write it to file
 (without needing to build a huge data structure in memory)\&. B) mcxassemble
 takes the raw data and assembles it according to instruction into a generic
 mcl matrix\&.
+.SH Tab format / label information
+Several mcl programs accept options such as \fB-tab\fP, \fB-tabc\fP,
+\fB-tabr\fP, \fB-use-tab\fP, \fB-strict-tab\fP,
+and \fB-extend-tab\fP\&.
+The argument to these options is invariably the name of
+a so-called \fItab file\fP\&.
+Tab files are used to convert between labels (describing entities
+in the data) and indices as used in the mcl matrix format\&.
+In a tab file each line starts with a unique number which presumably
+corresponds to an index used in a matrix file\&.
+The rest of the line contains a
+descriptive string associated with the number\&. It is required
+that each string is unique, although not all mcl programs enforce
+this at the time of writing\&.
+Lines starting with
+\fC#\fP are considered comment and are disregarded\&.
+
+\fBTab domain\fP
+.br
+The ordered set of indices found in the tab file
+is called the \fItab domain\fP\&.
+
+Tab files are almost always employed in conjunction with an mcl matrix file\&.
+\fBmcxdump\fP and \fBclmformat\fP require by
+default that the tab domain coincides with the matrix domain (either row or
+column or both) to which they will be applied\&. This can be relaxed for
+either by supplying the \fB--lazy-tab\fP option\&.
+
+mcl provides explicit modes for dealing with tab structures by means of
+the \fB-extend-tab\fP, \fB-restrict-tab\fP and
+\fB-strict-tab\fP options\&. Refer to the \fBmcl\fP
+documentation\&.
 .SH SEE ALSO
 \fBmcxassemble\fP,
 and \fBmclfamily(7)\fP for an overview of all the documentation
 and the utilities in the mcl family\&.
 .SH AUTHOR
-
 Stijn van Dongen\&.

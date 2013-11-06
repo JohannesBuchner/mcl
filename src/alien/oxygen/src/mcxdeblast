@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
-#     (C) Copyright 2002, 2003, 2004 Stijn van Dongen
-#     (C) Copyright 2004 Jason Stajich (column output parsing)
+# (c) Copyright 2002, 2003, 2004, 2005 Stijn van Dongen
+# (c) Copyright 2004 Jason Stajich (column output parsing)
 #
 # Other (C)ontributors;
 #     Dinakarpandian Deendayal      (general comments)
@@ -17,8 +17,7 @@
 #
 #  -  Infer hsp_len from long output (?)
 #  -  (Perhaps) enable section parsing ala tribe, for finer control.   
-#  -  $:: usage is slightly arbitrary. perhaps it should match with variables
-#     cross-accessed in subs.
+#  -  $:: usage is arbitrary and ugly. pipe down.
 #  -  Is the m9/seenlfgt combination correct?
 #  -  Check whether m9 output state is correct if errors occur.
 
@@ -30,6 +29,7 @@
 # to have those syntaxes collapse. Pick one, not two.
 # What I find reasonable is to have --verbose mean default verbosity,
 # and --verbose=babbling or --verbose=richter-10 etc set the variants.
+# then -verbose babbling would be the two-token invocation.
 # I might give in though, as some stances are in vain or even in vanity.
 
 
@@ -41,7 +41,10 @@ $::mode_sort = 'o';     # a lphabetical
 $::mode_score = 'e';    # e value
                         # b it
 
-$::mode_parse = 'long'; # or m9.
+$::mode_parse  = 'long';   # or 'm9'.
+
+$::stream_out  =  "";      # don't stream by default.
+$::name_out    =  '-';
 
 $::bcut = 0;
 $::ecut = 0;
@@ -51,7 +54,8 @@ my $blastfix = "";
 my $addfix = "";
 
 my $user_tabfile = "";
-my $stdhandler = 0;
+
+my %stream_modes = qw ( abc 1 123 1 packed 1 );
 
 my $obase = "";
 
@@ -69,7 +73,7 @@ while ($ARGV[0] =~ /^--/) {
 
    if ($key eq 'sort') {
       $::mode_sort = $val;
-      if ($::mode_sort !~ /[ao]/) {
+      if ($::mode_sort !~ /^[ao]$/) {
          die "unknown sort mode <$::mode_sort>\n";
       }
    }
@@ -82,8 +86,21 @@ while ($ARGV[0] =~ /^--/) {
    elsif ($key eq 'tab')         { $user_tabfile= $val; }
    elsif ($key eq 'xo-dat')      { $addfix      = $val; }
    elsif ($key eq 'xi-dat')      { $blastfix    = $val; }
-   elsif ($key eq 'stdhandler')  { $stdhandler  = 1;    }
    elsif ($key eq 'base')        { $obase       = $val; }
+
+   elsif ($key eq 'stream') {
+      $::stream_out  = $val;
+      if (!defined($stream_modes{$val})) {
+         die "unknown streaming mode <$val>";
+      }
+   }
+   elsif ($key eq 'out') {
+      $::name_out  = $val;
+   }
+   elsif ($key eq 'abc-out') {
+      $::name_out  = $val;
+      $::stream_out = 'abc';
+   }
 
    elsif ($key eq 'score') {
       $::mode_score = $val;
@@ -138,28 +155,35 @@ $::TAB_user = {};
 if ($user_tabfile) {
    read_tab($user_tabfile, $::TAB_user);
 }
-else {
-   open(F_TAB, ">$obase.tab") || die "cannot open $obase.idx\n";    # indices
-   print F_TAB "#<mapped index> <tag>\n";
-   if ($::mode_sort eq 'o') {
-      print F_TAB "# sort mode is by occurrence\n";
-   }
-   elsif ($::mode_sort eq 'a') {
-      print F_TAB "# sort mode is alphabetical\n";
-   }
-   open(F_HDR, ">$obase.hdr") || die "cannot open $obase.hdr\n";    # header
-   open(F_MAP, ">$obase.map") || die "cannot open $obase.idx\n";    # map file
-   #  <raw ordinal>     <sort ordinal>
-}
+
 
 $::f_raw = undef;
 my $f_err = undef;
 
-if ($stdhandler) {
-   $::f_raw = \*STDOUT;
+if ($::stream_out) {
+   if (!$::name_out || $::name_out eq '-') {
+      open(F_RAW, ">$::name_out") || die "cannot open $::name_out";
+      $::f_raw = \*F_RAW;
+   }
+   else {
+      $::f_raw = \*STDOUT;
+   }
    $f_err = \*STDERR;
-} else {
-   open(F_RAW, ">$obase.raw") || die "cannot open $obase.raw\n";    # raw lists.
+
+   if ($::stream_out eq 'abc') {
+      # print $::f_raw "#aa# (stream abc cookie)\n";
+   }
+   elsif ($::stream_out eq '123') {
+      # print $::f_raw "#11# (stream abc cookie)\n";
+   }
+   elsif ($::stream_out eq 'packed') {
+      # my $sentinel = 2+4+32+128;
+      my $cookie     =  0x777700;      # 00000000111111111111111100000000
+      # print $::f_raw "L", $cookie;
+   }
+}
+else {
+   open(F_RAW, ">$obase.raw") || die "cannot open $obase.raw\n";
    $::f_raw = \*F_RAW;
    open(F_ERR, ">$obase.err") || die "cannot open $obase.err\n";
    $f_err = \*F_ERR;
@@ -178,13 +202,24 @@ else {
    die "Unknown parse mode $::mode_parse\n";
 }
 
+close $::f_raw;
 $::CT = scalar keys %$::seenrgt;
 
 
 my $alnum = 0;
 my $occTmisc = {};
 
-unless ($user_tabfile) {
+if (!$user_tabfile && !$::stream_out) {
+   open(F_HDR, ">$obase.hdr") || die "cannot open $obase.hdr\n";    # header
+   open(F_MAP, ">$obase.map") || die "cannot open $obase.idx\n";    # map file
+   open(F_TAB, ">$obase.tab") || die "cannot open $obase.idx\n";    # indices
+   print F_TAB "#<mapped index> <tag>\n";
+   if ($::mode_sort eq 'o') {
+      print F_TAB "# sort mode is by occurrence\n";
+   }
+   elsif ($::mode_sort eq 'a') {
+      print F_TAB "# sort mode is alphabetical\n";
+   }
    if ($::mode_sort eq 'a') {
       for (sort {$::a cmp $::b; } keys %$tagTocc) {
          print F_TAB "$alnum $_\n";
@@ -214,6 +249,9 @@ unless ($user_tabfile) {
    print F_HDR "(mclheader\nmcltype matrix\ndimensions ";
    print F_HDR $::ID . 'x' . $::ID;
    print F_HDR "\n)\n";
+   close F_TAB;
+   close F_HDR;
+   close F_MAP;
 }
 
 
@@ -268,12 +306,14 @@ sub munge_linewise {
       next unless $idx >= 0;
 
       if ($gix_prev ne $gix) {
-          if ($gix_prev) {
-            print $fh_raw "\$\n";
-          }
-          if( $idx >= 0 ) {
-            print $fh_raw "$idx ";
-          }
+          if (!$::stream_out) {
+             if ($gix_prev) {
+               print $fh_raw "\$\n";
+             }
+             if( $idx >= 0 ) {
+               print $fh_raw "$idx ";
+             }
+         }
       }
       my $idy = getid($giy, 0);
 
@@ -283,13 +323,18 @@ sub munge_linewise {
          :  $sc_abc;
 
       if ($idy >= 0) {
-          print $fh_raw "$idy:$s ";
+          if (!$::stream_out) {
+             print $fh_raw "$idy:$s ";
+          }
+          else {
+             print $fh_raw "$gix\t$giy\t$s\n";
+          }
       }
       $gix_prev = $gix;
    }
 
    if ($gix_prev) {
-      print $fh_raw "\$\n";
+      print $fh_raw "\$\n" if !$::stream_out;
    }
 }
 
@@ -317,7 +362,7 @@ sub munge_long {
          my $idx = getid($gix, 1);
 
          if ($idx >= 0) {
-            print $fh_raw "$idx ";
+            print $fh_raw "$idx " if !$::stream_out;
          }
          $state = $need_hits;
       }
@@ -331,7 +376,7 @@ sub munge_long {
       }
       elsif ($state == $need_hits && /no hits found/i) {
          print STDERR "no hits found for gi $gix\n";
-         print $fh_raw "\$\n";
+         print $fh_raw "\$\n" if !$::stream_out;
          $state = $need_query;
       }
       elsif
@@ -355,7 +400,12 @@ sub munge_long {
          $s = getscore($e, $b, 0);
 
          if ($idy >= 0) {               # fixme, void or explain.
-            print $fh_raw "$idy:$s ";
+            if (!$::stream_out) {
+               print $fh_raw "$idy:$s ";
+            }
+            else {
+               print $fh_raw "$giy\t$gix\t$s\n";
+            }
          }
       }
       elsif (/^\s*$/) {
@@ -366,7 +416,7 @@ sub munge_long {
          # this provides WU-blast compatibility.
       }
       elsif ($state == $need_gi) {
-         print $fh_raw "\$\n";
+         print $fh_raw "\$\n" if !$::stream_out;
          $state = $need_query;
       }
    }
@@ -374,9 +424,8 @@ sub munge_long {
    if ($state == $need_gi) {
       print $f_err "run ended while expecting more secondary scores\n";
       print STDERR "run ended while expecting more secondary scores\n";
-      print $fh_raw "\$\n";
+      print $fh_raw "\$\n" if !$::stream_out;
    }
-
 }
 
 

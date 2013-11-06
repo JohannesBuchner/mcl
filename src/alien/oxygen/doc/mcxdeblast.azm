@@ -9,36 +9,62 @@
 \"man::preamble"
 
 \sec{name}{NAME}
-\NAME{mcxdeblast}{parse BLAST files and write mcxassemble input.}
-
-\par
-   mcxassemble will in turn create input suitable for mcl.
+\NAME{mcxdeblast}{parse BLAST files and stream
+output directly into mcl or write mcxassemble input.}
 
 \sec{synopsis}{SYNOPSIS}
 
    \mcxdeblast file-name
 
-\par
+\par{
    \mcxdeblast
    \synoptkvp{--score}{<b|e|r>}{bit scores|e-values|normalize bit score}
-   \synoptkvp{--sort}{<a|o>}{alphabetic|occurrence sorting}
    \synoptopt{--m9}{expect BLAST column format}
+   \synoptopt{--abc-out}{write ID1 ID2 score format}
    \synoptopt{--abc}{expect ID1 ID2 score format}
+   \synoptkvp{--sort}{<a|o>}{alphabetic|occurrence sorting}
    \synoptkvp{--xi-dat}{<suf>}{strip <suf> from file-name}
    \synoptkvp{--xo-dat}{<suf>}{add <suf> to base name}
    \synoptkvp{--bcut}{<val>}{bit score cutoff}
    \synoptkvp{--ecut}{<val>}{E-value cutoff}
    \synoptkvp{--tab}{<fname>}{tab file}
 
-   <file-name>
+   <file-name>}
+
+\par{The \genopt{--abc} option is likely to go the way of the dodo
+now that the input format it requires can be directly streamed
+into \mcl.}
 
 \sec{description}{DESCRIPTION}
 
-\mcxdeblast parses BLAST files and writes results suitable for
-   input in mcxassemble (which will in turn create input suitable for mcl).
-   It is used by the pipeline script \sib{mclblastline}.
+\par{
+   \mcxdeblast parses BLAST files.}
 
-\par
+\par{
+   In \it{stream mode} mcxdeblast output can be directly streamed to mcl by
+   using the mcxdeblast \genoptref{--abc-out} option and equipping mcl with
+   either \genopt{--abc} or \genopt{--expect-abc}.  This can be considered the
+   easy, lightweight and fast track.  This functionality was recently acquired
+   by mcl.}
+
+\par{
+   In the classic and slightly more heavy-handed \it{assemble mode}, mcxdeblast
+   creates output files suitable for use by mcxassemble.  The latter can in
+   turn create input suitable for mcl.  This is the mode in which mcxdeblast is
+   employed by \mclblastline.}
+
+
+\sec{stream}{STREAM MODE}
+
+\car{Enter stream mode simply by specifiying \genopt{--abc-out}.
+Use \genopt{--m9} if the input is in columnar output. Pipe the result
+to a file or directly to mcl. Example invocations can be found
+in \sibref{mcl}{the mcl manual}.}
+
+
+\sec{assemble}{ASSEMBLE MODE}
+
+\car{
    If the input file is named \v{iput}, mcxdeblast will by
    default create files \v{iput.hdr}, \v{iput.raw}, \v{iput.tab},
    \v{iput.map}, and \v{iput.err}. The \v{hdr} file contains
@@ -52,9 +78,9 @@
    (after rearranging as specified in the map file) and the BLAST labels
    (peptide identifiers). Refer to the manual of \sib{mcxassemble}
    for the syntax of a tab file.
-   The \v{err} file contains a list of any errors encountered.
+   The \v{err} file contains a list of any errors encountered.}
 
-\par
+\par{
    If the \usekvp{--tab}{fname} option is used mcxdeblast changes
    its behaviour. It will read the file \usearg{fname}, and use
    the bindings found therein. It will no longer output any
@@ -62,10 +88,10 @@
    file should be provided by the same application that generated
    the specified tab file, and the \v{map} file should no longer be
    necessary (it might be convenient though and perhaps the
-   future will bring a new \genopt{--map} option).
+   future will bring a new \genopt{--map} option).}
 
 
-\par
+\par{
    The \usekvp{--tab}{fname} option can be convenient e.g. if
    you split a BLAST job over multiple machines and want
    to apply mcxdeblast to each of the subresults. You do
@@ -80,8 +106,7 @@
    Currently there is usually only one variable
    in the \v{hdr} file, which is the number of bindings
    listed in the tab file. This number, in turn, should equal
-   the total number of different peptides encountered in the BLAST input.
-
+   the total number of different peptides encountered in the BLAST input.}
 
 \sec{options}{OPTIONS}
 
@@ -102,6 +127,10 @@
 
 \item{\defopt{--abc}{expect ID1 ID2 SCORE format}}
    Use if each input line has the format ID1 ID2 SCORE.
+   However, you can also use \mcl with the \genopt{--abc} option.
+
+\item{\defkvp{--abc-out}{fname}{write ID1 ID2 SCORE format}}
+   Use this to stream output directly into mcl.
 
 \item{\defkvp{--xi-dat}{<suf>}{strip <suf> from <file-name>}}
    If set, the suffix <suf> is stripped from file-name in order

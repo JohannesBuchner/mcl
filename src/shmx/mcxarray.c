@@ -1,4 +1,4 @@
-/*   Copyright (C) 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/* (c) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 2 of the License or
@@ -289,13 +289,13 @@ int main
 
    ;  if (lq < DBL_MAX)
       {  double mass = mclxMass(tbl)
-      ;  double kept = mclxSelectValues(tbl, NULL, &lq, MCLX_LQ)
+      ;  double kept = mclxSelectValues(tbl, NULL, &lq, MCLX_EQT_LQ)
       ;  fprintf(stderr, "orig %.2f kept %.2f\n", mass, kept)
    ;  }
 
       if (gq > -DBL_MAX)
       {  double mass = mclxMass(tbl)
-      ;  double kept = mclxSelectValues(tbl, &gq, NULL, MCLX_GQ)
+      ;  double kept = mclxSelectValues(tbl, &gq, NULL, MCLX_EQT_GQ)
       ;  fprintf(stderr, "orig %.2f kept %.2f\n", mass, kept)
    ;  }
 

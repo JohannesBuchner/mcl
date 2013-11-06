@@ -208,14 +208,8 @@
    Name of the graph/matrix file.
 
 \item{\defopt{-tab}{fname}{read tab file}}
-   The file \v{fname} should be in \it{tab format}; each line starts
-   with a unique number which is an index used in the matrix input
-   file and the cluster input file. The rest of the line contains a
-   descriptive string associated with the number. Lines starting with
-   \v{#} are considered comment and are disregarded.  A single unique
-   line should be present for each node/index of the cluster row domain
-   (or the graph/matrix domain optionally specified with the \genopt{-imx}
-   option). The leading indices should be in ascending order.
+   The file \v{fname} should be in \it{tab format}. Refer
+   to \sibmcxio.
 
 \item{\defopt{--lazy-tab}{allow mismatched tab-file}}
    Allow missing and spurious entries in the tab file.

@@ -1,4 +1,4 @@
-/*  Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*  (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 2 of the License or
@@ -15,6 +15,7 @@
 
 #include "util/err.h"
 #include "util/alloc.h"
+#include "util/array.h"
 #include "util/types.h"
 #include "util/minmax.h"
 
@@ -38,12 +39,24 @@ mclpAR* mclpARinit
 (  mclpAR* mclpar
 )
    {  if (!mclpar)
-      {  mclpar =  mcxAlloc(sizeof(mclpAR), EXIT_ON_FAIL)
-      ;  mclpar->ivps = NULL
-      ;  mclpar->n_ivps = 0
-      ;  mclpar->n_alloc = 0
-   ;  }
-      return mclpar
+      mclpar =  mcxAlloc(sizeof(mclpAR), EXIT_ON_FAIL)
+
+   ;  if (!mclpar)
+      return NULL
+
+   ;  mclpar->ivps      =  NULL
+   ;  mclpar->n_ivps    =  0
+   ;  mclpar->n_alloc   =  0
+   ;  mclpar->sorted    =  3
+
+   ;  return mclpar
+;  }
+
+
+void* mclpARinit_v
+(  void* mclpar
+)
+   {  return mclpARinit(mclpar)
 ;  }
 
 
@@ -60,7 +73,7 @@ mclpAR* mclpARensure
          =  mcxNRealloc
             (  mclpar->ivps
             ,  n
-            ,  mclpar->n_ivps
+            ,  mclpar->n_alloc
             ,  sizeof(mclp)
             ,  mclpInit_v
             ,  RETURN_ON_FAIL
@@ -98,6 +111,44 @@ void mclpARfree
       ;  *mclparp   =  NULL
    ;  }
    }
+
+
+mcxstatus mclpARextend
+(  mclpAR*  ar
+,  long     idx
+,  double   val
+)
+   {  mclp* ivp = NULL
+   ;  if (ar->n_ivps >= ar->n_alloc)
+      {  long n_new_alloc = 4 + 1.44 * ar->n_alloc
+      ;  if
+         (! (  ar->ivps
+            =  mcxNRealloc
+               (  ar->ivps
+               ,  n_new_alloc
+               ,  ar->n_alloc
+               ,  sizeof(mclp)
+               ,  mclpInit_v
+               ,  RETURN_ON_FAIL
+         )  )  )
+         return STATUS_FAIL
+      ;  ar->n_alloc = n_new_alloc
+   ;  }
+
+      ivp = ar->ivps + ar->n_ivps
+   ;  ivp->val =  val
+   ;  ivp->idx =  idx
+
+   ;  if (ar->n_ivps && ivp[-1].idx >= idx)
+      {  if (ivp[-1].idx > idx)
+         BIT_OFF(ar->sorted, 3)
+      ;  else
+         BIT_OFF(ar->sorted, 2)
+   ;  }
+
+      ar->n_ivps++
+   ;  return STATUS_OK
+;  }
 
 
 mcxbool mclpGivenValGt
@@ -205,7 +256,7 @@ mclIvp* mclpInit
 void* mclpInit_v
 (  void*                  ivp
 )  
-   {  return (void*) mclpInstantiate((mclIvp*)ivp, -1, 1.0)
+   {  return mclpInstantiate(ivp, -1, 1.0)
 ;  }
 
 

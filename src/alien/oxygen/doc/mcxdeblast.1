@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcxdeblast" 1 "27 Oct 2005" "mcxdeblast 1\&.005, 05-300" "USER COMMANDS "
+.TH "mcxdeblast" 1 "10 Nov 2005" "mcxdeblast 1\&.006, 05-314" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -28,28 +28,47 @@
 .el .in 8m
 ..
 .SH NAME
-mcxdeblast \- parse BLAST files and write mcxassemble input\&.
-
-mcxassemble will in turn create input suitable for mcl\&.
+mcxdeblast \- parse BLAST files and stream
+output directly into mcl or write mcxassemble input\&.
 .SH SYNOPSIS
 \fBmcxdeblast\fP file-name
 
 \fBmcxdeblast\fP
 \fB[--score=\fP<b|e|r> (\fIbit scores|e-values|normalize bit score\fP)\fB]\fP
-\fB[--sort=\fP<a|o> (\fIalphabetic|occurrence sorting\fP)\fB]\fP
 \fB[--m9\fP (\fIexpect BLAST column format\fP)\fB]\fP
+\fB[--abc-out\fP (\fIwrite ID1 ID2 score format\fP)\fB]\fP
 \fB[--abc\fP (\fIexpect ID1 ID2 score format\fP)\fB]\fP
+\fB[--sort=\fP<a|o> (\fIalphabetic|occurrence sorting\fP)\fB]\fP
 \fB[--xi-dat=\fP<suf> (\fIstrip <suf> from file-name\fP)\fB]\fP
 \fB[--xo-dat=\fP<suf> (\fIadd <suf> to base name\fP)\fB]\fP
 \fB[--bcut=\fP<val> (\fIbit score cutoff\fP)\fB]\fP
 \fB[--ecut=\fP<val> (\fIE-value cutoff\fP)\fB]\fP
 \fB[--tab=\fP<fname> (\fItab file\fP)\fB]\fP
 <file-name>
-.SH DESCRIPTION
-\fBmcxdeblast\fP parses BLAST files and writes results suitable for
-input in mcxassemble (which will in turn create input suitable for mcl)\&.
-It is used by the pipeline script \fBmclblastline\fP\&.
 
+The \fB--abc\fP option is likely to go the way of the dodo
+now that the input format it requires can be directly streamed
+into \fBmcl\fP\&.
+.SH DESCRIPTION
+
+\fBmcxdeblast\fP parses BLAST files\&.
+
+In \fIstream mode\fP mcxdeblast output can be directly streamed to mcl by
+using the mcxdeblast \fB--abc-out\fP option and equipping mcl with
+either \fB--abc\fP or \fB--expect-abc\fP\&. This can be considered the
+easy, lightweight and fast track\&. This functionality was recently acquired
+by mcl\&.
+
+In the classic and slightly more heavy-handed \fIassemble mode\fP, mcxdeblast
+creates output files suitable for use by mcxassemble\&. The latter can in
+turn create input suitable for mcl\&. This is the mode in which mcxdeblast is
+employed by \fBmclblastline\fP\&.
+.SH STREAM MODE
+Enter stream mode simply by specifiying \fB--abc-out\fP\&.
+Use \fB--m9\fP if the input is in columnar output\&. Pipe the result
+to a file or directly to mcl\&. Example invocations can be found
+in \fBthe mcl manual\fP\&.
+.SH ASSEMBLE MODE
 If the input file is named \fCiput\fP, mcxdeblast will by
 default create files \fCiput\&.hdr\fP, \fCiput\&.raw\fP, \fCiput\&.tab\fP,
 \fCiput\&.map\fP, and \fCiput\&.err\fP\&. The \fChdr\fP file contains
@@ -120,6 +139,13 @@ Use this option to parse BLAST output formatted with the -m 9 option\&.
 \&
 .br
 Use if each input line has the format ID1 ID2 SCORE\&.
+However, you can also use \fBmcl\fP with the \fB--abc\fP option\&.
+.in -3m
+
+.ZI 3m "\fB--abc-out\fP=fname (\fIwrite ID1 ID2 SCORE format\fP)"
+\&
+.br
+Use this to stream output directly into mcl\&.
 .in -3m
 
 .ZI 3m "\fB--xi-dat\fP=<suf> (\fIstrip <suf> from <file-name>\fP)"

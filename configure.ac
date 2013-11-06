@@ -3,7 +3,7 @@
 # $Id: configure.ac.in,v 1.28 2005/09/28 20:37:11 flux Exp $
 
 AC_PREREQ(2.50)
-AC_INIT(mcl, 05-300, mcl-devel@lists.micans.org)
+AC_INIT(mcl, 05-314, mcl-devel@lists.micans.org)
 
 PACKAGE=$PACKAGE_NAME
 VERSION=$PACKAGE_VERSION

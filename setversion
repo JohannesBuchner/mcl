@@ -1,12 +1,12 @@
 #!/usr/local/bin/bash -e
 
-# $Id: setversion,v 1.23 2005/04/19 13:42:30 flux Exp $
+# $Id: setversion,v 1.24 2005/11/02 14:45:22 flux Exp $
 
 # called in Makefile.am and in bootstrap
 
 set -x
 
-TAG=1.005
+TAG=1.006
 
 VERSION=`date '+%y-%j'`
 MONTHDAY=$(date '+%e')

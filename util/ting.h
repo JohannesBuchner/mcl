@@ -131,22 +131,33 @@ mcxTing* mcxTingEmpty
  * *
  **   Some freeing routines.
 */
-                          /*     You pass the address of a variable,
+                          /*     Free members and shell struct
+                           *     You pass the address of a variable,
                            *     loosely speaking.
                           */
 void mcxTingFree
 (  mcxTing     **tingpp
 )  ;
-                          /*     Use with callbacks, e.g.
+                          /*     Free members and shell struct
+                           *     Use with callbacks, e.g.
                            *     for freeing hash with tings in one go.
                           */
 void mcxTingFree_v
 (  void        *tingpp
 )  ;
-                          /*     Use for freeing array of ting;
+                          /*     Free members
+                           *     Use for freeing array of ting;
                            *     e.g. as callback in mcxNFree.
                           */
 void mcxTingRelease
+(  void        *ting
+)  ;
+
+                          /*     Free shell struct
+                           *     e.g. as callback in mcxHashFree.
+                           *     Assumes the members ownership lies elsewhere.
+                          */
+void mcxTingAbandon
 (  void        *ting
 )  ;
 
@@ -190,7 +201,7 @@ mcxTing* mcxTingify
 )  ;
 
 
-                          /*    destroys argument.
+                          /*    destroys argument, returns str member.
                           */
 char* mcxTinguish
 (  mcxTing*    ting

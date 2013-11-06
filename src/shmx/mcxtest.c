@@ -1,4 +1,4 @@
-/*   Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/* (c) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 2 of the License or
@@ -37,28 +37,13 @@ int main
 (  int                  argc
 ,  const char*          argv[]
 )  
-   {  mcxIO* xf = mcxIOnew(argv[1], "r")
-   ;  mclx* mx
-   ;  mclv* vec1, *vec2
+   {  mcxIO* xf = mcxIOnew(argv[2], "r")
+   ;  mcxIO* xfout = mcxIOnew(argc > 3 ? argv[3] : "-", "w")
+   ;  mclTab* tab = NULL
 
-   ;  mcxIOopen(xf, EXIT_ON_FAIL)
-   ;  mx = mclxRead(xf, EXIT_ON_FAIL)
+   ;  int a0 = atoi(argv[1])
 
-   ;  vec1 = mclvCopy(NULL, mx->cols+0)
-   ;  vec2 = mclvCopy(NULL, mx->cols+1)
-
-   ;  mclvCopy(vec1, mx->cols+2)
-   ;  mclvCopy(vec2, mx->cols+3)
-
-   ;  mcldMinus(vec1, vec2, vec1)
-   ;  mcldMinus(vec2, vec2, vec2)
-   ;  mcldMinus(vec1, vec2, vec1)
-   ;  mcldMinus(vec1, vec1, vec1)
-
-   ;  mclvFree(&vec1)
-   ;  mclvFree(&vec2)
-   ;  mclxFree(&mx)
-   ;  mcxIOfree(&xf)
+   ;  mcxIOclose(xfout)
    ;  return 0
 ;  }
 

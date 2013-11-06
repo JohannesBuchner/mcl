@@ -11,16 +11,24 @@
 \sec{name}{NAME}
 \NAME{mclpipeline}{a generic pipeline for generating and scrutinizing mcl clusterings.}
 
+\cpar{NOTE}{
+   \mcl has acquired the ability to manipulate label input directly.  This
+   enables a very lightweight mechanism of generating clusterings by teaming up
+   mcl with a lightweight parser.  You might want to use this mechanism.
+   Example invocations using the \mcxdeblast BLAST parser are documented in the
+   \sibref{mcl}{mcl manual}.}
+
+
 \sec{synopsis}{SYNOPSIS}
 
 \par
    \mclpipeline [options] <file-name>\|
 
 \par
-   where <file-name> is either the name of the data input file, or its base name.
-   In the latter case the \genopt{--xi-dat} option is required.
-   In case mclpipeline is indeed used to control all stages from the data
-   input file onwards, usage will often be like this:
+   where <file-name> is either the name of the data input file, or its base
+   name.  In the latter case the \genopt{--xi-dat} option is required.  In case
+   mclpipeline is indeed used to control all stages from the data input file
+   onwards, usage will often be like this:
 
 \verbatix{\
    mclpipeline [prepare options] --prepare-mcl <file-name>

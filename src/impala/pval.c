@@ -1,4 +1,4 @@
-/*  Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*  (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 2 of the License or
@@ -7,7 +7,9 @@
 */
 
 #include <math.h>
+#include <float.h>
 
+#include "util/minmax.h"
 #include "pval.h"
 
 double fltConstant
@@ -66,11 +68,59 @@ double fltScale
 ;  }
 
 
+double fltShift
+(  pval     flt
+,  void     *shift
+)
+   {  return flt + *((double*) shift)
+;  }
+
+
+double fltFloor
+(  pval     flt
+,  void     *lowest
+)
+   {  return MAX(flt, *((double*) lowest))
+;  }
+
+
+double fltCeil
+(  pval     flt
+,  void     *highest
+)
+   {  return MIN(flt, *((double*) highest))
+;  }
+
+
 double fltPower
 (  pval     flt
 ,  void     *power
 )
    {  return pow(flt, *((double*) power))
+;  }
+
+
+double fltLog
+(  pval     flt
+,  void*    basep
+)
+   {  double base = basep ? *((double*) basep) : -1
+   ;  if (base > 0 && flt > 0)
+      return log(flt) / log(base)
+   ;  else if (!basep && flt > 0)
+      return log(flt)
+   ;  else if (!flt)
+      return -FLT_MAX
+   ;  else
+      return 0.0
+;  }
+
+
+double fltNeglog
+(  pval     flt
+,  void*    base
+)
+   {  return -fltLog(flt, base)
 ;  }
 
 

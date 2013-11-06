@@ -51,8 +51,9 @@ int main
    {  mcxIO* xfx, *xfy, *xftwins = mcxIOnew("-", "w")
    ;  mclx* mx, *my, *meet, *teem, *myt
    ;  int a = 1, x, y
-   ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_NO)
    ;  mcxbool legend = FALSE
+
+   ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_NO)
 
    ;  if (argc == 1)
       goto help
@@ -128,7 +129,6 @@ int main
       ;  long X = xvec->vid
       ;  long xproj = mclvSum(xvec)
       ;  long xsize = mx->cols[x].n_ivps
-      ;  long x
 
       ;  for (y=0;y<N_COLS(teem);y++)
          {  mclv* yvec = teem->cols+y

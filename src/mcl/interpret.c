@@ -624,6 +624,7 @@ mclInterpretParam* mclInterpretParamNew
                                 )
    ;  ipp->w_selfval    =  0.999
    ;  ipp->w_maxval     =  0.001
+   ;  ipp->delta        =  0.01
 
    ;  return ipp
 ;  }

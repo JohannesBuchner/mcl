@@ -1,4 +1,4 @@
-/*   Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 2 of the License or
@@ -6,8 +6,16 @@
  * GPL along with MCL, in the file COPYING.
 */
 
+/* This is the big file of MCL IO.
+ *    -  ascii/binary
+ *    -  submatrices from disk
+ *    -  domain checks
+ *    -  streamed output/input
+*/
+
+
 /* TODO
- *    parsing code is ugly. Some header parsing is now line-based,
+ *    header parsing code is ugly. Some part is line-based,
  *    some other part is not.
  *
  *    mclx{a,b}ReadBody: what do they free on failure?
@@ -18,11 +26,22 @@
          document, or improve.
 */
 
+/* TODO NOW
+ *
+ *    (re)strict: what happens with symmetric?
+ *       say (symmetric and) restrict_tabc and extend_tabr
+mcxload -abc small.data -extend-tabc small.tab-short -o foo -cache-tabr bar
+ *    warn on strange combinations, e.g. tab[s] + 123.
+*/
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <errno.h>
+#include <ctype.h>
+#include <float.h>
+#include <limits.h>
 #include <math.h>
 
 #include "io.h"
@@ -35,10 +54,10 @@
 #include "util/minmax.h"
 #include "util/alloc.h"
 #include "util/ting.h"
+#include "util/ding.h"
 #include "util/io.h"
 #include "util/hash.h"
 #include "util/array.h"
-
 
 
 static mcxstatus mclxa_parse_dimpart
@@ -328,7 +347,10 @@ mcxstatus mclxReadDimensions
       ;  return STATUS_OK
    ;  }
 
-#if 0
+         /* do not attempt bin write for nonseekable streams
+          * otherwise we cannot pipe matrices around
+         */
+#if 1
       if (mcxFPisSeekable(xf->fp) && mcxIOtryCookie(xf, mclxCookie))
 #else
       if (mcxIOtryCookie(xf, mclxCookie))
@@ -611,9 +633,10 @@ static mclMatrix* mclxb_read_body
 ,  mclVector* rowmask
 ,  mcxOnFail ON_FAIL
 )
+#define  BREAK_IF(clause)   if (clause) { break; } else { acc++; }
    {  mclMatrix* mx     =  NULL
    ;  long n_cols       =  dom_cols->n_ivps
-   ;  int level         =  0
+   ;  int acc           =  0
    ;  int szl           =  sizeof(long)
    ;  mcxstatus status  =  STATUS_FAIL
    ;  long n_mod        =  0, n_mod_gauge = 0
@@ -647,23 +670,15 @@ static mclMatrix* mclxb_read_body
       ;  if (!rowmask)
          rowmask = dom_rows
 
-      ;  if (!(mx = mclxAllocZero(colmask, rowmask)))
-         break
-      ;  level++
+      ;  BREAK_IF(!(mx = mclxAllocZero(colmask, rowmask)))
 
-      ;  {  long oa_start  =  ftell(xf->fp)     /* start of offset array */
+         {  long oa_start  =  ftell(xf->fp)     /* start of offset array */
          ;  long k =  0, vec_os  = -1, v_pos = 0
-         ;  level += 100
+         ;
+            BREAK_IF(oa_start < 0)
+            BREAK_IF(oa && (1+n_cols) != fread(oa, szl, 1+n_cols, xf->fp))
 
-         ;  if (oa_start < 0)
-            break
-         ;  level++
-
-         ;  if (oa && (1+n_cols) != fread(oa, szl, 1+n_cols, xf->fp))
-            break
-         ;  level++
-
-         ;  while (k < colmask->n_ivps)
+            while (k < colmask->n_ivps)
             {  long vec_vid = colmask->ivps[k].idx   /* MUST be sorted */
             ;  mclv* veck = mx->cols+k
             ;  vec_os = mclvGetIvpOffset(dom_cols, vec_vid, vec_os)
@@ -679,45 +694,27 @@ static mclMatrix* mclxb_read_body
                if (oa)
                v_pos = oa[vec_os]
             ;  else
-               {  if (fseek(xf->fp, oa_start + vec_os * szl, SEEK_SET))
-                  break
-               ;  level++
+               {  BREAK_IF(fseek(xf->fp, oa_start + vec_os * szl, SEEK_SET))
+                  BREAK_IF(1 != fread(&v_pos, szl, 1, xf->fp))
+               }
 
-               ;  if (1 != fread(&v_pos, szl, 1, xf->fp))
-                  break
-               ;  level++
-            ;  }
+               BREAK_IF(fseek(xf->fp, v_pos, SEEK_SET))
+               BREAK_IF(mclvEmbedRead(veck, xf, ON_FAIL))
+               BREAK_IF(veck->vid != vec_vid)
+               BREAK_IF(mclIOvcheck(veck, dom_rows))
 
-               if (fseek(xf->fp, v_pos, SEEK_SET))
-               break
-            ;  level++
-
-            ;  if (mclvEmbedRead(veck, xf, ON_FAIL))
-               break
-            ;  level++
-
-            ;  if (veck->vid != vec_vid)
-               break
-            ;  level++
-
-            ;  if (mclIOvcheck(veck, dom_rows))
-               break
-            ;  level++
-
-            ;  if (rowmask != dom_rows)
+               if (rowmask != dom_rows)
                mcldMeet(veck, rowmask, veck)
 
             ;  k++
          ;  }
 
-            if (k != colmask->n_ivps)
-            break
-         ;  level++
+            BREAK_IF(k != colmask->n_ivps)
                                     /*  fetch end of matrix offset */
-         ;  if (fseek(xf->fp, oa_start + n_cols * szl, SEEK_SET))    break
-         ;  if (1 != fread(&v_pos, szl, 1, xf->fp))                  break
-         ;  if (fseek(xf->fp, v_pos, SEEK_SET))                      break
-      ;  }
+            BREAK_IF(fseek(xf->fp, oa_start + n_cols * szl, SEEK_SET))
+            BREAK_IF(1 != fread(&v_pos, szl, 1, xf->fp))
+            BREAK_IF(fseek(xf->fp, v_pos, SEEK_SET))
+         }
          status = STATUS_OK
       ;  break
    ;  }
@@ -741,7 +738,7 @@ static mclMatrix* mclxb_read_body
          ,  (long) N_ROWS(mx)
          ,  (long) N_COLS(mx)
          ,  xf->fn->str
-         ,  (long) level
+         ,  (long) acc
          )
       ;  mclxFree(&mx)
       ;  if (ON_FAIL == EXIT_ON_FAIL)
@@ -834,41 +831,44 @@ mcxstatus mclxbWrite
 
    ;  while (1)
       {  BREAK_IF (xf->fp == NULL && (mcxIOopen(xf, ON_FAIL) != STATUS_OK))
-      ;  BREAK_IF (!mcxIOwriteCookie(xf, mclxCookie))
+         BREAK_IF (!mcxIOwriteCookie(xf, mclxCookie))
 
-      ;  fout = xf->fp
-      ;  BREAK_IF (1 != fwrite(&n_cols, szl, 1, fout))
-      ;  BREAK_IF (1 != fwrite(&n_rows, szl, 1, fout))
-      ;  BREAK_IF (1 != fwrite(&flags, szl, 1, fout))
-      ;  BREAK_IF (!(flags & 1) && STATUS_FAIL == mclvEmbedWrite(mx->dom_cols, xf))
-      ;  BREAK_IF (!(flags & 2) && STATUS_FAIL == mclvEmbedWrite(mx->dom_rows, xf))
+         fout = xf->fp
+      ;  
+         BREAK_IF (1 != fwrite(&n_cols, szl, 1, fout))
+         BREAK_IF (1 != fwrite(&n_rows, szl, 1, fout))
+         BREAK_IF (1 != fwrite(&flags, szl, 1, fout))
+         BREAK_IF (!(flags & 1) && STATUS_FAIL == mclvEmbedWrite(mx->dom_cols, xf))
+         BREAK_IF (!(flags & 2) && STATUS_FAIL == mclvEmbedWrite(mx->dom_rows, xf))
 
             /* Write vector offsets (plus one for end of matrix body)
              * offsets are written relative to beginning.
             */
-      ;  BREAK_IF ((v_pos = ftell(fout)) < 0)
-      ;  v_pos += (1 + n_cols) * szl
+         BREAK_IF ((v_pos = ftell(fout)) < 0)
+
+         v_pos += (1 + n_cols) * szl
 
       ;  while (vec < mx->cols+n_cols)
          {  BREAK_IF (1 != fwrite(&v_pos, szl, 1, fout))
-         ;  v_pos += 2 * szl + sizeof(double)+ vec->n_ivps * sizeof(mclIvp)
+            v_pos += 2 * szl + sizeof(double)+ vec->n_ivps * sizeof(mclIvp)
                                         /* -^- vid, n_ivps, val, ivps */
          ;  vec++
          ;  if (progress && (vec-mx->cols) % n_mod == 0)
             fputc('.', stderr)
       ;  }
          BREAK_IF (vec != mx->cols+n_cols)
-      ;  BREAK_IF (1 != fwrite(&v_pos, sizeof(long), 1, fout))
+         BREAK_IF (1 != fwrite(&v_pos, sizeof(long), 1, fout))
                                        /* Write columns */   
-      ;  n_cols      =  N_COLS(mx)
+         n_cols      =  N_COLS(mx)
       ;  vec         =  mx->cols
 
       ;  while (vec < mx->cols+n_cols)
-         BREAK_IF (STATUS_FAIL == mclvEmbedWrite(vec++, xf))
+         {  BREAK_IF (STATUS_FAIL == mclvEmbedWrite(vec++, xf))
+         }
 
-      ;  BREAK_IF (vec != mx->cols+n_cols)
+         BREAK_IF (vec != mx->cols+n_cols)
 
-      ;  status = STATUS_OK
+         status = STATUS_OK
       ;  break
    ;  }
       if (progress)
@@ -892,6 +892,7 @@ mcxstatus mclxbWrite
 
    ;  return status
 ;  }
+#undef  BREAK_IF
 
 
 /* reads single required part, so does not read too far
@@ -1587,29 +1588,23 @@ mcxstatus mclvEmbedRead
 ;  }
 
 
+
 mclpAR* mclpReaDaList
 (  mcxIO   *xf
 ,  mclpAR  *ar
-,  int     *sortbits
 ,  int      fintok
 )
-   {  int n_ivps = 0
-   ;  const char* me = "mclpReaDaList"
+   {  const char* me = "mclpReaDaList"
    ;  mcxbool ok = FALSE
-   ;  int sorted = 1
-   ;  int noduplicates = 1
-   ;  long previdx = -1
-
-   ;  if (sortbits)
-      *sortbits = 0
 
    ;  if (!ar)
       ar = mclpARensure(NULL, 100)
+   ;  else
+      ar->n_ivps = 0
 
    ;  while (1)
       {  long idx
       ;  double val
-      ;  mclIvp* ivp
       ;  int c = mcxIOskipSpace(xf)  /* c is ungotten */
 
       ;  if (c == fintok)
@@ -1640,15 +1635,7 @@ mclpAR* mclpReaDaList
          ;  break
       ;  }
 
-         if (idx < previdx)
-         sorted = 0
-      ;  if (idx == previdx)
-         noduplicates = 0
-      ;
-         n_ivps++
-      ;
-      expect_val
-
+expect_val
       :  if (':' == (c = mcxIOskipSpace(xf)))
          {  mcxIOstep(xf) /* discard ':' */
          ;  if (mcxIOexpectReal(xf, &val, RETURN_ON_FAIL) == STATUS_FAIL)
@@ -1666,35 +1653,18 @@ mclpAR* mclpReaDaList
          else
          val = 1.0
 
-      ;  if (ar->n_alloc <= n_ivps)
-         mcxResize
-         (  &(ar->ivps)
-         ,  sizeof(mclp)
-         ,  &(ar->n_alloc)
-         ,  n_ivps * 2
-         ,  EXIT_ON_FAIL   /* fixme; respect ON_FAIL */
-         )
-
-      ;  ivp      =  ar->ivps + n_ivps - 1
-      ;  ivp->val =  val
-      ;  ivp->idx =  idx
-      ;  previdx  =  idx
-   ;  }
+      ;  if (mclpARextend(ar, idx, val))
+         {  mcxErr(me, "could not extend/insert ar-ivp")
+         ;  break
+      ;  }
+      }
 
       if (!ok)
       {  mclpARfree(&ar)
       ;  return NULL
    ;  }
 
-      if (sortbits && sorted)
-      {  *sortbits |= 1
-      ;  if (noduplicates)
-         *sortbits |= 2
-   ;  }
-      /* don't set noduplicates unless the thing is sorted */
-
-      ar->n_ivps = n_ivps
-   ;  return ar
+      return ar
 ;  }
 
 
@@ -1708,13 +1678,19 @@ static mcxstatus mclxa_readavec
 ,  double (*fltbinary)(pval val1, pval val2)
 )
    {  mclpAR* arcp = ar
-   ;  int sortbits = 0  /* 1: in sorted order, 2: no duplicates present. */
 
-   ;  if (!(ar = mclpReaDaList(xf, ar, &sortbits, fintok)))
+   ;  if (!(ar = mclpReaDaList(xf, ar, fintok)))
       return STATUS_FAIL
 
    ;  mclvFromIvps_x
-      (dst,ar->ivps,ar->n_ivps,warn_repeat, sortbits, ivpmerge, fltbinary)
+      (  dst
+      ,  ar->ivps
+      ,  ar->n_ivps
+      ,  ar->sorted
+      ,  warn_repeat
+      ,  ivpmerge
+      ,  fltbinary
+      )
 
    ;  if (!arcp)
       mclpARfree(&ar)
@@ -1894,7 +1870,7 @@ mclpAR *mclpaReadRaw
 ,  mcxOnFail   ON_FAIL
 ,  int         fintok     /* e.g. EOF or '$' */
 )
-   {  mclpAR* ar = mclpReaDaList(xf, NULL, NULL, fintok)
+   {  mclpAR* ar = mclpReaDaList(xf, NULL, fintok)
    ;  if (!ar && ON_FAIL != RETURN_ON_FAIL)
       mcxExit(1)
    ;  return ar
@@ -2047,7 +2023,7 @@ mcxstatus mclxaSubReadRaw
             ;  mclvFree(&ldif)
             ;  mcldMeet(vec, tst_rows, vec)
          ;  }
-            if (tst_rows != mx->dom_rows)
+            if (tst_rows != mx->dom_rows)    /* fixme document or improve */
             mcldMeet(vec, mx->dom_rows, vec)
       ;  }
 
@@ -2155,13 +2131,29 @@ void mclxIOdumpSet
 ;  }
 
 
+static void  dump_label
+(  mcxIO* xf
+,  const mclTab* tab
+,  const char* label
+,  long idx
+)
+   {  if (tab)
+      {  if (label == tab->na->str)
+         fprintf(xf->fp, "?_%ld", idx)
+      ;  else
+         fputs(label, xf->fp)
+   ;  }
+      else
+      fprintf(xf->fp, "%ld", idx)
+;  }
+
 
 mcxstatus mclxIOdump
 (  mclx*       mx
 ,  mcxIO*      xf_dump
 ,  mclxIOdumper* dumper
-,  mclTab*     tabc
-,  mclTab*     tabr
+,  const mclTab*  tabc
+,  const mclTab*  tabr
 ,  mcxOnFail   ON_FAIL
 )
    {  mcxbits modes = dumper->modes
@@ -2169,17 +2161,17 @@ mcxstatus mclxIOdump
       return STATUS_FAIL
 
    ;  if
-      (  (modes & (MCX_DUMP_LOOP_FORCE | MCX_DUMP_LOOP_NONE))
+      (  (modes & (MCLX_DUMP_LOOP_FORCE | MCLX_DUMP_LOOP_NONE))
       && mclxIsGraph(mx)
       )
       {  double (*op)(mclv* vec, long r, void* data)
-         =     modes & MCX_DUMP_LOOP_NONE
+         =     modes & MCLX_DUMP_LOOP_NONE
             ?  mclvAdjustDiscard
             :  mclvAdjustForce
       ;  mclxAdjustLoops(mx, op, NULL)
    ;  }
    
-      if (modes & MCX_DUMP_PAIRS)
+      if (modes & MCLX_DUMP_PAIRS)
       {  long i, j, labelc_o = -1
       ;  char* labelc = "", *labelr = ""
 
@@ -2198,25 +2190,17 @@ mcxstatus mclxIOdump
             ;  if (tabr)
                labelr = mclTabGet(tabr, ivp->idx, &labelr_o)
 
-            ;  if (tabc)
-               fputs(labelc, xf_dump->fp)
-            ;  else
-               fprintf(xf_dump->fp, "%ld", (long) vec->vid)
-
+            ;  dump_label(xf_dump, tabc, labelc, vec->vid)
             ;  fputs(dumper->sep_row, xf_dump->fp)
+            ;  dump_label(xf_dump, tabr, labelr, ivp->idx)
 
-            ;  if (tabr)
-               fputs(labelr, xf_dump->fp)
-            ;  else
-               fprintf(xf_dump->fp, "%ld", (long) ivp->idx)
-
-            ;  if (modes & MCX_DUMP_VALUES)
+            ;  if (modes & MCLX_DUMP_VALUES)
                fprintf(xf_dump->fp, "%s%f", dumper->sep_row, ivp->val)
             ;  fputc('\n', xf_dump->fp)
          ;  }
          }
       }
-      else if (modes & (MCX_DUMP_LINES | MCX_DUMP_RLINES))
+      else if (modes & (MCLX_DUMP_LINES | MCLX_DUMP_RLINES))
       {  long i, j, labelc_o = -1
       ;  char* labelc = "", *labelr = ""
 
@@ -2228,18 +2212,14 @@ mcxstatus mclxIOdump
          ;  if (tabc)
             labelc = mclTabGet(tabc, vec->vid, &labelc_o)
 
-         ;  if (modes & MCX_DUMP_LINES)
-            {  if (tabc)
-               fputs(labelc, xf_dump->fp)
-            ;  else
-               fprintf(xf_dump->fp, "%ld", (long) vec->vid)
-         ;  }
+         ;  if (modes & MCLX_DUMP_LINES)
+            dump_label(xf_dump, tabc, labelc, vec->vid)
 
-            for (j=0;j<vec->n_ivps;j++)
+         ;  for (j=0;j<vec->n_ivps;j++)
             {  const char* sep
-               =     ((modes & MCX_DUMP_RLINES) && !busy)
+               =     ((modes & MCLX_DUMP_RLINES) && !busy)
                   ?  ""
-                  :     (j && !(modes & MCX_DUMP_RLINES))
+                  :     (j && !(modes & MCLX_DUMP_RLINES))
                      ?  dumper->sep_row
                      :  dumper->sep_lead
             ;  mclIvp* ivp = vec->ivps+j
@@ -2251,16 +2231,12 @@ mcxstatus mclxIOdump
                labelr = mclTabGet(tabr, ivp->idx, &labelr_o)
 
             ;  fputs(sep, xf_dump->fp)
+            ;  dump_label(xf_dump, tabr, labelr, ivp->idx)
 
-            ;  if (tabr)
-               fputs(labelr, xf_dump->fp)
-            ;  else
-               fprintf(xf_dump->fp, "%ld", (long) ivp->idx)
-
-            ;  if (modes & MCX_DUMP_VALUES)
+            ;  if (modes & MCLX_DUMP_VALUES)
                fprintf(xf_dump->fp, "%s%f", dumper->sep_val, ivp->val)
          ;  }
-            if ((modes & MCX_DUMP_LINES) || vec->n_ivps)   /* sth was printed */
+            if ((modes & MCLX_DUMP_LINES) || vec->n_ivps) /* sth was printed */
             fputc('\n', xf_dump->fp)
       ;  }
       }

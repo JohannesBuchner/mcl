@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mclblastline" 1 "27 Oct 2005" "mclblastline 1\&.005, 05-300" "USER COMMANDS "
+.TH "mclblastline" 1 "10 Nov 2005" "mclblastline 1\&.006, 05-314" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -34,10 +34,13 @@ mclblastline \- a pipeline for clustering from BLAST files\&.
 
 \fBmclblastline\fP [deblast options] [pipeline options] file-name
 
-This program is a relatively new addition to the MCL suite\&.
-If it does not work as expected, please file a bug report
-with the developer and/or subscribe to mcl-devel as
-indicated on http://micans\&.org/mcl/\&.
+\fBNOTE\fP
+.br
+\fBmcl\fP has acquired the ability to proceed from label input
+as produced by \fBmcxdeblast\fP\&. This enables a very lightweight
+mechanism of generating clusterings from BLAST files\&.
+You might want to use this mechanism,
+documented in the \fBmcl manual\fP\&.
 
 \fBNOTE\fP
 .br
@@ -63,38 +66,34 @@ There are two exceptions to this rule, namely the
 \fB--xi-dat\fP=\fIstr\fP and \fB--xo-dat\fP=\fIstr\fP options\&. Refer to
 the \fBmclpipeline\fP manual for more information\&.
 
-Additionally, all mclpipeline options are acceptable to
-\fBmcxdeblast\fP as well\&.
-The \fB--whatif\fP is useful for getting a feel for the pipeline\&. The
-\fB--mcl-I\fP=\fIf\fP inflation option and \fB--mcl-scheme\fP=\fIi\fP scheme index
-options are your basic means for respectively manipulating cluster
-granularity and allocating resources\&. Read the \fBmcl\fP manual entries
-for a description of the corresponding \fB-I\fP and \fB-scheme\fP mcl
+Additionally, all mclpipeline options are acceptable to \fBmcxdeblast\fP as
+well\&. The \fB--whatif\fP is useful for getting a feel for the pipeline\&.
+The \fB--mcl-I\fP=\fIf\fP inflation option and \fB--mcl-scheme\fP=\fIi\fP scheme
+index options are your basic means for respectively manipulating cluster
+granularity and allocating resources\&. Read the \fBmcl\fP manual entries for
+a description of the corresponding \fB-I\fP and \fB-scheme\fP mcl
 options\&.
 
-The best advice is to glance over the
-\fBmcxdeblast\fP and \fBmclpipeline\fP options
-in order to get a feeling for which of those may come in handy for you\&.
-Then start experimenting\&. Use the \fB--whatif\fP option, it will tell you
-what would happen without actually doing it\&.
+The best advice is to glance over the \fBmcxdeblast\fP and \fBmclpipeline\fP
+options in order to get a feeling for which of those may come in handy for
+you\&. Then start experimenting\&. Use the \fB--whatif\fP option, it will
+tell you what would happen without actually doing it\&.
 .SH OPTIONS
-
 All \fBmcxdeblast\fP and \fBmclpipeline\fP options\&.
 mcxdeblast options must be passed using the mechanism described above\&.
 .SH EXAMPLES
 
 .nf \fC
-
    mclblastline --blast-score=b
       --blast-sort=a --blast-bcut=5 --mcl-I=2\&.5 myblastfile
 .fi \fR
 
 This will use bit scores, sort cluster indices such that the corresponding
-labels are ordered alphabetically, ignore bit scores not exceeding
-5, and use inflation value 2\&.5\&. In this case, the output clustering
-will be in the file named \fCmyblastfile\&.I25s2\fP (I25 identifying
-the inflation value and s2 identifying the resource scheme) and the
-formatted output will be in the file \fCmyblastfile\&.I25s2\&.fmt\fP\&.
+labels are ordered alphabetically, ignore bit scores not exceeding 5, and
+use inflation value 2\&.5\&. In this case, the output clustering will be in the
+file named \fCmyblastfile\&.I25s2\fP (I25 identifying the inflation value and s2
+identifying the resource scheme) and the formatted output will be in the
+file \fCmyblastfile\&.I25s2\&.fmt\fP\&.
 
 .nf \fC
    mclblastline --prepare-mcl myblastfile

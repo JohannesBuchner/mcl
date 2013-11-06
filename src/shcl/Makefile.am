@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-## $Id: Makefile.am,v 1.33 2005/03/16 17:23:09 flux Exp $
+## $Id: Makefile.am,v 1.34 2005/11/08 23:14:01 flux Exp $
 
 include $(top_srcdir)/include/include.am
 
@@ -9,7 +9,7 @@ clmformat.zmm.h: clmformat.zmm
 clmformat.c: clmformat.zmm.h
 
 bin_PROGRAMS = clmclose clminfo clmdist clmmeet clmimac clmresidue clmformat clmmate clmorder
-noinst_PROGRAMS = clmps clmdag clmorder
+noinst_PROGRAMS = clmps clmdag
 
 clmorder_SOURCES = clmorder.c report.c
 clminfo_SOURCES = clminfo.c report.c

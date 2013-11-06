@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-## $Id: Makefile.am,v 1.3 2005/04/06 11:51:24 flux Exp $
+## $Id: Makefile.am,v 1.4 2005/11/10 21:53:10 flux Exp $
 
 TROFF =  groff
 COL   =  col
@@ -20,6 +20,7 @@ doc_DATA_dep = mcl.html mcl.ps mcl.txt \
  mcxconvert.html mcxconvert.ps \
  mcxarray.html mcxarray.ps \
  mcxdump.html mcxdump.ps \
+ mcxload.html mcxload.ps \
  mcxsubs.html mcxsubs.ps \
  mcxmap.html mcxmap.ps \
  mcxassemble.html mcxassemble.ps \
@@ -39,7 +40,7 @@ doc_DATA_dep = mcl.html mcl.ps mcl.txt \
 doc_DATA = $(doc_DATA_dep) mclmcl.txt
 
 MAINTAINERCLEANFILES = mcl.1 mclfamily.7 mclfaq.7 mclindex.7 mcx.1 mcxio.5\
- mcxassemble.1 mcxmap.1 mcxdump.1 \
+ mcxassemble.1 mcxmap.1 mcxdump.1 mcxload.1 \
  clmdist.1 clminfo.1 clmmate.1 clmmeet.1 clmorder.1 mcxconvert.1\
  clmresidue.1 clmformat.1 clmclose.1 clmimac.1 mcxarray.1 mcxsubs.1 mclpipeline.1\
  $(doc_DATA_dep)
@@ -59,14 +60,14 @@ EXTRA_DIST = mclmcl.txt mcx.zmm\
  clmorder.azm mcl.azm\
  mclfamily.azm mclfaq.azm mcx.azm mclpipeline.azm\
  mcxdump.azm mcxconvert.azm mcxio.azm clmresidue.azm clmclose.azm clmimac.azm mcxassemble.azm\
- mcxmap.azm mcxarray.azm mcxsubs.azm index.in.azm index.html distindex.html\
+ mcxload.azm mcxmap.azm mcxarray.azm mcxsubs.azm index.in.azm index.html distindex.html\
  $(ALIENFILES)\
  $(MAINTAINERCLEANFILES)
 
 man_MANS = mcl.1 mclindex.7 mclfamily.7 mclfaq.7 mcx.1 mcxio.5 \
    clmresidue.1 clmclose.1 clmimac.1 clmmate.1 clmmeet.1 clmformat.1 \
    clmdist.1 clminfo.1 clmorder.1 \
-   mcxconvert.1 mcxassemble.1 mcxmap.1 mcxsubs.1 mcxdump.1 mcxarray.1 \
+   mcxconvert.1 mcxassemble.1 mcxmap.1 mcxsubs.1 mcxload.1 mcxdump.1 mcxarray.1 \
    mclpipeline.1
 
 SUFFIXES = .1 .5 .7 .azm .html .ps .txt
@@ -134,6 +135,7 @@ mcxmap:              mcxmap.1         mcxmap.html         mcxmap.ps
 mcxsubs:            mcxsubs.1        mcxsubs.html        mcxsubs.ps
 mcxarray:          mcxarray.1       mcxarray.html       mcxarray.ps
 mcxdump:            mcxdump.1        mcxdump.html        mcxdump.ps
+mcxload:            mcxload.1        mcxload.html        mcxload.ps
 mcxconvert:      mcxconvert.1     mcxconvert.html     mcxconvert.ps
                                                      
 

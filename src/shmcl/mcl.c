@@ -39,6 +39,9 @@
  *    interpretation of the arguments it accepts all by itself. Additionally,
  *    we check whether any info flag appears at the position of the file
  *    argument.
+ *
+ * o     These days we do streaming input as well. It is largely encapsulated
+ *    but adds to the input/output/tab logic.
 */
 
 
@@ -56,10 +59,11 @@
 #include <signal.h>
 #include <time.h>
 
+#include "impala/io.h"
+#include "impala/stream.h"
 #include "impala/ivp.h"
 #include "impala/compose.h"
 #include "impala/iface.h"
-#include "impala/io.h"
 
 #include "util/types.h"
 #include "util/ting.h"
@@ -157,7 +161,8 @@ int main
       ,  mcxTell("mcl", "do 'mcl -h' or 'man mcl'")
       ,  mcxExit(1)
 
-   ;  themx = mclxReadx(xfin, EXIT_ON_FAIL, MCL_READX_GRAPH)
+   ;  themx = mclAlgorithmRead(xfin, map)
+
    ;  if (!mcldEquate(themx->dom_cols, themx->dom_rows, MCLD_EQ_EQUAL))
          mcxErr("mcl", "domains differ!")
       ,  mcxExit(1)

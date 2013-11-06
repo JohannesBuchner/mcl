@@ -68,40 +68,63 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-27 Oct 2005&nbsp;&nbsp;&nbsp;
+10 Nov 2005&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxdeblast.ps"><b>mcxdeblast</b></a>
-1.005, 05-300
+1.006, 05-314
 </p>
 
 <a name="name"></a>
 <h2>NAME</h2>
 <p class="default L50" style="margin-bottom:0">
-mcxdeblast - parse BLAST files and write mcxassemble input.</p>
-<p class="default L50">
-mcxassemble will in turn create input suitable for mcl.
+mcxdeblast - parse BLAST files and stream
+output directly into mcl or write mcxassemble input.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
 <b>mcxdeblast</b> file-name
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
 <b>mcxdeblast</b>
 <a class="intern" href="#opt--score"><b>[--score=</b>&lt;b|e|r&gt; (<i>bit scores|e-values|normalize bit score</i>)<b>]</b></a>
-<a class="intern" href="#opt--sort"><b>[--sort=</b>&lt;a|o&gt; (<i>alphabetic|occurrence sorting</i>)<b>]</b></a>
 <a class="intern" href="#opt--m9"><b>[--m9</b> (<i>expect BLAST column format</i>)<b>]</b></a>
+<a class="intern" href="#opt--abc-out"><b>[--abc-out</b> (<i>write ID1 ID2 score format</i>)<b>]</b></a>
 <a class="intern" href="#opt--abc"><b>[--abc</b> (<i>expect ID1 ID2 score format</i>)<b>]</b></a>
+<a class="intern" href="#opt--sort"><b>[--sort=</b>&lt;a|o&gt; (<i>alphabetic|occurrence sorting</i>)<b>]</b></a>
 <a class="intern" href="#opt--xi-dat"><b>[--xi-dat=</b>&lt;suf&gt; (<i>strip &lt;suf&gt; from file-name</i>)<b>]</b></a>
 <a class="intern" href="#opt--xo-dat"><b>[--xo-dat=</b>&lt;suf&gt; (<i>add &lt;suf&gt; to base name</i>)<b>]</b></a>
 <a class="intern" href="#opt--bcut"><b>[--bcut=</b>&lt;val&gt; (<i>bit score cutoff</i>)<b>]</b></a>
 <a class="intern" href="#opt--ecut"><b>[--ecut=</b>&lt;val&gt; (<i>E-value cutoff</i>)<b>]</b></a>
 <a class="intern" href="#opt--tab"><b>[--tab=</b>&lt;fname&gt; (<i>tab file</i>)<b>]</b></a>
-&lt;file-name&gt;
+&lt;file-name&gt;</p>
+<p class="default L50" style="margin-bottom:0">The <b>--abc</b> option is likely to go the way of the dodo
+now that the input format it requires can be directly streamed
+into <b>mcl</b>.</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<b>mcxdeblast</b> parses BLAST files and writes results suitable for
-input in mcxassemble (which will in turn create input suitable for mcl).
-It is used by the pipeline script <a class="local" href="mclblastline.html">mclblastline</a>.
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
+<b>mcxdeblast</b> parses BLAST files.</p>
+<p class="default L50" style="margin-bottom:0">
+In <i>stream mode</i> mcxdeblast output can be directly streamed to mcl by
+using the mcxdeblast <a class="intern" href="#opt--abc-out"><b>--abc-out</b></a> option and equipping mcl with
+either <b>--abc</b> or <b>--expect-abc</b>. This can be considered the
+easy, lightweight and fast track. This functionality was recently acquired
+by mcl.</p>
+<p class="default L50" style="margin-bottom:0">
+In the classic and slightly more heavy-handed <i>assemble mode</i>, mcxdeblast
+creates output files suitable for use by mcxassemble. The latter can in
+turn create input suitable for mcl. This is the mode in which mcxdeblast is
+employed by <b>mclblastline</b>.</p>
+
+<a name="stream"></a>
+<h2>STREAM MODE</h2>
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">Enter stream mode simply by specifiying <b>--abc-out</b>.
+Use <b>--m9</b> if the input is in columnar output. Pipe the result
+to a file or directly to mcl. Example invocations can be found
+in <a class="local" href="mcl.html">the mcl manual</a>.</p>
+
+<a name="assemble"></a>
+<h2>ASSEMBLE MODE</h2>
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 If the input file is named <tt>iput</tt>, mcxdeblast will by
 default create files <tt>iput.hdr</tt>, <tt>iput.raw</tt>, <tt>iput.tab</tt>,
 <tt>iput.map</tt>, and <tt>iput.err</tt>. The <tt>hdr</tt> file contains
@@ -115,8 +138,8 @@ The <tt>tab</tt> file contains bindings between mcl identifiers
 (after rearranging as specified in the map file) and the BLAST labels
 (peptide identifiers). Refer to the manual of <a class="local" href="mcxassemble.html">mcxassemble</a>
 for the syntax of a tab file.
-The <tt>err</tt> file contains a list of any errors encountered.
-<p class="default L50">
+The <tt>err</tt> file contains a list of any errors encountered.</p>
+<p class="default L50" style="margin-bottom:0">
 If the <b>--tab</b>=<b>fname</b> option is used mcxdeblast changes
 its behaviour. It will read the file <b>fname</b>, and use
 the bindings found therein. It will no longer output any
@@ -124,8 +147,8 @@ of the <tt>hdr</tt>, <tt>map</tt>, or <tt>tab</tt> files. The <tt>hdr</tt>
 file should be provided by the same application that generated
 the specified tab file, and the <tt>map</tt> file should no longer be
 necessary (it might be convenient though and perhaps the
-future will bring a new <b>--map</b> option).
-<p class="default L50">
+future will bring a new <b>--map</b> option).</p>
+<p class="default L50" style="margin-bottom:0">
 The <b>--tab</b>=<b>fname</b> option can be convenient e.g. if
 you split a BLAST job over multiple machines and want
 to apply mcxdeblast to each of the subresults. You do
@@ -140,7 +163,7 @@ the <a class="local" href="mcxassemble.html">mcxassemble</a> manual.
 Currently there is usually only one variable
 in the <tt>hdr</tt> file, which is the number of bindings
 listed in the tab file. This number, in turn, should equal
-the total number of different peptides encountered in the BLAST input.
+the total number of different peptides encountered in the BLAST input.</p>
 
 <a name="options"></a>
 <h2>OPTIONS</h2>
@@ -159,6 +182,9 @@ Specify how to sort labels.
 Use this option to parse BLAST output formatted with the -m 9 option.
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--abc"></a><b>--abc</b> (<i>expect ID1 ID2 SCORE format</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Use if each input line has the format ID1 ID2 SCORE.
+However, you can also use <b>mcl</b> with the <b>--abc</b> option.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--abc-out"></a><b>--abc-out</b>=fname (<i>write ID1 ID2 SCORE format</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Use this to stream output directly into mcl.
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--xi-dat"></a><b>--xi-dat</b>=&lt;suf&gt; (<i>strip &lt;suf&gt; from &lt;file-name&gt;</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 If set, the suffix &lt;suf&gt; is stripped from file-name in order
 to obtain the base name for output. If &lt;file-name&gt; does not

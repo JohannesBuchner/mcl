@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "MCL\ FAQ" 7 "27 Oct 2005" "MCL\ FAQ 1\&.005, 05-300" "MISCELLANEOUS "
+.TH "MCL\ FAQ" 7 "10 Nov 2005" "MCL\ FAQ 1\&.006, 05-314" "MISCELLANEOUS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -108,9 +108,6 @@ How does mcl\&'s versioning scheme work?
 .br
 .ZT 1m \fB2\&.1\fP
 How can I get my data into the MCL matrix format?
-.br
-.ZT 1m \fB2\&.2\fP
-Can I get my graph into MCL format by directly streaming it?
 
 .ZT 0m \fB3\fP
 \s+1\fBWhat kind of graphs\fP\s-1
@@ -375,8 +372,8 @@ The current setup, which I hope to continue, is this\&. All releases are
 identified by a date stamp\&. For example 02-095 denotes day 95 in the year
 2002\&. This date stamp agrees (as of April 2000) with the (differently
 presented) date stamp used in all manual pages shipped with that release\&.
-For example, the date stamp of the FAQ you are reading is \fB27 Oct 2005\fP,
-which corresponds with the MCL stamp \fB05-300\fP\&.
+For example, the date stamp of the FAQ you are reading is \fB10 Nov 2005\fP,
+which corresponds with the MCL stamp \fB05-314\fP\&.
 The Changelog file contains a list of what\&'s changed/added with each
 release\&. Currently, the date stamp is the primary way of identifying an \fBmcl\fP
 release\&. When asked for its version by using \fB--version\fP, mcl
@@ -397,11 +394,6 @@ the date stamp is used for that\&.
 
 .ZB 1m \fB2\&.1\fP
 \s+1\fBHow can I get my data into the MCL matrix format?\fP\s-1
-
-\fBNOTE\fP
-.br
-The program \fBmcxdeblast\fP referenced below is only
-available if mcl was configured with --enable-blast\&.
 
 One of the easiest ways is if you have a list of label pairs with
 similarities attached to the pairs\&.
@@ -425,13 +417,14 @@ pears     apples     1\&.01
 .fi \fR
 
 Suppose the file is called \fCmydata\fP\&.
-The following converts your data to MCL format\&.
+You can simply cluster it like this:
 
 .di ZV
 .in 0
 .nf \fC
-   mcxdeblast --abc mydata             # create mydata\&.hdr, mydata\&.raw
-   mcxassemble -b mydata -r max --map  # create mydata\&.sym
+   mcl mydata --abc -I 2\&.0 -o mydata\&.cls-I20
+   mcl mydata --abc -I 2\&.4 -o mydata\&.cls-I24
+   mcl mydata --abc -I 2\&.8 -o mydata\&.cls-I28
 .fi \fR
 .in
 .di
@@ -440,25 +433,21 @@ The following converts your data to MCL format\&.
 .ZV
 .fi \fR
 
-\fBmcxdeblast\fP first converts your label input to numerical identifiers
-and stores it in a so called \fIraw\fP format\&.
-\fBmcxassemble\fP then converts the raw format to MCL format, and it
-makes sure that the result is symmetric\&. The result is stored
-in the file \fCmydata\&.sym\fP\&. It should look like this:
+In this example a few runs were shown with different inflation parameters\&.
+This is nonsensical with this particular 4-node input but a good idea in
+general\&. \fBmcl\fP provides many options to cache the intermediate matrix input
+and the intermediate tab file\&. Refer to the \fBmcl manual page\fP\&.
+
+\fBNOTE\fP
+.br
+Simply doing
 
 .di ZV
 .in 0
 .nf \fC
-(mclheader
-mcltype matrix
-dimensions 3x3
-)
-(mclmatrix
-begin
-0 1:0\&.7800 2:2\&.1400 $
-1 0:0\&.7800 2:1\&.0100 $
-2 0:2\&.1400 1:1\&.0100 $
-)
+   mcl mydata --abc -I 2\&.0
+   mcl mydata --abc -I 2\&.4
+   mcl mydata --abc -I 2\&.8
 .fi \fR
 .in
 .di
@@ -467,35 +456,12 @@ begin
 .ZV
 .fi \fR
 
-The \fB-r\fP\ \fBmax\fP option causes repeated entries (i\&.e\&. the same
-label pair specified more than once) to be collapsed by taking
-the maximum value\&. Another option is to add them by using
-\fB-r\fP\ \fBadd\fP\&.
-The \fB--map\fP option tells \fBmcxassemble\fP
-to look for a file \fCmydata\&.map\fP that relates the tab file to
-the raw format\&. This file is also created by \fBmcxdeblast\fP\&.
-\fBDo not forget to use\fP \fB--map\fP!
-Refer to \fBmcxassemble\fP for more information on these and other
-options\&.
-
-By default \fBmcxdeblast\fP creates a tab file ordered by occurrence
-of labels in the input file (\fCmydata\fP in this cases)\&.
-This can be changed by supplying it with \fB--sort=a\fP
-which triggers alphabetic sorting\&.
-
-.ZB 1m \fB2\&.2\fP
-\s+1\fBCan I get my graph into MCL format by directly streaming it?\fP\s-1
-
-For large graphs it becomes inconvenient to have to go via intermediate
-formats, as it can take a substantial amount of time\&. The problem is
-that currently MCL insists on knowing the domains of a matrix before
-it will load the matrix itself, but often parsers or loaders
-that stream from a file or database cannot supply this information
-in time\&.
-Directly streaming a matrix into MCL
-requires an adaptive-loading mechanism\&. This is not yet implemented but it
-is high on the TODO list\&. Adaptive loading will only be supported for
-canonical domains (cf \fBmcxio(5)\fP)\&.
+will result in the output files \fCout\&.mydata\&.I20s6\fP,
+\fCout\&.mydata\&.I24s6\fP, and \fCout\&.mydata\&.I28s6\fP\&. The \fCs6\fP bit
+indicates the resource scheme used by mcl\&. The automatic
+naming facility is very convenient \- try it\&. If you need to
+script mcl use the \fB-az\fP option to capture the name
+that mcl \fIwould\fP generate given the rest of the command-line\&.
 
 .ce
 \s+2\fBWhat kind of graphs\fP\s-2
@@ -630,9 +596,8 @@ Somehow, directionality thwarts the notion of cluster structure\&.
 .ZB 1m \fB3\&.11\fP
 \s+1\fBHow do I check that my graph/matrix is symmetric/undirected?\fP\s-1
 
-Whether your graph is created by third-party software (e\&.g\&. the TribeMCL
-module (maintained by Anton Enright)) or by custom sofware written
-by someone you know (e\&.g\&. yourself), it is advisable to test whether
+Whether your graph is created by third-party software or by custom sofware
+written by someone you know (e\&.g\&. yourself), it is advisable to test whether
 the software generates symmetric matrices\&. This can be done as follows
 using the \fBmcx utility\fP, assuming that you want to test the
 matrix stored in file \fCmatrix\&.mci\fP\&. The mcx utility should be available
@@ -1212,6 +1177,7 @@ further increase \fB-c\fP\&. It will really depend on the characteristics
 of the graph you are working with, and at this point in time I cannot even
 give advice in terms of a general categorization\&. Experiment, learn, and let
 me know the results if you like\&.
+""{
 
 .ZB 1m \fB6\&.5\fP
 \s+1\fBHow to implement two-level approaches using mcl\&.\fP\s-1
@@ -1300,6 +1266,7 @@ Now \fCprojected\&.mco\fP should be a coarse cluster for \fCorig\&.mci\fP\&.
 
 There are a lot of parameters to play with here; e\&.g\&. the 5\&.0, 3\&.0 and
 2\&.0, and 1\&.0\&. These seem reasonable defaults\&.
+}
 
 .ce
 \s+2\fBImplementing the MCL algorithm\fP\s-2

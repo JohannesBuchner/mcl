@@ -1,0 +1,397 @@
+.\" Copyright (c) 2005 Stijn van Dongen
+.TH "mcxload" 1 "10 Nov 2005" "mcxload 1\&.006, 05-314" "USER COMMANDS "
+.po 2m
+.de ZI
+.\" Zoem Indent/Itemize macro I.
+.br
+'in +\\$1
+.nr xa 0
+.nr xa -\\$1
+.nr xb \\$1
+.nr xb -\\w'\\$2'
+\h'|\\n(xau'\\$2\h'\\n(xbu'\\
+..
+.de ZJ
+.br
+.\" Zoem Indent/Itemize macro II.
+'in +\\$1
+'in +\\$2
+.nr xa 0
+.nr xa -\\$2
+.nr xa -\\w'\\$3'
+.nr xb \\$2
+\h'|\\n(xau'\\$3\h'\\n(xbu'\\
+..
+.if n .ll -2m
+.am SH
+.ie n .in 4m
+.el .in 8m
+..
+.SH NAME
+mcxload \- load matrices and tab files from label format
+.SH SYNOPSIS
+
+\fBmcxload\fP \fB-abc\fP <fname> (\fIlabel file\fP)
+\fB-o\fP <fname> (\fIoutput file\fP)
+
+\fB[--stream-mirror\fP (\fIsymmetrify, same domain\fP)\fB]\fP
+\fB[--graph\fP (\fIassume same domain\fP)\fB]\fP
+\fB[-re\fP <mode> (\fIedge deduplication mode\fP)\fB]\fP
+\fB[-ri\fP <mode> (\fIimage symmetrification mode\fP)\fB]\fP
+\fB[-cache-tab\fP <fname> (\fIsave domain tab\fP)\fB]\fP
+\fB[-cache-tabc\fP <fname> (\fIsave column tab\fP)\fB]\fP
+\fB[-cache-tabr\fP <fname> (\fIsave row tab\fP)\fB]\fP
+\fB[-strict-tab\fP <fname> (\fItab universe\fP)\fB]\fP
+\fB[-strict-tabc\fP <fname> (\fItabc universe\fP)\fB]\fP
+\fB[-strict-tabr\fP <fname> (\fItabr universe\fP)\fB]\fP
+\fB[-restrict-tab\fP <fname> (\fItab world\fP)\fB]\fP
+\fB[-restrict-tabc\fP <fname> (\fItabc world\fP)\fB]\fP
+\fB[-restrict-tabr\fP <fname> (\fItabr world\fP)\fB]\fP
+\fB[-extend-tab\fP <fname> (\fItab launch\fP)\fB]\fP
+\fB[-extend-tabc\fP <fname> (\fItabc launch\fP)\fB]\fP
+\fB[-extend-tabr\fP <fname> (\fItabr launch\fP)\fB]\fP
+\fB[-s\fP [io]<lq|gq|ceil|floor>=<num> (\fIselect/bound input/output\fP)\fB]\fP
+\fB[-log\fP <base> (\fIlog transform\fP)\fB]\fP
+\fB[-neglog\fP <base> (\fI-log transform\fP)\fB]\fP
+\fB[-add\fP <num> (\fIshift\fP)\fB]\fP
+\fB[-pow\fP <power> (\fIraise\fP)\fB]\fP
+\fB[-t\fP (\fItranspose\fP)\fB]\fP
+\fB[--binary\fP (\fIoutput binary format\fP)\fB]\fP
+\fB[--debug\fP (\fIdebug\fP)\fB]\fP
+\fB[-h\fP (\fIoption listing\fP)\fB]\fP
+\fB[--apropos\fP (\fIoption listing\fP)\fB]\fP
+\fB[--version\fP (\fIversion\fP)\fB]\fP
+.SH DESCRIPTION
+\fBmcxload\fP reads label input from a file\&. The format of the file
+should be line-based, each line containing two white-space separated
+strings (labels) and optionally a number separated from the second label
+by whitespace\&. In the absence of a value, mcxload will use the
+default value 1\&.0\&.
+
+mcxload will transform the labels into mcl numerical identifiers and the
+pairs of labels into graph edges or equivalently matrix entries\&.
+The weight of an edge is the value associated with the associated
+labels\&. mcxload constructs dictionaries (sometimes just one) that
+map labels onto mcl identifiers as it goes along\&. It can optionally
+write these to file\&.
+In MCL (family) parlance, a such a dictionary written to file
+is called a \fItab file\fP\&.
+
+A major mcxload modality is whether the input refers to a single
+domain or to two separate domains\&. An example of the first is where
+labels are names of people and the value is the extent to which they
+like one another\&. This encodes a \fIlikability\fP graph where all
+the nodes represent people\&. The reasonable thing to do in this
+case is to create a single dictionary with all names wherever
+they occur\&. All \fBtab\fP options (as opposed to \fBtabc\fP and \fBtabr\fP)
+pertain to this scenario and likewise for the options \fB--graph\fP
+and \fB--stream-mirror\fP\&.
+
+An example of the second mode is where the first label is again the name of
+a person, the second label is the name of an animal species, and the value
+is the extent to which that person appreciates the species\&. In this case,
+the reasonable thing to do is to create two dictionaries, one for persons
+and one for species\&. All \fBtabc\fP and \fBtabr\fP options pertain to
+this scenario\&. The \fBtabc\fP options \fIalways refer to the first label\fP
+and the \fBtabr\fP options \fIalways refer to the second label\fP\&.
+The letters \fBc\fP and \fBr\fP refer to \fIcolumn\fP and \fIrow\fP respectively\&.
+The latter are the names of the matrix domains corresponding
+to the input domains\&. Refer to \fBmcxio(5)\fP\&.
+
+A further mcxload modality is whether it constructs dictionaries
+on the fly, or whether it proceeds from a tab file already
+available\&.
+By default mcxload will construct dictionaries on the fly\&. You
+need to save them with the appropriate \fBcache\fP option(s)\&.
+All the \fBstrict\fP options read a tab file
+and require any labels in the \fB-abc\fP\ \fIlabel input\fP
+to be present in the corresponding tab file\&. mcxload will then fail in
+the face of absent labels\&.
+All the \fBrestrict\fP options simply ignore labels that are
+not found in the corresponding tab file\&.
+The \fBextend\fP options extend the existing tab file with
+labels that are not found\&.
+It presumably only makes sense to do so if the corresponding
+\fBcache\fP options are used as well\&.
+
+The input stream is deduplicated on a per-node neighbourhood basis
+using the \fB-re\fP option\&.
+
+mcxload has many options to transform or select based on
+the values of the input\&. These are
+\fB-add\fP,
+\fB-pow\fP,
+\fB-log\fP and
+\fB-neglog\fP for unary transformations of the input\&.
+Use \fB-s\fP to select edges based on their values\&.
+It is possible to select edges both before and after unary
+transformations have been applied\&.
+Finally it is possible to transpose the final result
+using the \fB-t\fP option\&. Keep in mind that
+mcxload does not accordingly change its idea of row and
+column domains\&.
+
+The final matrix can be symmetrified using the \fB-ri\fP option\&.
+
+\fBSTAGES\fP
+.br
+Conceptually, input matrix creation consists of the following stages
+
+.ZJ 4m 3m "i"
+Read the input stream, optionally push reverse elements
+(\fB--stream-mirror\fP)\&.
+.in -7m
+.ZJ 4m 3m "ii"
+Deduplicate edges in the context of all edges/arcs originating from
+a given node\&.
+.in -7m
+.ZJ 4m 3m "iii"
+Apply input bound and select options -
+those in the syntax \fCi<lq|lt|gq|gt|ceil|floor>\fP\&.
+.in -7m
+.ZJ 4m 3m "iv"
+Apply unary transformations\&.
+.in -7m
+.ZJ 4m 3m "v"
+Apply output bound and select options -
+those in the syntax \fCo<lq|lt|gq|gt|ceil|floor>\fP\&.
+.in -7m
+.ZJ 4m 3m "vi"
+Apply transpose symmetrification according to the
+\fB-ri\fP option, if used\&.
+.in -7m
+.SH OPTIONS
+
+.ZI 3m "\fB-abc\fP <fname> (\fIlabel file\fP)"
+\&
+.br
+The file to read label data from\&.
+.in -3m
+
+.ZI 3m "\fB-o\fP <fname> (\fIoutput file\fP)"
+\&
+.br
+The output file where the constructed matrix is written\&.
+.in -3m
+
+.ZI 3m "\fB--stream-mirror\fP (\fIsymmetrify, same domain\fP)"
+\&
+.br
+Whenever \fIlabel1\fP \fIlabel2\fP \fIvalue\fP
+is encountered in the input, mcxload inserts
+\fIlabel2\fP \fIlabel1\fP \fIvalue\fP in the input
+stream as well\&. This option implies that both labels
+belong to the same domain\&.
+.in -3m
+
+.ZI 3m "\fB--graph\fP (\fIassume same domain\fP)"
+\&
+.br
+This tells mcxload that both labels belong to the same domain\&.
+.in -3m
+
+.ZI 3m "\fB-re\fP <max|add|mul|first|last> (\fIdeduplication mode\fP)"
+\&
+.br
+This specifies how mcxload should collapse repeated entries, that is edges
+for which a value is specified multiple times\&. This is done relative to a
+single node at a time, taking into account all neighbours assembled from the
+input stream\&. Note that \fB--stream-mirror\fP will result in
+duplicated entries if the input contains edge specifications in both ways\&.
+Also note that \fBfirst\fP and \fBlast\fP might not result in
+symmetric input if only \fB--stream-mirror\fP is used\&.
+.in -3m
+
+.ZI 3m "\fB-cache-tab\fP <fname> (\fIsave domain tab\fP)"
+\&
+.br
+Write the domain to file\&. It applies to both label types\&.
+.in -3m
+
+.ZI 3m "\fB-cache-tabc\fP <fname> (\fIsave column tab\fP)"
+\&
+.br
+Write the column domain to file\&. It applies to the first label found
+on each input line\&.
+.in -3m
+
+.ZI 3m "\fB-cache-tabr\fP <fname> (\fIsave row tab\fP)"
+\&
+.br
+Write the column domain to file\&. It applies to the second label found
+on each input line\&.
+.in -3m
+
+.ZI 3m "\fB-strict-tab\fP <fname> (\fItab universe\fP)"
+\&
+.br
+Read a dictionary from file and require each label to be present in the
+dictionary\&. mcxload will exit on absentees\&.
+.in -3m
+
+.ZI 3m "\fB-strict-tabc\fP <fname> (\fItabc universe\fP)"
+\&
+.br
+Read a dictionary from file and require the first label on each line
+to be present in the dictionary\&. mcxload will exit on absentees\&.
+.in -3m
+
+.ZI 3m "\fB-strict-tabr\fP <fname> (\fItabr universe\fP)"
+\&
+.br
+Read a dictionary from file and require the second label on each line
+to be present in the dictionary\&. mcxload will exit on absentees\&.
+.in -3m
+
+.ZI 3m "\fB-restrict-tab\fP <fname> (\fItab world\fP)"
+\&
+.br
+Read a dictionary from file and only accept input lines (edges)
+for which both labels are present in the dictionary\&.
+mcxload will ignore absentees\&.
+.in -3m
+
+.ZI 3m "\fB-restrict-tabc\fP <fname> (\fItabc world\fP)"
+\&
+.br
+Read a dictionary from file and ignore input lines
+for which the first label is absent from the dictionary\&.
+.in -3m
+
+.ZI 3m "\fB-restrict-tabr\fP <fname> (\fItabr world\fP)"
+\&
+.br
+Read a dictionary from file and ignore input lines
+for which the second label is absent from the dictionary\&.
+.in -3m
+
+.ZI 3m "\fB-extend-tab\fP <fname> (\fItab launch\fP)"
+\&
+.br
+Read a dictionary from file and extend it with any
+label from the input not yet present in the dictionary\&.
+.in -3m
+
+.ZI 3m "\fB-extend-tabc\fP <fname> (\fItabc launch\fP)"
+\&
+.br
+Read a dictionary from file and extend it with all
+first labels from the input not yet present in the dictionary\&.
+.in -3m
+
+.ZI 3m "\fB-extend-tabr\fP <fname> (\fItabr launch\fP)"
+\&
+.br
+Read a dictionary from file and extend it with all
+second labels from the input not yet present in the dictionary\&.
+.in -3m
+
+.ZI 3m "\fB-log\fP <base> (\fIlog transform\fP)"
+\&
+.br
+Replace each entry by its log in base \fI<base>\fP\&.
+.in -3m
+
+.ZI 3m "\fB-neglog\fP <base> (\fI-log transform\fP)"
+\&
+.br
+Replace each entry by its negative log in base \fI<base>\fP\&.
+.in -3m
+
+.ZI 3m "\fB-add\fP <num> (\fIshift\fP)"
+\&
+.br
+Add \fI<shift>\fP to each non-zero entry\&.
+.in -3m
+
+.ZI 3m "\fB-pow\fP <power> (\fIraise\fP)"
+\&
+.br
+Raise each entry to the power \fI<power>\fP\&.
+.in -3m
+
+.ZI 3m "\fB-s\fP [io]<lq|gq|ceil|floor>=<num> (\fIselect/bound input/output\fP)"
+\&
+.br
+Combine \fBi\fP or \fBo\fP with any of the modifiers to select or bound
+input or output\&. Example:
+
+.di ZV
+.in 0
+.nf \fC
+-s igq=5 -s oceil=10
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
+This selects only entries in the input that are greater than or
+equal to 5 and it setes any entry larger than 10 to 10\&.
+
+\fBNOTE\fP
+.br
+Output is in this context the stage immediately after unary
+transformation and before symmetrification using the transposed
+matrix\&.
+.in -3m
+
+.ZI 3m "\fB-ri\fP (\fI<max|add|mul>\fP)"
+\&
+.br
+After the initial matrix has been assembled, it can be symmetrified by
+either of these options\&. They indicate the operation used to combine the
+entries of the transposed matrix and the original matrix\&. \fBmul\fP
+is special in that it treats missing entries (which are normally considered
+zero in mcl matrix operations) as one\&.
+.in -3m
+
+.ZI 3m "\fB-t\fP (\fItranspose\fP)"
+\&
+.br
+Write the transposed matrix to file\&. This is obviously not useful
+when a symmetric matrix has been generated\&.
+.in -3m
+
+.ZI 3m "\fB--binary\fP (\fIoutput binary format\fP)"
+\&
+.br
+Write the output matrix in native binary format\&.
+This is generally smaller and faster to read, albeit not
+humanly unreadable\&.
+.in -3m
+
+.ZI 3m "\fB--debug\fP (\fIdebug\fP)"
+\&
+.br
+Among other things, this turns on warnings when \fBrestrict\fP tab
+files are used and labels are found to be missing\&.
+.in -3m
+
+.ZI 3m "\fB-h\fP (\fIoption listing\fP)"
+\&
+.br
+List short description of all options\&.
+.in -3m
+
+.ZI 3m "\fB--apropos\fP (\fIoption listing\fP)"
+\&
+.br
+List short description of all options\&.
+.in -3m
+
+.ZI 3m "\fB--version\fP (\fIversion\fP)"
+\&
+.br
+Output version information\&.
+.in -3m
+.SH AUTHOR
+Stijn van Dongen\&.
+.SH SEE ALSO
+\fBmcxdump\fP,
+\fBmcl\fP,
+\fBmclfaq\fP,
+and \fBmclfamily(7)\fP for an overview of all the documentation
+and the utilities in the mcl family\&.

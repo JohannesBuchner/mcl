@@ -19,14 +19,18 @@
 
 
 \sec{*}{description}{DESCRIPTION}
+\car{
    This document describes the \it{generic matrix format}
    used in the mcl libaries.  It also describes the \it{raw intermediate
    format} used by \sib{mcxassemble}.
    The two formats (generic and raw) are in fact
    identical at the vector level; they are distinguished by the error reporting
    implied by the generic format.
+   Also described here is the \it{tab format} used by mcl to convert
+   between meaningful labels describing the input data and the numerical
+   identifiers used internally.}
 
-   \par
+\par{
    A remark on the sloppy naming conventions used for \mcl and its sibling
    utilities may be in order here.  The prefix \bf{mcx} is used for generic
    matrix functionality, the prefix \bf{clm} is used for generic cluster
@@ -35,19 +39,19 @@
    \mcl siblings (cf. \sibmclfamily) is loosely refered to as the mcl
    family, which makes use of the mcl libraries (rather than the mcx
    libraries). The full truth is even more horrible, as the mcl/mcx prefix
-   conventions used in the C source code follow still other rules.
+   conventions used in the C source code follow still other rules.}
 
-   \par
+\par{
    In this document, 'MCL' means 'the mcl setting' or 'the mcl family'.  An MCL
    program is one of the programs in the mcl family.  The remainder of this
-   document contains the following sections.
+   document contains the following sections.}
 
 \"man::maketoc"
 
 
 \sec{internal}{Internal representation of matrices in MCL}
 
-\par
+\par{
    There are several aspects to the way in which MCL represents matrices.
    Internally, indices never act as an ofset in an array, and neither do they
    participate in ofset computations.  This means that they purely act as
@@ -59,9 +63,9 @@
    \it{nonzero values} (and their corresponding indices) are stored.  Thirdly,
    MCL stores a matrix as a listing of columns. Iterating over a column is
    trivial; iterating over a row requires a costly transposition computation.
-   The last two points should matter little to the user of MCL programs.
+   The last two points should matter little to the user of MCL programs.}
 
-\par
+\par{
    In textbook expositions and in many matrix manipulation implementations,
    matrices are represented with sequentially indexed rows and columns, with
    the indices usually starting at either zero or one.  In the MCL setting, the
@@ -69,9 +73,9 @@
    requirement is posed on the first index.  The only requirement MCL poses on
    the indices is that they be nonnegative, and can be represented by the
    integer type used by MCL. On many machines, the largest allowable integer
-   will be 2147483647.
+   will be 2147483647.}
 
-\par
+\par{
    MCL associates two domains with a matrix\~\v{M}, the row domain and column
    domain.  The matrix\~\v{M} can only have entries\~\v{M[i,j]} where\~\v{i} is
    in the row domain and\~\v{j} is in the column domain. This is vital when
@@ -81,55 +85,57 @@
    needs only specify those entries for which the value is nonzero, and only
    nonzero values will be stored internally. In the MCL matrix format, the
    matrix domains must be specified explicitly if they are not canonical (more
-   below).
+   below).}
 
-\par
-   \bf{Strictly as an aside}, the domains primarily exist to ensure data integrity.
-   When combining matrices with addition or multiplication (e.g. using the \mcx
-   utility), MCL will happily combine matrices for which the domains do not
-   match, although it will usually issue a warning. Conceptually, matrices
-   auto-expand to the dimensions required for the operation.
-   Alternatively, a matrix can be viewed as an infinite
-   quadrant, with the domains delimiting the parts in which nonzero entries may
-   exist.  In the future, facilities could be added to MCL (c.q. \mcx) to
-   allow for placing strict domain requirements on matrices when submitted to
-   binary operations such as addition and multiplication.
+\par{
+   \bf{Strictly as an aside}, the domains primarily exist to ensure data
+   integrity.  When combining matrices with addition or multiplication (e.g.
+   using the \mcx utility), MCL will happily combine matrices for which the
+   domains do not match, although it will usually issue a warning.
+   Conceptually, matrices auto-expand to the dimensions required for the
+   operation.  Alternatively, a matrix can be viewed as an infinite quadrant,
+   with the domains delimiting the parts in which nonzero entries may exist.
+   In the future, facilities could be added to MCL (c.q. \mcx) to allow for
+   placing strict domain requirements on matrices when submitted to binary
+   operations such as addition and multiplication.}
 
 \sec{mspec}{Specifying matrices}
-\par
+\par{
    From here on, all statements about matrices and graphs are really statements
    about matrices and graphs \it{in the MCL setting}.  The \it{specification}
-   of a matrix quite closely matches the internal representation.
+   of a matrix quite closely matches the internal representation.}
 
-\par
+\par{
    A matrix M has two domains: the column domain and the row domain.  Both
    simply take the form of a set (represented as an ordered list) of indices. A
    \it{canonical domain} is a domain of some size \v{K} where the indices are
    simply the first \v{K} nonnegative integers \v{0,1..,K-1}.  The domains
    dictate which nonzero entries are allowed to occur in a matrix; only entries
    M[i,j] are allowed where i is in the row domain and j is in the column
-   domain.
+   domain.}
 
-\par
+\par{
    The matrix M is specified in three parts, for which the second is optional.
-   The parts are:
+   The parts are:}
 
 \begin{itemize}
 \item{Header specification}
-\par
+\car{
    This specifies the dimensions K and L of the matrix, where K is the
    size of the row domain, and L is the size of the column domain.
-   It looks as follows:
-\verbatix{
+   It looks as follows:}
+\verbatix{\:/
 (mclheader
 mcltype matrix
 dimensions 9x14
 )}
+\car{
    This dictates that a matrix will be specified for which the row
    domain has dimension 9 and the column domain has dimension 14.
+}
 
 \item{Domain specification}
-\par
+\car{
    The domain specification can have various forms: if nothing is specified,
    the matrix will have canonical domains and a canonical representation,
    similar to the representation encountered in textbooks.  Alternatively, the
@@ -139,50 +145,51 @@ dimensions 9x14
    and specify them simultaneously.  It is perfectly legal in each case to
    explicitly specify a canonical domain.  It is \it{required} in each case
    that the number of indices listed in a domain corresponds with the dimension
-   given in the header.
+   given in the header.}
 
-\par
-   An example where both a row domain and a column domain are specified:
-\verbatix{
+\par{
+   An example where both a row domain and a column domain are specified:}
+\verbatix{\:/
 (mclrows
  100 200 300 400 500 600 700 800 900 $
 )
 (mclcols
  30 32 34 36 38 40 42 44 46 48 50 52 56 58 $
 )}
+\car{
    This example combines with the header given above, as the dimensions fit.
    Had the row domain specification been omitted, the row domain would
-   automatically be set to the integers \v{0,1,..8}. Had the column specification
-   been omitted, it would be set to \v{0,1,..13}.
+   automatically be set to the integers \v{0,1,..8}. Had the column
+   specification been omitted, it would be set to \v{0,1,..13}.}
 
-\par
+\par{
    Suppose now that the header did specify the dimensions 10x10.
    Because the dimensions are identical, this raises the possibility
    that the domains be identical.
-   A valid way to specify the row domain and column domain in one go is this.
-\verbatix{
+   A valid way to specify the row domain and column domain in one go is this.}
+\verbatix{\:/
 (mcldoms
  11 22 33 44 55 66 77 88 99 100 $
 )}
 
 \item{Matrix specification}
-\par
-   The matrix specification starts with the sequence
-\verbatix{
+\car{
+   The matrix specification starts with the sequence}
+\verbatix{\:/
 (mclmatrix
 begin}
-   The 'begin' keyword in the '(mclmatrix' part is followed by a list of listings,
-   where the primary list ranges over all column indices in M (i.e. indices
-   in the column domain), and where each
-   secondary lists encodes all positive entries in the corresponding
-   column. A secondary list (or matrix column) starts with the index c
-   of the column, and then contains a listing of all row entries in c
-   (these are matrix entries M[r,c] for varying r). The entry M[r,c] is
-   specified either as 'r' or as 'r:f', where f is a float. In the first
-   case, the entry M[r,c] defaults to 1.0, in the second case, it is set
-   to f. The secondary list is closed with the `$' character.
-   A full fledged examples thus looks as follows:
-\verbatix{
+\car{
+   The 'begin' keyword in the '(mclmatrix' part is followed by a list of
+   listings, where the primary list ranges over all column indices in M (i.e.
+   indices in the column domain), and where each secondary lists encodes all
+   positive entries in the corresponding column. A secondary list (or matrix
+   column) starts with the index c of the column, and then contains a listing
+   of all row entries in c (these are matrix entries M[r,c] for varying r). The
+   entry M[r,c] is specified either as 'r' or as 'r:f', where f is a float. In
+   the first case, the entry M[r,c] defaults to 1.0, in the second case, it is
+   set to f. The secondary list is closed with the `$' character.  A full
+   fledged examples thus looks as follows:
+\verbatix{\:/
 (mclheader
 mcltype matrix
 dimensions 12x3
@@ -200,16 +207,16 @@ begin
 2    22 33 55 $
 )}
    Note that the column domain is canonical; its specifiation could have been
-   omitted. In this example, no values were specified. See below for more.
+   omitted. In this example, no values were specified. See below for more.}
 
 \end{itemize}
 
 \sec{gspec}{Specifying graphs}
 
-\par
+\car{
    A graph is simply a matrix where the row domain is the same as the column
-   domain.  Graphs should have positive entries only. Example:
-\verbatix{
+   domain.  Graphs should have positive entries only. Example:}
+\verbatix{\:/
 (mclheader
 mcltype matrix
 dimensions 12x12
@@ -232,14 +239,15 @@ begin
 456   44:3  88:4.2  99:1.8 2147483647:6.3 $
 2147483647   99:3.9 456:6.3 $
 )}
+\car{
    Incidentally, clustering this graph with mcl, using default parameters,
-   yields a cluster that is represented by the 12x3 matrix shown earlier.
+   yields a cluster that is represented by the 12x3 matrix shown earlier.}
 
-\par
+\par{
    The following example shows the same graph, now represented on a
-   canonical domain, and with all values implicitly set to 1.0:
+   canonical domain, and with all values implicitly set to 1.0:}
 
-\verbatix{
+\verbatix{\:/
 (mclheader
 mcltype matrix
 dimensions 12x12
@@ -262,24 +270,24 @@ begin
 
 \sec{notes}{Additional notes}
 
-\par
+\par{
    There are few restrictions on the format that one might actually expect.
    Vectors and entries may occur in any order and need not be sorted.
    Repeated entries and repeated vectors are allowed but are always
-   discarded while an error message is emitted.
+   discarded while an error message is emitted.}
 
-\par
+\par{
    If you want \it{functionally interesting behaviour} in combining
    repeated vectors and repeated entries, have a look at the next section
-   and at \sib{mcxassemble}.
+   and at \sib{mcxassemble}.}
 
-\par
+\par{
    Within the vector listing, the '#' is a token that introduces
-   a comment until the end of line.
+   a comment until the end of line.}
 
 \sec{raw}{Raw format}
 
-\par
+\par{
    A file in \it{raw format} is simply a listing of vectors without any
    sectioning structure.  No header specification, no domain specification, and
    no matrix introduction syntax is used - these are supplied to the processing
@@ -293,16 +301,57 @@ begin
    file/format, generate raw data during the parse and write it to file
    (without needing to build a huge data structure in memory).  B) mcxassemble
    takes the raw data and assembles it according to instruction into a generic
-   mcl matrix.
+   mcl matrix.}
+
+
+\sec{tab}{Tab format / label information}
+\car{
+   Several mcl programs accept options such as \genopt{-tab}, \genopt{-tabc},
+   \genopt{-tabr}, \genopt{-use-tab}, \genopt{-strict-tab},
+   and \genopt{-extend-tab}.
+
+   The argument to these options is invariably the name of
+   a so-called \it{tab file}.
+   Tab files are used to convert between labels (describing entities
+   in the data) and indices as used in the mcl matrix format.
+
+   In a tab file each line starts with a unique number which presumably
+   corresponds to an index used in a matrix file.
+
+   The rest of the line contains a
+   descriptive string associated with the number. It is required
+   that each string is unique, although not all mcl programs enforce
+   this at the time of writing.
+
+   Lines starting with
+   \v{#} are considered comment and are disregarded.
+}
+
+\cpar{Tab domain}{The ordered set of indices found in the tab file
+is called the \it{tab domain}.}
+
+\par{
+   Tab files are almost always employed in conjunction with an mcl matrix file.
+   \sibref{mcxdump}{mcxdump} and \sibref{clmformat}{clmformat} require by
+   default that the tab domain coincides with the matrix domain (either row or
+   column or both) to which they will be applied. This can be relaxed for
+   either by supplying the \useopt{--lazy-tab} option.}
+
+\par{
+   mcl provides explicit modes for dealing with tab structures by means of
+   the \genopt{-extend-tab}, \genopt{-restrict-tab} and
+   \genopt{-strict-tab} options. Refer to the \sibref{mcl}{mcl}
+   documentation.}
 
 \sec{seealso}{SEE ALSO}
+\car{
    \sib{mcxassemble},
    and \sibmclfamily for an overview of all the documentation
-   and the utilities in the mcl family.
+   and the utilities in the mcl family.}
 
 \sec{author}{AUTHOR}
-\par
-   Stijn van Dongen.
+\car{
+   Stijn van Dongen.}
 
 \"man::postamble"
 

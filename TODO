@@ -1,25 +1,109 @@
 regularia projectia diligentia
 
+This TODO is of the junkyard variety. Like a junkyard, it mostly grows and most
+of it is junk. But items do get picked up and are removed, and other items are
+shoved into the big bytebin. Unlike in a junkyard, things are reordered from
+time to time.
+
      _____________________________________
     |                                     |
-    - allow unpredeclared input format (cannonical only)
-    - undeclared binary format (canonical only)
-    - make mcl available as library call  |
+    - streamable binary format            |
+    - unify mcxload mcxarray mcxassemble mcxsubs transformation code
+    - check native/123/packed on tab (re)strict
     - buffer mcl  input                   |
-    - extend mcx with scripting language. try ruby and lua.
+    - internally replace tab by hash.     |
+    - make mcl available as library call  |
     - move mcxsubs to mcx                 |
-    - visualize mcl process dynamically   |
     - try to spot/frame siphoning         |
+    / visualize mcl process dynamically   |
+    - implement shortest path search (i,j); also (S1, S2)? Dijkstra.
+    - optimum spanning tree               |
     - framework for IO domain manipulation|
     - framework for adapt                 |
     - framework for overlap               |
+    - extend mcx with scripting language. try ruby and lua.
+    # mcl libs do not unwind on memory errors. (culprit: vector)
     |_____________________________________|
 
+-------------
 
--  enable binary output without seeking.
+w  mcxdump --stream-packed, note 123 and abc are already present.
+,  general suggestions.
+   if you cannot get something to work, try it with a small test example.
+   This applies more broadly then just mcl of course.
+-  -extend-tab with 123/native/packed input?
 
--  towards streaming input 
+-  mcl small.data --abc -az gives the name on STDERR and STDOUT.
+-  regression test clxcoarse.
 
+!  native + tab is now intermingled with the stream interface,
+   which is sub-optimal.
+
+/  mcxsubs acting on tabs.
+   should be relatively easy: just a different output primitive
+   tab(foo)
+   note that mcxdump already can take subselections.
+
+-  future: optionally ship tab domains to matrix reading code
+   for native/123/packed (rather than the fait accompli method now)
+   should be very doable, as there is currently the domain
+   restriction interface. might mostly be a warning/verbosity issue.
+   possibly should use this to do some redesign.
+
+-  being able to do mcxsubs based on tab would/should/could be valuable.
+   right now it is doable by using mcxdump as well.
+
+mcxdeblast mcxdump etc write leading cookie.
+   0x00 0x77 0x77 0x00  -> packed
+   #11#  -> 123
+   #aa#  -> abc
+not specifying stream format will result in cookie try.
+so, unspecified input will discard first record.
+   when mcl read 123, it should read the tab at the
+   very end, so that it is probably already closed.
+   unless, you want to do the same checks as with abc,
+   of course (except extend).
+
+-------------
+
+write the cookie always in big endian format.
+recognize (mcl and 'xxx( , xx(m, x(mc as well.
+
+?  add clean-up option to mcxdump
+
+-------------
+
+!  streaming: buffer input:
+      use mcxIOappendChunk, possibly finishing newline.
+      inspiration for general buffering?
+
+*  enable binary output without seeking.
+   umlum, we seek to write offsets. presumably we can compute
+   these in advance .. or would it require knowledge of data sizes /offsets
+   that is too intimate?
+   input seeks for same reason. with subreads, alternative scheme
+   would simply not seek.
+   subread is similar to database seek; disk-bound.
+
+*  mcxload, mcxsubs, mcx could do with shared sublanguage for unary
+   transformations and selections.
+   also, implementation should provide a 1-go solution.
+   registry for callbacks, pass list of indexes into this list,
+   something like that.
+
+-------------
+
+-  memfree: added tab, lots of ting file name members.
+
+-  -t 0 does?
+
+-  shortest path: both simple (unweighted) and weighted.
+   what is sensible definition for shortest path collection
+   between sets S1 and S2?
+   -  shortest paths between closest pairs
+   -  shortest paths between all pairs
+
+-  mcx max does not work for matrices: it even moans about lt.
 
 --------------------
 
@@ -37,33 +121,15 @@ suppose you work with a huge matrix and want to extract some
    submatrices and subtabs without reading it into memory multiple
    times.
    On the one hand, just reading it should not be that expensive then, 
-   on the other hand,
-   we might try to move everything into mcx.
-
---------------------
-
-/  mcxsubs acting on tabs.
-   should be relatively easy: just a different output primitive
-   tab(foo)
-   note that mcxdump already can take subselections.
-
--  allow unpredeclared input format, canonical only.
-   mcxassemble-like options for dealing with repeats.
-   force-equal-doms,
-   fill in gaps in domain.
-
-(mclheader
-mcltype undeclared-matrix
-)
-
--  advertise mcxdeblast --abc
--  perhaps duplicate it under a different name. 
+      (bring the hardware)
+   on the other hand, we might try to move everything into mcx.
 
 --------------------
 
 -  FAQ things you know or should know.
    mcxdeblast
    threads
+   test small. duh.
 
 --------------------
 

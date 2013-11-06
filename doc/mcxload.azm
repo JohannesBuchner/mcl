@@ -1,0 +1,345 @@
+\def{"man::synstyle"}{long}
+\def{"man::defstyle"}{long}
+\import{mcx.zmm}
+
+\set{"man::name"}{mcxload}
+\set{"man::html-title"}{The mcxload manual}
+\set{"man::author"}{Stijn van Dongen}
+\set{"man::section"}{1}
+
+\"man::preamble"
+\${html}{\"man::maketoc"}
+
+\sec{name}{NAME}
+\NAME{mcxload}{load matrices and tab files from label format}
+
+
+\sec{synopsis}{SYNOPSIS}
+
+\par{
+   \mcxload \synreqopt{-abc}{<fname>}{label file}
+   \synreqopt{-o}{<fname>}{output file}}
+
+\: -123 <fname>                    input file, 123 format
+\: -packed <fname>                 input file, packed format
+
+\par{
+   \synoptopt{--stream-mirror}{symmetrify, same domain}
+   \synoptopt{--graph}{assume same domain}
+   \synoptopt{-re}{<mode>}{edge deduplication mode}
+   \synoptopt{-ri}{<mode>}{image symmetrification mode}
+
+   \synoptopt{-cache-tab}{<fname>}{save domain tab}
+   \synoptopt{-cache-tabc}{<fname>}{save column tab}
+   \synoptopt{-cache-tabr}{<fname>}{save row tab}
+
+   \synoptopt{-strict-tab}{<fname>}{tab universe}
+   \synoptopt{-strict-tabc}{<fname>}{tabc universe}
+   \synoptopt{-strict-tabr}{<fname>}{tabr universe}
+   \synoptopt{-restrict-tab}{<fname>}{tab world}
+   \synoptopt{-restrict-tabc}{<fname>}{tabc world}
+   \synoptopt{-restrict-tabr}{<fname>}{tabr world}
+   \synoptopt{-extend-tab}{<fname>}{tab launch}
+   \synoptopt{-extend-tabc}{<fname>}{tabc launch}
+   \synoptopt{-extend-tabr}{<fname>}{tabr launch}
+
+   \synoptopt{-s}{[io]<lq|gq|ceil|floor>=<num>}{select/bound input/output}
+   \synoptopt{-log}{<base>}{log transform}
+   \synoptopt{-neglog}{<base>}{-log transform}
+   \synoptopt{-add}{<num>}{shift}
+   \synoptopt{-pow}{<power>}{raise}
+   \synoptopt{-t}{transpose}
+   \synoptopt{--binary}{output binary format}
+   \synoptopt{--debug}{debug}
+   \synoptopt{-h}{option listing}
+   \synoptopt{--apropos}{option listing}
+   \synoptopt{--version}{version}}
+
+
+\sec{description}{DESCRIPTION}
+
+\car{
+   \mcxload reads label input from a file. The format of the file
+   should be line-based, each line containing two white-space separated
+   strings (labels) and optionally a number separated from the second label
+   by whitespace. In the absence of a value, mcxload will use the
+   default value 1.0.}
+
+\par{
+   mcxload will transform the labels into mcl numerical identifiers and the
+   pairs of labels into graph edges or equivalently matrix entries.
+   The weight of an edge is the value associated with the associated
+   labels. mcxload constructs dictionaries (sometimes just one) that
+   map labels onto mcl identifiers as it goes along. It can optionally
+   write these to file.
+   In MCL (family) parlance, a such a dictionary written to file
+   is called a \it{tab file}.}
+
+\par{
+   A major mcxload modality is whether the input refers to a single
+   domain or to two separate domains. An example of the first is where
+   labels are names of people and the value is the extent to which they
+   like one another. This encodes a \it{likability} graph where all
+   the nodes represent people. The reasonable thing to do in this
+   case is to create a single dictionary with all names wherever
+   they occur. All \bf{tab} options (as opposed to \bf{tabc} and \bf{tabr})
+   pertain to this scenario and likewise for the options \genoptref{--graph}
+   and \genoptref{--stream-mirror}.}
+
+\par{
+   An example of the second mode is where the first label is again the name of
+   a person, the second label is the name of an animal species, and the value
+   is the extent to which that person appreciates the species.  In this case, 
+   the reasonable thing to do is to create two dictionaries, one for persons
+   and one for species. All \bf{tabc} and \bf{tabr} options pertain to
+   this scenario. The \bf{tabc} options \it{always refer to the first label}
+   and the \bf{tabr} options \it{always refer to the second label}.
+   The letters \bf{c} and \bf{r} refer to \it{column} and \it{row} respectively.
+   The latter are the names of the matrix domains corresponding
+   to the input domains. Refer to \sibmcxio.}
+
+\par{
+   A further mcxload modality is whether it constructs dictionaries
+   on the fly, or whether it proceeds from a tab file already
+   available.
+   By default mcxload will construct dictionaries on the fly. You
+   need to save them with the appropriate \bf{cache} option(s).
+   All the \bf{strict} options read a tab file
+   and require any labels in the \genoptref{-abc}{label input}
+   to be present in the corresponding tab file. mcxload will then fail in
+   the face of absent labels.
+   All the \bf{restrict} options simply ignore labels that are
+   not found in the corresponding tab file.
+   The \bf{extend} options extend the existing tab file with
+   labels that are not found.
+   It presumably only makes sense to do so if the corresponding
+   \bf{cache} options are used as well.}
+
+\par{
+   The input stream is deduplicated on a per-node neighbourhood basis
+   using the \genoptref{-re} option.}
+
+\par{
+   mcxload has many options to transform or select based on
+   the values of the input. These are
+   \genoptref{-add},
+   \genoptref{-pow},
+   \genoptref{-log} and
+   \genoptref{-neglog} for unary transformations of the input.
+   Use \genoptref{-s} to select edges based on their values.
+   It is possible to select edges both before and after unary
+   transformations have been applied.
+   Finally it is possible to transpose the final result
+   using the \genoptref{-t} option. Keep in mind that
+   mcxload does not accordingly change its idea of row and
+   column domains.}
+
+\par{
+   The final matrix can be symmetrified using the \genoptref{-ri} option.}
+
+\cpar{STAGES}{
+   Conceptually, input matrix creation consists of the following stages}
+
+\begin{itemize}{{compact}{1}{contiguous}{1}{type}{roman}{w1}{4}{w2}{3}{align}{right}}
+\item
+\car{
+   Read the input stream, optionally push reverse elements
+   (\genoptref{--stream-mirror}).}
+\item
+\car{
+   Deduplicate edges in the context of all edges/arcs originating from
+   a given node.}
+\item
+\car{
+   Apply input bound and select options -
+   those in the syntax \v{i<lq|lt|gq|gt|ceil|floor>}.}
+\item
+\car{
+   Apply unary transformations.}
+\item
+\car{
+   Apply output bound and select options -
+   those in the syntax \v{o<lq|lt|gq|gt|ceil|floor>}.}
+\item
+\car{
+   Apply transpose symmetrification according to the
+   \genoptref{-ri} option, if used.}
+\end{itemize}
+
+\sec{options}{OPTIONS}
+
+\begin{itemize}
+
+\item{\defopt{-abc}{<fname>}{label file}}
+\car{The file to read label data from.}
+
+\item{\defopt{-o}{<fname>}{output file}}
+\car{The output file where the constructed matrix is written.}
+
+\item{\defopt{--stream-mirror}{symmetrify, same domain}}
+\car{
+   Whenever \genarg{label1} \genarg{label2} \genarg{value}
+   is encountered in the input, mcxload inserts
+   \genarg{label2} \genarg{label1} \genarg{value} in the input
+   stream as well. This option implies that both labels
+   belong to the same domain.}
+
+\item{\defopt{--graph}{assume same domain}}
+\car{
+   This tells mcxload that both labels belong to the same domain.}
+
+\item{\defopt{-re}{<max|add|mul|first|last>}{deduplication mode}}
+\car{
+   This specifies  how mcxload should collapse repeated entries, that is edges
+   for which a value is specified multiple times.  This is done relative to a
+   single node at a time, taking into account all neighbours assembled from the
+   input stream.  Note that \genoptref{--stream-mirror} will result in
+   duplicated entries if the input contains edge specifications in both ways.
+   Also note that \usearg{first} and \usearg{last} might not result in
+   symmetric input if only \genopt{--stream-mirror} is used.}
+
+\item{\defopt{-cache-tab}{<fname>}{save domain tab}}
+\car{
+   Write the domain to file. It applies to both label types.}
+
+\item{\defopt{-cache-tabc}{<fname>}{save column tab}}
+\car{
+   Write the column domain to file. It applies to the first label found
+   on each input line.}
+
+\item{\defopt{-cache-tabr}{<fname>}{save row tab}}
+\car{
+   Write the column domain to file. It applies to the second label found
+   on each input line.}
+
+\item{\defopt{-strict-tab}{<fname>}{tab universe}}
+\car{
+   Read a dictionary from file and require each label to be present in the
+   dictionary. mcxload will exit on absentees.}
+
+\item{\defopt{-strict-tabc}{<fname>}{tabc universe}}
+\car{
+   Read a dictionary from file and require the first label on each line
+   to be present in the dictionary. mcxload will exit on absentees.}
+
+\item{\defopt{-strict-tabr}{<fname>}{tabr universe}}
+\car{
+   Read a dictionary from file and require the second label on each line
+   to be present in the dictionary. mcxload will exit on absentees.}
+
+\item{\defopt{-restrict-tab}{<fname>}{tab world}}
+\car{
+   Read a dictionary from file and only accept input lines (edges)
+   for which both labels are present in the dictionary.
+   mcxload will ignore absentees.}
+
+\item{\defopt{-restrict-tabc}{<fname>}{tabc world}}
+\car{
+   Read a dictionary from file and ignore input lines
+   for which the first label is absent from the dictionary.}
+
+\item{\defopt{-restrict-tabr}{<fname>}{tabr world}}
+\car{
+   Read a dictionary from file and ignore input lines
+   for which the second label is absent from the dictionary.}
+
+\item{\defopt{-extend-tab}{<fname>}{tab launch}}
+\car{
+   Read a dictionary from file and extend it with any
+   label from the input not yet present in the dictionary.}
+
+\item{\defopt{-extend-tabc}{<fname>}{tabc launch}}
+\car{
+   Read a dictionary from file and extend it with all
+   first labels from the input not yet present in the dictionary.}
+
+\item{\defopt{-extend-tabr}{<fname>}{tabr launch}}
+\car{
+   Read a dictionary from file and extend it with all
+   second labels from the input not yet present in the dictionary.}
+
+\item{\defopt{-log}{<base>}{log transform}}
+\car{
+   Replace each entry by its log in base \genarg{<base>}.}
+
+\item{\defopt{-neglog}{<base>}{-log transform}}
+\car{
+   Replace each entry by its negative log in base \genarg{<base>}.}
+
+\item{\defopt{-add}{<num>}{shift}}
+\car{
+   Add \genarg{<shift>} to each non-zero entry.}
+
+\item{\defopt{-pow}{<power>}{raise}}
+\car{
+   Raise each entry to the power \genarg{<power>}.}
+
+\item{\defopt{-s}{[io]<lq|gq|ceil|floor>=<num>}{select/bound input/output}}
+\car{
+   Combine \bf{i} or \bf{o} with any of the modifiers to select or bound
+   input or output. Example:}
+
+\verbatim{-s igq=5 -s oceil=10}
+
+\car{
+   This selects only entries in the input that are greater than or
+   equal to 5 and it setes any entry larger than 10 to 10.}
+
+\cpar{NOTE}{
+   Output is in this context the stage immediately after unary
+   transformation and before symmetrification using the transposed
+   matrix.}
+
+\item{\defopt{-ri}{<max|add|mul>}}
+\car{
+   After the initial matrix has been assembled, it can be symmetrified by
+   either of these options. They indicate the operation used to combine the
+   entries of the transposed matrix and the original matrix. \usearg{mul}
+   is special in that it treats missing entries (which are normally considered
+   zero in mcl matrix operations) as one.}
+
+\item{\defopt{-t}{transpose}}
+\car{
+   Write the transposed matrix to file. This is obviously not useful
+   when a symmetric matrix has been generated.}
+
+\item{\defopt{--binary}{output binary format}}
+\car{
+   Write the output matrix in native binary format.
+   This is generally smaller and faster to read, albeit not
+   humanly unreadable.}
+
+\item{\defopt{--debug}{debug}}
+\car{
+   Among other things, this turns on warnings when \bf{restrict} tab
+   files are used and labels are found to be missing.}
+
+\item{\defopt{-h}{option listing}}
+\car{
+   List short description of all options.}
+
+\item{\defopt{--apropos}{option listing}}
+\car{
+   List short description of all options.}
+
+\item{\defopt{--version}{version}}
+\car{
+   Output version information.}
+
+\end{itemize}
+
+\sec{author}{AUTHOR}
+\car{
+   Stijn van Dongen.}
+
+\sec{seealso}{SEE ALSO}
+
+\car{
+   \sib{mcxdump},
+   \sib{mcl},
+   \sib{mclfaq},
+   and \sibmclfamily for an overview of all the documentation
+   and the utilities in the mcl family.}
+
+\"man::postamble"
+

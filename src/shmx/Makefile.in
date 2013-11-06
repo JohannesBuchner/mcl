@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-SOURCES = $(mcxarray_SOURCES) $(mcxassemble_SOURCES) $(mcxconvert_SOURCES) $(mcxdump_SOURCES) $(mcxmap_SOURCES) $(mcxsubs_SOURCES) $(mcxtest_SOURCES)
+SOURCES = $(mcxarray_SOURCES) $(mcxassemble_SOURCES) $(mcxconvert_SOURCES) $(mcxdump_SOURCES) $(mcxload_SOURCES) $(mcxmap_SOURCES) $(mcxsubs_SOURCES) $(mcxtest_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -40,7 +40,8 @@ host_triplet = @host@
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/include/include.am
 bin_PROGRAMS = mcxconvert$(EXEEXT) mcxsubs$(EXEEXT) mcxmap$(EXEEXT) \
-	mcxassemble$(EXEEXT) mcxarray$(EXEEXT) mcxdump$(EXEEXT)
+	mcxassemble$(EXEEXT) mcxarray$(EXEEXT) mcxdump$(EXEEXT) \
+	mcxload$(EXEEXT)
 noinst_PROGRAMS = mcxtest$(EXEEXT)
 subdir = src/shmx
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -74,6 +75,11 @@ mcxdump_OBJECTS = $(am_mcxdump_OBJECTS)
 mcxdump_LDADD = $(LDADD)
 mcxdump_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
 	../impala/libimpala.a ../../util/libutil.a
+am_mcxload_OBJECTS = mcxload.$(OBJEXT)
+mcxload_OBJECTS = $(am_mcxload_OBJECTS)
+mcxload_LDADD = $(LDADD)
+mcxload_DEPENDENCIES = ../mcl/libmcl.a ../taurus/libtaurus.a \
+	../impala/libimpala.a ../../util/libutil.a
 am_mcxmap_OBJECTS = mcxmap.$(OBJEXT)
 mcxmap_OBJECTS = $(am_mcxmap_OBJECTS)
 mcxmap_LDADD = $(LDADD)
@@ -97,11 +103,11 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(mcxarray_SOURCES) $(mcxassemble_SOURCES) \
-	$(mcxconvert_SOURCES) $(mcxdump_SOURCES) $(mcxmap_SOURCES) \
-	$(mcxsubs_SOURCES) $(mcxtest_SOURCES)
+	$(mcxconvert_SOURCES) $(mcxdump_SOURCES) $(mcxload_SOURCES) \
+	$(mcxmap_SOURCES) $(mcxsubs_SOURCES) $(mcxtest_SOURCES)
 DIST_SOURCES = $(mcxarray_SOURCES) $(mcxassemble_SOURCES) \
-	$(mcxconvert_SOURCES) $(mcxdump_SOURCES) $(mcxmap_SOURCES) \
-	$(mcxsubs_SOURCES) $(mcxtest_SOURCES)
+	$(mcxconvert_SOURCES) $(mcxdump_SOURCES) $(mcxload_SOURCES) \
+	$(mcxmap_SOURCES) $(mcxsubs_SOURCES) $(mcxtest_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -207,6 +213,7 @@ mcxmap_SOURCES = mcxmap.c
 mcxdump_SOURCES = mcxdump.c
 mcxtest_SOURCES = mcxtest.c
 mcxarray_SOURCES = mcxarray.c
+mcxload_SOURCES = mcxload.c
 all: all-am
 
 .SUFFIXES:
@@ -278,6 +285,9 @@ mcxconvert$(EXEEXT): $(mcxconvert_OBJECTS) $(mcxconvert_DEPENDENCIES)
 mcxdump$(EXEEXT): $(mcxdump_OBJECTS) $(mcxdump_DEPENDENCIES) 
 	@rm -f mcxdump$(EXEEXT)
 	$(LINK) $(mcxdump_LDFLAGS) $(mcxdump_OBJECTS) $(mcxdump_LDADD) $(LIBS)
+mcxload$(EXEEXT): $(mcxload_OBJECTS) $(mcxload_DEPENDENCIES) 
+	@rm -f mcxload$(EXEEXT)
+	$(LINK) $(mcxload_LDFLAGS) $(mcxload_OBJECTS) $(mcxload_LDADD) $(LIBS)
 mcxmap$(EXEEXT): $(mcxmap_OBJECTS) $(mcxmap_DEPENDENCIES) 
 	@rm -f mcxmap$(EXEEXT)
 	$(LINK) $(mcxmap_LDFLAGS) $(mcxmap_OBJECTS) $(mcxmap_LDADD) $(LIBS)
@@ -298,6 +308,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxassemble.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxconvert.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxdump.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxload.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxmap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxsubs.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxtest.Po@am__quote@

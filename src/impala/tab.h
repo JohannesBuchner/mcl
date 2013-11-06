@@ -1,4 +1,4 @@
-/*  Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*  (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 2 of the License or
@@ -12,12 +12,13 @@
 #include "vector.h"
 #include "util/types.h"
 #include "util/io.h"
+#include "util/hash.h"
 
 
 typedef struct
-{  mclVector*     domain
-;  char**         labels
-;  char*          na       /* not available, returned if element not found */
+{  mclVector*  domain
+;  char**      labels   /* size: domain->n_ivps+1, also NULL terminated */
+;  mcxTing*    na       /* not available, returned if element not found */
 ;
 }  mclTab       ;
 
@@ -33,12 +34,36 @@ mclTab* mclTabRead
 )  ;
 
 
+mcxstatus mclTabWrite
+(  mclTab*        tab
+,  mcxIO*         xf
+,  const mclv*    select   /* if NULL, use all */
+,  mcxOnFail      ON_FAIL
+)  ;
+
+
 char* mclTabGet
-(  mclTab*  tab
+(  const mclTab*  tab
 ,  long     id
 ,  long*    ofs
 )  ;
 
+
+/*    Assumes tings as keys; integer encoded as (char*) kv->val - (char*) NULL.
+ *    labels in map are shallow pointer copies of (kv->key)->str.  When freeing
+ *    hash, *do* free the ting, do not free the str!  - use mcxTingAbandon
+ *    callback.
+ *
+ *    Future: optionalize this if needed.
+*/
+
+mclTab* mclTabFromMap
+(  mcxHash* map
+)  ;
+
+mcxHash* mclTabHash
+(  mclTab* tab
+)  ;
 
 void mclTabFree
 (  mclTab**       tabpp

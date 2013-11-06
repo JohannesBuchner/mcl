@@ -29,7 +29,6 @@
 
 
 static const char* tags    =  "0123456789@??";
-static int cloning         =  0;                /* mq static */
 
 int mclDefaultWindowSizes[] =
 {     1,       2,       5,
@@ -101,7 +100,7 @@ typedef struct
 ;  long              end
 ;  mclExpandParam*   mxp
 ;  mclExpandStats*   stats
-;  mclMatrix*        mxs
+;  const mclMatrix*  mxs
 ;  mclMatrix*        mxd
 ;  mclVector*        chaosVec
 ;
@@ -126,8 +125,6 @@ mclExpandParam* mclExpandParamNew
    ;  mxp->stats           =  NULL
 
    ;  mxp->n_ethreads      =  0
-   ;  mxp->cloneMatrices   =  FALSE
-   ;  mxp->cloneBarrier    =  20
 
    ;  mxp->modePruning     =  MCL_PRUNING_RIGID
    ;  mxp->modeExpand      =  MCL_EXPAND_SPARSE
@@ -135,9 +132,9 @@ mclExpandParam* mclExpandParamNew
    ;  mxp->precision       =  0.000666
    ;  mxp->pct             =  0.95
 
-   ;  mxp->num_prune       =  1444
-   ;  mxp->num_select      =  1444
-   ;  mxp->num_recover     =  1444
+   ;  mxp->num_prune       =  1444  /* should be overridden by scheme or user */
+   ;  mxp->num_select      =  1444  /* should be overridden by scheme or user */
+   ;  mxp->num_recover     =  1444  /* should be overridden by scheme or user */
    ;  mxp->scheme          =  6
    ;  mxp->my_scheme       =  -1
 
@@ -182,7 +179,7 @@ void mclExpandVectorLine
 (  void* arg
 )
    {  mclExpandVectorLine_arg *a =  (mclExpandVectorLine_arg *) arg
-   ;  mclMatrix*     mxs      =  a->mxs
+   ;  const mclMatrix*     mxs   =  a->mxs
    ;  mclMatrix*     mxd      =  a->mxd
    ;  mclVector*     chaosVec =  a->chaosVec
    ;  long           colidx   =  a->start
@@ -209,9 +206,6 @@ void mclExpandVectorLine
 
       mclpARfree(&ivpbuf)
    ;  mclxComposeRelease(&ch)
-
-   ;  if (a->id && cloning)
-      mclxFree(&mxs)
 
    ;  free(a)
 ;  }
@@ -517,15 +511,6 @@ mclMatrix* mclExpand
       ;  int   i
 
       ;  pthread_mutex_init(&(stats->mutex), NULL)
-
-      ;  cloning           =  (  mxp->cloneMatrices
-                              && (  mclxNrofEntries(mx) 
-                                 >  mxp->cloneBarrier* n_cols
-                                 )
-                              )
-      ;  if (cloning && !XPNVB(mxp,XPNVB_PRUNING))
-         fprintf(stdout, "(cloning) ")
-
       ;  pthread_attr_init(&pthread_custom_attr)
 
       ;  for (i=0;i<mxp->n_ethreads;i++)
@@ -540,9 +525,7 @@ mclMatrix* mclExpand
          ;  a->stats       =  stats
          ;  a->chaosVec    =  chaosVec
 
-         ;  a->mxs         =  (i && cloning)   /* thread 0 accesses original */
-                              ?  mclxCopy(mx)
-                              :  (mclMatrix*) mx
+         ;  a->mxs         =  mx
 
          ;  if (i+1==mxp->n_ethreads)
             a->end   +=  workTail

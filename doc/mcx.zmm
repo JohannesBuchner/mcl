@@ -31,6 +31,7 @@
 \def{clmmeet}{\bf{clmmeet}}
 \def{clmclose}{\bf{clmclose}}
 \def{clmformat}{\bf{clmformat}}
+\def{mcxload}{\bf{mcxload}}
 \def{clmimac}{\bf{clmimac}}
 \def{clmmate}{\bf{clmmate}}
 \def{clmresidue}{\bf{clmresidue}}
@@ -54,6 +55,8 @@
 \def{sib#1}{\sibref{\1}{\1}}
 
 \def{sibmclfaq}{\sibref{mclfaq}{mclfaq\${roff}{(7)}}}
+\def{sibmclfaq#1}{\sibref{mclfaq}{\1}{mclfaq\${roff}{(7)}}}
 \def{sibmcxio}{\sibref{mcxio}{mcxio\${roff}{(5)}}}
 \def{sibmclfamily}{\sibref{mclfamily}{mclfamily\${roff}{(7)}}}
+
 
