@@ -168,6 +168,7 @@ static mcxstatus sspxy_flood
 
 dbg("sz_aow %d sz_aow_cache %d\n", (int) sz_aow, (int) sz_aow_cache)
 
+                     /* fixme should below clause for clarity just be seen_hit? (see above) */
          if (sz_aow_cache == sz_aow)
          break
 
@@ -185,8 +186,8 @@ dbg("sz_aow %d sz_aow_cache %d\n", (int) sz_aow, (int) sz_aow_cache)
       sspxy_dump_aow(seen, aow, sz_aow)
 #endif
 
-   ;  sspo->length = seen_hit ? length : 0
-   ;  return sspo->length ? STATUS_OK : STATUS_FAIL
+   ;  sspo->length = seen_hit ? length : -1
+   ;  return sspo->length > 0 ? STATUS_OK : STATUS_FAIL
 ;  }
 
 
@@ -364,11 +365,9 @@ mcxstatus mclgSSPxyQuery
       ;  sspo->dst = b
 
       ;  if (sspxy_flood(sspo, a, b))
-         {  msg = "flood error"
-         ;  break
-      ;  }
+         break
 
-         sspxy_rm_dead_ends(sspo)
+      ;  sspxy_rm_dead_ends(sspo)
 
       ;  if (sspxy_make_pathmx(sspo))
          {  msg = "make path error"

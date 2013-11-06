@@ -15,9 +15,9 @@
 #include "clmmeet.h"
 
 #include "clew/clm.h"
+#include "clew/cat.h"
 
 #include "impala/matrix.h"
-#include "impala/cat.h"
 #include "impala/vector.h"
 #include "impala/io.h"
 #include "impala/compose.h"
@@ -119,7 +119,7 @@ static mcxstatus meetMain
    ;  for (j=0;j<n_mx;j++)
       {  mclMatrix* tmp = mclxRead (xfmcs[j], EXIT_ON_FAIL)
 
-      ;  if (clmEnstrict(tmp, &o, &m, &e, ENSTRICT_TRULY))
+      ;  if (clmEnstrict(tmp, &o, &m, &e, ENSTRICT_SPLIT_OVERLAP))
             report_partition("clmmeet", tmp, xfmcs[j]->fn, o, m, e)
          ,  mcxExit(1)
 

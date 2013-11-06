@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -28,55 +28,61 @@
 #include "util/err.h"
 
 
-/* ­--------------------------------------------------------------- */
-
-/* return smallest ceil to key */
+/* return smallest ceil to key; can be identical.
+ *    !retval || key <= retval
+*/
 
 static inline mclp* mclpBsearchCeil
 (  const mclp *key
 ,  const mclp *base
 ,  dim nmemb
 )
-   {  ofs lft                 /* fixme (consider -1 initialization) */
-   ;  dim bar, rgt
+   {  dim lft = -1
+   ;  dim rgt = nmemb
+   ;  dim bar = nmemb / 2
+
    ;  if (!nmemb || key->idx > base[nmemb-1].idx)
       return NULL
 
    ;  if (key->idx <= base[0].idx)
       return (mclp*) base
 
-   ;  lft = -1
-   ;  rgt = nmemb
-   ;  bar = nmemb / 2
-
-   ;  while (lft < 0 || bar < (dim) rgt)
+            /* invariant: lft points to a member that is smaller than pivot
+             * or it points before the first member.
+            */
+   ;  while (lft+1 < rgt)
       {  if (key->idx > base[bar].idx)
          lft = bar
       ;  else
          rgt = bar
-      ;  bar = rgt - (rgt-lft) / 2;
+      ;  bar = rgt - (rgt-lft) / 2;       /* works if lft == -1u */
    ;  }
       return (mclp*) base + bar
 ;  }
 
 
-/* return largest floor to key */
+
+/* return largest floor to key; can be identical
+ *    !retval || key >= retval
+*/
 
 static inline mclp* mclpBsearchFloor
 (  const mclp *key
 ,  const mclp *base
 ,  dim nmemb
 )
-   {  ofs lft
-   ;  dim bar, rgt
+   {  dim lft = 0
+   ;  dim rgt = nmemb
+   ;  dim bar = nmemb / 2
+
    ;  if (!nmemb || key->idx < base->idx)
       return NULL
 
-   ;  lft = -1
-   ;  rgt = nmemb
-   ;  bar = nmemb / 2
-
-   ;  while (lft < 0 || bar > (dim) lft)
+            /* invariant: rgt points to a
+             * a member that is larger than pivot or it
+             * points beyond the last member.
+            */
+   ;  while (lft+1 < rgt)
       {  if (key->idx < base[bar].idx)
          rgt = bar
       ;  else
@@ -87,8 +93,6 @@ static inline mclp* mclpBsearchFloor
 ;  }
 
 
-/* ­--------------------------------------------------------------- */
-
 
 void* mclvInit_v
 (  void* vecv
@@ -97,9 +101,9 @@ void* mclvInit_v
    ;  if (!vec && !(vec = mcxAlloc(sizeof(mclVector), ENQUIRE_ON_FAIL)))
       return NULL
    ;  vec->ivps   =  NULL
-   ;  vec->n_ivps =  0
+   ;  vec->n_ivps =   0
    ;  vec->vid    =  -1
-   ;  vec->val    =  0.0
+   ;  vec->val    =   0.0
    ;  return vec
 ;  }
 
@@ -111,7 +115,9 @@ mclVector* mclvInit
 ;  }
 
 
-/* this routine should always work also for non-conforming vectors */
+/*
+ * This routine should always work also for non-conforming vectors
+*/
 
 mclVector* mclvInstantiate
 (  mclVector*     dst_vec
@@ -157,7 +163,6 @@ mclVector* mclvInstantiate
    ;  dst_vec->n_ivps = new_n_ivps
    ;  return dst_vec
 ;  }
-
 
 
 mclVector* mclvNew
@@ -240,9 +245,6 @@ mclVector*  mclvResize
 ;  }
 
 
-/* ­--------------------------------------------------------------- */
-
-
 void mclvRuntime
 (  const mclVector* vec
 ,  const char* caller
@@ -276,17 +278,13 @@ mcxstatus mclvCheck
 
    ;  while (ok && ivp<ivpmax)
       {  if (ivp->idx <= last)
-         {  mcxErr
-            (  me
-            ,  "deadly: index %s <%ld, %ld> at ivp <%ld>"
-            ,  ivp->idx == last
-                  ?  "repeat"
-                  :  "descent"
+         {  mcxErr(me, "deadly: index %s <%ld, %ld> at ivp <%ld>"
+            ,  ivp->idx == last ? "repeat" : "descent"
             ,  (long) last
             ,  (long) ivp->idx
             ,  (long) (ivp - vec->ivps)
             )
-         ;  ok    =  FALSE
+         ;  ok = FALSE
          ;  break
       ;  }
 
@@ -294,13 +292,11 @@ mcxstatus mclvCheck
          (  (bits & MCLV_CHECK_POSITIVE && ivp->val < 0.0)
          || (bits & MCLV_CHECK_NONZERO && ivp->val == 0.0)
          )
-         {  mcxErr
-            (  me
-            ,  "error: value <%f> at ivp <%ld>"
+         {  mcxErr(me, "error: value <%f> at ivp <%ld>"
             ,  (double) ivp->val
             ,  (long) (ivp - vec->ivps)
             )
-         ;  ok    =  FALSE
+         ;  ok = FALSE
          ;  break
       ;  }
 
@@ -326,9 +322,6 @@ mcxstatus mclvCheck
 ;  }
 
 
-/* ­--------------------------------------------------------------- */
-
-
 double mclvIn
 (  const mclVector*        lft
 ,  const mclVector*        rgt
@@ -341,28 +334,22 @@ double mclvIn
       ,  *ivp2max = ivp2 +rgt->n_ivps
 
    ;  while (ivp1 < ivp1max && ivp2 < ivp2max)
-      {  pval val1 =  0.0
-      ;  pval val2 =  0.0
-
-      ;  if (ivp1->idx < ivp2->idx)
-         val1  =  (ivp1++)->val
+      {  if (ivp1->idx < ivp2->idx)
+         ivp1++
       ;  else if (ivp1->idx > ivp2->idx)
-         val2  =  (ivp2++)->val
+         ivp2++
       ;  else
-            val1  =  (ivp1++)->val
-         ,  val2  =  (ivp2++)->val
-
-      ;  ip += val1 * val2
+         ip += (ivp1++)->val * (ivp2++)->val
    ;  }
       return ip
 ;  }
 
 
-void mclvCleanse
+void mclvSortUniq
 (  mclVector*  vec
 )
    {  mclvSort(vec, mclpIdxCmp)
-   ;  mclvUniqueIdx(vec, mclpMergeLeft)
+   ;  mclvUniqIdx(vec, mclpMergeLeft)
 ;  }
 
 
@@ -392,7 +379,7 @@ void mclvSort
 ;  }
 
 
-dim mclvUniqueIdx
+dim mclvUniqIdx
 (  mclVector*              vec
 ,  void (*merge)(void* ivp1, const void* ivp2)
 )  
@@ -407,39 +394,8 @@ dim mclvUniqueIdx
       ,  merge
       )
    ;  diff = vec->n_ivps - n
-   ;  vec->n_ivps = n
-   /* fixme; should/could realloc */
+   ;  vec->n_ivps = n                  /* noteme; one could realloc */
    ;  return diff
-;  }
-
-
-dim mclvTop
-(  mclVector      *vec
-,  double         psum
-,  double*        maxptr
-,  double*        minptr
-,  mcxbool        select
-)
-   {  dim d = 0
-   ;  double acc = 0.0
-
-   ;  mclvSort(vec, mclpValRevCmp)  /* DANGER vector now not conforming */
-
-   ;  while (d<vec->n_ivps && acc < psum)
-         acc += vec->ivps[d].val
-      ,  d++
-
-   ;  if (select)
-      mclvResize(vec, d)
-
-   ;  if (maxptr)
-      *maxptr = d ? vec->ivps[0].val : DBL_MAX
-
-   ;  if (minptr && d)
-      *minptr = d ? vec->ivps[d-1].val : -DBL_MAX
-
-   ;  mclvSort(vec, mclpIdxCmp)
-   ;  return d
 ;  }
 
 
@@ -449,32 +405,30 @@ double mclvKBar
 ,  double      ignore            /*    ignore elements relative to this  */
 ,  int         mode
 )  
-   {  int      bEven       =  (k+1) % 2
+   {  int      have_even   =  (k+1) % 2
    ;  dim      n_inserted  =  0
    ;  double   ans         =  0.0
-
-   ;  mclIvp*  vecIvp      =  vec->ivps
-   ;  mclIvp*  vecMaxIvp   =  vecIvp + vec->n_ivps
-
-   ;  pval *heap
-
+   ;  mclIvp * vecivp      =  vec->ivps
+   ;  mclIvp*  vecmaxivp   =  vecivp + vec->n_ivps
+   ;  pval *   heap
+                                 /* can select everything */
    ;  if (k >= vec->n_ivps)
-      return(-1.0)
+      return mode == KBAR_SELECT_LARGE ? -FLT_MAX : FLT_MAX
 
-   ;  heap =  mcxAlloc ((k+bEven)*sizeof(pval), ENQUIRE_ON_FAIL)
-      /* fixme; enomem */
+                                 /* let's select nothing, it might even help */
+   ;  if (!(heap =  mcxAlloc ((k+have_even)*sizeof(pval), RETURN_ON_FAIL)))
+      return mode == KBAR_SELECT_LARGE ? FLT_MAX : -FLT_MAX
 
    ;  if (mode == KBAR_SELECT_LARGE)
-      {  if (bEven)
+      {  if (have_even)
          *(heap+k) =  PVAL_MAX
 
-      ;  while(vecIvp < vecMaxIvp)
-         {  pval val =  vecIvp->val
+      ;  while(vecivp < vecmaxivp)
+         {  pval val =  vecivp->val
 
          ;  if (val >= ignore)
-            {
-         ;  }
-            else if (n_inserted < k)
+            NOTHING
+         ;  else if (n_inserted < k)
             {  dim d =  n_inserted
 
             ;  while (d != 0 && *(heap+(d-1)/2) > val)
@@ -495,27 +449,24 @@ double mclvKBar
                   {  *(heap+root) = *(heap+d)
                   ;  root = d
                ;  }
-                  else
-                  break
+                  else break
             ;  }
                *(heap+root) = val
          ;  }
-
-            vecIvp++
+            vecivp++
       ;  }
       }
 
       else if (mode == KBAR_SELECT_SMALL)
-      {  if (bEven)
+      {  if (have_even)
          *(heap+k) = -PVAL_MAX
 
-      ;  while(vecIvp < vecMaxIvp)
-         {  pval val = vecIvp->val
+      ;  while(vecivp < vecmaxivp)
+         {  pval val = vecivp->val
 
          ;  if (val < ignore)
-            {
-         ;  }
-            else if (n_inserted < k)
+            NOTHING
+         ;  else if (n_inserted < k)
             {  dim d = n_inserted
 
             ;  while (d != 0 && *(heap+(d-1)/2) < val)
@@ -536,12 +487,11 @@ double mclvKBar
                   {  *(heap+root) = *(heap+d)
                   ;  root = d
                ;  }
-                  else
-                  break
+                  else break
             ;  }
                *(heap+root) = val
          ;  }
-            vecIvp++
+            vecivp++
       ;  }
       }
       else
@@ -551,7 +501,6 @@ double mclvKBar
 
       ans = *heap
    ;  mcxFree(heap)
-
    ;  return ans
 ;  }
 
@@ -560,23 +509,23 @@ double mclvSelectGqBar
 (  mclVector* vec
 ,  double     fbar
 )
-   {  mclIvp *newivp, *oldivp, *maxivp
+   {  mclIvp *writeivp, *readivp, *maxivp
    ;  double mass = 0.0      
 
-   ;  newivp = vec->ivps
-   ;  oldivp = newivp
-   ;  maxivp = newivp+vec->n_ivps
+   ;  writeivp =  vec->ivps
+   ;  readivp  =  vec->ivps
+   ;  maxivp   =  vec->ivps+vec->n_ivps
 
-   ;  while (oldivp < maxivp)
-      {  if (oldivp->val >= fbar)
-         {  mass += oldivp->val
-         ;  *newivp = *oldivp
-         ;  newivp++
+   ;  while (readivp < maxivp)
+      {  if (readivp->val >= fbar)
+         {  mass += readivp->val
+         ;  *writeivp = *readivp
+         ;  writeivp++
       ;  }
-         oldivp++
+         readivp++
    ;  }
 
-      mclvResize(vec, newivp - (vec->ivps))
+      mclvResize(vec, writeivp - (vec->ivps))
    ;  return mass
 ;  }
 
@@ -586,19 +535,21 @@ dim mclvCountGiven
 ,  mcxbool       (*operation)(mclIvp* ivp, void* arg)
 ,  void*          arg
 )  
-   {  dim         n_src    =  src->n_ivps
-   ;  mclIvp      *src_ivp =  src->ivps
-   ;  dim         n_hits   =  0
-
+   {  dim   n_src =  src->n_ivps
+   ;  mclp *ivp   =  src->ivps
+   ;  dim   n_hits=  0
    ;  while (n_src-- > 0)     /* careful with unsignedness */
-      {  if (operation(src_ivp, arg))
+      {  if (operation(ivp, arg))
          n_hits++
-      ;  src_ivp++
+      ;  ivp++
    ;  }
       return n_hits
 ;  }
 
 
+                              /* hierverder: src/dst conflict with mclvCopyGiven src/dst
+                               * but only callers of mclvSelectIdcs I know have src == dst.
+                              */
 dim mclvSelectIdcs
 (  mclv        *src
 ,  long        *lft
@@ -613,6 +564,14 @@ dim mclvSelectIdcs
 
    ;  mclvCopyGiven(src, dst, mclpSelectIdcs, &range, 0)
    ;  return dst->n_ivps
+;  }
+
+
+double mclvSelectGtBar
+(  mclVector* vec
+,  double     fbar
+)
+   {  return mclvSelectValues(vec, &fbar, NULL, MCLX_EQT_GT, vec)
 ;  }
 
 
@@ -697,8 +656,6 @@ void mclvUnary
 ;  }
 
 
-/* ­--------------------------------------------------------------- */
-
 /* NOTE caller ensures that both vectors have > 0 ivps
 */
 
@@ -727,19 +684,19 @@ static dim update_meet_small_large
             /* search for largest applicable start in l; possible if
              * l->ivps[0] <= s->ivps[0] then k is maximal s.t.
              * l_ofs->ivps[k].idx <= s->ivps[0].idx
-             *         _
-             *    l  3 4     10 17 30 50
-             *    s     5 8 9  11
+             *           _
+             *    l    3 4     10 17 30 50
+             *    s       5 8 9  11
             */
       if (l->ivps[0].idx <= s->ivps[0].idx)
          l_ofs = mclvGetIvpFloor(l, s->ivps[0].idx, NULL)
       ,  s_ofs = s->ivps+0
    ;  else
-            /*                _        _
-             *    l          19 20 21 22 30 39 40 44 45
-             *    s     4 5 13        22
-             *    In the example we first find 22 on 19;
-             *    then we have to find 22 on 22.
+            /*                __       __
+             *    l           19 20 21 22 30 39 40 44 45
+             *    s     4 5 13         22
+             *    In the example we first find small 22 on large 19;
+             *    then we have to find large 22 on small 22.
             */
       {  if (!(s_ofs = mclvGetIvpCeil(s, l->ivps[0].idx, NULL)))
          return 0
@@ -788,7 +745,6 @@ static dim update_meet_zip
 
 ;nu_meet_zip++
 
-;if(0)fprintf(stderr, "zip zip zip\n")
    ;  while (ivp1 < ivp1max && ivp2 < ivp2max)
       {  if (ivp1->idx < ivp2->idx)
          ivp1++
@@ -797,8 +753,6 @@ static dim update_meet_zip
       ;  else if (ivp1->val = op(ivp1->val, ivp2++->val), !ivp1++->val)
          n_zeroed++
    ;  }
-;if(0)fprintf(stderr, "meet zip vector %d (%d zero)\n", (int) v1->vid, (int) n_zeroed)
-;
       return n_zeroed
 ;  }
 
@@ -822,8 +776,6 @@ static dim update_meet_canonical
       ;  if (!v1->ivps[idx].val)
          n_zeroed++
    ;  }
-;if(0)fprintf(stderr, "meet can vector %d (%d zero)\n", (int) v1->vid, (int) n_zeroed)
-;
       return n_zeroed
 ;  }
 
@@ -839,16 +791,13 @@ dim mclvUpdateMeet
    ;  if ((int) MCLV_IS_CANONICAL(v1))
       return update_meet_canonical(v1, v2, op)
    ;  else if
-      (  v2->n_ivps * 3 * log(v1->n_ivps) < v1->n_ivps
-      || v1->n_ivps * 3 * log(v2->n_ivps) < v2->n_ivps
+      (  v2->n_ivps * nu_magic * log(v1->n_ivps) < v1->n_ivps
+      || v1->n_ivps * nu_magic * log(v2->n_ivps) < v2->n_ivps
       )
       return update_meet_small_large(v1, v2, op)
    ;  else
       return update_meet_zip(v1, v2, op)
 ;  }
-
-
-/* ­--------------------------------------------------------------- */
 
 
 static dim update_diff_zip
@@ -864,11 +813,8 @@ static dim update_diff_zip
 
 ;nu_diff_zip++
 
-;if(0)fprintf(stderr, "zip v1 %d with %d v2 %d with %d\n", (int) v1->vid, (int) v1->n_ivps, (int) v2->vid, (int) v2->n_ivps)
-
    ;  while (p1 < p1max && p2 < p2max)
-{if(0)fprintf(stderr, "p1 p2 %d %d\n", (int) p1->idx, (int) p2->idx)
-      ;  if (p1->idx < p2->idx)
+      {  if (p1->idx < p2->idx)
          {  if (!(p1->val = op(p1->val, 0)))
             n_zeroed++
          ;  p1++
@@ -883,8 +829,6 @@ static dim update_diff_zip
       ;  p1++
    ;  }
 
-;if(0)fprintf(stderr, "diff zip vector %d (%d zero)\n", (int) v1->vid, (int) n_zeroed)
-;
       return n_zeroed
 ;  }
 
@@ -918,8 +862,6 @@ static dim update_diff_canonical
       if (!(v1->ivps[t].val = op(v1->ivps[t].val, 0)))
       n_zeroed++
 
-;if(0)fprintf(stderr, "diff can vector %d (%d zero)\n", (int) v1->vid, (int) n_zeroed)
-
    ;  return n_zeroed
 ;  }
 
@@ -934,7 +876,10 @@ static dim update_diff_small_large
          , *a_max = a_ofs + a->n_ivps
    ;  dim n_zeroed = 0
 
-;nu_diff_sl++
+               /* no s vs l distinction as in update_meet_small_large,
+                * because meet is symmetrical, diff not.
+               */
+;  nu_diff_sl++
 
    ;  if (b_ofs)
       while (a_ofs < a_max)
@@ -978,16 +923,13 @@ dim mclvUpdateDiff
    ;  if (MCLV_IS_CANONICAL(v1))
       return update_diff_canonical(v1, v2, op)
    ;  else if
-      (  (v1->n_ivps * 3 * log(v2->n_ivps) < v2->n_ivps)
-      || (v2->n_ivps * 3 * log(v1->n_ivps) < v1->n_ivps)
+      (  (v1->n_ivps * nu_magic * log(v2->n_ivps) < v2->n_ivps)
+      || (v2->n_ivps * nu_magic * log(v1->n_ivps) < v1->n_ivps)
       )
       return update_diff_small_large(v1, v2, op)
    ;  else
       return update_diff_zip(v1, v2, op)
 ;  }
-
-
-/* ­--------------------------------------------------------------- */
 
 
 mclVector* mclvBinary
@@ -1005,7 +947,7 @@ mclVector* mclvBinary
    ;  ivpl  =  ivpk 
             =  mcxAlloc
                (  n1n2 * sizeof(mclIvp)
-               ,  ENQUIRE_ON_FAIL
+               ,  RETURN_ON_FAIL
                )
    ;  if (!ivpk)
       {  mcxMemDenied(stderr, "mclvBinary", "mclIvp", n1n2)
@@ -1444,10 +1386,11 @@ mcxstatus mclvReplaceIdx
    ;  piv.val = val
 
                      /*       a  b  c  d  _  f  g  h i
-                      * idx needs to be somewhere in the f-i range
-                      * If we have
+                      * e will go;
+                      * idx needs to be somewhere in the f-i range. If i needs
+                      * to go then we have
                       *       a  b  c  d  e  f  g  h _
-                      * then (vec->ivps+ofs+1) == dst
+                      * then (vec->ivps+ofs+1) == dst == vec->ivps+vec->n_ivps
                       * and the size to copy is zero.
                      */
    ;  if (vec->ivps[ofs].idx < idx)
@@ -1461,8 +1404,9 @@ mcxstatus mclvReplaceIdx
       ;  dst[-1] = piv
    ;  }
                      /*       a  b  c  d  _  f  g  h i
-                      * idx needs to be somewhere in the a-d range
-                      * If we have
+                      * ei will go;
+                      * idx needs to be somewhere in the a-d range. If a
+                      * needs to go then we have
                       *       _  b  c  d  e  f  g  h i
                       * then ofs == vec->ivps and dst == vec->ivps
                       * and the size to copy is zero.
@@ -1609,7 +1553,7 @@ void mclvSelectHighest
             :  mclvKBar
                (vec, vec->n_ivps - max_n_ivps + 1, -PVAL_MAX, KBAR_SELECT_SMALL)
 
-   ;  mclvSelectGqBar(vec, f)
+   ;  mclvSelectGtBar(vec, f)
 ;  }
 
 
@@ -1629,7 +1573,7 @@ void mclvMakeConstant
 ,  double      val
 )  
    {  if (val == 0.0) 
-      mclvZeroValues(vec)
+      mclvZeroValues(vec)        /* cannot use mclvUnary, it removes zeroes */
    ;  else
       mclvUnary(vec, fltxConst, &val)
 ;  }
@@ -1705,21 +1649,27 @@ mclVector* mcldMeet
 ,  const mclVector*  rgt
 ,  mclVector*  dst
 )
-#if 1
    {  return mclvBinary(lft, rgt, dst, fltLaR)
 ;  }
-#else
-                      /* this code is hilarious hiledeous */  
+
+                      /* this code is hilarious hiledeous ..
+                       * but it is an honest attempt at optimizing different scenarios.
+                      */
+mclVector* mcldMeet2
+(  const mclVector*  lft
+,  const mclVector*  rgt
+,  mclVector*  dst
+)
    {  if (lft == rgt)
       return dst == lft ? dst : mclvCopy(dst, lft)
 
    ;  if
       (  dst != lft
-      && (  3 * log(lft->n_ivps+1) * rgt->n_ivps < lft->n_ivps
+      && (  nu_magic * log(lft->n_ivps+1) * rgt->n_ivps < lft->n_ivps    /* this means rgt is small */
          || dst == rgt
          )
       )
-      {  if (dst != rgt)                /* now (small) dst has rgt values */
+      {  if (dst != rgt)                /* now (small) dst has only rgt values (and lft != rgt) */
          dst = mclvCopy(dst, rgt)
       ;  if (mclvUpdateDiff(dst, lft, flt0p0))  /* rgt meet values remain */
          mclvUnary(dst, fltxCopy, NULL)
@@ -1741,8 +1691,6 @@ mclVector* mcldMeet
 
       return dst
 ;  }
-#endif
-
 
 
 mcxbool mcldEquate
@@ -1788,7 +1736,7 @@ mcxbool mcldEquate
 
          default
       :  mcxErr("mcldEquate PBD", "unknown mode <%d>", (int) mode)
-      ;  mcxExit(1)
+      ;  break
    ;  }
       return TRUE
 ;  }
@@ -1896,7 +1844,7 @@ mclv* mclvFromPAR
             mclvSort(tmpvec, NULL)
 
          ;  if (!(sortbits & 2))
-            n_re = mclvUniqueIdx(tmpvec, ivpmerge)
+            n_re = mclvUniqIdx(tmpvec, ivpmerge)
 
          ;  n_rv += tmpvec->n_ivps
          ;  n_rv += dst->n_ivps
@@ -1915,7 +1863,7 @@ mclv* mclvFromPAR
             mclvSort(dst, NULL)
 
          ;  if (!(sortbits & 2))
-            n_re += mclvUniqueIdx(dst, ivpmerge)
+            n_re += mclvUniqIdx(dst, ivpmerge)
       ;  }
       }
 

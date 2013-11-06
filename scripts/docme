@@ -19,6 +19,7 @@ my $n_args = @ARGV;
 $::amoixa =  0;
 $::silent =  0;
 $::exclude = "";
+$::nosynopsis = 0;
 
 my %exclude = ();
 
@@ -27,6 +28,7 @@ if
    (  "--amoixa"        =>   \$::amoixa
    ,  "--silent"        =>   \$::silent
    ,  "--exclude=s"     =>   \$::exclude
+   ,  "--ignore-synopsis"   =>   \$::nosynopsis
    )
 )
    {  print STDERR "option processing failed\n";
@@ -94,17 +96,20 @@ for my $k (@unsupported2) {
    print "$k\n";
 }
 
+
 my @unsynopsed = ();
-if (!@undocumented) {
-   @unsynopsed = grep { !defined($syn{$_}) } sort keys %apropos;
-   print $marker . " Undocumented options - synopsis\n"
-                           unless $::silent && !@unsynopsed;
-   for my $k (@unsynopsed) {
-      print "$k $apropos{$k}\n";
+unless ($::nosynopsis) {
+   if (!@undocumented) {
+      @unsynopsed = grep { !defined($syn{$_}) } sort keys %apropos;
+      print $marker . " Undocumented options - synopsis\n"
+                              unless $::silent && !@unsynopsed;
+      for my $k (@unsynopsed) {
+         print "$k $apropos{$k}\n";
+      }
    }
-}
-else {
-   print $marker . " Skipped synopsis section (fix defs first)\n" unless $::silent;
+   else {
+      print $marker . " Skipped synopsis section (fix defs first)\n" unless $::silent;
+   }
 }
 
 exit (@unsupported + @undocumented + @unsupported2 + @unsynopsed ? 1 : 0);

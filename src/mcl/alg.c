@@ -29,6 +29,7 @@
 #include "shadow.h"
 
 #include "clew/clm.h"
+#include "clew/cat.h"
 #include "clew/claw.h"
 
 #include "impala/io.h"
@@ -36,7 +37,6 @@
 
 #include "impala/version.h"
 #include "impala/matrix.h"
-#include "impala/cat.h"
 #include "impala/ivp.h"
 #include "impala/tab.h"
 #include "impala/app.h"
@@ -123,7 +123,7 @@ enum
 ,  ALG_OPT_AUTOBOUNCEFIX
                         ,  ALG_OPT_AUTOPREFIX
 ,  ALG_OPT_TRANSFORM    =  ALG_OPT_AUTOPREFIX + 2
-,  ALG_OPT_PREPRUNE
+,  ALG_OPT_CEILNB
 ,  ALG_OPT_PREINFLATION
 ,  ALG_OPT_PREINFLATIONX
 ,  ALG_OPT_INFLATE_FIRST
@@ -554,11 +554,11 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "<prefix>"
    ,  "prepend <prefix> to mcl-created output file name"
    }
-,  {  "-pp"
+,  {  "-ceil-nb"
    ,  MCX_OPT_HASARG
-   ,  ALG_OPT_PREPRUNE
+   ,  ALG_OPT_CEILNB
    ,  "<int>"
-   ,  "prune input matrix to at most <int> entries per column"
+   ,  "shrink all neighbourhoods to at most <int>, saving heigh weight edges"
    }
 ,  {  "-pi"
    ,  MCX_OPT_HASARG
@@ -660,6 +660,8 @@ void postprocess
       {  mcxLog(MCX_LOG_MODULE, "mcl", "re-reading matrix to do all kinds of stuff")
       ;  if (STATUS_OK == mclAlgorithmStart(mlp, reread))
          mx = mlp->mx_start
+;if (mlp->tab)
+fprintf(stderr, "postprocess read tab with %d entries: %p\n", (int) N_TAB(mlp->tab), (void*) mlp->tab)
    ;  }
 
                         /* _ NOTE this adds loops, makes stochastic */
@@ -691,7 +693,7 @@ void postprocess
             )
 
          ;  if (doio)
-            {  mcxTingPrint(fn2, "%s-%s", mlp->xfout->fn->str, "orig")
+            {  mcxTingPrint(fn2, "%s-orig", mlp->xfout->fn->str)
             ;  mcxIOnewName(xf2, fn2->str)
             ;  mclxaWrite(cl, xf2, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
             ;  mclvWrite(xf2, mx->dom_cols, lsadj, RETURN_ON_FAIL)
@@ -882,13 +884,11 @@ static void mcl_unshadow_matrix
 )
    {  if (!mx)
       return
-;if(0)fprintf(stderr, "matrix %p sz %d\n", (void*) mx, (int) N_COLS(mx))
    ;  mclxChangeDomains(mx, mclvClone(dom_cols), mclvClone(dom_rows))
    ;  if (!dom_cols)
       {  dim o, m, e
       ;  clmEnstrict(mx, &o, &m, &e, ENSTRICT_KEEP_OVERLAP)
    ;  }
-;if(0)fprintf(stderr, "matrix %p sz %d %d\n", (void*) mx, (int) N_COLS(mx), (int) N_ROWS(mx))
 ;  }
 
 
@@ -899,11 +899,7 @@ static void mcl_unshadow
    {  mclv* dom = mlp->shadow_cache_domain
 
    ;  mcxLog(MCX_LOG_MODULE, "mcl", "removing shadow loops")
-;if(0)fprintf(stderr, "cluster size %dx%d domain size %d\n", (int) N_COLS(cluster), (int) N_ROWS(cluster), (int) dom->n_ivps)
-;if(0){mcxIO* xf = mcxIOnew("-", "w")
-;mclxWrite(cluster, xf, -1, RETURN_ON_FAIL)
-;mcxIOfree(&xf)
-;}
+
    ;  mcl_unshadow_matrix(cluster, NULL, dom)
    ;  mcl_unshadow_matrix(mlp->mx_input, dom, dom)
 
@@ -935,10 +931,12 @@ mcxstatus mclAlgorithm
    ;  dim o, m, e
    ;  mcxbits enstrict_modes = 0
 
-   ;  if (mlp->overlapMode == 's')
+   ;  if (mlp->overlap_mode == 's')
       enstrict_modes |= ENSTRICT_SPLIT_OVERLAP
-   ;  else if (mlp->overlapMode == 'k')
+   ;  else if (mlp->overlap_mode == 'k')
       enstrict_modes |= ENSTRICT_KEEP_OVERLAP
+   ;  else if (mlp->overlap_mode == 'c')
+      enstrict_modes |= ENSTRICT_CUT_OVERLAP
 
    ;  if (mclAlgorithmStart(mlp, FALSE))      /* reread = FALSE */
       {  mcxErr(me, "no jive")
@@ -997,9 +995,9 @@ mcxstatus mclAlgorithm
       )
 
    ;  if (o>0)
-      {  const char* did =    mlp->overlapMode == 'k'
+      {  const char* did =    mlp->overlap_mode == 'k'
                            ?  "kept"
-                           :     mlp->overlapMode == 'r'
+                           :     mlp->overlap_mode == 'c'
                               ?  "removed"
                               :  "split"
       ;  mcxWarn(me, "%s <%lu> instances of overlap", did, (ulong) o)
@@ -1010,11 +1008,11 @@ mcxstatus mclAlgorithm
       mcxWarn(me, "added <%lu> garbage entries", (ulong) m)
 
    ;  if (N_COLS(thecluster) > 1)
-      {  if (mlp->sortMode == 's')
+      {  if (mlp->sort_mode == 's')
          mclxColumnsRealign(thecluster, mclvSizeCmp)
-      ;  else if (mlp->sortMode == 'S')
+      ;  else if (mlp->sort_mode == 'S')
          mclxColumnsRealign(thecluster, mclvSizeRevCmp)
-      ;  else if (mlp->sortMode == 'l')
+      ;  else if (mlp->sort_mode == 'l')
          mclxColumnsRealign(thecluster, mclvLexCmp)
    ;  }
 
@@ -1108,7 +1106,7 @@ void make_output_name
    ;  if (mlp->pre_inflation >= 0.0)
       mcxTingPrintAfter(suf, "pi%.1f", (double) mlp->pre_inflation)
    ;  if (mlp->pre_maxnum)
-      mcxTingPrintAfter(suf, "pp%d", (int) mlp->pre_maxnum)
+      mcxTingPrintAfter(suf, "pn%d", (int) mlp->pre_maxnum)
    ;  if (mlp->center)
       mcxTingPrintAfter(suf, "c%.1f", (double) mlp->center)
    ;  if (mlp->lint_k >= 0)
@@ -1383,11 +1381,12 @@ mcxstatus mclAlgorithmInit
          ;
 
             case ALG_OPT_OVERLAP
-         :  mlp->overlapMode =      !strcmp(opt->val, "split")
-                                 ?  's'
-                                 :     !strcmp(opt->val, "keep")
-                                    ?  'k'
-                                    :  'r'      /* default */
+         :  mlp->overlap_mode
+               =  !strcmp(opt->val, "cut")
+                  ?  'c'
+                  :     !strcmp(opt->val, "keep")
+                     ?  'k'
+                     :  's'      /* default */
          ;  break
          ;
 
@@ -1490,13 +1489,13 @@ mcxstatus mclAlgorithmInit
 
             case ALG_OPT_SORT
          :  if (!strcmp(opt->val, "lex"))
-            mlp->sortMode = 'l'
+            mlp->sort_mode = 'l'
          ;  else if (!strcmp(opt->val, "size"))
-            mlp->sortMode = 's'
+            mlp->sort_mode = 's'
          ;  else if (!strcmp(opt->val, "revsize"))
-            mlp->sortMode = 'S'
+            mlp->sort_mode = 'S'
          ;  else if (!strcmp(opt->val, "none"))
-            mlp->sortMode = 'n'
+            mlp->sort_mode = 'n'
          ;  break
          ;
 
@@ -1563,7 +1562,7 @@ mcxstatus mclAlgorithmInit
          ;  break
          ;
 
-            case ALG_OPT_PREPRUNE
+            case ALG_OPT_CEILNB
          :  i = atoi(opt->val)
          ;  if ((vok = chb(anch->tag, 'i', &i, intGq, &i_1, NULL, NULL)))
             mlp->pre_maxnum = i
@@ -1691,9 +1690,9 @@ static mclAlgParam* mclAlgParamNew
    ;  mlp->transform_spec  =     NULL
    ;  mlp->transform       =     NULL
 
-   ;  mlp->writeMode       =     'a'
-   ;  mlp->sortMode        =     'S'
-   ;  mlp->overlapMode     =     'r'
+   ;  mlp->write_mode      =     'a'
+   ;  mlp->sort_mode       =     'S'
+   ;  mlp->overlap_mode    =     's'
    ;  mlp->fnin            =     mcxTingEmpty(NULL, 10)
    ;  mlp->cline           =     mcxTingEmpty(NULL, 10)
    ;  return mlp
@@ -1917,6 +1916,8 @@ static mclx* mclAlgorithmStreamIn
       {  BIT_OFF(mlp->stream_modes, stream_tab_modes)
       ;  BIT_ON(mlp->stream_modes, MCLXIO_STREAM_GTAB_RESTRICT)
       ;  mcxLog(MCX_LOG_MODULE, "mclAlgorithmStreamIn", "reconstricting matrix")
+;if (mlp->tab)
+fprintf(stderr, "reconstrict tab with %d entries: %p\n", (int) N_TAB(mlp->tab), (void*) mlp->tab)
    ;  }
 
       mx
@@ -1941,9 +1942,18 @@ static mclx* mclAlgorithmStreamIn
 
       if (streamer.tab_sym_out)
       {  mcxLog(MCX_LOG_MODULE, "mcl", "new tab created")
-      ;  mclTabFree(&(mlp->tab))
+;fprintf(stderr, "streamin tab_sym_out %p mlp->tab with  %d entries:\n", (void*) streamer.tab_sym_out, (int) N_TAB(streamer.tab_sym_out))
+      ;  if (!(reread && mlp->tab))
+         mclTabFree(&(mlp->tab))
       ;  mlp->tab = streamer.tab_sym_out
+;fprintf(stderr, "streamin read tab with %d entries: %p\n", (int) N_TAB(mlp->tab), (void*) mlp->tab)
    ;  }
+
+   /*  hierverder: when 'reconstricting' no real new tab is made, apparently.
+    *  !@)#$&@!*(#&@*)#&*) design some interface for this.
+    *  Or adhere to it, if it was designed.
+    *  Or write a wrapper to manage the tabs, if it is hard.
+   */
 
       mlp->mpp->dump_tab = mlp->tab
 
@@ -1966,17 +1976,20 @@ static int mclAlgorithmTransform
       mclxAdjustLoops(mx, mclxLoopCBremove, NULL)
 
    ;  if (mlp->pre_maxnum)
-      {  mclv* sel = mclgMakeSparse(mx, 0, mlp->pre_maxnum)
+      {  dim n_hub = 0, n_out = 0, n_in = 0
+      ;  mclv* sel = mclgCeilNB(mx, mlp->pre_maxnum, &n_hub, &n_in, &n_out)
       ;  mcxLog
          (  MCX_LOG_FUNC
          ,  "mcl"
-         ,  "removed %lu nodes in prepruning step"
+         ,  "considered %lu nodes in prepruning step (%lu needed, %lu edges out, %lu edges in)"
          ,  (ulong) sel->n_ivps
+         ,  (ulong) n_hub
+         ,  (ulong) n_out
+         ,  (ulong) n_in
          )
-      ;  mclvFree(&sel)
       ;  n_ops++
+      ;  mclvFree(&sel)
    ;  }
-
 
       if (mlp->transform)
       {  dim eb = mclxNrofEntries(mx), ea
@@ -1990,11 +2003,7 @@ static int mclAlgorithmTransform
          ,  (ulong) ea
          )
       ;  n_ops++
-;if (0)
- {  mcxIO* xftmp = mcxIOnew("-", "w")
- ;  mclxWrite(mx, xftmp, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
-;}
-      }
+   ;  }
 
 
       if (!reread && (mlp->shadow_mode & MCL_SHADOW_EARLY))
@@ -2005,7 +2014,6 @@ static int mclAlgorithmTransform
          ,  mlp->shadow_s
          )
 
-,fprintf(stderr, "early shadowing\n")
    ;  if (mlp->pre_inflationx > 0)
       {  dim j
       ;  for (j=0;j<N_COLS(mx);j++)
@@ -2020,14 +2028,6 @@ static int mclAlgorithmTransform
             }
          }
          n_ops++
-,fprintf(stderr, "phx\n")
-
-;if(0)
-{  mcxIO* xf = mcxIOnew("-", "w")
-;  mclxWrite(mx, xf, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
-;  mcxIOfree(&xf)
-;
-}
    ;  }
 
       if (!reread && (mlp->modes & ALG_DO_SHADOW))
@@ -2078,7 +2078,8 @@ static int mclAlgorithmTransform
          mclxInflate(mx, mlp->pre_inflation)
       ,  n_ops++
 
-   ;  mlp->mx_start_sums = mclxColNums(mx, mclvSum, MCL_VECTOR_COMPLETE)
+   ;  if (!reread)
+      mlp->mx_start_sums = mclxColNums(mx, mclvSum, MCL_VECTOR_COMPLETE)
 
    ;  mclxMakeStochastic(mx)
    ;  return n_ops

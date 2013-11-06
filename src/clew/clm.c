@@ -12,10 +12,10 @@
 
 #include "clm.h"
 #include "scan.h"
+#include "cat.h"
 
 #include "impala/matrix.h"
 #include "impala/compose.h"
-#include "impala/cat.h"
 
 #include "impala/io.h"        /* debug purposes */
 
@@ -49,7 +49,7 @@ mclx* clmProject
 )
    {  mclx* pr =   mclxSub(cl, cl->dom_cols, dom)
    ;  dim overlap=0, missing=0, empty=0
-   ;  dim total = clmEnstrict(pr, &overlap, &missing, &empty, ENSTRICT_TRULY)
+   ;  dim total = clmEnstrict(pr, &overlap, &missing, &empty, ENSTRICT_SPLIT_OVERLAP)
 
    ;  if (total != empty)
       mcxErr
@@ -260,6 +260,7 @@ mclx* clmMeet
       if (i_clmeet != n_clmeet)
       mcxErr(mepanic, "internal math does not substract")
 
+   ;  mclxFree(&abmeet)
    ;  return clmeet
 ;  }
 
@@ -647,6 +648,7 @@ mclx* clmComponents
    ;  if (!mx || !mclxIsGraph(mx))
       return NULL
 
+                        /* construct a single-column matrix */
    ;  if (!project)
       {  dom = mclxAllocZero
                (mclvInsertIdx(NULL, 0, 1.0), mclvCopy(NULL, mx->dom_rows))
@@ -659,16 +661,20 @@ mclx* clmComponents
    ;  mclgUnionvReset(mx)
 
    ;  for (c=0;c<N_COLS(dom);c++)
-      {  mclv* clvec = mclvClone(dom->cols+c)
-      ;  mclv* wave2 = NULL
+      {  mclv* domvec = mclvClone(dom->cols+c)
+      ;  mclv* wave2  = NULL
+      ;  mclvMakeCharacteristic(domvec)         /* important, we use values as sentinels   */
 
-      ;  for (d=0;d<clvec->n_ivps;d++)
-         {  long cidx = clvec->ivps[d].idx
+      ;  for (d=0;d<domvec->n_ivps;d++)
+         {  long cidx = domvec->ivps[d].idx     /* consider all neighbours of list c node */
 
-         ;  if (clvec->ivps[d].val > 1.5)
-            continue
+         ;  if (domvec->ivps[d].val > 1.5)
+            {  if (0) fprintf(stdout, "skip %d\n", (int) cidx)
+            ;  continue
+         ;  }
 
-         ;  if (n_cls == N_COLS(coco))
+                                                /* fixme finish computation, escalate error */
+            if (n_cls == N_COLS(coco))
             mcxDie(1, "mclcComponents", "ran out of space, fix me")
 
          ;  mclvInsertIdx(coco->cols+n_cls, cidx, 1.0)
@@ -677,16 +683,16 @@ mclx* clmComponents
          ;  wave1 = mclvCopy(wave1, coco->cols+n_cls)
 
          ;  while (wave1->n_ivps)
-            {  wave2 = mclgUnionv(mx, wave1, clvec, SCRATCH_UPDATE, NULL)
+            {  wave2 = mclgUnionv(mx, wave1, domvec, SCRATCH_UPDATE, NULL)
             ;  mcldMerge(wave2, coco->cols+n_cls, coco->cols+n_cls)
                      /* fixme; consider getting rid of merge */
             ;  mclvFree(&wave1)
             ;  wave1 = wave2
          ;  }
-            mclvUpdateMeet(clvec, coco->cols+n_cls, fltAdd)
+            mclvUpdateMeet(domvec, coco->cols+n_cls, fltAdd)
          ;  n_cls++
       ;  }
-         mclvFree(&clvec)
+         mclvFree(&domvec)
    ;  }
 
       if (!project)

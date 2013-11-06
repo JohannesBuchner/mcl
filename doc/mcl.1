@@ -1,5 +1,5 @@
-.\" Copyright (c) 2008 Stijn van Dongen
-.TH "mcl" 1 "7 Nov 2008" "mcl 1\&.008, 08-312" "USER COMMANDS "
+.\" Copyright (c) 2009 Stijn van Dongen
+.TH "mcl" 1 "2 Feb 2009" "mcl 1\&.008, 09-033" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -245,7 +245,7 @@ for those who are interested, so it has many options\&.
 \fB[-pi\fP f (\fIpre-inflation\fP)\fB]\fP
 \fB[-ph\fP f (\fIpre-inflation, max-bound\fP)\fB]\fP
 \fB[-if\fP f (\fIstart-inflation\fP)\fB]\fP
-\fB[-pp\fP n (\fIpreprune count\fP)\fB]\fP
+\fB[-ceil-nb\fP n (\fIreduce neighbourhods\fP)\fB]\fP
 \fB[--discard-loops=\fPy/n (\fIdiscard y/n loops in input\fP)\fB]\fP
 
 \fBClustering result options\fP
@@ -839,10 +839,9 @@ own sound judgment on the other hand\&.
 
 If your input graph is extremely dense, with an average node degree
 (i\&.e\&. the number of neighbours per node) that is somewhere above
-500, you may need to filter the input graph by removing the nodes
-of highest degree (and projecting them back onto the resulting
-clustering afterwards) or by using the
-\fB-pp\fP option\&.
+500, you may need to filter the input graph by removing edges,
+for example by using the
+\fB-ceil-nb\fP option\&.
 .in -3m
 
 .ZI 3m "\fB-lint-k\fP <numk> (\fIcluster size assimilation threshold\fP)"
@@ -1332,17 +1331,18 @@ map matrices onto clusterings\&.
 .ZI 3m "\fB-overlap\fP str (\fIoverlap mode\fP)"
 \&
 .br
-Mode \fIkeep\fP causes mcl to retain overlap
-should this improbable event occur\&. In theory, \fBmcl\fP may generate a
-clustering that contains overlap, although this almost never happens
-in practice, as it requires some particular type of symmetry to be present
-in the input graph (not just any symmetry will do)\&. Mathematically
-speaking, this is a conjecture and not a theorem, but the present author wil
-eat his shoe if it fails to be true (for marzipan values of shoe)\&. It is
-easy though to construct an input graph for which certain mcl settings
-result in overlap - for example a line graph on an odd number of nodes\&. The
-default is to remove overlap should it occur, corresponding with mode
-\fIremove\fP\&.
+Mode \fIkeep\fP causes mcl to retain overlap should this improbable event
+occur\&. In theory, \fBmcl\fP may generate a clustering that contains overlap,
+although this almost never happens in practice, as it requires some
+particular type of symmetry to be present in the input graph (not just any
+symmetry will do)\&. Mathematically speaking, this is a conjecture and not a
+theorem, but the present author wil eat his shoe if it fails to be true (for
+marzipan values of shoe)\&. It is easy though to construct an input graph for
+which certain mcl settings result in overlap - for example a line graph on
+an odd number of nodes\&. The default is to excise overlapping parts and
+introduce them as clusters in their own right\&. It is possible to allocate
+nodes in overlap to the first cluster in which they occur (i\&.e\&. rather
+arbitrarily), corresponding with mode \fIcut\fP\&.
 
 In mode \fIsplit\fP mcl will put all nodes in overlap into
 separate clusters\&. These clusters are chosen such that
@@ -1423,12 +1423,16 @@ Shows the log with process characteristics on STDOUT\&.
 By default, this mode is off\&.
 .in -3m
 
-.ZI 3m "\fB-pp\fP n (\fIpreprune count\fP)"
+.ZI 3m "\fB-ceil-nb\fP N (\fIpreprune count\fP)"
 \&
 .br
-For each column vector (node) in the input matrix (graph) \fBmcl\fP will
-keep the n entries (outgoing edges) of that vector (node) that
-have largest weight and remove the rest\&.
+The nodes of the input graph are considered in descending order of the
+number of neighbours they posses\&. The first nodes has it neighbours of
+lowest edge weight removed until no more than \fBN\fP remain\&. The
+corresponding reciprocal edges from nodes further down the list are removed
+as well\&. Subsequent nodes are treated in the same way until all nodes in
+the graph have at most \fBN\fP neighbours\&. This may be considered a poor
+man\&'s hub removal\&.
 .in -3m
 
 .ZI 3m "\fB--jury-charter\fP (\fIexplains jury\fP)"

@@ -45,7 +45,6 @@
 #include "util/compile.h"
 
 #include "impala/matrix.h"
-#include "impala/cat.h"
 #include "impala/vector.h"
 #include "impala/io.h"
 #include "impala/compose.h"
@@ -53,6 +52,7 @@
 #include "impala/app.h"
 
 #include "clew/clm.h"
+#include "clew/cat.h"
 
 static const char* me = "clmorder";
 

@@ -2,7 +2,7 @@
 
 use Getopt::Long;
 
-# (c) Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008 Stijn van Dongen
+# (c) Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Stijn van Dongen
 # (c) Copyright 2004 Jason Stajich (column output parsing)
 #
 # Other (C)ontributors;

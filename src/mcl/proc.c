@@ -18,10 +18,10 @@
 #include "procinit.h"
 
 #include "clew/clm.h"
+#include "clew/cat.h"
 
 #include "impala/io.h"
 #include "impala/matrix.h"
-#include "impala/cat.h"
 
 #include "util/ting.h"
 #include "util/err.h"
@@ -173,10 +173,10 @@ mclMatrix*  mclProcess
       ;  if (log_gauge)
          {  for (i=0;i<n_cols/mxp->vectorProgression;i++)
             fputc('-', fplog)
-         ;  fputs("  chaos  time", fplog)
+         ;  fputs("  chaos  time hom(avg,lo,hi)", fplog)
       ;  }
          if (log_stats)
-         fputs("   E/V        cls       olap  dd", fplog)
+         fputs("   E/V  dd    cls   olap avg", fplog)
       ;  fputc('\n', fplog)
    ;  }
 
@@ -387,7 +387,11 @@ int doIteration
       {  dim o, m, e
       ;  mclMatrix* dag  = mclDag(*mxout, mpp->ipp)
       ;  mclMatrix* clus = mclInterpret(dag)
+      ;  dim clm_stats[N_CLM_STATS]
       ;  int dagdepth = mclDagTest(dag)
+
+      ;  clmStats(clus, clm_stats)
+
 #if 0
 ;mcxIO *xfstdout = mcxIOnew("-", "w")
 #endif
@@ -395,16 +399,21 @@ int doIteration
       ;  if (log_stats)
          fprintf
          (  fplog
-         ,  "%6.0f %10lu %10lu %3d"
+         ,  "%6.0f %2d %7lu %6lu %3.1f"
          ,     N_COLS(*mxout)
             ? (double) mclxNrofEntries(*mxout) / N_COLS(*mxout)
             :  0.0
-         ,  (ulong) N_COLS(clus)
-         ,  (ulong) o
          ,  dagdepth
+         ,  (ulong) clm_stats[CLM_STAT_CLUSTERS]
+         ,  (ulong) clm_stats[CLM_STAT_NODES_OVERLAP]
+         ,  (double)
+               (  clm_stats[CLM_STAT_NODES_OVERLAP]
+               ?  clm_stats[CLM_STAT_SUM_OVERLAP] * 1.0 / clm_stats[CLM_STAT_NODES_OVERLAP]
+               :  0.0
+               )
          )
       ;  if (m+e)
-         fprintf(fplog, " [!%lu]", (ulong) (m+e))
+         fprintf(fplog, " [!m=%lu e=%lu]", (ulong) m, (ulong) e)
 #if 0
 ;if (o)
 mclxWrite(*mxout, xfstdout, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)

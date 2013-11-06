@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!-- Copyright (c) 2008 Stijn van Dongen -->
+<!-- Copyright (c) 2009 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <meta name="keywords" content="manual">
@@ -11,10 +11,10 @@ color: #001111;
 background: white;
 margin-left: 8%;
 margin-right: 8%;
-font-family: Helvetica, Univers, Verdana, sans-serif;
+font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 p.default {
-font-family: Helvetica, Univers, Verdana, sans-serif;
+font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 text-align: justify;
 }
 p.L53 { font-size: 30pt; }
@@ -25,15 +25,19 @@ p.L49 { font-size: 10pt; }
 p.L48 { font-size: 9pt; }
 p.L47 { font-size: 8pt; }
 td {
-font-family: Helvetica, Univers, Verdana, sans-serif;
+font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 text-align: justify;
 }
 h3 { margin-top:1em; }
 h2 { margin-top:2em; }
-.left { text-align: left; align: left; }
-.right { text-align: right; align: right; }
-.center { text-align: center; align: center; }
+.itembullet { font-size: 10pt; }
+.left { text-align: left; }
+.right { text-align: right; }
+.center { text-align: center; }
 .nowrap { white-space: nowrap; }
+.item { font-size: 12pt;
+text-align: justify;
+}
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -70,27 +74,27 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-7 Nov 2008&nbsp;&nbsp;&nbsp;
+2 Feb 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxi.ps"><b>mcx</b></a>
-1.008, 08-312
+1.008, 09-033
 </p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=48 valign="top" class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr valign="baseline"><td width=48 class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr><td width=48 valign="top" class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr><td width=48 valign="top" class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr><td width=48 valign="top" class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#operators">OPERATORS</a>
-</div></td></tr><tr><td width=48 valign="top" class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#index">INDEX</a>
-</div></td></tr><tr><td width=48 valign="top" class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#author">AUTHOR</a>
-</div></td></tr><tr><td width=48 valign="top" class="left nowrap">7.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">7.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#seealso">SEE ALSO</a>
 </div></td></tr>
 </table>
@@ -234,79 +238,79 @@ that a string "foo" is entered as <tt>/foo</tt> in <b>mcx</b>.
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td colspan=3><b>help</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr valign="baseline"><td colspan=3><b>help</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <b>help</b> with no arguments prints a descriptory line for each primitive.
 Can only be used at bottom of stack.
 Alias: <b>h</b>.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>/str</tt> <b>help</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><tt>/str</tt> <b>help</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <b>help</b> with argument <tt>/str</tt> prints a descriptive line for the
 primitive named <tt>str</tt>. The string must be identical to the primitive's
 name, or help will not show anything. Alias: <b>h</b>.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>/str</tt> <b>grep</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><tt>/str</tt> <b>grep</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Prints each descriptive line in which the string str occurs (literally).
 So <tt>/matrix grep</tt> should produce a lot of matrix related
 primitives (although it may miss generic primitives such as <b>add</b>
 and <b>mul</b>). At bottom of stack, prints all descriptive lines.
 Alias: <b>g</b>.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>ops</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><b>ops</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Lists all primitives and aliases concisely in a paragraph.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>list</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><b>list</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Lists the contents of the operand stack.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>info</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><b>info</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Lists the top element of the operand stack.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;int&gt;</tt> <b>tell</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><tt>&lt;int&gt;</tt> <b>tell</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Lists the top <tt>&lt;int&gt;</tt> elements of the operand stack.
 The trio of <b>list</b>, <b>info</b>, and <b>tell</b>
 is perhaps overdoing it slightly, but anyway there it is.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>vars</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><b>vars</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Lists all variables currently bound.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;obj&gt;</tt> <tt>&lt;var&gt;</tt> <b>def</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><tt>&lt;obj&gt;</tt> <tt>&lt;var&gt;</tt> <b>def</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Bind <tt>&lt;obj&gt;</tt> to <tt>&lt;var&gt;</tt>. Redefinition is allowed.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;var&gt;</tt> <b>free</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><tt>&lt;var&gt;</tt> <b>free</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Break the binding between <tt>&lt;var&gt;</tt> and the object it currently binds,
 and remove object.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>unlink</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><b>unlink</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Break the binding between <tt>&lt;var&gt;</tt> and the object it currently binds,
 and push object on the stack.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;int&gt; &lt;block1&gt; &lt;block2&gt;</tt> <b>ifelse</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><tt>&lt;int&gt; &lt;block1&gt; &lt;block2&gt;</tt> <b>ifelse</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 If <tt>&lt;int&gt;</tt> is nonzero execute <tt>&lt;block1&gt;</tt>,
 otherwise execute <tt>&lt;block2&gt;</tt>.
 The equate operators <b>lt</b>, <b>lq</b>, <b>eq</b>, <b>gq</b>, and <b>gt</b>
 can be used to leave an <tt>&lt;int&gt;</tt> on the stack.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;block&gt;</tt> <b>do</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><tt>&lt;block&gt;</tt> <b>do</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Execute <tt>&lt;block&gt;</tt> (one time).
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;int&gt; &lt;block&gt;</tt> <b>repeat</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><tt>&lt;int&gt; &lt;block&gt;</tt> <b>repeat</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Execute <tt>&lt;block&gt;</tt> <tt>&lt;int&gt;</tt> times.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;block1&gt; &lt;block2&gt;</tt> <b>while</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><tt>&lt;block1&gt; &lt;block2&gt;</tt> <b>while</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 This primitive repeatedly executes the <i>condition</i> <tt>&lt;block1&gt;</tt>,
 <i>which must push an integer each time it is executed</i>. Each time, the
 pushed integer is popped. If it was non-zero, <tt>&lt;block2&gt;</tt> is executed,
 <tt>&lt;block1&gt;</tt> is executed, and the cycle continues. If it was zero,
 <b>while</b> is done.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>pop</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><b>pop</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Pops one element off of the stack.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>exch</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><b>exch</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Exchanges the top two elements of the stack.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>dup</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><b>dup</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Duplicates the top element and pushes the duplicate onto the stack. In case
 of a variable, the name is duplicated and not the object it points to. In
 case of anonymous matrices and strings (and whatever other (composite)
 objects may emerge), a <i>deep copy</i> is made that is completely independent
 of the original object.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;int&gt;</tt> <b>mdup</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><tt>&lt;int&gt;</tt> <b>mdup</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Duplicates the top <tt>&lt;int&gt;</tt> elements. See the <b>dup</b> entry
 above for the semantics of duplication. I wrote <b>mdup</b> because
 I thought some other operator needed it, which turned out to be false.
 In the meantime, I became very much attached to <b>mdup</b>,
 so mail me if you think you have any useful use for it.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>copy</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><b>copy</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Copies the top element and pushes the copy onto the stack.
 In case of a variable, copies the object associated with the variable
 rather than the variable's name (as <b>dup</b> would do).
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><tt>&lt;int1&gt; &lt;int2&gt;</tt> <b>roll</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><tt>&lt;int1&gt; &lt;int2&gt;</tt> <b>roll</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Shift <tt>&lt;int1&gt;</tt> objects cyclically <tt>&lt;int2&gt;</tt> times to the right
 if <tt>&lt;int2&gt;</tt> is positive, to the left otherwise.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>clear</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><b>clear</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 Empty the stack. All objects bound to variables are unaffected.
 </div></td></tr>
 </table>

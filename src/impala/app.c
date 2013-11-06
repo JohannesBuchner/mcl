@@ -12,6 +12,7 @@
 #include "app.h"
 #include "io.h"
 #include "version.h"
+#include "iface.h"
 
 #include "util/ting.h"
 #include "util/err.h"
@@ -53,7 +54,10 @@ void mclxSetInterchangeIO
 void mclx_app_init
 (  FILE* fp
 )
-   {  mcxLogSetFILE(fp, TRUE)
+   {  const char* envp  =  getenv("NU_MAGIC")
+   ;  mcxLogSetFILE(fp, TRUE)
+   ;  if (envp)
+      nu_magic = atof(envp)
 ;  }
 
 

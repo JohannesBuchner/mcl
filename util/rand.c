@@ -1,4 +1,4 @@
-/*   (C) Copyright 2004, 2005, 2006, 2007 Stijn van Dongen
+/*   (C) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Stijn van Dongen
  *
  *   (C) Ziggurat method Copyright 2005 Jochen Voss.
  *

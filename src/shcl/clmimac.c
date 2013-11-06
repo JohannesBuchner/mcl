@@ -28,13 +28,13 @@
 #include "util/compile.h"
 
 #include "impala/matrix.h"
-#include "impala/cat.h"
 #include "impala/vector.h"
 #include "impala/ivp.h"
 #include "impala/io.h"
 #include "impala/app.h"
 
 #include "clew/clm.h"
+#include "clew/cat.h"
 
 #include "mcl/interpret.h"
 
@@ -47,17 +47,17 @@ enum
 ,  MY_OPT_IMX
 ,  MY_OPT_DAG
 ,  MY_OPT_STRICT
-,  MY_OPT_ENSTRICT
+,  MY_OPT_OVERLAP
 ,  MY_OPT_SORT
 }  ;
 
 
 static mcxOptAnchor imacOptions[] =
-{  {  "--enstrict"
-   ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_ENSTRICT   
-   ,  NULL
-   ,  "clean up clustering if not a partition"
+{  {  "-overlap"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_OVERLAP   
+   ,  "<cut|keep|split>"
+   ,  "cut, keep, or split overlap (default keep)"
    }
 ,  {  "-o"
    ,  MCX_OPT_HASARG
@@ -94,7 +94,7 @@ static mcxOptAnchor imacOptions[] =
 
 
 static mcxIO*  xfout    =  (void*) -1;
-mcxbool keep_overlap    =  -1;
+mcxbits overlap_mode    =  -1;
 mcxIO* xfdag            =  (void*) -1;
 mcxIO* xfmx             =  (void*) -1;
 const char* sortmode    =  (void*) -1;
@@ -106,7 +106,7 @@ static mcxstatus imacInit
 )
    {  xfout          =  mcxIOnew("-", "w")
    ;  xfmx           =  NULL
-   ;  keep_overlap   =  TRUE
+   ;  overlap_mode   =  ENSTRICT_KEEP_OVERLAP
    ;  xfdag          =  NULL
    ;  sortmode       =  "revsize"
    ;  strict         =  0.001
@@ -118,8 +118,14 @@ static mcxstatus imacArgHandle
 ,  const char* val
 )
    {  switch(optid)
-      {  case MY_OPT_ENSTRICT
-      :  keep_overlap = FALSE
+      {  case MY_OPT_OVERLAP
+      :  overlap_mode
+         =     !strcmp(val, "cut")
+            ?  ENSTRICT_CUT_OVERLAP
+            :     !strcmp(val, "split")
+               ?  ENSTRICT_SPLIT_OVERLAP
+               :  ENSTRICT_KEEP_OVERLAP
+
       ;  break
       ;
 
@@ -167,7 +173,6 @@ static mcxstatus imacMain
 )
    {  mclInterpretParam* ipp  =  mclInterpretParamNew()
 
-   ;  mcxbits  flags =  0
    ;  dim o = 0, m = 0, e = 0
 
    ;  mclx *mx = NULL, *dag = NULL, *cl = NULL
@@ -182,22 +187,40 @@ static mcxstatus imacMain
    ;  mclxMakeStochastic(mx)
    ;  mcxIOfree(&xfmx)
 
-   ;  dag   =  mclDag(mx, ipp)
-   ;  mclxFree(&mx)
+   ;  dag = mclDag(mx, ipp)
+
+   ;  if (1)
+      {  dim j
+      ;  mclxMakeStochastic(dag)
+      ;  for (j=0;j<N_COLS(dag);j++)
+         mclvSelectGqBar(dag->cols+j, 1.0 / (dag->cols[j].n_ivps + 1))
+   ;  }
+      mclxFree(&mx)
    ;  cl    =  mclInterpret(dag)
+
+;  {  mclx* cltp = mclxTranspose(cl)
+   ;  dim x
+   ;  for (x=0;x<N_COLS(cltp);x++)
+      if (!cltp->cols[x].n_ivps)
+      fprintf(stderr, "hey %lu\n", (ulong) x)
+;  }
+
    ;  mclDagTest(dag)
 
    ;  if (xfdag)
       mclxWrite(dag, xfdag, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
    ;  mclxFree(&dag)
 
-   ;  if (keep_overlap)
-      flags |= ENSTRICT_KEEP_OVERLAP
+   ;  {  const char* did
+         =     (overlap_mode & ENSTRICT_CUT_OVERLAP)
+            ?  "cut"
+            :     (overlap_mode & ENSTRICT_SPLIT_OVERLAP)
+               ?  "split"
+               :  "kept"
 
-   ;  {  const char* did = keep_overlap ? "found" : "removed"
       ;  mcxIOopen(xfout, EXIT_ON_FAIL)
 
-      ;  clmEnstrict(cl, &o, &m, &e, flags)
+      ;  clmEnstrict(cl, &o, &m, &e, overlap_mode)
       ;  if (o)
          mcxTell(me, "%s <%lu> instances of overlap", did, (ulong) o)
       ;  if (m)

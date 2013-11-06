@@ -37,7 +37,6 @@
 *  Movement for Canadian Literacy
 *  Movement for Compassionate Living
       "aims: To spread the vegan message and promote simple living (..)"
-*  Movement for Compassionate Living
 *  Moving Contact Lubricant
 *  Mothers for Community Life
 *  Macrophage C-type Lectin (gene, mouse)
@@ -48,8 +47,8 @@
 *  Modern and Classical Languages
 *  Management, Communication [and] Leadership [program at Concordia University]
 *  Maximum Contaminant Level
-*  Marine Corps Leage
-*  Militant Clerics Leage
+*  Marine Corps League
+*  Militant Clerics League
 *  Music Cognition Lab
 *  Microbial Colony Language
 *  Manual for Complex Litigation
@@ -96,12 +95,12 @@
 *  Management Control Layer
 *  Laboratorio Multimediale [di] Comunicazione
 *  Microwave Characterization Lab
-*  Mid Continent Leage
+*  Mid Continent League
 *  Maximum Concentration Level
 *  Medical Care Law
 *  Michigan Compiled Laws
 *  Masters of Comparative Law
-*  MASTER OF COMMON LAW
+*  Master Of Common Law
 *  Microprocessor Controlled Laser
 *  Milliken's Creek Lodge
 *  MultiChannel Learning (Center)
@@ -115,9 +114,8 @@
 *  McCullough Campbell & Lane 
 *  Merrydown Controlware Limited
 *  Marine Communications Limited
-*  Module Creation Language
 *  Mechanical Components Limited
-*  MORTGAGE CREDIT LINK
+*  Mortgage Credit Link
 *  Medical College of London
 *  Mitsubishi Colt Lancer IG 
 *  Madras Cements Limited

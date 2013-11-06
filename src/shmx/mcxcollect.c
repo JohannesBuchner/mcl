@@ -38,6 +38,7 @@
 
 enum
 {  MY_OPT_TAB = MCX_DISP_UNUSED
+,  MY_OPT_SUMMARY
 }  ;
 
 
@@ -48,15 +49,23 @@ mcxOptAnchor collectOptions[] =
    ,  "<fname>"
    ,  "specify tab file to map collect indices to labels, if appropriate"
    }
+,  {  "--summary"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_SUMMARY
+   ,  NULL
+   ,  "as final step output maximum, median, minimum, and average"
+   }
 ,  {  NULL, 0, MCX_DISP_UNUSED, NULL, NULL }
 }  ;
 
-static  mcxIO* xftab_g     =   (void*) -1;
+static   mcxIO* xftab_g       =   (void*) -1;
+static   mcxmode  summary_g   =   -1;
 
 static mcxstatus collectInit
 (  void
 )
    {  xftab_g        =  NULL
+   ;  summary_g      =  0
    ;  return STATUS_OK
 ;  }
 
@@ -70,7 +79,12 @@ static mcxstatus collectArgHandle
       :  xftab_g = mcxIOnew(val, "r")
       ;  break
       ;
-         
+
+         case MY_OPT_SUMMARY
+      :  summary_g = 1
+      ;  break
+      ;
+
          default
       :  mcxExit(1) 
       ;
@@ -84,6 +98,12 @@ typedef struct
 ;  double      val
 ;
 }  aggr        ;
+
+
+int aggr_cmp(const void* a1, const void* a2)
+   {  const aggr* ag1 = a1, *ag2 = a2
+   ;  return ag1->val > ag2->val ? 1 : ag1->val < ag2->val ? -1 : 0
+;  }
 
 
 static dim do_a_file
@@ -159,6 +179,7 @@ static mcxstatus collectMain
    ;  int a
    ;  dim i, collect_n = 0
    ;  mclTab* tab = NULL
+   ;  double avg = 0.0
   /*  mcxHash* map = NULL */
 
    ;  if (xftab_g)
@@ -171,11 +192,13 @@ static mcxstatus collectMain
    ;  if (argc)
       collect_n = do_a_file(&collect, argv[0], 0)
 
-   ;  if (collect_n != N_TAB(tab))
+   ;  if (tab && collect_n != N_TAB(tab))
       mcxErr("mcx collect", "tab has differing size, continuing anyway")
 
    ;  for (a=1;a<argc;a++)
       do_a_file(&collect, argv[a], collect_n)
+
+   /* fimxe: dispatch on binary_g */
 
    ;  for (i=0;i<collect_n;i++)
       {  const char* lb = collect[i].label
@@ -185,7 +208,23 @@ static mcxstatus collectMain
          ;  if (TAB_IS_NA(tab, lb))
             mcxDie(1, "mcx collect", "no label found for index %ld - abort", (long) u)
       ;  }
+         if (summary_g)
+         avg += collect[i].val
+      ;  else
          fprintf(stdout, "%s\t%g\n", lb, collect[i].val)
+   ;  }
+      if (summary_g && collect_n)
+      {  dim middle1 = (collect_n-1)/2, middle2 = collect_n/2
+      ;  qsort(collect, collect_n, sizeof collect[0], aggr_cmp)
+      ;  avg /= collect_n
+      ;  fprintf
+         (  stdout
+         ,  "%g %g %g %g\n"
+         ,  collect[0].val
+         ,  (collect[middle1].val + collect[middle2].val) / 2
+         ,  collect[collect_n-1].val
+         ,  avg
+         )
    ;  }
       return STATUS_OK
 ;  }

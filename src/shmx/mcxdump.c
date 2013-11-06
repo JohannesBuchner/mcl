@@ -25,7 +25,6 @@
 #include "impala/io.h"
 #include "impala/tab.h"
 #include "impala/iface.h"
-#include "impala/cat.h"
 #include "impala/app.h"
 
 #include "util/io.h"
@@ -33,6 +32,8 @@
 #include "util/err.h"
 #include "util/opt.h"
 #include "util/minmax.h"
+
+#include "clew/cat.h"
 
 const char* me = "mcxdump";
 const char* sep_lead_g = "\t";

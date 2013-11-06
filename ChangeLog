@@ -1,4 +1,41 @@
 
+   *  Analysis modes and lint modes would crash when combined with --abc.
+      Bug reported by David MacIver, now fixed.
+
+   *  The interpretation routines were rewritten to be more compact
+      and at a somewhat higher-level of expressiveness, and and should
+      accordingly be more understandable, maintanable, and extensible. They
+      might have new bugs too.
+
+   *  mcl and 'mcx alter' and 'mcx erdos' have acquired an option
+      to remove edges of lowest weight from highly connected nodes.
+
+   *  'mcx erdos' can now read label input with the -abc <fname> option.
+
+   *  Added -ceil-nb <num> (cap neighbours) option to remove edges with
+      lowest weight from nodes with more than <num> edges.  Consider it a poor
+      man's hub removal. Edges are removed in both directions, starting with
+      nodes that have the most neighbours and going down the list.  This option
+      should help in obtaining more balanced clusterings.  It reduces the
+      impact of sticky (having many neighbours) nodes, which generally have the
+      effect of pulling in many nodes, contributing to large clusters.
+      Breaking up those clusters otherwise requires increased inflation, which
+      increases cluster granularity throughout the entire graph.  The -ceil-nb
+      option encodes a localized approach that should take the stick out of
+      sticky nodes.
+
+   *  The output format of 'mcx erdos' was streamlined to some extent.
+      It is now in a pseudo s-expression syntax.  mcx erdos can also read
+      label input with the customary -abc option.  In interactive mode it is
+      possible to transform a graph in various ways, and additionally, to
+      reread the graph from file.
+
+   *  Option -pp <num> (simple pre-pruning mode) has been removed seeing
+      that -ceil-nb should do a better job.
+
+   *  mcx has a new mode, 'alter'. Currently supports -ceil-nb similar
+      as above.
+
 Fri, 07 Nov 2008
 
    *  mcl-08-312 released (fixes bug in mcxdeblast).

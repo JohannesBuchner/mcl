@@ -16,10 +16,10 @@
 
 #include "scan.h"
 #include "clm.h"
+#include "cat.h"
 
 #include "impala/matrix.h"
 #include "impala/compose.h"
-#include "impala/cat.h"
 #include "impala/pval.h"
 #include "impala/io.h"        /* likely just for debugging purposes  */
 
@@ -608,6 +608,7 @@ dim clmAdjust
       ,  (ulong) dist_adj_curr
       )
 
+   ;  mclxColumnsRealign(cl, mclvSizeRevCmp)
    ;  return sum_adjusted
 ;  }
 

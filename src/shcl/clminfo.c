@@ -30,7 +30,6 @@
 #include "clminfo.h"
 
 #include "impala/matrix.h"
-#include "impala/cat.h"
 #include "impala/vector.h"
 #include "impala/io.h"
 #include "impala/app.h"
@@ -40,6 +39,7 @@
 #include "clew/claw.h"
 #include "clew/scan.h"
 #include "clew/clm.h"
+#include "clew/cat.h"
 
 #include "mcl/interpret.h"
 
@@ -276,7 +276,7 @@ static mcxstatus infoMain
 
                /* fixme: should be some general transform option */
       if (preprune)
-      {  mclv* sel = mclgMakeSparse(mx, 0, preprune)
+      {  mclv* sel = mclgUnlinkNodes(mx, 0, preprune)
       ;  mclvFree(&sel)
       ;  mcxTingPrintAfter(ginfo, "preprune=%df\n", (int) preprune)
    ;  }

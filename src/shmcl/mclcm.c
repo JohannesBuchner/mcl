@@ -47,12 +47,9 @@
 #include <signal.h>
 #include <time.h>
 
-
-#include "../../config.h"
-
+#include "../../config.h"        /* needed for MCL_HELPFUL_REMINDER */
 
 #include "impala/matrix.h"
-#include "impala/cat.h"
 #include "impala/vector.h"
 #include "impala/io.h"
 #include "impala/stream.h"
@@ -62,6 +59,7 @@
 #include "impala/app.h"
 
 #include "clew/clm.h"
+#include "clew/cat.h"
 
 #include "util/types.h"
 #include "util/ding.h"
@@ -547,7 +545,7 @@ static void integrate_results
 (  mclxCat* cat
 )
    {  dim i
-   ;  qsort(cat->level, 1, sizeof(mclxAnnot), annot_cmp_coarse_first)
+   ;  qsort(cat->level, cat->n_level, sizeof(mclxAnnot), annot_cmp_coarse_first)
    ;  for (i=1;i<cat->n_level;i++)
       {  mclx* meet = clmMeet(cat->level[i-1].mx, cat->level[i].mx)
       ;  mclxFree(&(cat->level[i].mx))
@@ -929,13 +927,17 @@ int main
       clctrl = mclxRead(xfctrl, EXIT_ON_FAIL)
    ;
 
-                     /*
-                      * Below: compute cl and mxbase.
-                     */
+                        /*
+                         * Below: compute cl and mxbase.
+                        */
    ;  if (xfcl)
       {  cl = mclxRead(xfcl, EXIT_ON_FAIL)
       ;  write_clustering
          (cl, NULL, xfcone, xfstack, plexprefix, multiplex_idx++, NULL)
+
+      ;  if (subcluster_g || dispatch_g)
+         mclxCatPush(&stck_g, cl, NULL, NULL, mclxCBdomStack, NULL)
+
       ;  mcxIOfree(&xfcl)
       ;  if (!b1opts && !b2opts)
          b1opts = ""

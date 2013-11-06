@@ -94,7 +94,7 @@
    }
 
 \begin{itemize}{
-   {mark}{\*{bullet}}
+   {mark}{\*{itembullet}}
    {compact}{1}
    {align}{right}
 }
@@ -208,7 +208,7 @@
    }
 
 \begin{itemize}{
-   {mark}{\*{bullet}}
+   {mark}{\*{itembullet}}
    {compact}{1}
    {align}{right}
 }

@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -8,9 +8,18 @@
 */
 
 
+/* NOTE
+ *    the mclx data structure is quite alright. the interfaces
+ *    around it could do with some cleaning  up.
+ *    There is probably some overlap, some dead code, and some
+ *    very infrequently used code.
+*/
+
 /* TODO
- *    Unify select routines, mclgMakeSparse.
+ *    Unify select routines, mclgUnlinkNodes.
  *    Unify mclxColNums as mclxColSelect ?
+ *    Split off mclg graph-type routines
+ *    Split off stack routines
  *
  *    make callback/accumulator mechanism to obtain characteristic
  *    vectors for matrix (columns sum, max, self value).
@@ -20,6 +29,8 @@
  *
  *    cut down on subroutines. unify mclxAccomodate and mclxAllocClone
  *    and possibly others.
+ *
+ *    Move stack routines somewhere else.
 */
 
 
@@ -27,6 +38,7 @@
 #define impala_matrix_h
 
 #include <stdio.h>
+#include <stdarg.h>
 
 #include "ivp.h"
 #include "vector.h"
@@ -146,6 +158,23 @@ mclx* mclxCartesian
 )  ;
 
 
+   /* Capabilities could be added to interface; for example
+    * requirement that the domain be canonical.
+    * OTOH, that could be a dedicated routine.
+   */
+mclx* mclxCollectVectors
+(  mclv* domain       /* allowed to be NULL, otherwise ownership taken */
+,  dim   vid          /* starting vid in new matrix */
+,  ...                /* pointers to vectors to be copied */
+)  ;
+
+
+void mclxAppendVectors
+(  mclx* mx
+,  ...                /* pointers to vectors to be copied */
+)  ;
+
+
 /*    All arguments remain owned by caller.  The select domains need not be
  *    subdomains of the matrix domains.  They can take any form; mclxSub will
  *    do the appropriate thing (keeping those entries that are in line with the
@@ -200,7 +229,7 @@ mclx*  mclxExtSub
  *    Make sure that mx domains include dom_cols and dom_rows
 */
 
-void mclxAccomodate
+void mclxAccommodate
 (  mclx* mx
 ,  const mclv* dom_cols
 ,  const mclv* dom_rows
@@ -295,6 +324,12 @@ void mclxFree
 )  ;
 
 
+void mclxTransplant
+(  mclx* dst
+,  mclx** src      /* will be freed */
+)  ;
+
+
 void mclxScaleDiag
 (  mclx* mx
 ,  double fac
@@ -322,10 +357,24 @@ void mclxMakeStochastic
        * Returns the domain that was kept (note that domains of m
        * are not touched)
       */
-mclv* mclgMakeSparse
+mclv* mclgUnlinkNodes
 (  mclMatrix* m
 ,  dim        sel_gq
 ,  dim        sel_lq
+)  ;
+
+      /* Prunes highly-connected nodes to take only the neighbours with
+       * highest weights, starting from most connected going to least
+       * connected.  The returned vector is the number of nodes considered; the
+       * value in node n is the number of discarded neighbours when n was
+       * considered.
+      */
+mclv* mclgCeilNB
+(  mclx* mx
+,  dim max_neighbours
+,  dim* n_hub
+,  dim* n_edges_in
+,  dim* n_edges_out
 )  ;
 
 
@@ -441,9 +490,7 @@ void mclxMerge
 
 
 /* inline add; m1 is modified.
- * domains of m1 are *not* changed.
- * any entries in m2 not in the domains of m1
- * is discarded.
+ * domains of m1 are changed if necessary
 */
 
 void mclxAddto

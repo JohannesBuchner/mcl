@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!-- Copyright (c) 2008 Stijn van Dongen -->
+<!-- Copyright (c) 2009 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <meta name="keywords" content="manual">
@@ -11,10 +11,10 @@ color: #001111;
 background: white;
 margin-left: 8%;
 margin-right: 8%;
-font-family: Helvetica, Univers, Verdana, sans-serif;
+font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 p.default {
-font-family: Helvetica, Univers, Verdana, sans-serif;
+font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 text-align: justify;
 }
 p.L53 { font-size: 30pt; }
@@ -25,15 +25,19 @@ p.L49 { font-size: 10pt; }
 p.L48 { font-size: 9pt; }
 p.L47 { font-size: 8pt; }
 td {
-font-family: Helvetica, Univers, Verdana, sans-serif;
+font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 text-align: justify;
 }
 h3 { margin-top:1em; }
 h2 { margin-top:2em; }
-.left { text-align: left; align: left; }
-.right { text-align: right; align: right; }
-.center { text-align: center; align: center; }
+.itembullet { font-size: 10pt; }
+.left { text-align: left; }
+.right { text-align: right; }
+.center { text-align: center; }
 .nowrap { white-space: nowrap; }
+.item { font-size: 12pt;
+text-align: justify;
+}
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -70,23 +74,23 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-7 Nov 2008&nbsp;&nbsp;&nbsp;
+2 Feb 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxrand.ps"><b>mcxrand</b></a>
-1.008, 08-312
+1.008, 09-033
 </p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=48 valign="top" class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr valign="baseline"><td width=48 class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr><td width=48 valign="top" class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr><td width=48 valign="top" class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr><td width=48 valign="top" class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#options">OPTIONS</a>
-</div></td></tr><tr><td width=48 valign="top" class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#seealso">SEE ALSO</a>
 </div></td></tr>
 </table>
@@ -225,18 +229,18 @@ otherwise the edge will not be perturbed.
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td colspan=3><a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>input matrix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr valign="baseline"><td colspan=3><a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>input matrix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 The file name for input. STDIN is assumed if neither
 <b>-imx</b> nor <a class="intern" href="#opt-gen"><b>-gen</b>&nbsp;<i>num</i></a> is specified.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-o"></a><b>-o</b> &lt;fname&gt; (<i>output matrix to &lt;fname&gt;</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-o"></a><b>-o</b> &lt;fname&gt; (<i>output matrix to &lt;fname&gt;</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 The file to write the transformed matrix to.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--write-binary"></a><b>--write-binary</b> (<i>write output in binary format</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--write-binary"></a><b>--write-binary</b> (<i>write output in binary format</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Write the output matrix in native binary format.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-shuffle"></a><b>-shuffle</b> &lt;num&gt; (<i>shuffle edge pair &lt;num&gt; times</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-shuffle"></a><b>-shuffle</b> &lt;num&gt; (<i>shuffle edge pair &lt;num&gt; times</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Shuffle edge pair &lt;num&gt; times. An edge shuffle
 acts on two randomly chosen edges
@@ -245,26 +249,26 @@ be different. If either none of the edges in <i>w(a,c)</i>, <i>w(b,d)</i>
 or none of the edges in <i>w(a,d)</i>, <i>w(b,c)</i> exists
 the original two edges are removed and is replaced
 by an edge pair for which both edges did not exist before.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-remove"></a><b>-remove</b> &lt;num&gt; (<i>remove &lt;num&gt; edges</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-remove"></a><b>-remove</b> &lt;num&gt; (<i>remove &lt;num&gt; edges</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Remove this many edges from the input graph.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-add"></a><b>-add</b> &lt;num&gt; (<i>add &lt;num&gt; edges not yet present</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-add"></a><b>-add</b> &lt;num&gt; (<i>add &lt;num&gt; edges not yet present</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Create this many new edges.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-gen"></a><b>-gen</b> &lt;num&gt; (<i>node number</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-gen"></a><b>-gen</b> &lt;num&gt; (<i>node number</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Use in conjunction with <b>-add</b> to generate
 a random graph on <i>&lt;num&gt;</i> nodes.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-noise-radius"></a><b>-noise-radius</b> &lt;num&gt; (<i>maximum spread to add noise with</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-noise-sdev"></a><b>-noise-sdev</b> &lt;num&gt; (<i>standard deviation</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-noise-range"></a><b>-noise-range</b> &lt;fac&gt; (<i>number of standard deviations allowed</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-noise-radius"></a><b>-noise-radius</b> &lt;num&gt; (<i>maximum spread to add noise with</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-noise-sdev"></a><b>-noise-sdev</b> &lt;num&gt; (<i>standard deviation</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-noise-range"></a><b>-noise-range</b> &lt;fac&gt; (<i>number of standard deviations allowed</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 See the discussion in <a class="intern" href="#description">DESCRIPTION</a>.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-edge-min"></a><b>-edge-min</b> &lt;num&gt; (<i>global edge weight minimum</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-edge-max"></a><b>-edge-max</b> &lt;num&gt; (<i>global edge weight maximum</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-edge-min"></a><b>-edge-min</b> &lt;num&gt; (<i>global edge weight minimum</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-edge-max"></a><b>-edge-max</b> &lt;num&gt; (<i>global edge weight maximum</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 See the discussion in <a class="intern" href="#description">DESCRIPTION</a>.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-skew"></a><b>-skew</b> &lt;num&gt; (<i>skew towards min or max</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-skew"></a><b>-skew</b> &lt;num&gt; (<i>skew towards min or max</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 See the discussion in <a class="intern" href="#description">DESCRIPTION</a>.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-new-g-mean"></a><b>-new-g-mean</b> &lt;num&gt; (<i>mean to generate new edges with</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-new-g-sdev"></a><b>-new-g-sdev</b> &lt;num&gt; (<i>standard deviation to generate new edges with</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-new-g-radius"></a><b>-new-g-radius</b> &lt;num&gt; (<i>maximum spread to generate new edges with</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-new-g-min"></a><b>-new-g-min</b> &lt;num&gt; (<i>lower bound selection (Gaussian)</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-new-g-max"></a><b>-new-g-max</b> &lt;num&gt; (<i>upper bound selection (Gaussian)</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-new-g-mean"></a><b>-new-g-mean</b> &lt;num&gt; (<i>mean to generate new edges with</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-new-g-sdev"></a><b>-new-g-sdev</b> &lt;num&gt; (<i>standard deviation to generate new edges with</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-new-g-radius"></a><b>-new-g-radius</b> &lt;num&gt; (<i>maximum spread to generate new edges with</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-new-g-min"></a><b>-new-g-min</b> &lt;num&gt; (<i>lower bound selection (Gaussian)</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-new-g-max"></a><b>-new-g-max</b> &lt;num&gt; (<i>upper bound selection (Gaussian)</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 See the discussion in <a class="intern" href="#description">DESCRIPTION</a>.</p>
 </div></td></tr>

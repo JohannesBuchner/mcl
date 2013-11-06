@@ -25,7 +25,6 @@
 #include "util/compile.h"
 
 #include "impala/matrix.h"
-#include "impala/cat.h"
 #include "impala/vector.h"
 #include "impala/io.h"
 #include "impala/tab.h"
@@ -36,6 +35,7 @@
 #include "clew/scan.h"
 #include "clew/claw.h"
 #include "clew/clm.h"
+#include "clew/cat.h"
 
 #include "mcl/interpret.h"
 

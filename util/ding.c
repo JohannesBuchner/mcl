@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009  Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
  * under the terms of the GNU General Public License; either version 3 of the
@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include "ding.h"
 #include "types.h"
@@ -477,5 +478,50 @@ int mcxSetenv
    ;  if (!strchr(kv, '='))
       mcxTingAppend(tv, "=1")
    ;  return putenv(mcxTinguish(tv))
+;  }
+
+
+
+mcxstatus mcxStrTol
+(  const    char* s
+,  long*    value
+,  char**   end
+)
+   {  int errno_sa = errno
+   ;  char* e  =  NULL
+   ;  mcxstatus status = STATUS_OK
+
+   ;  errno    =  0
+   ;  *value   =  strtol(s, &e, 10)
+
+   ;  if (errno || e == s)
+      status = STATUS_FAIL
+
+   ;  errno = errno_sa
+   ;  if (end)
+      *end = e
+   ;  return status
+;  }
+
+
+mcxstatus mcxStrToul
+(  const    char* s
+,  ulong*   value
+,  char**   end
+)
+   {  int errno_sa = errno
+   ;  mcxstatus status = STATUS_OK
+   ;  char* e  =  NULL
+
+   ;  errno    =  0
+   ;  *value = strtoul(s, &e, 10)
+
+   ;  if (errno || e == s)
+      status = STATUS_FAIL
+
+   ;  errno = errno_sa
+   ;  if (end)
+      *end = e
+   ;  return status
 ;  }
 

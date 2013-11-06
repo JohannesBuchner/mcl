@@ -15,7 +15,7 @@ include $(top_srcdir)/include/include.am
 ## AUTOMAKE_OPTIONS = nostdinc
 
 noinst_LIBRARIES = libimpala.a
-libimpala_a_SOURCES = compose.c tab.c pval.c iface.c io.c ivp.c matrix.c vector.c cat.c version.c app.c stream.c
+libimpala_a_SOURCES = compose.c tab.c pval.c iface.c io.c ivp.c matrix.c vector.c  version.c app.c stream.c
 
-EXTRA_DIST = compose.h pval.h iface.h tab.h io.h ivp.h matrix.h ivptypes.h vector.h cat.h version.h app.h stream.h
+EXTRA_DIST = compose.h pval.h iface.h tab.h io.h ivp.h matrix.h ivptypes.h vector.h  version.h app.h stream.h
 

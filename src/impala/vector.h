@@ -262,7 +262,7 @@ void mclvSortDescVal
 )  ;
 
 
-dim mclvUniqueIdx
+dim mclvUniqIdx
 (  mclVector*     vec
 ,  void (*merge)(void* ivp1, const void* ivp2)
 )  ;
@@ -270,7 +270,7 @@ dim mclvUniqueIdx
 
 /* sorts vectors and discards duplicates (based on idx) */
 
-void mclvCleanse
+void mclvSortUniq
 (  mclVector*  vec
 )  ;
 
@@ -299,18 +299,6 @@ double mclvKBar
 )  ;
 
 
-/* TODO
- * can the implementation be (significantly) improved?
-*/
-
-dim mclvTop
-(  mclVector      *vec
-,  double         psum
-,  double*        maxptr
-,  double*        minptr
-,  mcxbool        select
-)  ;
-
 
 double mclvSelectValues
 (  mclv*          src
@@ -333,13 +321,18 @@ dim mclvSelectIdcs
 /* this one should be a wee bit more efficient than
  * mclSelectValues - it should be measured sometime though.
  * mclvSelectGqBar is often called by mcl - hence the
- * special purpose routine. No siblings for lt, lq, gt,
+ * special purpose routine. No siblings for lt, lq,
  * you have to call mclvSelectValues for those.
 */
 
 double mclvSelectGqBar
 (  mclVector*     vec
 ,  double         bar
+)  ;
+
+double mclvSelectGtBar
+(  mclVector* vec
+,  double     fbar
 )  ;
 
 
@@ -374,6 +367,12 @@ dim mclvUpdateMeet
 (  mclVector*  src1
 ,  const mclVector*  src2
 ,  double           (*operation)(pval val1, pval val2)
+)  ;
+
+dim mclvUpdateDiff
+(  mclVector*  v1
+,  const mclVector*  v2
+,  double  (*op)(pval mval, pval nval)
 )  ;
 
 long mclvUnaryList
@@ -504,11 +503,20 @@ mclVector* mcldMerge
 )  ;
 
 
+   /* simple generic implementation */
 mclVector* mcldMeet
 (  const mclVector*  lft
 ,  const mclVector*  rgt
 ,  mclVector*        dst      /* values in dst are from lft */
 )  ;
+
+   /* this optimizes various scenarios at cost of increased code complexity */
+mclVector* mcldMeet2
+(  const mclVector*  lft
+,  const mclVector*  rgt
+,  mclVector*        dst      /* values in dst are from lft */
+)  ;
+
 
 mcxbool mcldIsCanonical
 (  mclVector* vec

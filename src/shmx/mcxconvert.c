@@ -19,10 +19,11 @@
 #include "util/compile.h"
 
 #include "impala/matrix.h"
-#include "impala/cat.h"
 #include "impala/io.h"
 #include "impala/iface.h"
 #include "impala/app.h"
+
+#include "clew/cat.h"
 
 
 static const char* me  =  "mcxconvert";

@@ -97,9 +97,9 @@ typedef struct
 ;  int                  lint_k
 ;  int                  lint_l
 
-;  int                  writeMode
-;  int                  sortMode
-;  int                  overlapMode
+;  int                  write_mode
+;  int                  sort_mode
+;  int                  overlap_mode
 ;  mcxTing*             cline
 ;  mcxTing*             fnin
 ;

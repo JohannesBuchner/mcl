@@ -520,7 +520,8 @@ mcxstatus mclProcessInit
          ;  if (strstr(arg, "cls"))
             bit |= XPNVB_CLUSTERS
          ;  if (strstr(arg, "all"))
-            bit = ~0
+               bit = ~0
+            ,  mcxLogLevelSetByString("x")
 
          ;  if (!bit)
             mcxWarn(me, "no match in verbosity string <%s>", opt->val)

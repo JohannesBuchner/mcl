@@ -523,8 +523,10 @@ static mcxstatus diameterMain
       ;  mx
       =  mclxIOstreamIn
          (  xfabc_g
-         ,     MCLXIO_STREAM_ABC       |  MCLXIO_STREAM_MIRROR
-            |  MCLXIO_STREAM_SYMMETRIC |  MCLXIO_STREAM_GTAB_RESTRICT
+         ,     MCLXIO_STREAM_ABC
+            |  MCLXIO_STREAM_MIRROR
+            |  MCLXIO_STREAM_SYMMETRIC
+            |  (tab_g ? MCLXIO_STREAM_GTAB_RESTRICT : 0)
          ,  NULL
          ,  mclpMergeMax
          ,  &streamer
@@ -811,7 +813,7 @@ void mclgSSPmakeLattice
    {  dim i
 #if 0
    ;  for (i=0;i<N_COLS(pathmx);i++)
-      mclvaDump2(pathmx->cols+i, stdout, MCLXIO_VALUE_GETENV, " ", 0)
+      mclvaDump(pathmx->cols+i, stdout, MCLXIO_VALUE_GETENV, " ", 0)
 #endif
 
    ;  for (i=0;i<N_COLS(pathmx);i++)
@@ -858,7 +860,7 @@ mclx* cttyFlood
    ;  while (1)
       {  mclv* wave2 = mclgUnionv2(mx, wave, NULL, SCRATCH_UPDATE, NULL, scratch)
 ; if (debug_g)
-mclvaDump2(wave2, stdout, MCLXIO_VALUE_GETENV, " ", MCLVA_DUMP_VID_NO)
+mclvaDump(wave2, stdout, MCLXIO_VALUE_GETENV, " ", MCLVA_DUMP_VID_OFF)
       ;  if (wave2->n_ivps)
          {  mclvFree(&wave)
          ;  wave = wave2
@@ -967,8 +969,10 @@ static mcxstatus cttyMain
       ;  mx
       =  mclxIOstreamIn
          (  xfabc_g
-         ,     MCLXIO_STREAM_ABC       |  MCLXIO_STREAM_MIRROR
-            |  MCLXIO_STREAM_SYMMETRIC |  MCLXIO_STREAM_GTAB_RESTRICT
+         ,     MCLXIO_STREAM_ABC
+            |  MCLXIO_STREAM_MIRROR
+            |  MCLXIO_STREAM_SYMMETRIC
+            |  (tab_g ? MCLXIO_STREAM_GTAB_RESTRICT : 0)
          ,  NULL
          ,  mclpMergeMax
          ,  &streamer

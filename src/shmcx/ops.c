@@ -1049,7 +1049,7 @@ int opAddto
    ;  if (!mx1 || !mx2)
       return 0
 
-   ;  mclxAccomodate(mx1, mx2->dom_cols, mx2->dom_rows)
+   ;  mclxAccommodate(mx1, mx2->dom_cols, mx2->dom_rows)
    ;  mclxMerge(mx1, mx2, fltAdd)
    ;  return 1
 ;  }

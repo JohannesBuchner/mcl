@@ -1,4 +1,4 @@
-/* (c) Copyright 2004, 2005 Stijn van Dongen
+/* (c) Copyright 2004, 2005, 2006, 2007, 2008, 2009 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
  * under the terms of the GNU General Public License; either version 3 of the
@@ -42,10 +42,10 @@ typedef struct grim_buf
 
 struct mcxGrim
 {  grim_buf*         buf
-;  dim               sz_unit     /* size of one unit                          */
-;  memnext*          na          /* next available                            */
-;  dim               ct          /* number in use                             */
-;  mcxbits           flags       /* allocation strategy, numbers              */
+;  dim               sz_unit     /* size of one unit                       */
+;  memnext*          na          /* next available                         */
+;  dim               ct          /* number in use                          */
+;  mcxbits           flags       /* allocation strategy, numbers           */
 ;
 }  ;
 
@@ -192,6 +192,4 @@ dim mcxGrimCount
    {  return src->ct
 ;  }
 
-
-#undef DEBUG
 

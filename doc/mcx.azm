@@ -24,7 +24,7 @@
    first argument to \mcx should be a \it{mode}, which is a string establishing
    the type of computation to invoke.  Each mode \it{mode} is described in the
    mcx\it{mode} manual page.  The currently available modes are
-   \bf{convert}, \bf{diameter}, \bf{clcf}, and \bf{avg}.
+   \bf{convert}, \bf{diameter}, \bf{clcf}, \bf{q} and \bf{ctty}.
    The \bf{convert} mode is thus described in the
    \sibref{mcxconvert} manual page.
    }

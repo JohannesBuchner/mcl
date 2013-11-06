@@ -1,5 +1,5 @@
 /*   (C) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009  Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
  * under the terms of the GNU General Public License; either version 3 of the
@@ -19,11 +19,14 @@
  *    Conceivably, mcxIOfind could be next.
  *
  * TODO
+ *    buffering: document, who can initiate it?
+ *    buffering: document, which routines are incompatible?
+ *    general: remove dependency on ungetc.
+ *    make mcxIOreadLine/ mcxIOstep zlib-aware.
  *    mcxIOfind can be made much faster.
  *    - inline fillpatbuf
  *    - get rid of modulus computations - subtract  patlen if necessary.
  *    - use buffered input.
- *    The last one requires 
 */
 
 #include <stdlib.h>
@@ -46,12 +49,12 @@
 #include "getpagesize.h"
 
 
-#define buffaro(xf)  (xf->buffer_consumed < xf->buffer->len) 
+#define inbuffer(xf)  (xf->buffer_consumed < xf->buffer->len)
 
 static void buffer_empty
 (  mcxIO* xf
 )
-   {  mcxTingEmpty(xf->buffer, getpagesize())
+   {  mcxTingEmpty(xf->buffer, getpagesize())      /* sets xf->buffer->len to 0 */
    ;  xf->buffer_consumed = 0
 ;  }
 
@@ -117,6 +120,7 @@ mcxstatus mcxIOclose
       ;  if (xf->ateof || feof(xf->fp))
          clearerr(xf->fp)
    ;  }
+                                    /* fixme contract with usr_reset */
       return mcxIOreset(xf)
 ;  }
 
@@ -292,6 +296,7 @@ mcxstatus  mcxIOopen
       ;  mcxIOerr(xf, "mcxIOopen", "can not be opened")
       ;  mcxExit(1)
    ;  }
+
       return STATUS_OK
 ;  }
 
@@ -361,8 +366,9 @@ int mcxIOstepback
    {  if (c == EOF)
       return EOF
    ;  else
-      {  if (buffaro(xf) && xf->buffer_consumed > 0)
+      {  if (inbuffer(xf) && xf->buffer_consumed > 0)
          c = xf->buffer->str[--xf->buffer_consumed]
+   /* insert a new branch for zlib aware reading here; splice into buffer */
       ;  else if (ungetc(c, xf->fp) == EOF)
          {  mcxErr
             (  "mcxIOstepback"
@@ -400,9 +406,9 @@ fprintf(stderr, "nobuffer\n")
 
    ;  if (xf->ateof)
       c = EOF
-   ;  else if (buffaro(xf))
+   ;  else if (inbuffer(xf))
       {  c = xf->buffer->str[xf->buffer_consumed++]
-      ;  if (!buffaro(xf))
+      ;  if (!inbuffer(xf))
          buffer_empty(xf)
    ;  }
       else
@@ -450,7 +456,7 @@ mcxstatus  mcxIOreadFile
 
    ;  mcxTingEmpty(filetxt, 0)
 
-   ;  if (buffaro(xf))
+   ;  if (inbuffer(xf))
       buffer_spout(xf, me)
 
    ;  if (!xf->stdio)
@@ -489,12 +495,13 @@ static dim  mcxIO__rl_fillbuf__
    {  int   a  = 0
    ;  dim   ct = 0
    ;  while(ct<size && EOF != (a = mcxIOstep(xf)))
-      {  buf[ct++] = a
+      {  if (a != '\0')
+         buf[ct++] = a
       ;  if (a == '\n')
          break
    ;  }
       *last =  a
-   ;  return ct
+   ;  return ct      /* fixme: '\0' not accounted */
 ;  }
 
 
@@ -540,7 +547,7 @@ dim mcxIOdiscardLine
       while(((a = mcxIOstep(xf)) != '\n') && a != EOF)
       ct++
 
-   ;  if (buffaro(xf))     /* fixme/design check buffer for line */
+   ;  if (inbuffer(xf))     /* fixme/design check buffer for line */
       buffer_spout(xf, "mcxIOdiscardLine")
 
    ;  return ct
@@ -767,7 +774,7 @@ mcxstatus mcxIOexpectReal
    {  int   n_read   =  0
    ;  int   n_conv   =  0
 
-   ;  if (buffaro(xf))
+   ;  if (inbuffer(xf))
       buffer_spout(xf, "mcxIOexpectReal")
 
    ;  mcxIOskipSpace(xf)      /* keeps accounting correct */
@@ -798,7 +805,7 @@ mcxstatus mcxIOexpectNum
    ;  int   n_conv   =  0
    ;  mcxstatus status = STATUS_OK
 
-   ;  if (buffaro(xf))
+   ;  if (inbuffer(xf))
       buffer_spout(xf, "mcxIOexpectNum")
 
    ;  mcxIOskipSpace(xf)      /* keeps accounting correct */
@@ -1086,7 +1093,7 @@ dim mcxIOdiscard
    ;  dim  rem       =  amount - bsz * n_chunk
    ;  dim  i, n
 
-   ;  if (buffaro(xf))
+   ;  if (inbuffer(xf))
       buffer_spout(xf, "mcxIOdiscard")
 
    ;  for (i=0;i<n_chunk;i++)

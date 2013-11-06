@@ -1,4 +1,4 @@
-/*   (C) Copyright 2005, 2006, 2007 Stijn van Dongen
+/*   (C) Copyright 2005, 2006, 2007, 2008, 2009 Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
  * under the terms of the GNU General Public License; either version 3 of the

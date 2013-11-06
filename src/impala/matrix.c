@@ -13,6 +13,7 @@
 
 #include "compose.h"
 #include "matrix.h"
+#include "vector.h"
 #include "io.h"
 
 #include "util/compile.h"
@@ -252,18 +253,10 @@ mclx* mclxAllocZero
 
       n_cols  = dom_cols->n_ivps
    
-   ;  if (!(dst = mcxAlloc(sizeof(mclx), ENQUIRE_ON_FAIL)))
-      return NULL
+   ;  dst = mcxAlloc(sizeof(mclx), EXIT_ON_FAIL)
+   ;  dst->cols = mcxAlloc (n_cols * sizeof(mclv), EXIT_ON_FAIL)
 
-   ;  if
-      (! (dst->cols = mcxAlloc (n_cols * sizeof(mclv), ENQUIRE_ON_FAIL))
-      && n_cols
-      )
-      {  mcxMemDenied(stderr, me, "mclv", n_cols)
-      ;  return NULL
-   ;  }
-
-      dst->dom_cols  =  dom_cols
+   ;  dst->dom_cols  =  dom_cols
    ;  dst->dom_rows  =  dom_rows
 
    ;  for (d=0; d<n_cols; d++)
@@ -404,8 +397,8 @@ dim mclxSelectLower
    {  dim d, n_entries = 0
    ;  for (d=0;d<N_COLS(mx);d++)
       n_entries
-      +=    mclvSelectIdcs
-            (mx->cols+d, NULL, &(mx->cols[d].vid), MCLX_EQT_LT, mx->cols+d)
+      += mclvSelectIdcs
+         (mx->cols+d, NULL, &(mx->cols[d].vid), MCLX_EQT_LT, mx->cols+d)
    ;  return n_entries
 ;  }
 
@@ -471,7 +464,7 @@ mclx* mclxDiag
 
    ;  for(d=0;d<N_COLS(mx);d++)
       mclvInsertIdx(mx->cols+d, vec->ivps[d].idx, vec->ivps[d].val)
-      /* fixme; this might fail ... */
+      /* fixme; this might fail */
    ;  return mx
 ;  }
 
@@ -484,25 +477,42 @@ mclx* mclxCopy
 ;  }
 
 
+static void mclx_release
+(  mclx* mx
+)
+   {  mclv* vec =  mx->cols
+   ;  dim n_cols = N_COLS(mx)
+
+   ;  while (n_cols-- > 0)    /* careful with unsignedness */
+      {  mcxFree(vec->ivps)
+      ;  vec++
+   ;  }
+      mclvFree(&(mx->dom_rows))
+   ;  mclvFree(&(mx->dom_cols))
+   ;  mcxFree(mx->cols)
+;  }
+
+
+void mclxTransplant
+(  mclx* dst
+,  mclx** src      /* will be freed */
+)
+   {  mclx_release(dst)
+   ;  dst->dom_rows = src[0]->dom_rows
+   ;  dst->dom_cols = src[0]->dom_cols
+   ;  dst->cols = src[0]->cols
+   ;  mcxFree(*src)
+   ;  *src = NULL
+;  }
+
+
 void mclxFree
 (  mclx**             mxpp
 )
    {  mclx* mx = *mxpp
    ;  if (mx)
-      {  mclv*  vec      =  mx->cols
-      ;  dim         n_cols   =  N_COLS(mx)
-
-      ;  while (n_cols-- > 0)    /* careful with unsignedness */
-         {  mcxFree(vec->ivps)
-         ;  vec++
-      ;  }
-
-         mclvFree(&(mx->dom_rows))
-      ;  mclvFree(&(mx->dom_cols))
-
-      ;  mcxFree(mx->cols)
+      {  mclx_release(mx)
       ;  mcxFree(mx)
-
       ;  *mxpp = NULL
    ;  }
    }
@@ -559,7 +569,7 @@ double sparse_sel_cb
 ;  }
 
 
-mclv* mclgMakeSparse
+mclv* mclgUnlinkNodes
 (  mclx* m
 ,  dim        sel_gq
 ,  dim        sel_lq
@@ -584,6 +594,62 @@ mclv* mclgMakeSparse
 ;  }
 
 
+mclv* mclgCeilNB
+(  mclx* mx
+,  dim max_neighbours
+,  dim* n_nodes_hub
+,  dim* n_edges_in
+,  dim* n_edges_out
+)
+   {  dim i, j, n_sel = 0, n_out = 0, n_in = 0, n_hub = 0
+   ;  mclv* sizes = mclxColSizes(mx, MCL_VECTOR_SPARSE)
+   ;  mclvSelectGtBar(sizes, (double) max_neighbours + 0.5)
+   ;  mclvSortDescVal(sizes)           /* dangersign no longer in canonical ordering required for most operations */
+   ;  for (i=0;i<sizes->n_ivps;i++)
+      {  long idx1 = sizes->ivps[i].idx, hub_size = 0
+      ;  mclv* hub = mclxGetVector(mx, idx1, RETURN_ON_FAIL, NULL)
+      ;  mclv* discarded = NULL
+
+      ;  if (!hub)      /* fixme this SNHappen. */
+         break
+
+      ;  n_hub++
+      ;  hub_size = hub->n_ivps
+      ;  discarded = mclvCopy(NULL, hub)
+      ;  mclvSelectHighest(hub, max_neighbours)
+      ;  n_sel++
+      ;  mcldMinus(discarded, hub, discarded)
+      ;  n_out += discarded->n_ivps
+      ;  sizes->ivps[i].val = discarded->n_ivps + 0.5    /* n_ivps could be 0 */
+      ;  for (j=0;j<discarded->n_ivps;j++)
+         {  long idx2 = discarded->ivps[j].idx
+         ;  mclv* tgt = mclxGetVector(mx, idx2, RETURN_ON_FAIL, NULL)
+         ;  if (tgt)
+               mclvRemoveIdx(tgt, idx1)
+            ,  n_in++
+      ;  }
+         if (discarded->n_ivps)
+         mcxLog
+         (  MCX_LOG_CELL
+         ,  "mclg"
+         ,  "trample hub %lu size %lu removed %lu"
+         ,  (ulong) idx1
+         ,  (ulong) hub_size
+         ,  (ulong) discarded->n_ivps
+         )
+      ;  mclvFree(&discarded)
+   ;  }
+      if (n_edges_out)
+      n_edges_out[0] = n_out
+   ;  if (n_edges_in)
+      n_edges_in[0] = n_in
+   ;  if (n_nodes_hub)
+      n_nodes_hub[0] = n_hub
+   ;  mclvSort(sizes, NULL)
+   ;  return sizes
+;  }
+
+
 void mclxUnary
 (  mclx*  src
 ,  double (*op)(pval, void*)
@@ -598,7 +664,7 @@ void mclxUnary
 ;  }
 
 
-void mclxAccomodate
+void mclxAccommodate
 (  mclx* mx
 ,  const mclv* dom_cols
 ,  const mclv* dom_rows
@@ -653,12 +719,8 @@ void mclxChangeCDomain
 
       new_cols =  mcxAlloc
                   (  domain->n_ivps * sizeof(mclv)
-                  ,  ENQUIRE_ON_FAIL
+                  ,  EXIT_ON_FAIL
                   )
-   ;  if (!new_cols && domain->n_ivps)
-         mcxMemDenied
-         (stderr, "mclxChangeCDomain", "mclv", domain->n_ivps)
-      ,  mcxExit(1)
 
    ;  for (d=0;d<domain->n_ivps;d++)
       {  mclv* newcol=  new_cols+d
@@ -777,7 +839,7 @@ mclx*  mclxBlocks2
 /* TODO: allow m1 = NULL
  *    equate can be inefficient for block selection (mclxblock).
  * WARNING:
- *    does not check domains. use mclxAccomodate if necessary.
+ *    does not check domains. use mclxAccommodate if necessary.
 */
 
 void mclxMerge
@@ -810,38 +872,106 @@ void mclxMerge
    }
 
 
+   /* Note: caller has to make sure vid is suitable. No checks are possible here.
+   */
+static mclx* mclx_collect_vectors
+(  mclv* domain       /* allowed to be NULL; otherwise taken as row domain */
+,  dim   vid          /* starting vid in new matrix */
+,  va_list *ap
+)
+#define CAT_ACCEPT 20
+   {  mclx* mx = mclxAllocZero(mclvCanonical(NULL, CAT_ACCEPT, 1.0), domain ? domain : mclvInit(NULL))
+   ;  dim n_done = 0
+
+   ;  mclvMap(mx->dom_cols, 0, vid, mx->dom_cols)     /* starts at vid now */
+   ;  while (1)
+      {  mclVector* vec
+      ;  if (!(vec = va_arg(*ap, mclVector*)))
+         break
+      ;  if (n_done == CAT_ACCEPT)
+         {  mcxErr("mclxCatVectors", "accepting %d vectors, ignoring the rest", (int) CAT_ACCEPT)
+         ;  break
+      ;  }
+         if (domain)
+         mcldMeet(vec, domain, mx->cols+n_done)
+      ;  else
+         {  mclvCopy(mx->cols+n_done, vec)
+         ;  mcldMerge(mx->dom_rows, vec, mx->dom_rows)
+      ;  }
+         n_done++
+   ;  }
+      mclvResize(mx->dom_cols, n_done)
+   ;  mclvMakeCharacteristic(mx->dom_rows)
+   ;  return mx
+;  }
+
+
+mclx* mclxCollectVectors
+(  mclv* domain       /* allowed to be NULL; otherwise taken as row domain */
+,  dim   vid          /* starting vid in new matrix */
+,  ...                /* pointers to vectors to be copied */
+)
+   {  mclx* mx
+   ;  va_list ap
+   ;  va_start(ap, vid)
+   ;  mx = mclx_collect_vectors(domain, vid, &ap)
+   ;  va_end(ap)
+   ;  return mx
+;  }
+
+
+void mclxAppendVectors
+(  mclx* dst
+,  ...
+)
+   {  mclx *mxadd
+   ;  mclv* domain = mclvCopy(NULL, dst->dom_rows)
+   ;  va_list ap
+
+   ;  va_start(ap, dst)
+   ;  mxadd = mclx_collect_vectors(domain, mclvHighestIdx(dst->dom_cols)+1, &ap)
+   ;  va_end(ap)
+
+   ;  mclxAddto(dst, mxadd)
+   ;  mclxFree(&mxadd)
+;  }
+
+
 void mclxAddto
 (  mclx* m1
 ,  const mclx* m2
 )
    {  mclv *m1vec = m1->cols
-   ;  dim d, rdif = 0
+   ;  dim d, diff = 0
 
-   ;  if (mcldCountParts(m1->dom_rows, m2->dom_rows, NULL, NULL, &rdif))
-      {  mcxErr
-         (  "mclxAddto PBD"
-         ,  "left domain (ct %ld) does not subsume right domain (ct %ld)"
-         ,  (long) N_COLS(m2)
-         ,  (long) N_COLS(m1)
-         )
-      ;  return
-   ;  }
+   ;  mclv* join_col = NULL
+   ;  mclv* join_row = NULL
 
-      for (d=0;d<N_COLS(m2);d++)
+   ;  if (mcldCountParts(m1->dom_rows, m2->dom_rows, NULL, NULL, &diff))
+      join_row = mcldMerge(m1->dom_rows, m2->dom_rows, NULL)
+   ;  if (mcldCountParts(m1->dom_rows, m2->dom_rows, NULL, NULL, &diff))
+      join_col = mcldMerge(m1->dom_cols, m2->dom_cols, NULL)
+
+   ;  mclxAccommodate(m1, join_col, join_row)
+
+   ;  for (d=0;d<N_COLS(m2);d++)
       {  mclv *m2vec = m2->cols+d
 
-      ;  if (!m2vec->n_ivps)
+      ;  if
+         (  !m2vec->n_ivps
+         || !(m1vec = mclxGetVector(m1, m2vec->vid, RETURN_ON_FAIL, m1vec))
+         )
          continue
 
-      ;  if (!(m1vec = mclxGetVector(m1, m2vec->vid, RETURN_ON_FAIL, m1vec)))
-         continue
-
-      ;  if (mcldCountParts(m1vec, m2vec, NULL, NULL, &rdif))
+      ;  if (mcldCountParts(m1vec, m2vec, NULL, NULL, &diff))
          mclvAdd(m1vec, m2vec, m1vec)
       ;  else
          mclvUpdateMeet(m1vec, m2vec, fltAdd)
    ;  }
-   }
+
+      if (join_col) mclvFree(&join_col)
+   ;  if (join_row) mclvFree(&join_row)
+;  }
 
 
 mclx* mclxBinary
@@ -1427,7 +1557,7 @@ mclv* mclgUnionv2
                      :  mclvGetIvpOffset(row_scratch, idx, o_scratch)
                   )
                )
-               continue               /* panic, really */
+               continue               /* SNH if coldom is subset of mx->dom_cols */
             ;  if
                (  restrict
                && 0 > (o_restrict = mclvGetIvpOffset(restrict, idx, o_restrict))

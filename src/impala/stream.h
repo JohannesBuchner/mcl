@@ -82,6 +82,9 @@ typedef struct
 
 /* In symmetric mode, tab_sym_out will be a newly created tab.
  * Otherwise, tab_{col,row}_out will be two newly created tabs.
+ *    however, no new tab if an input tab was provided an the
+ *    number of entries did not change.
+ *    This is a Bad Bad interface. TODO.
 */
 
 mclx* mclxIOstreamIn

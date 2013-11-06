@@ -68,7 +68,7 @@ mclv* mcl_shadow_matrix
    ;  dom_master = mclvClone(mx->dom_cols)
 
    ;  {  mclv* dom_shadow = mclvCanonical(NULL, 2*N, 1.0)
-      ;  mclxAccomodate(mx, dom_shadow, dom_shadow)
+      ;  mclxAccommodate(mx, dom_shadow, dom_shadow)
       ;  mclvFree(&dom_shadow)
    ;  }
 

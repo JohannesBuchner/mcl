@@ -20,6 +20,7 @@
 #include "mcxclcf.h"
 #include "mcxcollect.h"
 #include "mcxtab.h"
+#include "mcxalter.h"
 
 #include "impala/matrix.h"
 #include "impala/io.h"
@@ -52,6 +53,7 @@ enum
 ,  ID_CLCF
 ,  ID_COLLECT
 ,  ID_TAB
+,  ID_ALTER
 ,  ID_UNUSED
 }  ;
 
@@ -64,6 +66,7 @@ mcxDispEntry mcx_dir[] =
 ,  {  ID_ERDOS    ,  mcxDispHookErdos        }
 ,  {  ID_CTTY     ,  mcxDispHookCtty         }
 ,  {  ID_COLLECT  ,  mcxDispHookCollect      }
+,  {  ID_ALTER    ,  mcxDispHookAlter        }
 ,  {  ID_TAB      ,  mcxDispHookTab          }
 ,  {  -1          ,  NULL                    }
 }  ;

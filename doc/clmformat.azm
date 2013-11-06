@@ -62,7 +62,8 @@
 
 \par{\clmformat}
 
-\par{\begin{spacing}{{left}{12}}
+\par{
+\: begin{spacing}{{left}{12}}
       \synreqopt{-icl}{fname}{input cluster file}
       \synreqopt{-imx}{fname}{input matrix/graph file}
       \synoptopt{-tf}{spec}{apply tf-spec to input matrix}
@@ -85,7 +86,7 @@
       \synoptopt{-zmm}{fname}{assume macro definitions are in fname}
       \synoptopt{-fmt}{fname}{write to encoding file fname}
       \stdsynopt
-\end{spacing}
+\: end{spacing}
 }
 
 \par{Consult the option descriptions and the introduction above for

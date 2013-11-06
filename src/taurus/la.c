@@ -55,7 +55,7 @@ mclVector*   mclvFromIlist
    ;  }  
 
       mclvSort(vec, NULL)
-   ;  mclvUniqueIdx(vec, mclpMergeLeft)
+   ;  mclvUniqIdx(vec, mclpMergeLeft)
 
    ;  return vec
 ;  }

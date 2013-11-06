@@ -586,12 +586,9 @@ mclMatrix* mclExpand
             )
       ;  }
 
-;fprintf(stderr, "start threads\n")
-      ;  for (i = 0; i < mxp->n_ethreads; i++)
+         for (i = 0; i < mxp->n_ethreads; i++)
          {  pthread_join(threads_expand[i], NULL)
       ;  }
-;fprintf(stderr, "start threads\n");
-
          mcxFree(threads_expand)
    ;  }      /* glob a is destroyed by mclExpandVectorLine */
 
@@ -771,14 +768,12 @@ mclExpandStats* mclExpandStatsNew
          ,  window_sizes[z]
          ,  sizeof(float)
          ,  fltCmp
-         ,  MCX_MAX_HEAP
          )
       ;  mcxHeapNew
          (  (stats->windowFinal)+z
          ,  window_sizes[z]
          ,  sizeof(float)
          ,  fltCmp
-         ,  MCX_MAX_HEAP
          )
    ;  }
 

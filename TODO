@@ -2,24 +2,42 @@
  relate to other graph-related applications and helper applications,
  mostly *NOT* to mcl.
 
-#ifdef IEEE_754
-if (ISNAN(x) || ISNAN(r) || ISNAN(b) || ISNAN(n))
-   return x + r + b + n;
-#endif
 
-+todo_____________________________________
-    |                                     |
-    |                                     |
-    |_____________________________________|
+memory loss!
+vger ../../mclcm falkner.mci -c f.start -a "-I 1.4" -stem mcl2 -write stack  --subcluster
+
+
+
+-  A semafore mechanism to make sure mclvUnionv is not used more than
+   once simultaneously; requires flag (simple bit).
+   Flag will require design when doing matrix copy, transplant, update et cetera.
+
+
+
++todo____________________________________________________________________________
+    |                      general guidelines                                    |
+    |  - code as much as possible in high-level routines, do not micro-optimize. |
+    |    do not shun matrix allocations etc. Aim for time/memory-efficient algorithms
+    |    within this context.                                                    |
+    |____________________________________________________________________________|
     - \"man::html-keywords"
-   $$ is dagdepth correct these days?
+    $ make mclvaDump static, unify+streamline vector dumping
+  $$$ rewrite mcxsubs in a more extendible and generalized framework -> mini-language, mcxi
+  $$$ generally rewrite routines to use higher-level routines. Don't fear matrix and vector allocs.
+    - stress test mcxload (further)
+    - analyze dagginess (lattice characteristics)
+    - update mcxdeblast
+    / mcldagtest was rewritten.
+    -> write mclInterpret2 based on dag stuff (make it much simpler).
+    -> compare with mclInterpret.
+    - mcxerdos directed mode would be interesting for wikipedia type graphs.
+    - check mclvSelectHighest implementation with -R -S and > to >= change.
+    - -pn pruning is order dependent. should probably start with biggest hubs first.
     ! make a vector-dump-debug routine that I am happy with. perhaps build on the one in mcxdump
     - adapt-local: check what it does when mcl iterands become very directed. Only before?
-  $$$ pick up mcx mcxsubs unification. mcx unionv operator.
     - in mcl/alg.c the cache/reread/transform logic is too intricate.
-    - mcxi more powerful  primitives, such as domc domr makematrix and domc  1 2 3 3 vector makematrix
-      vectors in mcxi - to encode sets
-    $ clm lint
+    - clxdo <new-mode>: <id> <nb-count> <max-weight> <mean-weight> <median-weight>
+    $ clm lint (mcl lint options)
     $ mcxdump optionally do not parenthesize singletons.
     ! adapt-local. optimize the fundament |
     - visual unify of 'clm <mode> -h' and 'clm help <mode>' in clm -h
@@ -32,9 +50,6 @@ if (ISNAN(x) || ISNAN(r) || ISNAN(b) || ISNAN(n))
     - read in newick format               |
     - mcxarray make -tf option            |
     - mcxarray: accept '-', 'na', 'nan'   |
-    - mcxerdos batch processing (read pairs from file)
-    - mcxerdos command line pair specification
-    - mcxerdos.azm                        |
     - mcx q: dump nblist sizes directly   |
     - add env variable for verbosity on non-matching domains
     - taking submatrix with same domains, is that slow?
@@ -59,7 +74,6 @@ if (ISNAN(x) || ISNAN(r) || ISNAN(b) || ISNAN(n))
    $$ simplify mcl/alg.c {stream:1/0} vs {cache:1/0} vs {transforms} framework.
     - can scatter distance be fixed?      |
     - try to cut back size of impala library - unify select routines.
-  $$$ transform mcxsubs to use nesting mini-language
     - logical line based clmformat output |
     - move mcxrand code into library.     |
     - package enstrict domain checks nesting all in a single interface.
@@ -118,6 +132,27 @@ if (ISNAN(x) || ISNAN(r) || ISNAN(b) || ISNAN(n))
    @@ mcl libs do not unwind on memory errors. (culprit: vector)
     |_____________________________________|
 
+#ifdef IEEE_754
+if (ISNAN(x) || ISNAN(r) || ISNAN(b) || ISNAN(n))
+   return x + r + b + n;
+#endif
+
+
+overlap
+   -> reintroduce transient attractor systems .. ?
+   -> when purging dag, consider node-wise   [ 1 / total-#-neighbours ] cutoff.
+   * visualize DAG. piclo
+
+audit status of source code
+vector.[ch]
+   mclvReplaceIdx
+      mcxRand
+      ?   get rid of insanely complicated weight generation.
+      ->  option to throw away diagonal entirely or add diagonal (but mcxi can already do it).
+      mclxAddto (changed to accommodate domains)
+      mclxCatVectors (new)
+
+
 -  if there is no annotation in a part of the tree, what does mlmimpromptu do?
 !? coarsening: use efficiency as cluster->node similarity?
 -  mcxsubs foo bar nonsense waits for STDIN; it should check specs first?
@@ -167,7 +202,6 @@ $  enable stack reads with argv type input. mclxStackReadArgv
 -  clxdo: introduce tag which mimics clewCastActors
 \  need way to set loops to max with clxdo too.
 -  move level_quiet to a global setting in err.[ch]
--  dim and check mclDagTest
 -  document clewCastActors transformations on input arguments.
 -  can include libraries LFLAGS be made more finegrained?
 -  mcx max does not work for matrices: it even moans about lt.

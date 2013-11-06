@@ -36,8 +36,6 @@
  *
  *    There is now a funky callback mclxIOinfoReset, invoked by mclxIOclose.
  *    Look out for implications.
- *
- *    mclvaDump and mclvaDump2 are weird.
 */
 
 
@@ -308,37 +306,20 @@ void mclvaWrite
 )  ;
 
 
-
-/*************************************
- * *
- **
- *
-*/
-
-               /*  does *not* accept MCLXIO_VALUE_GETENV */
-void mclvaDump
-(  const mclv*  vec
-,  FILE*             fp
-,  int               leadwidth
-,  int               valdigits
-,  mcxbool           doHeader
-)  ;
-
-
                /*    Does *not* accept MCLXIO_VALUE_GETENV.
                 *    The default corresponds with a vector printed in a matrix:
                 *    no header nor trail, eov values and vid indeed.
                */
-#define MCLVA_DUMP_HEADER_YES 1
-#define MCLVA_DUMP_VALUE_NO   2
-#define MCLVA_DUMP_VID_NO     4
-#define MCLVA_DUMP_EOV_NO     8
-#define MCLVA_DUMP_TRAIL_YES 16
+#define MCLVA_DUMP_HEADER_ON  1
+#define MCLVA_DUMP_VALUE_OFF  2
+#define MCLVA_DUMP_VID_OFF    4
+#define MCLVA_DUMP_EOV_OFF    8
+#define MCLVA_DUMP_TRAIL_ON  16
 
-void mclvaDump2
-(  const mclv*  vec
+void mclvaDump
+(  const mclv*       vec
 ,  FILE*             fp
-,  int               valdigits
+,  int               valdigits         /* -1 for none */
 ,  const char*       sep
 ,  mcxbits           opts
 )  ;
@@ -432,6 +413,13 @@ mclpAR *mclpaReadRaw
 mclpAR* mclpTFparse
 (  mcxLink*    encoding_link
 ,  mcxTing*    encoding_ting
+)  ;
+
+
+void mclxDebug
+(  const char* name
+,  mclx* mx
+,  int   valdigits
 )  ;
 
 #endif

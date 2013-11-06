@@ -415,13 +415,13 @@ mcxbool mclpSelectValues
       (  (  rgt
          && 
             (  val > rgt[0]
-            || (rng->equate & MCLX_EQT_LT && val >= rgt[0])
+            || ((rng->equate & MCLX_EQT_LT) && val >= rgt[0])
             )
          )
       || (  lft
          && 
             (  val < lft[0]
-            || (rng->equate & MCLX_EQT_GT && val <= lft[0])
+            || ((rng->equate & MCLX_EQT_GT) && val <= lft[0])
             )
          )
       )

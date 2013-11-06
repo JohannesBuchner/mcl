@@ -38,7 +38,6 @@
 #include "util/compile.h"
 
 #include "impala/matrix.h"
-#include "impala/cat.h"
 #include "impala/vector.h"
 #include "impala/io.h"
 #include "impala/tab.h"
@@ -47,6 +46,7 @@
 #include "impala/app.h"
 
 #include "mcl/interpret.h"
+#include "clew/cat.h"
 
 
 static const char *me = "clm ps";

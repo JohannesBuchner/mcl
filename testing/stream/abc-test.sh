@@ -36,6 +36,7 @@ echo "--- $q ---"
          N=$((20*$i))         # generate N lines
          k=$((2*$i))          # with k
          s=$((1*$i))          # with s sdev
+         echo "generate $N $k $s"
 
          stem="xxx.$cmode.$rmode"
 
@@ -69,8 +70,8 @@ echo "--- $q ---"
       ## now, similarly for etc-ai mode
       ##
 
-         cp $stem.raw yyy.$rmode.raw
          rawfile=yyy.$rmode.raw
+         cp  $stem.raw  $rawfile
          stem="yyy.$rmode"
 
          $load -etc-ai $rawfile \

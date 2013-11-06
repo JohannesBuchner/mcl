@@ -1,5 +1,5 @@
 /*   (C) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -315,7 +315,7 @@ static mcxstatus closeMain
       mcxDie(1, me, "-write-tab currently requires -tab or -abc")
 
    ;  if (xftabin)
-      streamer.tab_sym_in = mclTabRead(xftabin, NULL, EXIT_ON_FAIL)
+      tab = streamer.tab_sym_in = mclTabRead(xftabin, NULL, EXIT_ON_FAIL)
 
    ;  mcxIOopen(xfout, EXIT_ON_FAIL)
 
@@ -323,8 +323,10 @@ static mcxstatus closeMain
       mx
       =  mclxIOstreamIn
          (  xfabc
-         ,     MCLXIO_STREAM_ABC       |  MCLXIO_STREAM_MIRROR
-            |  MCLXIO_STREAM_SYMMETRIC |  MCLXIO_STREAM_GTAB_STRICT
+         ,     MCLXIO_STREAM_ABC
+            |  MCLXIO_STREAM_MIRROR
+            |  MCLXIO_STREAM_SYMMETRIC
+            |  (tab ? MCLXIO_STREAM_GTAB_RESTRICT : 0)
          ,  NULL
          ,  mclpMergeMax
          ,  &streamer

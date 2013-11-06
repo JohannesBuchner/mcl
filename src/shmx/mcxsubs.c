@@ -1344,9 +1344,6 @@ mcxstatus extend_disc
       mclvFree(&wave1)
 
    ;  mclgUnionvResetList(mx, dom)
-#if 0
-;mclvaDump(dom, stdout, 0, 0, FALSE)
-#endif
    ;  return STATUS_OK
 ;  }
 
@@ -1490,7 +1487,7 @@ void spec_exec
 
    ;  if (spec->sel_sz_opts & MCLX_EQT)
       {  mclv* sel =
-         mclgMakeSparse
+         mclgUnlinkNodes
          (  sub
          ,  spec->sz_min      /* keep vectors with #entries >= sz_min  */
          ,  spec->sz_max      /* keep vectors with #entries <= sz_max  */

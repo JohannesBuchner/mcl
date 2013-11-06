@@ -21,6 +21,7 @@ extern dim nu_meet_zip  ;
 extern dim nu_diff_can  ;
 extern dim nu_diff_sl   ;
 extern dim nu_diff_zip  ;
+extern double nu_magic  ;
 
 #endif
 

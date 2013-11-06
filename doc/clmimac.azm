@@ -25,7 +25,7 @@
    \synreqopt{-imx}{fname}{input file}
    \synoptopt{-o}{fname}{name/stem for output}
    \synoptopt{-dag}{fname}{output DAG}
-   \synoptopt{--enstrict}{remove overlap}
+   \synoptopt{-overlap}{str}{overlap mode}
    \synoptopt{-sort}{str}{size|revsize|lex|none}
    \synoptopt{-strict}{num}{in 0..1}
    \stdsynopt
@@ -80,10 +80,13 @@
    lexicographically by the indices they contain, or use the clustering
    exactly as obtained from the interpretation routine.}
 
-\item{\defopt{--enstrict}{remove overlap}}
+\item{\defopt{-overlap}{mode}{overlap mode}}
 \car{
-   Remove overlap should it be found, by allocating the nodes
-   in overlap to the first cluster in which they were found.}
+   With \genarg{mode} set to \it{cut}, remove any overlap  by allocating the
+   nodes in overlap to the first cluster in which they were found.  Mode
+   \it{keep} leaves overlap unchanged, and mode \it{split} results in overlapping
+   parts excised and introduced as clusters in their own right.
+   }
 
 \stddefopt
 

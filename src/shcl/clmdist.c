@@ -36,7 +36,6 @@
 #include "clmdist.h"
 
 #include "impala/matrix.h"
-#include "impala/cat.h"
 #include "impala/io.h"
 #include "impala/iface.h"
 #include "impala/ivp.h"
@@ -45,6 +44,7 @@
 #include "taurus/la.h"
 
 #include "clew/clm.h"
+#include "clew/cat.h"
 
 #include "util/types.h"
 #include "util/err.h"
@@ -156,7 +156,7 @@ static mcxOptAnchor distOptions[] =
 
 static mcxIO*  xfout    =  (void*) -1;
 static int digits       =  -1;
-static int mode         =  -1;
+static int mode_g       =  -1;
 static mcxbool i_am_vol =  FALSE;   /* node faithfulness */
 static double  nff_fac  =  FLT_MAX;
 
@@ -165,7 +165,7 @@ static mcxstatus distInit
 (  void
 )
    {  xfout =  mcxIOnew("-", "w")
-   ;  mode = 0
+   ;  mode_g = 0
    ;  digits = 2
    ;  nff_fac     =  0.5
    ;  return STATUS_OK
@@ -227,13 +227,13 @@ static mcxstatus distArgHandle
 
          case DIST_OPT_MODE
       :     if (!strcmp(val, "sj"))
-            mode = DIST_SPLITJOIN
+            mode_g = DIST_SPLITJOIN
          ;  else if (!strcmp(val, "vi"))
-            mode = DIST_VARINF
+            mode_g = DIST_VARINF
          ;  else if (!strcmp(val, "ehd") || !strcmp(val, "mk"))
-            mode = DIST_MIRKIN
+            mode_g = DIST_MIRKIN
          ;  else if (!strcmp(val, "sc"))
-            mode = DIST_SCATTER
+            mode_g = DIST_SCATTER
          ;  else
             mcxDie(1, me, "unknown mode <%s>", val)
       ;  break
@@ -255,7 +255,6 @@ static mcxstatus distMain
    ;  int n_clusterings =  0
    ;  clnode*  cls      =  mcxAlloc(argc * sizeof(clnode), EXIT_ON_FAIL)
    ;  int a             =  0
-   ;  int mode          =  0
    ;  int digits        =  2
    ;  mclx* nff_scores  =  NULL
    ;  dim nff[5]        =  { 0, 0, 0, 0, 0 }
@@ -263,10 +262,10 @@ static mcxstatus distMain
    ;  if (i_am_vol)
       me = "clm vol"
       
-   ;  if (!mode)
-      mode = DIST_SPLITJOIN
+   ;  if (!mode_g)
+      mode_g = DIST_SPLITJOIN
 
-   ;  if (mode & DIST_MIRKIN || mode & DIST_SPLITJOIN)
+   ;  if (mode_g & DIST_MIRKIN || mode_g & DIST_SPLITJOIN)
       digits = 0
 
    ;  mcxIOopen(xfout, EXIT_ON_FAIL)
@@ -366,12 +365,12 @@ static mcxstatus distMain
                      nff[4] += meet_sz
                ;  }
                }
-               if (i_am_vol)  /* quickly hack this in; refactor later */
+               if (i_am_vol)  /* hacked; refactor later */
                continue
          ;  }
 
 
-            if (mode == DIST_SPLITJOIN)
+            if (mode_g == DIST_SPLITJOIN)
                clmSJDistance(c1, c2, meet12, meet21, &dist1i, &dist2i)
             ,  fprintf
                (  xfout->fp
@@ -390,7 +389,7 @@ static mcxstatus distMain
                ,  (long) nff[4]
                )
 
-         ;  else if (mode == DIST_VARINF)
+         ;  else if (mode_g == DIST_VARINF)
                clmVIDistance(c1, c2, meet12, &dist1d, &dist2d)
             ,  fprintf
                (  xfout->fp
@@ -403,7 +402,7 @@ static mcxstatus distMain
                ,  cls[j].name->str
                )
 
-         ;  else if (mode == DIST_MIRKIN)
+         ;  else if (mode_g == DIST_MIRKIN)
                clmJQDistance(c1, c2, meet12, &dist1d, &dist2d)
             ,  fprintf
                (  xfout->fp
@@ -416,7 +415,7 @@ static mcxstatus distMain
                ,  cls[j].name->str
                )
 
-         ;  else if (mode == DIST_SCATTER)
+         ;  else if (mode_g == DIST_SCATTER)
             {  int n_meet = mclxNrofEntries(meet12)
             ;  dist1i = n_meet-N_COLS(c1)
             ;  dist2i = n_meet-N_COLS(c2)

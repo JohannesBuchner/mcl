@@ -18,12 +18,14 @@
 
 
 #include "cat.h"
+#include "clm.h"
+
 #include "util/err.h"
 #include "util/compile.h"
 
-#include "io.h"
-#include "compose.h"
-#include "tab.h"
+#include "impala/io.h"
+#include "impala/compose.h"
+#include "impala/tab.h"
 
 static const char* us = "mclxCat";
 
@@ -688,268 +690,218 @@ mcxstatus mclxCatRead
 ;  }
 
 
-
-static void clm_split_overlap
-(  mclx* cl
-)
-   {  dim n_entries     =  mclxNrofEntries(cl)
-   ;  dim n_entries_old =  DIM_MAX
-   ;  dim n_ite         =  0
-   ;  mclv** clnew      =  mcxAlloc
-                           (  N_ROWS(cl) * sizeof clnew[0]
-                           ,  EXIT_ON_FAIL
-                           )
-
-   ;  while (n_entries > N_ROWS(cl))
-      {  mclx* cltp = mclxTranspose(cl)
-      ;  dim n_clnew = 0, i, n_empty = 0
-
-
-      ;  if (n_entries >= n_entries_old)
-         {  mcxErr("clm_split_overlap panic", "no decrease no sentinel")
-         ;  mclxFree(&cltp)
-         ;  break
-      ;  }
-
-                  /* for each node check its cluster count
-                  */
-         for (i=0;i<N_COLS(cltp);i++)
-         {  mclv* cllist = cltp->cols+i
-         ;  if (cllist->n_ivps > 1)
-            {  dim j
-            ;  mclv* meet = NULL, *cl0 = NULL
-
-                  /* Compute meet of intersecting clusters
-                  */
-            ;  for (j=0;j<cllist->n_ivps;j++)
-               {  cl0 = mclxGetVector
-                  (  cl
-                  ,  cllist->ivps[j].idx
-                  ,  EXIT_ON_FAIL
-                  ,  cl0
-                  )
-               ;  meet = meet ? mcldMeet(cl0, meet, meet) : mclvClone(cl0)
-            ;  }
-
-                  /* Get rid of the meet in each cluster
-                  */
-               cl0 = NULL
-            ;  if (meet->n_ivps)
-               {  for (j=0;j<cllist->n_ivps;j++)
-                  {  cl0 = mclxGetVector
-                     (  cl
-                     ,  cllist->ivps[j].idx
-                     ,  EXIT_ON_FAIL
-                     ,  cl0
-                     )
-                  ;  if (cl0->n_ivps)
-                     {  mcldMinus(cl0, meet, cl0)
-                     ;  if (!cl0->n_ivps)
-                        n_empty++
-                  ;  }
-               ;  }
-                  clnew[n_clnew++] = meet
-            ;  }
-            }
-         }
-               /* WARNING: below may change N_COLS(cl)
-                * AND makes cltp out of sync .....
-               */
-         if (n_empty)
-         {  dim o, m, e
-         ;  clmEnstrict
-            (  cl
-            ,  &o
-            ,  &m
-            ,  &e
-            ,  ENSTRICT_KEEP_OVERLAP | ENSTRICT_LEAVE_MISSING
-            )
-         ;  if (n_empty != e)
-            mcxDie(1, "clmEnstrict", "empty but not empty - what am I?")
-      ;  }
-
-               /*  ..... so free it right away.
-               */
-         mclxFree(&cltp)
-
-      ;  if (n_clnew)
-         {  dim n_clold = N_COLS(cl)
-         ;  ofs clid = MAXID_COLS(cl) + 1
-         ;  cl->cols
-            =  mcxNRealloc
-               (  cl->cols
-               ,  n_clold + n_clnew
-               ,  n_clold
-               ,  sizeof(mclv)
-               ,  mclvInit_v
-               ,  EXIT_ON_FAIL
-               )
-         ;  for (i=n_clold;i<n_clold + n_clnew;i++)
-            {  mclvCopy(cl->cols+i, clnew[i-n_clold])
-            ;  mclvFree(&clnew[i-n_clold])
-         ;  }
-            mclvResize(cl->dom_cols, n_clold+ n_clnew)
-         ;  for (i=n_clold;i<n_clold + n_clnew;i++)
-               cl->dom_cols->ivps[i].idx = clid
-            ,  cl->cols[i].vid = clid
-            ,  clid++
-      ;  }
-
-         n_entries_old = n_entries
-      ;  n_entries = mclxNrofEntries(cl)
-      ;  n_ite++
-
-      ;  mcxLog
-         (  MCX_LOG_MODULE
-         ,  "clmEnstrict"
-         ,  "removed %lu overlap and added %lu clusters (removed %lu)"
-         ,  (ulong) (n_entries_old - n_entries)
-         ,  (ulong) n_clnew
-         ,  (ulong) n_empty
-         )
-   ;  }
-      mcxFree(clnew)
-;  }
-
-
-
-   /*
-    *    Remove overlap
-    *    Add missing entries
-    *    Remove empty clusters
-   */
-
-dim  clmEnstrict
-(  mclx*  cl
-,  dim         *overlap
-,  dim         *missing
-,  dim         *empty
-,  mcxbits     flags
-)
-   {  dim  c
-   ;  const char* me =  "clmEnstrict"
-   ;  double half = 0.5
-   ;  mclv* ct   =  NULL
-   ;  mcxbool remove_overlap
-      =  !(flags & (ENSTRICT_SPLIT_OVERLAP | ENSTRICT_KEEP_OVERLAP))
-
-   ;  *overlap       =  0
-   ;  *missing       =  0
-   ;  *empty         =  0
-
-                     /* fixme: document reentry.
-                      * clm_split_overlap may also call clmEnstrict
-                     */
-   ;  if (flags & ENSTRICT_SPLIT_OVERLAP)
-      {  dim ome
-      ;  BIT_OFF(flags, ENSTRICT_SPLIT_OVERLAP)
-      ;  BIT_ON(flags, ENSTRICT_KEEP_OVERLAP)
-      ;  ome = clmEnstrict(cl, overlap, missing, empty, flags)
-      ;  if (overlap)
-         clm_split_overlap(cl)
-      ;  return ome
-   ;  }
-
-      ct = mclvClone(cl->dom_rows)
-   ;  mclvMakeConstant(ct, 0.0)
-
-   ;  for (c=0;c<N_COLS(cl);c++)
-      {  mclIvp*  ivp      =  (cl->cols+c)->ivps
-      ;  mclIvp*  ivpmax   =  ivp + (cl->cols+c)->n_ivps
-      ;  dim      olap     =  0
-      ;  long     l        =  -1
-
-      ;  while(ivp< ivpmax)
-         {  if ((l = mclvGetIvpOffset(cl->dom_rows, ivp->idx, l)) < 0)
-               mcxErr
-               (  me
-               ,  "index <%ld> rank <%ld> not in domain for cluster <%ld>"
-               ,  (long) ivp->idx
-               ,  (long) (ivp - cl->cols[c].ivps)
-               ,  (long) cl->cols[c].vid
-               )
-            ,  mcxExit(1)     /* fixme do not exit; create clustering */
-
-                                         /* already seen (overlap) */
-         ;  ct->ivps[l].val++
-
-         ;  if (ct->ivps[l].val > 1.5)
-            {  olap++
-            ;  if (remove_overlap)
-               ivp->val = -1.0
-         ;  }
-
-            ivp++
-         ;  l++
-      ;  }
-
-         *overlap  += olap
-
-      ;  if (remove_overlap)
-         mclvSelectGqBar(cl->cols+c, 0.0)
-   ;  }
-
-      *missing = mclvCountGiven(ct, mclpGivenValLQ, &half) 
-
-   ;  if (*missing && !(flags & ENSTRICT_LEAVE_MISSING))
-      {  long  newvid  =  mclvHighestIdx(cl->dom_cols) + 1
-      ;  dim cloldsize = N_COLS(cl), z
-
-      ;  mclv* cladd   =  mclvRange(NULL, *missing, newvid, 1.0)
-      ;  mclxAccomodate(cl, cladd, NULL)
-
-      ;  for(z=0;z<ct->n_ivps;z++)
-         {  if (!ct->ivps[z].val)
-            {  mclvInsertIdx
-               (  cl->cols+cloldsize
-               ,  cl->dom_rows->ivps[z].idx
-               ,  1.0
-               )
-            ;  cloldsize++ 
-         ;  }
-         }
-     /*  NOW N_COLS(cl) has changed */
-      }
-
-      {  dim q  =  0
-
-      ;  for (c=0;c<N_COLS(cl);c++)
-         {  if (cl->cols[c].n_ivps > 0)
-            {  if (c>q  && !(flags & ENSTRICT_KEEP_EMPTY))
-               {  (cl->cols+q)->n_ivps    =  (cl->cols+c)->n_ivps
-               ;  (cl->cols+q)->ivps      =  (cl->cols+c)->ivps
-            ;  }
-               q++
-         ;  }
-         }
-
-      ;  *empty  =  N_COLS(cl) - q
-
-      ;  if (q < N_COLS(cl) && !(flags & ENSTRICT_KEEP_EMPTY))
-         {  cl->cols =     mcxRealloc
-                           (  cl->cols
-                           ,  q*sizeof(mclv)
-                           ,  EXIT_ON_FAIL
-                           )
-         ;  mclvResize(cl->dom_cols, q)
-                 /*  careful; this automatically effects N_COLS(cl) */
-      ;  }
-      }
-
-      mclvFree(&ct)
-   ;  return (*overlap + *missing + *empty)
-;  }
-
-
-
 mclx*  clmContingency
 (  const mclx*  cla
 ,  const mclx*  clb
 )
-   {  mclx  *clbt  =  mclxTranspose(clb)
+   {  mclx  *clbt =  mclxTranspose(clb)
    ;  mclx  *ct   =  mclxCompose(clbt, cla, 0)
    ;  mclxFree(&clbt)
    ;  return ct
 ;  }
+
+
+
+dim clmStats
+(  mclx* cls
+,  dim   clmstat[N_CLM_STATS]
+)
+   {  mclv* acc = mclvInit(NULL)
+   ;  double onep5 = 1.5
+   ;  mclv* clssizes = mclxColSizes(cls, MCL_VECTOR_SPARSE)
+   ;  dim d
+
+   ;  mclxMakeCharacteristic(cls)
+
+   ;  for (d=0;d<N_COLS(cls);d++)
+      mclvAdd(cls->cols+d, acc, acc)
+
+   ;  clmstat[CLM_STAT_NODES_MISSING]  =  N_ROWS(cls) - acc->n_ivps
+   ;  clmstat[CLM_STAT_NODES_OVERLAP]  =  mclvCountGiven(acc, mclpGivenValGQ, &onep5)
+   ;  clmstat[CLM_STAT_CLUSTERS]       =  clssizes->n_ivps
+   ;  clmstat[CLM_STAT_NODES]          =  N_ROWS(cls)
+   ;  clmstat[CLM_STAT_CLUSTERS_EMPTY] =  N_COLS(cls) - clssizes->n_ivps
+   ;  clmstat[CLM_STAT_SUM_OVERLAP]    =  mclxNrofEntries(cls)
+                                             - N_ROWS(cls)
+                                             - clmstat[CLM_STAT_CLUSTERS_EMPTY]
+
+   ;  mclvFree(&clssizes)
+   ;  mclvFree(&acc)
+   ;  return
+         (  clmstat[CLM_STAT_NODES_OVERLAP]
+         +  clmstat[CLM_STAT_NODES_MISSING]
+         +  clmstat[CLM_STAT_CLUSTERS_EMPTY]
+         )
+;  }
+
+
+
+static void clm_cut_overlap
+(  mclx* cl
+)
+   {  mclx* cltp = mclxTranspose(cl), *cl2
+   ;  dim d
+   ;  for (d=0;d<N_COLS(cltp);d++)
+      mclvResize(cltp->cols+d, 1)
+   ;  cl2 = mclxTranspose(cltp)
+   ;  mclxTransplant(cl, &cl2)
+;  }
+
+
+   /* Now for each non-empty non-self intersection make a star graph,
+      connecting one node with all the others. The connected
+      components on the resulting graph will give us the clusters with
+      all overlap split off and merged.
+
+      For the self-intersection (of a cluster with itself)
+      we wish to exclude all the nodes that are in overlap (those
+      that are in a non-empty non-self intersection).
+    */
+static void clm_split_overlap
+(  mclx* cl
+)
+   {  mclx* ctgy  =  clmContingency(cl, cl)  
+   ;  mclx* clustergraphcomponents = NULL
+   ;  mclx* clustergraph
+               =  mclxAllocZero
+                  (  mclvCopy(NULL, cl->dom_rows)
+                  ,  mclvCopy(NULL, cl->dom_rows)
+                  )
+   ;  mclv* clus_overlap = mclvInit(NULL)
+   ;  dim d
+
+   ;  mclgUnionvReset(cl)
+
+                                 /* loop over sets of projections */
+   ;  for (d=0; d<N_COLS(ctgy);d++)
+      {  mclv* ctgyvec = ctgy->cols+d     /* all projections for cluster d */
+      ;  mclv* clusvec = cl->cols+d       /* cluster d itself */
+      ;  dim e
+
+      ;  if (ctgyvec->n_ivps <= 1)        /* only self-projection exists */
+         continue
+                                 /* do not consider self-self intersection */
+      ;  mclvRemoveIdx(ctgyvec, ctgyvec->vid)
+      ;  if (clus_overlap->n_ivps)
+         mclgUnionvReset(cl)
+                                 /* clus_overlap contains all nodes in overlap */
+      ;  mclgUnionv(cl, ctgyvec, NULL, SCRATCH_READY, clus_overlap)
+
+                                 /* clus_unique contains nodes unique to the
+                                  * cluster; create a star graph on those
+                                 */
+      ;  {  mclv* clus_unique = mcldMinus(clusvec, clus_overlap, NULL)
+         ;  if (clus_unique->n_ivps)
+            {  mclv* nodevec
+               =  mclxGetVector
+                  (clustergraph, clus_unique->ivps[0].idx, RETURN_ON_FAIL, NULL)
+            ;  if (nodevec)
+               mclvAdd(nodevec, clus_unique, nodevec)
+         ;  }
+            mclvFree(&clus_unique)
+      ;  }
+
+                                 /* for the overlapping bits (each bit
+                                  * defined by two clusters, one of which
+                                  * is clusvec), create star graphs as well.
+
+                                  * we removed source cluster d from ctgyvec earlier
+                                 */
+         for (e=0;e<ctgyvec->n_ivps;e++)
+         {  long cid = ctgyvec->ivps[e].idx
+         ;  mclv* clusvec2 = mclxGetVector(cl, cid, RETURN_ON_FAIL, NULL)
+         ;  if (clusvec2)
+            {  mclv* meet = mcldMeet(clusvec, clusvec2, NULL)
+            ;  if (meet->n_ivps)
+               {  mclv* nodevec
+                  =  mclxGetVector
+                     (clustergraph, meet->ivps[0].idx, RETURN_ON_FAIL, NULL)
+                                 /* this makes meet->ivps[0] the central point
+                                  * in the star graph. all outgoing arcs
+                                  * are added. Reverse arcs will be added later
+                                  * by symmetrification.
+                                 */
+               ;  if (nodevec)
+                  mclvAdd(nodevec, meet, nodevec)
+            ;  }
+               mclvFree(&meet)
+         ;  }
+         }
+      }
+                                 /* Need to make it symmetric in order for
+                                  * clmComponents to work.
+                                 */
+      mclxAddTranspose(clustergraph, 0.5)
+   ;  clustergraphcomponents = clmComponents(clustergraph, NULL)
+   ;  mclvFree(&clus_overlap)
+   ;  mclxTransplant(cl, &clustergraphcomponents)
+                                 /* now no need to use mclgUnionvReset */
+   ;  mclxFree(&ctgy)
+   ;  mclxFree(&clustergraph)
+;  }
+
+
+
+/* optional features: argument slot for vector of missing nodes.
+   warning sign: may change number of clusters.
+ */
+dim clmEnstrict
+(  mclx*    cl
+,  dim     *overlap
+,  dim     *missing
+,  dim     *empty
+,  mcxbits  bits
+)
+   {  dim n_overlap = 0, n_empty = 0, n_missing = 0
+
+                           /* compute how many are empty. do this at
+                            * the start, as in some implementations
+                            * of overlap removal new empty clusters might
+                            * be generated. This has happened, historically,
+                            * so we keep this order.
+                           */
+   ;  {  mclv* szs = mclxColSizes(cl, MCL_VECTOR_SPARSE)
+      ;  n_empty = N_COLS(cl) - szs->n_ivps
+      ;  if (empty)
+         *empty = n_empty
+      ;  mclvFree(&szs)    /* empty clusters are removed further below */
+   ;  }
+
+                           /* simply compute the join of all clusters
+                            * to find out whether nodes are missing.
+                           */
+      {  mclv* nodes_found
+      ;  mclgUnionvReset(cl)
+      ;  nodes_found = mclgUnionv(cl, cl->dom_rows, NULL, SCRATCH_READY, NULL)
+      ;  n_missing = 0
+      ;  if (nodes_found->n_ivps < N_ROWS(cl) && !(bits & ENSTRICT_REPORT_ONLY))
+         {  mclv* truants = mcldMinus(cl->dom_rows, nodes_found, NULL)
+         ;  n_missing = truants->n_ivps
+         ;  mclxAppendVectors(cl, truants, NULL)
+                           /* ^ dangersign; changes N_COLS(cl) */
+         ;  mclvFree(&truants)
+      ;  }
+         n_overlap = mclxNrofEntries(cl) - nodes_found->n_ivps
+      ;  if (missing) *missing = n_missing
+      ;  if (overlap) *overlap = n_overlap
+      ;  mclvFree(&nodes_found)
+   ;  }
+            /* no more missing nodes. whee. */
+
+      if (n_overlap && !(bits & ENSTRICT_REPORT_ONLY))
+      {  if (bits & ENSTRICT_SPLIT_OVERLAP) 
+         clm_split_overlap(cl)
+      ;  else if (bits & ENSTRICT_CUT_OVERLAP)
+         clm_cut_overlap(cl)
+   ;  }
+            /* no more overlap. cracking */
+
+   ;  if (n_empty && !(bits & ENSTRICT_REPORT_ONLY))
+      mclxScrub(cl, MCLX_SCRUB_COLS)
+            /* no more empty clusters. yay. */
+
+   ;  return n_empty + n_missing + n_overlap
+;  }
+
 
 

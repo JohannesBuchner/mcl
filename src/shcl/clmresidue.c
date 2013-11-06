@@ -21,7 +21,6 @@
 #include "util/compile.h"
 
 #include "impala/matrix.h"
-#include "impala/cat.h"
 #include "impala/vector.h"
 #include "impala/io.h"
 #include "impala/compose.h"
@@ -29,7 +28,9 @@
 #include "impala/app.h"
 
 #include "mcl/interpret.h"
+
 #include "clew/clm.h"
+#include "clew/cat.h"
 
 /*
  *    Ideal scenario: only read in the vectors that are needed, i.e. with a mask.
@@ -184,7 +185,7 @@ static mcxstatus residueMain
                            )
 
      /* fixme: this code also in mcl/clm.c: factor out? */
-     /* is mclxAccomodate useful here? */
+     /* is mclxAccommodate useful here? */
       ;  clus = cl->cols + n_cols_new -1
       ;  mclvInit(clus)                            /* make consistent state */
       ;  clus->vid = newvid                        /* give vector identity  */
@@ -227,7 +228,7 @@ static mcxstatus residueMain
       mclxFree(&clmxres)
    /* clmxres was corrupted in loop above. */
 
-   ;  clmEnstrict(cl, &o, &m, &e, ENSTRICT_TRULY)
+   ;  clmEnstrict(cl, &o, &m, &e, ENSTRICT_SPLIT_OVERLAP)
    /* perhaps the extra dummy cluster was totally emptied */
 
    ;  mclxWrite(cl, xfout, MCLXIO_VALUE_NONE, EXIT_ON_FAIL)
@@ -311,8 +312,14 @@ static mcxstatus enstrictMain
    {  mclx* cl
    ;  dim o, m, e
    ;  cl  =  mclxRead(xfcl, EXIT_ON_FAIL)
+   ;  mcxIOfree(&xfcl)
+
    ;  clmEnstrict(cl, &o, &m, &e, 0)
+
    ;  mclxWrite(cl, xfout, -1, EXIT_ON_FAIL)
+   ;  mcxIOfree(&xfout)
+   ;  mclxFree(&cl)
+
    ;  return STATUS_OK
 ;  }
 

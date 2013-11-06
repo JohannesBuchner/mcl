@@ -13,7 +13,8 @@
  *    _AI_ map logic was a bit bolted on. go over it and enforce clear logic.
  *
  *    handle_label could first look for labels. only insert if
- *    necessary (so no deletion is needed).
+ *    necessary (so no deletion is needed) [but I might have forgotten
+ *    a particular snag with this].
  *
  *    max_seen update could be factored out of read_abc, read_etc,
  *    and handle_label.
@@ -218,7 +219,8 @@ static mcxstatus handle_label
     * and that x is listed only at the start or line, or omitted with
     * the etc-ai format.
     *
-    * state->x_prev may be read by read_etc in order to obtain the current x index (hierverder: check)
+    * state->x_prev may be read by read_etc in order to obtain the
+    * current x index (hierverder: check)
    */
 static mcxstatus read_etc
 (  mcxIO*         xf
@@ -573,9 +575,6 @@ static mcxstatus read_abc
 
 
 
-               /* hierverder: include max_seen in interface, update when necessary
-               */
-
 static mcxstatus read_123
 (  mcxIO* xf
 ,  mcxTing* buf
@@ -918,8 +917,12 @@ mclx* mclxIOstreamIn
          ;  break
       ;  }
 
-                              /* todo hierverder: etc case supported below ? */
-         if (abc || etc)      /* These have maps associated with them */
+                              /* These have maps associated with them.
+                               * Note that bitsp may be changed (by filling in
+                               * somewhat underspecified settings).
+                               * todo hierverder: etc case supported below ?
+                              */
+         if (abc || etc)
          stream_state_set_map(symmetric, &iface, streamer, &bits)
 
       ;  if (xf->fp == NULL && (mcxIOopen(xf, ON_FAIL) != STATUS_OK))
@@ -941,9 +944,9 @@ mclx* mclxIOstreamIn
       ;  iface.x =  0
       ;  iface.y =  0
 
-      ;  if (n_ite % 100000 == 0)
-         fputc('.', stderr)
-      ;  if (n_ite % 5000000 == 0)
+      ;  if (n_ite % 20000 == 0)
+         fputc('.', stderr)               /* fixme conditional to sth */
+      ;  if (n_ite % 1000000 == 0)
          fprintf(stderr, " %ldM\n", (long) (n_ite / 1000000))
 
                         /* 
@@ -966,10 +969,10 @@ mclx* mclxIOstreamIn
       ;  x = iface.x
       ;  y = iface.y
 
-/* hierverder: etc status ignore could still expand column range.
- * do we change the status and deal with not incorporating the row,
- * or do we keep status, and change realloc/ignore logic below?
-*/
+                        /* hierverder: etc status ignore could still expand column range.
+                         * do we change the status and deal with not incorporating the row,
+                         * or do we keep status, and change realloc/ignore logic below?
+                        */
 ;if(0)fprintf(stderr, "#x now %lu status %s\n", (ulong) (iface.map_c->max_seen+1), MCXSTATUS(status))
                         /* etc/235 are special in that with NEW x and IGNORE y
                          * we respect x

@@ -21,9 +21,9 @@
 
 #include <stdio.h>
 
-#include "matrix.h"
-#include "vector.h"
-#include "tab.h"
+#include "impala/matrix.h"
+#include "impala/vector.h"
+#include "impala/tab.h"
 
 #include "util/types.h"
 
@@ -159,16 +159,12 @@ mcxstatus mclxCatWrite
 ,  mcxOnFail   ON_FAIL
 )  ;
 
-#define  ENSTRICT_KEEP_OVERLAP   1
-#define  ENSTRICT_LEAVE_MISSING  2
-#define  ENSTRICT_KEEP_EMPTY     4
-#define  ENSTRICT_SPLIT_OVERLAP  8
-#define  ENSTRICT_JOIN_MISSING  16
 
-#define  ENSTRICT_TRULY          0
-#define  ENSTRICT_REPORT_ONLY    ENSTRICT_KEEP_OVERLAP\
-                              |  ENSTRICT_LEAVE_MISSING\
-                              |  ENSTRICT_KEEP_EMPTY
+#define  ENSTRICT_SPLIT_OVERLAP  1
+#define  ENSTRICT_KEEP_OVERLAP   2
+#define  ENSTRICT_CUT_OVERLAP    4
+#define  ENSTRICT_REPORT_ONLY    8
+
 
 /* May change cl->cols and accordingly dom_cols, N_COLS(cl),
  * and the vid members of the columns.
@@ -182,6 +178,22 @@ dim clmEnstrict
 ,  dim         *missing
 ,  dim         *empty
 ,  mcxbits     flags
+)  ;
+
+
+enum
+{  CLM_STAT_NODES_MISSING = 0
+,  CLM_STAT_NODES_OVERLAP
+,  CLM_STAT_SUM_OVERLAP
+,  CLM_STAT_NODES
+,  CLM_STAT_CLUSTERS
+,  CLM_STAT_CLUSTERS_EMPTY
+,  N_CLM_STATS
+}  ;
+
+dim clmStats
+(  mclx* cls
+,  dim   clmstats[N_CLM_STATS]
 )  ;
 
 

@@ -170,6 +170,7 @@ AC_OUTPUT([
     testing/Makefile
     testing/stream/Makefile
     testing/blast/Makefile
+    testing/setops/Makefile
     graphs/Makefile
     img/Makefile
     scripts/Makefile

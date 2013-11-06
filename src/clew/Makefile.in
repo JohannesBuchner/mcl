@@ -53,7 +53,8 @@ AR = ar
 ARFLAGS = cru
 libclew_a_AR = $(AR) $(ARFLAGS)
 libclew_a_LIBADD =
-am_libclew_a_OBJECTS = scan.$(OBJEXT) claw.$(OBJEXT) clm.$(OBJEXT)
+am_libclew_a_OBJECTS = scan.$(OBJEXT) claw.$(OBJEXT) clm.$(OBJEXT) \
+	cat.$(OBJEXT)
 libclew_a_OBJECTS = $(am_libclew_a_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/autofoo/depcomp
@@ -161,8 +162,8 @@ target_alias = @target_alias@
 INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)
 LDADD = ../mcl/libmcl.a ../clew/libclew.a ../taurus/libtaurus.a ../gryphon/libgryphon.a ../impala/libimpala.a ../../util/libutil.a
 noinst_LIBRARIES = libclew.a
-libclew_a_SOURCES = scan.c claw.c clm.c
-EXTRA_DIST = scan.h claw.h clm.h
+libclew_a_SOURCES = scan.c claw.c clm.c cat.c
+EXTRA_DIST = scan.h claw.h clm.h cat.h
 all: all-am
 
 .SUFFIXES:
@@ -210,6 +211,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/claw.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/clm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scan.Po@am__quote@

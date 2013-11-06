@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<!-- Copyright (c) 2008 Stijn van Dongen -->
+<!-- Copyright (c) 2009 Stijn van Dongen -->
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <meta name="keywords" content="manual">
@@ -11,10 +11,10 @@ color: #001111;
 background: white;
 margin-left: 8%;
 margin-right: 8%;
-font-family: Helvetica, Univers, Verdana, sans-serif;
+font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 p.default {
-font-family: Helvetica, Univers, Verdana, sans-serif;
+font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 text-align: justify;
 }
 p.L53 { font-size: 30pt; }
@@ -25,15 +25,19 @@ p.L49 { font-size: 10pt; }
 p.L48 { font-size: 9pt; }
 p.L47 { font-size: 8pt; }
 td {
-font-family: Helvetica, Univers, Verdana, sans-serif;
+font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 text-align: justify;
 }
 h3 { margin-top:1em; }
 h2 { margin-top:2em; }
-.left { text-align: left; align: left; }
-.right { text-align: right; align: right; }
-.center { text-align: center; align: center; }
+.itembullet { font-size: 10pt; }
+.left { text-align: left; }
+.right { text-align: right; }
+.center { text-align: center; }
 .nowrap { white-space: nowrap; }
+.item { font-size: 12pt;
+text-align: justify;
+}
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -70,27 +74,27 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-7 Nov 2008&nbsp;&nbsp;&nbsp;
+2 Feb 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxmap.ps"><b>mcxmap</b></a>
-1.008, 08-312
+1.008, 09-033
 </p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=48 valign="top" class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr valign="baseline"><td width=48 class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr><td width=48 valign="top" class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr><td width=48 valign="top" class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr><td width=48 valign="top" class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#options">OPTIONS</a>
-</div></td></tr><tr><td width=48 valign="top" class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#examples">EXAMPLES</a>
-</div></td></tr><tr><td width=48 valign="top" class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#author">AUTHOR</a>
-</div></td></tr><tr><td width=48 valign="top" class="left nowrap">7.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">7.</td><td width=8>&nbsp;</td><td><div class=item>
 <a class="intern" href="#seealso">SEE ALSO</a>
 </div></td></tr>
 </table>
@@ -145,14 +149,14 @@ The special properties of a map matrix are</p>
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=32 valign="top" class=right>&bull;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr valign="baseline"><td width=32 class=right><span class="itembullet">&bull;</span></td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 The column domain and row domain are
 of the same cardinality.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=32 valign="top" class=right>&bull;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td width=32 class=right><span class="itembullet">&bull;</span></td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Each column has exactly one entry.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=32 valign="top" class=right>&bull;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td width=32 class=right><span class="itembullet">&bull;</span></td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Each row domain index occurs in exactly one column.</p>
 </div></td></tr>
@@ -170,36 +174,36 @@ An example map matrix is found in the <a class="intern" href="#examples">EXAMPLE
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td colspan=3><a name="opt-o"></a><b>-o</b> fname (<i>output file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<tr valign="baseline"><td colspan=3><a name="opt-o"></a><b>-o</b> fname (<i>output file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Output file.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-imx"></a><b>-imx</b> fname (<i>input file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-imx"></a><b>-imx</b> fname (<i>input file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Input file.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-map"></a><b>-map</b> fname (<i>row/col map file)</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-rmap"></a><b>-rmap</b> fname (<i>row map file</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cmap"></a><b>-cmap</b> fname (<i>column map file</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-mapi"></a><b>-mapi</b> fname (<i>row/col map file (use inverse)</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-rmapi"></a><b>-rmapi</b> fname (<i>row map fil (use inverse)</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cmapi"></a><b>-cmapi</b> fname (<i>column map fil (use inverse)</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-map"></a><b>-map</b> fname (<i>row/col map file)</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-rmap"></a><b>-rmap</b> fname (<i>row map file</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cmap"></a><b>-cmap</b> fname (<i>column map file</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-mapi"></a><b>-mapi</b> fname (<i>row/col map file (use inverse)</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-rmapi"></a><b>-rmapi</b> fname (<i>row map fil (use inverse)</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cmapi"></a><b>-cmapi</b> fname (<i>column map fil (use inverse)</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Different ways to specify map files.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-cann"></a><b>-cann</b> (<i>output map file name</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cannc"></a><b>-cannc</b> (<i>output map file name</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cannr"></a><b>-cannr</b> (<i>output map file name</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-cann"></a><b>-cann</b> (<i>output map file name</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cannc"></a><b>-cannc</b> (<i>output map file name</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cannr"></a><b>-cannr</b> (<i>output map file name</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Generate a map that maps the specified domain onto
 the appropriate canonical domain and write the map
 matrix to file.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-cmul"></a><b>-cmul</b> a (<i>coefficient</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cshift"></a><b>-cshift</b> b (<i>translate</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-cmul"></a><b>-cmul</b> a (<i>coefficient</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cshift"></a><b>-cshift</b> b (<i>translate</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 These options have affect if neither a column map file nor column
 canonification is specified. If any of the first two options is used,
 column indices&nbsp;<tt>i</tt> are mapped to&nbsp;<tt>a*i+b</tt>.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-rmul"></a><b>-rmul</b> c (<i>coefficient</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-rshift"></a><b>-rshift</b> d (<i>translate</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-rmul"></a><b>-rmul</b> c (<i>coefficient</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-rshift"></a><b>-rshift</b> d (<i>translate</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 These options have affect if neither a row map file nor row
 canonification is specified. If any of the first two options is used,
 indices&nbsp;<tt>i</tt> are mapped to&nbsp;<tt>c*i+d</tt>.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-mul"></a><b>-mul</b> e (<i>coefficient</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-shift"></a><b>-shift</b> f (<i>translate</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-mul"></a><b>-mul</b> e (<i>coefficient</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-shift"></a><b>-shift</b> f (<i>translate</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 If a map file is specified for a given domain, neither a map file nor
 canonification is specified. If any of the first two options is used, the
 indices&nbsp;<tt>i</tt> will be mapped to&nbsp;<tt>e*i+f</tt>.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-tab"></a><b>-tab</b> fname (<i>read (and map) tab file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-tab"></a><b>-tab</b> fname (<i>read (and map) tab file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 This option requires the <b>-map</b> option. <b>mcxmap</b> will output the
 mapped tab definition.

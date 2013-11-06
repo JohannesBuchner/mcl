@@ -51,6 +51,9 @@
    For copyright notices of source files, header files, documentation files,
    and build files, consult the files themselves.
 
-   The largest part of MCL is held copyright by Stijn van Dongen.  The build
-   part is copyright by Joost van Baal.
+   The largest part of MCL is held copyright by Stijn van Dongen.
+   
+   The build part is copyright by Joost van Baal.
+   util/getpagesize.h is copyright by the Free Software Foundation.
+   The Ziggurat method in util/rand.h is copyright by Jochen Voss.
 

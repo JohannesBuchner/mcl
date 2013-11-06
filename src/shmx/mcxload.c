@@ -851,12 +851,11 @@ int main
    ;  mclxWrite(mx, xfmx, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
    ;  mcxIOclose(xfmx)
 
-                  /* fixme: the tab_map_sym check is ugly.
-                   * It would be neater to have a { mx, tabsym, tabcol, tabrow }  
-                   * tuple that is kept consistent at all time.
-                   * As it is, the consistency semantics are spread
-                   * like spaghetti. A heartening thought though,
-                   * is that it used to be ten times worse before
+                  /* fixme: the tab_map_sym check is ugly.  It would be neater
+                   * to have a { mx, tabsym, tabcol, tabrow }  tuple that is
+                   * kept consistent at all time.  As it is, the consistency
+                   * semantics are spread like spaghetti. A heartening thought
+                   * though, it used to be ten times worse before
                    * mclxIOstreamIn rewrite.
                   */
    ;  if

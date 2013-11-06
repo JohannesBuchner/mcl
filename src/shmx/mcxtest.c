@@ -23,7 +23,6 @@
 
 #include "impala/io.h"
 #include "impala/matrix.h"
-#include "impala/cat.h"
 #include "impala/tab.h"
 #include "impala/stream.h"
 #include "impala/ivp.h"
@@ -46,6 +45,7 @@
 #include "mcl/alg.h"
 
 #include "clew/clm.h"
+#include "clew/cat.h"
 
 const char* usagelines[];
 

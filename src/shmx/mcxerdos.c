@@ -7,10 +7,12 @@
 */
 
 /* TODO erdos:
- *    in daemon mode create cookie ..
- *    -  (perhaps) [create new array excluding i with seen[aow[i]] = 0]
- *    -  ??? use dedicated matrix structure (halves memory requirement)
- *       -> no; rather think dijkstra and void*
+ *    more matrix transformation options.
+ *    -  enable random deletion of edges (to test whether directionality corrupts).
+ *    -  enable look + distance
+ *
+ *    -  in non-interactive mode fail rather than resume.
+ *    -  output edge info with mclgCeilNB
 */
 
 
@@ -42,6 +44,7 @@
 #include "util/compile.h"
 
 #include "impala/matrix.h"
+#include "impala/stream.h"
 #include "impala/io.h"
 #include "impala/tab.h"
 #include "impala/app.h"
@@ -59,8 +62,11 @@
 
 
 enum
-{  MY_OPT_IMX    =   MCX_DISP_UNUSED
+{  MY_OPT_ABC    =   MCX_DISP_UNUSED
+,  MY_OPT_IMX
 ,  MY_OPT_TAB
+,  MY_OPT_QUERY
+,  MY_OPT_CEILNB
 }  ;
 
 
@@ -72,20 +78,44 @@ mcxOptAnchor erdosOptions[] =
    ,  "<fname>"
    ,  "specify input matrix"
    }
+,  {  "-abc"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_ABC
+   ,  "<fname>"
+   ,  "specify input using label pairs"
+   }
 ,  {  "-tab"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_TAB
    ,  "<fname>"
    ,  "specify tab file"
    }
+,  {  "-query"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_QUERY
+   ,  "<fname>"
+   ,  "get queries from stream <fname>"
+   }
+,  {  "-ceil-nb"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_CEILNB
+   ,  "<num>"
+   ,  "shrink neighbourhoods to at most <int> heaviest edges"
+   }
 ,  {  NULL, 0, 0, NULL, NULL }
 }  ;
 
 
-static unsigned debug_g =  -1;
+static mclxIOstreamer streamer_g = { 0 };
 
+static const char* me   =  "mcx erdos";
+static unsigned debug_g =  -1;
+static ulong    ceil_g  =  -1;
+
+static  mcxIO* xfabc_g  =  (void*) -1;
 static mcxIO* xfmx_g    =  (void*) -1;
 static mcxIO* xftab_g   =  (void*) -1;
+static mcxIO* xq_g      =  (void*) -1;
 
 static mclTab* tab_g    =  (void*) -1;
 static mcxHash* hsh_g   =  (void*) -1;
@@ -94,11 +124,14 @@ static mcxHash* hsh_g   =  (void*) -1;
 static mcxstatus allInit
 (  void
 )
-   {  xfmx_g         =  mcxIOnew("-", "r")
+   {  xfmx_g         =  NULL
    ;  xftab_g        =  NULL
    ;  tab_g          =  NULL
    ;  hsh_g          =  NULL
+   ;  xq_g           =  mcxIOnew("-", "r")
+   ;  xfabc_g        =  NULL
    ;  debug_g        =  0
+   ;  ceil_g         =  0
    ;  return STATUS_OK
 ;  }
 
@@ -109,12 +142,28 @@ static mcxstatus erdosArgHandle
 )
    {  switch(optid)
       {  case MY_OPT_IMX
-      :  mcxIOnewName(xfmx_g, val)
+      :  xfmx_g = mcxIOnew(val, "r")
+      ;  break
+      ;
+
+         case MY_OPT_ABC
+      :  xfabc_g = mcxIOnew(val, "r")
       ;  break
       ;
 
          case MY_OPT_TAB
       :  xftab_g = mcxIOnew(val, "r")
+      ;  break
+      ;
+
+         case MY_OPT_CEILNB
+      :  if (mcxStrToul(val, &ceil_g, NULL))
+         mcxDie(1, me, "failed to convert <%s> to a number", val)
+      ;  break
+      ;
+
+         case MY_OPT_QUERY
+      :  mcxIOnewName(xq_g, val)
       ;  break
       ;
 
@@ -129,7 +178,7 @@ static mcxstatus erdosArgHandle
 void label_not_found
 (  const mcxTing* t
 )
-   {  fprintf(stdout, "-- LABEL NOT FOUND (%s)\n", t->str)
+   {  fprintf(stdout, "(error label-not-found (%s))\n", t->str)
 ;  }
 
 
@@ -138,7 +187,7 @@ mcxstatus check_bounds
 ,  long idx
 )
    {  if (idx < 0 || (dim) idx >= N_COLS(mx))
-      {  fprintf(stdout, "-- ARGUMENT OUT OF BOUNDS (%ld)\n", idx)
+      {  fprintf(stdout, "(error argument-out-of-bounds (%ld))\n", idx)
       ;  return STATUS_FAIL
    ;  }
       return STATUS_OK
@@ -153,6 +202,7 @@ static void erdos_link_together
 )
    {  dim v = 0
    ;  mclv* relevant = mclvInit(NULL)
+   ;  fprintf(stdout, "(");
    ;  for (v=0;v<tails->n_ivps;v++)
       {  long t = tails->ivps[v].idx
       ;  dim j
@@ -167,19 +217,42 @@ static void erdos_link_together
                sx = "NAx"
             ;  if (!sy)
                sy = "NAy"
-            ;  fprintf(stdout, "(%s, %s)", sx, sy)
+            ;  fprintf(stdout, " (%s %s)", sx, sy)
          ;  }
             else
-            fprintf(stdout, "(%ld, %ld)", (long) t, (long) relevant->ivps[j].idx)
+            fprintf(stdout, " (%ld %ld)", (long) t, (long) relevant->ivps[j].idx)
       ;  }
          if (!relevant->n_ivps)
-         fprintf(stdout, "odd, %d has no friends\n", (int) t)
-      ;  else
-         fprintf(stdout, "\n");
+         mcxErr(me, "odd, %d has no friends\n", (int) t)
    ;  }
-      fprintf(stdout, ".\n");
+      fprintf(stdout, " )\n");
    ;  mclvFree(&relevant)
 ;  }
+
+
+
+void handle_ceil
+(  mclx*    mx
+,  mcxTing* sa
+)
+   {  char* eonum
+   ;  long ceil = 0
+   
+   ;  if (mcxStrTol(sa->str, &ceil, NULL) || ceil < 0)
+      fprintf(stdout,  "(error number-no-good)\n")
+   ;  else
+      {  dim n_hub, n_in, n_out
+      ;  mclv* sel = mclgCeilNB(mx, ceil, &n_hub, &n_in, &n_out)
+      ;  fprintf
+         (  stdout
+         ,  "(ceil (nodes %lu) (edges %lu/%lu))\n"
+         ,  (ulong) n_hub
+         ,  (ulong) n_in
+         ,  (ulong) n_out
+         )
+      ;  mclvFree(&sel)
+   ;  }
+   }
 
 
 
@@ -189,6 +262,8 @@ void handle_clcf
 )
    {  mcxKV* kv = tab_g ? mcxHashSearch(sa, hsh_g, MCX_DATUM_FIND) : NULL
    ;  long idx = -1
+   ;  mcxstatus status = STATUS_OK
+
    ;  if (tab_g && !kv)
       {  label_not_found(sa)
       ;  return
@@ -196,9 +271,9 @@ void handle_clcf
       else if (kv)
       idx = VOID_TO_ULONG kv->val
    ;  else
-      idx = atoi(sa->str)
+      status = mcxStrTol(sa->str, &idx, NULL)
 
-   ;  if (check_bounds(mx, idx))
+   ;  if (status || check_bounds(mx, idx))
       return
 
    ;  {  double clcf = mclgCLCF(mx, mx->cols+idx, NULL)
@@ -207,11 +282,12 @@ void handle_clcf
    }
 
 
-void handle_look
+void handle_list
 (  mclx*    mx
 ,  mcxTing* sa
 )
    {  mcxKV* kv = tab_g ? mcxHashSearch(sa, hsh_g, MCX_DATUM_FIND) : NULL
+   ;  mcxstatus status  = STATUS_OK
    ;  long idx = -1
    ;  if (tab_g && !kv)
       {  label_not_found(sa)
@@ -220,9 +296,9 @@ void handle_look
       else if (kv)
       idx = VOID_TO_ULONG kv->val
    ;  else
-      idx = atoi(sa->str)
+      status = mcxStrTol(sa->str, &idx, NULL)
 
-   ;  if (check_bounds(mx, idx))
+   ;  if (status || check_bounds(mx, idx))
       return
 
    ;  {  mclv* vec = mx->cols+idx
@@ -238,25 +314,28 @@ void handle_look
    }
 
 
-void handle_hairy
+void handle_top
 (  mclx*    mx
 ,  mcxTing* sa
 )
-   {  int num = atoi(sa->str)
+   {  long num = -1
    ;  dim t
    ;  mcxHeap* hp 
 
-   ;  if (num <= 0)
-      num = 100
-   ;  if ((dim) num > N_COLS(mx))
+   ;  if (mcxStrTol(sa->str, &num, NULL) || num < 0)
+      {  fprintf(stdout,  "(error number-no-good)\n")
+      ;  return
+   ;  }
+
+      if (!num || (dim) num > N_COLS(mx))
       num = N_COLS(mx)
 
+                     /* Could use mclxColSizes instead */
    ;  hp =  mcxHeapNew
             (  NULL
             ,  num
             ,  sizeof(mclp)
-            ,  mclpValCmp
-            ,  MCX_MIN_HEAP
+            ,  mclpValRevCmp
             )
    ;  for (t=0;t<N_COLS(mx);t++)
       {  mclp  ivp
@@ -282,81 +361,90 @@ void handle_hairy
 ;  }
 
 
-void handle_query
+mclx* handle_query
 (  mclx*    mx
+,  mcxIO*   xfmx
 ,  mcxTing* sa
 ,  mcxTing* sb
 )
-   {  if (!strcmp(sa->str, "?hairy"))
-      handle_hairy(mx, sb)
-   ;  else if (!strcmp(sa->str, "?look"))
-      handle_look(mx, sb)
-   ;  else if (!strcmp(sa->str, "?clcf"))
+   {  if (!strcmp(sa->str, ":top"))
+      handle_top(mx, sb)
+   ;  else if (!strcmp(sa->str, ":list"))
+      handle_list(mx, sb)
+   ;  else if (!strcmp(sa->str, ":ceil"))
+      handle_ceil(mx, sb)
+   ;  else if (!strcmp(sa->str, ":reread"))
+      {  mclxFree(&mx)
+      ;  if (xfabc_g)
+         {  streamer_g.tab_sym_in = tab_g
+         ;  
+            mx
+         =  mclxIOstreamIn
+            (  xfabc_g
+            ,     MCLXIO_STREAM_ABC
+               |  MCLXIO_STREAM_MIRROR
+               |  MCLXIO_STREAM_SYMMETRIC
+               |  MCLXIO_STREAM_GTAB_RESTRICT
+            ,  NULL
+            ,  mclpMergeMax
+            ,  &streamer_g    /* has tab, if present */
+            ,  EXIT_ON_FAIL
+            )
+         ;  mcxIOclose(xfabc_g)
+      ;  }
+         else
+         {  mx
+            =  mclxReadx
+               (xfmx, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH | MCLX_REQUIRE_CANONICAL)
+         ;  mcxIOclose(xfmx)
+      ;  }
+         mclxAdjustLoops(mx, mclxLoopCBremove, NULL)
+   ;  }
+      else if (!strcmp(sa->str, ":clcf"))
       handle_clcf(mx, sb)
    ;  else
-      fprintf(stdout, "-- UNKNOWN QUERY [hairy#1 look#1 clcf#1]\n")
+      fprintf(stdout, "(error unknown-query (:ceil#1 :clcf#1 :list#1 :reread :top#1))\n")
+   ;  return mx
 ;  }
 
 
-static mcxstatus erdosMain
-(  int          argc_unused      cpl__unused
-,  const char*  argv_unused[]    cpl__unused
-)  
-   {  mcxIO* xq = mcxIOnew("-", "r")
-   ;  mcxTing* line = mcxTingEmpty(NULL, 100)
+mclx* process_queries
+(  mcxIO* xq
+,  mclx* mx
+,  mcxIO* xfmx
+,  mclTab* tab
+)
+   {  mcxTing* line = mcxTingEmpty(NULL, 100)
    ;  mcxTing* sa = mcxTingEmpty(NULL, 100)
    ;  mcxTing* sb = mcxTingEmpty(NULL, 100)
-   ;  mclx* mx
-
-   ;  SSPxy* sspo
-
-   ;  tab_g    =  xftab_g ? mclTabRead(xftab_g, NULL, EXIT_ON_FAIL) : NULL
-   ;  hsh_g    =  tab_g ? mclTabHash(tab_g) : NULL
-   ;  debug_g  =  mcx_debug_g
-
-   ;  mcxLogLevel =
-      MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
-   ;  mclx_app_init(stderr)
-
-   ;  mx  = mclxReadx(xfmx_g, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH | MCLX_REQUIRE_CANONICAL)
-
-   ;  mclxAdjustLoops(mx, mclxLoopCBremove, NULL)
-
-   ;  fprintf(stdout, "REMOVING HAIRY NODES\n")
-   ;  if (0)
-      {  mclv* sel = mclgMakeSparse(mx, 0, 14)
-      ;  fprintf
-         (  stdout
-         ,  "REMOVED %lu nodes from the graph\n"
-         ,  (ulong) (N_COLS(mx) - sel->n_ivps)
-         )
-      ;  mclvFree(&sel)
-   ;  }
-
-      sspo = mclgSSPxyNew(mx)
+   ;  SSPxy* sspo = mclgSSPxyNew(mx)     /* fixme: use that mx is a member of sspo */
 
    ;  mcxIOopen(xq, EXIT_ON_FAIL)
 
    ;  while (1)
-      {  int a = -1, b = -2, ns = 0
+      {  long a = -1, b = -2, ns = 0
       ;  mcxbool query = FALSE
-      ;  if (tab_g)
-         fprintf(stdout, "READY (type two labels)\n")
-      ;  else
-         fprintf(stdout, "READY (type two graph indices)\n")
+      ;  if (isatty(fileno(xq->fp)))
+         fprintf
+         (  stdout
+         ,  "\n(ready (expect two %s or : directive))\n"
+         ,  tab ? "labels" : "graph indices"
+         )
       ;  if
          (  STATUS_OK != mcxIOreadLine(xq, line, MCX_READLINE_CHOMP)
             || !strcmp(line->str, ".")
          )
          break
 
-      ;  query = (u8) line->str[0] == '?'
+      ;  query = (u8) line->str[0] == ':'
 
       ;  if (query && (line->len == 1 || isspace((unsigned char) line->str[1])))
          {  fprintf(stdout, "-->\n")
-         ;  fprintf(stdout, "?hairy <num>\n")
-         ;  fprintf(stdout, "?look <node>\n")
-         ;  fprintf(stdout, "?clcf <node>\n")
+         ;  fprintf(stdout, ":ceil <num>\n")
+         ;  fprintf(stdout, ":top <num>\n")
+         ;  fprintf(stdout, ":list <node>\n")
+         ;  fprintf(stdout, ":clcf <node>\n")
+         ;  fprintf(stdout, ":reread>\n")
          ;  fprintf(stdout, "<--\n")
          ;  continue
       ;  }
@@ -365,19 +453,27 @@ static mcxstatus erdosMain
       ;  mcxTingEnsure(sb, line->len)
 
       ;  ns = sscanf(line->str, "%s %s", sa->str, sb->str)
-      ;  if (ns != 2)
-         {  fprintf(stdout, "-- EXPECT two arguments\n")
+      ;  if (ns == 2)
+            sa->len = strlen(sa->str)
+         ,  sb->len = strlen(sb->str)
+      ;  else
+            sa->len = strlen(sa->str)
+         ,  sb->len = 0
+         ,  sb->str[0] = '\0'
+
+      ;  if (!query && ns != 2)
+         {  if (line->len)
+            fprintf(stdout, "(error expect two nodes or : directive)\n")
          ;  continue
       ;  }
 
-         ;  sa->len = strlen(sa->str)
-         ;  sb->len = strlen(sb->str)
-
-      ;  if (query)
-         {  handle_query(mx, sa, sb)
+         if (query)
+         {  mx = handle_query(mx, xfmx, sa, sb)
+         ;  sspo->mx = mx
+         ;  fprintf(stdout, "%s\n\n", line->str)
          ;  continue                      /* fixme improve flow */
       ;  }
-         else if (tab_g)
+         else if (tab)
          {  mcxKV* kv
 
          ;  if ((kv = mcxHashSearch(sa, hsh_g, MCX_DATUM_FIND)))
@@ -394,9 +490,9 @@ static mcxstatus erdosMain
             ;  continue
          ;  }
          }
-         else
-         {  a = atoi(sa->str)
-         ;  b = atoi(sb->str)
+         else if (mcxStrTol(sa->str, &a, NULL) || mcxStrTol(sb->str, &b, NULL))
+         {  fprintf(stdout,  "(error failed-reading-number)\n")
+         ;  continue
       ;  }
 
          if (check_bounds(mx, a))
@@ -404,47 +500,127 @@ static mcxstatus erdosMain
       ;  if (check_bounds(mx, b))
          continue
 
-      ;  if (a == b)
-         {  fprintf(stdout, "-- ARGUMENTS IDENTICAL (%d,%d)\n", a, b)
-         ;  continue
-      ;  }
+      ;  fprintf
+         (  stdout
+         ,  "\n(lattice\n"
+            "   (anchors %s %s)\n"
+         ,  sa->str
+         ,  sb->str
+         )
 
-         {  if (!mclgSSPxyQuery(sspo, a, b))
-            {  dim t
-            ;  fprintf
-               (stdout, "===> START (paths of length %d)\n", (int) sspo->length)
+      ;  if (a == b)
+         {  fprintf
+            (  stdout
+            ,  "  (path-length 0)\n"
+               "(data\n"
+            )
+      ;  }
+         else
+         {  mcxstatus thestat = mclgSSPxyQuery(sspo, a, b)
+         ;  dim t
+
+         ;  if (thestat)
+            fprintf(stdout,  "   (path-length -2)\n(data\n")
+         ;  else if (sspo->length < 0)       /* not in same component */
+            fprintf(stdout,  "   (path-length -1)\n(data\n")
+         ;  else
+            {  fprintf
+               (  stdout
+               ,  "   (path-length %d)\n"
+                  "(data\n"
+               ,  (int) sspo->length
+               )
 
             ;  if (sspo->length == 1)
-               {  if (tab_g)
-                  fprintf(stdout, "(%s, %s)\n.\n", sa->str, sb->str)
+               {  if (tab)
+                  fprintf(stdout, "((%s %s))\n", sa->str, sb->str)
                ;  else
-                  fprintf(stdout, "(%ld, %ld)\n.\n", (long) a, (long) b)
+                  fprintf(stdout, "((%ld %ld))\n", (long) a, (long) b)
             ;  }
                else
                for (t=0; t< N_COLS(sspo->pathmx)-1; t++)
                erdos_link_together(mx, sspo->pathmx->cols+t, sspo->pathmx->cols+t+1)
 
-            ;  fprintf(stdout, "<=== END (paths of length %d)\n", (int) sspo->length)
-            ;  fprintf(stdout, "PATH LENGTH   %d\n", (int) sspo->length)
-            ;  fprintf(stdout, "CONSIDERED    %d\n", (int) sspo->n_considered)
-            ;  fprintf(stdout, "PARTICIPANTS  %d\n", (int) sspo->n_involved)
-            ;  fprintf(stdout, "---\n")
+            ;  fputs(")\n", stdout)
+            ;  fprintf(stdout, "   (anchors %s %s)\n", sa->str, sb->str)
+            ;  fprintf(stdout, "   (considered %d)\n", (int) sspo->n_considered)
+            ;  fprintf(stdout, "   (participants %d)\n", (int) sspo->n_involved)
+            ;  fprintf(stdout, "   (path-length %d)\n", (int) sspo->length)
          ;  }
-            else
-            fprintf(stderr, "NO PATH\n")
+         }
 
-         ;  mclgSSPxyReset(sspo)
-      ;  }
-      }
+         fprintf(stdout, ")\n\n")
+      ;  mclgSSPxyReset(sspo)
+   ;  }
+      mcxTingFree(&sa)
+   ;  mcxTingFree(&sb)
+   ;  mcxTingFree(&line)
+   ;  mclgSSPxyFree(&sspo)
+   ;  return mx
+;  }
 
-      mclgSSPxyFree(&sspo)
+
+static mcxstatus erdosMain
+(  int          argc_unused      cpl__unused
+,  const char*  argv_unused[]    cpl__unused
+)  
+   {  mclx* mx
+   ;  dim n_hub, n_in, n_out
+   ;  mclv* sel
+
+   ;  debug_g  =  mcx_debug_g
+
+   ;  mcxLogLevel =
+      MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
+   ;  mclx_app_init(stderr)
+
+   ;  if (xfabc_g)
+      {  if (xftab_g)
+            tab_g = mclTabRead(xftab_g, NULL, EXIT_ON_FAIL)
+         ,  streamer_g.tab_sym_in = tab_g
+      ;  mx
+      =  mclxIOstreamIn
+         (  xfabc_g
+         ,     MCLXIO_STREAM_ABC
+            |  MCLXIO_STREAM_MIRROR
+            |  MCLXIO_STREAM_SYMMETRIC
+            |  (tab_g ? MCLXIO_STREAM_GTAB_RESTRICT : 0)
+         ,  NULL
+         ,  mclpMergeMax
+         ,  &streamer_g
+         ,  EXIT_ON_FAIL
+         )
+      ;  tab_g = streamer_g.tab_sym_out
+
+      ;  if (!streamer_g.tab_sym_in)
+         streamer_g.tab_sym_in = tab_g    /* needed when rereading */
+
+      ;  mcxIOclose(xfabc_g)
+   ;  }
+      else if (xfmx_g)
+      {  mx =  mclxReadx
+               (xfmx_g, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH | MCLX_REQUIRE_CANONICAL)
+      ;  if (xftab_g)
+         tab_g = mclTabRead(xftab_g, mx->dom_cols, EXIT_ON_FAIL)
+      ;  mcxIOclose(xfmx_g)
+   ;  }
+      else
+      mcxDie(1, me, "-imx <fname> or -abc <fname> required")
+
+   ;  hsh_g = tab_g ? mclTabHash(tab_g) : NULL
+   ;  mclxAdjustLoops(mx, mclxLoopCBremove, NULL)
+
+   ;  if (ceil_g)
+      {  sel = mclgCeilNB(mx, ceil_g, &n_hub, &n_in, &n_out)
+      ;  mclvFree(&sel)
+   ;  }
+      
+      if (xq_g)
+      mx = process_queries(xq_g, mx, xfmx_g, tab_g)
 
    ;  mcxIOfree(&xftab_g)
    ;  mcxIOfree(&xfmx_g)
-   ;  mcxIOfree(&xq)
-   ;  mcxTingFree(&sa)
-   ;  mcxTingFree(&sb)
-   ;  mcxTingFree(&line)
+   ;  mcxIOfree(&xq_g)
    ;  if (N_COLS(mx) < 1<<17)
       {  mclxFree(&mx)
       ;  mclTabFree(&tab_g)

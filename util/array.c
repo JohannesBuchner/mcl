@@ -1,5 +1,5 @@
 /*   (C) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009  Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
  * under the terms of the GNU General Public License; either version 3 of the
@@ -40,7 +40,7 @@ mcxstatus mcxSplice
    ;  const char  *errMsg  =  ""
    ;  mcxstatus   stat     =  STATUS_FAIL
 
-   ;  while (1)
+   ;  do
       {  if (n_base1 > N_base1)
          {  errMsg = "integer arguments not consistent"
          ;  break
@@ -76,10 +76,10 @@ mcxstatus mcxSplice
          ;  break
       ;  }
          stat = STATUS_OK
-      ;  break
    ;  }
+      while (0)
 
-      if (stat != STATUS_OK)
+   ;  if (stat != STATUS_OK)
       {  mcxErr("[mcxSplice PBD]", "%s", errMsg)
       ;  mcxErr
          (  "[mcxSplice PBD]"
@@ -117,6 +117,18 @@ mcxstatus mcxSplice
    ;  return STATUS_OK
 ;  }
 
+
+   /* fixme, this implementation looks ugly (nested while). use instead:
+      ;  for (offset=1;offset<n_words;offset++)
+         {  if (words[offset] == words[offset-n_dup-1])
+            {  n_dup++ 
+            ;  if (merge)
+               ...
+         ;  }
+            else if (n_dup)
+            words[offset-n_dup] = words[offset]
+      ;  }
+   */
 
 dim mcxDedup
 (  void*    base
@@ -293,19 +305,16 @@ void* mcxBsearchCeil
 ,  dim size
 ,  int (*cmp)(const void *, const void *)
 )
-   {  dim lft = 0, rgt = nmemb, bar = rgt/2
-
+   {  dim lft = -1         /* on purpose; we use wraparound */
+   ;  dim rgt = nmemb
+   ;  dim bar = nmemb/2
                            /* nothing, or nothing that is larger than pivot */
    ;  if (!nmemb || cmp(pivot, ((char*)base) + (nmemb-1) * size) > 0)
       return NULL
 
-   ;  lft = 0
-   ;  rgt = nmemb
-   ;  bar = nmemb / 2
-
             /* invariant: lft points to a
              * a member that is smaller than pivot or it
-             * points to the first member.
+             * points before the first member.
             */
    ;  while (lft+1 < rgt)
       {                    /* bar is smaller than pivot, move lft inward */
@@ -314,18 +323,13 @@ void* mcxBsearchCeil
                            /* bar is larger or equal element, move rgt inward */ 
       ;  else
          rgt = bar
-#if 0
-;fprintf(stderr, "lft bar rgt = %d %d %d rgt-lft/2 = %lu\n", (int) lft, (int) bar, (int) rgt, (long) ((rgt -lft)/2))
-#endif
-                           /* update bar to be the middle of lft and rgt */
+                           /* update bar to be the middle of lft and rgt
+                            * when lft == -1 this depends on unsigned wraparound.
+                           */
       ;  bar = rgt - (rgt-lft) / 2;
    ;  }
 
-            /* if lft never moved, it may in fact be larger than base */
-      if (!lft && cmp(pivot, base) <= 0)
-      bar = 0
-
-   ;  return (((char*) base) + bar * size)
+      return (((char*) base) + bar * size)
 ;  }
 
 
@@ -341,7 +345,9 @@ void* mcxBsearchFloor
 ,  dim size
 ,  int (*cmp)(const void *, const void *)
 )
-   {  dim lft = 0, rgt = nmemb, bar = nmemb / 2
+   {  dim lft = 0
+   ;  dim rgt = nmemb
+   ;  dim bar = nmemb / 2
 
                         /* nothing, or nothing that is smaller than pivot */
    ;  if (!nmemb || cmp(pivot, base) < 0)
@@ -349,7 +355,7 @@ void* mcxBsearchFloor
 
             /* invariant: rgt points to a
              * a member that is larger than pivot or it
-             * points to the last member.
+             * points beyond the last member.
             */
    ;  while (lft+1 < rgt)
       {           /* bar is greater than pivot, move right inward */
@@ -358,9 +364,6 @@ void* mcxBsearchFloor
                   /* bar is smaller than (or equal to) pivot element, move lft inward */
       ;  else
          lft = bar
-#if 0
-;fprintf(stderr, "lft bar rgt = %d %d %d rgt-lft/2 = %lu\n", (int) lft, (int) bar, (int) rgt, (long) ((rgt -lft)/2))
-#endif
                   /* update bar to be the middle of lft and rgt */
       ;  bar = lft + (rgt-lft) / 2;
    ;  }

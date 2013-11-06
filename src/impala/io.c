@@ -1359,7 +1359,77 @@ mcxstatus mclxTaggedWrite
 ;  }
 
 
-void mclxa_write_header
+static void mclva_dump
+(  const mclv*  vec
+,  FILE*    fp
+,  int      leadwidth
+,  int      valdigits
+,  mcxbool  doHeader
+)
+   {  long vid = vec->vid
+   ;  int nr_chars   =     0
+   ;  const char* eov =    " $\n"
+   ;  int n_converted = 0
+   ;  dim d
+
+   ;  if (leadwidth > 20)
+      leadwidth = 20
+
+   ;  if (leadwidth < 0)
+      leadwidth = 0
+
+   ;  if (doHeader)
+      {  fprintf(fp , "(mclheader\nmcltype vector\n)\n" "(mclvector\nbegin\n")
+      ;  eov = " $\n)\n"
+   ;  }
+
+      if (vid>=0)
+      {  fprintf(fp, "%ld%n", (long) vid, &n_converted)
+      ;  nr_chars += n_converted
+      ;  if (vec->val != 0.0)
+            fprintf(fp, ":%.*g%n", valdigits, (double) vec->val, &n_converted)
+         ,  nr_chars += n_converted
+      ;  while (nr_chars+1 < leadwidth)  /* we get one below */
+         {  fputs(" ", fp)
+         ;  nr_chars++
+      ;  }
+      }
+
+      for (d=0; d<vec->n_ivps;d++)
+      {  if (valdigits > -1)
+         {  fprintf
+            (  fp
+            ,  " %ld:%.*g%n"
+            ,  (long) (vec->ivps+d)->idx
+            ,  (int) valdigits
+            ,  (double) (vec->ivps+d)->val
+            ,  &n_converted
+            )
+         ;  nr_chars += n_converted
+      ;  }
+         else if (valdigits == MCLXIO_VALUE_NONE)
+         {  fprintf(fp, " %ld%n",  (long) (vec->ivps+d)->idx, &n_converted)
+         ;  nr_chars += n_converted
+      ;  }
+
+                     /* assume leadwidth is correlated to index range */
+         if (nr_chars > 70-leadwidth && d < vec->n_ivps-1)
+         {  int e
+         ;  fputc('\n', fp)
+         ;  nr_chars = 0
+         ;  if (vid >= 0)
+            {  for (e=0;e<=leadwidth;e++)     /* somewhat stupid */
+                  fputc(' ', fp)
+               ,  nr_chars++
+         ;  }
+         }
+      }
+      fputs(eov, fp)
+;  }
+
+
+
+static void mclxa_write_header
 (  const mclx* mx
 ,  FILE* fp
 )
@@ -1378,7 +1448,7 @@ void mclxa_write_header
       )
       {  if (mcldEquate(mx->dom_rows, mx->dom_cols, MCLD_EQT_EQUAL))
          {  fputs("(mcldoms\n", fp)
-         ;  mclvaDump
+         ;  mclva_dump
             (  mx->dom_cols
             ,  fp
             ,  leadwidth
@@ -1390,7 +1460,7 @@ void mclxa_write_header
          else
          {  if (!mcldIsCanonical(mx->dom_rows))
             {  fputs("(mclrows\n", fp)
-            ;  mclvaDump
+            ;  mclva_dump
                (  mx->dom_rows
                ,  fp
                ,  leadwidth
@@ -1401,7 +1471,7 @@ void mclxa_write_header
          ;  }
             if (!mcldIsCanonical(mx->dom_cols))
             {  fputs("(mclcols\n", fp)
-            ;  mclvaDump
+            ;  mclva_dump
                (  mx->dom_cols
                ,  fp
                ,  leadwidth
@@ -1487,7 +1557,7 @@ mcxstatus mclxaWrite
 
    ;  for (d=0;d<N_COLS(mx);d++)
       {  if ((mx->cols+d)->n_ivps || flags & 1)
-         mclvaDump
+         mclva_dump
          (  mx->cols+d
          ,  fp
          ,  leadwidth
@@ -1585,75 +1655,6 @@ void mclxBoolPrint
    ;  for (d=0;d<N_ROWS(mx);d++)
       fprintf(stdout, "%d%s", (int) d%10, space)
    ;  fprintf(stdout, "\n")
-;  }
-
-
-void mclvaDump
-(  const mclv*  vec
-,  FILE*    fp
-,  int      leadwidth
-,  int      valdigits
-,  mcxbool  doHeader
-)
-   {  long vid = vec->vid
-   ;  int nr_chars   =     0
-   ;  const char* eov =    " $\n"
-   ;  int n_converted = 0
-   ;  dim d
-
-   ;  if (leadwidth > 20)
-      leadwidth = 20
-
-   ;  if (leadwidth < 0)
-      leadwidth = 0
-
-   ;  if (doHeader)
-      {  fprintf(fp , "(mclheader\nmcltype vector\n)\n" "(mclvector\nbegin\n")
-      ;  eov = " $\n)\n"
-   ;  }
-
-      if (vid>=0)
-      {  fprintf(fp, "%ld%n", (long) vid, &n_converted)
-      ;  nr_chars += n_converted
-      ;  if (vec->val != 0.0)
-            fprintf(fp, ":%.*g%n", valdigits, (double) vec->val, &n_converted)
-         ,  nr_chars += n_converted
-      ;  while (nr_chars+1 < leadwidth)  /* we get one below */
-         {  fputs(" ", fp)
-         ;  nr_chars++
-      ;  }
-      }
-
-      for (d=0; d<vec->n_ivps;d++)
-      {  if (valdigits > -1)
-         {  fprintf
-            (  fp
-            ,  " %ld:%.*g%n"
-            ,  (long) (vec->ivps+d)->idx
-            ,  (int) valdigits
-            ,  (double) (vec->ivps+d)->val
-            ,  &n_converted
-            )
-         ;  nr_chars += n_converted
-      ;  }
-         else if (valdigits == MCLXIO_VALUE_NONE)
-         {  fprintf(fp, " %ld%n",  (long) (vec->ivps+d)->idx, &n_converted)
-         ;  nr_chars += n_converted
-      ;  }
-
-                     /* assume leadwidth is correlated to index range */
-         if (nr_chars > 70-leadwidth && d < vec->n_ivps-1)
-         {  int e
-         ;  fputc('\n', fp)
-         ;  nr_chars = 0
-         ;  if (vid >= 0)
-            {  for (e=0;e<=leadwidth;e++)     /* somewhat stupid */
-                  fputc(' ', fp)
-               ,  nr_chars++
-         ;  }
-         }
-      }
-      fputs(eov, fp)
 ;  }
 
 
@@ -2001,7 +2002,7 @@ void mclvaWrite
 ,  FILE*             fp
 ,  int               valdigits
 )  
-   {  mclvaDump
+   {  mclva_dump
       (  vec
       ,  fp
       ,  0
@@ -2166,7 +2167,7 @@ mcxstatus mclxaSubReadRaw
          if (vec != discardv)
          {  mclv* ldif = NULL
          ;  if (mclIOvcheck(vec, tst_rows))
-            {  mclvCleanse(vec)
+            {  mclvSortUniq(vec)
             ;  ldif = mcldMinus(vec, tst_rows, NULL)
             ;  mcxErr
                (  me
@@ -2218,7 +2219,7 @@ mcxstatus mclxaSubReadRaw
 ;  }
 
 
-void mclvaDump2
+void mclvaDump
 (  const mclv*  vec
 ,  FILE*    fp
 ,  int      valdigits
@@ -2228,11 +2229,11 @@ void mclvaDump2
    {  long vid             =  vec->vid
    ;  const char* eov      =  " $\n"
 
-   ;  mcxbool print_value  =  valdigits >= 0 && !(opts & MCLVA_DUMP_VALUE_NO)
-   ;  mcxbool print_eov    =  !(opts & MCLVA_DUMP_EOV_NO)
-   ;  mcxbool print_vid    =  vid >= 0 && !(opts & MCLVA_DUMP_VID_NO)
-   ;  mcxbool print_header =  opts & MCLVA_DUMP_HEADER_YES
-   ;  mcxbool print_trail  =  opts & MCLVA_DUMP_TRAIL_YES
+   ;  mcxbool print_value  =  valdigits >= 0 && !(opts & MCLVA_DUMP_VALUE_OFF)
+   ;  mcxbool print_eov    =  !(opts & MCLVA_DUMP_EOV_OFF)
+   ;  mcxbool print_vid    =  vid >= 0 && !(opts & MCLVA_DUMP_VID_OFF)
+   ;  mcxbool print_header =  opts & MCLVA_DUMP_HEADER_ON
+   ;  mcxbool print_trail  =  opts & MCLVA_DUMP_TRAIL_ON
    ;  dim d
 
    ;  if (!sep)
@@ -2580,4 +2581,18 @@ mclpAR* mclpTFparse
 
    ;  return par
 ;  }
+
+
+
+void mclxDebug
+(  const char* name
+,  mclx* mx
+,  int   valdigits
+)
+   {  mcxIO* xf = mcxIOnew(name, "w")
+   ;  if (!mcxIOopen(xf, RETURN_ON_FAIL))
+      mclxWrite(mx, xf, valdigits, RETURN_ON_FAIL)
+   ;  mcxIOfree(&xf)
+;  }
+
 

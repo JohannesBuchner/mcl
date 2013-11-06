@@ -4,8 +4,8 @@
 include $(top_srcdir)/include/include.am
 
 noinst_LIBRARIES = libclew.a
-libclew_a_SOURCES = scan.c claw.c clm.c
+libclew_a_SOURCES = scan.c claw.c clm.c cat.c
 
-EXTRA_DIST = scan.h claw.h clm.h
+EXTRA_DIST = scan.h claw.h clm.h cat.h
 
 

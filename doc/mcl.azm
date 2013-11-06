@@ -203,7 +203,7 @@ label format and the addition of the \genoptref{--abc} option.}
    \synoptopt{-pi}{f}{pre-inflation}
    \synoptopt{-ph}{f}{pre-inflation, max-bound}
    \synoptopt{-if}{f}{start-inflation}
-   \synoptopt{-pp}{n}{preprune count}
+   \synoptopt{-ceil-nb}{n}{reduce neighbourhods}
    \synoptkvp{--discard-loops}{y/n}{discard y/n loops in input}
 }
 \cpar{Clustering result options}{
@@ -746,10 +746,9 @@ mcxdump -imx - --no-values --dump-rlines\\
 \par{
    If your input graph is extremely dense, with an average node degree
    (i.e. the number of neighbours per node) that is somewhere above 
-   500, you may need to filter the input graph by removing the nodes
-   of highest degree (and projecting them back onto the resulting
-   clustering afterwards) or by using the
-   \optref{-pp}{\genopt{-pp} option}.}
+   500, you may need to filter the input graph by removing edges,
+   for example by using the
+   \optref{-ceil-nb}{\genopt{-ceil-nb} option}.}
 
 
 \items{
@@ -1156,17 +1155,19 @@ mcxdump -imx - --no-values --dump-rlines\\
 
 \item{\defopt{-overlap}{str}{overlap mode}}
 \car{
-   Mode \it{keep} causes mcl to retain overlap
-   should this improbable event occur.  In theory, \mcl may generate a
-   clustering that contains overlap, although this almost never happens
-   in practice, as it requires some particular type of symmetry to be present
-   in the input graph (not just any symmetry will do).  Mathematically
-   speaking, this is a conjecture and not a theorem, but the present author wil
-   eat his shoe if it fails to be true (for marzipan values of shoe).  It is
-   easy though to construct an input graph for which certain mcl settings
-   result in overlap - for example a line graph on an odd number of nodes.  The
-   default is to remove overlap should it occur, corresponding with mode
-   \it{remove}.}
+   Mode \it{keep} causes mcl to retain overlap should this improbable event
+   occur.  In theory, \mcl may generate a clustering that contains overlap,
+   although this almost never happens in practice, as it requires some
+   particular type of symmetry to be present in the input graph (not just any
+   symmetry will do).  Mathematically speaking, this is a conjecture and not a
+   theorem, but the present author wil eat his shoe if it fails to be true (for
+   marzipan values of shoe).  It is easy though to construct an input graph for
+   which certain mcl settings result in overlap - for example a line graph on
+   an odd number of nodes.  The default is to excise overlapping parts and
+   introduce them as clusters in their own right.  It is possible to allocate
+   nodes in overlap to the first cluster in which they occur (i.e. rather
+   arbitrarily), corresponding with mode \it{cut}.
+   }
 
 \par{
    In mode \it{split} mcl will put all nodes in overlap into
@@ -1238,11 +1239,18 @@ mcxdump -imx - --no-values --dump-rlines\\
    Shows the log with process characteristics on STDOUT.
    By default, this mode is off.}
 
-\item{\defopt{-pp}{n}{preprune count}}
+\item{\defopt{-ceil-nb}{N}{preprune count}}
 \car{
-   For each column vector (node) in the input matrix (graph) \mcl will 
-   keep the n entries (outgoing edges) of that vector (node) that
-   have largest weight and remove the rest.}
+   The nodes of the input graph are considered in descending order of the
+   number of neighbours they posses.  The first nodes has it neighbours of
+   lowest edge weight removed until no more than \genopt{N} remain.  The
+   corresponding reciprocal edges from nodes further down the list are removed
+   as well.  Subsequent nodes are treated in the same way until all nodes in
+   the graph have at most \genopt{N} neighbours.  This may be considered a poor
+   man's hub removal.
+
+   }
+
 
 \item{\defopt{--jury-charter}{explains jury}}
 \car{

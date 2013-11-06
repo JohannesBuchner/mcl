@@ -1,5 +1,5 @@
-.\" Copyright (c) 2008 Stijn van Dongen
-.TH "clm imac" 1 "7 Nov 2008" "clm imac 1\&.008, 08-312" "USER COMMANDS "
+.\" Copyright (c) 2009 Stijn van Dongen
+.TH "clm imac" 1 "2 Feb 2009" "clm imac 1\&.008, 09-033" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -44,7 +44,7 @@ in the \fBclm\fP manual page\&.
 \fB-imx\fP fname (\fIinput file\fP)
 \fB[-o\fP fname (\fIname/stem for output\fP)\fB]\fP
 \fB[-dag\fP fname (\fIoutput DAG\fP)\fB]\fP
-\fB[--enstrict\fP (\fIremove overlap\fP)\fB]\fP
+\fB[-overlap\fP str (\fIoverlap mode\fP)\fB]\fP
 \fB[-sort\fP str (\fIsize|revsize|lex|none\fP)\fB]\fP
 \fB[-strict\fP num (\fIin 0\&.\&.1\fP)\fB]\fP
 \fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
@@ -103,11 +103,13 @@ lexicographically by the indices they contain, or use the clustering
 exactly as obtained from the interpretation routine\&.
 .in -3m
 
-.ZI 3m "\fB--enstrict\fP (\fIremove overlap\fP)"
+.ZI 3m "\fB-overlap\fP mode (\fIoverlap mode\fP)"
 \&
 .br
-Remove overlap should it be found, by allocating the nodes
-in overlap to the first cluster in which they were found\&.
+With \fImode\fP set to \fIcut\fP, remove any overlap by allocating the
+nodes in overlap to the first cluster in which they were found\&. Mode
+\fIkeep\fP leaves overlap unchanged, and mode \fIsplit\fP results in overlapping
+parts excised and introduced as clusters in their own right\&.
 .in -3m
 .SH AUTHOR
 

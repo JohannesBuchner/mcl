@@ -57,7 +57,7 @@ binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
 am_mcx_OBJECTS = mcx.$(OBJEXT) mcxconvert.$(OBJEXT) mcxq.$(OBJEXT) \
 	mcxdiameter.$(OBJEXT) mcxclcf.$(OBJEXT) mcxerdos.$(OBJEXT) \
-	mcxcollect.$(OBJEXT) mcxtab.$(OBJEXT)
+	mcxcollect.$(OBJEXT) mcxtab.$(OBJEXT) mcxalter.$(OBJEXT)
 mcx_OBJECTS = $(am_mcx_OBJECTS)
 mcx_LDADD = $(LDADD)
 mcx_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
@@ -228,7 +228,7 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)
 LDADD = ../mcl/libmcl.a ../clew/libclew.a ../taurus/libtaurus.a ../gryphon/libgryphon.a ../impala/libimpala.a ../../util/libutil.a
-EXTRA_DIST = fake mcx.h mcxconvert.h mcxminusmeet.c mcxq.h mcxdiameter.h mcxclcf.h mcxerdos.h mcxcollect.h mcxtab.h
+EXTRA_DIST = fake mcx.h mcxconvert.h mcxminusmeet.c mcxq.h mcxdiameter.h mcxclcf.h mcxerdos.h mcxcollect.h mcxtab.h mcxalter.h
 mcxassemble_SOURCES = mcxassemble.c
 mcxsubs_SOURCES = mcxsubs.c
 mcxmap_SOURCES = mcxmap.c
@@ -238,7 +238,7 @@ mcxarray_SOURCES = mcxarray.c
 mcxload_SOURCES = mcxload.c
 mcxrand_SOURCES = mcxrand.c
 mcxminusmeet_SOURCES = mcxminusmeet.c
-mcx_SOURCES = mcx.c mcxconvert.c mcxq.c mcxdiameter.c mcxclcf.c mcxerdos.c mcxcollect.c mcxtab.c
+mcx_SOURCES = mcx.c mcxconvert.c mcxq.c mcxdiameter.c mcxclcf.c mcxerdos.c mcxcollect.c mcxtab.c mcxalter.c
 all: all-am
 
 .SUFFIXES:
@@ -336,6 +336,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcx.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxalter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxarray.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxassemble.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxclcf.Po@am__quote@
