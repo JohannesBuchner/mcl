@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2010 Stijn van Dongen -->
+<!-- Copyright (c) 2011 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
@@ -28,6 +28,12 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
+p.asd_par { margin-bottom:0em }
+p.asd_cpar { margin-bottom:0em }
+span.asd_cpar_caption { font-weight: bold; display: block }
+p.asd_car { margin-top:0em; margin-bottom:0em }
+p.asd_ccar { margin-top:0em; margin-bottom:0em }
+span.asd_ccar_caption { font-weight: bold; display: block }
 div.verbatim
 { font-family: monospace;
 margin-top: 1em;
@@ -79,9 +85,9 @@ margin-right: 8%;
 </head>
 <body>
 <p style="text-align:right">
-20 Jul 2010&nbsp;&nbsp;&nbsp;
+21 Oct 2011&nbsp;&nbsp;&nbsp;
 <a class="local" href="clmclose.ps"><b>clm close</b></a>
-10-201
+11-294
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -112,9 +118,9 @@ margin-right: 8%;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 clm close &mdash; Fetch connected components from graphs or subgraphs</p>
-<p style="margin-bottom:0" class="asd_par">clmclose is not in actual fact a program. This manual
+<p class="asd_par">clmclose is not in actual fact a program. This manual
 page documents the behaviour and options of the clm program when
 invoked in mode <i>close</i>. The options <b>-h</b>, <b>--apropos</b>,
 <b>--version</b>, <b>-set</b>, <b>--nop</b> are accessible
@@ -123,10 +129,10 @@ in the <a class="local sibling" href="clm.html">clm</a> manual page.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>clm close</b> -imx &lt;fname&gt; [options]
 </p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>clm close</b>
 <a class="intern" href="#opt-imx"><b>-imx</b> fname (<i>specify matrix input</i>)</a>
 <a class="intern" href="#opt-abc"><b>-abc</b> fname (<i>specify label input</i>)</a>
@@ -147,7 +153,7 @@ in the <a class="local sibling" href="clm.html">clm</a> manual page.</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 Use <b>clm close</b> to fetch the connected components from a graph. Different
 output modes are supported (see below). In matrix mode (i.e. using
 the <b>-imx</b> option) the output returned with
@@ -160,23 +166,23 @@ to retrieve individual subgraphs corresponding to connected components.
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-abc"></a><b>-abc</b> &lt;fname&gt; (<i>label input</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The file name for input that is in label format.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>input matrix</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The file name for input that is in mcl native matrix format.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-o"></a><b>-o</b> fname (<i>output file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Specify the file where output is sent to. The default is STDOUT.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-dom"></a><b>-dom</b> fname (<i>input domain/cluster file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 If this option is used, clm close will, as a first step,
 for each of the domains in file&nbsp;<i>fname</i> retrieve the associated
 subgraph from the input graph. These are then further decomposed into
@@ -186,7 +192,7 @@ manner.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-count"></a><b>--write-count</b> (<i>output component count</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-sizes"></a><b>--write-sizes</b> (<i>output component sizes (default)</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-cc"></a><b>--write-cc</b> (<i>output components as clustering</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-block"></a><b>--write-block</b> (<i>output graph restricted to -dom argument</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-blockc"></a><b>--write-blockc</b> (<i>output graph complement of -dom argument</i>)</div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The default behaviour is currently to output the sizes of the
 connected components. It is also possible to simply output
 the number of components with <b>--write-count</b> or to
@@ -198,7 +204,7 @@ to output the complement of this restriction.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--is-undirected"></a><b>--is-undirected</b> (<i>omit graph undirected check</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 With this option the transformation to make sure
 that the input is undirected is omitted. This will
 be slightly faster. Using this option while the
@@ -214,13 +220,13 @@ to the syntax described in <a class="local sibling" href="mcxio.html">mcxio</a>.
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 Stijn van Dongen.
 </p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
 </p>

@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2010 Stijn van Dongen -->
+<!-- Copyright (c) 2011 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
@@ -28,6 +28,12 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
+p.asd_par { margin-bottom:0em }
+p.asd_cpar { margin-bottom:0em }
+span.asd_cpar_caption { font-weight: bold; display: block }
+p.asd_car { margin-top:0em; margin-bottom:0em }
+p.asd_ccar { margin-top:0em; margin-bottom:0em }
+span.asd_ccar_caption { font-weight: bold; display: block }
 div.verbatim
 { font-family: monospace;
 margin-top: 1em;
@@ -79,9 +85,9 @@ margin-right: 8%;
 </head>
 <body>
 <p style="text-align:right">
-20 Jul 2010&nbsp;&nbsp;&nbsp;
+21 Oct 2011&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxalter.ps"><b>mcxalter</b></a>
-10-201
+11-294
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -112,12 +118,12 @@ margin-right: 8%;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 mcxalter &mdash; various network transformations</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>mcxalter</b>
 <a class="intern" href="#opt-imx"><b>[-imx</b> &lt;fname&gt; (<i>specify matrix input</i>)<b>]</b></a>
 <a class="intern" href="#opt-abc"><b>[-abc</b> &lt;fname&gt; (<i>specify label input</i>)<b>]</b></a>
@@ -128,7 +134,7 @@ mcxalter &mdash; various network transformations</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 This utility supplies various transformations of networks.
 </p>
 
@@ -137,17 +143,17 @@ This utility supplies various transformations of networks.
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-abc"></a><b>-abc</b> &lt;fname&gt; (<i>label input</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The file name for input that is in label format.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>input matrix</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The file name for input that is in mcl native matrix format.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tab"></a><b>-tab</b> &lt;fname&gt; (<i>use tab file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 This option causes the output to be printed with the labels
 found in the tab file.
 With <b>-abc</b> this option will, additionally, construct
@@ -158,27 +164,27 @@ tab domain and the matrix domain are required to be identical.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tf"></a><b>-tf</b> &lt;tf-spec&gt; (<i>transform input matrix values</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Transform the input matrix values according
 to the syntax described in <a class="local sibling" href="mcxio.html">mcxio</a>.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-o"></a><b>-o</b> fname (<i>output file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Output file.</p>
 </div>
 </div>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 Stijn van Dongen.
 </p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <a class="local sibling" href="mcxio.html">mcxio</a>,
 <a class="local sibling" href="mcx.html">mcx</a>,
 <a class="local sibling" href="mcxsubs.html">mcxsubs</a>,

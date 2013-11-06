@@ -1,5 +1,5 @@
-.\" Copyright (c) 2010 Stijn van Dongen
-.TH "clm info" 1 "20 Jul 2010" "clm info 10-201" "USER COMMANDS "
+.\" Copyright (c) 2011 Stijn van Dongen
+.TH "clm info" 1 "21 Oct 2011" "clm info 11-294" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -133,12 +133,42 @@ This only has effect when used with \fB-cl-tree\fP\&.
 
 .ZI 2m "\fB--node-all-measures\fP (\fIdump node-wise criteria for all incident clusters\fP)"
 \&
-.br
-.in -2m
-
+'in -2m
 .ZI 2m "\fB--node-self-measures\fP (\fIdump node-wise criteria for native cluster\fP)"
 \&
+'in -2m
+'in +2m
+\&
 .br
+These options return a key-value based format, with the meaning of
+the keys as follows\&.
+
+.di ZV
+.in 0
+.nf \fC
+nm    file name (redundant unless multiple cluster files are provided)
+ni    node index
+ci    cluster index
+nn    number of neighbours of this node (constant for a give node)
+nc    cluster size (constant for a given cluster)
+ef    efficiency for this node/cluster combination
+em    max-efficiency for this node/cluster combination
+mf    mass fraction: percentage of edge weights for this node in this cluster
+ma    total mass of edge weights for this node in this cluster
+xn    number of neighbours of the node that are not in the cluster
+xc    number of nodes in the cluster that are not a neighbour of the node
+ns    number of neighbours of the node that are also in this cluster
+ti    the maximum of the edge weights for neighbours of this node that are in this cluster
+to    the maximum of the edge weights for neighbours of this node that are NOT in this cluster
+al    (alien) 1 if the node is not native to the cluster, 0 if the node is native
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
 .in -2m
 .SH AUTHOR
 

@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008, 2009, 2010  Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010, 2011  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -19,6 +19,7 @@
 #include "io.h"
 
 #include "util/compile.h"
+#include "util/array.h"
 #include "util/alloc.h"
 #include "util/types.h"
 #include "util/err.h"
@@ -54,8 +55,8 @@ domain subselection:
    void mclxChangeRDomain
    void mclxChangeCDomain
    mclx*  mclxBlocksC
-   mclx*  mclxBlocks
-   mclx*  mclxBlocks2
+   mclx*  mclxBlockUnion
+   mclx*  mclxBlockUnion2
    void mclxScrub
 
 diagonal
@@ -89,7 +90,6 @@ traits:
    mclv* mclxDiagValues
    double mclxMass
    dim mclxNrofEntries
-   dim mclxNEntries
    double mclxMaxValue
 
 matrix merge / add / collect:
@@ -409,7 +409,12 @@ static mcxstatus meet_the_joneses
       ;  srcvec  =  mclxGetVector(src, selivp->idx, RETURN_ON_FAIL, srcvec)
 
       ;  if (!dstvec)
-         {  mcxErr("mclxSelect panic", "corruption in submatrix")
+         {  mcxErr
+            (  "mclxSelect panic"
+            ,  "corruption in submatrix - vector %u not found among %u entries"
+            ,  (unsigned) selivp->idx
+            ,  (unsigned) col_select->n_ivps
+            )
          ;  return STATUS_FAIL
       ;  }
 
@@ -500,9 +505,16 @@ mclx*  mclxSub
    ;  if (!(sub = mclxAllocZero(new_dom_cols, new_dom_rows)))
       return NULL
 
-   ;  if (meet_the_joneses(sub, mx, col_select, row_select))
+   ;  if (meet_the_joneses(sub, mx, new_dom_cols, new_dom_rows))
       mclxFree(&sub)
-
+                  /* noteme dangersign recentchange; 
+                   * previously we called 
+               meet_the_joneses(sub, mx, col_select, row_select)
+                   * but if !col_select the sub argument would have
+                   * new_dom_cols equal to empty vector;
+                   * meet_the_joneses would interpret the NULL col_select
+                   * as the full domain, and hence croak
+                  */
    ;  return sub
 ;  }
 
@@ -865,8 +877,8 @@ void mclxChangeCDomain
 
    ;  for (d=0;d<N_COLS(mx);d++)
       mclvRelease(mx->cols+d)
-   ;  mcxFree(mx->cols)
 
+   ;  mcxFree(mx->cols)
    ;  mx->cols = new_cols
 
    ;  mclvFree(&(mx->dom_cols))
@@ -910,7 +922,7 @@ mclx*  mclxBlocksC
  *    How useful would mclvTernary be otherwise?
 */
 
-mclx*  mclxBlocks
+mclx*  mclxBlockUnion
 (  const mclx*     mx       /* fixme; check domain equality ? */
 ,  const mclx*     domain
 )
@@ -936,7 +948,59 @@ mclx*  mclxBlocks
 ;  }
 
 
-mclx*  mclxBlocks2
+mclx*  mclxBlockPartition
+(  const mclx*     mx
+,  const mclx*     domain
+,  int             quantile   /* only median supported for now */
+)
+   {  dim d
+   ;  mclv* meet     =  mclvInit(NULL), *remove = mclvInit(NULL)
+   ;  mclx* blocks   =  mclxAllocClone(mx)
+
+   ;  for (d=0;d<N_COLS(domain);d++)
+      {  mclv* dom  =   domain->cols+d
+      ;  ofs offset =  -1
+      ;  dim e
+
+      ;  for (e=0;e<dom->n_ivps;e++)
+         {  long idx =  dom->ivps[e].idx
+         ;  double med = 0.0
+         ;  long n = 0
+
+         ;  offset = mclvGetIvpOffset(mx->dom_cols, idx, offset)
+         ;  if (offset < 0)
+            continue
+         ;  mcldMeet(mx->cols+offset, dom, meet)
+
+         ;  if (quantile)
+            {  mcldMinus(mx->cols+offset, dom, remove)
+            ;  if (remove->n_ivps)
+               {  mclvSortAscVal(remove)
+               ;  med
+                  =  mcxMedian
+                     (  remove->ivps
+                     ,  remove->n_ivps
+                     ,  sizeof remove->ivps[0]
+                     ,  mclpGetDouble
+                     ,  NULL
+                     )
+            ;  }
+            }
+            n = meet->n_ivps
+         ;  if (med && meet->n_ivps && med < mclvMaxValue(meet))
+            mclvSelectGtBar(meet, med)
+;if(0)fprintf(stderr, "%d meet from %d to %d (rm %d)\n", (int) offset, (int) n, (int) meet->n_ivps, remove->n_ivps)
+         ;  mclvBinary(blocks->cols+offset, meet, blocks->cols+offset, fltLoR)
+      ;  }
+      }
+      mclxMergeTranspose(blocks, fltMin, 0.5)
+   ;  mclvFree(&meet)
+   ;  mclvFree(&remove)
+   ;  return blocks
+;  }
+
+
+mclx*  mclxBlockUnion2
 (  const mclx*     mx
 ,  const mclx*     domain
 )
@@ -999,7 +1063,7 @@ static mclx* mclx_collect_vectors
 ,  dim   vid          /* starting vid in new matrix */
 ,  va_list *ap
 )
-#define CAT_ACCEPT 20
+#define CAT_ACCEPT 16
    {  mclx* mx = mclxAllocZero(mclvCanonical(NULL, CAT_ACCEPT, 1.0), domain ? domain : mclvInit(NULL))
    ;  dim n_done = 0
 
@@ -1062,7 +1126,7 @@ void mclxAddto
 (  mclx* m1
 ,  const mclx* m2
 )
-   {  mclv *m1vec = m1->cols
+   {  mclv *m1vec
    ;  dim d, rdiff = 0
 
    ;  mclv* join_col = NULL
@@ -1074,6 +1138,7 @@ void mclxAddto
       join_col = mcldMerge(m1->dom_cols, m2->dom_cols, NULL)
 
    ;  mclxAccommodate(m1, join_col, join_row)
+   ;  m1vec = m1->cols        /* note, mclxAccommodate may change m1->cols */
 
    ;  for (d=0;d<N_COLS(m2);d++)
       {  mclv *m2vec = m2->cols+d
@@ -1434,17 +1499,6 @@ void  mclxColumnsRealign
 ;  }
 
 
-dim mclxNEntries
-(  const mclx*     mx
-)
-   {  dim d
-   ;  dim n = 0
-   ;  for (d=0;d<N_COLS(mx);d++)
-      n += mx->cols[d].n_ivps
-   ;  return n
-;  }
-
-
 double mclxMaxValue
 (  const mclx*        mx
 ) 
@@ -1490,6 +1544,29 @@ mclx* mclxAdd
 ,  const mclx*        m2
 )  
    {  return mclxBinary(m1, m2, fltAdd)
+;  }
+
+
+void mclxMergeColumn
+(  mclx* mx
+,  const mclv* vec
+,  double (*op)(pval arg1, pval arg2)
+)
+   {  long vid = vec->vid
+   ;  mclv* dest
+   ;  if (vid < 0)
+      vid = 1 + mclvHighestIdx(mx->dom_cols)
+
+   ;  if (!mclxGetVector(mx, vid, RETURN_ON_FAIL, NULL))
+      {  mclv* dom = mclvCopy(NULL, mx->dom_cols)
+      ;  mclvInsertIdx(dom, vid, 1.0)
+      ;  mclxAccommodate(mx, dom, NULL)
+      ;  mclvFree(&dom)
+   ;  }
+
+      mclxAccommodate(mx, NULL, vec)
+   ;  if ((dest = mclxGetVector(mx, vid, RETURN_ON_FAIL, NULL)))
+      mclvBinary(dest, vec, dest, op)
 ;  }
 
 
@@ -1843,6 +1920,35 @@ void mclxSymReduce
 ;  }
 
 
+               /* fixme; only works on pairs of connected nodes */
+void mclxILS
+(  mclx* mx
+)
+   {  dim i, j, k
+   ;  if (!mclxGraphCanonical(mx))
+      mcxErr("mclxILS", "input is not a graph or not in canonical format")
+   ;  mclxAdjustLoops(mx, mclxLoopCBremove, NULL)
+
+   ;  for (i=0; i< N_COLS(mx);i++)
+      {  mclv* v = mx->cols+i
+      ;  long vidi = v->vid
+      ;  for (j=0; j<v->n_ivps && v->ivps[j].idx <= vidi ;j++)
+         {  mclv* vj = mx->cols+(v->ivps[j]).idx
+         ;  double ils = 0
+         ;  mclv* meet = mcldMeet(v, vj, NULL)
+         ;  for (k=0; k<meet->n_ivps;k++)
+            {  mclv* nb = mx->cols+(meet->ivps[k].idx)
+            ;  if (nb->n_ivps > 1)
+               ils += log(2) / log(nb->n_ivps)
+         ;  }
+            v->ivps[j].val = ils
+         ;  mclvFree(&meet)               /* fixme inline iterator better */
+      ;  }
+      }
+      mclxMergeTranspose(mx, fltMax, 0.0)
+;  }
+
+
 void mclxKNNdispatch
 (  mclx* mx
 ,  dim knn
@@ -2074,5 +2180,44 @@ void mclxNormSelf
       ;  }
       }
    }
+
+
+void mclxFold
+(  mclx* mx
+,  mclx* dup
+)
+   {  dim i, n_meet
+   ;  mclv* uniondup = mclgUnionv(dup, NULL, NULL, SCRATCH_READY, NULL)
+   
+   ;  if (!mclxIsGraph(mx))
+      {  mcxErr("mclxFold", "not folding, domains not equal")
+      ;  return
+   ;  }
+   
+      for (i=0;i<N_COLS(dup);i++)
+      {  mclv* ls = dup->cols+i
+      ;  mclv* dst = mclxGetVector(mx, ls->vid, RETURN_ON_FAIL, NULL)
+      ;  dim j
+      ;  if (!dst)
+         {  mcxErr("mclxFold", "vector %ld not found", (long) ls->vid)
+         ;  continue
+      ;  }
+         for (j=0;j<ls->n_ivps;j++)
+         {  mclv* src = mclxGetVector(mx, ls->ivps[j].idx, RETURN_ON_FAIL, NULL)
+         ;  if (src)
+            {  mclvBinary(dst, src, dst, fltMax)
+            ,  mclvResize(src, 0)
+         ;  }
+      ;  }
+      }
+
+      for (i=0;i<N_COLS(mx);i++)
+      if (mcldCountParts(mx->cols+i, uniondup, NULL, &n_meet, NULL))
+      mcldMinus(mx->cols+i, uniondup, mx->cols+i)
+
+   ;  mclxMergeTranspose(mx, fltMax, 1.0)
+   ;  mclvFree(&uniondup)
+;  }
+
 
 

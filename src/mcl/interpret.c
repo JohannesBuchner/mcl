@@ -143,7 +143,7 @@ int mclDagTest
       mclvSelectGqBar(v_transient, 0.5)
 
    ;  m_transient = mclxSub(dag, v_transient, v_transient)
-;if(0)mclxDebug("-", m_transient, 3)
+;if(0)mclxDebug("-", m_transient, 3, "transient")
    ;  maxdepth = calc_depth(m_transient)
 
    ;  mclxFree(&m_transient)

@@ -1,5 +1,5 @@
-/*   (C) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008, 2009, 2010 Stijn van Dongen
+/*   (C) Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 Stijn van Dongen
+ *   (C) Copyright 2008, 2009, 2010, 2011 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -13,6 +13,47 @@
  *    Figure out what N should be though.
  * Euclidean distance,
  * Taxi distance
+
+Monve, V.; Introduction to Similarity Searching in Chemistry.
+www.orgchm.bas.bg/~vmonev/SimSearch.pdf
+ fingerprint distances:
+
+
+a  in A\B
+b  in B\A
+c  in A /\ B
+d  in U\(A\/B)
+
+      euclidean          D    sqrt(hamming)
+      hamming            D    a+b
+      meanHamming             (a+b)/(a+b+c+d)
+      soergel            D    (a+b)/(a +b +c)
+      patternDifference       ab / (a+b+c+d)^2
+      variance                (a+b)/4(a+b+c+d)
+      size                    (a−b)^2/(a+b+c+d)^2
+      shape                   (a+b)/(a+b+c+d) - [(a−b) (a+b+c+d)]^2
+  +   jaccard/tanimoto        c / (a+b+c)
+      dice                    2c / (a+b)
+      mt
+      simple
+      russelrao
+      rodgerstanimoto
+  +   cosine                  c / sqrt(AB)
+      achiai
+      carbo
+      baroniurbanibuser       sqrt( cd + c ) / sqrt( cd + a + b + c )
+      kulczynski2             0.5 * (c/(a+c) + c/(b+c))
+      robust
+      hamann
+      yule
+      pearson                 (cd−ab) / sqrt((a+c)(b+c)(a+d)(b+d))
+      mcconnaughey
+      stiles
+      simpson
+      petke
+  +   meet                    c
+  +   cover              A    c / (a+c)
+
 */
 
 
@@ -61,12 +102,22 @@ const char* syntax = "Usage: mcxarray <-data <data-file> | -imx <mcl-file> [opti
 #define ARRAY_SUBSET_DIFF  1 <<  7
 #define ARRAY_CONTENT      1 <<  8
 #define ARRAY_JOBINFO      1 <<  9
+#define ARRAY_RANKTRANSFORM  1 <<  10
+#define ARRAY_DOT          1 <<  11
+#define ARRAY_FINGERPRINT  1 <<  12
+#define ARRAY_NOWRITE      1 <<  13
 
 #define CONTENT_AVERAGE    1 <<  0
 #define CONTENT_COSINE     1 <<  1
 #define CONTENT_EUCLID     1 <<  2
 #define CONTENT_INTERSECT  1 <<  3
 #define CONTENT_MEDIAN     1 <<  4
+
+#define FP_TANIMOTO              0
+#define FP_MEET                  1
+#define FP_COSINE                2
+#define FP_COVER                 3
+#define FP_HAMMING               4
 
 #define CONTENT_DEFAULT    (CONTENT_MEDIAN | CONTENT_COSINE | CONTENT_EUCLID | CONTENT_INTERSECT)
 
@@ -275,10 +326,13 @@ enum
 ,  MY_OPT_PEARSON = MY_OPT_L + 2
 ,  MY_OPT_SPEARMAN
 ,  MY_OPT_COSINE
+,  MY_OPT_DOT
 ,  MY_OPT_SUBSET_MEET
 ,  MY_OPT_SUBSET_DIFF
 ,  MY_OPT_CONTENT
 ,  MY_OPT_CONTENTX
+,  MY_OPT_NOTES
+,  MY_OPT_FINGERPRINT
                ,  MY_OPT_COSINE_SKEW
 
 ,  MY_OPT_T    =  MY_OPT_COSINE_SKEW + 2
@@ -298,8 +352,10 @@ enum
 ,  MY_OPT_WRITE_TABLE
 ,  MY_OPT_WRITE_NA
 ,  MY_OPT_LIMIT_ROWS
-,  MY_OPT_NORMALIZE
+,  MY_OPT_NORMALISE
+,  MY_OPT_RANKTRANSFORM
 ,  MY_OPT_NOPROGRESS
+,  MY_OPT_NW
 ,  MY_OPT_HELP
 ,  MY_OPT_VERSION
 ,  MY_OPT_AMOIXA
@@ -405,11 +461,17 @@ mcxOptAnchor options[]
    ,  "<num>"
    ,  "skip this many rows"
    }
+,  {  "--rank-transform"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_RANKTRANSFORM
+   ,  NULL
+   ,  "rank transform the data"
+   }
 ,  {  "-n"
    ,  MCX_OPT_HASARG
-   ,  MY_OPT_NORMALIZE
-   ,  "z"
-   ,  "normalize on z-scores"
+   ,  MY_OPT_NORMALISE
+   ,  "{P,S} x {z,m}"
+   ,  "normalise P(rimary) or S(econdary) on z-scores (z) or mean (m)"
    }
 ,  {  "--pearson"
    ,  MCX_OPT_DEFAULT
@@ -435,6 +497,12 @@ mcxOptAnchor options[]
    ,  NULL
    ,  "compute edge weight as cosine"
    }
+,  {  "--dot"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_DOT
+   ,  NULL
+   ,  "compute edge weight as dot product"
+   }
 ,  {  "--cosine-skew"
    ,  MCX_OPT_HIDDEN
    ,  MY_OPT_COSINE_SKEW
@@ -447,11 +515,29 @@ mcxOptAnchor options[]
    ,  NULL
    ,  "compute fantastic mr formula"
    }
+,  {  "--no-write"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_NW
+   ,  NULL
+   ,  "exit after computation of correlations"
+   }
 ,  {  "-content"
    ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  MY_OPT_CONTENTX
-   ,  "(a)verage (c)osine (e)uclid (i)ntersect (m)edian"
+   ,  "(v)verage (c)osine (e)uclid (i)ntersect (m)edian"
    ,  "compute fantastic mr formula with parts specified"
+   }
+,  {  "--notes"
+   ,  MCX_OPT_HIDDEN
+   ,  MY_OPT_NOTES
+   ,  NULL
+   ,  "explain fantastic mr formula"
+   }
+,  {  "-fp"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_FINGERPRINT
+   ,  "hamming|meet|tanimoto|cosine|cover"
+   ,  "a+b, c, c/(a+b+c), c/sqrt((a+c)*(b+c)), c/(a+c)"
    }
 ,  {  "--subset"
    ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
@@ -550,6 +636,7 @@ mcxOptAnchor options[]
 static mclTab* tab_g = NULL;
 static mcxbool sym_g = TRUE;
 static mcxbits contentx_g = 0;
+static mcxenum fingerprint_g = 0;
 static mcxbool progress_g = TRUE;
 
 static const char* retry_g = "out.mcxarray";
@@ -749,6 +836,8 @@ static mclx* read_data
    ;  mclvFree(&scratchna)
 
    ;  *mxnapp = mxna
+   ;  mcxTell(me, "read table with %d rows and %d columns", (int) N_cols, (int) n_rows)
+                           /* ^ note mcl stores rows column-wise */
    ;  return mx
 ;  }
 
@@ -837,6 +926,29 @@ mclvaDump(width_c,stdout,5,"\n",0),mclvaDump(width_d,stdout,5,"\n",0)
 
       score = 1.0
 
+               /* A and B are vectors; denote the indices on which both
+                * A and B are nonzero by A/\\B
+                * A* denotes the subset of entries of A restricted to A/\\B
+                * B* denotes the subset of entries of B restricted to A/\\B
+                * Then:
+                * median:  min(median(A), median(B))
+                * average: min(avg(A*), avg(B*))
+                * cosine:  cosine(A*, B*)
+                * euclid:  sqrt(sumsq(A*) / sumsq(A))
+                * isect:   #A* / #A
+                *
+                *         |||||
+                *       |||||||||
+                *    ||||||||||||||||
+                * ||||||||||||||||||||||||||||||||||||||
+                *
+                *               |||||
+                *             |||||||||
+                *          ||||||||||||||||
+                *     ||||||||||||||||||||||||||||||||||||||||
+                *
+                *     ----------------------------------
+               */
    ;  if (contentx_g & CONTENT_MEDIAN)
       {  mclvSortDescVal(vecc)
       ;  mclvSortDescVal(vecd)
@@ -957,14 +1069,33 @@ static dim get_correlation
    ;  mclv* vecd = tbl->cols+d
 
    ;  if (bits & ARRAY_COSINE)
-      {  double ip   =  mclv_inner(vecc, vecd, N)
+      {  mcxbool reduced = mxna->cols[c].n_ivps > 0 || mxna->cols[d].n_ivps > 0
+      ;  double ip   =  mclv_inner(vecc, vecd, N)
       ;  double nomleft = Nssqs->ivps[c].val
-      ;  nom         =  sqrt(Nssqs->ivps[c].val  * Nssqs->ivps[d].val) / N
+      ;  double nomright = Nssqs->ivps[d].val
+
+      ;  if (reduced)
+         {  mclv* merge = mcldMerge(mxna->cols+c, mxna->cols+d, NULL)
+         ;  mclv* veccx = mcldMinus(vecc, merge, NULL)
+         ;  mclv* vecdx = mcldMinus(vecd, merge, NULL)
+
+         ;  nomleft  = N * mclvPowSum(veccx, 2.0)       /* fixme: still use this N ? */
+         ;  nomright = N * mclvPowSum(vecdx, 2.0)
+
+         ;  mclvFree(&merge)
+         ;  mclvFree(&veccx)
+         ;  mclvFree(&vecdx)
+      ;  }
+
+         nom         =  sqrt(nomleft * nomright) / N
       ;  score       =  nom ? ip / nom : 0.0
       ;  offending   =  nomleft ? d : c
    ;  }
 
-      else if (bits & ARRAY_COSINESKEW)
+      else if (bits & ARRAY_DOT)
+      score = mclv_inner(vecc, vecd, N)
+
+   ;  else if (bits & ARRAY_COSINESKEW)
       {  double ip   =  mclv_inner(vecc, vecd, N)
       ;  nom         =  sqrt(Nssqs->ivps[c].val / N)
       ;  score       =  nom ? sqrt(ip > 0 ? ip : 0) / nom : 0.0
@@ -981,6 +1112,19 @@ static dim get_correlation
       ;  nom = 1
       ;  mclvFree(&meet_c)
    ;  }
+
+      else if (bits & ARRAY_FINGERPRINT)
+      {  dim na = 0, nb = 0, nc = 0
+      ;  mcldCountParts(vecc, vecd, &na, &nc, &nb)
+      ;  if (nc)
+         switch(fingerprint_g)
+         {  case FP_TANIMOTO: score = nc * 1.0 / (na + nb + nc); break
+         ;  case FP_COSINE: score = nc * 1.0 / sqrt((na + nc) * 1.0 * (nb + nc)); break
+         ;  case FP_MEET: score = nc; break
+         ;  case FP_COVER: score = nc * 1.0 / (na + nc); break
+         ;  case FP_HAMMING: score = na + nb; break
+      ;  }
+      }
 
       else if (bits & (ARRAY_SUBSET_MEET | ARRAY_SUBSET_DIFF))
       {  dim n_meet = 0, n_ldiff = 0
@@ -1228,6 +1372,28 @@ fprintf
 ;  }
 
 
+mclx* normalise
+(  mclx* tbl
+,  const char* mode
+)
+   {  mcxbool secondary = strchr(mode, 'S') ? TRUE : FALSE
+   ;  mcxbool bemean = strchr(mode, 'm') ? TRUE : FALSE
+   ;  mclx* thetbl = secondary ? mclxTranspose(tbl) : tbl
+   ;  double std, mean
+   ;  dim c
+   ;  for (c=0;c<N_COLS(thetbl);c++)
+      {  mclvMean(thetbl->cols+c, N_ROWS(thetbl), &mean, &std)
+      ;  mclvAffine(thetbl->cols+c, mean, bemean ? 1.0 : std)
+   ;  }
+      if (secondary)
+      {  mclxFree(&tbl)
+      ;  tbl = mclxTranspose(thetbl)
+      ;  mclxFree(&thetbl)
+   ;  }
+      return tbl
+;  }
+
+
 int main
 (  int                  argc
 ,  const char*          argv[]
@@ -1237,7 +1403,8 @@ int main
    ;  mclx* res
    ;  mcxIO* xfin = mcxIOnew("-", "r"), *xftab = NULL, *xftbl = NULL, *xfna = NULL
    ;  mclv* Nssqs, *sums
-   ;  mcxbool read_table = FALSE, z_score = FALSE
+   ;  mcxbool read_table = FALSE
+   ;  const char* mode_normalise = ""
    ;  mcxbool cutoff_specified = FALSE
    ;  mcxbool write_binary = FALSE
    ;  const char* fnout = "-", *fnseql = NULL, *fnseqr = NULL
@@ -1270,6 +1437,21 @@ int main
          {  case MY_OPT_HELP
          :  mcxOptApropos(stdout, me, syntax, 0, MCX_OPT_DISPLAY_SKIP, options)
 
+         ;  return 0
+         ;
+
+            case MY_OPT_NOTES
+         :
+puts("A and B are vectors");
+puts("A /\\B denotes the indices on which both A and B are nonzero");
+puts("A* denotes the subset of entries of A restricted to A/\\B");
+puts("B* denotes the subset of entries of B restricted to A/\\B");
+puts("");
+puts("median:  min(median(A), median(B))     define the base score");
+puts("average: min(avg(A*), avg(B*))         define the base score");
+puts("cosine:  cosine(A*, B*)                reward coordinate pattern");
+puts("euclid:  sqrt(sumsq(A*) / sumsq(A))    A* should be large compared to A");
+puts("isect:   #A* / #A                      same as above, ignoring weights");
          ;  return 0
          ;
 
@@ -1384,8 +1566,13 @@ int main
          ;  break
          ;
 
-            case MY_OPT_NORMALIZE
-         :  z_score = TRUE
+            case MY_OPT_RANKTRANSFORM
+         :  bits |= ARRAY_RANKTRANSFORM
+         ;  break
+         ;
+
+            case MY_OPT_NORMALISE
+         :  mode_normalise = opt->val
          ;  break
          ;
 
@@ -1396,6 +1583,7 @@ int main
 
             case MY_OPT_SPEARMAN
          :  bits |= ARRAY_SPEARMAN
+         ;  bits |= ARRAY_RANKTRANSFORM
          ;  break
          ;
 
@@ -1405,13 +1593,33 @@ int main
          ;  break
          ;
 
+            case MY_OPT_FINGERPRINT
+         :  bits |= ARRAY_FINGERPRINT
+         ;  {  const char* c = opt->val
+            ;  if (!strcmp(c, "tanimoto"))
+               fingerprint_g = FP_TANIMOTO
+            ;  else if (!strcmp(c, "cosine"))
+               fingerprint_g = FP_COSINE
+            ;  else if (!strcmp(c, "meet"))
+               fingerprint_g = FP_MEET
+            ;  else if (!strcmp(c, "hamming"))
+               fingerprint_g = FP_HAMMING
+            ;  else if (!strcmp(c, "cover"))
+                  fingerprint_g = FP_COVER
+               ,  sym_g = FALSE
+            ;  else
+               mcxDie(1, me, "unknown fingerprint mode %s", c)
+         ;  }
+            break
+         ;
+
             case MY_OPT_CONTENTX
          :  bits |= ARRAY_CONTENT
          ;  sym_g = FALSE
          ;  {  const char* c = opt->val
             ;  for(;c[0];c++)
                switch(c[0])
-               {  case  'a' : contentx_g |= CONTENT_AVERAGE ;  break
+               {  case  'v' : contentx_g |= CONTENT_AVERAGE ;  break
                ;  case  'c' : contentx_g |= CONTENT_COSINE  ;  break
                ;  case  'e' : contentx_g |= CONTENT_EUCLID  ;  break
                ;  case  'i' : contentx_g |= CONTENT_INTERSECT; break
@@ -1420,6 +1628,11 @@ int main
             ;  }
             }
             break
+         ;
+
+            case MY_OPT_NW
+         :  bits |= ARRAY_NOWRITE
+         ;  break
          ;
 
             case MY_OPT_CONTENT
@@ -1437,6 +1650,11 @@ int main
             case MY_OPT_COSINE_SKEW
          :  bits |= ARRAY_COSINESKEW
          ;  sym_g = FALSE
+         ;  break
+         ;
+
+            case MY_OPT_DOT
+         :  bits |= ARRAY_DOT
          ;  break
          ;
 
@@ -1489,7 +1707,7 @@ int main
    ;  if ((bits & ARRAY_CONTENT) && !contentx_g)
       contentx_g = CONTENT_DEFAULT
 
-   ;  if (n_group_G > 1)
+   ;  if (n_group_G >= 1)
       {  if (!n_thread_l)
          n_thread_l = 1
       ;  n_thread_g = mclx_set_threads_or_die(me, n_thread_l, i_group, n_group_G)
@@ -1537,7 +1755,7 @@ int main
 
       {  mclx* mxna  =  NULL
       ;  mclx* tbl   =
-               read_table
+               read_table                          /* fixme docme what is ARRAY_CONTENT about? */
                ?  (  (bits & ARRAY_JOBINFO && !(bits & ARRAY_CONTENT))
                   ?  mclxReadSkeleton(xfin, 0, FALSE)
                   :  mclxRead(xfin, EXIT_ON_FAIL)
@@ -1580,27 +1798,11 @@ int main
          ;  mcxIOfree(&xfna)
       ;  }
 
-         if (z_score)
-         {  mclx* tblt = mclxTranspose(tbl)
-#if 0
-;mcxIO* xftest = mcxIOnew("tttt", "w")
-#endif
-         ;  double std, mean
-         ;  dim c
-         ;  for (c=0;c<N_COLS(tblt);c++)
-            {  mclvMean(tblt->cols+c, N_ROWS(tblt), &mean, &std)
-            ;  mclvAffine(tblt->cols+c, mean, std)
-         ;  }
-            mclxFree(&tbl)
-         ;  tbl = mclxTranspose(tblt)
-#if 0
-;mclxWrite(tbl, xftest, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
-#endif
-         ;  mclxFree(&tblt)
-      ;  }
+         if (strchr(mode_normalise, 'z'))
+         tbl = normalise(tbl, mode_normalise)
 
                                              /* fixme funcify */
-         if (bits & ARRAY_SPEARMAN)
+      ;  if (bits & ARRAY_RANKTRANSFORM)
          {  dim d
          ;  rank_unit* ru
             =  mcxNAlloc
@@ -1637,18 +1839,21 @@ int main
          ;  }
          }
 
-         if (bits & ARRAY_ZEROASNA)
+         if (strchr(mode_normalise, 'm'))
+         tbl = normalise(tbl, mode_normalise)
+
+      ;  if (bits & ARRAY_ZEROASNA)
          {  dim i
-         ;  if (bits & (ARRAY_COSINE | ARRAY_COSINESKEW | ARRAY_SUBSET_MEET | ARRAY_SUBSET_DIFF | ARRAY_CONTENT))
-            mcxDie(1, me, "--zero-as-na only supported with --spearman or --pearson")
-         ;  if (!(bits & (ARRAY_SPEARMAN | ARRAY_PEARSON)))
+         ;  if (bits & (ARRAY_COSINESKEW | ARRAY_SUBSET_MEET | ARRAY_SUBSET_DIFF | ARRAY_CONTENT | ARRAY_FINGERPRINT))
+            mcxDie(1, me, "--zero-as-na only supported with --spearman or --pearson or --cosine")
+         ;  if (!(bits & (ARRAY_SPEARMAN | ARRAY_PEARSON | ARRAY_COSINE)))
             mcxDie(1, me, "--zero-as-na only supported with --spearman or --pearson")
          ;  for (i=0;i<N_COLS(tbl);i++)
             mcldMinus(tbl->dom_rows, tbl->cols+i, mxna->cols+i)
          ;  mclxUnary(tbl, fltxCopy, NULL)    /* this removes zeroes from the matrix */
       ;  }
          else
-         {  if (bits & (ARRAY_SUBSET_DIFF | ARRAY_SUBSET_MEET | ARRAY_CONTENT))
+         {  if (bits & (ARRAY_SUBSET_DIFF | ARRAY_SUBSET_MEET | ARRAY_CONTENT | ARRAY_FINGERPRINT))
             mclxUnary(tbl, fltxCopy, NULL)    /* this removes zeroes from the matrix */
          ;  else
             {  dim i
@@ -1712,13 +1917,16 @@ int main
             ;  pthread_attr_t  t_attr
             ;  pthread_attr_init(&t_attr)
 
+                           /* fixme docme conditions under which last argument to ji_init
+                            * is effective (i.e. by_set_size works effectively)
+                           */
             ;  ji_init
                (  &ji
                ,  tbl
                ,  n_thread_g
                ,  n_group_G
                ,  i_group
-               ,  bits & (ARRAY_CONTENT | ARRAY_SUBSET_MEET | ARRAY_SUBSET_DIFF)
+               ,  bits & (ARRAY_FINGERPRINT | ARRAY_CONTENT | ARRAY_SUBSET_MEET | ARRAY_SUBSET_DIFF)
                )
 
             ;  while (ji.dvd_joblo2 < ji.dvd_jobhi1)
@@ -1767,10 +1975,10 @@ int main
             ;  for (i=0;i<N_COLS(mxna);i++)
                if (mxna->cols[i].n_ivps)
                n_row_with_na++
-            ;  mcxTell     /* white lie, we pretend here full cartesian product was computed */
+            ;  mcxTell
                (  me
                ,  "fraction of computations involving NA: %.2f"
-               ,  (double) ((2.0 * n_reduced - n_row_with_na) / (N_COLS(tbl) * N_COLS(tbl)))
+               ,  (double) ((2.0 * n_reduced - n_row_with_na) / (N_COLS(tbl) * 1.0 * N_COLS(tbl)))
                )
             ,  mcxTell
                (  me
@@ -1807,6 +2015,9 @@ int main
       if (tf_result)
       mclgTFexec(res, tf_result)
 
+   ;  if (bits & ARRAY_NOWRITE)
+      return 0
+
    ;  mclvFree(&Nssqs)
    ;  mclvFree(&sums)
    ;
@@ -1835,5 +2046,24 @@ int main
    ;  mclxFree(&mxseql)
    ;  return 0
 ;  }
+
+
+
+/*
+   M use median
+   V use average
+   S use sum(abs)
+   E use sqrt(ssq)
+   N use #entries
+   A  vector A
+   a  vector A*
+   B  vector B
+   b  vector B*
+   c  cosine(a,b)
+   +
+   /
+   *
+   r
+*/
 
 

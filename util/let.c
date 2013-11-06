@@ -1,5 +1,5 @@
-/*   (C) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008, 2009  Stijn van Dongen
+/*   (C) Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 Stijn van Dongen
+ *   (C) Copyright 2008, 2009, 2010, 2011  Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
  * under the terms of the GNU General Public License; either version 3 of the
@@ -72,7 +72,7 @@
  *
  *    user_parse and user_eval need to be global in scope as long
  *    as raam is not passed along in compute and flatten,
- *    but that is actually not a problem (apart from .so libs).
+ *    but that is actually not a problem (apart from reentrancy).
  *
  *    Hashing of function names.
  *
@@ -209,13 +209,15 @@ struct telRaam
 ;  mcxTing  *token         /* current token */
 ;  char*    p
 ;  mcxbool  buffered       /* should use buffer (pushed back token)? */
-;  tn*      node
+;  tn*      node           /* document symantics */
 ;  tn*      start
 ;  real     fval
 ;  num      ival
 ;  i32      flags
 ;  i32      toktype
 ;  i32      depth
+;  tn*      stack          /* when converting parsed expression to stack */
+;  int      stack_size
 ;
 }  ;
 
@@ -673,6 +675,7 @@ telRaam* trmInit
    ;  raam->flags  =     0
    ;  raam->depth  =     1
    ;  raam->toktype=     0
+   ;  raam->stack  =     NULL
 
    ;  if (!raam->text || !raam->token || !raam->node)
          mcxFree(raam)
@@ -1402,7 +1405,7 @@ mcxstatus compute
       ;  }
 
          else if (ptr->toktype == TOKEN_OPEN)
-         {  
+         {
             if (compute(ptr))
             return STATUS_FAIL
 
@@ -1511,7 +1514,11 @@ mcxstatus compute
          ptr  = ptr->next
    ;  }
 
-      if (ptr->toktype != TOKEN_CLOSE || ptr != end)
+                  /* NOTE: by design we should always have ptr != NULL
+                   * that makes the clause to the while (ptr) { } loop
+                   * above a bit dodgy.
+                  */
+      if (ptr != end || ptr->toktype != TOKEN_CLOSE)
       {  mcxErr(me, "ptr does not close")
       ;  dump(ptr->prev, 0, NULL)
       ;  return STATUS_FAIL
@@ -1754,6 +1761,16 @@ int trmEval
    ;  }
 
       return -1
+;  }
+
+
+
+int trmStack
+(  telRaam* raam
+)
+   {  tn* result
+   ;  mcxstatus stat = compute(raam->start->next)
+   ;  return stat
 ;  }
 
 

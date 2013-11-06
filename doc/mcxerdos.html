@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2010 Stijn van Dongen -->
+<!-- Copyright (c) 2011 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
@@ -28,6 +28,12 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
+p.asd_par { margin-bottom:0em }
+p.asd_cpar { margin-bottom:0em }
+span.asd_cpar_caption { font-weight: bold; display: block }
+p.asd_car { margin-top:0em; margin-bottom:0em }
+p.asd_ccar { margin-top:0em; margin-bottom:0em }
+span.asd_ccar_caption { font-weight: bold; display: block }
 div.verbatim
 { font-family: monospace;
 margin-top: 1em;
@@ -79,9 +85,9 @@ margin-right: 8%;
 </head>
 <body>
 <p style="text-align:right">
-20 Jul 2010&nbsp;&nbsp;&nbsp;
+21 Oct 2011&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxerdos.ps"><b>mcx erdos</b></a>
-10-201
+11-294
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -108,21 +114,21 @@ margin-right: 8%;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 mcx erdos &mdash; compute shortest paths in a graph</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>mcx erdos</b> [options]</p>
-<p style="margin-bottom:0" class="asd_par">mcxerdos is not in actual fact a program. This manual
+<p class="asd_par">mcxerdos is not in actual fact a program. This manual
 page documents the behaviour and options of the mcx program when
 invoked in mode <i>erdos</i>. The options <b>-h</b>, <b>--apropos</b>,
 <b>--version</b>, <b>-set</b>, <b>--nop</b>, <b>-progress</b>&nbsp;<i>&lt;num&gt;</i>
 are accessible
 in all <b>mcx</b> modes. They are described
 in the <a class="local sibling" href="mcx.html">mcx</a> manual page.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>mcx erdos</b>
 <a class="intern" href="#opt-query"><b>[-query</b> &lt;fname&gt; (<i>query input stream</i>)<b>]</b></a>
 <a class="intern" href="#opt-abc"><b>[-abc</b> &lt;fname&gt; (<i>specify label input</i>)<b>]</b></a>
@@ -140,7 +146,7 @@ in the <a class="local sibling" href="mcx.html">mcx</a> manual page.</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>mcx erdos</b> computes shortest paths in graphs.
 It can read a graph either in label format with <b>-abc</b>
 or in native format with <b>-imx</b>.
@@ -152,7 +158,7 @@ edge always represents a unit step size between two nodes
 irrespective of its weight. A mode to compute shortest paths while taking into
 account edge weights will be implemented later as <b>mcx dijkstra</b>.
 </p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 Note that the full set of shortest paths between two nodes in
 a graph can be described as a directed acyclic graph (DAG),
 and this is how <b>mcx erdos</b> operates. It is easy to construct
@@ -161,7 +167,7 @@ between the two nodes becomes exponential in the size of
 the graph, whereas the lattice description is always
 garantueed to map to a subset of the graph edge set.
 </p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 By default it is assumed that the input graph should be treated as
 undirected. To this end a transformation step is applied to ensure that the
 graph in memory is undirected. It is possible to compute shortest
@@ -174,7 +180,7 @@ by checking that the input graph is undirected. However, the reason to use
 such a check would be equally expensive as the transformation step that is
 omitted with <b>--is-undirected</b>.
 </p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 The input graph/matrix, if specified with the <b>-imx</b> option, has to
 be in mcl matrix/graph format. You can use label input instead by using the
 <b>-abc</b> option.
@@ -188,7 +194,7 @@ To specify label input from STDIN use <b>-abc</b>&nbsp;<b>-</b>.
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-query"></a><b>-query</b> &lt;fname&gt; (<i>query input</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The name for the file from which queries are read.
 A query consists of two white-space separated node indices
 or two white-space separated labels. Labels can only be used
@@ -197,23 +203,23 @@ if either <b>-abc</b> or <b>-tab</b> is specified.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-abc"></a><b>-abc</b> &lt;fname&gt; (<i>label input</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The file name for input that is in label format.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>input matrix</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The file name for input that is in mcl native matrix format.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-o"></a><b>-o</b> &lt;fname&gt; (<i>output file name</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The name of the file to write output to.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tab"></a><b>-tab</b> &lt;fname&gt; (<i>use tab file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 This option causes the output to be printed with the labels
 found in the tab file.
 With <b>-abc</b> this option will, additionally, construct
@@ -224,14 +230,14 @@ tab domain and the matrix domain are required to be identical.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--is-directed"></a><b>--is-directed</b> (<i>compute directed shortest paths</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The input graph is not transformed and assumed to be directed.
 Shortest paths are computed taking this into account.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--is-undirected"></a><b>--is-undirected</b> (<i>skip symmetrification step</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The input graph is not transformed and assumed to be undirected.
 Shortest paths are computed on the assumption that the input
 is undirected. Use this option only if you are sure the input
@@ -240,7 +246,7 @@ is undirected and need to have faster execution.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-write-path"></a><b>-write-path</b> &lt;fname&gt; (<i>path matrix file</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-write-step"></a><b>-write-step</b> &lt;fname&gt; (<i>step matrix file</i>)</div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The path matrix enumerates the nodes that take
 part in all shortest paths. The first list contains
 those nodes that lie at distance 1 of the source node,
@@ -254,7 +260,7 @@ the lattice of shortest paths between the two query nodes.
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <a class="local sibling" href="mcxio.html">mcxio</a>,
 and <a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.</p>

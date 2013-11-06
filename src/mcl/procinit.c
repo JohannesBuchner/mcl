@@ -190,7 +190,7 @@ mcxOptAnchor mclProcOptions[] =
    ,  MCX_OPT_HASARG
    ,  PROC_OPT_SPARSE
    ,  "<num>"
-   ,  "use sparse matrix-vector product implementation only"
+   ,  "estimated sparse matrix-vector overhead per summand (default 10)"
    }
 ,  {  "--partition-selection"
    ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN

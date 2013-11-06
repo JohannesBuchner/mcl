@@ -483,7 +483,7 @@ static mcxstatus closeMain
    ;  }
 
       if (write_mode == MY_OPT_WRITEGRAPH)
-      {  mclx* bl = mclxBlocks(mx, cc)
+      {  mclx* bl = mclxBlockUnion(mx, cc)
       ;  mclxWrite(bl, xfout, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
       ;  mclxFree(&mx)
       ;  mx = bl

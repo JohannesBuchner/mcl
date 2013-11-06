@@ -20,5 +20,9 @@ mcxDispHook* mcxDispHookEnstrict
 (  void
 )  ;
 
+mcxDispHook* mcxDispHookFold
+(  void
+)  ;
+
 #endif
 

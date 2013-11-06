@@ -99,6 +99,26 @@
 \verbatim{\:/
    clm dist --chain out.data.mci.I{14,20,40}}
 
+\sec{large}{Loading large networks}
+
+\par{
+   If you deal with very large networks (say with hundreds of millions
+   of edges), it is recommended to use binary format (cf \mysib{mcxio}).
+   This is simply achieved by adding \tt{--write-binary} to the mcxload
+   command line. The resulting file is no longer human-readable but
+   will be faster to read by a factor between ten- or twenty-fold
+   compared to standard \MCL-edge network format, and a factor around fifty-fold
+   compared to label format.
+   All \MCL-edge programs are able to read binary format, and speed
+   of reading will be somewhere in the order of millions of edges
+   per second, compared to, for example, roughly 100K edges
+   per second for label format.
+   }
+
+\par{
+   Memory usage for mcxload can be lowered
+   by replacing the option \tt{--stream-mirror} with \tt{-ri\~max}.
+   }
 
 \sec{blast}{Clustering similarity graphs encoded in BLAST results}
 

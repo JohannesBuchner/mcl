@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008, 2009, 2010  Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010, 2011  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -257,7 +257,7 @@ static void tell_read_native
       ,  mode
       ,  (long) N_ROWS(mx)
       ,  (long) N_COLS(mx)
-      ,  (unsigned long) mclxNEntries(mx)
+      ,  (unsigned long) mclxNrofEntries(mx)
       )
 ;  }
 
@@ -274,7 +274,7 @@ static void tell_wrote_native
       ,  mode
       ,  (long) N_ROWS(mx)
       ,  (long) N_COLS(mx)
-      ,  (unsigned long) mclxNEntries(mx)
+      ,  (unsigned long) mclxNrofEntries(mx)
       ,  xf->fn->str
       )
 ;  }
@@ -927,7 +927,7 @@ mcxstatus mclxbWrite
    {  long      n_cols  =  N_COLS(mx)
    ;  long      n_rows  =  N_ROWS(mx)
    ;  long      flags   =  0
-   ;  mclv*vec     =  mx->cols
+   ;  mclv     *vec     =  mx->cols
    ;  mcxstatus status  =  STATUS_FAIL
    ;  long      v_pos   =  0
    ;  int       acc     =  0
@@ -2526,12 +2526,14 @@ mcxstatus mclxIOdump
 
 void mclxDebug
 (  const char* name
-,  mclx* mx
+,  const mclx* mx
 ,  int   valdigits
+,  const char* msg
 )
    {  mcxIO* xf = mcxIOnew(name, "w")
    ;  if (!mcxIOopen(xf, RETURN_ON_FAIL))
-      mclxWrite(mx, xf, valdigits, RETURN_ON_FAIL)
+   ;  fprintf(xf->fp, "[mclxDebug] [%s]\n", msg)
+   ;  mclxWrite(mx, xf, valdigits, RETURN_ON_FAIL)
    ;  mcxIOfree(&xf)
 ;  }
 

@@ -199,8 +199,8 @@ mclExpandParam* mclExpandParamNew
 
    ;  mxp->vector_progression     =  20
 
-   ;  mxp->warn_factor     =  50
-   ;  mxp->warn_pct        =  0.3
+   ;  mxp->warn_factor     =  1000
+   ;  mxp->warn_pct        =  0.1
 
    ;  mxp->verbosity       =  0
    ;  mxp->dimension       =  -1
@@ -305,7 +305,7 @@ static double mclExpandVector1
 )
    {  dim            rg_n_expand    =  0
    ;  dim            rg_n_prune     =  0
-   ;  dim            v_offset       =  srcvec - mx->cols
+   ;  dim            v_offset       =  col   /* srcvec - mx->cols */
 
    ;  mcxbool        rg_b_recover   =  FALSE
    ;  mcxbool        rg_b_select    =  FALSE

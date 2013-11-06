@@ -3,27 +3,19 @@
  mostly *NOT* to mcl.
 
 
--  optify mcx query clmUGraphComponents 
-- clm adjust with a parameter so that unconditional merging without resort
-   to efficiency/coverage is possible.
-
-$$$ MergeTranspose3 that takes a list of transformations.
-
-(ebi-001|protein3/data) mcxi /dag.5 lm ch 0.0 max
-### <mtx> <dbl> [add] not supported
-
-update FAQ
-   not deterministic ?
-   convergence proven ?[behaviour well understood]
-   speed section ...
-
-
 +todo____________________________________________________________________________
     |                      general guidelines                                    |
     |  - code as much as possible in high-level routines, do not micro-optimize. |
     |    do not shun matrix allocations etc. Aim for time/memory-efficient algorithms
     |    within this context.                                                    |
     |____________________________________________________________________________|
+  $$$ iterators:
+         $  meet and diffs of two vectors, just passing back offsets to input vector(s).
+         $  joint neighbours of two vectors in a graph, idem.
+    $ mcxdump restrict tab: report intersect and difference (useful sanity-check feedback for user).
+    $ clm collapse
+         -  implement add mode
+         -  currently undirected graphs only
     - cutoff option for betweenness calculations.
     - make mcxarray available as library call with callback for pairwise vector comparison
     - hidden options in clm close should be part of other clm mode.

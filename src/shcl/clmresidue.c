@@ -25,6 +25,7 @@
 #include "impala/io.h"
 #include "impala/compose.h"
 #include "impala/iface.h"
+#include "impala/tab.h"
 #include "impala/app.h"
 
 #include "mcl/interpret.h"
@@ -46,6 +47,8 @@ enum
 ,  MY_OPT_ICL
 ,  MY_OPT_OUTPUT
 ,  MY_OPT_RPM
+,  MY_OPT_TAB
+,  MY_OPT_DUP
 }  ;
 
 
@@ -82,6 +85,8 @@ static mcxIO*  xfout    =  (void*) -1;
 static mcxIO*  xfcl     =  (void*) -1;
 static mcxIO*  xfmx     =  (void*) -1;
 static mcxIO*  xfrpm    =  (void*) -1;
+static mcxIO*  xftab    =  (void*) -1;
+static mcxIO*  xfdup    =  (void*) -1;
 
 
 static mcxstatus residueInit
@@ -282,12 +287,10 @@ static mcxstatus enstrictArgHandle
       :  mcxIOnewName(xfout, val)
       ;  break
       ;  
-
          case MY_OPT_ICL
       :  mcxIOnewName(xfcl  , val)
       ;  break
       ;  
-
          default
       :  return STATUS_FAIL
       ;
@@ -313,13 +316,10 @@ static mcxstatus enstrictMain
    ;  dim o, m, e
    ;  cl  =  mclxRead(xfcl, EXIT_ON_FAIL)
    ;  mcxIOfree(&xfcl)
-
    ;  clmEnstrict(cl, &o, &m, &e, ENSTRICT_PARTITION)
-
    ;  mclxWrite(cl, xfout, -1, EXIT_ON_FAIL)
    ;  mcxIOfree(&xfout)
    ;  mclxFree(&cl)
-
    ;  return STATUS_OK
 ;  }
 
@@ -342,4 +342,122 @@ mcxDispHook* mcxDispHookEnstrict
    ;  return &enstrictEntry
 ;  }
 
+
+static mcxOptAnchor foldOptions[] =
+{  {  "-imx"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_IMX
+   ,  "<fname>"
+   ,  "read clustering matrix from file"
+   }
+,  {  "-dup"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_DUP
+   ,  "<fname>"
+   ,  "matrix file specifying duplicate nodes"
+   }
+,  {  "-tab"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_TAB
+   ,  "<fname>"
+   ,  "tab file, graph will be folded on identical labels"
+   }
+,  {  "-o"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_OUTPUT
+   ,  "<fname>"
+   ,  "output file name"
+   }
+,  {  NULL ,  0 ,  0 ,  NULL, NULL}
+}  ;
+
+
+static mcxstatus foldArgHandle
+(  int optid
+,  const char* val
+)
+   {  switch(optid)
+      {  case MY_OPT_OUTPUT
+      :  mcxIOnewName(xfout, val)
+      ;  break
+      ;  
+         case MY_OPT_DUP
+      :  xfdup = mcxIOnew(val, "r")
+      ;  break
+      ;  
+         case MY_OPT_TAB
+      :  xftab = mcxIOnew(val, "r")
+      ;  break
+      ;  
+         case MY_OPT_IMX
+      :  xfmx = mcxIOnew(val, "r")
+      ;  break
+      ;
+         default
+      :  return STATUS_FAIL
+      ;
+      }
+      return STATUS_OK
+;  }
+
+
+static mcxstatus foldInit
+(  void
+)
+   {  xfout =  mcxIOnew("-", "w")
+   ;  xftab =  NULL
+   ;  xfdup =  NULL
+   ;  xfmx  =  NULL
+   ;  return STATUS_OK
+;  }
+
+
+static mcxstatus foldMain
+(  int         argc_unused    cpl__unused
+,  const char* argv_unused[]  cpl__unused
+)
+   {  mclMatrix   *mx         =  NULL
+   ;  mclMatrix   *dup        =  NULL
+   ;  mclTab      *tab        =  NULL
+
+   ;  const char* me          =  "clmfold"
+   ;  dim i
+
+   ;  if ((!xftab && !xfdup)  || !xfmx)
+      mcxDie(1, me, "need tab and matrix files - identical entries in tab will be folded")
+
+   ;  mx  =  mclxReadx(xfmx, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH)
+   ;  if (xfdup)
+      dup = mclxRead(xfdup, EXIT_ON_FAIL)
+   ;  else
+         tab = mclTabRead(xftab, mx->dom_cols, EXIT_ON_FAIL)
+      ,  dup = mclTabDuplicated(tab, NULL)
+
+   ;  mclxFold(mx, dup)
+   ;  mcxTell(me, "found %ld duplicates", (long) mclxNrofEntries(dup))
+   ;  mclxWrite(mx, xfout, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
+;if(0) mclxWrite(dup, xfout, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
+
+   ;  mcxIOclose(xfout)
+   ;  return STATUS_OK
+;  }
+
+
+mcxDispHook* mcxDispHookFold
+(  void
+)
+   {  static mcxDispHook foldEntry
+   =  {  "fold"
+      ,  "fold [options] -tab <tab-file> -imx <mx-file>"
+      ,  foldOptions
+      ,  sizeof(foldOptions)/sizeof(mcxOptAnchor) - 1
+      ,  foldArgHandle
+      ,  foldInit
+      ,  foldMain
+      ,  0
+      ,  0
+      ,  MCX_DISP_DEFAULT
+      }
+   ;  return &foldEntry
+;  }
 

@@ -53,6 +53,7 @@ int      opMax                (  void  )  ;
 int      opAllOne             (  void  )  ;
 int      opColDimension       (  void  )  ;
 int      opDigits             (  void  )  ;
+int      opSize               (  void  )  ;
 int      opDimension          (  void  )  ;
 int      opStackList          (  void  )  ;
 int      opDup                (  void  )  ;
@@ -252,6 +253,12 @@ opHook opHookDir[] =
    ,  "dup, (value) copy ob"
    ,  "<o1>"
    ,  "<o1> <o2>"
+   }
+,  {  opSize
+   ,  TOKEN_SIZE
+   ,  "take size of object (number of entries)"
+   ,  "<o1>"
+   ,  "<o1> <size>"
    }
 ,  {  opDimension
    ,  TOKEN_DIMENSION
@@ -974,6 +981,31 @@ int opFree
 ;  }
 
 
+int opSize
+(  void
+)
+   {  int ok = zsHaveNargs(1) ? 1 : 0
+   ;  zgglob_p o1, o2
+   ;  int typeo
+   
+   ;  if (!ok)
+      return 0
+   
+   ;  o1 = zsGetGlob(0)
+   ;  typeo = zgGetType(o1)
+
+   ;  if (typeo == UTYPE_MX)
+      {  mclx* mx = zsGetOb(0, UTYPE_MX)
+      ;  int i = mclxNrofEntries(mx)
+      ;  zgPush(UTYPE_INT, &i)
+   ;  }
+      else
+      zmNotSupported1(TOKEN_DIV, typeo)
+
+   ;  return 1
+;  }
+
+
 int opMul
 (  void
 )
@@ -1022,7 +1054,7 @@ int opBlock
    ;  if (!mx || !dom)
       return 0
 
-   ;  block    =  mclxBlocks(mx, dom)
+   ;  block    =  mclxBlockUnion(mx, dom)
    ;  blockc   =  mclxMinus(mx, block)
 
    ;  zsPop()

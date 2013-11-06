@@ -69,6 +69,7 @@ enum
 ,  ID_RESIDUE
 ,  ID_ADJUST
 ,  ID_ENSTRICT
+,  ID_FOLD
 ,  ID_PS
 ,  ID_UNUSED
 }  ;
@@ -91,6 +92,7 @@ mcxDispEntry clm_dir[] =
 ,  {  ID_RESIDUE, mcxDispHookResidue }
 ,  {  ID_ADJUST,  mcxDispHookAdjust }
 ,  {  ID_ENSTRICT, mcxDispHookEnstrict }
+,  {  ID_FOLD,    mcxDispHookFold }
 ,  {  ID_PS,      mcxDispHookPS    }
 ,  {  -1,         NULL         }
 }  ;

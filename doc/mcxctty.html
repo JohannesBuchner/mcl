@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2010 Stijn van Dongen -->
+<!-- Copyright (c) 2011 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
@@ -28,6 +28,12 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
+p.asd_par { margin-bottom:0em }
+p.asd_cpar { margin-bottom:0em }
+span.asd_cpar_caption { font-weight: bold; display: block }
+p.asd_car { margin-top:0em; margin-bottom:0em }
+p.asd_ccar { margin-top:0em; margin-bottom:0em }
+span.asd_ccar_caption { font-weight: bold; display: block }
 div.verbatim
 { font-family: monospace;
 margin-top: 1em;
@@ -79,9 +85,9 @@ margin-right: 8%;
 </head>
 <body>
 <p style="text-align:right">
-20 Jul 2010&nbsp;&nbsp;&nbsp;
+21 Oct 2011&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxctty.ps"><b>mcx ctty</b></a>
-10-201
+11-294
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -112,21 +118,21 @@ margin-right: 8%;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 mcx ctty &mdash; compute betweenness centrality for network nodes</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>mcx ctty</b> [options] [matrix-file]</p>
-<p style="margin-bottom:0" class="asd_par">mcxctty is not in actual fact a program. This manual
+<p class="asd_par">mcxctty is not in actual fact a program. This manual
 page documents the behaviour and options of the mcx program when
 invoked in mode <i>ctty</i>. The options <b>-h</b>, <b>--apropos</b>,
 <b>--version</b>, <b>-set</b>, <b>--nop</b>, <b>-progress</b>&nbsp;<i>&lt;num&gt;</i>
 are accessible
 in all <b>mcx</b> modes. They are described
 in the <a class="local sibling" href="mcx.html">mcx</a> manual page.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>mcx ctty</b>
 <a class="intern" href="#opt-abc"><b>[-abc</b> &lt;fname&gt; (<i>specify label input</i>)<b>]</b></a>
 <a class="intern" href="#opt-imx"><b>[-imx</b> &lt;fname&gt; (<i>specify matrix input</i>)<b>]</b></a>
@@ -143,11 +149,11 @@ in the <a class="local sibling" href="mcx.html">mcx</a> manual page.</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>mcx ctty</b> computes betweenness centrality for all nodes in a graph, using
 the between centrality update algorithm from <a class="intern" href="#fabc">[1]</a>.
 </p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 The input graph/matrix, if specified with the <b>-imx</b> option, has to
 be in mcl matrix/graph format. You can use label input instead by using the
 <b>-abc</b> option.
@@ -160,23 +166,23 @@ To specify label input from STDIN use <b>-abc</b>&nbsp;<b>-</b>.</p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-abc"></a><b>-abc</b> &lt;fname&gt; (<i>label input</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The file name for input that is in label format.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>input matrix</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The file name for input. STDIN is assumed if not specified.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-o"></a><b>-o</b> &lt;fname&gt; (<i>output file name</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The name of the file to write output to.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tab"></a><b>-tab</b> &lt;fname&gt; (<i>use tab file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 This option causes the output to be printed with the labels
 found in the tab file.
 With <b>-abc</b> this option will, additionally, construct
@@ -187,7 +193,7 @@ tab domain and the matrix domain are required to be identical.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-t"></a><b>-t</b> &lt;int&gt; (<i>use &lt;int&gt; threads</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-J"></a><b>-J</b> &lt;intJ&gt; (<i>a total of &lt;intJ&gt; jobs are used</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-j"></a><b>-j</b> &lt;intj&gt; (<i>this job has index &lt;intj&gt;</i>)</div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Computing centrality scores in a graph is time-intensive.
 If you have multiple CPUs available consider using
 as many threads. Additionally it is possible to
@@ -211,14 +217,14 @@ defines three jobs, each running four threads.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--list"></a><b>--list</b> (<i>print result for each node</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Print clustering coefficient for all nodes.</p>
 </div>
 </div>
 
 <a name="references"></a>
 <h2>REFERENCES</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <a name="fabc">[1]</a>
 Ulrik Brandes, <i>A Faster Algorithm for Betweenness Centrality</i>.
 Journal of Mathematical Sociology 25(2): 163-177, (2001).
@@ -227,7 +233,7 @@ Journal of Mathematical Sociology 25(2): 163-177, (2001).
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <a class="local sibling" href="mcxio.html">mcxio</a>,
 and <a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.</p>

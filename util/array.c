@@ -256,7 +256,7 @@ dim mcxBufFinalize
    ;  char* dummy
 
    ;  if (buf->bFinalized)
-      mcxErr("mcxBufFinalize PBD", "extending finalized buffer")
+      mcxErr("mcxBufFinalize PBD", "finalising finalized buffer")
    ;  else
       buf->bFinalized   =  1
 
@@ -443,6 +443,7 @@ double mcxMedian
          quant = -quant
    ;  }
 
+      if (iqr)
       *iqr = quant
    ;  return median
 ;  }

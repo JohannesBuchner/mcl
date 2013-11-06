@@ -1,4 +1,4 @@
-/*   (C) Copyright 2005, 2006, 2007, 2008, 2009, 2010  Stijn van Dongen
+/*   (C) Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -791,13 +791,13 @@ static mclx* make_mx_from_pars
          dc_max_seen = streamer->cmax_235-1
    ;  }
       else if (bits & MCLXIO_STREAM_123)
-      {  if (streamer->cmax_123 > 0 && dc_max_seen < streamer->cmax_123 - 1)
+      {  if (streamer->cmax_123 > 0 && dc_max_seen+1 < streamer->cmax_123)
          dc_max_seen = streamer->cmax_123-1
-      ;  if (streamer->rmax_123 > 0 && dr_max_seen < streamer->rmax_123 - 1)
+      ;  if (streamer->rmax_123 > 0 && dr_max_seen+1 < streamer->rmax_123)
          dr_max_seen = streamer->rmax_123-1
    ;  }
 
-mcxTell("stream", "maxc=%d maxr=%d", (int) dc_max_seen, (int) dr_max_seen)
+if(0)mcxTell("stream", "maxc=%d maxr=%d", (int) dc_max_seen, (int) dr_max_seen)
 
    ;  if (iface->pars_n_used != iface->map_c->max_seen+1)
       mcxDie
@@ -861,10 +861,14 @@ static void free_pars
 (  stream_state* iface
 )
    {  dim i
+   ;  dim n_mem = 0, n_used = 0
    ;  for (i=0; i<iface->pars_n_alloc; i++)
-      mcxFree(iface->pars[i].ivps)
+         n_mem += iface->pars[i].n_alloc
+      ,  n_used += iface->pars[i].n_ivps
+      ,  mcxFree(iface->pars[i].ivps)
    ;  mcxFree(iface->pars)
    ;  iface->pars = NULL
+;if(0)fprintf(stderr, "par allocated/used %u/%u ivps in %d buckets\n", (unsigned) n_mem, (unsigned) n_used, (int) iface->pars_n_alloc)
 ;  }
 
 

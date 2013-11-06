@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008, 2009  Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010, 2011  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -35,6 +35,7 @@ enum
 ,  MY_OPT_S2C
 ,  MY_OPT_CAT
 ,  MY_OPT_CATMAX
+,  MY_OPT_RO
 }  ;
 
 
@@ -72,6 +73,12 @@ mcxOptAnchor convertOptions[] =
    ,  NULL
    ,  "output native binary format"
    }
+,  {  "--read-only"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_RO
+   ,  NULL
+   ,  "read matrix and exit (unit test)"
+   }
 ,  {  NULL ,  0 ,  0 ,  NULL, NULL}
 }  ;
 
@@ -82,6 +89,7 @@ static mcxIO *xfout  =  (void*) -1;
 static int main_mode =  -1;
 static dim catmax    =  -1;
 static mcxbool docat =  -1;
+static mcxbool test_read =  -1;
 
 
 static mcxstatus convertInit
@@ -89,7 +97,8 @@ static mcxstatus convertInit
 )
    {  xfin = NULL
    ;  xfout = NULL
-   ;  main_mode = 'f'
+   ;  main_mode = 'f'         /* format */
+   ;  test_read = FALSE
    ;  catmax = 0
    ;  docat = FALSE
    ;  return STATUS_OK
@@ -113,18 +122,23 @@ static mcxstatus convertArgHandle
       ;  break
       ;
 
+         case MY_OPT_RO
+      :  test_read = TRUE
+      ;  break
+      ;
+
          case MY_OPT_CATMAX
       :  catmax = atoi(val)
       ;  break
       ;
 
          case MY_OPT_S2C
-      :  main_mode = 's'
+      :  main_mode = 's'      /* stack to cone */
       ;  break
       ;
 
          case MY_OPT_C2S
-      :  main_mode = 'c'
+      :  main_mode = 'c'      /* cone to stack */
       ;  break
       ;
 
@@ -158,12 +172,14 @@ static mcxstatus convertMain
       {  int format
       ;  mx = mclxRead(xfin, EXIT_ON_FAIL)
       ;  format = mclxIOformat(xfin)
-      ;  mcxIOopen(xfout, EXIT_ON_FAIL)
-      ;  if (format == 'a')
-         mclxbWrite(mx, xfout, EXIT_ON_FAIL)
-      ;  else
-         mclxaWrite(mx, xfout, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
-   ;  }
+      ;  if (!test_read)
+         {  mcxIOopen(xfout, EXIT_ON_FAIL)
+         ;  if (format == 'a')
+            mclxbWrite(mx, xfout, EXIT_ON_FAIL)
+         ;  else
+            mclxaWrite(mx, xfout, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
+      ;  }
+      }
       else
       {  mcxbits bits
          =     main_mode == 'c'

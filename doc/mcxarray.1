@@ -1,5 +1,5 @@
-.\" Copyright (c) 2010 Stijn van Dongen
-.TH "mcxarray" 1 "20 Jul 2010" "mcxarray 10-201" "USER COMMANDS "
+.\" Copyright (c) 2011 Stijn van Dongen
+.TH "mcxarray" 1 "21 Oct 2011" "mcxarray 11-294" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -39,6 +39,9 @@ mcxarray \- Transform array data to MCL matrices
 \fB[-co\fP num (\fIcutoff for output values (required)\fP)\fB]\fP
 \fB[--pearson\fP (\fIuse Pearson correlation (default)\fP)\fB]\fP
 \fB[--spearman\fP (\fIuse Spearman rank correlation\fP)\fB]\fP
+\fB[-fp\fP <mode> (\fIuse fingerprint measure\fP)\fB]\fP
+\fB[--dot\fP (\fIuse dot product\fP)\fB]\fP
+\fB[--cosine\fP (\fIuse cosine\fP)\fB]\fP
 \fB[-skipr\fP <num> (\fIskip <num> data rows\fP)\fB]\fP
 \fB[-skipc\fP <num> (\fIskip <num> data columns\fP)\fB]\fP
 \fB[-o\fP fname (\fIoutput file fname\fP)\fB]\fP
@@ -52,10 +55,10 @@ mcxarray \- Transform array data to MCL matrices
 \fB[-start\fP <int> (\fIstart at column <int> inclusive\fP)\fB]\fP
 \fB[-end\fP <int> (\fIend at column <int> EXclusive\fP)\fB]\fP
 \fB[--transpose\fP (\fIwork with the transposed data matrix\fP)\fB]\fP
+\fB[--rank-transform\fP (\fIrank transform the data first\fP)\fB]\fP
 \fB[-tf\fP spec (\fItransform result network\fP)\fB]\fP
 \fB[-table-tf\fP spec (\fItransform input table before processing\fP)\fB]\fP
 \fB[-n\fP mode (\fInormalize input\fP)\fB]\fP
-\fB[--cosine\fP (\fIuse cosine\fP)\fB]\fP
 \fB[--zero-as-na\fP (\fItreat zeroes as missing data\fP)\fB]\fP
 \fB[-write-data\fP <fname> (\fIwrite data to file\fP)\fB]\fP
 \fB[-write-na\fP <fname> (\fIwrite NA matrix to file\fP)\fB]\fP
@@ -99,10 +102,66 @@ The expression values are read from a file in mcl matrix format\&.
 .ZI 2m "\fB--spearman\fP (\fIuse Spearman rank correlation\fP)"
 \&
 'in -2m
+.ZI 2m "\fB--cosine\fP (\fIuse cosine\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--dot\fP (\fIuse the dot product\fP)"
+\&
+'in -2m
 'in +2m
 \&
 .br
-Use one of these to specify the correlation measure\&.
+Use one of these to specify the correlation measure\&. Note that
+the dot product is not normalised and should only be used with very good reason\&.
+.in -2m
+
+.ZI 2m "\fB-fp\fP <mode> (\fIspecify fingerprint measure\fP)"
+\&
+.br
+Fingerprints are used to define an entity in terms of it having
+or not having certain traits\&. This means that a fingerprint can be
+represented by a boolean vector, and a set of fingerprints can be represented
+by an array of such vectors\&. In the presence of many traits and entities the dimensions
+of such a matrix can grow large\&. The sparse storage employed by MCL-edge is
+ideally suited to this, and mcxarray is ideally suited to the computation
+of all pairwise comparisons between such fingerprints\&.
+Currently mcxarray supports five different types of fingerprint, described below\&.
+Given two fingerprints, the number of traits unique to the first is denoted by \fIa\fP,
+the number unique to the second is denoted by \fIb\fP, and the number that they
+have in common is denoted by \fIc\fP\&.
+
+.ZI 2m "hamming"
+\&
+.br
+The Hamming distance, defined as \fIa\fP+\fIb\fP\&.
+.in -2m
+
+.ZI 2m "tanimoto"
+\&
+.br
+The Tanimoto similarity measure, \fIc\fP/(\fIa\fP+\fIb\fP+\fIc\fP)\&.
+.in -2m
+
+.ZI 2m "cosine"
+\&
+.br
+The cosine similarity measure, \fIc\fP/sqrt((\fIa\fP+\fIc\fP)*(\fIb\fP+\fIc\fP))\&.
+.in -2m
+
+.ZI 2m "meet"
+\&
+.br
+Simply the number of shared traits, identical to \fIc\fP\&.
+.in -2m
+
+.ZI 2m "cover"
+\&
+.br
+A normalised and non-symmetric similarity measure, representing the fraction
+of traits shared relative to the number of traits by a single entity\&.
+This gives the value \fIc\fP/(\fIa\fP+\fIc\fP) in one direction, and the value
+\fIc\fP/(\fIb\fP+\fIc\fP) in the other\&.
+.in -2m
 .in -2m
 
 .ZI 2m "\fB-skipr\fP <num> (\fIskip <num> data rows\fP)"
@@ -229,6 +288,12 @@ Output values smaller than \fInum\fP are removed (set to zero)\&.
 Work with the transpose of the input data matrix\&.
 .in -2m
 
+.ZI 2m "\fB--rank-transform\fP (\fIrank transform the data first\fP)"
+\&
+.br
+The data is rank-transformed prior to the computation of pairwise measures\&.
+.in -2m
+
 .ZI 2m "\fB-write-data\fP <fname> (\fIwrite data to file\fP)"
 \&
 .br
@@ -256,15 +321,6 @@ Probes that are present in the ranking are given a positive ordinal
 number reflecting the ranking, and probes that are absent are implicitly
 given the value zero\&. With the present option mcxarray will handle
 the correlation computation in a reasonable way\&.
-.in -2m
-
-.ZI 2m "\fB--cosine\fP (\fIuse cosine\fP)"
-\&
-'in -2m
-'in +2m
-\&
-.br
-Use the cosine as correlation measure\&.
 .in -2m
 
 .ZI 2m "\fB-n\fP mode (\fInormalization mode\fP)"

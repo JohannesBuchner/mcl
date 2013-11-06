@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008, 2009, 2010 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010, 2011 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -52,6 +52,7 @@ typedef struct
 #define MCLV_SIZE(vec)   ((vec)->n_ivps)
 #define MCLV_MAXID(vec)  (MCLV_SIZE(vec) ? ((vec)->ivps)[MCLV_SIZE(vec)-1].idx : 0)
 #define MCLV_MINID(vec)  (MCLV_SIZE(vec) ? ((vec)->ivps)[0].idx : 0)
+
 
 #define MCLV_IS_CANONICAL(vec)  (!(vec)->n_ivps || \
       ((vec)->ivps[(vec)->n_ivps-1].idx == (long) ((vec)->n_ivps-1)))
@@ -125,7 +126,7 @@ mclVector* mclvRenew
 )  ;
 
 
-/* This bugger leaves vec in inconsistent state unless it is shrinking
+/* This leaves vec in inconsistent state unless it is shrinking
  * Inconsistent meaning: ivp with idx set to -1.
  *
  * vec argument can be NULL.
@@ -528,8 +529,8 @@ double mclvIn
 
 
 mclVector* mcldMinus
-(  const mclVector*  vecl
-,  const mclVector*  vecr
+(  const mclVector*  lft
+,  const mclVector*  rgt
 ,  mclVector*        dst      /* value from lft (naturally) */
 )  ;
 

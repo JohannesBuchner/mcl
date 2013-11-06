@@ -431,6 +431,20 @@ mcl(1)                          USER COMMANDS                           mcl(1)
         mation  on this DAG refer to the -dump option description in this man-
         ual and also mclfaq(7).
 
+        Standard log information
+
+        expa This gives the ratio of (1) the number  of  edges  after  initial
+             expansion, before pruning, to (2) the number of edges before ini-
+             tial expansion.
+        expb This gives the ratio of (1) the number of edges  after  expansion
+             and pruning, to (2) the number of edges before initial expansion.
+        expc This gives the ratio of (1) the number of edges  after  expansion
+             and  pruning,  to  (2)  the number of edges of the original input
+             graph.
+        fmv  This gives the percentage of nodes  (matrix  columns)  for  which
+             full  matrix/vector  computation  was used (as opposed to using a
+             sparse technique).
+
       -aa <str> (append <str> to suffix)
         See the -ap option below.
 
@@ -1055,4 +1069,4 @@ mcl(1)                          USER COMMANDS                           mcl(1)
 
 
 
-  mcl 10-201                        20 Jul 2010                           mcl(1)
+  mcl 11-294                        21 Oct 2011                           mcl(1)

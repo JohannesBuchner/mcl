@@ -1,5 +1,5 @@
 /*   (C) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008, 2009  Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010, 2011 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -103,6 +103,7 @@ enum
 ,  MY_OPT_IMAGE
 ,  MY_OPT_TRANSPOSE
 ,  MY_OPT_CLEANUP
+,  MY_OPT_NW
 ,  MY_OPT_WB
 ,  MY_OPT_DEBUG
 ,  MY_OPT_HELP
@@ -141,7 +142,13 @@ mcxOptAnchor options[] =
    ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
    ,  MY_OPT_CLEANUP
    ,  NULL
-   ,  "free all memore used (test purpose)"
+   ,  "free all memory used (test purpose)"
+   }
+,  {  "--no-write"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_NW
+   ,  NULL
+   ,  "exit after loading of matrix"
    }
 ,  {  "--version"
    ,  MCX_OPT_DEFAULT | MCX_OPT_INFO
@@ -158,7 +165,7 @@ mcxOptAnchor options[] =
 ,  {  "-re"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_DEDUP
-   ,  "<max|add|first|last>"
+   ,  "<max|min|add|first|last>"
    ,  "deduplicate repeated entries"
    }
 ,  {  "--stream-mirror"
@@ -446,6 +453,7 @@ int main
    ;  mcxbool symmetric =  FALSE
    ;  mcxbool transpose =  FALSE
    ;  mcxbool cleanup   =  FALSE
+   ;  mcxbool dowrite   =  TRUE
    ;  mcxbits scrub     =  0
    ;  mcxbool write_binary = FALSE
 
@@ -493,6 +501,11 @@ int main
 
             case MY_OPT_CLEANUP
          :  cleanup = TRUE
+         ;  break
+         ;
+
+            case MY_OPT_NW
+         :  dowrite = FALSE
          ;  break
          ;
 
@@ -716,6 +729,8 @@ int main
             case MY_OPT_DEDUP
          :  if (!strcmp(opt->val, "max"))
             merge = mclpMergeMax
+         ;  else if (!strcmp(opt->val, "min"))
+            merge = mclpMergeMin
          ;  else if (!strcmp(opt->val, "add"))
             merge = mclpMergeAdd
          ;  else if (!strcmp(opt->val, "first"))
@@ -879,12 +894,14 @@ int main
       ;  }
       }
 
-      if (write_binary)
-      mclxbWrite(mx, xfmx, EXIT_ON_FAIL)
-   ;  else
-      mclxWrite(mx, xfmx, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+      if (dowrite)
+      {  if (write_binary)
+         mclxbWrite(mx, xfmx, EXIT_ON_FAIL)
+      ;  else
+         mclxWrite(mx, xfmx, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+   ;  }
 
-   ;  mcxIOclose(xfmx)
+      mcxIOclose(xfmx)
 
                   /* fixme: the tab_map_sym check is ugly.  It would be neater
                    * to have a { mx, tabsym, tabcol, tabrow }  tuple that is

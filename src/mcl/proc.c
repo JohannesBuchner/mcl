@@ -132,8 +132,8 @@ mclMatrix*  mclProcess
 ,  mclx**  cachexp            /* if !NULL cache expanded */
 ,  mclx**  limit
 )
-   {  mclMatrix*        mxEven      =  *mxstart
-   ;  mclMatrix*        mxOdd       =  NULL
+   {  mclMatrix*        mxIn        =  *mxstart
+   ;  mclMatrix*        mxOut       =  NULL
    ;  mclMatrix*        mxCluster   =  NULL
    ;  int               digits      =  mpp->printDigits
    ;  mclExpandParam    *mxp        =  mpp->mxp
@@ -151,26 +151,27 @@ mclMatrix*  mclProcess
                                        */
 
    ;  if (!mxp->stats)                 /* size dependent init stuff */
-      mclExpandParamDim(mxp, mxEven)
+      mclExpandParamDim(mxp, mxIn)
 
    ;  mpp->n_entries = mclxNrofEntries(mxstart[0])
 
    ;  if (mpp->printMatrix)
       mclFlowPrettyPrint
-      (  mxEven
+      (  mxIn
       ,  stdout
       ,  digits
       ,  "1 After centering (if) and normalization"
       )
 
    ;  if (MCPVB(mpp, MCPVB_ITE))
-      mclDumpMatrix(mxEven, mpp, "ite", "", 0, TRUE)
+      mclDumpMatrix(mxIn, mpp, "ite", "", 0, TRUE)
 
+               /* see below, mainLoopLength, for discussion of parameters */
    ;  for (i=0;i<mpp->initLoopLength;i++)
       {  doIteration 
          (  mxstart[0]
-         ,  &mxEven
-         ,  &mxOdd
+         ,  &mxIn
+         ,  &mxOut
          ,  mpp
          ,  ITERATION_INITIAL
          )
@@ -180,12 +181,12 @@ mclMatrix*  mclProcess
          || (i == 1 && !cachexp)
          ||  i > 1
          )
-         mclxFree(&mxEven)
+         mclxFree(&mxIn)
       ;  else if (i == 1 && cachexp)
-         *cachexp = mxEven
+         *cachexp = mxIn
 
       ;  mpp->n_ite++
-      ;  mxEven  =  mxOdd
+      ;  mxIn  =  mxOut
    ;  }
 
       if (mpp->initLoopLength)
@@ -195,12 +196,18 @@ mclMatrix*  mclProcess
       ,  "====== Changing from initial to main inflation now ======"
       )
 
+            /* initially &mxOut[0] == NULL, and &mxIn[0] == mxstart[0]
+             * doIteration writes in mxOut.
+             * On later occassions &mxIn will be an intermediate mcl iterand.
+             * we can free mxIn provided it is not the start matrix when it needs caching,
+             * and it is not the expanded matrix that needs caching.
+            */
    ;  for (i=0;i<mpp->mainLoopLength;i++)
       {  int convergence
          =  doIteration
             (  mxstart[0]
-            ,  &mxEven
-            ,  &mxOdd
+            ,  &mxIn
+            ,  &mxOut
             ,  mpp
             ,  ITERATION_MAIN
             )
@@ -211,25 +218,25 @@ mclMatrix*  mclProcess
          || (i == 1 && !cachexp)
          ||  i > 1
          )
-         mclxFree(&mxEven)
+         mclxFree(&mxIn)
       ;  else if (i == 1 && cachexp)
-         *cachexp = mxEven
+         *cachexp = mxIn
 
       ;  mpp->n_ite++
-      ;  mxEven  =  mxOdd
+      ;  mxIn  =  mxOut
 
       ;  if (abort_loop || convergence)
          break
    ;  }
 
       if (cachexp && ! *cachexp)
-      *cachexp = mxOdd
+      *cachexp = mxOut
 
    ;  mpp->lap = ((double) (clock() - t1)) / CLOCKS_PER_SEC
 
-   ;  *limit = mxEven
+   ;  *limit = mxIn
 
-   ;  {  mclx* dag = mclDag(mxEven, mpp->ipp)
+   ;  {  mclx* dag = mclDag(mxIn, mpp->ipp)
       ;  if (1)  /* hum ho fixme docme. is-this-really-necessary-or-is-it-a-debug-remnant ? */
          {  dim j
          ;  mclxMakeStochastic(dag)
@@ -311,7 +318,10 @@ int doIteration
       if (log_gauge)
       fprintf(fplog, "%3d  ", (int) n_ite+1)
 
+;if(0)mclxDebug("-", mxin[0], 3, "mxin")
+;if(0)mclxDebug("-", mpp->expansionVariant ? mxstart : mxin[0], 3, "mxstart")
    ;  *mxout  =   mclExpand(*mxin, mpp->expansionVariant ? mxstart : *mxin,  mxp)
+;if(0)fprintf(stdout, "------\n")
    ;  homgAvg =   mxp->stats->homgAvg
 
    ;  n_new_entries = mclxNrofEntries(mxout[0])

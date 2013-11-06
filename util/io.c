@@ -297,7 +297,7 @@ mcxstatus  mcxIOopen
    ;  else if ((xf->fp = fopen(fname, xf->mode)) == NULL)
       {  if (ON_FAIL == RETURN_ON_FAIL)
          return STATUS_FAIL
-      ;  mcxIOerr(xf, "mcxIOopen", "can not be opened")
+      ;  mcxIOerr(xf, "mcxIOopen", "cannae be opened")
       ;  mcxExit(1)
    ;  }
 
@@ -473,13 +473,13 @@ mcxstatus  mcxIOreadFile
 
    ;  if (!xf->stdio)
       {  if (stat(xf->fn->str, &mystat))
-         mcxIOerr(xf, me, "can not stat file")
+         mcxIOerr(xf, me, "cannae stat file")
       ;  else
          sz = mystat.st_size
    ;  }
 
       if (!xf->fp && mcxIOopen(xf, RETURN_ON_FAIL))
-      {  mcxIOerr(xf, me, "can not open file")
+      {  mcxIOerr(xf, me, "cannae open file")
       ;  return STATUS_FAIL
    ;  }
 
@@ -822,6 +822,7 @@ mcxstatus mcxIOexpectNum
 
    ;  mcxIOskipSpace(xf)      /* keeps accounting correct */
 
+   ;  errno = 0
    ;  n_conv   =  fscanf(xf->fp, "%ld%n", lngp, &n_read)
 
    ;  xf->bc += n_read  /* fixme do fscanf error handling */

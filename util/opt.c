@@ -753,7 +753,7 @@ int mcxDispatch
          fprintf
          (  stdout
          ,  "\n%s help <mode> (invoke manual page for <mode>)\n"
-            "help pages are available for:"
+            "help pages should be available for:"
          ,  me
          )
       ;  entry = entry_dir+0

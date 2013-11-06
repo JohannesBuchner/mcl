@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2010 Stijn van Dongen -->
+<!-- Copyright (c) 2011 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
@@ -28,6 +28,12 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
+p.asd_par { margin-bottom:0em }
+p.asd_cpar { margin-bottom:0em }
+span.asd_cpar_caption { font-weight: bold; display: block }
+p.asd_car { margin-top:0em; margin-bottom:0em }
+p.asd_ccar { margin-top:0em; margin-bottom:0em }
+span.asd_ccar_caption { font-weight: bold; display: block }
 div.verbatim
 { font-family: monospace;
 margin-top: 1em;
@@ -79,9 +85,9 @@ margin-right: 8%;
 </head>
 <body>
 <p style="text-align:right">
-20 Jul 2010&nbsp;&nbsp;&nbsp;
+21 Oct 2011&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxload.ps"><b>mcxload</b></a>
-10-201
+11-294
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -112,15 +118,15 @@ margin-right: 8%;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 mcxload &mdash; load matrices and tab files from label format</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>mcxload</b> <a class="intern" href="#opt-abc"><b>-abc</b> &lt;fname&gt; (<i>label file</i>)</a>
 <a class="intern" href="#opt-o"><b>-o</b> &lt;fname&gt; (<i>output file</i>)</a></p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <a class="intern" href="#opt-abc"><b>[-abc</b> &lt;fname&gt; (<i>label file</i>)<b>]</b></a>
 <a class="intern" href="#opt-123"><b>[-123</b> &lt;fname&gt; (<i>identifier file</i>)<b>]</b></a>
 <a class="intern" href="#opt-o"><b>[-o</b> &lt;fname&gt; (<i>output file</i>)<b>]</b></a>
@@ -162,7 +168,7 @@ mcxload &mdash; load matrices and tab files from label format</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 <b>mcxload</b> reads label input from a file. The format of the file should be
 line-based, each line containing two white-space separated strings (labels)
 and optionally a number separated from the second label by whitespace. In
@@ -170,7 +176,7 @@ the absence of a value, mcxload will use the default value 1.0. If a tab is
 present on an input line, mcxload will assume that the tab character is the
 separator for that line. Lines for which the first non-whitespace character
 is an octothorpe ('<tt>#</tt>') are skipped.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>mcxload</b> will transform the labels into mcl numerical identifiers and the
 pairs of labels into graph edges or equivalently matrix entries. The weight
 of an edge is the value associated with the associated labels. mcxload
@@ -178,20 +184,20 @@ constructs dictionaries (sometimes just one) that map labels onto mcl
 identifiers as it goes along. It can optionally write these to file. In MCL
 (family) parlance, such a dictionary written to file is called a <i>tab
 file</i>.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 It is possible to specify numerical identifiers directly with
 the <a class="intern" href="#opt-123"><b>-123</b></a> option. In this case <b>mcxload</b> assumes a canonical
 domain (cf <a class="local sibling" href="mcxio.html">mcxio</a>) and will create the minimal canonical
 domain that supports the data. Also bear in mind the caveat further
 below.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 It is possible to effectively predeclare labels and thus enforce
 an a-priori known mapping of labels onto numerical identifiers.
 Labels receive an identifier in the order in which they occur
 in the input. Predeclaring labels can be achieved by
 having them appear in the desired order and setting the edge
 weight to zero.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 A major mcxload modality is whether the input refers to a single
 domain or to two separate domains. An example of the first is where
 labels are names of people and the value is the extent to which they
@@ -201,7 +207,7 @@ case is to create a single dictionary with all names wherever
 they occur. All <b>tab</b> options (as opposed to <b>tabc</b> and <b>tabr</b>)
 pertain to this scenario and likewise for the options <a class="intern" href="#opt--graph"><b>--graph</b></a>
 and <a class="intern" href="#opt--stream-mirror"><b>--stream-mirror</b></a>.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 An example of the second mode is where the first label is again the name of
 a person, the second label is the name of an animal species, and the value
 is the extent to which that person appreciates the species. In this case,
@@ -212,7 +218,7 @@ and the <b>tabr</b> options <i>always refer to the second label</i>.
 The letters <b>c</b> and <b>r</b> refer to <i>column</i> and <i>row</i> respectively.
 The latter are the names of the matrix domains corresponding
 to the input domains. Refer to <a class="local sibling" href="mcxio.html">mcxio</a>.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 A further mcxload modality is whether it constructs dictionaries
 on the fly, or whether it proceeds from a tab file already
 available.
@@ -228,10 +234,10 @@ The <b>extend</b> options extend the existing tab file with
 labels that are not found.
 It presumably only makes sense to do so if the corresponding
 <b>-write</b> options are used as well.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 The input stream is deduplicated on a per-node neighbourhood basis
 using the <a class="intern" href="#opt-re"><b>-re</b></a> option.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 mcxload has a few options to transform or select based on
 the values in the input stream and the values in the
 constructed matrix. These are
@@ -247,9 +253,9 @@ Finally it is possible to transpose the final result
 using the <a class="intern" href="#opt--transpose"><b>--transpose</b></a> option. Keep in mind that
 mcxload does not accordingly change its idea of row and
 column domains.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 The final matrix can be symmetrified using the <a class="intern" href="#opt-ri"><b>-ri</b></a> option.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 The <a class="intern" href="#opt-etc"><b>-etc</b> and <b>-235</b></a> options may be useful for
 the odd job. These options assume a format where all entries for a given
 column (or equivalently all neighbours for a given node) are joined onto a
@@ -258,38 +264,38 @@ clusterings. The <b>-etc</b> options expects label input, whereas the
 <b>-235</b> options expects numbers in the input that are mapped
 directly onto mcl numerical identifiers.
 </p>
-<p style="margin-bottom:0"><b>CAVEAT</b><br>
+<p class="asd_cpar"><span class="asd_cpar_caption">CAVEAT</span>
 Please note that by feeding the line '1000000000 1' to <b>mcxload</b> with either
 of the <b>-235</b> or <b>-123</b> options it will try to allocate a
 matrix with one billion columns. This is most likely not what is wanted.
 Assuming that the input contains fewer than one billion unique labels, one
 should use the label options as described above and below.
 </p>
-<p style="margin-bottom:0"><b>STAGES</b><br>
+<p class="asd_cpar"><span class="asd_cpar_caption">STAGES</span>
 Conceptually, input matrix creation consists of the following stages</p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign " style="right:-2em">i</div></div>
 <div class=" item_text " style="margin-left:4em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Read the input stream, apply <a class="intern" href="#opt-stream-tf"><b>-stream-tf</b></a> transformation
 specification, and optionally push reverse elements
 (<a class="intern" href="#opt--stream-mirror"><b>--stream-mirror</b></a>).</p>
 </div>
 <div class=" item_compact"><div class=" item_rightalign " style="right:-2em">ii</div></div>
 <div class=" item_text " style="margin-left:4em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Deduplicate edges in the context of all edges/arcs originating from
 a given node according to the <a class="intern" href="#opt-re"><b>-re</b></a> option.</p>
 </div>
 <div class=" item_compact"><div class=" item_rightalign " style="right:-2em">iii</div></div>
 <div class=" item_text " style="margin-left:4em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Apply transpose symmetrification according to the
 <a class="intern" href="#opt-ri"><b>-ri</b></a> option, if used.</p>
 </div>
 <div class=" item_compact"><div class=" item_rightalign " style="right:-2em">iv</div></div>
 <div class=" item_text " style="margin-left:4em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Apply <a class="intern" href="#opt-tf"><b>-tf</b></a> transformation specification.</p>
 </div>
 </div>
@@ -299,7 +305,7 @@ Apply <a class="intern" href="#opt-tf"><b>-tf</b></a> transformation specificati
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-abc"></a><b>-abc</b> &lt;fname&gt; (<i>label file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The file to read label data from. Labels are separated by white-space. The
 labels may optionally be followed by a value (again separated by
 white-space), which is taken as the edge weight between the nodes
@@ -311,7 +317,7 @@ are skipped.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-123"></a><b>-123</b> &lt;fname&gt; (<i>identifier file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The file to read numerical data from. The format is the same as
 for label data, but the identifiers are directly mapped onto mcl identifiers
 as described earlier.
@@ -319,11 +325,11 @@ as described earlier.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-o"></a><b>-o</b> &lt;fname&gt; (<i>output file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">The output file where the constructed matrix is written.</p>
+<p class="asd_car">The output file where the constructed matrix is written.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--stream-mirror"></a><b>--stream-mirror</b> (<i>symmetrify, same domain</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Whenever <i>label1</i> <i>label2</i> <i>value</i>
 is encountered in the input, mcxload inserts
 <i>label2</i> <i>label1</i> <i>value</i> in the input
@@ -332,7 +338,7 @@ belong to the same domain.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--stream-split"></a><b>--stream-split</b> (<i>assume different domains</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 This tells mcxload that the two labels belong to different domains.
 The program will create two tab files, one for columns and one
 for rows. This can be used for example to create a logical mapping of
@@ -341,7 +347,7 @@ gene identifiers to species identifiers.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-re"></a><b>-re</b> &lt;max|add|mul|first|last&gt; (<i>deduplication mode</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 This specifies how mcxload should collapse repeated entries, that is edges
 for which a value is specified multiple times. This is done relative to a
 single node at a time, taking into account all neighbours assembled from the
@@ -352,79 +358,79 @@ symmetric input if only <b>--stream-mirror</b> is used.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-write-tab"></a><b>-write-tab</b> &lt;fname&gt; (<i>save domain tab</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Write the domain to file. It applies to both label types.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-write-tabc"></a><b>-write-tabc</b> &lt;fname&gt; (<i>save column tab</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Write the column domain to file. It applies to the first label found
 on each input line.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-write-tabr"></a><b>-write-tabr</b> &lt;fname&gt; (<i>save row tab</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Write the column domain to file. It applies to the second label found
 on each input line.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-strict-tab"></a><b>-strict-tab</b> &lt;fname&gt; (<i>tab universe</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Read a dictionary from file and require each label to be present in the
 dictionary. mcxload will exit on absentees.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-strict-tabc"></a><b>-strict-tabc</b> &lt;fname&gt; (<i>tabc universe</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Read a dictionary from file and require the first label on each line
 to be present in the dictionary. mcxload will exit on absentees.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-strict-tabr"></a><b>-strict-tabr</b> &lt;fname&gt; (<i>tabr universe</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Read a dictionary from file and require the second label on each line
 to be present in the dictionary. mcxload will exit on absentees.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-restrict-tab"></a><b>-restrict-tab</b> &lt;fname&gt; (<i>tab world</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Read a dictionary from file and only accept input lines (edges)
 for which both labels are present in the dictionary.
 mcxload will ignore absentees.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-restrict-tabc"></a><b>-restrict-tabc</b> &lt;fname&gt; (<i>tabc world</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Read a dictionary from file and ignore input lines
 for which the first label is absent from the dictionary.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-restrict-tabr"></a><b>-restrict-tabr</b> &lt;fname&gt; (<i>tabr world</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Read a dictionary from file and ignore input lines
 for which the second label is absent from the dictionary.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-extend-tab"></a><b>-extend-tab</b> &lt;fname&gt; (<i>tab launch</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Read a dictionary from file and extend it with any
 label from the input not yet present in the dictionary.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-extend-tabc"></a><b>-extend-tabc</b> &lt;fname&gt; (<i>tabc launch</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Read a dictionary from file and extend it with all
 first labels from the input not yet present in the dictionary.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-extend-tabr"></a><b>-extend-tabr</b> &lt;fname&gt; (<i>tabr launch</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Read a dictionary from file and extend it with all
 second labels from the input not yet present in the dictionary.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-123-max"></a><b>-123-max</b> &lt;int&gt; (<i>set domain range</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Numbers starting from <i>&lt;int&gt;</i> will be ignored, and the domain (used
 for both columns and rows) will range from zero up to one less than
 <i>&lt;int&gt;</i>.
@@ -432,7 +438,7 @@ for both columns and rows) will range from zero up to one less than
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-123-maxc"></a><b>-123-maxc</b> &lt;int&gt; (<i>set column range</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Numbers starting from <i>&lt;int&gt;</i> will be ignored in the column domain,
 and the column domain will range from zero up to one
 less than <i>&lt;int&gt;</i>.
@@ -440,7 +446,7 @@ less than <i>&lt;int&gt;</i>.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-123-maxr"></a><b>-123-maxr</b> &lt;int&gt; (<i>set row range</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Numbers starting from <i>&lt;int&gt;</i> will be ignored in the row domain,
 and the row domain will range from zero up to one
 less than <i>&lt;int&gt;</i>.
@@ -448,12 +454,12 @@ less than <i>&lt;int&gt;</i>.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--stream-log"></a><b>--stream-log</b> (<i>log transform stream values</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Replace each entry by its natural logarithm.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--stream-neg-log"></a><b>--stream-neg-log</b> (<i>negative log transform stream values</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--stream-neg-log10"></a><b>--stream-neg-log10</b> (<i>negative log-10 transform stream values</i>)</div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Replace each entry by the negative of its natural logarithm and
 log-10 representation, respectively.
 This is for example useful to convert scores that denote probabilities
@@ -462,19 +468,19 @@ or p-values such as BLAST scores.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-stream-tf"></a><b>-stream-tf</b> (<i>transform stream values</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Transform the stream values as they are read in according
 to the syntax described in <a class="local sibling" href="mcxio.html">mcxio</a>.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tf"></a><b>-tf</b> &lt;tf-spec&gt; (<i>transform (not so) final matrix</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Transform the matrix values after deduplication and symmetrification
 according to the syntax described in <a class="local sibling" href="mcxio.html">mcxio</a>.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-ri"></a><b>-ri</b> (<i>&lt;max|add|mul&gt;</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 After the initial matrix has been assembled, it can be symmetrified by
 either of these options. They indicate the operation used to combine the
 entries of the transposed matrix and the original matrix. <b>mul</b>
@@ -483,13 +489,13 @@ zero in mcl matrix operations) as one.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--transpose"></a><b>--transpose</b> (<i>transpose</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Write the transposed matrix to file. This is obviously not useful
 when a symmetric matrix has been generated.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-etc"></a><b>-etc</b> &lt;fname&gt; (<i>leader 'etc' label file</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-etc-ai"></a><b>-etc-ai</b> &lt;fname&gt; (<i>leaderless 'etc' label file</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-235"></a><b>-235</b> &lt;fname&gt; (<i>leader '235' label file</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-235-ai"></a><b>-235-ai</b> &lt;fname&gt; (<i>leaderless '235' label file</i>)</div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The input is read in lines; each line is split on whitespace into labels.
 For <b>-etc</b> the first label is interpreted as the source node. All
 other labels are interpreted as destination nodes. Currently no values are
@@ -499,20 +505,20 @@ destination nodes and mcxload automatically creates a source node for each
 line it reads. This option can be useful to read in files encoding a
 clustering, where each line represents a cluster of white-space separated
 labels.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 The <b>-235</b> options are similar except that the input is not
 interpreted as labels but must consist of numbers that explicitly
 specify the matrix to be built.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--write-binary"></a><b>--write-binary</b> (<i>output binary format</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The output matrix is written in native binary format &mdash; refer to
 <a class="local sibling" href="mcxio.html">mcxio</a>.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--debug"></a><b>--debug</b> (<i>debug</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Among other things, this turns on warnings when <b>restrict</b> tab
 files are used and labels are found to be missing.</p>
 </div>
@@ -520,12 +526,12 @@ files are used and labels are found to be missing.</p>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Stijn van Dongen.</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 <a class="local sibling" href="mcxio.html">mcxio</a>,
 <a class="local sibling" href="mcxdump.html">mcxdump</a>,
 <a class="local sibling" href="mcl.html">mcl</a>,

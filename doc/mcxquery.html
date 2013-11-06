@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2010 Stijn van Dongen -->
+<!-- Copyright (c) 2011 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
@@ -28,6 +28,12 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
+p.asd_par { margin-bottom:0em }
+p.asd_cpar { margin-bottom:0em }
+span.asd_cpar_caption { font-weight: bold; display: block }
+p.asd_car { margin-top:0em; margin-bottom:0em }
+p.asd_ccar { margin-top:0em; margin-bottom:0em }
+span.asd_ccar_caption { font-weight: bold; display: block }
 div.verbatim
 { font-family: monospace;
 margin-top: 1em;
@@ -79,9 +85,9 @@ margin-right: 8%;
 </head>
 <body>
 <p style="text-align:right">
-20 Jul 2010&nbsp;&nbsp;&nbsp;
+21 Oct 2011&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxquery.ps"><b>mcx q</b></a>
-10-201
+11-294
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -108,19 +114,19 @@ margin-right: 8%;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 mcxquery &mdash; compute simple graph statistics</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0" class="asd_par">mcxq is not in actual fact a program. This manual
+<p class="asd_par">mcxq is not in actual fact a program. This manual
 page documents the behaviour and options of the mcx program when
 invoked in mode <i>q</i>. The options <b>-h</b>, <b>--apropos</b>,
 <b>--version</b>, <b>-set</b>, <b>--nop</b>, <b>-progress</b>&nbsp;<i>&lt;num&gt;</i>
 are accessible
 in all <b>mcx</b> modes. They are described
 in the <a class="local sibling" href="mcx.html">mcx</a> manual page.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>mcxquery</b>
 <a class="intern" href="#opt-imx"><b>[-imx</b> &lt;fname&gt; (<i>specify matrix input</i>)<b>]</b></a>
 <a class="intern" href="#opt-o"><b>[-o</b> &lt;fname&gt; (<i>output file name</i>)<b>]</b></a>
@@ -150,7 +156,7 @@ in the <a class="local sibling" href="mcx.html">mcx</a> manual page.</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 The main use of <b>mcxquery</b> is to analyze a graph at different similarity
 cutoffs. Typically this is done on a graph constructed using a
 very permissive threshold. For example, one can create a graph from
@@ -168,26 +174,26 @@ weights.
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>input matrix</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The file name for input that is in mcl native matrix format.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-o"></a><b>-o</b> &lt;fname&gt; (<i>output file name</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Set the name of the file where output should be written to.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tab"></a><b>-tab</b> &lt;fname&gt; (<i>use tab file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 This option causes the output to be printed with the labels
 found in the tab file.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--dim"></a><b>--dim</b> (<i>report native format and dimensions</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 This will report the matrix format (either interchange or binary)
 and the matrix dimensions. For a graph the two reported dimensions
 should be equal.
@@ -195,21 +201,21 @@ should be equal.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--edges"></a><b>--edges</b> (<i>output all arc weights, unsorted</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--edges-sorted"></a><b>--edges-sorted</b> (<i>output all arc weights, sorted</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-edges-hist"></a><b>-edges-hist</b> &lt;start,end,step,scale (<i>output arc weight histogram</i>)</div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 These options are fairly self documenting. The result of <b>-edges-hist</b>
 is a tab separated table of bin offsets and bin counts.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--output-table"></a><b>--output-table</b> (<i>output logical tab separated table without key</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 This option causes table output such as provided by <b>--vary-correlation</b>
 to be output in a logical tab-separated format rather than pretty-printed.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-vary-threshold"></a><b>-vary-threshold</b> &lt;start,end,step,scale&gt; (<i>analyze graphs at similarity cutoffs</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 All of <i>start</i>, <i>end</i>, <i>step</i> and <i>scale</i> must
 be integer numbers. From these a list of threshold is constructed, starting
 from <i>start / scale</i>, <i>(start + step) / scale</i>, <i>(start + 2 step) /
@@ -218,7 +224,7 @@ scale</i>, and so on until a value larger than or equal to <i>end / scale</i> is
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--vary-correlation"></a><b>--vary-correlation</b> (<i>analyze graphs at correlation cutoffs</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 This instructs <b>mcxquery</b> to use a threshold list suitable for use with graphs
 in which the edge weight similarities are correlations.
 The list starts at 0.2 and ends at 0.95 using increments of 0.05.
@@ -230,7 +236,7 @@ by issuing <b>-vary-threshold</b>&nbsp;<b>10,100,2,100</b>.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--clcf"></a><b>--clcf</b> (<i>include clustering coefficient analysis</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 This option causes the global clustering coefficient to be computed
 for the analysis of thresholded graphs with <b>--vary-correlation</b>
 and <b>-vary-threshold</b>. For large graphs this may be time-consuming.
@@ -238,7 +244,7 @@ and <b>-vary-threshold</b>. For large graphs this may be time-consuming.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-vary-knn"></a><b>-vary-knn</b> &lt;start,end,step,scale&gt; (<i>analyze graphs for varying k-NN</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--knn-reduce"></a><b>--knn-reduce</b> (<i>use reduced matrix</i>)</div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 This analyses a graph as it is subjected to varying <i>k</i>-NN (<i>k</i> mutual nearest
 neighbours) selection steps. The analyses starts at the <i>end</i> argument,
 and progresses towards the <i>start</i> argument using decrements of size <i>step</i>.
@@ -248,7 +254,7 @@ applied. Specifying <b>--knn-reduce</b> causes this to change so that
 each new reduction is calculated relative to the reduction
 just computed.
 </p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 For graphs with ties among edge weights it may be useful to use
 <b>-tf</b>&nbsp;<b>'#tug()'</b>. This will add small perturbations to the
 edge weights and have the effect of breaking ties.
@@ -260,7 +266,7 @@ This can be changed to a random perturbation with
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--test-cycle"></a><b>--test-cycle</b> (<i>test whether graph contains cycles</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-test-cycle"></a><b>-test-cycle</b> &lt;num&gt; (<i>test cycles, report cyclees</i>)</div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Test whether the input graph contains cycles. With the second option
 nodes that are part of a cycle are output, up to a maximum of <i>&lt;num&gt;</i>
 nodes. Use <i>&lt;num&gt;</i>=<b>-1</b> to output all such nodes.
@@ -268,7 +274,7 @@ nodes. Use <i>&lt;num&gt;</i>=<b>-1</b> to output all such nodes.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-report-scale"></a><b>-report-scale</b> &lt;num&gt; (<i>edge weight / threshold scaling</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The edge weights mean, average, and inter-quartile range,
 as well as the different threshold steps are all rescaled
 in the reported output to avoid printing of fractional part.
@@ -280,7 +286,7 @@ is used. Either can be overridden by using the present option.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-div"></a><b>-div</b> &lt;num&gt; (<i>cluster size separating value</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 When analyzing graphs at different thresholds with one of the
 options above, <b>mcxquery</b> reports the percentage of nodes contained
 in clusters not exceeding a specified size, by default&nbsp;3.
@@ -289,28 +295,28 @@ This number can be changed using the <b>-div</b> option.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tf"></a><b>-tf</b> &lt;tf-spec&gt; (<i>transform input matrix values</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Transform the input matrix values according
 to the syntax described in <a class="local sibling" href="mcxio.html">mcxio</a>.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-t"></a><b>-t</b> &lt;num&gt; (<i>number of threads to use</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 This has an effect only when using the <b>-vary-knn</b> option,
 and is only useful on multi-CPU machines.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--node-attr"></a><b>--node-attr</b> (<i>output node degree and weight attributes</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Output is in the form of a tab separated file.
 The option <b>-icl</b> can be used in conjuction.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-icl"></a><b>-icl</b> &lt;fname&gt; (<i>input clustering</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Output for each node the size of the cluster it is in.
 This option can be used in conjunction with <b>--node-attr</b>.
 </p>
@@ -319,7 +325,7 @@ This option can be used in conjunction with <b>--node-attr</b>.
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <a class="local sibling" href="mcxio.html">mcxio</a>,
 and <a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.</p>

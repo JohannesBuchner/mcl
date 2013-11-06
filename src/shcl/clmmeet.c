@@ -1,5 +1,5 @@
-/*   (C) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007 Stijn van Dongen
+/*   (C) Copyright 2001, 2002, 2003, 2004, 2005, 2006 Stijn van Dongen
+ *   (C) Copyright 2007, 2008, 2009, 2010, 2011  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -174,3 +174,22 @@ mcxDispHook* mcxDispHookMeet
    ;  return &meetEntry
 ;  }
 
+
+/* 
+static mcxbool lax_g    =  -1;
+   ;  lax_g = FALSE
+
+         case DIST_OPT_MEET
+      :  lax_g = TRUE
+      ;  break
+      ;
+
+   ;  if (lax_g)
+      bits ^= MCLX_REQUIRE_DOMSTACK
+
+   ;  if (lax_g)
+      {  for (i=0;i<st.n_level;i++)
+         {
+      ;  }
+   ;  }
+*/

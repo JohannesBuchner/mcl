@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008, 2009, 2010  Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010, 2011  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -129,7 +129,7 @@ mcxstatus mclpARextend
 )
    {  mclp* ivp = NULL
    ;  if (ar->n_ivps >= ar->n_alloc)
-      {  long n_new_alloc = 4 + 1.44 * ar->n_alloc
+      {  long n_new_alloc = 4 + 1.22 * ar->n_alloc
       ;  if
          (! (  ar->ivps
             =  mcxNRealloc
@@ -294,6 +294,13 @@ mclIvp* mclpCreate
 ,  double   value
 )  
    {  return mclpInstantiate(NULL, idx, value)
+;  }
+
+
+double mclpGetDouble
+(  const void* ivp
+)
+   {  return ((mclp*) ivp)->val
 ;  }
 
 

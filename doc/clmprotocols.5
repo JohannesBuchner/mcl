@@ -1,5 +1,5 @@
-.\" Copyright (c) 2010 Stijn van Dongen
-.TH "clmprotocols" 5 "20 Jul 2010" "clmprotocols 10-201" "FILE FORMATS "
+.\" Copyright (c) 2011 Stijn van Dongen
+.TH "clmprotocols" 5 "21 Oct 2011" "clmprotocols 11-294" "FILE FORMATS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -38,18 +38,21 @@ DESCRIPTION
 Network representation
 .in -4m
 .ZJ 3m 1m "4\&."
-Clustering similarity graphs encoded in BLAST results
+Loading large networks
 .in -4m
 .ZJ 3m 1m "5\&."
-Clustering expression data
+Clustering similarity graphs encoded in BLAST results
 .in -4m
 .ZJ 3m 1m "6\&."
-Reducing node degrees in the graph
+Clustering expression data
 .in -4m
 .ZJ 3m 1m "7\&."
-SEE ALSO
+Reducing node degrees in the graph
 .in -4m
 .ZJ 3m 1m "8\&."
+SEE ALSO
+.in -4m
+.ZJ 3m 1m "9\&."
 AUTHOR
 .in -4m
 .SH NAME
@@ -125,6 +128,22 @@ in mode\ \&\fBdist\fP to gauge the distance between different clusterings\&.
 .ZV
 .fi \fR
 
+.SH Loading large networks
+
+If you deal with very large networks (say with hundreds of millions
+of edges), it is recommended to use binary format (cf \fBmcxio(5)\fP)\&.
+This is simply achieved by adding \fC--write-binary\fP to the mcxload
+command line\&. The resulting file is no longer human-readable but
+will be faster to read by a factor between ten- or twenty-fold
+compared to standard MCL-edge network format, and a factor around fifty-fold
+compared to label format\&.
+All MCL-edge programs are able to read binary format, and speed
+of reading will be somewhere in the order of millions of edges
+per second, compared to, for example, roughly 100K edges
+per second for label format\&.
+
+Memory usage for mcxload can be lowered
+by replacing the option \fC--stream-mirror\fP with \fC-ri\ \&max\fP\&.
 .SH Clustering similarity graphs encoded in BLAST results
 
 A specific instance of the workflow above is the clustering of proteins based on

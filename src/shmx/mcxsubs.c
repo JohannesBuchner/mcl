@@ -1,5 +1,5 @@
 /*   (C) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008, 2009, 2010  Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010, 2011 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -691,7 +691,7 @@ int main
          mcxDie(1, me, "need domain matrix (-dom option)")
 
       ;  if (do_block & 3)
-         block = do_block & 2 ? mclxBlocks2(mx, dom) : mclxBlocks(mx, dom)
+         block = do_block & 2 ? mclxBlockUnion2(mx, dom) : mclxBlockUnion(mx, dom)
       ;  else
          block = mclxBlocksC(mx, dom)     /* block-COMPLEMENT really */
 

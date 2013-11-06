@@ -916,7 +916,7 @@ dim clmEnstrict
    ;  }
             /* no more overlap. cracking */
 
-   ;  if (n_empty && !(bits & ENSTRICT_REPORT_ONLY))
+   ;  if (!(bits & ENSTRICT_REPORT_ONLY))
          mclxScrub(cl, MCLX_SCRUB_COLS)
       ,  mclxMapCols(cl, NULL)
             /* no more empty clusters. yay. */

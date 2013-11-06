@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008, 2009, 2010  Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010, 2011 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -172,9 +172,21 @@ mclx* mclxCollectVectors
 )  ;
 
 
+   /* new vids will be handed out starting at highest existing vid + 1,
+    * zero if the matrix is emtpy.
+   */
 void mclxAppendVectors
 (  mclx* mx
 ,  ...                /* pointers to vectors to be copied (end with NULL) */
+)  ;
+
+
+   /* Will look in mx whether vec->vid already exists
+   */
+void mclxMergeColumn
+(  mclx* mx
+,  const mclv* vec
+,  double (*op)(pval arg1, pval arg2)
 )  ;
 
 
@@ -227,7 +239,7 @@ mclx*  mclxExtSub
 
 
 /*
- *    Make sure that mx domains include dom_cols and dom_rows
+ *    Merges arguments into existing domains.
 */
 
 void mclxAccommodate
@@ -261,19 +273,41 @@ void mclxChangeDomains
  *    to the col domain of the mx matrix.
 */
 
-mclx*  mclxBlocks
+mclx*  mclxBlockUnion
 (  const mclx*     mx
 ,  const mclx*     dom
 )  ;
 
-mclx*  mclxBlocks2
+
+/* alternative implementation of mclxBlockUnion
+ * fixme: check
+*/
+
+mclx*  mclxBlockUnion2
 (  const mclx*     mx
 ,  const mclx*     domain
 )  ;
 
+
+/*
+ * fixme: describe semantics for overlapping blocks
+*/
+
 mclMatrix*  mclxBlocksC
 (  const mclMatrix*     mx
 ,  const mclMatrix*     domain
+)  ;
+
+
+/*
+ * Removes block-internal edges of weight less than or equal to
+ * the median of edges going from within the block to outside.
+*/
+
+mclx*  mclxBlockPartition
+(  const mclx*     mx
+,  const mclx*     domain
+,  int             quantile   /* only median supported for now */
 )  ;
 
 
@@ -488,11 +522,6 @@ void mclxMergeTranspose3
 void mclxAddto
 (  mclMatrix* m1
 ,  const mclMatrix* m2
-)  ;
-
-
-dim mclxNEntries
-(  const mclx*     mx
 )  ;
 
 
@@ -791,6 +820,14 @@ mclv* mclgUnlinkNodes
 ,  dim        sel_lq
 )  ;
 
+
+      /* Replaces edge weights by Inverted log-weighted similarity between nodes.
+       * Intended use for unweighted graphs.
+      */
+void mclxILS
+(  mclx* mx
+)  ;  
+
       /* Prunes highly-connected nodes to take only the neighbours with
        * highest weights, starting from most connected going to least
        * connected.  The returned vector is the number of nodes considered; the
@@ -854,6 +891,23 @@ dim mclxQuantiles
 void mclxNormSelf
 (  mclx* m
 )  ;
+
+
+   /* 
+    * Dup is as produced by mclTabDuplicated, so
+    * -  column vid indicates first occurrence,
+    * -  column entries indicate further occurrences.
+    * Currently this folds using max(), and assumes matrix is a graph.
+    * TODO
+    *    -  generalise max()
+    *    -  per-domain action
+    *    -  contract for dup and mx domain mismatches
+   */
+void mclxFold
+(  mclx* mx
+,  mclx* dup
+)  ;
+
 
 
 #endif

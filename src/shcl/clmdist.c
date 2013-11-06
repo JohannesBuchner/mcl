@@ -1,5 +1,6 @@
 /*   (C) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *   (C) Copyright 2006, 2007, 2008, 2009, 2010 Stijn van Dongen
+ *   (C) Copyright 2011  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -100,7 +101,9 @@ enum
 {  DIST_OPT_OUTPUT = CLM_DISP_UNUSED
 ,  DIST_OPT_MODE
 ,  DIST_OPT_INDEX
-,  DIST_OPT_CONSECUTIVE
+,  DIST_OPT_CHAIN
+,  DIST_OPT_MEET
+,  DIST_OPT_WHEEL
 ,  DIST_OPT_SORT
 ,  DIST_OPT_DIGITS
 ,  DIST_OPT_FACTOR
@@ -156,9 +159,21 @@ static mcxOptAnchor distOptions[] =
    }
 ,  {  "--chain"
    ,  MCX_OPT_DEFAULT
-   ,  DIST_OPT_CONSECUTIVE
+   ,  DIST_OPT_CHAIN
    ,  NULL
    ,  "only compare consecutive clusterings"
+   }
+,  {  "--intersect"
+   ,  MCX_OPT_DEFAULT
+   ,  DIST_OPT_MEET
+   ,  NULL
+   ,  "only compare consecutive clusterings"
+   }
+,  {  "--centre"
+   ,  MCX_OPT_DEFAULT
+   ,  DIST_OPT_WHEEL
+   ,  NULL
+   ,  "compare first clustering against all the rest"
    }
 ,  {  "--sort"
    ,  MCX_OPT_DEFAULT
@@ -182,6 +197,7 @@ static int mode_g       =  -1;
 static mcxbool i_am_vol =  FALSE;   /* node faithfulness */
 static double  nff_fac  =  FLT_MAX;
 static mcxbool consecutive_g = -1;
+static mcxbool wheel_g = -1;
 static mcxbool sort_g = -1;
 
 
@@ -193,6 +209,7 @@ static mcxstatus distInit
    ;  digits = 2
    ;  nff_fac     =  0.5
    ;  consecutive_g = FALSE
+   ;  wheel_g = FALSE
    ;  sort_g = FALSE
    ;  return STATUS_OK
 ;  }
@@ -246,7 +263,12 @@ static mcxstatus distArgHandle
       ;  break
       ;
 
-         case DIST_OPT_CONSECUTIVE
+         case DIST_OPT_WHEEL
+      :  wheel_g = TRUE
+      ;  break
+      ;
+
+         case DIST_OPT_CHAIN
       :  consecutive_g = TRUE
       ;  break
       ;
@@ -490,7 +512,9 @@ static mcxstatus distMain
          ;  if (consecutive_g)
             break
       ;  }
-      }
+         if (wheel_g)
+         break
+   ;  }
 
       if (i_am_vol)
       {  mclxaWrite(nff_scores, xfout, 4, RETURN_ON_FAIL)

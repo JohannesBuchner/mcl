@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2010 Stijn van Dongen -->
+<!-- Copyright (c) 2011 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
@@ -28,6 +28,12 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
+p.asd_par { margin-bottom:0em }
+p.asd_cpar { margin-bottom:0em }
+span.asd_cpar_caption { font-weight: bold; display: block }
+p.asd_car { margin-top:0em; margin-bottom:0em }
+p.asd_ccar { margin-top:0em; margin-bottom:0em }
+span.asd_ccar_caption { font-weight: bold; display: block }
 div.verbatim
 { font-family: monospace;
 margin-top: 1em;
@@ -79,9 +85,9 @@ margin-right: 8%;
 </head>
 <body>
 <p style="text-align:right">
-20 Jul 2010&nbsp;&nbsp;&nbsp;
+21 Oct 2011&nbsp;&nbsp;&nbsp;
 <a class="local" href="clmimac.ps"><b>clm imac</b></a>
-10-201
+11-294
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -112,9 +118,9 @@ margin-right: 8%;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 clm imac &mdash; Interpret Matrices (c.q. MCL iterands output by <b>mcl</b>) As Clusterings.</p>
-<p style="margin-bottom:0" class="asd_par">clmimac is not in actual fact a program. This manual
+<p class="asd_par">clmimac is not in actual fact a program. This manual
 page documents the behaviour and options of the clm program when
 invoked in mode <i>imac</i>. The options <b>-h</b>, <b>--apropos</b>,
 <b>--version</b>, <b>-set</b>, <b>--nop</b> are accessible
@@ -123,10 +129,10 @@ in the <a class="local sibling" href="clm.html">clm</a> manual page.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>clm imac</b> -imx &lt;fname&gt; [options]
 </p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>clm imac</b>
 <a class="intern" href="#opt-imx"><b>-imx</b> fname (<i>input file</i>)</a>
 <a class="intern" href="#opt-o"><b>[-o</b> fname (<i>name/stem for output</i>)<b>]</b></a>
@@ -141,10 +147,10 @@ in the <a class="local sibling" href="clm.html">clm</a> manual page.</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 Use <b>clm imac</b> to interpret matrices (as clusterings) output by <b>mcl</b> using
 <b>mcl</b>'s <b>-dump</b>&nbsp;<b>ite</b> option.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 Use <b>clm imac</b> only if you have a special reason; the normal usage
 of <b>mcl</b> is to do multiple runs for varying <b>-I</b> parameters
 and use the clusterings output by <b>mcl</b> itself.
@@ -158,13 +164,13 @@ associated with the MCL process evolves over time.</p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-imx"></a><b>-imx</b> fname (<i>input file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The input file is presumably an MCL iterand resulting
 from the mcl option <b>-dump</b>&nbsp;<b>ite</b>.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-strict"></a><b>-strict</b> num (<i>in 0..1</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Higher values (up until 1) will thin out the DAG
 constructed by <b>clm imac</b>. The default value is 0.00001,
 yielding the full DAG.
@@ -172,12 +178,12 @@ yielding the full DAG.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-o"></a><b>-o</b> fname (<i>file name/stem</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Write to file named <i>fname</i>.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-dag"></a><b>-dag</b> fname (<i>output DAG</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Write the DAG (directed acyclic graph) constructed from the input to
 file. This DAG is constructed according to the structure associated
 with diagonally positive semi-definite matrices as described
@@ -186,14 +192,14 @@ Consult <a class="local sibling" href="mclfamily.html">mclfamily</a> for referen
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-sort"></a><b>-sort</b> str (<i>size|revsize|lex|none</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Sort the clusters either by increasing size, decreasing size,
 lexicographically by the indices they contain, or use the clustering
 exactly as obtained from the interpretation routine.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-overlap"></a><b>-overlap</b> mode (<i>overlap mode</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 With <i>mode</i> set to <i>cut</i>, remove any overlap by allocating the
 nodes in overlap to the first cluster in which they were found. Mode
 <i>keep</i> leaves overlap unchanged, and mode <i>split</i> results in overlapping
@@ -204,12 +210,12 @@ parts excised and introduced as clusters in their own right.
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 Stijn van Dongen.</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.</p>
 </body>

@@ -81,6 +81,8 @@
 #define     TOKEN_COLDIMENSION       "cdim"
 #define     TOKEN_DIMENSION          "dim"
 
+#define     TOKEN_SIZE               "size"
+
 #define     TOKEN_TRANSPOSE          "tp"
 
 #define     TOKEN_VIEWMATRIX         "vm"

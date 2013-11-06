@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010, 2011  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -26,11 +26,11 @@
  *    for tracking those (verbosity and progress options).  mclProcess belongs
  *    to the 'lib' or 'library' part.
  *
- * o     mclAlgorithm provides some (not many) handles for
- *    manipulating the input graph, it provides some handles for output and
- *    re-chunking the mcl process (--expand-only and --inflate-first), and it
- *    provides handles (one?) for postprocessing like removing overlap.
- *    mclAlgorithm belongs to the 'main' part.
+ * o     mclAlgorithm provides some handles for manipulating the input graph
+ *    (most importantly provided by the -tf option), it provides some handles
+ *    for output and re-chunking the mcl process (--expand-only and
+ *    --inflate-first), and it provides handles (one?) for postprocessing like
+ *    removing overlap.  mclAlgorithm belongs to the 'main' part.
  *
  *    We do library initialization first, because matrix reading is part of
  *    algorithm initialization. If the two switch order it is painful if errors

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#  (C) Copyright 2005, 2006, 2007, 2008, 2009  Stijn van Dongen
+#  (C) Copyright 2005, 2006, 2007, 2008, 2009, 2010, 2011  Stijn van Dongen
 #
 #  This file is part of MCL.  You can redistribute and/or modify MCL under the
 #  terms of the GNU General Public License; either version 3 of the License or
@@ -45,9 +45,11 @@ clxdo check_symmetry       <mx-file> <check-file>        #  check symmetry.
 clxdo check_symmetry_present  <mx-file> <check-file>     #  check symmetry of presence.
 clxdo grok    <cls-file> <mx-file> <nsm-name> <ccm-name> #  node-cls and cls-cls
 clxdo randomize_clustering  <cls-file>           #  randomize clustering
-clxdo annot2tab  <dict-file> <annot-file>        #  make dict file from annot file
+clxdo annot2tab  <annot-file> <dict-file>        #  make dict file from annot file
 clxdo cls_annot_summary <cls-annot-dump-file>
+clxdo tab_grep <tab-file> <identifier-file>      # get mcl identifiers for external identifiers
 clxdo dump_clustering <cls-file> <dict-file>     # dump clustering as lines of labels
+clxdo coarsen <cls-file> <mx-file>               # create graph on clusters
 clxdo multiplex_coarse_clustering <coarse-clustering> <fine-clustering>
 clxdo factor_table_from_clustering <node-to-factormatrix> <node-clustering> <factor-dictionary>
 clxdo make_map <source-cls> <dest-cls>          #  make map file between clusterings
@@ -204,6 +206,16 @@ mcxdump -imx $cls -tabr $dict --dump-rlines --no-values
 
 ################################
 
+    coarsen)
+require_num 2 "<cls-file> <mx-file>"
+cls=$2
+mx=$3
+mcxi /$cls lm tp exch st /$mx lm st exch mul mul /- wm
+      ;;
+
+
+################################
+
     multiplex_coarse_clustering)
 require_num 2 "<cls-coarse> <cls-fine>"
 coarse=$2
@@ -218,6 +230,16 @@ mcxi /$fine lm tp /$coarse lm mul tp /$coarse lm exch mul /- wm
 require_num 1 "<cls-annot-dump-file>"
 cls=$2
 perl -ane 'BEGIN { $, = " "; } my %a = (); for (@F) { if (/^\?/) { $a{_}++; } else { $a{$_}++; } } print $id++, "\n"; print map { "\t$_ $a{$_}\n" } (sort keys %a);' $cls
+      ;;
+
+
+################################
+
+    tab_grep)
+require_num 2 "<tab-file> <identifier-file>"
+fntab=$2
+fnid=$3
+perl -e '$fntab = shift; open(I, "$fntab")|| die "no $fnid"; my %map = map { chomp; reverse(split) } <I>; while(<>) { chomp; print "$map{$_}\t$_\n" if defined($map{$_}); }' $fntab $fnid
       ;;
 
 

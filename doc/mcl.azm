@@ -1,5 +1,10 @@
 \import{mcx.zmm}
 
+\: fmv: fraction of matrix-vector computations
+\: expa:    #expand / #previous
+\: expb:    #pruned / #previous
+\: expc:    #pruned / #start
+
 \begin{pud::man}{
 
    {name}{mcl}
@@ -676,6 +681,23 @@ option.}
    graph) associated with the iterand.  For more information on this DAG refer
    to the \genoptref{-dump} option description in this manual and also
    \mysib{mclfaq}.}
+
+\cpar{Standard log information}{
+\begin{itemize}{{flow}{compact}{align}{left}{textindent}{5}}
+\item{expa}
+   This gives the ratio of (1) the number of edges after initial expansion, before pruning, to
+   (2) the number of edges before initial expansion.
+\item{expb}
+   This gives the ratio of (1) the number of edges after expansion and pruning, to
+   (2) the number of edges before initial expansion.
+\item{expc}
+   This gives the ratio of (1) the number of edges after expansion and pruning, to
+   (2) the number of edges of the original input graph.
+\item{fmv}
+   This gives the percentage of nodes (matrix columns) for which full matrix/vector
+   computation was used (as opposed to using a sparse technique).
+\end{itemize}
+   }
 
 \item{\defopt{-aa}{<str>}{append <str> to suffix}}
 \car{

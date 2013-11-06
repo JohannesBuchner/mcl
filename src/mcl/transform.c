@@ -43,16 +43,17 @@ enum
 ,  MCLG_TF_MCL
 ,  MCLG_TF_ARC_MCL
    ,  MCLG_TF_DUMMY_NOVALUE_START
-   ,  MCLG_TF_ADD
-   ,  MCLG_TF_MAX
-   ,  MCLG_TF_MIN
-   ,  MCLG_TF_MUL
-   ,  MCLG_TF_ARCMAX             /* keep the larger of two arcs */
-   ,  MCLG_TF_ARCSUB             /* add -M^T */
-   ,  MCLG_TF_NORMSELF           /* scale by self, max if not found */
-   ,  MCLG_TF_SELFRM
-   ,  MCLG_TF_SELFMAX
-   ,  MCLG_TF_TRANSPOSE
+      ,  MCLG_TF_ILS                /* inverse log-weighted similarity */
+      ,  MCLG_TF_ADD
+      ,  MCLG_TF_MAX
+      ,  MCLG_TF_MIN
+      ,  MCLG_TF_MUL
+      ,  MCLG_TF_ARCMAX             /* keep the larger of two arcs */
+      ,  MCLG_TF_ARCSUB             /* add -M^T */
+      ,  MCLG_TF_NORMSELF           /* scale by self, max if not found */
+      ,  MCLG_TF_SELFRM
+      ,  MCLG_TF_SELFMAX
+      ,  MCLG_TF_TRANSPOSE
    ,  MCLG_TF_DUMMY_NOVALUE_END
 ,  MCLG_TF_TUG
 ,  MCLG_TF_SSQ
@@ -139,6 +140,8 @@ mclgTF* mclgTFparse
             tfg = MCLG_TF_CEILNB
          ;  else if (!strcmp(key, "#knn"))
             tfg = MCLG_TF_KNN
+         ;  else if (!strcmp(key, "#ils"))
+            tfg = MCLG_TF_ILS
          ;  else if (!strcmp(key, "#mcl"))
             tfg = MCLG_TF_MCL
          ;  else if (!strcmp(key, "#arcmcl"))
@@ -153,7 +156,7 @@ mclgTF* mclgTFparse
             tfg = MCLG_TF_ARCMINGQ
          ;  else if (!strcmp(key, "#arcmingt"))
             tfg = MCLG_TF_ARCMINGT
-         ;  else if (!strcmp(key, "#arcmimin"))
+         ;  else if (!strcmp(key, "#arcmimlq"))
             tfg = MCLG_TF_ARCMINLQ
          ;  else if (!strcmp(key, "#arcminlt"))
             tfg = MCLG_TF_ARCMINLT
@@ -366,7 +369,7 @@ static void tf_do_mcl
       ;  if (!(cl = mclAlgParamRelease(mlp, mlp->cl_result)))
          break
       ;  mclAlgParamRelease(mlp, mlp->mx_input)    /* now we own it again, either mx2 or mx */
-      ;  mx3 = mclxBlocks2(mx, cl)
+      ;  mx3 = mclxBlockUnion2(mx, cl)
       ;  mclxTransplant(mx, &mx3)      /* this frees mx3 */
    ;  }
       while (0)
@@ -410,6 +413,7 @@ void mclgTFgraph
    ;  break ;  case MCLG_TF_TUG:       mclxPerturb(mx, val, MCLX_PERTURB_SYMMETRIC)
    ;  break ;  case MCLG_TF_TRANSPOSE: { mclx* tp = mclxTranspose(mx); mclxTransplant(mx, &tp); }
    ;  break ;  case MCLG_TF_SHRUG:     mclxPerturb(mx, val, MCLX_PERTURB_SYMMETRIC | MCLX_PERTURB_RAND)
+   ;  break ;  case MCLG_TF_ILS:       mclxILS(mx)
    ;  break ;  case MCLG_TF_KNN:       mclxKNNdispatch(mx, val+0.5, mclx_n_thread_g)
    ;  break ;  case MCLG_TF_MCL:       tf_do_mcl(mx, val, FALSE)
    ;  break ;  case MCLG_TF_ARC_MCL:   tf_do_mcl(mx, val, TRUE)

@@ -29,6 +29,9 @@
    \synoptopt{-co}{num}{cutoff for output values (required)}
    \synoptopt{--pearson}{use Pearson correlation (default)}
    \synoptopt{--spearman}{use Spearman rank correlation}
+   \synoptopt{-fp}{<mode>}{use fingerprint measure}
+   \synoptopt{--dot}{use dot product}
+   \synoptopt{--cosine}{use cosine}
    \synoptopt{-skipr}{<num>}{skip <num> data rows}
    \synoptopt{-skipc}{<num>}{skip <num> data columns}
    \synoptopt{-o}{fname}{output file fname}
@@ -42,10 +45,10 @@
    \synoptopt{-start}{<int>}{start at column <int> inclusive}
    \synoptopt{-end}{<int>}{end at column <int> EXclusive}
    \synoptopt{--transpose}{work with the transposed data matrix}
+   \synoptopt{--rank-transform}{rank transform the data first}
    \synoptopt{-tf}{spec}{transform result network}
    \synoptopt{-table-tf}{spec}{transform input table before processing}
    \synoptopt{-n}{mode}{normalize input}
-   \synoptopt{--cosine}{use cosine}
    \synoptopt{--zero-as-na}{treat zeroes as missing data}
    \synoptopt{-write-data}{<fname>}{write data to file}
    \synoptopt{-write-na}{<fname>}{write NA matrix to file}
@@ -94,10 +97,51 @@
 \items{
    {\defopt{--pearson}{use Pearson correlation (default)}}
    {\defopt{--spearman}{use Spearman rank correlation}}
+   {\defopt{--cosine}{use cosine}}
+   {\defopt{--dot}{use the dot product}}
 }
 \car{
-   Use one of these to specify the correlation measure.
+   Use one of these to specify the correlation measure. Note that
+   the dot product is not normalised and should only be used with very good reason.
    }
+
+
+\item{\defopt{-fp}{<mode>}{specify fingerprint measure}}
+\car{Fingerprints are used to define an entity in terms of it having
+   or not having certain traits. This means that a fingerprint can be
+   represented by a boolean vector, and a set of fingerprints can be represented
+   by an array of such vectors. In the presence of many traits and entities the dimensions
+   of such a matrix can grow large. The sparse storage employed by \MCL-edge is
+   ideally suited to this, and mcxarray is ideally suited to the computation
+   of all pairwise comparisons between such fingerprints.
+   Currently mcxarray supports five different types of fingerprint, described below. 
+   Given two fingerprints, the number of traits unique to the first is denoted by \it{a},
+   the number unique to the second is denoted by \it{b}, and the number that they
+   have in common is denoted by \it{c}.
+   }
+
+\begin{itemize}{
+   {flow}{cascade}
+   {interitem}{1}
+   {align}{left}
+}
+
+\item{hamming}
+\car{The Hamming distance, defined as \it{a}+\it{b}.}
+\item{tanimoto}
+\car{The Tanimoto similarity measure, \it{c}/(\it{a}+\it{b}+\it{c}).}
+\item{cosine}
+\car{The cosine similarity measure,  \it{c}/sqrt((\it{a}+\it{c})*(\it{b}+\it{c})).}
+\item{meet}
+\car{Simply the number of shared traits, identical to \it{c}.}
+\item{cover}
+\car{A normalised and non-symmetric similarity measure, representing the fraction
+   of traits shared relative to the number of traits by a single entity.
+   This gives the value \it{c}/(\it{a}+\it{c}) in one direction, and the value
+   \it{c}/(\it{b}+\it{c}) in the other.
+   }
+
+\end{itemize}
 
 \item{\defopt{-skipr}{<num>}{skip <num> data rows}}
 \car{
@@ -185,6 +229,11 @@
 \car{
    Work with the transpose of the input data matrix.}
 
+\item{\defopt{--rank-transform}{rank transform the data first}}
+\car{
+   The data is rank-transformed prior to the computation of pairwise measures.
+   }
+
 \item{\defopt{-write-data}{<fname>}{write data to file}}
 \car{
    This writes the data that was read in to file.
@@ -213,12 +262,6 @@
    the correlation computation in a reasonable way.
 }
 
-\items{
-   {\defopt{--cosine}{use cosine}}
-}
-\car{
-   Use the cosine as correlation measure.
-   }
 
 \item{\defopt{-n}{mode}{normalization mode}}
 \car{

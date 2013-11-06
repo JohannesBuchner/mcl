@@ -1,4 +1,13 @@
 
+   *  'efficiency' criterion added to mcx query -vary-threshold,
+      -vary-knn, et cetera.
+
+   *  clm dist --centre option
+
+   *  mclcm subcluster-x option
+
+   *  minor fix in clm enstrict; on some occassions it would not clean up
+      empty clusters left by the removal of overlap.
 
 Fri, 20 Jul 2010
 

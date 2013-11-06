@@ -113,6 +113,7 @@ static mcxstatus adjustArgHandle
    {  switch(optid)
       {  case MY_OPT_OUTPUT
       :  mcxIOnewName(xfout, val)
+;fprintf(stderr, "new name %s\n", xfout->fn->str)
       ;  break
       ;
 
@@ -180,7 +181,9 @@ static mcxstatus adjustMain
             ;  }
             }
          }
-         mclxWrite(cm, xfout, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
+         mcxFree(&cl)
+      ;  cl = cm
+         /* mclxWrite(cm, xfout, MCLXIO_VALUE_NONE, RETURN_ON_FAIL) */
       ;  return 0
    ;  }
 
@@ -258,7 +261,7 @@ mcxDispHook* mcxDispHookAdjust
       ,  adjustInit
       ,  adjustMain
       ,  0
-      ,  -1
+      ,  0 
       ,  MCX_DISP_DEFAULT
       }
    ;  return &adjustEntry

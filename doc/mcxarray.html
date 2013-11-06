@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2010 Stijn van Dongen -->
+<!-- Copyright (c) 2011 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
@@ -28,6 +28,12 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
+p.asd_par { margin-bottom:0em }
+p.asd_cpar { margin-bottom:0em }
+span.asd_cpar_caption { font-weight: bold; display: block }
+p.asd_car { margin-top:0em; margin-bottom:0em }
+p.asd_ccar { margin-top:0em; margin-bottom:0em }
+span.asd_ccar_caption { font-weight: bold; display: block }
 div.verbatim
 { font-family: monospace;
 margin-top: 1em;
@@ -79,9 +85,9 @@ margin-right: 8%;
 </head>
 <body>
 <p style="text-align:right">
-20 Jul 2010&nbsp;&nbsp;&nbsp;
+21 Oct 2011&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxarray.ps"><b>mcxarray</b></a>
-10-201
+11-294
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -112,20 +118,23 @@ margin-right: 8%;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 mcxarray &mdash; Transform array data to MCL matrices</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>mcxarray</b> [options]</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>mcxarray</b>
 <a class="intern" href="#opt-data"><b>[-data</b> fname (<i>input data file</i>)<b>]</b></a>
 <a class="intern" href="#opt-imx"><b>[-imx</b> fname (<i>input matrix file</i>)<b>]</b></a>
 <a class="intern" href="#opt-co"><b>[-co</b> num (<i>cutoff for output values (required)</i>)<b>]</b></a>
 <a class="intern" href="#opt--pearson"><b>[--pearson</b> (<i>use Pearson correlation (default)</i>)<b>]</b></a>
 <a class="intern" href="#opt--spearman"><b>[--spearman</b> (<i>use Spearman rank correlation</i>)<b>]</b></a>
+<a class="intern" href="#opt-fp"><b>[-fp</b> &lt;mode&gt; (<i>use fingerprint measure</i>)<b>]</b></a>
+<a class="intern" href="#opt--dot"><b>[--dot</b> (<i>use dot product</i>)<b>]</b></a>
+<a class="intern" href="#opt--cosine"><b>[--cosine</b> (<i>use cosine</i>)<b>]</b></a>
 <a class="intern" href="#opt-skipr"><b>[-skipr</b> &lt;num&gt; (<i>skip &lt;num&gt; data rows</i>)<b>]</b></a>
 <a class="intern" href="#opt-skipc"><b>[-skipc</b> &lt;num&gt; (<i>skip &lt;num&gt; data columns</i>)<b>]</b></a>
 <a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output file fname</i>)<b>]</b></a>
@@ -139,10 +148,10 @@ mcxarray &mdash; Transform array data to MCL matrices</p>
 <a class="intern" href="#opt-start"><b>[-start</b> &lt;int&gt; (<i>start at column &lt;int&gt; inclusive</i>)<b>]</b></a>
 <a class="intern" href="#opt-end"><b>[-end</b> &lt;int&gt; (<i>end at column &lt;int&gt; EXclusive</i>)<b>]</b></a>
 <a class="intern" href="#opt--transpose"><b>[--transpose</b> (<i>work with the transposed data matrix</i>)<b>]</b></a>
+<a class="intern" href="#opt--rank-transform"><b>[--rank-transform</b> (<i>rank transform the data first</i>)<b>]</b></a>
 <a class="intern" href="#opt-tf"><b>[-tf</b> spec (<i>transform result network</i>)<b>]</b></a>
 <a class="intern" href="#opt-table-tf"><b>[-table-tf</b> spec (<i>transform input table before processing</i>)<b>]</b></a>
 <a class="intern" href="#opt-n"><b>[-n</b> mode (<i>normalize input</i>)<b>]</b></a>
-<a class="intern" href="#opt--cosine"><b>[--cosine</b> (<i>use cosine</i>)<b>]</b></a>
 <a class="intern" href="#opt--zero-as-na"><b>[--zero-as-na</b> (<i>treat zeroes as missing data</i>)<b>]</b></a>
 <a class="intern" href="#opt-write-data"><b>[-write-data</b> &lt;fname&gt; (<i>write data to file</i>)<b>]</b></a>
 <a class="intern" href="#opt-write-na"><b>[-write-na</b> &lt;fname&gt; (<i>write NA matrix to file</i>)<b>]</b></a>
@@ -154,7 +163,7 @@ mcxarray &mdash; Transform array data to MCL matrices</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>mcxarray</b> can either read a flat file containing array data (<b>-data</b>)
 or a matrix file satisfying the mcl input format (<b>-imx</b>). In the
 former case it will by default work with the rows as the data vectors. In
@@ -163,7 +172,7 @@ vectors (note that mcl matrices are presented as a listing of columns).
 This can be changed for both using the
 <a class="intern" href="#opt--transpose"><b>--transpose</b> option</a>.
 </p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 The input data may contain missing data in the form of empty columns,
 NA values (not available/applicable), or NaN values (not a number).
 The program keeps track of these, and when computing the correlation
@@ -176,43 +185,85 @@ the two has missing data.
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-data"></a><b>-data</b> fname (<i>input data file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Specify the data file containing the expression values.
 It should be tab-separated.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-imx"></a><b>-imx</b> fname (<i>input matrix file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The expression values are read from a file in mcl matrix format.
 </p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--pearson"></a><b>--pearson</b> (<i>use Pearson correlation (default)</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--spearman"></a><b>--spearman</b> (<i>use Spearman rank correlation</i>)</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--pearson"></a><b>--pearson</b> (<i>use Pearson correlation (default)</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--spearman"></a><b>--spearman</b> (<i>use Spearman rank correlation</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--cosine"></a><b>--cosine</b> (<i>use cosine</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dot"></a><b>--dot</b> (<i>use the dot product</i>)</div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
-Use one of these to specify the correlation measure.
+<p class="asd_car">
+Use one of these to specify the correlation measure. Note that
+the dot product is not normalised and should only be used with very good reason.
 </p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-fp"></a><b>-fp</b> &lt;mode&gt; (<i>specify fingerprint measure</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p class="asd_car">Fingerprints are used to define an entity in terms of it having
+or not having certain traits. This means that a fingerprint can be
+represented by a boolean vector, and a set of fingerprints can be represented
+by an array of such vectors. In the presence of many traits and entities the dimensions
+of such a matrix can grow large. The sparse storage employed by <span class="smallcaps">MCL</span>-edge is
+ideally suited to this, and mcxarray is ideally suited to the computation
+of all pairwise comparisons between such fingerprints.
+Currently mcxarray supports five different types of fingerprint, described below.
+Given two fingerprints, the number of traits unique to the first is denoted by <i>a</i>,
+the number unique to the second is denoted by <i>b</i>, and the number that they
+have in common is denoted by <i>c</i>.
+</p>
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_cascade"><div class=" item_leftalign nowrap " >hamming</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p class="asd_car">The Hamming distance, defined as <i>a</i>+<i>b</i>.</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " >tanimoto</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p class="asd_car">The Tanimoto similarity measure, <i>c</i>/(<i>a</i>+<i>b</i>+<i>c</i>).</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " >cosine</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p class="asd_car">The cosine similarity measure, <i>c</i>/sqrt((<i>a</i>+<i>c</i>)*(<i>b</i>+<i>c</i>)).</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " >meet</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p class="asd_car">Simply the number of shared traits, identical to <i>c</i>.</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " >cover</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p class="asd_car">A normalised and non-symmetric similarity measure, representing the fraction
+of traits shared relative to the number of traits by a single entity.
+This gives the value <i>c</i>/(<i>a</i>+<i>c</i>) in one direction, and the value
+<i>c</i>/(<i>b</i>+<i>c</i>) in the other.
+</p>
+</div>
+</div>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-skipr"></a><b>-skipr</b> &lt;num&gt; (<i>skip &lt;num&gt; data rows</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Skip the first <i>&lt;num&gt;</i> data rows.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-skipc"></a><b>-skipc</b> &lt;num&gt; (<i>skip &lt;num&gt; data columns</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Ignore the first <i>&lt;num&gt;</i> data columns.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-l"></a><b>-l</b> &lt;num&gt; (<i>take labels from column &lt;num&gt;</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Specifies to construct a tab of labels from this data column.
 The tab can be written to file using <a class="intern" href="#opt-write-tab"><b>-write-tab</b>&nbsp;<i>fname</i></a>.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-write-tab"></a><b>-write-tab</b> &lt;fname&gt; (<i>write row labels to file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Write a tab file. In the simple case where the labels are in the first
 data column it is sufficient to issue <b>-skipc</b>&nbsp;<b>1</b>.
 If more data columns need to be skipped one must explicitly specify
@@ -221,7 +272,7 @@ the data column to take labels from with <b>-l</b>&nbsp;<i>l</i>.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-t"></a><b>-t</b> &lt;int&gt; (<i>use &lt;int&gt; threads</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-J"></a><b>-J</b> &lt;intJ&gt; (<i>a total of &lt;intJ&gt; jobs are used</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-j"></a><b>-j</b> &lt;intj&gt; (<i>this job has index &lt;intj&gt;</i>)</div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Computing all pairwise correlations is time-intensive for large input.
 If you have multiple CPUs available consider using
 as many threads. Additionally it is possible to
@@ -240,7 +291,7 @@ defines three jobs, each running four threads.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--job-info"></a><b>--job-info</b> (<i>print index ranges for this job</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-start"></a><b>-start</b> &lt;int&gt; (<i>start at column &lt;int&gt; inclusive</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-end"></a><b>-end</b> &lt;int&gt; (<i>end at column &lt;int&gt; EXclusive</i>)</div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 <b>--job-info</b> can be used to list the set of column
 ranges to be processed by the job as a result of the command
 line options <b>-t</b>, <b>-J</b>, and <b>-j</b>.
@@ -254,33 +305,39 @@ parallelization of any kind
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-o"></a><b>-o</b> fname (<i>output file fname</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Output file name.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-digits"></a><b>-digits</b> &lt;num&gt; (<i>output precision</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Specify the precision to use in native interchange format.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--write-binary"></a><b>--write-binary</b> (<i>write output in binary format</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Write output matrices in native binary format.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-co"></a><b>-co</b> num (<i>cutoff for output values</i>)</div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Output values smaller than <i>num</i> are removed (set to zero).</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--transpose"></a><b>--transpose</b> (<i>work with the transpose</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Work with the transpose of the input data matrix.</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--rank-transform"></a><b>--rank-transform</b> (<i>rank transform the data first</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p class="asd_car">
+The data is rank-transformed prior to the computation of pairwise measures.
+</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-write-data"></a><b>-write-data</b> &lt;fname&gt; (<i>write data to file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 This writes the data that was read in to file.
 If <b>--spearman</b> is specified the data will
 be rank-transformed.
@@ -288,14 +345,14 @@ be rank-transformed.
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-write-na"></a><b>-write-na</b> &lt;fname&gt; (<i>write NA matrix to file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 This writes all positions for which no data was found
 to file, in native mcl matrix format.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--zero-as-na"></a><b>--zero-as-na</b> (<i>treat zeroes as missing data</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 This option can be useful when reading data with the <b>-imx</b> option,
 for example after it has been loaded from label input by <a class="local sibling" href="mcxload.html">mcxload</a>.
 An example case is the processing of a large number of probe rankings,
@@ -307,21 +364,15 @@ given the value zero. With the present option mcxarray will handle
 the correlation computation in a reasonable way.
 </p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--cosine"></a><b>--cosine</b> (<i>use cosine</i>)</div>
-<div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
-Use the cosine as correlation measure.
-</p>
-</div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-n"></a><b>-n</b> mode (<i>normalization mode</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 If <i>mode</i> is set to <b>z</b> the data will be normalized
 based on z-score. No other modes are currently supported.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-tf"></a><b>-tf</b> spec (<i>transform result network</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-table-tf"></a><b>-table-tf</b> spec (<i>transform input table before processing</i>)</div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The transformation syntax is described in <a class="local sibling" href="mcxio.html">mcxio</a>.
 </p>
 </div>
@@ -335,12 +386,12 @@ The transformation syntax is described in <a class="local sibling" href="mcxio.h
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 Stijn van Dongen.</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <a class="local sibling" href="mcl.html">mcl</a>,
 <a class="local sibling" href="mclfaq.html">mclfaq</a>,
 and <a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation

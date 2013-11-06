@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2010 Stijn van Dongen -->
+<!-- Copyright (c) 2011 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
@@ -28,6 +28,12 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
+p.asd_par { margin-bottom:0em }
+p.asd_cpar { margin-bottom:0em }
+span.asd_cpar_caption { font-weight: bold; display: block }
+p.asd_car { margin-top:0em; margin-bottom:0em }
+p.asd_ccar { margin-top:0em; margin-bottom:0em }
+span.asd_ccar_caption { font-weight: bold; display: block }
 div.verbatim
 { font-family: monospace;
 margin-top: 1em;
@@ -79,25 +85,25 @@ margin-right: 8%;
 </head>
 <body>
 <p style="text-align:right">
-20 Jul 2010&nbsp;&nbsp;&nbsp;
+21 Oct 2011&nbsp;&nbsp;&nbsp;
 <a class="local" href="tingea.log.ps"><b>tingea.log</b></a>
-10-201
+11-294
 </p>
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 tingea.log &mdash; How to set the Tingea log parameters</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The Tingea logging framework is part of the Tingea library.
 In this context logging means that a pgrogram issues statements
 about what it is doing. It can do so for different purposes
 and at different levels of verbosity. By default logging statements
 are written on STDERR.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 Tingea logging provides a quick and easy way for programmers to associate
 verbosity levels with logging statements.
 Only logging statements for which the verbosity
@@ -115,7 +121,7 @@ can be regulated with the TINGEA_LOG_TAG environment variable.
 If a <b>-q</b> type option is present and the environment variable
 is set, then the environment variable is interpreted first followed
 by the <b>-q</b> argument.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 Tingea logging allows a programmer to assign categories to logging
 statements. The categories FUNCTION and DATA have a subdivision
 ranging from fine-grained to coarse-grained. The categorie MONITORING has
@@ -123,7 +129,7 @@ a subdivision ranging from low priority to high priority.
 The other categories are unimodal. These are IO, THREAD, PROCESS,
 and GAUGE. Three unspecified unimodal categories are SLOT1, SLOT2,
 and SLOT3. They can be used to encode program-specific semantics.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 The programmer may assign multiple categories to a single logging statement.
 It is unusual for more than two categories to be specified. For example, IO
 and DATA at the LIST level may be combined to indicate a logging statement
@@ -132,7 +138,7 @@ of granularity the DATA levels are CELL, LIST, and AGGREGRATE. If the user
 accepts IO logging and accepts DATA logging at level CELL or LIST the
 statement will be executed. If no IO logging is accepted or DATA logging is
 only accepted at the AGGREGRATE level, the statement will be skipped.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 By default, all categories that are specified by the programmer need
 to pass the threshold specified by the user for that category.
 The user may relax this requirement so that only one category needs
@@ -142,10 +148,10 @@ if the user specifies IO and DATA at AGGR level with OR semantics.</p>
 
 <a name="syntax"></a>
 <h2>SYNTAX</h2>
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The syntax of the TINGEA_LOG_TAG environment variable is described by</p>
 <div class="verbatim">   [[189x]]{&lt;[dfgimpstABC][1-9]&gt;*,[V]}</div>
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 which translates to the following. An optional lead tag is followed
 by a concatenation of units. A unit is either a pair in
 <tt>[dfgimpstABC] x [1-9x]</tt> or the single character <tt>V</tt>.
@@ -183,7 +189,7 @@ for the other units are given below.</p>
    A     SLOT1    |
    B     SLOT2    |
    C     SLOT3    |</div>
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The leading tag can be used to set levels for all categories at once.
 Subsequent units may then alter this intial setting.
 The lead tag settings and their meaning are these:</p>
@@ -191,13 +197,13 @@ The lead tag settings and their meaning are these:</p>
    9     d3f4m5gxixpxsxtxAxBxCx     # very terse, only d f m
    8     d3f4m5g1i1p1s1t1A1B1C1     # less terse
    x     dxfxmxgxixpxsxtxAxBxCx     # silent</div>
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 All categories accept values between <tt>1</tt> and <tt>9</tt> in addition to the
 value <tt>x</tt>. As seen above, only a few categories contain more than
 one level and no category contains more than five levels.
 The rule is that if a level exceeds the maximul level available for a category
 it is simply interpreted as the maximum level.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 The GAUGE category, if set, indicates that a program may write line based
 progress bars or other output in which a single line is accumulated over
 multiple statements. This implies that a single GAUGE logging statement may
@@ -209,7 +215,7 @@ contract.</p>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 Stijn van Dongen.</p>
 </body>
 </html>

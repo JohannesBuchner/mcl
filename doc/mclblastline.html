@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2010 Stijn van Dongen -->
+<!-- Copyright (c) 2011 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
@@ -28,6 +28,12 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
+p.asd_par { margin-bottom:0em }
+p.asd_cpar { margin-bottom:0em }
+span.asd_cpar_caption { font-weight: bold; display: block }
+p.asd_car { margin-top:0em; margin-bottom:0em }
+p.asd_ccar { margin-top:0em; margin-bottom:0em }
+span.asd_ccar_caption { font-weight: bold; display: block }
 div.verbatim
 { font-family: monospace;
 margin-top: 1em;
@@ -79,9 +85,9 @@ margin-right: 8%;
 </head>
 <body>
 <p style="text-align:right">
-20 Jul 2010&nbsp;&nbsp;&nbsp;
+21 Oct 2011&nbsp;&nbsp;&nbsp;
 <a class="local" href="mclblastline.ps"><b>mclblastline</b></a>
-10-201
+11-294
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -116,22 +122,22 @@ margin-right: 8%;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 mclblastline &mdash; a pipeline for clustering from BLAST files.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 <b>mclblastline</b> file-name</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <b>mclblastline</b> [deblast options] [pipeline options] file-name</p>
-<p style="margin-bottom:0"><b>NOTE</b><br>
+<p class="asd_cpar"><span class="asd_cpar_caption">NOTE</span>
 <b>mcl</b> has acquired the ability to proceed from label input
 as produced by <b>mcxdeblast</b>. This enables a very lightweight
 mechanism of generating clusterings from BLAST files.
 You might want to use this mechanism,
 documented in the <a class="local sibling" href="mcl.html">mcl manual</a>.</p>
-<p style="margin-bottom:0"><b>NOTE</b><br>
+<p class="asd_cpar"><span class="asd_cpar_caption">NOTE</span>
 mclblastline used to require (given default parameters)
 the presence of the <b>zoem</b> macro processor to produce detailed output.
 This is no longer the case. By default mclblastline now creates
@@ -141,7 +147,7 @@ In that case, zoem obviously has to be installed.</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 <b>mclblastline</b> wraps around <b>mclpipeline</b>. It supplies the
 <b>--parser</b>=<i>app</i>
 and <b>--parser-tag</b>=<i>str</i> options, setting them respectively
@@ -156,7 +162,7 @@ When using mclblastline, you specify it as <b>--blast-score</b>=<i>x</i>.
 There are two exceptions to this rule, namely the
 <b>--xi-dat</b>=<i>str</i> and <b>--xo-dat</b>=<i>str</i> options. Refer to
 the <a class="local sibling" href="mclpipeline.html">mclpipeline</a> manual for more information.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 Additionally, all mclpipeline options are acceptable to <a class="local sibling" href="mcxdeblast.html">mcxdeblast</a> as
 well. The <b>--whatif</b> is useful for getting a feel for the pipeline.
 The <b>--mcl-I</b>=<i>f</i> inflation option and <b>--mcl-scheme</b>=<i>i</i> scheme
@@ -164,7 +170,7 @@ index options are your basic means for respectively manipulating cluster
 granularity and allocating resources. Read the <a class="local sibling" href="mcl.html">mcl</a> manual entries for
 a description of the corresponding <b>-I</b> and <b>-scheme</b> mcl
 options.</p>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 The best advice is to glance over the <a class="local sibling" href="mcxdeblast.html">mcxdeblast</a> and <a class="local sibling" href="mclpipeline.html">mclpipeline</a>
 options in order to get a feeling for which of those may come in handy for
 you. Then start experimenting. Use the <b>--whatif</b> option, it will
@@ -172,7 +178,7 @@ tell you what would happen without actually doing it.</p>
 
 <a name="options"></a>
 <h2>OPTIONS</h2>
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 All <a class="local sibling" href="mcxdeblast.html">mcxdeblast</a> and <a class="local sibling" href="mclpipeline.html">mclpipeline</a> options.
 mcxdeblast options must be passed using the mechanism described above.</p>
 
@@ -180,7 +186,7 @@ mcxdeblast options must be passed using the mechanism described above.</p>
 <h2>EXAMPLES</h2>
 <div class="verbatim">   mclblastline --blast-score=b
       --blast-sort=a --blast-bcut=5 --mcl-I=2.5 myblastfile</div>
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 This will use bit scores, sort cluster indices such that the corresponding
 labels are ordered alphabetically, ignore bit scores not exceeding 5, and
 use inflation value 2.5. In this case, the output clustering will be in the
@@ -194,7 +200,7 @@ file <tt>myblastfile.I25s2.fmt</tt>.</p>
    mclblastline --start-mcl --mcl-I=2.4 myblastfile
    mclblastline --start-mcl --mcl-I=2.8 myblastfile
    etc ..</div>
-<p style="margin-top:0em; margin-bottom:0em">
+<p class="asd_car">
 The first run prepares an input matrix to be read by <b>mcl</b>.
 In this case its file will be named <tt>myblastfile.sym</tt>.
 The subsequent runs use this matrix.
@@ -211,19 +217,19 @@ this concerns the mclpipeline options that have prefix
    mclblastline --start-mcl --xo-dat=b --mcl-I=2.4 myblastfile
    mclblastline --start-mcl --xo-dat=b --mcl-I=2.8 myblastfile
    etc ..</div>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 In this case, the matrix file will be named <tt>myblastfile.b.sym</tt>,
 and the <b>--xo-dat</b> options must be repeated in all runs
 so that the pipeline reconstructs the correct file name(s).</p>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 Stijn van Dongen</p>
 
 <a name="sealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0" class="asd_par">
+<p class="asd_par">
 <a class="local sibling" href="mcxdeblast.html">mcxdeblast</a>, <a class="local sibling" href="mclpipeline.html">mclpipeline</a>, <a class="local sibling" href="mcxassemble.html">mcxassemble</a>.</p>
 </body>
 </html>

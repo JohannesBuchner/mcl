@@ -1,4 +1,4 @@
-/*   (C) Copyright 2006, 2007, 2008, 2009, 2010 Stijn van Dongen
+/*   (C) Copyright 2006, 2007, 2008, 2009, 2010, 2011 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -84,19 +84,23 @@ enum
 ,  MY_OPT_VARY_CORRELATION
 ,  MY_OPT_VARY_THRESHOLD
 ,  MY_OPT_VARY_KNN
+,  MY_OPT_VARY_CEIL
 ,  MY_OPT_EDGEWEIGHTS
 ,  MY_OPT_EDGEWEIGHTS_SORTED
 ,  MY_OPT_EDGEWEIGHTS_HIST
 ,  MY_OPT_DIVIDE
 ,  MY_OPT_WEIGHT_SCALE
 ,  MY_OPT_OUTPUT_TABLE
+,  MY_OPT_OUTPUT_NOKEY
 ,  MY_OPT_MYTH
 ,  MY_OPT_TESTCYCLE
+,  MY_OPT_TESTMETRIC
 ,  MY_OPT_TESTCYCLE_N
 ,  MY_OPT_TRANSFORM
 ,  MY_OPT_THREAD
 ,  MY_OPT_CLCF
-,  MY_OPT_KNNREDUCE
+,  MY_OPT_INFO
+,  MY_OPT_REDUCE
 ,  MY_OPT_FOUT
 }  ;
 
@@ -132,9 +136,9 @@ mcxOptAnchor qOptions[] =
    ,  "<num>"
    ,  "number of threads to use (with -knn)"
    }
-,  {  "--knn-reduce"
+,  {  "--reduce"
    ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_KNNREDUCE
+   ,  MY_OPT_REDUCE
    ,  NULL
    ,  "do not rebase to input graph, use last reduction"
    }
@@ -143,6 +147,12 @@ mcxOptAnchor qOptions[] =
    ,  MY_OPT_DIMENSION
    ,  NULL
    ,  "get matrix dimensions"
+   }
+,  {  "--test-metric"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_TESTMETRIC
+   ,  NULL
+   ,  "test whether graph distance is metric"
    }
 ,  {  "--test-cycle"
    ,  MCX_OPT_DEFAULT
@@ -180,6 +190,12 @@ mcxOptAnchor qOptions[] =
    ,  "a,z,s,n"
    ,  "vary knn from z to a in steps s, scale edge weights by n"
    }
+,  {  "-vary-ceil"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_VARY_CEIL
+   ,  "a,z,s,n"
+   ,  "vary ceil from z to a in steps s, scale edge weights by n"
+   }
 ,  {  "--edges"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_EDGEWEIGHTS
@@ -210,6 +226,12 @@ mcxOptAnchor qOptions[] =
    ,  "<func(arg)[, func(arg)]*>"
    ,  "apply unary transformations to matrix values"
    }
+,  {  "--eff"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_INFO
+   ,  NULL
+   ,  "compute efficiency criterion"
+   }
 ,  {  "--clcf"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_CLCF
@@ -227,6 +249,12 @@ mcxOptAnchor qOptions[] =
    ,  MY_OPT_OUTPUT_TABLE
    ,  NULL
    ,  "output tab separated table without key"
+   }
+,  {  "--no-key"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_OUTPUT_NOKEY
+   ,  NULL
+   ,  "do not output explanatory key"
    }
 ,  {  "-report-scale"
    ,  MCX_OPT_HASARG
@@ -254,9 +282,9 @@ static  unsigned mode_vary = -1;
 static  unsigned mode_get  =     -1;
 static  unsigned n_limit = 0;
 static  mcxbool weefreemen = -1;
-static  mcxbool output_table = -1;
-static  mcxbool knnexact_g = -1;
-static  mcxbool doclcf_g = -1;
+static  mcxbool reduce_g = -1;
+static  mcxbits compute_flags = -1;
+static  mcxbits output_flags = -1;
 static  mcxbool user_imx = -1;
 static  mcxbool transpose  = -1;
 static  dim n_thread_g = -1;
@@ -357,10 +385,14 @@ static mcxstatus qInit
    ;  n_thread_g = 1
    ;  mode_vary = 0
    ;  transpose=  FALSE
-   ;  knnexact_g = TRUE
-   ;  doclcf_g = FALSE
+   ;  reduce_g = TRUE
+#define COMPUTE_CLCF 1
+#define COMPUTE_EFF  2
+   ;  compute_flags = 0
    ;  weefreemen = FALSE
-   ;  output_table = FALSE
+#define OUTPUT_TABLE 1
+#define OUTPUT_KEY 2
+   ;  output_flags = OUTPUT_KEY
    ;  user_imx =  FALSE
    ;  weight_scale = 0.0
    ;  transform      =  NULL
@@ -401,6 +433,11 @@ static mcxstatus qArgHandle
       ;  break
       ;
 
+         case MY_OPT_TESTMETRIC
+      :  mode_get = 'm'
+      ;  break
+      ;
+
          case MY_OPT_TESTCYCLE
       :  mode_get = 'c'
       ;  break
@@ -412,13 +449,18 @@ static mcxstatus qArgHandle
       ;  break
       ;
 
-         case MY_OPT_CLCF
-      :  doclcf_g = TRUE
+         case MY_OPT_INFO
+      :  compute_flags |= COMPUTE_EFF
       ;  break
       ;
 
-         case MY_OPT_KNNREDUCE
-      :  knnexact_g = FALSE
+         case MY_OPT_CLCF
+      :  compute_flags |= COMPUTE_CLCF
+      ;  break
+      ;
+
+         case MY_OPT_REDUCE
+      :  reduce_g = FALSE
       ;  break
       ;
 
@@ -442,8 +484,13 @@ static mcxstatus qArgHandle
       ;  break
       ;
 
+         case MY_OPT_OUTPUT_NOKEY
+      :  output_flags ^= OUTPUT_KEY
+      ;  break
+      ;
+
          case MY_OPT_OUTPUT_TABLE
-      :  output_table = TRUE
+      :  output_flags |= OUTPUT_TABLE
       ;  break
       ;
 
@@ -484,17 +531,19 @@ static mcxstatus qArgHandle
       ;  break
       ;
 
-         case MY_OPT_VARY_KNN
+         case MY_OPT_VARY_CEIL
+      :  case MY_OPT_VARY_KNN
+      :  case MY_OPT_VARY_THRESHOLD
       :  if (4 != sscanf(val, "%d,%d,%d,%d", &vary_a, &vary_z, &vary_s, &vary_n))
          mcxDie(1, me, "failed to parse argument as integers start,end,step,norm")
-      ;  mode_vary = 'k'
-      ;  break
-      ;
-
-         case MY_OPT_VARY_THRESHOLD
-      :  if (4 != sscanf(val, "%u,%u,%u,%u", &vary_a, &vary_z, &vary_s, &vary_n))
-         mcxDie(1, me, "failed to parse argument as integers start,end,step,norm")
-      ;  mode_vary = 't'
+      ;  mode_vary
+         =     optid == MY_OPT_VARY_THRESHOLD
+            ?  't'
+            :  optid == MY_OPT_VARY_KNN
+            ?  'k'
+            :  optid == MY_OPT_VARY_CEIL
+            ?  'n'
+            :  'X'
       ;  break
       ;
 
@@ -570,12 +619,10 @@ dim get_n_sort_allvals
       ;  n_allvals += vec->n_ivps
       ;  s += mclvSum(vec)
    ;  }
-      mcxTell(me, "start sorting %lu values", (ulong) n_allvals)
-   ;  if (asc)
+      if (asc)
       qsort(allvals, n_allvals, sizeof(pval), valcmpasc)
    ;  else
       qsort(allvals, n_allvals, sizeof(pval), valcmpdesc)
-   ;  mcxTell(me, "done sorting")
    ;  sum_vals[0] = s
    ;  return n_allvals
 ;  }
@@ -590,7 +637,6 @@ static void vary_threshold
 ,  int vary_s
 ,  int vary_n
 ,  unsigned mode
-,  mcxbool output_table
 )
    {  dim cor_i = 0, j
    ;  int step
@@ -634,11 +680,12 @@ static void vary_threshold
          )
    ;  }
 
-      if (output_table)
+      if (output_flags & OUTPUT_TABLE)
       {
 ;fprintf(fp, "L\tD\tR\tS\tcce\tEWmean\tEWmed\tEWiqr\tNDmean\tNDmed\tNDiqr\tCCF\t%s\n", mode == 'k' ? "kNN" : "Cutoff")
 ;}    else
-      {
+      {  if (output_flags & OUTPUT_KEY)
+ {
 ;fprintf(fp, "-------------------------------------------------------------------------------\n")
 ;fprintf(fp, " L       Percentage of nodes in the largest component\n")
 ;fprintf(fp, " D       Percentage of nodes in components of size at most %d [-div option]\n", (int) divide_g)
@@ -649,25 +696,27 @@ static void vary_threshold
 ;fprintf(fp, "            Scaling is used to avoid printing of fractional parts throughout.\n")
 ;fprintf(fp, "            The scaling factor is %.2f [-report-scale option]\n", weight_scale)
 ;fprintf(fp, " ND      Node degree traits [mean, median and IQR]\n")
-;fprintf(fp, " CCF     Clustering coefficient")
-;if (!doclcf_g)
- fprintf(fp, " (not computed; use --clcf to include this)\n")
-;else
- fputc('\n', fp)
+;fprintf(fp, " CCF     Clustering coefficient %s\n", compute_flags & COMPUTE_CLCF ? "(not computed; use --clcf to include this)" : "")
+;fprintf(fp, " eff     Induced component efficiency %s\n", compute_flags & COMPUTE_EFF ? "(not computed; use --eff to include this)" : "")
+
 ;if (mode == 'c')
  fprintf(fp, "Cutoff   The threshold used.\n")
 ;else if (mode == 't')
  fprintf(fp, "*Cutoff  The threshold with scale factor %.2f and fractional parts removed\n", weight_scale)
 ;else if (mode == 'k')
  fprintf(fp, "k-NN     The knn parameter\n")
+;else if (mode == 'n')
+ fprintf(fp, "ceil     The ceil parameter\n")
 ;fprintf(fp, "Total number of nodes: %lu\n", (ulong) N_COLS(mx))
-;fprintf(fp, "-------------------------------------------------------------------------------\n")
-;fprintf(fp, "  L   D   R   S     cce *EWmean  *EWmed *EWiqr NDmean  NDmed  NDiqr CCF %s%6s \n", mode == 'c' ? " " : "*", mode == 'k' ? "k-NN" : "Cutoff")
+;}
+ fprintf(fp, "-------------------------------------------------------------------------------\n")
+;fprintf(fp, "  L   D   R   S     cce *EWmean  *EWmed *EWiqr NDmean  NDmed  NDiqr CCF  eff %6s \n", mode == 'k' ? "k-NN" : mode == 'n' ? "Ceil" : "Cutoff")
 ;fprintf(fp, "-------------------------------------------------------------------------------\n")
 ;     }
 
       for (step = vary_a; step <= vary_z; step += vary_s)
       {  double cutoff = step * 1.0 / vary_n
+      ;  double eff = -1.0
       ;  mclv* nnodes = mclvCanonical(NULL, N_COLS(mx), 0.0)
       ;  mclv* degree = mclvCanonical(NULL, N_COLS(mx), 0.0)
       ;  dim i, n_sample = 0
@@ -682,8 +731,13 @@ static void vary_threshold
             mclxSelectValues(mx, &cutoff, NULL, MCLX_EQT_GQ)
          ,  res = mx
       ;  else if (mode == 'k')
-         {  res = knnexact_g ? mclxCopy(mx) : mx
+         {  res = reduce_g ? mclxCopy(mx) : mx
          ;  mclxKNNdispatch(res, step2, n_thread_g)
+      ;  }
+         else if (mode == 'n')
+         {  res = reduce_g ? mclxCopy(mx) : mx
+         ;  mclv* cv = mclgCeilNB(res, step2, NULL, NULL, NULL)
+         ;  mclvFree(&cv)
       ;  }
 
          sz = mclxColSizes(res, MCL_VECTOR_COMPLETE)
@@ -691,9 +745,15 @@ static void vary_threshold
 
       ;  cc = clmUGraphComponents(res, NULL)     /* fixme: user has to specify -tf '#max()' if graph is directed */
       ;  if (cc)
-         ccsz = mclxColSizes(cc, MCL_VECTOR_COMPLETE)
+         {  ccsz = mclxColSizes(cc, MCL_VECTOR_COMPLETE)
+         ;  if (compute_flags & COMPUTE_EFF)
+            {  clmPerformanceTable pftable
+            ;  clmPerformance(mx, cc, &pftable)
+            ;  eff = pftable.efficiency
+         ;  }
+         }
 
-      ;  if (mode == 't' || mode == 'c')
+         if (mode == 't' || mode == 'c')
          {  for
             (
             ;  n_allvals > 0 && allvals[n_allvals-1] < cutoff
@@ -703,7 +763,7 @@ static void vary_threshold
          ;  for (i=0;i<n_allvals;i++)
             sum_vals += allvals[i]
       ;  }
-         else if (mode == 'k')
+         else if (mode == 'k' || mode == 'n')
          {  n_allvals = get_n_sort_allvals(res, allvals, noe, &sum_vals, FALSE)
       ;  }
 
@@ -717,7 +777,7 @@ static void vary_threshold
       ;  levels[cor_i].cc_exp    =  cc ? mclvPowSum(ccsz, 2.0) / N_COLS(res) : 0
       ;  levels[cor_i].nb_sum    =  mclxNrofEntries(res)
 
-      ;  if (doclcf_g)
+      ;  if (compute_flags & COMPUTE_CLCF)
          {  mclv* clcf = mclgCLCFdispatch(res, n_thread_g)
          ;  levels[cor_i].clcf      =  mclvSum(clcf) / N_COLS(mx)
          ;  mclvFree(&clcf)
@@ -725,7 +785,7 @@ static void vary_threshold
          else
          levels[cor_i].clcf = 0.0
 
-      ;  levels[cor_i].threshold =  mode_vary == 'k' ? step2 : cutoff
+      ;  levels[cor_i].threshold =  mode_vary == 'k' || mode_vary == 'n' ? step2 : cutoff
       ;  levels[cor_i].bigsize   =  cc ? cc->cols[0].n_ivps : 0
       ;  levels[cor_i].n_single  =  0
       ;  levels[cor_i].n_edge    =  n_allvals
@@ -782,7 +842,7 @@ static void vary_threshold
       ;  mclvFree(&ccsz)
       ;  mclxFree(&cc)
 
-;  if(output_table)
+;  if(output_flags & OUTPUT_TABLE)
    {  fprintf
       (  fp
       ,  "%lu\t%lu\t%lu\t%lu\t%lu"
@@ -804,12 +864,11 @@ static void vary_threshold
       ,  (double) levels[cor_i].nb_iqr
       )
 
-   ;  if (doclcf_g)
-      fprintf(fp, "\t%6g", levels[cor_i].clcf)
-   ;  else
-      fputs("\tNA", fp)
+   ;  if (compute_flags & COMPUTE_CLCF) fprintf(fp, "\t%6g", levels[cor_i].clcf)   ;  else fputs("\tNA", fp)
+   ;  if (eff >= 0.0) fprintf(fp, "\t%4g", eff)              ;  else fputs("\tNA", fp)
 
-   ;  fprintf(fp, "\t%6g\n", (double) levels[cor_i].threshold)
+   ;  fprintf(fp, "\t%6g", (double) levels[cor_i].threshold)
+   ;  fputc('\n', fp)
 ;  }
    else
    {  fprintf
@@ -833,16 +892,21 @@ static void vary_threshold
       ,  0 ? 1.0 : (double) (levels[cor_i].nb_iqr + 0.5            )
       )
 
-   ;  if (doclcf_g)
+   ;  if (compute_flags & COMPUTE_CLCF)
       fprintf(fp, " %3d", 0 ? 1 : (int) (0.5 + (100.0 * levels[cor_i].clcf)))
    ;  else
       fputs("   -", fp)
+
+   ;  if (eff >= 0.0)
+      fprintf(fp, "  %3d", (int) (0.5 + 1000 * eff))
+   ;  else
+      fputs("    -", fp)
 
    ;  if (mode == 'c')
       fprintf(fp, "%8.2f\n", (double) levels[cor_i].threshold)
    ;  else if (mode == 't')
       fprintf(fp, "%8.0f\n", (double) levels[cor_i].threshold  * weight_scale)
-   ;  else if (mode == 'k')
+   ;  else if (mode == 'k' || mode == 'n')
       fprintf(fp, "%8.0f\n", (double) levels[cor_i].threshold)
  ; }
 
@@ -851,7 +915,7 @@ static void vary_threshold
          mclxFree(&res)
    ;  }
 
-   if (!output_table)
+   if (!(output_flags & OUTPUT_TABLE))
    {  if (weefreemen)
       {
 fprintf(fp, "-------------------------------------------------------------------------------\n")
@@ -952,7 +1016,6 @@ static mcxstatus qMain
       ,  vary_s
       ,  vary_n
       ,  mode_vary
-      ,  output_table
       )
 
    ;  else if (mode_get)
@@ -973,6 +1036,62 @@ static mcxstatus qMain
             ,  fmt
             ,  n_rows
             ,  n_cols
+            )
+      ;  }
+         else if (mode_get == 'm')
+         {  mclx* mx = mclxRead(xfmx_g, EXIT_ON_FAIL)
+         ;  dim N = N_COLS(mx), i
+         ;  dim n_offending = 0, n_ok = 0
+         ;  double max_diff = 0.0, total_diff = 0.0
+
+         ;  for (i=0;i<N;i++)
+            {  mclv* va = mx->cols+i, *vb = NULL
+            ;  pnum a = va->vid
+            ;  dim j
+            ;  for (j=0;j<va->n_ivps && va->ivps[j].idx < a;j++)
+               {  pnum b = va->ivps[j].idx
+               ;  double distab = va->ivps[j].val
+               ;  mclp* ia = NULL
+               ;  dim k
+               ;  vb = mclxGetVector(mx, b, RETURN_ON_FAIL, vb)
+               ;  if (!vb)
+                  {  mcxErr(me, "strange miss for %ld\n", (long) b)
+                  ;  continue
+               ;  }
+                  for (k=0;k<vb->n_ivps;k++)
+                  {  pnum c = vb->ivps[k].idx
+                  ;  double distbc = vb->ivps[k].val
+                  ;  ia = mclvGetIvp(va, c, ia)
+                  ;  if (ia)
+                     {  double distac = ia->val
+                     ;  double diff = distac - distab - distbc
+                     ;  if (diff > 0)
+                        {  n_offending++
+                        ;  total_diff += diff
+                        ;  if (max_diff < diff)
+                              max_diff = diff
+                           ,  mcxErr
+                              (  me
+                              ,  "a=%ld b=%ld c=%ld ab=%.6g bc=%.6g ac=%.6g diff=%.6g"
+                              ,  a  ,b ,c
+                              ,  distab,  distbc,  distac
+                              ,  diff
+                              )
+                     ;  }
+                        else
+                        n_ok++
+                  ;  }
+                  }
+               }
+            }
+            fprintf
+            (  stdout
+            ,  "fail=%lu ok=%lu frac=%.6f maxdiff=%.6f totaldiff=%.6f\n"
+            ,  (ulong) n_offending
+            ,  (ulong) n_ok
+            ,  (double) ((1.0 * n_offending) / (1.0 * n_offending + n_ok))
+            ,  max_diff
+            ,  total_diff / (N ? N * 0.5 * N : 1.0)
             )
       ;  }
          else if (mode_get == 'n')

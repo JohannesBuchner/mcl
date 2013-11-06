@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008, 2009, 2010 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010, 2011 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -179,6 +179,53 @@ void mclTabHashSet
 ;  }
 
 
+   /* hierverder: mclx_collect_vectors does not allow vids to be set. */
+
+mclx* mclTabDuplicated
+(  mclTab* tab
+,  mcxHash** hp
+)
+   {  dim size = tab->domain ? tab->domain->n_ivps : 0
+   ;  mclx* dup = mclxAllocZero(mclvInit(NULL), mclvCopy(NULL, tab->domain))
+   ;  mcxHash* h = mcxHashNew(2 * size, mcxTingDPhash, mcxTingCmp)
+   ;  dim d
+   ;  for (d=0;d<size;d++)
+      {  mcxTing* tg =  mcxTingNew(tab->labels[d])
+      ;  mcxKV* kv   =  mcxHashSearch(tg, h, MCX_DATUM_INSERT)
+      ;  long vid    =  tab->domain->ivps[d].idx
+      ;  if (kv->key == tg)
+         kv->val = (void*) vid
+#if 0
+,fprintf(stderr, "insert vid %ld\n", (long) kv->val)
+#endif
+      ;  else
+         {  long vid1 = (long) kv->val
+         ;  mclv* v = mclxGetVector(dup, vid1, RETURN_ON_FAIL, NULL)
+;if(1)fprintf(stderr, "retrieve vid %ld\n", vid1)
+         ;  if (!v)
+            {  mclv* newv = mclvInsertIdx(NULL, vid, 1.0)
+            ;  newv->vid = vid1
+            ;  mclxMergeColumn(dup, newv, fltMax)
+            ;  mclvFree(&newv)
+            ;  mclvFree(&newv)
+         ;  }
+            else
+            mclvInsertIdx(v, vid, 1.0)
+      ;  }
+      }
+      if (hp)
+      hp[0] = h
+   ;  else
+      mcxHashFree(&h, mcxTingRelease, NULL)
+
+;fprintf(stderr, "matrix has %d entries\n", mclxNrofEntries(dup))
+   ;  return dup
+;  }
+
+
+   /* TODO: use mcxTabDuplicated, and have separate routine to deduplicate
+    * labels
+   */
 mcxHash* mclTabHash
 (  mclTab* tab
 )

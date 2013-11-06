@@ -1,4 +1,4 @@
-/*   (C) Copyright 2006, 2007, 2008, 2009 Stijn van Dongen
+/*   (C) Copyright 2006, 2007, 2008, 2009, 2010, 2011 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -48,6 +48,7 @@ enum
 {  MY_OPT_MEET  = MCX_DISP_UNUSED
 ,  MY_OPT_MERGE
 ,  MY_OPT_LEFT
+,  MY_OPT_CLEAN
 }  ;
 
 
@@ -69,6 +70,12 @@ mcxOptAnchor tabOptions[] =
    ,  MY_OPT_LEFT
    ,  NULL
    ,  "compute a tab file with entries exclusive to the first file given"
+   }
+,  {  "--clean"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_CLEAN
+   ,  NULL
+   ,  "clean up tab file"
    }
 ,  {  NULL, 0, MCX_DISP_UNUSED, NULL, NULL }
 }  ;
@@ -92,6 +99,11 @@ static mcxstatus tabArgHandle
    {  switch(optid)
       {  case MY_OPT_MEET
       :  mode = 'i'        /* intersect */
+      ;  break
+      ;
+
+         case MY_OPT_CLEAN
+      :  mode = 'c'        /* join */
       ;  break
       ;
 
@@ -125,6 +137,7 @@ static mcxstatus tabMain
    ;  mcxbool meet = mode == 'i'
    ;  mcxbool merge= mode == 'j'
    ;  mcxbool left = mode == 'l'
+   ;  mcxbool clean= mode == 'c'
 
    ;  if (argc < 1)
       mcxDie(1, "mcx tab", "no arguments!, I argue")
@@ -133,6 +146,14 @@ static mcxstatus tabMain
    ;  mcxIOopen(xftab, EXIT_ON_FAIL)
    ;  tab = mclTabRead(xftab, NULL, EXIT_ON_FAIL)
    ;  mcxIOclose(xftab)
+
+#if 0
+   ;  if (clean)
+      {  mcxIO* xfout = mcxIOnew("-", "w")
+      ;  mclTabWrite(tab, xfout, NULL, EXIT_ON_FAIL)
+      ;  mcxIOclose(xfout)
+   ;  }
+#endif
 
    ;  map = mclTabHash(tab)
    ;  mclTabHashSet(map, 1)

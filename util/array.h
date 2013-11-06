@@ -152,7 +152,7 @@ void* mcxBufExtend
  *
  *    If for some bizarre reason we cannot shrink (realloc),
  *    errno is set to ENOMEM.
- *    the original space is left intact. Its size is in buf.n .
+ *    the original space is left intact. Its size is in buf->n .
 */
 
 dim mcxBufFinalize

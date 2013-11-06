@@ -1,4 +1,5 @@
 /*   (C) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Stijn van Dongen
+ *   (C) Copyright 2010, 2011, Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -55,6 +56,9 @@ enum
 ,  MY_OPT_TABC
 ,  MY_OPT_TABR
 ,  MY_OPT_LAZY_TAB
+,  MY_OPT_RESTRICT_TAB
+,  MY_OPT_RESTRICT_TABC
+,  MY_OPT_RESTRICT_TABR
 ,  MY_OPT_NO_VALUES
 ,  MY_OPT_PREFIXC
 ,  MY_OPT_NO_LOOPS
@@ -168,6 +172,24 @@ mcxOptAnchor options[] =
    ,  MY_OPT_TABR
    ,  "<fname>"
    ,  "read tab file from <fname> for row domain identifiers"
+   }
+,  {  "-restrict-tab"
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MY_OPT_RESTRICT_TAB
+   ,  "<fname>"
+   ,  "restrict matrix to tab domain"
+   }
+,  {  "-restrict-tabc"
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MY_OPT_RESTRICT_TABC
+   ,  "<fname>"
+   ,  "restrict matrix column domain to tab domain"
+   }
+,  {  "-restrict-tabr"
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MY_OPT_RESTRICT_TABR
+   ,  "<fname>"
+   ,  "restrict matrix row domain to tab domain"
    }
 ,  {  "--no-values"
    ,  MCX_OPT_DEFAULT
@@ -389,11 +411,16 @@ int main
    {  mcxIO* xf_tab     =  NULL
    ;  mcxIO* xf_tabr    =  NULL
    ;  mcxIO* xf_tabc    =  NULL
+   ;  mcxIO* xf_restrict_tab     =  NULL
+   ;  mcxIO* xf_restrict_tabr    =  NULL
+   ;  mcxIO* xf_restrict_tabc    =  NULL
    ;  mcxIO* xf_mx      =  mcxIOnew("-", "r")
    ;  mcxIO* xfout    =  NULL
    ;  const char*  fndump  =  "-"
    ;  mclTab* tabr      =  NULL
    ;  mclTab* tabc      =  NULL
+   ;  mclTab* restrict_tabr =  NULL
+   ;  mclTab* restrict_tabc =  NULL
    ;  mcxbool transpose =  FALSE
    ;  mcxbool lazy_tab  =  FALSE
    ;  mcxbool write_tabc =  FALSE
@@ -493,6 +520,21 @@ int main
 
             case MY_OPT_PREFIXC
          :  prefixc_g = opt->val
+         ;  break
+         ;
+
+            case MY_OPT_RESTRICT_TAB
+         :  xf_restrict_tab = mcxIOnew(opt->val, "r")
+         ;  break
+         ;
+
+            case MY_OPT_RESTRICT_TABC
+         :  xf_restrict_tabc = mcxIOnew(opt->val, "r")
+         ;  break
+         ;
+
+            case MY_OPT_RESTRICT_TABR
+         :  xf_restrict_tabr = mcxIOnew(opt->val, "r")
          ;  break
          ;
 
@@ -705,13 +747,41 @@ int main
 
    ;  if (xf_tab && mcxIOopen(xf_tab, RETURN_ON_FAIL))
       mcxDie(1, me, "no tab")
-
    ;  else
       {  if (xf_tabr && mcxIOopen(xf_tabr, RETURN_ON_FAIL))
          mcxDie(1, me, "no tabr")
       ;  if (xf_tabc && mcxIOopen(xf_tabc, RETURN_ON_FAIL))
          mcxDie(1, me, "no tabc")
    ;  }
+
+      {  if (xf_restrict_tab && mcxIOopen(xf_restrict_tab, RETURN_ON_FAIL))
+         mcxDie(1, me, "no restriction tab")
+      ;  else
+         {  if (xf_restrict_tabr && mcxIOopen(xf_restrict_tabr, RETURN_ON_FAIL))
+            mcxDie(1, me, "no restriction tabr")
+         ;  if (xf_restrict_tabc && mcxIOopen(xf_restrict_tabc, RETURN_ON_FAIL))
+            mcxDie(1, me, "no restriction tabc")
+      ;  }
+                              /* fixme: below is pretty boilerplate, happens in other places as well */
+         if (xf_restrict_tab)
+         {  if (!(restrict_tabr = mclTabRead (xf_restrict_tab, NULL, RETURN_ON_FAIL)))
+            mcxDie(1, me, "error reading restriction tab")
+         ;  restrict_tabc = restrict_tabr
+         ;  mcxIOclose(xf_restrict_tab)
+      ;  }
+         else
+         {  if (xf_restrict_tabr)
+            {  if (!(restrict_tabr = mclTabRead(xf_restrict_tabr, NULL, RETURN_ON_FAIL)))
+               mcxDie(1, me, "error reading restriction tabr")
+            ;  mcxIOclose(xf_restrict_tabr)
+         ;  }
+            if (xf_restrict_tabc)
+            {  if (!(restrict_tabc = mclTabRead(xf_restrict_tabc, NULL, RETURN_ON_FAIL)))
+               mcxDie(1, me, "error reading restriction tabc")
+            ;  mcxIOclose(xf_restrict_tabc)
+         ;  }
+         }
+      }
 
                         /* fixme: restructure code to include bit below */
 
@@ -735,7 +805,7 @@ int main
    ;  }
 
       if (newick)
-      {  mcxTing* tree
+      {  mcxTing* thetree
       ;  mclxCat  cat
 
       ;  if (xf_tab && !(tabr =  mclTabRead(xf_tab, NULL, RETURN_ON_FAIL)))
@@ -754,8 +824,8 @@ int main
             )
          )
          mcxDie(1, me, "failure reading file")
-      ;  tree = mclxCatNewick(&cat, tabr, newick_bits)
-      ;  fwrite(tree->str, 1, tree->len, xfout->fp)
+      ;  thetree = mclxCatNewick(&cat, tabr, newick_bits)
+      ;  fwrite(thetree->str, 1, thetree->len, xfout->fp)
       ;  fputc('\n', xfout->fp)
       ;  mcxIOclose(xfout)
       ;  return 0
@@ -776,7 +846,24 @@ int main
 
       ;  for (i=0;i<cat.n_level;i++)
          {  mclx* mx = cat.level[i].mx
-         ;  if (sort_mode)
+
+         ;  if (restrict_tabr || restrict_tabc)
+            {  mclx* sub
+            ;  sub
+               =  mclxSub
+                  (  mx
+                  ,  restrict_tabc
+                     ?  restrict_tabc->domain
+                     :  mx->dom_cols
+                  ,  restrict_tabr
+                     ?  restrict_tabr->domain
+                     :  mx->dom_rows
+                  )
+            ;  mx = sub
+         ;  }
+            /* noteme fixme dangersign mx now may violate some 'cat' invariant */
+
+            if (sort_mode)
             {  if (!strcmp(sort_mode, "size-ascending"))
                mclxColumnsRealign(mx, mclvSizeCmp)
             ;  else if (!strcmp(sort_mode, "size-descending"))

@@ -735,6 +735,10 @@ sec_characteristics.html: sec_characteristics.azm
 	$(ZOEM)  -i sec_characteristics.azm -o sec_characteristics.html -d html
 	- $(TIDY) -e sec_characteristics.html
 
+sec_mcledge.html: sec_mcledge.azm
+	$(ZOEM)  -i sec_mcledge.azm -o sec_mcledge.html -d html
+	- $(TIDY) -e sec_mcledge.html
+
 sec_networktools.html: sec_networktools.azm
 	$(ZOEM)  -i sec_networktools.azm -o sec_networktools.html -d html
 	- $(TIDY) -e sec_networktools.html
@@ -742,6 +746,10 @@ sec_networktools.html: sec_networktools.azm
 sec_thesisetc.html: sec_thesisetc.azm
 	$(ZOEM)  -i sec_thesisetc.azm -o sec_thesisetc.html -d html
 	- $(TIDY) -e sec_thesisetc.html
+
+sec_edge.html: sec_edge.azm
+	$(ZOEM)  -i sec_edge.azm -o sec_edge.html -d html
+	- $(TIDY) -e sec_edge.html
 
 sec_other.html: sec_other.azm
 	$(ZOEM)  -i sec_other.azm -o sec_other.html -d html

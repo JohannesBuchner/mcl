@@ -378,3 +378,80 @@ main(int argc, char *argv[])
 ])
 
 
+
+
+
+AC_DEFUN([AC_LIB_READLINE], [
+  AC_CACHE_CHECK([for the readline library],
+                 ac_cv_lib_readline, [
+    ac_cv_lib_readline="no"
+    ORIG_LIBS=$LIBS
+    LIBS="$ORIG_LIBS -lreadline -ltermcap"
+    AC_TRY_LINK_FUNC(readline, ac_cv_lib_readline="yes")
+    if test "$ac_cv_lib_readline" = "no"; then
+      LIBS=$ORIG_LIBS
+    fi
+  ])
+
+  enable_readline="no"
+  if test "$ac_cv_lib_readline" = "yes"; then
+    AC_CHECK_HEADERS(readline.h readline/readline.h)
+    AC_CACHE_CHECK([whether readline supports history],
+                   ac_cv_lib_readline_history, [
+      ac_cv_lib_readline_history="no"
+      AC_TRY_LINK_FUNC(add_history, ac_cv_lib_readline_history="yes")
+    ])
+    if test "$ac_cv_lib_readline_history" = "yes"; then
+      AC_CHECK_HEADERS(history.h readline/history.h)
+      AC_CACHE_CHECK([whether readline supports completion],
+                     ac_cv_lib_readline_completion, [
+        ac_cv_lib_readline_completion="no"
+        AC_TRY_LINK_FUNC(rl_completion_matches,
+                        ac_cv_lib_readline_completion="yes")
+      ])
+      if test "$ac_cv_lib_readline_completion" = "yes"; then
+   enable_readline="yes"
+      fi
+    fi
+  else
+    AC_MSG_RESULT([readline or termcap library is missing])
+  fi
+])
+
+AC_DEFUN([AC_WITH_READLINE], [
+    AC_ARG_WITH(readline,
+   [  --with-readline=DIR     Readline installation directory],
+   with_readline=$withval)
+
+    if test "$with_readline" != ""; then
+        CPPFLAGS="-I$with_readline/include $CPPFLAGS"
+        LIBS="-L$with_readline/lib $LIBS"
+    fi
+])
+
+AC_DEFUN([AC_MMX_OPTION_READLINE], [
+    AC_ARG_ENABLE(readline,
+    AC_HELP_STRING(
+   [--enable-readline],
+   [use the readline library [[yes]]]),
+    [], [enable_readline="yes"])
+
+    if test "$enable_readline" = "yes"; then
+      AC_WITH_READLINE
+      AC_LIB_READLINE
+    fi
+   
+    if test "$enable_readline" = "no"; then
+      AC_MSG_RESULT([disabling readline])
+      AC_DEFINE(HAVE_READLINE, 0,
+               [Define if you have the readline library])
+    else
+      AC_MSG_RESULT([enabling readline])
+      AC_DEFINE(HAVE_READLINE, 1,
+               [Define if you have the readline library])
+    fi
+
+    AM_CONDITIONAL([READLINE_OPT], [test "$enable_readline" = "yes"])
+])
+
+

@@ -1,4 +1,4 @@
-/*   (C) Copyright 2006, 2007, 2008, 2009, 2010 Stijn van Dongen
+/*   (C) Copyright 2006, 2007, 2008, 2009, 2010, 2011 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -115,6 +115,7 @@ enum
 ,  MY_OPT_CONTROL
 ,  MY_OPT_CONTRACT
 ,  MY_OPT_SUBCLUSTER
+,  MY_OPT_SUBCLUSTERX
 ,  MY_OPT_INTEGRATE
 ,  MY_OPT_DISPATCH
 ,  MY_OPT_NMAX
@@ -287,6 +288,12 @@ mcxOptAnchor options[] =
    ,  NULL
    ,  "use subclustering approach"
    }
+,  {  "--subcluster-x"
+   ,  MCX_OPT_HIDDEN
+   ,  MY_OPT_SUBCLUSTERX
+   ,  NULL
+   ,  "use subclustering approach, reduce block-internal edges"
+   }
 ,  {  "--integrate"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_INTEGRATE
@@ -355,6 +362,7 @@ static mclx* control_test
 
 
 static mcxbool subcluster_g   =  FALSE;
+static mcxbool subclusterx_g   =  FALSE;
 static mcxbool integrate_g    =  FALSE;
 static mcxbool dispatch_g     =  FALSE;
 static mclxCat stck_g;
@@ -826,6 +834,11 @@ int main
          :  break
          ;
 
+            case MY_OPT_SUBCLUSTERX
+         :  subclusterx_g = TRUE,  subcluster_g = TRUE
+         ;  break
+         ;
+
             case MY_OPT_SUBCLUSTER
          :  subcluster_g = TRUE
          ;  break
@@ -1030,7 +1043,10 @@ int main
       ;  double inflation = -1.0
 
       ;  if (subcluster_g)
-         mx_coarse = mclxBlocks(mxbase, clprev)
+         mx_coarse
+         =     subclusterx_g
+            ?  mclxBlockPartition(mxbase, clprev, 50)
+            :  mclxBlockUnion(mxbase, clprev)
 
                   /* have to copy mxbase as mx_coarse is freed.
                    * Even if it were not freed, it is probably transformed.
