@@ -1,14 +1,18 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{clm dist}
-\set{"man::html-title"}{The clm dist manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
-\${html}{\"man::maketoc"}
+   {name}{clm dist}
+   {html_title}{The clm dist manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \def{p1}{\bf{P1}}
 \def{p2}{\bf{P2}}
@@ -334,5 +338,5 @@ k=3 |        |        |   4,4  |
    UW Statistics Technical Report 418.\|
    \httpref{http://www.stat.washington.edu/www/research/reports/2002/tr418.ps}}
 
-\"man::postamble"
+\end{pud::man}
 

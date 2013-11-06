@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "clm info" 1 "2 Feb 2009" "clm info 1\&.008, 09-033" "USER COMMANDS "
+.TH "clm info" 1 "29 May 2009" "clm info 1\&.008, 09-149" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -84,32 +84,32 @@ says square (of \fBN\fP) above\&. A low/high area fraction indicates a
 fine-grained/coarse clustering\&.
 .SH OPTIONS
 
-.ZI 3m "\fB-o\fP fname (\fIoutput file name\fP)"
+.ZI 2m "\fB-o\fP fname (\fIoutput file name\fP)"
 \&
 .br
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-pi\fP f (\fIapply inflation beforehand\fP)"
+.ZI 2m "\fB-pi\fP f (\fIapply inflation beforehand\fP)"
 \&
 .br
 Apply inflation to the graph matrix and compute the performance
 measures for the result\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-tf\fP spec (\fIapply tf-spec to input matrix\fP)"
+.ZI 2m "\fB-tf\fP spec (\fIapply tf-spec to input matrix\fP)"
 \&
 .br
 Transform the input matrix values according
 to the syntax described in \fBmcxio(5)\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-cl-tree\fP fname (\fIexpect file with nested clusterings (cone format)\fP)"
+.ZI 2m "\fB-cl-tree\fP fname (\fIexpect file with nested clusterings (cone format)\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-cl-ceil\fP <num> (\fIskip (nested) clusters of size exceeding <num>\fP)"
+'in -2m
+.ZI 2m "\fB-cl-ceil\fP <num> (\fIskip (nested) clusters of size exceeding <num>\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 The specified file should contain a hierarchy of nested
@@ -123,24 +123,24 @@ The measure that is used is very slow to compute for large clusters, and
 generally it will be outside any interesting range (i\&.e\&. it will be small)\&.
 Use \fB-cl-ceil\fP to skip clusters exceeding the specified size \-
 \fBclm info\fP will directly proceed to subclusters if they exist\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-cat-max\fP num (\fIdo at most num levels\fP)"
+.ZI 2m "\fB-cat-max\fP num (\fIdo at most num levels\fP)"
 \&
 .br
 This only has effect when used with \fB-cl-tree\fP\&.
 \fBclm info\fP will start at the most fine-grained level, working upwards\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--node-all-measures\fP (\fIdump node-wise criteria for all incident clusters\fP)"
+.ZI 2m "\fB--node-all-measures\fP (\fIdump node-wise criteria for all incident clusters\fP)"
 \&
 .br
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--node-self-measures\fP (\fIdump node-wise criteria for native cluster\fP)"
+.ZI 2m "\fB--node-self-measures\fP (\fIdump node-wise criteria for native cluster\fP)"
 \&
 .br
-.in -3m
+.in -2m
 .SH AUTHOR
 
 Stijn van Dongen\&.

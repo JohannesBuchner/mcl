@@ -130,8 +130,9 @@ typedef struct
 ;  long              n_mod
 ;  mclExpandParam*   mxp
 ;  mclExpandStats*   stats
-;  const mclx*       mxs
-;  mclx*             mxd
+;  const mclx*       mxsrc
+;  const mclx*       mxright
+;  mclx*             mxdst
 ;  mclv*             chaosVec
 ;  mclv*             homgVec
 ;
@@ -210,8 +211,9 @@ void* mclExpandVectorLine
 (  void* arg
 )
    {  mclExpandVectorLine_arg *a =  arg
-   ;  const mclx*    mxs      =  a->mxs
-   ;  mclx*          mxd      =  a->mxd
+   ;  const mclx*    mxsrc    =  a->mxsrc
+   ;  const mclx*    mxright  =  a->mxright
+   ;  mclx*          mxdst    =  a->mxdst
    ;  mclv*          chaosVec =  a->chaosVec
    ;  mclv*          homgVec  =  a->homgVec
    ;  long           colidx   =  a->start
@@ -220,15 +222,15 @@ void* mclExpandVectorLine
    ;  double homg_factor =  getenv("HOMG_USE_INFLATION") ? mxp->inflation : 2.0
    ;  clock_t        t1       =  clock(), t2
 
-   ;  mclpAR* ivpbuf =  mclpARensure(NULL, N_ROWS(mxs))  
-   ;  mclxComposeHelper*ch =  mclxComposePrepare(mxs, NULL)
+   ;  mclpAR* ivpbuf =  mclpARensure(NULL, N_ROWS(mxsrc))  
+   ;  mclxComposeHelper*ch =  mclxComposePrepare(mxsrc, NULL)
 
    ;  for (colidx = a->start; colidx < a->end; colidx+=a->n_mod)
       {  double colInhomogeneity
          =  mclExpandVector
-            (  mxs
-            ,  mxs->cols + colidx
-            ,  mxd->cols + colidx
+            (  mxsrc
+            ,  mxright->cols + colidx
+            ,  mxdst->cols + colidx
             ,  ivpbuf      /* backup storage for recovery */
             ,  ch
             ,  colidx
@@ -238,8 +240,8 @@ void* mclExpandVectorLine
 
       ;  (homgVec->ivps+colidx)->val
          =  get_homg
-            (  mxs->cols+colidx
-            ,  mxd->cols+colidx
+            (  mxsrc->cols+colidx
+            ,  mxdst->cols+colidx
             ,  homg_factor
             )
       ;  (chaosVec->ivps+colidx)->val = colInhomogeneity
@@ -524,6 +526,7 @@ double mclExpandVector
 
 mclMatrix* mclExpand
 (  const mclMatrix*        mx
+,  const mclMatrix*        mxright
 ,  mclExpandParam*         mxp
 )
    {  mclMatrix*        sq
@@ -569,13 +572,14 @@ mclMatrix* mclExpand
          ;  a->end         =  N_COLS(mx)
          ;  a->n_mod       =  mxp->n_ethreads
 
-         ;  a->mxd         =  sq
+         ;  a->mxdst         =  sq
          ;  a->mxp         =  mxp
          ;  a->stats       =  stats
          ;  a->chaosVec    =  chaosVec
          ;  a->homgVec     =  homgVec
 
-         ;  a->mxs         =  mx
+         ;  a->mxsrc       =  mx
+         ;  a->mxright     =  mxright
 
                            /* TODO: non-overflow accounting of lap times */
          ;  pthread_create
@@ -600,7 +604,7 @@ mclMatrix* mclExpand
          {  double colInhomogeneity
             =  mclExpandVector
                (  mx
-               ,  mx->cols+col
+               ,  mxright->cols+col
                ,  sq->cols+col
                ,  ivpbuf
                ,  ch

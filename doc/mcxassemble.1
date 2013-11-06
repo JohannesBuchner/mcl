@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcxassemble" 1 "2 Feb 2009" "mcxassemble 1\&.008, 09-033" "USER COMMANDS "
+.TH "mcxassemble" 1 "29 May 2009" "mcxassemble 1\&.008, 09-149" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -104,29 +104,25 @@ where \fBmcxassemble\fP is the best solution\&. Consider first whether
 format that can easily be constructed from a one-pass-parse of cooccurrence
 data\&. The basic setup is as follows\&.
 
-.ZJ 2m 1m "\(bu"
+.ZJ 1m 1m "\(bu"
 Parse cooccurrence data from some external format\&.
-.in -3m
-
-.ZJ 2m 1m "\(bu"
+.in -2m
+.ZJ 1m 1m "\(bu"
 Transform cooccurrence data to raw mcl data as you parse\&.
-.in -3m
-
-.ZJ 2m 1m "\(bu"
+.in -2m
+.ZJ 1m 1m "\(bu"
 When done, write out required header and domain information
 to a separate file\&. The domain information can be built during
 the parsing stage\&.
-.in -3m
-
-.ZJ 2m 1m "\(bu"
+.in -2m
+.ZJ 1m 1m "\(bu"
 Use mcxassemble to construct a valid matrix from the raw data
 and the header information\&.
-.in -3m
-
-.ZJ 2m 1m "\(bu"
+.in -2m
+.ZJ 1m 1m "\(bu"
 Nodes can optionally be relabeled by writing a separate map file to be read
 by \fBmcxassemble\fP, which takes the form of a very thin matrix file\&.
-.in -3m
+.in -2m
 
 The easiest thing to do is to group all input/output files under the same
 base name, say\ \&\fBbase\fP\&. A standard way of proceeding, which will lead to
@@ -211,17 +207,15 @@ are the \fC(mclmatrix\fP introduction token, (followed by) the
 This file must contain a map matrix, which is a matrix with the
 following properties:
 
-.ZJ 2m 1m "\(bu"
+.ZJ 1m 1m "\(bu"
 The column domain and row domain are of the same cardinality\&.
-.in -3m
-
-.ZJ 2m 1m "\(bu"
+.in -2m
+.ZJ 1m 1m "\(bu"
 Each column has exactly one entry\&.
-.in -3m
-
-.ZJ 2m 1m "\(bu"
+.in -2m
+.ZJ 1m 1m "\(bu"
 Each row domain index occurs in exactly one column\&.
-.in -3m
+.in -2m
 
 Such a matrix is used to relabel the nodes as found in the raw data\&. A
 situation that might occur when parsing some external format (and producing
@@ -263,57 +257,55 @@ the string identifier "mno" is represented by index 0 in the raw data,
 and by index 4 in the matrix output by \fBmcxassemble\fP\&.
 .SH OPTIONS
 
-.ZI 3m "\fB-b\fP base (\fIbase name\fP)"
+.ZI 2m "\fB-b\fP base (\fIbase name\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 Base name of files to be processed and output\&. Refer to \fBDESCRIPTION\fP
 above and the entries of other options below\&.
-.in -3m
-
-.ZI 3m "\fB-hdr\fP fname (\fIread header file\fP)"
+.in -2m
+.ZI 2m "\fB-hdr\fP fname (\fIread header file\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-raw\fP fname (\fIread raw file\fP)"
+'in -2m
+.ZI 2m "\fB-raw\fP fname (\fIread raw file\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 Explicitly specify the header file and the data file (rather
 than constructing the file names from a base name and suffixes)\&.
-.in -3m
-
-.ZI 3m "\fB--map\fP (\fIapply base\&.map\fP)"
+.in -2m
+.ZI 2m "\fB--map\fP (\fIapply base\&.map\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--cmap\fP (\fIapply base\&.cmap\fP)"
+'in -2m
+.ZI 2m "\fB--cmap\fP (\fIapply base\&.cmap\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--rmap\fP (\fIapply base\&.rmap\fP)"
+'in -2m
+.ZI 2m "\fB--rmap\fP (\fIapply base\&.rmap\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-map\fP fname (\fIapply fname\fP)"
+'in -2m
+.ZI 2m "\fB-map\fP fname (\fIapply fname\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-rmap\fP fname (\fIapply fname\fP)"
+'in -2m
+.ZI 2m "\fB-rmap\fP fname (\fIapply fname\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-cmap\fP fname (\fIapply fname\fP)"
+'in -2m
+.ZI 2m "\fB-cmap\fP fname (\fIapply fname\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-tag\fP tag (\fIapply base\&.tag\fP)"
+'in -2m
+.ZI 2m "\fB-tag\fP tag (\fIapply base\&.tag\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-rtag\fP tag (\fIapply base\&.tag\fP)"
+'in -2m
+.ZI 2m "\fB-rtag\fP tag (\fIapply base\&.tag\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-ctag\fP tag (\fIapply base\&.tag\fP)"
+'in -2m
+.ZI 2m "\fB-ctag\fP tag (\fIapply base\&.tag\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 Map options\&. \fB--cmap\fP combines with the \fB-b\fP\ \&option,
@@ -329,24 +321,23 @@ suffix\&.
 \fB-tag\fP and its siblings work in conjuction with
 the \fB-b\fP\ \&option, and require that a tag be specified from
 which to construct the map file (by appending it to the base name)\&.
-.in -3m
-
-.ZI 3m "\fB-skw\fP fname (\fIwrite skew matrix\fP)"
+.in -2m
+.ZI 2m "\fB-skw\fP fname (\fIwrite skew matrix\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-prm\fP fname (\fIwrite primary result matrix\fP)"
+'in -2m
+.ZI 2m "\fB-prm\fP fname (\fIwrite primary result matrix\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--prm\fP (\fIwrite base\&.prm\fP)"
+'in -2m
+.ZI 2m "\fB--prm\fP (\fIwrite base\&.prm\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--skw\fP (\fIwrite base\&.skw\fP)"
+'in -2m
+.ZI 2m "\fB--skw\fP (\fIwrite base\&.skw\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-n\fP (\fIdo not write default symmetrized result\fP)"
+'in -2m
+.ZI 2m "\fB-n\fP (\fIdo not write default symmetrized result\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 Options for writing matrices other than the default symmetrized result\&.
@@ -360,24 +351,23 @@ It can be written using one of the \fBskw\fP options\&.
 
 If for some reason the symmetrized result is not needed, its output
 can be prevented using the \fB-n\fP\ \&option\&.
-.in -3m
-
-.ZI 3m "\fB-xo\fP suf (\fIwrite base\&.suf\fP)"
+.in -2m
+.ZI 2m "\fB-xo\fP suf (\fIwrite base\&.suf\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-o\fP fname (\fIwrite to file fname\fP)"
+'in -2m
+.ZI 2m "\fB-o\fP fname (\fIwrite to file fname\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-i\fP (\fIread from single data file\fP)"
+'in -2m
+.ZI 2m "\fB-i\fP (\fIread from single data file\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-digits\fP int (\fIdigits width\fP)"
+'in -2m
+.ZI 2m "\fB-digits\fP int (\fIdigits width\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--write-binary\fP (\fIwrite output in binary format\fP)"
+'in -2m
+.ZI 2m "\fB--write-binary\fP (\fIwrite output in binary format\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 The \fB-xo\fP\ \&option is used in conjunction with the \fB-b\fP\ \&option
@@ -391,25 +381,23 @@ The \fB-i\fP option is special\&. It causes
 \fBmcxassemble\fP to read both the header information and the raw data
 from the same file, where the syntax should be fully conforming
 to generic mcl matrix format\&.
-.in -3m
-
-.ZI 3m "\fB-s\fP (\fIcheck for symmetry\fP)"
+.in -2m
+.ZI 2m "\fB-s\fP (\fIcheck for symmetry\fP)"
 \&
 .br
 This will check whether the primary result matrix was symmetric\&.
 It reports the number of failing (or \fIskew\fP) edges\&.
-.in -3m
-
-.ZI 3m "\fB-raw-tf\fP <tf-spec> (\fIapply transform spec to input\fP)"
+.in -2m
+.ZI 2m "\fB-raw-tf\fP <tf-spec> (\fIapply transform spec to input\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-prm-tf\fP (\fIapply transform spec to primary matrix\fP)"
+'in -2m
+.ZI 2m "\fB-prm-tf\fP (\fIapply transform spec to primary matrix\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-sym-tf\fP (\fIapply transform spec to symmetrified matrix\fP)"
+'in -2m
+.ZI 2m "\fB-sym-tf\fP (\fIapply transform spec to symmetrified matrix\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 The first applies its transformation spec to the values
@@ -418,21 +406,20 @@ spec to the primary matrix\&. The third applies its transformation
 step to the symmetrified matrix\&.
 Refer to \fBmcxio(5)\fP for documentation on the transformation
 spec syntax\&.
-.in -3m
-
-.ZI 3m "\fB-rv\fP add|max|min|mul|left|right (\fIaction for repeated vectors\fP)"
+.in -2m
+.ZI 2m "\fB-rv\fP add|max|min|mul|left|right (\fIaction for repeated vectors\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-re\fP add|max|min|mul|left|right (\fIaction for repeated entries\fP)"
+'in -2m
+.ZI 2m "\fB-re\fP add|max|min|mul|left|right (\fIaction for repeated entries\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-ri\fP add|max|min|mul (\fIadding mirror image\fP)"
+'in -2m
+.ZI 2m "\fB-ri\fP add|max|min|mul (\fIadding mirror image\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-r\fP add|max|min|mul|left|right (\fIsame for entries and vectors\fP)"
+'in -2m
+.ZI 2m "\fB-r\fP add|max|min|mul|left|right (\fIsame for entries and vectors\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 Merge options, dictating the behaviour when repeated entries are
@@ -541,23 +528,22 @@ entry of weight\ \&\fC20\fP and combine it with the \fC[3,0]\fP entry
 of weight\ \&\fC50\fP\&. The resulting matrix will then have the \fC[0,3]\fP
 and the \fC[3,0]\fP entry both equal to either the maximum, the sum,
 or the product of the two quantities\ \&\fC50\fP and\ \&\fC20\fP\&.
-.in -3m
-
-.ZI 3m "\fB--quiet-re\fP (\fIquiet for repeated entries\fP)"
+.in -2m
+.ZI 2m "\fB--quiet-re\fP (\fIquiet for repeated entries\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--quiet-rv\fP (\fIquiet for repeated vectors\fP)"
+'in -2m
+.ZI 2m "\fB--quiet-rv\fP (\fIquiet for repeated vectors\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-q\fP (\fIthe two above combined\fP)"
+'in -2m
+.ZI 2m "\fB-q\fP (\fIthe two above combined\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 Warning options\&. Turn these on if you expect the raw data to be free
 of repeats\&.
-.in -3m
+.in -2m
 .SH AUTHOR
 Stijn van Dongen\&.
 .SH SEE ALSO

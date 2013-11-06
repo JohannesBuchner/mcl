@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "MCL\ \&FAQ" 7 "2 Feb 2009" "MCL\ \&FAQ 1\&.008, 09-033" "MISCELLANEOUS "
+.TH "MCL\ \&FAQ" 7 "29 May 2009" "MCL\ \&FAQ 1\&.008, 09-149" "MISCELLANEOUS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -363,8 +363,8 @@ The current setup, which I hope to continue, is this\&. All releases are
 identified by a date stamp\&. For example 02-095 denotes day 95 in the year
 2002\&. This date stamp agrees (as of April 2000) with the (differently
 presented) date stamp used in all manual pages shipped with that release\&.
-For example, the date stamp of the FAQ you are reading is \fB2 Feb 2009\fP,
-which corresponds with the MCL stamp \fB09-033\fP\&.
+For example, the date stamp of the FAQ you are reading is \fB29 May 2009\fP,
+which corresponds with the MCL stamp \fB09-149\fP\&.
 The Changelog file contains a list of what\&'s changed/added with each
 release\&. Currently, the date stamp is the primary way of identifying an \fBmcl\fP
 release\&. When asked for its version by using \fB--version\fP, mcl
@@ -1161,15 +1161,15 @@ In this case 5 is a reasonable starting point\&.
 Very easy, if you will be doing small graphs only, say up to a few thousand
 entries at most\&. These are the basic ingredients:
 
-.ZI 3m "o"
+.ZI 2m "o"
 Adding loops to the input graph, conversion to a stochastic matrix\&.
-.in -3m
-.ZI 3m "o"
+.in -2m
+.ZI 2m "o"
 Matrix multiplication and matrix inflation\&.
-.in -3m
-.ZI 3m "o"
+.in -2m
+.ZI 2m "o"
 The interpretation function mapping MCL limits onto clusterings\&.
-.in -3m
+.in -2m
 
 These must be wrapped in a program that does graph input and cluster output,
 alternates multiplication (i\&.e\&. expansion) and inflation in a loop, monitors

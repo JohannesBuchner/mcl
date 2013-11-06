@@ -1,18 +1,22 @@
-
-
 \import{ref.zmm}
 \import{mcx.zmm}
 \import{faq.zmm}
 
-\set{"man::name"}{MCL\~FAQ}
-\set{"man::html-title"}{The MCL FAQ}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{7}
+\begin{pud::man}{
 
-\"man::preamble"
+   {name}{MCL\~FAQ}
+   {html_title}{The MCL FAQ}
+   {author}{Stijn van Dongen}
+   {section}{7}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
 \"faq::preamble"
 
-\${html}{\"man::maketoc"}
+\${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{mclfaq}{faqs and facts about the MCL cluster algorithm.}
@@ -962,14 +966,23 @@ How can I trust the output clustering?}
    Very easy, if you will be doing small graphs only, say up to a few thousand
    entries at most.  These are the basic ingredients:}
 
-   \begin{itemize}{{compact}{1}{contiguous}{1}}
-   \item{o}
-      Adding loops to the input graph, conversion to a stochastic matrix.
-   \item{o}
-      Matrix multiplication and matrix inflation.
-   \item{o}
-      The interpretation function mapping MCL limits onto clusterings.
-   \end{itemize}
+\begin{itemize}{
+   {flow}{compact}
+   {interitem}{0}
+}
+\item{o}
+\car{
+   Adding loops to the input graph, conversion to a stochastic matrix.
+   }
+\item{o}
+\car{
+   Matrix multiplication and matrix inflation.
+   }
+\item{o}
+\car{
+   The interpretation function mapping MCL limits onto clusterings.
+   }
+\end{itemize}
 
 \par{
    These must be wrapped in a program that does graph input and cluster output,
@@ -1204,7 +1217,7 @@ How can I trust the output clustering?}
    \${html}{\lref{mclfaq.ps}{This} is the PostScript derived from the zoem
    troff output.}}
 
-\"man::postamble"
+\end{pud::man}
 
 \: meta-faq: what are the resources? what should I read?
 \: mcl-devel.

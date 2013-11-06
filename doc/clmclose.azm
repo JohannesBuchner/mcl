@@ -1,14 +1,18 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{clm close}
-\set{"man::html-title"}{The clm close manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
-\${html}{\"man::maketoc"}
+   {name}{clm close}
+   {html_title}{The clm close manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{clm close}{Fetch connected components from graphs or subgraphs}
@@ -48,7 +52,7 @@
 
 \sec{options}{OPTIONS}
 
-\begin{itemize}
+\begin{itemize}{\mcx_itemopts}
 
 \item{\defopt{-abc}{<fname>}{label input}}
 \car{
@@ -95,11 +99,14 @@
 \end{itemize}
 
 \sec{author}{AUTHOR}
-\par
+\par{
    Stijn van Dongen.
+   }
 
 \sec{seealso}{SEE ALSO}
+\par{
    \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
+   }
 
-\"man::postamble"
+\end{pud::man}

@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "clm residue" 1 "2 Feb 2009" "clm residue 1\&.008, 09-033" "USER COMMANDS "
+.TH "clm residue" 1 "29 May 2009" "clm residue 1\&.008, 09-149" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -52,17 +52,17 @@ compute a simple upwards projection of that clustering, resulting in a
 clustering of\ \&\fCG\fP\&.
 .SH OPTIONS
 
-.ZI 3m "\fB-imx\fP fname (\fIinput graph\fP)"
+.ZI 2m "\fB-imx\fP fname (\fIinput graph\fP)"
 \&
 .br
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-icl\fP fname (\fIinput clustering\fP)"
+.ZI 2m "\fB-icl\fP fname (\fIinput clustering\fP)"
 \&
 .br
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-rpm\fP fname (\fIresidue projection matrix\fP)"
+.ZI 2m "\fB-rpm\fP fname (\fIresidue projection matrix\fP)"
 \&
 .br
 The name for the file in which the residue projection matrix is stored\&.
@@ -70,9 +70,9 @@ It contains for each node and for each cluster in the input clustering
 the combined weight of the (edges to the) neighbours of that node
 in that cluster\&.
 The default output file name is \fCout\&.rpm\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-o\fP fname (\fIoutput clustering file\fP)"
+.ZI 2m "\fB-o\fP fname (\fIoutput clustering file\fP)"
 \&
 .br
 The name for the file in which the majority vote projection clustering
@@ -86,7 +86,7 @@ the set of nodes for which the projection is largest for the residue itself
 will form a new cluster, if it is not empty\&.
 
 By default output is sent to STDOUT\&.
-.in -3m
+.in -2m
 .SH AUTHOR
 
 Stijn van Dongen\&.

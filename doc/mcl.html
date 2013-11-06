@@ -1,42 +1,15 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- Copyright (c) 2009 Stijn van Dongen -->
 <head>
-<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <meta name="keywords" content="manual">
 <style type="text/css">
-body {
-text-align: justify;
-color: #001111;
-background: white;
+/* START zsd.base.css */
+body
+{ text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
 font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-}
-p.default {
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-text-align: justify;
-}
-p.L53 { font-size: 30pt; }
-p.L52 { font-size: 20pt; }
-p.L51 { font-size: 15pt; }
-p.L50 { font-size: 12pt; }
-p.L49 { font-size: 10pt; }
-p.L48 { font-size: 9pt; }
-p.L47 { font-size: 8pt; }
-td {
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-text-align: justify;
-}
-h3 { margin-top:1em; }
-h2 { margin-top:2em; }
-.itembullet { font-size: 10pt; }
-.left { text-align: left; }
-.right { text-align: right; }
-.center { text-align: center; }
-.nowrap { white-space: nowrap; }
-.item { font-size: 12pt;
-text-align: justify;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -69,85 +42,140 @@ div.indent
 { margin-left: 8%;
 margin-right: 0%;
 }
+.right { text-align: right; }
+.left { text-align: left; }
+.nowrap { white-space: nowrap; }
+.item_leader
+{ position: relative;
+margin-left: 8%;
+}
+.item_compact { position: absolute; vertical-align: baseline; }
+.item_cascade { position: relative; }
+.item_leftalign { text-align: left; }
+.item_rightalign
+{ width: 2em;
+text-align: right;
+}
+.item_compact .item_rightalign
+{ position: absolute;
+width: 52em;
+right: -2em;
+text-align: right;
+}
+.item_text
+{ position: relative;
+margin-left: 3em;
+}
+/* END zsd.base.css */
 </style>
 <title>The mcl manual</title>
 </head>
 <body>
 <p style="text-align:right">
-2 Feb 2009&nbsp;&nbsp;&nbsp;
+29 May 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcl.ps"><b>mcl</b></a>
-1.008, 09-033
+1.008, 09-149
 </p>
-<div style="margin-top:1em">
-<table
-cellspacing="0" border=0
-cellpadding="0" summary="itemize">
-<tr valign="baseline"><td width=48 class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div class=item>
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">1.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">2.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#started">GETTING STARTED</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">3.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">4.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">5.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#options">OPTIONS</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">6.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#pruneoptions">PRUNING OPTIONS</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">7.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">7.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#pipeline">PIPELINES</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">8.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">8.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#examples">EXAMPLES</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">9.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">9.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#applicability">APPLICABILITY</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">10.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">10.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#files">FILES</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">11.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">11.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#environment">ENVIRONMENT</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">12.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">12.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#diagnostics">DIAGNOSTICS</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">13.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">13.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#bugs">BUGS</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">14.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">14.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#author">AUTHOR</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">15.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">15.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#history">HISTORY/CREDITS</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">16.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">16.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#seealso">SEE ALSO</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">17.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">17.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#references">REFERENCES</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">18.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">18.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#notes">NOTES</a>
-</div></td></tr>
-</table>
-
+</div>
 </div>
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p class="default L50" style="margin-bottom:0">
-mcl - The Markov Cluster Algorithm, aka the MCL algorithm.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
+mcl &mdash; The Markov Cluster Algorithm, aka the MCL algorithm.</p>
+<p style="margin-bottom:0">
 <b>mcl</b> is a cluster algorithm for graphs. A single option controls the
 granularity of the output clustering. This is the <a class="intern" href="#opt-I"><b>-I</b>&nbsp;<i>inflation</i></a>
 option, described further below.</p>
 
 <a name="started"></a>
 <h2>GETTING STARTED</h2>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">There are two main modes of invocation. The most accessible is
+<p style="margin-top:0em; margin-bottom:0em">There are two main modes of invocation. The most accessible is
 <i>label mode</i>
 that assumes label input. The input is then a file or stream in which each
 line encodes an edge in terms of two labels and a numerical value, separated
 by white space. The most basic example of usage is this:</p>
 <pre>   <b>mcl</b> &lt;-|fname&gt; <a class="intern" href="#opt--abc"><b>--abc</b></a> <a class="intern" href="#opt-o"><b>-o</b>&nbsp;<i>fname-out</i></a></pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 The output is then a file where each line is a cluster of tab-separated
 labels. MCL works natively with a numerical encoding of its input. This
 <i>matrix input</i> is the second mode of operation. Label mode can save its
 input for later use in matrix input. Here is how to do it.</p>
 <pre>   <b>mcl</b> &lt;-|fname&gt; <a class="intern" href="#opt--abc"><b>--abc</b></a> <a class="intern" href="#opt-o"><b>-o</b>&nbsp;<i>fname-out</i></a>\
       <a class="intern" href="#opt-write-tab"><b>-write-tab</b>&nbsp;<i>map-name</i></a> <a class="intern" href="#opt-write-graph"><b>-write-graph</b>&nbsp;<i>graph-name</i></a></pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 Native mode (matrix input) is entered simply by <i>not</i> specifying
 <b>--abc</b>. The input file should then have been created by an earlier
 invocation of <a class="intern" href="#opt-write-graph"><b>-write-graph</b>&nbsp;<i>fname</i></a> or by other means,
@@ -157,12 +185,12 @@ dictionary, possibly one that was saved earlier using the
 <a class="intern" href="#opt-write-tab"><b>-write-tab</b>&nbsp;<i>fname</i></a> option. An example is this:</p>
 <pre>   <b>mcl</b> &lt;-|fname&gt; <a class="intern" href="#opt--yield-abc"><b>--yield-abc</b></a> <a class="intern" href="#opt-o"><b>-o</b>&nbsp;<i>fname-out</i></a>\
       <a class="intern" href="#opt-strict-tab"><b>-strict-tab</b>&nbsp;<i>fname-map</i></a></pre>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Here <b>-strict-tab</b> tells mcl that the input should not contain
 labels other than found in the file <b>fname-map</b>. It is possible to
 relax this by using <a class="intern" href="#opt-restrict-tab"><b>-restrict-tab</b>&nbsp;<i>fname-map</i></a> or
 <a class="intern" href="#opt-extend-tab"><b>-extend-tab</b>&nbsp;<i>fname-map</i></a>.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Label mode is very convenient for easy and fast exploration. A decided
 advantage of full native mode (where both graph input and cluster output are
 in matrix format) is that the data can easily be analyzed and subjected to
@@ -171,16 +199,16 @@ loads much faster than label data when the input data size grows large. If
 neither of these is of concern then label mode may be entirely sufficient.
 For more information on label mode and native mode refer to examples in this
 manual and <a class="local" href="mcxio.html">mcxio</a>.</p>
-<p class="default L50" style="margin-bottom:0"><b>Granularity</b><br>
+<p style="margin-bottom:0"><b>Granularity</b><br>
 If you want to explore cluster structure in graphs with MCL, do use
 the <a class="intern" href="#opt-I"><b>-I</b>&nbsp;<i>inflation</i></a> option with varying parameters
 to obtain clusterings at different levels of granularity.</p>
-<p class="default L50" style="margin-bottom:0"><b>Clustering from blast files</b><br>
+<p style="margin-bottom:0"><b>Clustering from blast files</b><br>
 Refer to the group of options discussed with
 <a class="intern" href="#opt--abc"><b>--abc</b></a>. By way of a small example, consider these.</p>
 <pre>mcxdeblast --line-mode=abc --out=- hsfsp.blast | mcl - --abc -o -
 mcxdeblast --m9 --line-mode=abc --out=- hsfsp.blast | mcl - --abc -o -</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 The single hyphens in this example (other than word-separators)
 indicate that output is written to STDOUT or read from STDIN.
 The blast files are respectively in default and column (-m8 or -m9) format.
@@ -191,7 +219,7 @@ It is possible to cache the input graph in native mcl matrix format:</p>
 <pre>mcxdeblast --line-mode=-abc --out=- hsfsp.blast | \
    mcxload -abc - --stream-mirror -o hsfsp.mcx -write-tab hsfsp.tab --write-binary
 mcl hsfsp.mcx -use-tab hsfsp.tab -o  hsfsp.my-nice-clustering</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 The matrix is written in binary format to speed up
 subsequent reads. The speed-up factor is approximately ten-fold.
 For large graphs it is recommended to use binary format.
@@ -208,30 +236,30 @@ it is not necessary to instruct mcl to do so.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 The example invocation below assumes matrix input, as described in the
 <a class="local" href="mcxio.html">mcxio</a> section. Switching to label mode requires the input file to be in
 label format and the addition of the <a class="intern" href="#opt--abc"><b>--abc</b></a> option.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mcl</b> &lt;-|fname&gt;
 <a class="intern" href="#opt-I"><b>[-I</b> f (<i>inflation</i>)<b>]</b></a>
 <a class="intern" href="#opt-o"><b>[-o</b> str (<i>fname</i>)<b>]</b></a>
 <a class="intern" href="#opt-scheme"><b>[-scheme</b> k (<i>resource scheme</i>)<b>]</b></a>
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 These options are sufficient in 95 percent of the cases or more. The first
 argument must be the name of a file containing a graph/matrix in the mcl
 input format, or a hyphen to read from STDIN. With respect to clustering,
 the <a class="intern" href="#opt-I"><b>-I</b> option</a> and <a class="intern" href="#opt-scheme"><b>-scheme</b>
 option</a> are foremost relevant.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 A mechanism for pipelines is supported (as of the first 1.003 release).
 Refer to the <a class="intern" href="#pipeline">PIPELINES</a> section for more information.
 A prepackaged pipeline for BLAST data is present in the form of
 <a class="local" href="mclblastline.html">mclblastline</a>. As of release 1.006 a lightweight BLAST clustering
 mechanism is also supported. <a class="intern" href="#started">GETTING STARTED</a> is a small introduction,
 with some examples of using BLAST results.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The full listing of <b>mcl</b> options is shown below, separated
 into parts corresponding with functional aspects such
 as clustering, threading, verbosity, pruning and resource management,
@@ -240,7 +268,7 @@ The <b>-scheme</b> parameter provides a single access point to the
 pruning options, and should be sufficient in most cases.
 <b>mcl</b> allows comprehensive tuning and access to its internals
 for those who are interested, so it has many options.</p>
-<p class="default L50" style="margin-bottom:0"><b>Baseline clustering options</b><br>
+<p style="margin-bottom:0"><b>Baseline clustering options</b><br>
 <a class="intern" href="#opt-I"><b>[-I</b> &lt;num&gt; (<i>inflation</i>)<b>]</b></a>
 <a class="intern" href="#opt-o"><b>[-o</b> str (<i>fname</i>)<b>]</b></a>
 <a class="intern" href="#opt-od"><b>[-od</b> str (<i>directory</i>)<b>]</b></a>
@@ -248,7 +276,7 @@ for those who are interested, so it has many options.</p>
 <a class="intern" href="#opt--shadow-vl"><b>[--shadow-vl</b> (<i>shadow distant nodes</i>)<b>]</b></a>
 <a class="intern" href="#opt-c"><b>[-c</b> &lt;num&gt; (<i>reweight loops</i>)<b>]</b></a>
 </p>
-<p class="default L50" style="margin-bottom:0"><b>Stream options</b><br>
+<p style="margin-bottom:0"><b>Stream options</b><br>
 <a class="intern" href="#opt--abc"><b>[--abc</b> fname (<i>expect/write labels</i>)<b>]</b></a>
 <a class="intern" href="#opt--expect-abc"><b>[--expect-abc</b> (<i>expect labels</i>)<b>]</b></a>
 <a class="intern" href="#opt--yield-abc"><b>[--yield-abc</b> fname (<i>write labels</i>)<b>]</b></a>
@@ -258,18 +286,18 @@ for those who are interested, so it has many options.</p>
 <a class="intern" href="#opt-extend-tab"><b>[-extend-tab</b> fname (<i>use mapping and extend</i>)<b>]</b></a>
 <a class="intern" href="#opt-write-tab"><b>[-write-tab</b> fname (<i>write mapping</i>)<b>]</b></a>
 </p>
-<p class="default L50" style="margin-bottom:0"><b>Transform options</b><br>
+<p style="margin-bottom:0"><b>Transform options</b><br>
 <a class="intern" href="#opt-tf"><b>[-tf</b> &lt;tf-spec&gt; (<i>transform input matrix values</i>)<b>]</b></a>
 <a class="intern" href="#opt-abc-tf"><b>[-abc-tf</b> &lt;tf-spec&gt; (<i>transform input stream values</i>)<b>]</b></a>
 <a class="intern" href="#opt--abc-log"><b>[--abc-log</b> (<i>take logarithm of stream values</i>)<b>]</b></a>
 <a class="intern" href="#opt--abc-neg-log"><b>[--abc-neg-log</b> (<i>take negative logarithm of stream values</i>)<b>]</b></a>
 </p>
-<p class="default L50" style="margin-bottom:0"><b>Cache options</b><br>
+<p style="margin-bottom:0"><b>Cache options</b><br>
 <a class="intern" href="#opt-write-graph"><b>[-write-graph</b> fname (<i>write graph</i>)<b>]</b></a>
 <a class="intern" href="#opt-write-graphx"><b>[-write-graphx</b> fname (<i>write transformed graph</i>)<b>]</b></a>
 <a class="intern" href="#opt-write-expanded"><b>[-write-expanded</b> fname (<i>write expanded graph</i>)<b>]</b></a>
 </p>
-<p class="default L50" style="margin-bottom:0"><b>Additional clustering options</b><br>
+<p style="margin-bottom:0"><b>Additional clustering options</b><br>
 <a class="intern" href="#opt-l"><b>[-l</b> n (<i>initial iteration number</i>)<b>]</b></a>
 <a class="intern" href="#opt-L"><b>[-L</b> n (<i>main iteration number</i>)<b>]</b></a>
 <a class="intern" href="#opt-i"><b>[-i</b> f (<i>initial inflation</i>)<b>]</b></a>
@@ -279,14 +307,14 @@ for those who are interested, so it has many options.</p>
 <a class="intern" href="#opt--shadow"><b>[--shadow</b> mode (<i>modulation type</i>)<b>]</b></a>
 <a class="intern" href="#opt-shadow-s"><b>[-shadow-s</b> f (<i>boost factor</i>)<b>]</b></a>
 </p>
-<p class="default L50" style="margin-bottom:0"><b>Input manipulation options</b><br>
+<p style="margin-bottom:0"><b>Input manipulation options</b><br>
 <a class="intern" href="#opt-pi"><b>[-pi</b> f (<i>pre-inflation</i>)<b>]</b></a>
 <a class="intern" href="#opt-ph"><b>[-ph</b> f (<i>pre-inflation, max-bound</i>)<b>]</b></a>
 <a class="intern" href="#opt-if"><b>[-if</b> f (<i>start-inflation</i>)<b>]</b></a>
 <a class="intern" href="#opt-ceil-nb"><b>[-ceil-nb</b> n (<i>reduce neighbourhods</i>)<b>]</b></a>
 <a class="intern" href="#opt--discard-loops"><b>[--discard-loops=</b>y/n (<i>discard y/n loops in input</i>)<b>]</b></a>
 </p>
-<p class="default L50" style="margin-bottom:0"><b>Clustering result options</b><br>
+<p style="margin-bottom:0"><b>Clustering result options</b><br>
 <a class="intern" href="#opt-sort"><b>[-sort</b> str (<i>sort mode</i>)<b>]</b></a>
 <a class="intern" href="#opt-overlap"><b>[-overlap</b> str (<i>overlap mode</i>)<b>]</b></a>
 <a class="intern" href="#opt--output-limit"><b>[--output-limit=</b>y/n (<i>write limit matrix</i>)<b>]</b></a>
@@ -296,16 +324,16 @@ for those who are interested, so it has many options.</p>
 <a class="intern" href="#opt--show-log"><b>[--show-log=</b>y/n (<i>show log</i>)<b>]</b></a>
 <a class="intern" href="#opt--append-log"><b>[--append-log=</b>y/n (<i>append log</i>)<b>]</b></a>
 </p>
-<p class="default L50" style="margin-bottom:0"><b>Verbosity options</b><br>
+<p style="margin-bottom:0"><b>Verbosity options</b><br>
 <a class="intern" href="#opt-q"><b>[-q</b> spec (<i>log levels</i>)<b>]</b></a>
 <a class="intern" href="#opt-v"><b>[-v</b> str (<i>verbosity type on</i>)<b>]</b></a>
 <a class="intern" href="#opt-V"><b>[-V</b> str (<i>verbosity type off</i>)<b>]</b></a>
 <a class="intern" href="#opt--show"><b>[--show</b> (<i>print (small) matrices to screen</i>)<b>]</b></a>
 </p>
-<p class="default L50" style="margin-bottom:0"><b>Thread options</b><br>
+<p style="margin-bottom:0"><b>Thread options</b><br>
 <a class="intern" href="#opt-te"><b>[-te</b> k (<i>#expansion threads</i>)<b>]</b></a>
 </p>
-<p class="default L50" style="margin-bottom:0"><b>Output file name and annotation options</b><br>
+<p style="margin-bottom:0"><b>Output file name and annotation options</b><br>
 <a class="intern" href="#opt-o"><b>[-o</b> str (<i>fname</i>)<b>]</b></a>
 <a class="intern" href="#opt-ap"><b>[-ap</b> str (<i>use str as file name prefix</i>)<b>]</b></a>
 <a class="intern" href="#opt-aa"><b>[-aa</b> str (<i>append str to suffix</i>)<b>]</b></a>
@@ -313,7 +341,7 @@ for those who are interested, so it has many options.</p>
 <a class="intern" href="#opt-ax"><b>[-ax</b> (<i>show output suffix and exit</i>)<b>]</b></a>
 <a class="intern" href="#opt-annot"><b>[-annot</b> str (<i>dummy annotation option</i>)<b>]</b></a>
 </p>
-<p class="default L50" style="margin-bottom:0"><b>Dump options</b><br>
+<p style="margin-bottom:0"><b>Dump options</b><br>
 <a class="intern" href="#opt-dump-interval"><b>[-dump-interval</b> i:j (<i>dump interval</i>)<b>]</b></a>
 <a class="intern" href="#opt-dump-modulo"><b>[-dump-modulo</b> k (<i>dump modulo</i>)<b>]</b></a>
 <a class="intern" href="#opt-dump-stem"><b>[-dump-stem</b> stem (<i>dump file stem</i>)<b>]</b></a>
@@ -324,7 +352,7 @@ for those who are interested, so it has many options.</p>
 <a class="intern" href="#opt-digits"><b>[-digits</b> n (<i>printing precision</i>)<b>]</b></a>
 <a class="intern" href="#opt--write-binary"><b>[--write-binary</b> (<i>write matrices in binary format</i>)<b>]</b></a>
 </p>
-<p class="default L50" style="margin-bottom:0"><b>Info options</b><br>
+<p style="margin-bottom:0"><b>Info options</b><br>
 <a class="intern" href="#opt--jury-charter"><b>[--jury-charter</b> (<i>explains jury</i>)<b>]</b></a>
 <a class="intern" href="#opt--version"><b>[--version</b> (<i>show version</i>)<b>]</b></a>
 <a class="intern" href="#opt-how-much-ram"><b>[-how-much-ram</b> k (<i>RAM upper bound</i>)<b>]</b></a>
@@ -335,13 +363,13 @@ for those who are interested, so it has many options.</p>
 <a class="intern" href="#opt-ax"><b>[-ax</b> (<i>show output suffix and exit</i>)<b>]</b></a>
 <a class="intern" href="#opt--show-schemes"><b>[--show-schemes</b> (<i>show resource schemes</i>)<b>]</b></a>
 </p>
-<p class="default L50" style="margin-bottom:0"><b>Pruning options</b><br>
+<p style="margin-bottom:0"><b>Pruning options</b><br>
 The following options all pertain to the various pruning strategies that can
 be employed by <b>mcl</b>. They are described in the <a class="intern" href="#pruneoptions">PRUNING OPTIONS</a>
 section, accompanied by a description of the mcl pruning strategy.
 If your graphs are huge
 and you have an appetite for tuning, have a look at the following:</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <a class="intern" href="#opt-p"><b>[-p</b> f (<i>cutoff</i>)<b>]</b></a>
 <a class="intern" href="#opt-P"><b>[-P</b> n (<i>1/cutoff</i>)<b>]</b></a>
 <a class="intern" href="#opt-S"><b>[-S</b> n (<i>selection number</i>)<b>]</b></a>
@@ -352,12 +380,12 @@ and you have an appetite for tuning, have a look at the following:</p>
 <a class="intern" href="#opt-warn-factor"><b>[-warn-factor</b> n (<i>prune warn factor</i>)<b>]</b></a>
 <a class="intern" href="#opt--adapt"><b>[--adapt</b> (<i>pruning</i>)<b>]</b></a>
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The first argument of <b>mcl</b> must be a file name, but some options are allowed
 to appear as the first argument instead. These are the options that cause
 mcl to print out information of some kind, after which it will gracefully
 exit. The full list of these options is</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <a class="intern" href="#opt-z"><b>-z</b></a>,
 <a class="intern" href="#opt-h"><b>-h</b></a>,
 <a class="intern" href="#opt--apropos"><b>--apropos</b></a>,
@@ -370,7 +398,7 @@ exit. The full list of these options is</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mcl</b> implements the <b>MCL algorithm</b>, short for the <b>Markov cluster
 algorithm</b>, a cluster algorithm for graphs developed by Stijn van Dongen at
 the Centre for Mathematics and Computer Science in Amsterdam, the
@@ -387,34 +415,34 @@ See the <a class="intern" href="#applicability">APPLICABILITY</a> section for a 
 graph mcl likes best, and for a qualitative assessment of its speed.
 <b>mcl</b> is accompanied by several other utilities for analyzing clusterings and
 performing matrix and graph operations; see the <a class="intern" href="#seealso">SEE ALSO</a> section.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The first argument is the input file name,
 or a single hyphen to read from stdin. The rationale for
 making the name of the input file a fixed parameter is that you typically do
 several runs with different parameters. In command line mode it is
 pleasant if you do not have to skip over an immutable parameter all the
 time.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The <a class="intern" href="#opt-I"><b>-I</b>&nbsp;<i>f</i> option</a> is the main control,
 affecting cluster granularity. Using <b>mcl</b> is as simple as
 typing (assuming a file <i>proteins</i> contains a matrix/graph
 in native matrix format)</p>
 <pre>mcl proteins -I 2.0</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 The above will result in a clustering written to the file
 named <i>out.proteins.I20s2</i>. It is - of course -
 possible to explicitly specify the name of the output file
 using the <a class="intern" href="#opt-o"><b>-o</b>&nbsp;<i>fname</i></a> option. Refer to the
 <a class="intern" href="#opt-ap"><b>-ap</b></a> option for a description of mcl's procedure
 in automatically constructing file names from it parameters.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 In native mode clusterings are stored as matrices
 - this is discussed in the <a class="local" href="mcxio.html">mcxio</a> section.
 You presumably want to convert the output to something that
 is easier to interpret. The native mcl matrix format is perhaps
 unpleasant to parse in the quick and dirty way. You can use</p>
 <pre>mcl proteins -I 2.0 -use-tab proteins.tab --yield-abc</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 to get a line/tab based output format,
 each line containing a cluster in the form of tab-separated labels.
 Here <b>proteins.tab</b> should be a tab file previously
@@ -423,12 +451,12 @@ Refer to <a class="local" href="mcxio.html">mcxio</a> for more information on ta
 and the entries grouped under <a class="intern" href="#opt--abc"><b>--abc</b></a> for an extensive
 discussion of the various ways in which mcl can combine
 label format and matrix format in input and output.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 In finding good <b>mcl</b> parameter settings for a particular domain,
 or in finding cluster structure at different levels of granularity,
 one typically runs mcl multiple times for varying values of f (refer
 to the <a class="intern" href="#opt-I"><b>-I</b>&nbsp;<i>inflation</i></a> option for further information).</p>
-<p class="default L50" style="margin-bottom:0"><b>NOTE</b><br>mcl interprets the matrix
+<p style="margin-bottom:0"><b>NOTE</b><br>mcl interprets the matrix
 entries or graph edge weights as <b>similarities</b>, and it likes
 <b>undirected input graphs</b> best. It can handle directed graphs, but any
 node pair (i,j) for which w(i,j) is much smaller than w(j,i) or vice versa
@@ -438,14 +466,14 @@ make your input graphs undirected. How your edge weights are computed may
 affect mcl's performance. In protein clustering, one way to go is to
 choose the negated logarithm of the BLAST probabilities (see
 <a class="intern" href="#references">REFERENCES</a>).</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mcl</b>'s default parameters should make it quite fast under almost all
 circumstances. Taking default parameters, mcl has been used to generate
 good protein clusters on 133k proteins, taking 10 minutes running time on a
 Compaq ES40 system with four alpha EV6.7 processors. It has been applied
 (with good results) to graphs with 800k nodes, and if you have the memory
 (and preferably CPUs as well) nothing should stop you from going further.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 For large graphs, there are several groups of parameters available for
 tuning the mcl computing process, should it be necessary. The easiest thing
 to do is just vary the <a class="intern" href="#opt-scheme"><b>-scheme</b> option</a>. This
@@ -463,14 +491,14 @@ Whether mcl considers a graph large depends mainly on the graph
 connectivity; a highly connected graph on 50,000 nodes is large to
 mcl (so that you might want to tune resources) whereas a sparsely
 connected graph on 500,000 nodes may be business as usual.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mcl</b> is a memory munger. Its precise appetite depends on the resource
 settings. You can get a rough (and usually much too pessimistic) upper
 bound for the amount of RAM that is needed by using the
 <a class="intern" href="#opt-how-much-ram"><b>-how-much-ram</b> option</a>. The corresponding
 entry in this manual page contains the simple formula via which the upper
 bound is computed.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Other options of interest are the option to specify threads
 <a class="intern" href="#opt-te"><b>-te</b></a>, and the verbosity-related options
 <a class="intern" href="#opt-v"><b>-v</b> and <b>-V</b></a>.
@@ -478,7 +506,7 @@ The actual settings are shown with <b>-z</b>, and for graphs with
 at most 12 nodes or so you can view the MCL matrix iterands on screen
 by supplying <a class="intern" href="#opt--show"><b>--show</b></a> (this may give some
 more feeling).</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 MCL iterands allow a generic interpretation as clusterings as well. The
 clusterings associated with early iterands may contain a fair amount of
 overlap. Refer to the <a class="intern" href="#opt-dump"><b>-dump</b> option</a>, the <a class="local" href="mclfaq.html">mclfaq</a>
@@ -486,7 +514,7 @@ manual, and the <b>clm imac</b> utility (Interpret Matrices As Clusterings).
 Use <b>clm imac</b> only if you have a special reason; the normal usage of <b>mcl</b> is
 to do multiple runs for varying <b>-I</b> parameters and use the
 clusterings output by mcl itself.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Under very rare circumstances, <b>mcl</b> might get stuck in a seemingly infinite
 loop. If the number of iterations exceeds a hundred and the <i>chaos</i>
 indicator remains nearly constant (presumably around value 0.37), you can
@@ -497,23 +525,21 @@ can wait and mcl might converge by itself or it will certainly stop after
 10,000 iterations (the default value for the <a class="intern" href="#opt-L"><b>-L</b></a> option). The
 most probable explanation for such an infinite loop is that the input graph
 contains the flip-flop graph of node size three as a subgraph.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The creator of this page feels that manual pages are a valuable resource,
 that online html documentation is also a good thing to have, and
 that info pages are way <i>way</i> ahead of their time. The
 <a class="intern" href="#notes">NOTES</a> section explains how this page was created.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 In the <a class="intern" href="#options">OPTIONS</a> section options are listed in order of
 importance, with related options grouped together.</p>
 
 <a name="options"></a>
 <h2>OPTIONS</h2>
-<div style="margin-top:1em">
-<table
-cellspacing="0" border=0
-cellpadding="0" summary="itemize">
-<tr valign="baseline"><td colspan=3><a name="opt-I"></a><b>-I</b> f (<i>inflation</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-I"></a><b>-I</b> f (<i>inflation</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Sets the main inflation value to f. This value is the main handle
 for affecting cluster granularity. It is usually chosen somewhere
 in the range [1.2-5.0]. <b>-I</b>&nbsp;<b>5.0</b> will tend to result
@@ -525,40 +551,46 @@ using <b>clm dist</b> and <b>clm info</b>. This will most likely reveal that
 certain values of <b>-I</b> are simply not right for your data. The
 <b>clm dist</b> section contains a discussion of how to use the cluster
 validation tools shipped with <b>mcl</b> (see the <a class="intern" href="#seealso">SEE ALSO</a> section).</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 With low values for <b>-I</b>, like <b>-I</b>&nbsp;<b>1.2</b>, you should be
 prepared to use more resources in order to maintain quality of
 clusterings, i.e. increase the argument to the
 <a class="intern" href="#opt-scheme"><b>-scheme</b> option</a>.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-o"></a><b>-o</b> str (<i>fname</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-o"></a><b>-o</b> str (<i>fname</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Output the clustering to file named fname. It is possible to send the
 clustering to stdout by supplying <b>-o</b>&nbsp;<b>-</b>. If either one of
 <a class="intern" href="#opt--abc"><b>--abc</b></a>, <a class="intern" href="#opt--yield-abc"><b>--yield-abc</b></a>, or
-<a class="intern" href="#opt-use-tab"><b>-use-tab</b>&nbsp;<i>tab-file</i></a> is used the output will be in label format -
+<a class="intern" href="#opt-use-tab"><b>-use-tab</b>&nbsp;<i>tab-file</i></a> is used the output will be in label format &mdash;
 provided a tab file is specified or the input is in label format. Otherwise
 the clustering is output in the mcl matrix format; see the <a class="local" href="mcxio.html">mcxio</a>
 section for more information on this. Refer also to the group of options
 discussed at <a class="intern" href="#opt--abc"><b>--abc</b></a>.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Look at the <a class="intern" href="#opt-ap"><b>-ap</b>&nbsp;<i>prefix</i></a> option and its siblings for the
 automatic naming constructions employed by <b>mcl</b> if the <b>-o</b> option is
 not used.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-od"></a><b>-od</b> &lt;dir&gt; (<i>directory</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-od"></a><b>-od</b> &lt;dir&gt; (<i>directory</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Specify the directory where to output clusterings. This is useful
 when you let mcl automatically construct the output file name,
 but want the clustering in a directory different from the
 one where the input graph resides.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-shadow"></a><b>-shadow</b> mode (<i>apply shadowing</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-shadow-s"></a><b>-shadow-s</b> &lt;num&gt; (<i>boost factor (experimental)</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--shadow-vl"></a><b>--shadow-vl</b> (<i>shadow distant nodes</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-bottom:0"><b>EXPERIMENTAL</b><br>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-shadow"></a><b>-shadow</b> mode (<i>apply shadowing</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-shadow-s"></a><b>-shadow-s</b> &lt;num&gt; (<i>boost factor (experimental)</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--shadow-vl"></a><b>--shadow-vl</b> (<i>shadow distant nodes</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-bottom:0"><b>EXPERIMENTAL</b><br>
 <i>These options are intended and useful for hierarchical
 clustering with</i> <a class="local" href="mclcm.html">mclcm</a>.
 <b>--shadow-vl</b> is the same as <b>-shadow</b>&nbsp;<b>vl</b>
 and is at present the best mode to choose.
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Use these to weaken the connectivity of certain
 classes of nodes. This means that the effect of the edges
 in which they participate on the final clustering result is diminished.
@@ -566,52 +598,64 @@ This is done such that the extent to which a node exhibits certain
 characteristics is correlated with the extent to which its connectivity is
 weakened. The different types of characteristics that can be regulated
 are</p>
-<div style="margin-top:1em">
-<table
-cellspacing="0" border=0
-cellpadding="0" summary="itemize">
-<tr valign="baseline"><td width=32 class="left nowrap"><b>vl</b></td><td width=8>&nbsp;</td><td><div class=item> value low - nodes for which the average value of its edges
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_compact "><div class=" item_leftalign nowrap" ><b>vl</b></div></div>
+<div class=" item_text " style="margin-left:2em">
+value low - nodes for which the average value of its edges
 is low compared with the same number across its neighbours.
-</div></td></tr><tr valign="baseline"><td width=32 class="left nowrap"><b>vh</b></td><td width=8>&nbsp;</td><td><div class=item> value high - nodes for which the average value of its edges
-is high compared with the same number across its neighbours.
-</div></td></tr><tr valign="baseline"><td width=32 class="left nowrap"><b>el</b></td><td width=8>&nbsp;</td><td><div class=item> edge low - nodes for which the number of neighbours
-is low compared with the same number across its neighbours.
-</div></td></tr><tr valign="baseline"><td width=32 class="left nowrap"><b>eh</b></td><td width=8>&nbsp;</td><td><div class=item> edge high - nodes for which the number of neighbours
-is high compared with the same number across its neighbours.
-</div></td></tr>
-</table>
-
 </div>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">The characteristics above, e.g. <b>vl</b>, correspond to the modes
+<div class=" item_compact "><div class=" item_leftalign nowrap" ><b>vh</b></div></div>
+<div class=" item_text " style="margin-left:2em">
+value high - nodes for which the average value of its edges
+is high compared with the same number across its neighbours.
+</div>
+<div class=" item_compact "><div class=" item_leftalign nowrap" ><b>el</b></div></div>
+<div class=" item_text " style="margin-left:2em">
+edge low - nodes for which the number of neighbours
+is low compared with the same number across its neighbours.
+</div>
+<div class=" item_compact "><div class=" item_leftalign nowrap" ><b>eh</b></div></div>
+<div class=" item_text " style="margin-left:2em">
+edge high - nodes for which the number of neighbours
+is high compared with the same number across its neighbours.
+</div>
+</div>
+<p style="margin-top:0em; margin-bottom:0em">The characteristics above, e.g. <b>vl</b>, correspond to the modes
 that can be passed to the <b>-shadow</b> argument. The first mode <b>vl</b>
 is the one most likely to be useful. Combining different modes is possible
 but may lead to unbalanced clusterings. Using the mode <b>el</b> in <b>mclcm</b>
 may similarly lead to unbalanced hierachies.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The boost factor can be set e.g. to 2.0 to increase the effect of shadowing.
 The default setting is 1.0.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-c"></a><b>-c</b> &lt;num&gt; (<i>reweight loops</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-c"></a><b>-c</b> &lt;num&gt; (<i>reweight loops</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 As the final step of loop computation (i.e. after initialization
 and shadowing), all loop weights are multiplied by <b>&lt;num&gt;</b>,
 if supplied.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--discard-loops"></a><b>--discard-loops</b>=y/n (<i>discard loops in input</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--discard-loops"></a><b>--discard-loops</b>=y/n (<i>discard loops in input</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 By default <b>mcl</b> will remove any loops that are present in the input. Use
 <b>--discard-loops</b>=<b>n</b> to turn this off. Bear in mind that loops will
 still be modified in all cases where the loop weight is not maximal among
 the list of edge weights for a given node.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt--abc"></a><b>--abc</b> fname (<i>expect/write labels</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--expect-abc"></a><b>--expect-abc</b> (<i>expect labels</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--yield-abc"></a><b>--yield-abc</b> fname (<i>write labels</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-use-tab"></a><b>-use-tab</b> fname (<i>use mapping to write</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-strict-tab"></a><b>-strict-tab</b> fname (<i>use mapping to enforce</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-restrict-tab"></a><b>-restrict-tab</b> fname (<i>use mapping to restrict</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-extend-tab"></a><b>-extend-tab</b> fname (<i>use mapping and extend</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-write-tab"></a><b>-write-tab</b> fname (<i>write mapping</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--abc"></a><b>--abc</b> fname (<i>expect/write labels</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--expect-abc"></a><b>--expect-abc</b> (<i>expect labels</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--yield-abc"></a><b>--yield-abc</b> fname (<i>write labels</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-use-tab"></a><b>-use-tab</b> fname (<i>use mapping to write</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-strict-tab"></a><b>-strict-tab</b> fname (<i>use mapping to enforce</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-restrict-tab"></a><b>-restrict-tab</b> fname (<i>use mapping to restrict</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-extend-tab"></a><b>-extend-tab</b> fname (<i>use mapping and extend</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-write-tab"></a><b>-write-tab</b> fname (<i>write mapping</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 These items all relate to label input and/or label output.
 <b>--abc</b> tells mcl to expect label input and output clusters
 in terms of those labels.
 It is equivalent to the combination of <b>--expect-abc</b>
 and <b>--yield-abc</b>.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>-restrict-tab</b> and <b>-strict-tab</b>
 can be used both with label input and native format.
 When label input is used, they restrict, respectively require
@@ -623,23 +667,23 @@ will simply ignore them.
 <b>-strict-tab</b> and <b>-restrict-tab</b> do <i>not</i>
 automatically yield label output. You need <b>--abc</b> or
 <b>--yield-abc</b>.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>-extend-tab</b> is only useful when label input is used.
 It will create a new label/index mapping when a label is not found
 in the tab file. Presumably you want to use the <b>-write-tab</b>
 as well then.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>-use-tab</b> is only useful when matrix input is used.
 It will use the tab file to convert the output to labels; it does
 not hitch on indices missing from the tab file. Take a pick
 from <b>-restrict-tab</b> or <b>-strict-tab</b> <i>and</i>
 <b>--abc</b> or <b>--yield-abc</b> if that is what you want.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>-write-tab</b> can be used to preserve the tab file
 that was constructed from label input, either from scratch
 or by extension from a previous tab file in case <b>-extend-tab</b>
 was used.</p>
-<p class="default L50" style="margin-bottom:0"><b>NOTE</b><br>
+<p style="margin-bottom:0"><b>NOTE</b><br>
 in all its dealings with tab files, mcl will only accept those
 for which the associated domain is <i>canonical</i>, that is,
 domains for which the indices range from zero to some number <tt>N</tt>
@@ -648,8 +692,10 @@ but it requires mcxdump to act as an intermediary -
 <a class="local" href="mcxdump.html">mcxdump</a> has no such limitations. This need in
 general not be of concern to you. If a tab file is created by
 mcl or mcxdeblast it will always be canonical.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-tf"></a><b>-tf</b> &lt;tf-spec&gt; (<i>transform input matrix values</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-abc-tf"></a><b>-abc-tf</b> &lt;tf-spec&gt; (<i>transform input stream values</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--abc-log"></a><b>--abc-log</b> (<i>take logarithm of stream values</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--abc-neg-log"></a><b>--abc-neg-log</b> (<i>take negative logarithm of stream values</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-tf"></a><b>-tf</b> &lt;tf-spec&gt; (<i>transform input matrix values</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-abc-tf"></a><b>-abc-tf</b> &lt;tf-spec&gt; (<i>transform input stream values</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--abc-log"></a><b>--abc-log</b> (<i>take logarithm of stream values</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--abc-neg-log"></a><b>--abc-neg-log</b> (<i>take negative logarithm of stream values</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 <b>-tf</b> transforms the values of the input matrix according
 to <b>&lt;tf-spec&gt;</b>. <b>-abc-tf</b> transforms the stream values
 (when <a class="intern" href="#opt--abc"><b>--abc</b></a> or <a class="intern" href="#opt--expect-abc"><b>--expect-abc</b></a> is used)
@@ -660,8 +706,10 @@ first replaced by their (negative) logarithm.
 The reason for their existence is documented in <a class="local" href="mcxio.html">mcxio</a>.
 For a description of the transform language excpected/accepted
 in <b>&lt;tf-spec&gt;</b> refer to the same.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-write-graph"></a><b>-write-graph</b> fname (<i>write graph</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-write-graphx"></a><b>-write-graphx</b> fname (<i>write transformed graph</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-write-expanded"></a><b>-write-expanded</b> fname (<i>write expanded graph</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-write-graph"></a><b>-write-graph</b> fname (<i>write graph</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-write-graphx"></a><b>-write-graphx</b> fname (<i>write transformed graph</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-write-expanded"></a><b>-write-expanded</b> fname (<i>write expanded graph</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 If you work with label input, <b>-write-graph</b> can be
 used to save the matrix mcl constructs from the input stream.
 <b>-write-graphx</b> is similar except that it applies to the graph after
@@ -676,7 +724,7 @@ around. The session below puts everything together.
 <pre>mcl xyz.data --abc -I 2.0 -o xyz.cls-I20 --write-binary\
             -write-graph xyz.mci -write-tab xyz.tab
 mcl xyz.mci -I 2.4 -use-tab xyz.tab -o xyz.cls-I24</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 The <a class="intern" href="#opt--write-binary"><b>--write-binary</b></a> option is useful for large graphs as it
 will drastically speed up subsequent load times. Otherwise it
 is not necessary, and bear in mind that binary format is not
@@ -687,7 +735,7 @@ structure into memory. The second line can then be replaced by</p>
 <pre>mcl xyz.mci -I 2.4 -o -|\
 mcxdump -imx - --no-values --dump-rlines\
             -tabr xyz.tab -o xyz.cls-I24</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 Admittedly this is beginning to look like black magic, but truthfully
 it is not. <a class="local" href="mcxdump.html">mcxdump</a>
 simply needs to be told how it should format its output. It needs to know
@@ -698,7 +746,7 @@ basis, that it should not dump the index that identifies the cluster
 its input matrix, whereas mcl previously had the advantage of knowing.
 Hence <b>-tabr</b> is telling mcxdump that the <i>row domain</i>
 in the clustering matrix identify the nodes.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The first step in almost any mcl run is that the matrix constructed from the
 input is <i>squared</i> or <i>expanded</i>. This is a rather costly operation
 if the input size is large. When you are doing multiple runs it can thus be
@@ -713,9 +761,11 @@ examples then yields</p>
 mcl xyz.mxp -if 2.4 -I 2.4 -o -|\
 mcxdump -imx - --no-values --dump-rlines\
             -tabr xyz.tab -o xyz.cls-I24</pre>
-<p class="default L50" style="margin-bottom:0">Behold, this is a very time and space efficient setup.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-scheme"></a><b>-scheme</b> k (<i>use a preset resource scheme</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-bottom:0">Behold, this is a very time and space efficient setup.</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-scheme"></a><b>-scheme</b> k (<i>use a preset resource scheme</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 There are currently seven different resource schemes, indexed 1..7.
 High schemes result in more expensive computations that may possibly be
 more accurate. The default scheme is 4. When <b>mcl</b> is done, it will give a
@@ -725,7 +775,7 @@ resulting clustering is bad</i> - but anyway, a low grade should be reason
 to try for a higher scheme. The grades are listed in the
 <a class="intern" href="#pruneoptions">PRUNING OPTIONS</a> section under the
 <a class="intern" href="#opt-nj"><b>-nj</b> option</a>.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The <a class="intern" href="#pruneoptions">PRUNING OPTIONS</a> section contains an elaborate description
 of the way <b>mcl</b> manages resources, should you be interested.
 In case you are worried about the validation of the resulting
@@ -735,19 +785,21 @@ that you have to compare the clusterings resulting from different
 schemes (and otherwise identical parameters) using utilities
 such as <b>clm dist</b>, <b>clm info</b> on the one hand, and your
 own sound judgment on the other hand.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 If your input graph is extremely dense, with an average node degree
 (i.e. the number of neighbours per node) that is somewhere above
 500, you may need to filter the input graph by removing edges,
 for example by using the
 <a class="intern" href="#opt-ceil-nb"><b>-ceil-nb</b> option</a>.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-lint-k"></a><b>-lint-k</b> &lt;numk&gt; (<i>cluster size assimilation threshold</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-lint-l"></a><b>-lint-l</b> &lt;numl&gt; (<i>cluster size pry threshold</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-lint-k"></a><b>-lint-k</b> &lt;numk&gt; (<i>cluster size assimilation threshold</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-lint-l"></a><b>-lint-l</b> &lt;numl&gt; (<i>cluster size pry threshold</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 These options will result in postprocessing on the clustering, reallocating
 nodes that seems to have siphoned the wrong way. The input matrix will be
 reread for this.
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 When applied to networks with inhomogenously distributed edge density
 characteristics the mcl process will sometimes cause smaller
 clusters/sparse areas to suck in border nodes which 1) have only few
@@ -757,7 +809,7 @@ with the flow characteristics of mcl but a largely unwanted phenomenon. The
 postprocessing step was added as a remedy for this problem should it
 manifest itself. It is based on the efficiency criterion described in
 <a class="intern" href="#gcbfs">[1]</a> and <a class="intern" href="#pcfgcmce">[5]</a> (there called <i>coverage</i>).</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 With <b>-lint-l</b> a node is tentatively reallocated if this will improve
 its effiency, and if it is initially in a cluster of size at most <i>numl</i>.
 After all nodes that are candidate for reallocation have been
@@ -769,14 +821,16 @@ clusters. For example, if a node has 4 neighbours in a cluster of size 8 and
 it has a further 8 neighbours in a cluster of size 100 the efficiency for
 the first cluster (relative to that node) will generally be higher than the
 efficiency for the second cluster.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 With <b>-lint-k</b> clusters up to the given size <i>numk</i>
 are assimilated by a larger cluster if a suitable candidate is found.
 This is based on the same criteria as described above, except
 that a cluster is absorbed in its entirety.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--adapt-local"></a><b>--adapt-local</b> (<i>localize inflation (experimental)</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em"><b>Experimental</b><br>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--adapt-local"></a><b>--adapt-local</b> (<i>localize inflation (experimental)</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em"><b>Experimental</b><br>
 Inflation is adapted depending on the amount of local dispersion,
 where dispersion is a measure for how quickly stochastic flow
 disperses throughout the graph. Regions with a low/high clustering
@@ -786,47 +840,61 @@ inflation is adapted towards a higher value, for regions with
 low dispersion (high clustering coefficient) inflation is adapted
 towards a lower value.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--show-schemes"></a><b>--show-schemes</b> (<i>show preset resource schemes</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--show-schemes"></a><b>--show-schemes</b> (<i>show preset resource schemes</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Shows the explicit settings to which the different preset schemes
 correspond.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The characteristics are written in the same format (more or less) as
 the output triggered by <a class="intern" href="#opt-v-pruning"><b>-v</b>&nbsp;<b>pruning</b></a>.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-V"></a><b>-V</b> str (<i>verbosity type off</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-V"></a><b>-V</b> str (<i>verbosity type off</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 See the <b>-v</b> option below.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-v"></a><b>-v</b> str (<i>verbosity type on</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-v"></a><b>-v</b> str (<i>verbosity type on</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 These are the different verbosity modes:</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>pruning</b><br>
 <b>explain</b><br>
 <b>cls</b><br>
 <b>all</b></p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-q"></a><b>-q</b> spec (<i>log levels</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-bottom:0">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-q"></a><b>-q</b> spec (<i>log levels</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-bottom:0">
 To make mcl as quiet as can be, add
 <b>-q</b>&nbsp;<b>x</b> <b>-V</b>&nbsp;<b>all</b> to the command line.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The <b>-q</b> option governs a general logging mechanism.
 The format accepted is described in the <a class="local" href="tingea.log.html">tingea.log</a> manual page.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The other options govern verbosity levels specific to mcl. <b>-v</b>&nbsp;<b>all</b>
 turns them all on, <b>-V</b>&nbsp;<b>all</b> turns them all off. <b>-v</b>&nbsp;<i>str</i> and
 <b>-V</b>&nbsp;<i>str</i> turn on/off the single mode <i>str</i> (for <i>str</i>
 equal to one of <b>pruning</b>, <b>cls</b>, or <b>explain</b>). Each verbosity
 mode is given its own entry below.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><b>-v</b>&nbsp;<b>explain</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><b>-v</b>&nbsp;<b>explain</b></div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 This mode causes the output of explanatory headers illuminating the
 output generated with the <b>pruning</b> verbosity mode.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><b>-v</b>&nbsp;<b>pruning</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><b>-v</b>&nbsp;<b>pruning</b></div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 This mode causes output of resource-related quantities. It has
 <a class="intern" href="#opt-v-pruning">a separate entry in the PRUNING OPTIONS section</a>.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><b>-v</b>&nbsp;<b>cls</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><b>-v</b>&nbsp;<b>cls</b></div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 This mode (on by default) prints a terse list of characteristics of the
 clusterings associated with intermediate iterands. The characteristics are
 <b>E/V</b>, <b>cls</b>, <b>olap</b>, and <b>dd</b>. They respectively stand for the
@@ -836,11 +904,15 @@ in overlap, and the <i>dag depth</i> associated with the DAG (directed acyclic
 graph) associated with the iterand. For more information on this DAG refer
 to the <a class="intern" href="#opt-dump"><b>-dump</b></a> option description in this manual and also
 <a class="local" href="mclfaq.html">mclfaq</a>.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-aa"></a><b>-aa</b> str (<i>append str to suffix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-aa"></a><b>-aa</b> str (<i>append str to suffix</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 See the <b>-ap</b> option below.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-ap"></a><b>-ap</b> str (<i>use str as file name prefix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-ap"></a><b>-ap</b> str (<i>use str as file name prefix</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 If the <a class="intern" href="#opt-o"><b>-o</b>&nbsp;<i>fname</i></a> option is not used,
 <b>mcl</b> will create a file name (for writing output to) that
 should uniquely characterize the important parameters used in the
@@ -849,17 +921,17 @@ where <b>out</b> is simply the literal string <tt>out</tt>, <b>fname</b> is the
 first argument containing the name of the file (with the graph) to be
 clustered, and where <b>suf</b> is the suffix encoding a set of parameters
 (described further below).</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The <b>-ap</b>&nbsp;<i>str</i> option specifies a prefix to use
 rather than <b>out.fname</b> as sketched above.
 However, <b>mcl</b> will interpret the character '=', if present
 in <i>str</i>, as a placeholder for the input file name.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 If the <b>-aa</b>&nbsp;<i>str</i> option is used, <b>mcl</b> will append
 <b>str</b> to the suffix <b>suf</b> created by itself.
 You can use this if you need to encode some extra information in the
 file name suffix.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The suffix is constructed as follows. The <b>-I</b>&nbsp;<i>f</i>
 and <b>-scheme</b> parameter are always encoded.
 The <b>-pi</b>&nbsp;<i>f</i>, <b>-l</b>&nbsp;<i>k</i>, and <b>-i</b>&nbsp;<i>f</i>
@@ -870,40 +942,48 @@ is thus encoded as I31. The <b>-scheme</b> option is encoded using the
 letter 's', all other options mentioned here are encoded as themselves
 (stripped of the hyphen). For example</p>
 <pre>mcl small.mci -I 3 -c 2.5 -pi 0.8 -scheme 5</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 results in the file name <tt>out.small.mci.I30s5c25pi08</tt>.
 If you want to know beforehand what file name will be produced,
 use the <b>-az</b> option.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-az"></a><b>-az</b> (<i>show output file name and exit</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-ax"></a><b>-ax</b> (<i>show output suffix and exit</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-az"></a><b>-az</b> (<i>show output file name and exit</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-ax"></a><b>-ax</b> (<i>show output suffix and exit</i>)</div>
+<div class=" item_text " style="margin-left:2em">
 If <b>mcl</b> automatically constructs a file name, it can be helpful to known
 beforehand what that file name will be. Use <b>-az</b> and mcl will
 write the file name to STDOUT and exit. This can be used if mcl is
 integrated into other software for which the automatic creation of
 unique file names is convenient.
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 By default mcl incorporates the input file name into the output file
 name and appends a short suffix describing the most important
 option settings. Use <b>-ax</b> to find out what that suffix is.
 This can be useful in wrapper pipeline scripts such as clxcoarse.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-annot"></a><b>-annot</b> str (<i>dummy annotation option</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-annot"></a><b>-annot</b> str (<i>dummy annotation option</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 <b>mcl</b> writes the command line with which it was invoked to the output
 clustering file. Use this option to include any additional
 information. MCL does nothing with this option except copying
 it as just described.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-te"></a><b>-te</b> k (<i>#expansion threads</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-te"></a><b>-te</b> k (<i>#expansion threads</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Threading is useful if you have a multi-processor system. <b>mcl</b> will
 spawn <i>k</i> threads of computation. If these are computed
 in parallel (this depends on the number of CPUs available to the
 mcl process) it will speed up the process accordingly.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 When threading, it is best not to turn on pruning verbosity
 mode if you are letting mcl run unattended, unless you want to
 scrutinize its output later. This is because it makes <b>mcl</b> run
 somewhat slower, although the difference is not dramatic.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-l"></a><b>-l</b> n (<i>initial iteration number</i>) (small letter ell)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-l"></a><b>-l</b> n (<i>initial iteration number</i>) (small letter ell)</div></div>
+<div class=" item_text " style="margin-left:2em">
 The number of times <b>mcl</b> will use a different inflation value
 before it switches to the (main) inflation given by the <b>-I</b>
 (capital eye) option. The different value is called <i>initial
@@ -912,13 +992,15 @@ option</a> (default value f=2.0). The default value (to <b>-l</b>)
 is zero. This option supplies new ways of affecting cluster
 granularity, e.g. by supplying
 <pre>mcl proteins -i 1.4 -l 2 -I 4.0</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 one lets expansion prevail during the first two iterations,
 followed by inflation catching up (in a figurative way of writing).
 This may be useful in certain cases, but this type of experiment
 is <i>certainly secondary</i> to simply varying <b>-I</b> (capital eye).</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-L"></a><b>-L</b> n (<i>main iteration number</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-L"></a><b>-L</b> n (<i>main iteration number</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Normally, <b>mcl</b> computes the MCL process until it has converged
 fully to a doubly idempotent matrix. The number of iterations
 required is typically somewhere in the range 10-100.
@@ -927,13 +1009,17 @@ The <b>-L</b> option can be used to specify the number of
 iterations mcl may do at most. When this number is reached,
 mcl will output the clustering associated with the iterand
 last computed.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-i"></a><b>-i</b> f (<i>initial inflation</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-i"></a><b>-i</b> f (<i>initial inflation</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 The inflation value used during the first n iterations,
 where n is specified by the <b>-l</b> (ell) option.
 By default, n=0 and f=2.0.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-pi"></a><b>-pi</b> f (<i>pre-inflation</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-ph"></a><b>-ph</b> f (<i>pre-inflation, max-bound</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-pi"></a><b>-pi</b> f (<i>pre-inflation</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-ph"></a><b>-ph</b> f (<i>pre-inflation, max-bound</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 If used, <b>mcl</b> will apply inflation one time to the input graph
 before entering the main process. This can be useful for
 making the edge weights in a graph either more homogeneous (which
@@ -942,7 +1028,7 @@ may result in less granular clusterings) or more heterogeneous
 Homogeneity is achieved for values <i>f</i> less than one,
 heterogeneity for values larger than one.
 Values to try are normally in the range <tt>[2.0,10.0]</tt>.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The <b>-ph</b> option is special in that it does not rescale
 columns to be stochastic. Instead, it rescales columns so that
 the maximum value found in the column stays the same after
@@ -950,8 +1036,10 @@ inflation was applied. This is for use in conjunction with
 <b>--shadow</b>=<i>vl</i>, as the latter option is affected by
 absolute differences in edge weights.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-if"></a><b>-if</b> f (<i>start-inflation</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-if"></a><b>-if</b> f (<i>start-inflation</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 If used, <b>mcl</b> will apply inflation one time to the input graph
 before entering the main process. The difference with
 <b>-pi</b> is that with the latter option mcl may apply
@@ -961,48 +1049,58 @@ the <b>-if</b> (mnemonic for <i>inflation-first</i>)
 option is to use it on graphs saved
 with the <a class="intern" href="#opt--write-expanded"><b>--write-expanded</b></a> option and convey
 to mcl that it should not apply those transformations.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-di"></a><b>-di</b> i:j (<i>dump interval</i>)</td></tr><tr><td colspan=3 class=left><b>-di</b>&nbsp;<i>all</i></td></tr><tr><td colspan=3 class=left><b>-dump-interval</b>&nbsp;<i>i:j</i></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-di"></a><b>-di</b> i:j (<i>dump interval</i>)</div><div class=" item_cascade item_leftalign nowrap" ><b>-di</b>&nbsp;<i>all</i></div><div class=" item_cascade item_leftalign nowrap" ><b>-dump-interval</b>&nbsp;<i>i:j</i></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Dump during iterations i..j-1. Use <i>all</i> to dump in all
 iterations. See the <b>-dump</b>&nbsp;<i>str</i> option below.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-dm"></a><b>-dm</b> k (<i>dump i+0..i+k..</i>)</td></tr><tr><td colspan=3 class=left><b>-dump-modulo</b>&nbsp;<i>k</i></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-dm"></a><b>-dm</b> k (<i>dump i+0..i+k..</i>)</div><div class=" item_cascade item_leftalign nowrap" ><b>-dump-modulo</b>&nbsp;<i>k</i></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Sampling rate: select only these iterations in the dump interval.
 See the <b>-dump</b>&nbsp;<i>str</i> option below.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-ds"></a><b>-ds</b> stem (<i>file stem</i>)</td></tr><tr><td colspan=3 class=left><b>-dump-stem</b>&nbsp;<i>stem</i></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-ds"></a><b>-ds</b> stem (<i>file stem</i>)</div><div class=" item_cascade item_leftalign nowrap" ><b>-dump-stem</b>&nbsp;<i>stem</i></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Set the the stem for file names of dumped
 objects (default <i>mcl</i>). See the <b>-dump</b>&nbsp;<i>str</i> option below.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-dump-subi"></a><b>-dump-subi</b> spec (<i>index list for submatrix dump</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-dump-subd"></a><b>-dump-subd</b> spec (<i>domain list for submatrix dump</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-dump-dom"></a><b>-dump-dom</b> fname (<i>domain matrix file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-dump-subi"></a><b>-dump-subi</b> spec (<i>index list for submatrix dump</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-dump-subd"></a><b>-dump-subd</b> spec (<i>domain list for submatrix dump</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-dump-dom"></a><b>-dump-dom</b> fname (<i>domain matrix file</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 <b>-dump-subi</b> specifies a range of indices which will be
 used to select the extended principal submatrix.
 Argument <i>spec</i> can be a comma-separated
 list of single integers and integer ranges. Ranges are denoted by
 two integers separated by a hyphen.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 If <b>-dump-dom</b> is used and specifies a matrix file,
 the indices specified in the <b>-dump-subd</b> option should index
 columns in that matrix. These columns are merged and added to the
 list of entries used in selecting the extended principal submatrix.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-dump"></a><b>-dump</b> str (<i>type</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-dump"></a><b>-dump</b> str (<i>type</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 <i>str</i> is checked for substring occurrences of the following entries.
 Repeated use of <b>-dump</b> is also allowed.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>ite</b><br>
 <b>dag</b><br>
 <b>cls</b><br>
 <b>chr</b><br>
 <b>lines</b><br>
 <b>cat</b></p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>lines</b> and <b>cat</b> change the mode of dumping. The first
 changes the dump format to a line based pairwise format rather
 than the default mcl matrix format. The second causes all
 dumped items to be dumped to the default stream used for the
 output clustering, which is appended at the end.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The <b>ite</b> option writes <b>mcl</b> iterands to file. The <b>cls</b>
 option writes clusterings associated with mcl iterands to file.
 These clusters are obtained from a particular directed acyclic graph
@@ -1015,9 +1113,9 @@ It should be noted that clusterings associated with intermediate
 iterands may contain overlap, which is interesting in
 many applications. For more information
 refer to <a class="local" href="mclfaq.html">mclfaq</a> and the <a class="intern" href="#references">REFERENCES</a> section below.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The <b>result</b> option dumps the usual MCL clustering.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The <b>chr</b> option says, for each iterand I, to output a matrix C with
 characteristics of I. C has the same number of columns as I. For each
 column k in C, row entry 0 is the diagonal or 'loop' value of column k in
@@ -1027,19 +1125,23 @@ Entry 2 is the center of column k (the sum of its entries squared)
 computed <i>after</i> expansion and <i>before</i> pruning, entry 3 is the
 maximum value found in that column at the same time. Entry 4 is the
 amount of mass kept for that column <i>after pruning</i>.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The <b>-ds</b> option sets the stem for file names of dumped
 objects (default <i>mcl</i>). The <b>-di</b> and <b>-dm</b>
 options allow a selection of iterands to be made.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-digits"></a><b>-digits</b> n (<i>printing precision</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-digits"></a><b>-digits</b> n (<i>printing precision</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 This has two completely different uses. It sets
 the number of decimals used for pretty-printing <b>mcl</b> iterands
 when using the <a class="intern" href="#opt--show"><b>--show</b> option</a> (see below),
 and it sets the number of decimals used for writing
 the expanded matrix when using the <a class="intern" href="#opt-write-expanded"><b>-write-expanded</b></a> option.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--show"></a><b>--show</b> (<i>print matrices to screen</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--show"></a><b>--show</b> (<i>print matrices to screen</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Print matrices to screen. The number of significant digits to be
 printed can be tuned with <b>-digits</b>&nbsp;<i>n</i>. An 80-column screen
 allows graphs (matrices) of size up to 12(x12) to be printed with
@@ -1048,14 +1150,18 @@ with two digits. This can give you an idea of how <b>mcl</b> operates,
 and what the effect of pruning is.
 Use e.g. <b>-S</b>&nbsp;<b>6</b> for such
 a small graph and view the MCL matrix iterands with <b>--show</b>.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--write-binary"></a><b>--write-binary</b> (<i>output format</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--write-binary"></a><b>--write-binary</b> (<i>output format</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Write matrix dump output in binary mcl format rather
 than interchange mcl format (the default). Note that <a class="local" href="mcxconvert.html">mcxconvert</a>
 can be used to convert each one into the other.
 See <a class="local" href="mcxio.html">mcxio</a> and <a class="local" href="mcxconvert.html">mcxconvert</a> for more information.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-sort"></a><b>-sort</b> str (<i>sort mode</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-sort"></a><b>-sort</b> str (<i>sort mode</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 <i>str</i> can be one of <b>lex</b>, <b>size</b>, <b>revsize</b>,
 or <b>none</b>. The default is 'revsize', in which the largest
 clusters come first. If the mode is 'size', smallest clusters
@@ -1063,8 +1169,10 @@ come first, if the mode is 'lex', clusters are ordered
 lexicographically, and if the mode is 'none', the order
 is the same as produced by the procedure used by mcl to
 map matrices onto clusterings.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-overlap"></a><b>-overlap</b> str (<i>overlap mode</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-overlap"></a><b>-overlap</b> str (<i>overlap mode</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Mode <i>keep</i> causes mcl to retain overlap should this improbable event
 occur. In theory, <b>mcl</b> may generate a clustering that contains overlap,
 although this almost never happens in practice, as it requires some
@@ -1078,13 +1186,13 @@ introduce them as clusters in their own right. It is possible to allocate
 nodes in overlap to the first cluster in which they occur (i.e. rather
 arbitrarily), corresponding with mode <i>cut</i>.
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 In mode <i>split</i> mcl will put all nodes in overlap into
 separate clusters. These clusters are chosen such that
 two nodes are put in the same new cluster if and only if
 they always occur paired in the clusters of the
 overlapping clustering.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 This option has more than theoretical use because <b>mcl</b> is able
 to generate clusterings associated with intermediate iterands.
 For these clusterings, overlap is more than a theoretical
@@ -1092,18 +1200,20 @@ possibility, and will often occur. If you specify
 the <a class="intern" href="#opt-L"><b>-L</b>&nbsp;<i>k</i></a> option, mcl will output the
 clustering associated with the last iterand computed, and
 it may well contain overlap.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 This option has no effect on the clusterings that are
 output when using <a class="intern" href="#opt-dump"><b>-dump</b>&nbsp;<i>cls</i></a> -
 the default for those is that overlap is not touched,
 and this default can not yet be overridden.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt--force-connected"></a><b>--force-connected</b>=y/n (<i>analyze components</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--check-connected"></a><b>--check-connected</b>=y/n (<i>analyze components</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--force-connected"></a><b>--force-connected</b>=y/n (<i>analyze components</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--check-connected"></a><b>--check-connected</b>=y/n (<i>analyze components</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 If the input graph has strong bipartite characteristics,
 mcl may yield clusters that do not correspond to connected
 components in the input graph. Turn one of these modes on to
 analyze the resultant clustering.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 If loose clusters are found
 they will be split into subclusters corresponding to
 connected components.
@@ -1113,30 +1223,40 @@ to the same file with suffix <tt>orig</tt>.
 With <b>--check-connected</b>=<i>y</i> mcl will write the
 loose clustering to the normal output file, and the corrected clustering
 to the same file with suffix <tt>coco</tt>.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 These options are not on by default, as the analysis
 is currently (overly) time-consuming
 and mcl's behaviour actually makes some sense
 (when taking bipartite characteristics into account).</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--output-limit"></a><b>--output-limit</b>=y/n (<i>write limit matrix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--output-limit"></a><b>--output-limit</b>=y/n (<i>write limit matrix</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 This will write the limit matrix to a file named
 <b>base</b>-limit.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--analyze"></a><b>--analyze</b>=y/n (<i>performance criteria</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--analyze"></a><b>--analyze</b>=y/n (<i>performance criteria</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 With this mode turned on, <b>mcl</b> will reread the input matrix
 and compute a few performance criteria and attach them to
 the output file. Off by default.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--append-log"></a><b>--append-log</b>=y/n (<i>append log</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--append-log"></a><b>--append-log</b>=y/n (<i>append log</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Appends a log with the process characteristics to the output file.
 Off by default.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--show-log"></a><b>--show-log</b>=y/n (<i>show log</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--show-log"></a><b>--show-log</b>=y/n (<i>show log</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Shows the log with process characteristics on STDOUT.
 By default, this mode is off.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-ceil-nb"></a><b>-ceil-nb</b> N (<i>preprune count</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-ceil-nb"></a><b>-ceil-nb</b> N (<i>preprune count</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 The nodes of the input graph are considered in descending order of the
 number of neighbours they posses. The first nodes has it neighbours of
 lowest edge weight removed until no more than <b>N</b> remain. The
@@ -1145,14 +1265,20 @@ as well. Subsequent nodes are treated in the same way until all nodes in
 the graph have at most <b>N</b> neighbours. This may be considered a poor
 man's hub removal.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--jury-charter"></a><b>--jury-charter</b> (<i>explains jury</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--jury-charter"></a><b>--jury-charter</b> (<i>explains jury</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Explains how the jury synopsis is computed from the jury marks.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--version"></a><b>--version</b> (<i>show version</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--version"></a><b>--version</b> (<i>show version</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Show version.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-how-much-ram"></a><b>-how-much-ram</b> n (<i>RAM upper bound</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-how-much-ram"></a><b>-how-much-ram</b> n (<i>RAM upper bound</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 <b>n</b> is interpreted as the number of nodes of an input graph.
 mcl will print the maximum amount of RAM it needs for its computations.
 The formula for this number in bytes is:</p>
@@ -1164,34 +1290,36 @@ The formula for this number in bytes is:</p>
    k  :  MAX(s, r).
    s  :  select number (-S, -scheme options).
    r  :  recover number (-R, -scheme options).</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 This estimate will usually be too pessimistic. It does assume though that
 the average node degree of the input graph does not exceed k. The
 <b>-how-much-ram</b> option takes other command-line arguments into
 account (such as <b>-S</b> and <b>-R</b>), and it expresses the
 amount of RAM in megabyte units.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-h"></a><b>-h</b> (<i>show help</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-h"></a><b>-h</b> (<i>show help</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Shows a selection of the most important <b>mcl</b> options.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--apropos"></a><b>--apropos</b> (<i>show help</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--apropos"></a><b>--apropos</b> (<i>show help</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Gives a one-line description for all options.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-z"></a><b>-z</b> (<i>show settings</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-z"></a><b>-z</b> (<i>show settings</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Show current settings for tunable parameters.
 <b>--show-settings</b> is a synonym.</p>
-</div></td></tr>
-</table>
-
+</div>
 </div>
 
 <a name="pruneoptions"></a>
 <h2>PRUNING OPTIONS</h2>
-<div style="margin-top:1em">
-<table
-cellspacing="0" border=0
-cellpadding="0" summary="itemize">
-<tr><td colspan=3 class=left><a name="opt-p"></a><b>-p</b> f (<i>cutoff</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-P"></a><b>-P</b> n (<i>1/cutoff</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-S"></a><b>-S</b> s (<i>selection number</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-R"></a><b>-R</b> r (<i>recover number</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-pct"></a><b>-pct</b> pct (<i>recover percentage</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-my-scheme"></a><b>-my-scheme</b> n (<i>tag custom scheme</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_cascade item_leftalign nowrap" ><a name="opt-p"></a><b>-p</b> f (<i>cutoff</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-P"></a><b>-P</b> n (<i>1/cutoff</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-S"></a><b>-S</b> s (<i>selection number</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-R"></a><b>-R</b> r (<i>recover number</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-pct"></a><b>-pct</b> pct (<i>recover percentage</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-my-scheme"></a><b>-my-scheme</b> n (<i>tag custom scheme</i>)</div>
+<div class=" item_text " style="margin-left:2em">
 After computing a new (column stochastic) matrix vector during expansion
 (which is matrix multiplication c.q. squaring), the vector is
 successively exposed to different pruning strategies. The intent of
@@ -1204,7 +1332,7 @@ sparse, thus keeping the computation tractable. An example of monitoring
 pruning can be found in the discussion of
 <a class="intern" href="#opt-v-pruning"><b>-v</b>&nbsp;<b>pruning</b></a>
 at the end of this section.
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mcl</b> proceeds as follows. First, entries that are smaller than
 <i>cutoff</i> are removed, resulting in a vector with at most
 <i>1/cutoff</i> entries. The cutoff can be supplied either by
@@ -1216,7 +1344,7 @@ The cutoff just described is rigid; it is the same for all vectors. The
 cutoff that depends on a vector's homogeneity properties, and this option
 may or may not speed up mcl.
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Second, if the remaining stochastic mass (i.e. the sum of all remaining
 entries) is less than <i>pct</i>/100 and the number of remaining
 entries is less than <i>r</i> (as specified by the <b>-R</b> flag),
@@ -1229,7 +1357,7 @@ down to at most <i>s</i> entries (if applicable), as specified by the
 condition then recovery is attempted, exactly as described above. The
 latter will not occur of course if <i>r</i> &lt;= <i>s</i>.
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The default setting is something like <b>-P</b>&nbsp;<b>4000</b> <b>-S</b>&nbsp;<b>500</b>
 <b>-R</b>&nbsp;<b>600</b>. Check the <b>-z</b> flag to be sure. There is a set
 of precomposed settings, which can be triggered with the
@@ -1244,13 +1372,13 @@ will not change between different releases. This is because the scheme
 options should reflect good general purpose settings, and it may become
 appararent that other schemes are better.
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Note that 'less accurate' or 'more accurate' computations may still
 generate the same output clusterings. Use <b>clm dist</b> to compare output
 clusterings for different resource parameters. Refer to <a class="local" href="clmdist.html">clm dist</a>
 for a discussion of this issue.
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The <b>-my-scheme</b>&nbsp;<b>n</b> option sets a tag that is used in constructing
 the default output naming file. If not used, <b>mcl</b> will create
 a relatively long string describing the settings of the
@@ -1258,7 +1386,9 @@ a relatively long string describing the settings of the
 e.g. <b>P600Q85R1000S1200</b> (where <b>Q</b> tags the <i>pct</i> setting).
 If used, mcl will simply use the tag <b>s</b><i>n</i>.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-warn-pct"></a><b>-warn-pct</b> k (<i>prune warn percentage</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-warn-factor"></a><b>-warn-factor</b> k (<i>prune warn factor</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-warn-pct"></a><b>-warn-pct</b> k (<i>prune warn percentage</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-warn-factor"></a><b>-warn-factor</b> k (<i>prune warn factor</i>)</div>
+<div class=" item_text " style="margin-left:2em">
 The two options <b>-warn-pct</b> and <b>-warn-factor</b> relate to
 warnings that may be triggered once the <i>initial</i> pruning of a vector
 is completed. The idea is to issue warnings if initial pruning almost
@@ -1269,26 +1399,28 @@ less than <i>warn-pct</i> or if the number of remaining entries is smaller
 by a factor <i>warn-factor</i> than both the number of entries originally
 computed <i>and</i> the recovery number, in that case, <b>mcl</b> will issue a
 warning.
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>-warn-pct</b> takes an integer between 0 and 100 as parameter,
 <b>-warn-factor</b> takes a real positive number. They default to
 something like 30 and 50.0. If you want to see less warnings, decrease
 <i>warn-pct</i> and increase <i>warn-factor</i>. Set <i>warn-factor</i> to zero
 if you want no warnings.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-v-pruning"></a><b>-v</b>&nbsp;<b>pruning</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-v-pruning"></a><b>-v</b>&nbsp;<b>pruning</b></div></div>
+<div class=" item_text " style="margin-left:2em">
 Pruning verbosity mode causes <b>mcl</b> to emit several statistics related to
 the pruning process, each of which is described below. Use
 <b>-v</b>&nbsp;<b>explain</b> to get explanatory headers in the output as well
 (or simply use <b>-v</b>&nbsp;<b>all</b>).
-<p class="default L50" style="margin-bottom:0"><b>Selection and recovery</b><br>
+<p style="margin-bottom:0"><b>Selection and recovery</b><br>
 The number of selections and recoveries <b>mcl</b> had to perform during each
 iteration is shown. It also shows the number of vectors for which the
 mass after final pruning was below the fraction defined by the
 <a class="intern" href="#opt-pct"><b>-pct</b> option</a> as a percentage (default probably 90
 or 95).
 </p>
-<p class="default L50" style="margin-bottom:0"><b>Initial and pruned vector footprint distributions</b><br>
+<p style="margin-bottom:0"><b>Initial and pruned vector footprint distributions</b><br>
 The distribution of the vector footprints (i.e. the number of nonzero
 entries) before and after pruning is shown. This is assembled in a terse
 (horrid if you will) format, looking as follows (with some context
@@ -1304,13 +1436,13 @@ all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|
  98 89 86  98 94 91 _______00245678 ___________0234
  98 90 89  99 95 94 _______00235568 ___________0234
  ...</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 This particular output was generated (and truncated after three rounds of
 expansion and inflation) from clustering a protein graph on 9058 nodes
 with settings <b>-I</b>&nbsp;<b>1.4</b>, <b>-P</b>&nbsp;<b>2000</b>, <b>-S</b>&nbsp;<b>500</b>,
 <b>-R</b>&nbsp;<b>600</b>, and <b>-pct</b>&nbsp;<b>95</b>.
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The header entries 8532c85.. indicate thresholds going from 80000, 50000,
 20000, 12500, 8000, all the way down to 300, 200, and 125. The character 'c'
 signifies the base 1.25 (for no apparent reason). The second entry '2'
@@ -1319,7 +1451,7 @@ vectors had a footprint (#nonzero entries) in excess of 800 entries.
 Likewise, 40 percent had a footprint in excess of 300 entries. The '0'
 entries signify a fraction somewhere below 5 percent, and the '@' entries
 signify a fraction somewhere above 95 percent. </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Two columns are listed, one for the expansion vector footprints
 (i.e. after squaring), and the other for the vector
 footprints <i>right after initial pruning took place</i> (i.e. before
@@ -1328,7 +1460,7 @@ This may give an idea of the soundness of the initial pruning
 process (overly severe, or overly mild), and the extent
 to which you want to apply selection and/or recovery.
 </p>
-<p class="default L50" style="margin-bottom:0"><b>Initial and final mass windows</b><br>
+<p style="margin-bottom:0"><b>Initial and final mass windows</b><br>
 The mass averages of the pruned vectors after the first selection
 stage are shown, and the mass averages of the vectors as <i>finally
 computed</i>, i.e. after selection and recovery. Note that the latter
@@ -1340,14 +1472,14 @@ cases. The mass averages are shown as percentages: '98' on the first
 line under the 'prune/all' column means that overall 98 percent of the
 stochastic mass of the matrix was kept after pruning.
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 This example demonstrates that many entries could be
 removed while retaining much of the stochastic mass. The effect of the
 recovery (<b>-R</b>) parameter is also clear: the final averages are
 higher than the initial averages, as a result of <b>mcl</b> undoing some
 overenthousiastic pruning.
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 An average over the worst k cases is called a window of width k;
 internally, <b>mcl</b> tracks many more such windows. The result of this can
 be seen when using the <a class="intern" href="#opt--append-log"><b>--append-log</b>=<b>y</b></a> option
@@ -1359,31 +1491,29 @@ is, all those windows for which the width does not exceed the graph
 cardinality. The windows in the fixed set have respective sizes 1, 2, 5,
 10, 20, 50, and so on up until 5000000 (which makes 15 windows in all).
 </p>
-</div></td></tr>
-</table>
-
+</div>
 </div>
 
 <a name="pipeline"></a>
 <h2>PIPELINES</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 As of the 1.006 release, label data can be directly streamed into
 MCL as described in <a class="intern" href="#started">GETTING STARTED</a> and <a class="intern" href="#examples">EXAMPLES</a>.
 For BLAST input this is achieved
 by hooking up <a class="local" href="mcxdeblast.html">mcxdeblast</a> <b>--abc-out</b>=<i>-</i> with
 <b>mcl</b> - <b>--abc</b>. Refer to <a class="intern" href="#started">GETTING STARTED</a> for examples.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The classic mode of operation is more heavyweight, and the remainder
 of this section describes the underlying design.
 Much of the code now used for streaming directly into mcl was
 derived from this earlier framework.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 In general, clustering requires several stages; creating the matrix,
 running mcl, and displaying the result. The display stage is supported
 by <b>clm format</b>. The matrix creation stage often needs only be
 done once for a given data collection, followed by repeated runs of
 the other two stages for varying inflation values and scheme settings.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The matrix creation stage can often be split up in two more stages,
 namely parsing a data file in some given format, and assembling a
 matrix from the data bits and pieces, such as node indices and edge
@@ -1392,7 +1522,7 @@ The assembly step can be done by <a class="local" href="mcxassemble.html">mcxass
 which allows a very general input format and customizable behaviour
 in how the bits and pieces should be transformed to the input graph.
 This leaves the parse stage to be filled in.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The <a class="local" href="mclpipeline.html">mclpipeline script</a> implements a generic and
 customizable pipeline encapsulating the four stages distinguished
 here (parsing, assembly, clustering, display). It is possible to
@@ -1400,19 +1530,19 @@ let only part of the pipeline be active, and many other features are
 supported. The IO mechanism is entirely file based, and files are
 associated with parametrizations via file name extensions (by all
 means a simple mechanism).</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <a class="local" href="mclpipeline.html">mclpipeline</a> requires a single parse script to be specified.
 It will be plugged into the pipeline and you should be set to run.
 The parse script must satisfy the interface requirements described
 in the <a class="local" href="mclpipeline.html">mclpipeline manual page</a>.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 For BLAST input, the <a class="local" href="mclblastline.html">mclblastline script</a>
 provides a dedicated mclpipeline interface. It uses the
 <a class="local" href="mcxdeblast.html">mcxdeblast script</a> that comes prepackaged with mcl.</p>
 
 <a name="examples"></a>
 <h2>EXAMPLES</h2>
-<p class="default L50" style="margin-bottom:0">The following is an example of label input</p>
+<p style="margin-bottom:0">The following is an example of label input</p>
 <pre>---8&lt;------8&lt;------8&lt;------8&lt;------8&lt;---
 cat hat  0.2
 hat bat  0.16
@@ -1422,14 +1552,14 @@ bit fit  0.25
 fit hit  0.5
 hit bit  0.16
 ---&gt;8------&gt;8------&gt;8------&gt;8------&gt;8---</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">It can be clustered like this:</p>
+<p style="margin-top:0em; margin-bottom:0em">It can be clustered like this:</p>
 <pre>mcl cathat --abc -o out.cathat</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">The file out.cathat should now like like this</p>
+<p style="margin-top:0em; margin-bottom:0em">The file out.cathat should now like like this</p>
 <pre>---8&lt;------8&lt;------8&lt;------8&lt;------8&lt;---
 cat hat bat
 bit fit hit
 ---&gt;8------&gt;8------&gt;8------&gt;8------&gt;8---</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">A few things to note. First, MCL will symmetrize any
+<p style="margin-top:0em; margin-bottom:0em">A few things to note. First, MCL will symmetrize any
 arrow it finds. If it sees <tt>bat cat 1.0</tt> it will act as if it also
 saw <tt>cat bat 1.0</tt>. You can explicitly specify <tt>cat bat 1.0</tt>,
 mcl will in the first parse stage simply end up with duplicate
@@ -1440,12 +1570,12 @@ cat hat  0.2
 hat cat  0.16
 hat cat  0.8
 ---&gt;8------&gt;8------&gt;8------&gt;8------&gt;8---</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">Will result in two arrows <tt>cat-hat</tt> and <tt>hat-cat</tt> both
+<p style="margin-top:0em; margin-bottom:0em">Will result in two arrows <tt>cat-hat</tt> and <tt>hat-cat</tt> both
 with value 0.8.</p>
 
 <a name="applicability"></a>
 <h2>APPLICABILITY</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mcl</b> will work very well for graphs in which the diameter of the natural
 clusters is not too large. The presence of many edges between different
 clusters is not problematic; as long as there is cluster structure, mcl
@@ -1457,7 +1587,7 @@ mcl and boundary detection in the thesis pointed to below (see
 <a class="intern" href="#references">REFERENCES</a>). This was fun and not entirely unsuccesful, but not
 something to be pursued further.
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mcl</b> likes <i>undirected input graphs best</i>, and it really dislikes graphs
 with node pairs (i,j) for which an arc going from i to j is present and the
 counter-arc from j to i is absent. Try to make your input graph undirected.
@@ -1469,13 +1599,13 @@ similar to Y with weight 2, and X is similar to Z with weight 200, then this
 should mean that the similarity of Y (to X) is neglectible compared with the
 similarity of Z (to X).
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mcl</b> is probably not suited for clustering <i>tree graphs</i>. This is because
 mcl works best if there are multiple paths between different nodes in the
 natural clusters, but in tree graphs there is only one path between any pair
 of nodes. Trees are too sparse a structure for mcl to work on.
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mcl</b> may well be suited for clustering <i>lattices</i>. It will depend
 on the density characteristics of the lattice, and the conditions for
 success are the same as those for clustering graphs in general: The
@@ -1486,7 +1616,7 @@ the lattice itself. The reason is that one has to allow mcl (or any other
 cluster algorithm) to 'look back in time', so to speak. Clustering and
 directionality bite each other (long discussion omitted).
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mcl</b> has a worst-case time complexity O(N*k^2), where N is the number of
 nodes in the graph, and k is the maximum number of neighbours tracked during
 computations. k depends on the <b>-P</b> and <b>-S</b> options. If the
@@ -1499,59 +1629,75 @@ certainly if the diameter of natural clusters is not large.
 
 <a name="files"></a>
 <h2>FILES</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 There are currently no resource nor configuration files.
 The mcl matrix format is described in the <a class="local" href="mcxio.html">mcxio</a> section.
 </p>
 
 <a name="environment"></a>
 <h2>ENVIRONMENT</h2>
-<div style="margin-top:1em">
-<table
-cellspacing="0" border=0
-cellpadding="0" summary="itemize">
-<tr valign="baseline"><td colspan=3>MCLXIODIGITS</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_cascade "><div class=" item_leftalign nowrap" >MCLXIODIGITS</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 When writing matrices in interchange format, mcl will use this variable (if
 present) as the precision (number of digits) for printing the fractional
 part of values.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3>MCLXIOVERBOSITY</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" >MCLXIOVERBOSITY</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 MCL and its sibling applications will usually report about matrix
 input/output from/to disk. The verbosity level can be regulated
 via MCLXIOVERBOSITY. These are the levels it can currently be set to.</p>
-<div style="margin-top:1em">
-<table
-cellspacing="0" border=0
-cellpadding="0" summary="itemize">
-<tr valign="baseline"><td width=32 class="right nowrap">1</td><td width=16>&nbsp;</td><td><div class=item> Silent but applications may alter this.
-</div></td></tr><tr valign="baseline"><td width=32 class="right nowrap">2</td><td width=16>&nbsp;</td><td><div class=item> Silent and applications can not alter this.
-</div></td></tr><tr valign="baseline"><td width=32 class="right nowrap">4</td><td width=16>&nbsp;</td><td><div class=item> Verbose but applications may alter this.
-</div></td></tr><tr valign="baseline"><td width=32 class="right nowrap">8</td><td width=16>&nbsp;</td><td><div class=item> Verbose and applications can not alter this (default).
-</div></td></tr>
-</table>
-
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-1em">1</div></div>
+<div class=" item_text " style="margin-left:2em">
+Silent but applications may alter this.
 </div>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3>MCLXIOFORMAT</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-1em">2</div></div>
+<div class=" item_text " style="margin-left:2em">
+Silent and applications can not alter this.
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-1em">4</div></div>
+<div class=" item_text " style="margin-left:2em">
+Verbose but applications may alter this.
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-1em">8</div></div>
+<div class=" item_text " style="margin-left:2em">
+Verbose and applications can not alter this (default).
+</div>
+</div>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" >MCLXIOFORMAT</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 MCL and its sibling applications will by default output matrices
 in interchange format rather than binary format (cf. <a class="local" href="mcxio.html">mcxio</a>).
 The desired format can be controlled via the variable
 MCLXIOFORMAT. These are the levels it can currently be set to.</p>
-<div style="margin-top:1em">
-<table
-cellspacing="0" border=0
-cellpadding="0" summary="itemize">
-<tr valign="baseline"><td width=32 class="right nowrap">1</td><td width=16>&nbsp;</td><td><div class=item> Interchange format but applications may alter this.
-</div></td></tr><tr valign="baseline"><td width=32 class="right nowrap">2</td><td width=16>&nbsp;</td><td><div class=item> Interchange format and applications can not alter this (default).
-</div></td></tr><tr valign="baseline"><td width=32 class="right nowrap">4</td><td width=16>&nbsp;</td><td><div class=item> Binary format but applications may alter this.
-</div></td></tr><tr valign="baseline"><td width=32 class="right nowrap">8</td><td width=16>&nbsp;</td><td><div class=item> Binary format and applications can not alter this.
-</div></td></tr>
-</table>
-
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-1em">1</div></div>
+<div class=" item_text " style="margin-left:2em">
+Interchange format but applications may alter this.
 </div>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3>MCLXICFLAGS</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-1em">2</div></div>
+<div class=" item_text " style="margin-left:2em">
+Interchange format and applications can not alter this (default).
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-1em">4</div></div>
+<div class=" item_text " style="margin-left:2em">
+Binary format but applications may alter this.
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-1em">8</div></div>
+<div class=" item_text " style="margin-left:2em">
+Binary format and applications can not alter this.
+</div>
+</div>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" >MCLXICFLAGS</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 If matrices are output in interchange format, by default empty vectors
 will not be listed. Equivalently (during input time),
 vectors for which no listing is present are understood to be empty -
@@ -1559,21 +1705,21 @@ note that the <i>presence</i> of a vector is established using
 the domain information found in the header part.
 It is possible to enforce listing of empty vectors by
 setting bit '1' in the variable MCLXICFLAGS.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3>MCLXIOUNCHECKED</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" >MCLXIOUNCHECKED</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 MCL and its sibling applications will always check a matrix for consistency
 while it is being read. If this variable is set, the consistency check is
 omitted. For large graphs the speed up can be considerable. However, if the
 input graph is not conforming it will likely crash the application that
 is using it.</p>
-</div></td></tr>
-</table>
-
+</div>
 </div>
 
 <a name="diagnostics"></a>
 <h2>DIAGNOSTICS</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 If <b>mcl</b> issues a diagnostic error, it will most likely be
 because the input matrix could not be parsed succesfully.
 <b>mcl</b> tries to be helpful in describing the kind of parse error.
@@ -1581,17 +1727,17 @@ The mcl matrix format is described in the <a class="local" href="mcxio.html">mcx
 
 <a name="bugs"></a>
 <h2>BUGS</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 No known bugs at this time.</p>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Stijn van Dongen.</p>
 
 <a name="history"></a>
 <h2>HISTORY/CREDITS</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The MCL algorithm was conceived in spring 1996 by the present author.
 The first implementation of the MCL algorithm followed that spring
 and summer. It was written in Perl and proved the viability of
@@ -1602,112 +1748,112 @@ the period Oktober 1997 - May 1999. The efficient matrix-vector
 multiplication routine was written by Annius. This routine is
 without significant changes still one of the cornerstones of this
 MCL implementation.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Since May 1999 all MCL libraries have seen much development and
 redesign by the present author. Matrix-matrix multiplication has been
 rewritten several times to take full advantage of the sparseness
 properties of the stochastic matrices brought forth by the MCL
-algorithm. This mostly concerns the issue of pruning - removal of
+algorithm. This mostly concerns the issue of pruning &mdash; removal of
 small elements in a stochastic column in order to keep matrices
 sparse.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Very instructive was that around April 2001 Rob Koopman pointed out
 that selecting the k largest elements out of a collection of n is
 best done using a min-heap. This was the key to the second major
 rewrite (now counting three) of the MCL pruning schemes, resulting in
 much faster code, generally producing a more accurate computation of
 the MCL process.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 In May 2001 Anton Enright initiated the parallellization of the
 <b>mcl</b> code and threaded inflation. From this example, Stijn threaded
 expansion. This was great, as the MCL data structures and operands
 (normal matrix multiplication and Hadamard multiplication) just beg
 for parallellization.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Onwards.
 The January 2003 03-010 release introduced support for sparsely
 enumerated (i.e. indices need not be sequential) graphs and matrices, the
 result of a major overhaul of the matrix library and most higher layers.
 Conceptually, the library now sees matrices as infinite quadrants
 of which only finite subsections happen to have nonzero entries.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The June 2003 03-154 release introduced unix-type pipelines for clustering,
 including the BLAST parser mcxdeblast and the mclblastline script.
 The April 2004 04-105 release revived binary format, which has been a first
 class citizen every since.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 With the March 2005 05-090 release mcxsubs finally acquired a sane
 specification syntax. The November 2005 05-314 release brought the ability
 to stream label input directly into mcl. The subsequent release introduced a
 transformation language shared by various mcl siblings that allows arbitrary
 progressions of transformations to be applied to either stream values or
 matrix values.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Joost van Baal set up the mcl CVS tree and packaged mcl for Debian
 GNU/Linux. He completely autotooled the sources, so much so that at first I
 found it hard to find them back amidst bootstrap, aclocal.m4, depcomp, and
 other beauties.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Jan van der Steen shared his elegant mempool code. Philip Lijnzaad gave
 useful comments. Philip, Shawn Hoon, Abel Ureta-Vidal,
 and Martin Mokrejs sent helpful bug reports.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Abel Ureta-Vidal and Dinakarpandian Deendayal commented on
 and contributed to mcxdeblast and mcxassemble.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Tim Hughes contributed several good bug reports for mcxassemble,
 mcxdeblast and zoem (a workhorse for <b>clm format</b>).</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <a class="local" href="mclfaq.html">mclfaq</a> - Frequently Asked Questions.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <a class="local" href="mcxio.html">mcxio</a> - a description of the mcl matrix format.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 There are many more utilities. Consult
 <a class="local" href="mclfamily.html">mclfamily</a> for an overview of and links to all the documentation
 and the utilities in the mcl family.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>minimcl</b> is a 200-line perl implementation of mcl. It is shipped
 in the mcl distribution and can be found online at
 <a class="extern" href="http://micans.org/mcl">http://micans.org/mcl</a>.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 mcl's home at <a class="extern" href="http://micans.org/mcl/">http://micans.org/mcl/</a>.</p>
 
 <a name="references"></a>
 <h2>REFERENCES</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <a name="gcbfs">[1]</a>
 Stijn van Dongen, <i>Graph Clustering by Flow Simulation</i>.
 PhD thesis, University of Utrecht, May 2000.<br>
 <a class="extern" href="http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm">http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm</a></p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <a name="gcvdup">[2]</a>
 Stijn van Dongen, <i>Graph Clustering Via a Discrete Uncoupling Process</i>,
 SIAM Journal on Matrix Analysis and Applications, 30(1):121-141, 2008.
 <a class="extern" href="http://link.aip.org/link/?SJMAEL/30/121/1">http://link.aip.org/link/?SJMAEL/30/121/1</a>
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <a name="cafg">[3]</a>
 Stijn van Dongen. <i>A cluster algorithm for graphs</i>.
 Technical Report INS-R0010, National Research Institute for Mathematics and
 Computer Science in the Netherlands, Amsterdam, May 2000.<br>
 <a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z</a></p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <a name="supfg">[4]</a>
 Stijn van Dongen. <i>A stochastic uncoupling process for graphs</i>.
 Technical Report INS-R0011, National Research Institute for Mathematics and
 Computer Science in the Netherlands, Amsterdam, May 2000.<br>
 <a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z</a></p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <a name="pcfgcmce">[5]</a>
 Stijn van Dongen. <i>Performance criteria for graph clustering and Markov
 cluster experiments</i>. Technical Report INS-R0012, National Research
 Institute for Mathematics and Computer Science in the Netherlands,
 Amsterdam, May 2000.<br>
 <a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z</a></p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <a name="eaflsdopf">[6]</a>
 Enright A.J., Van Dongen S., Ouzounis C.A.
 <i>An efficient algorithm for large-scale detection of protein families</i>,
@@ -1715,7 +1861,7 @@ Nucleic Acids Research 30(7):1575-1584 (2002).</p>
 
 <a name="notes"></a>
 <h2>NOTES</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 This page was generated from <b>ZOEM</b> manual macros,
 <a class="extern" href="http://micans.org/zoem">http://micans.org/zoem</a>. Both html and roff pages can be created
 from the same source without having to bother with all the usual conversion

@@ -1,14 +1,18 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{mcxdump}
-\set{"man::html-title"}{The mcxdump manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
-\${html}{\"man::maketoc"}
+   {name}{mcxdump}
+   {html_title}{The mcxdump manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{mcxdump}{dump matrices, optionally map indices to labels}
@@ -84,7 +88,7 @@
 
 \sec{options}{OPTIONS}
 
-\begin{itemize}
+\begin{itemize}{\mcx_itemopts}
 
 
 \item{\defopt{-imx}{<fname>}{matrix file}}
@@ -318,5 +322,5 @@
    and \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 
-\"man::postamble"
+\end{pud::man}
 

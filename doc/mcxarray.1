@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcxarray" 1 "2 Feb 2009" "mcxarray 1\&.008, 09-033" "USER COMMANDS "
+.TH "mcxarray" 1 "29 May 2009" "mcxarray 1\&.008, 09-149" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -67,144 +67,144 @@ This can be changed for both using the
 \fB--transpose\fP option\&.
 .SH OPTIONS
 
-.ZI 3m "\fB-data\fP fname (\fIinput data file\fP)"
+.ZI 2m "\fB-data\fP fname (\fIinput data file\fP)"
 \&
 .br
 Specify the data file containing the expression values\&.
 It should be tab-separated\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-imx\fP fname (\fIinput matrix file\fP)"
+.ZI 2m "\fB-imx\fP fname (\fIinput matrix file\fP)"
 \&
 .br
 The expression values are read from a file in mcl matrix format\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-skipr\fP <num> (\fIskip <num> data rows\fP)"
+.ZI 2m "\fB-skipr\fP <num> (\fIskip <num> data rows\fP)"
 \&
 .br
 Skip the first \fI<num>\fP data rows\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-skipc\fP <num> (\fIskip <num> data columns\fP)"
+.ZI 2m "\fB-skipc\fP <num> (\fIskip <num> data columns\fP)"
 \&
 .br
 Ignore the first \fI<num>\fP data columns\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-l\fP <num> (\fItake labels from column <num>\fP)"
+.ZI 2m "\fB-l\fP <num> (\fItake labels from column <num>\fP)"
 \&
 .br
 Specifies to construct a tab of labels from this data column\&.
 The tab can be written to file using \fB-write-tab\fP\ \&\fIfname\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-write-tab\fP <fname> (\fIwrite row labels to file\fP)"
+.ZI 2m "\fB-write-tab\fP <fname> (\fIwrite row labels to file\fP)"
 \&
 .br
 Write a tab file\&. In the simple case where the labels are in the first
 data column it is sufficient to issue \fB-skipc\fP\ \&\fB1\fP\&.
 If more data columns need to be skipped one must explicitly specify
 the data column to take labels from with \fB-l\fP\ \&\fIl\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-n\fP mode (\fInormalization mode\fP)"
+.ZI 2m "\fB-n\fP mode (\fInormalization mode\fP)"
 \&
 .br
 If \fImode\fP is set to \fBz\fP the data will be normalized
 based on z-score\&. No other modes are currently supported\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-o\fP fname (\fIoutput file fname\fP)"
+.ZI 2m "\fB-o\fP fname (\fIoutput file fname\fP)"
 \&
 .br
 Output file name\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-digits\fP <num> (\fIoutput precision\fP)"
+.ZI 2m "\fB-digits\fP <num> (\fIoutput precision\fP)"
 \&
 .br
 Specify the precision to use in native interchange format\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-co\fP num (\fIcutoff for output values\fP)"
+.ZI 2m "\fB-co\fP num (\fIcutoff for output values\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-cutoff\fP num (\fIalias for \fB-co\fP\fP)"
+'in -2m
+.ZI 2m "\fB-cutoff\fP num (\fIalias for \fB-co\fP\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 Output values smaller than \fInum\fP are removed (set to zero)\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-gq\fP num (\fIignore input smaller than\fP)"
+.ZI 2m "\fB-gq\fP num (\fIignore input smaller than\fP)"
 \&
 .br
 Input values smaller than \fInum\fP are ignored\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-lq\fP num (\fIignore input larger than\fP)"
+.ZI 2m "\fB-lq\fP num (\fIignore input larger than\fP)"
 \&
 .br
 Input values larger than \fInum\fP are ignored\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--transpose\fP (\fIwork with the transpose\fP)"
+.ZI 2m "\fB--transpose\fP (\fIwork with the transpose\fP)"
 \&
 .br
 Work with the transpose of the input data matrix\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--cosine\fP (\fIuse cosine\fP)"
+.ZI 2m "\fB--cosine\fP (\fIuse cosine\fP)"
 \&
 .br
 Use the cosine as correlation measure\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--pearson\fP (\fIuse Pearson correlation (default)\fP)"
+.ZI 2m "\fB--pearson\fP (\fIuse Pearson correlation (default)\fP)"
 \&
 .br
 Compute the Pearson correleation coefficient as the similarity between the
 data columns\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-tear\fP num (\fIinflate input columns\fP)"
+.ZI 2m "\fB-tear\fP num (\fIinflate input columns\fP)"
 \&
 .br
 Apply (column-wise) inflation with parameter \fInum\fP to the input
 values before further processing\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-teartp\fP num (\fIinflate tranposed columns\fP)"
+.ZI 2m "\fB-teartp\fP num (\fIinflate tranposed columns\fP)"
 \&
 .br
 Apply (column-wise) inflation with parameter \fInum\fP to the input
 values in the transposed matrix before further processing\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-pi\fP num (\fIinflate the result\fP)"
+.ZI 2m "\fB-pi\fP num (\fIinflate the result\fP)"
 \&
 .br
 Apply inflation with parameter \fInum\fP to the output values\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--apropos\fP (\fIprint help\fP)"
+.ZI 2m "\fB--apropos\fP (\fIprint help\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-h\fP (\fIprint help\fP)"
+'in -2m
+.ZI 2m "\fB-h\fP (\fIprint help\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--version\fP (\fIprint version information\fP)"
+.ZI 2m "\fB--version\fP (\fIprint version information\fP)"
 \&
 .br
-.in -3m
+.in -2m
 .SH AUTHOR
 
 Stijn van Dongen\&.

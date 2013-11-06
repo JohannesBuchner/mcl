@@ -1,14 +1,18 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{mclcm}
-\set{"man::html-title"}{The mclcm manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
-\${html}{\"man::maketoc"}
+   {name}{mclcm}
+   {html_title}{The mclcm manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \""{
    mclcm <stream-name> -stem mclI4I2      -a "-I 2" -- "-I 4"
@@ -297,5 +301,5 @@
    \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 
-\"man::postamble"
+\end{pud::man}
 

@@ -1,14 +1,18 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{mcxassemble}
-\set{"man::html-title"}{The mcxassemble manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
-\${html}{\"man::maketoc"}
+   {name}{mcxassemble}
+   {html_title}{The mcxassemble manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{mcxassemble}{transform raw cooccurrence data to mcl matrix format.}
@@ -95,7 +99,8 @@
 
 \begin{itemize}{
    {mark}{\*{itembullet}}
-   {compact}{1}
+   {flow}{compact}
+   {interitem}{0}
    {align}{right}
 }
 \item
@@ -209,7 +214,8 @@
 
 \begin{itemize}{
    {mark}{\*{itembullet}}
-   {compact}{1}
+   {flow}{compact}
+   {interitem}{0}
    {align}{right}
 }
 \item
@@ -481,6 +487,5 @@ Stijn van Dongen.
    and the utilities in the mcl family.
    }
 
-\"man::postamble"
-
+\end{pud::man}
 

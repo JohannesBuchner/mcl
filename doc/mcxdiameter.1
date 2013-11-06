@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcx diameter" 1 "2 Feb 2009" "mcx diameter 1\&.008, 09-033" "USER COMMANDS "
+.TH "mcx diameter" 1 "29 May 2009" "mcx diameter 1\&.008, 09-149" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -64,19 +64,19 @@ By default \fBmcx diameter\fP reads from STDIN \fIand expects matrix format\fP\&
 To specify label input from STDIN use \fB-abc\fP\ \&\fB-\fP\&.
 .SH OPTIONS
 
-.ZI 3m "\fB-abc\fP <fname> (\fIlabel input\fP)"
+.ZI 2m "\fB-abc\fP <fname> (\fIlabel input\fP)"
 \&
 .br
 The file name for input that is in label format\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-imx\fP <fname> (\fIinput matrix\fP)"
+.ZI 2m "\fB-imx\fP <fname> (\fIinput matrix\fP)"
 \&
 .br
 The file name for input that is in mcl native matrix format\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-tab\fP <fname> (\fIuse tab file\fP)"
+.ZI 2m "\fB-tab\fP <fname> (\fIuse tab file\fP)"
 \&
 .br
 This option causes the output to be printed with the labels
@@ -85,9 +85,9 @@ With \fB-abc\fP this option will, additionally, construct
 a graph only on the labels found in the tab file\&.
 If this option is used in conjunction with \fB-imx\fP the
 tab domain and the matrix domain are required to be identical\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--list\fP (\fIlist eccentricity for all nodes\fP)"
+.ZI 2m "\fB--list\fP (\fIlist eccentricity for all nodes\fP)"
 \&
 .br
 Print eccentricity for all nodes\&. The eccentricity of
@@ -96,7 +96,7 @@ away from it\&. The diameter of a graph is the maximum
 of the eccentricity taken over all nodes in a graph\&.
 In this mode \fBmcx diameter\fP will not output the diameter
 itself\&.
-.in -3m
+.in -2m
 .SH SEE ALSO
 
 \fBmcxio(5)\fP,

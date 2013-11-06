@@ -451,7 +451,6 @@ mcxstatus mclProcessInit
    {  int               i        =  0
    ;  float             f        =  0.0
    ;  float             f_0      =  0.0
-   ;  float             f_1      =  1.0
    ;  int               i_0      =  0
    ;  int               i_1      =  1
    ;  int               i_7      =  7
@@ -503,7 +502,7 @@ mcxstatus mclProcessInit
 
             case PROC_OPT_MAININFLATION
          :  f =  atof(opt->val)
-         ;  if (CHB(anch->tag, 'f', &f, fltGq, &f_1, fltLq, &f_30))
+         ;  if (CHB(anch->tag, 'f', &f, fltGt, &f_0, fltLq, &f_30))
             mpp->mainInflation = f
          ;  break
          ;

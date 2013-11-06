@@ -1,14 +1,18 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{mcx convert}
-\set{"man::html-title"}{The mcx convert manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
-\${html}{\"man::maketoc"}
+   {name}{mcx convert}
+   {html_title}{The mcx convert manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{mcx convert}{convert between mcx storage types}
@@ -99,5 +103,5 @@
    and the utilities in the mcl family.
    }
 
-\"man::postamble"
+\end{pud::man}
 

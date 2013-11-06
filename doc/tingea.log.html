@@ -1,42 +1,15 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- Copyright (c) 2009 Stijn van Dongen -->
 <head>
-<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <meta name="keywords" content="manual">
 <style type="text/css">
-body {
-text-align: justify;
-color: #001111;
-background: white;
+/* START zsd.base.css */
+body
+{ text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
 font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-}
-p.default {
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-text-align: justify;
-}
-p.L53 { font-size: 30pt; }
-p.L52 { font-size: 20pt; }
-p.L51 { font-size: 15pt; }
-p.L50 { font-size: 12pt; }
-p.L49 { font-size: 10pt; }
-p.L48 { font-size: 9pt; }
-p.L47 { font-size: 8pt; }
-td {
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-text-align: justify;
-}
-h3 { margin-top:1em; }
-h2 { margin-top:2em; }
-.itembullet { font-size: 10pt; }
-.left { text-align: left; }
-.right { text-align: right; }
-.center { text-align: center; }
-.nowrap { white-space: nowrap; }
-.item { font-size: 12pt;
-text-align: justify;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -69,30 +42,55 @@ div.indent
 { margin-left: 8%;
 margin-right: 0%;
 }
+.right { text-align: right; }
+.left { text-align: left; }
+.nowrap { white-space: nowrap; }
+.item_leader
+{ position: relative;
+margin-left: 8%;
+}
+.item_compact { position: absolute; vertical-align: baseline; }
+.item_cascade { position: relative; }
+.item_leftalign { text-align: left; }
+.item_rightalign
+{ width: 2em;
+text-align: right;
+}
+.item_compact .item_rightalign
+{ position: absolute;
+width: 52em;
+right: -2em;
+text-align: right;
+}
+.item_text
+{ position: relative;
+margin-left: 3em;
+}
+/* END zsd.base.css */
 </style>
 <title>How to set the Tingea log parameters</title>
 </head>
 <body>
 <p style="text-align:right">
-2 Feb 2009&nbsp;&nbsp;&nbsp;
+29 May 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="tingea.log.ps"><b>tingea.log</b></a>
-1.008, 09-033
+1.008, 09-149
 </p>
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p class="default L50" style="margin-bottom:0">
-tingea.log - How to set the Tingea log parameters</p>
+<p style="margin-bottom:0">
+tingea.log &mdash; How to set the Tingea log parameters</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 The Tingea logging framework is part of the Tingea library.
 In this context logging means that a pgrogram issues statements
 about what it is doing. It can do so for different purposes
 and at different levels of verbosity. By default logging statements
 are written on STDERR.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Tingea logging provides a quick and easy way for programmers to associate
 verbosity levels with logging statements.
 Only logging statements for which the verbosity
@@ -110,7 +108,7 @@ can be regulated with the TINGEA_LOG_TAG environment variable.
 If a <b>-q</b> type option is present and the environment variable
 is set, then the environment variable is interpreted first followed
 by the <b>-q</b> argument.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Tingea logging allows a programmer to assign categories to logging
 statements. The categories FUNCTION and DATA have a subdivision
 ranging from fine-grained to coarse-grained. The categorie MONITORING has
@@ -118,7 +116,7 @@ a subdivision ranging from low priority to high priority.
 The other categories are unimodal. These are IO, THREAD, PROCESS,
 and GAUGE. Three unspecified unimodal categories are SLOT1, SLOT2,
 and SLOT3. They can be used to encode program-specific semantics.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The programmer may assign multiple categories to a single logging statement.
 It is unusual for more than two categories to be specified. For example, IO
 and DATA at the LIST level may be combined to indicate a logging statement
@@ -127,7 +125,7 @@ of granularity the DATA levels are CELL, LIST, and AGGREGRATE. If the user
 accepts IO logging and accepts DATA logging at level CELL or LIST the
 statement will be executed. If no IO logging is accepted or DATA logging is
 only accepted at the AGGREGRATE level, the statement will be skipped.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 By default, all categories that are specified by the programmer need
 to pass the threshold specified by the user for that category.
 The user may relax this requirement so that only one category needs
@@ -137,10 +135,10 @@ if the user specifies IO and DATA at AGGR level with OR semantics.</p>
 
 <a name="syntax"></a>
 <h2>SYNTAX</h2>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 The syntax of the TINGEA_LOG_TAG environment variable is described by</p>
 <pre>   [[189x]]{&lt;[dfgimpstABC][1-9]&gt;*,[V]}</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 which translates to the following. An optional lead tag is followed
 by a concatenation of units. A unit is either a pair in
 <tt>[dfgimpstABC] x [1-9x]</tt> or the single character <tt>V</tt>.
@@ -178,7 +176,7 @@ for the other units are given below.</p>
    A     SLOT1    |
    B     SLOT2    |
    C     SLOT3    |</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 The leading tag can be used to set levels for all categories at once.
 Subsequent units may then alter this intial setting.
 The lead tag settings and their meaning are these:</p>
@@ -186,13 +184,13 @@ The lead tag settings and their meaning are these:</p>
    9     d3f4m5gxixpxsxtxAxBxCx     # very terse, only d f m
    8     d3f4m5g1i1p1s1t1A1B1C1     # less terse
    x     dxfxmxgxixpxsxtxAxBxCx     # silent</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 All categories accept values between <tt>1</tt> and <tt>9</tt> in addition to the
 value <tt>x</tt>. As seen above, only a few categories contain more than
 one level and no category contains more than five levels.
 The rule is that if a level exceeds the maximul level available for a category
 it is simply interpreted as the maximum level.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The GAUGE category, if set, indicates that a program may write line based
 progress bars or other output in which a single line is accumulated over
 multiple statements. This implies that a single GAUGE logging statement may
@@ -204,7 +202,7 @@ contract.</p>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<p style="margin-top:0em; margin-bottom:0em">
 Stijn van Dongen.</p>
 </body>
 </html>

@@ -1,14 +1,18 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{mcx clcf}
-\set{"man::html-title"}{The mcx clcf manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
-\${html}{\"man::maketoc"}
+   {name}{mcx clcf}
+   {html_title}{The mcx clcf manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{mcx clcf}{compute the clustering coefficient of a graph}
@@ -43,7 +47,7 @@
 
 \sec{options}{OPTIONS}
 
-\begin{itemize}
+\begin{itemize}{\mcx_itemopts}
 
 \item{\defopt{-abc}{<fname>}{label input}}
 \car{
@@ -78,5 +82,5 @@
    and \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.}
 
-\"man::postamble"
+\end{pud::man}
 

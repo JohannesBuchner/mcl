@@ -1,14 +1,18 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{mcxq}
-\set{"man::html-title"}{The mcxq manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
-\${html}{\"man::maketoc"}
+   {name}{mcx q}
+   {html_title}{The mcx q manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{mcxq}{compute simple graph statistics}
@@ -41,7 +45,7 @@
 
 \sec{options}{OPTIONS}
 
-\begin{itemize}
+\begin{itemize}{\mcx_itemopts}
 
 
 \item{\defopt{-imx}{<fname>}{input matrix}}
@@ -86,5 +90,5 @@
    and \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.}
 
-\"man::postamble"
+\end{pud::man}
 

@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcxdump" 1 "2 Feb 2009" "mcxdump 1\&.008, 09-033" "USER COMMANDS "
+.TH "mcxdump" 1 "29 May 2009" "mcxdump 1\&.008, 09-149" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -94,111 +94,111 @@ matrices\&. Refer to the group of options headed by
 \fB-imx-cat\fP\ \&\fIfname\fP\&.
 .SH OPTIONS
 
-.ZI 3m "\fB-imx\fP <fname> (\fImatrix file\fP)"
+.ZI 2m "\fB-imx\fP <fname> (\fImatrix file\fP)"
 \&
 .br
 Input matrix\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--transpose\fP (\fIwork with the transpose\fP)"
+.ZI 2m "\fB--transpose\fP (\fIwork with the transpose\fP)"
 \&
 .br
 Work with the tranpsose of the input matrix\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--skeleton\fP (\fIread empty matrix, honour domains\fP)"
+.ZI 2m "\fB--skeleton\fP (\fIread empty matrix, honour domains\fP)"
 \&
 .br
 No entries are read, only domains\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-o\fP <fname> (\fIoutput file name\fP)"
+.ZI 2m "\fB-o\fP <fname> (\fIoutput file name\fP)"
 \&
 .br
 Output stream\&. Use \fC-\fP for STDOUT\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-digits\fP <num> (\fIoutput precision\fP)"
+.ZI 2m "\fB-digits\fP <num> (\fIoutput precision\fP)"
 \&
 .br
 Specify the precision to use in native interchange format\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-tab\fP <fname> (\fIrow/column tab (label) file\fP)"
+.ZI 2m "\fB-tab\fP <fname> (\fIrow/column tab (label) file\fP)"
 \&
 .br
 Substitute column indices and row indices by labels from the tab file\&.
 Since the same tab file is used for both, this implies that the matrix
 domains are identical\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-tabc\fP <fname> (\fIcolumn tab file\fP)"
+.ZI 2m "\fB-tabc\fP <fname> (\fIcolumn tab file\fP)"
 \&
 .br
 Substitute column indices by labels from the tab file\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-tabr\fP <fname> (\fIrow tab file\fP)"
+.ZI 2m "\fB-tabr\fP <fname> (\fIrow tab file\fP)"
 \&
 .br
 Substitute row indices by labels from the tab file\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--lazy-tab\fP (\fIallow tab/domain mismatch\fP)"
+.ZI 2m "\fB--lazy-tab\fP (\fIallow tab/domain mismatch\fP)"
 \&
 .br
 If used, the tab file domain(s) do not necessarily need to match
 the corresponding domain in the input matrix\&. Entries missing in
 the tab files will be replaced by a question mark\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--no-values\fP (\fIomit values\fP)"
+.ZI 2m "\fB--no-values\fP (\fIomit values\fP)"
 \&
 .br
 Do not emit values\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--no-loops\fP (\fIomit loops\fP)"
+.ZI 2m "\fB--no-loops\fP (\fIomit loops\fP)"
 \&
 .br
 Do not output entries for which the row index equals the column index,
 if present\&.
 Applies only to matrices for which column and row domains are equal\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--force-loops\fP (\fIforce loops\fP)"
+.ZI 2m "\fB--force-loops\fP (\fIforce loops\fP)"
 \&
 .br
 For each column, force output of a row entry that matches the
 column index\&.
 Applies only to matrices for which column and row domains are equal\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--dump-pairs\fP (\fIemit pairs per line\fP)"
+.ZI 2m "\fB--dump-pairs\fP (\fIemit pairs per line\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--dump-lines\fP (\fIemit rows per line\fP)"
+'in -2m
+.ZI 2m "\fB--dump-lines\fP (\fIemit rows per line\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--dump-rlines\fP (\fIomit leading column node\fP)"
+'in -2m
+.ZI 2m "\fB--dump-rlines\fP (\fIomit leading column node\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--dump-lead-off\fP (\fIdo not dump leading identifiers\fP)"
+'in -2m
+.ZI 2m "\fB--dump-lead-off\fP (\fIdo not dump leading identifiers\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--dump-lower\fP (\fIdump lower part excluding diagonal\fP)"
+'in -2m
+.ZI 2m "\fB--dump-lower\fP (\fIdump lower part excluding diagonal\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--dump-loweri\fP (\fIdump lower part including diagonal\fP)"
+'in -2m
+.ZI 2m "\fB--dump-loweri\fP (\fIdump lower part including diagonal\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--dump-upper\fP (\fIdump upper part excluding diagonal\fP)"
+'in -2m
+.ZI 2m "\fB--dump-upper\fP (\fIdump upper part excluding diagonal\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--dump-upperi\fP (\fIdump upper part including diagonal\fP)"
+'in -2m
+.ZI 2m "\fB--dump-upperi\fP (\fIdump upper part including diagonal\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 \fB--dump-pairs\fP is the default mode of output\&. Each matrix entry
@@ -219,21 +219,21 @@ identifiers (for line-based outputs)\&.
 The options pertaining to \fIlower\fP and \fIupper\fP dumps currently
 only work with \fB--dump-pairs\fP\&. They act to only output
 the specified part of the matrix\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--dump-table\fP (\fIdump table format\fP)"
+.ZI 2m "\fB--dump-table\fP (\fIdump table format\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-table-nfields\fP (\fIfield limit\fP)"
+'in -2m
+.ZI 2m "\fB-table-nfields\fP (\fIfield limit\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-table-nlines\fP (\fIline/row limit\fP)"
+'in -2m
+.ZI 2m "\fB-table-nlines\fP (\fIline/row limit\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--table-keys\fP (\fIdo dump field/cell identifiers\fP)"
+'in -2m
+.ZI 2m "\fB--table-keys\fP (\fIdo dump field/cell identifiers\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 Output table format\&. In table format no indices are printed by default
@@ -246,33 +246,33 @@ calls its primary indices column indices\&.
 Use \fB--table-keys\fP to include identifiers (tab-derived if a tab file is specified)\&.
 Use \fB--dump-lead-off\fP to preclude the output of the leading
 identifiers (for line-based outputs)\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--newick\fP (\fIoutput newick format\fP)"
+.ZI 2m "\fB--newick\fP (\fIoutput newick format\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-newick\fP [NBI]+ (\fInewick, exclude Number|Branch-length|Indent\fP)"
+'in -2m
+.ZI 2m "\fB-newick\fP [NBI]+ (\fInewick, exclude Number|Branch-length|Indent\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 Boo\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--write-tabc\fP (\fIdump tab file on column domain\fP)"
+.ZI 2m "\fB--write-tabc\fP (\fIdump tab file on column domain\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--write-tabr\fP (\fIdump tab file on row domain\fP)"
+'in -2m
+.ZI 2m "\fB--write-tabr\fP (\fIdump tab file on row domain\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--dump-domc\fP (\fIdump column domain\fP)"
+'in -2m
+.ZI 2m "\fB--dump-domc\fP (\fIdump column domain\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--dump-domr\fP (\fIdump row domain\fP)"
+'in -2m
+.ZI 2m "\fB--dump-domr\fP (\fIdump row domain\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 These options work in conjunction with the \fB-ixm\fP\ \&\fIfname\fP option\&.
@@ -288,32 +288,32 @@ specified\&.
 These options are implemented as ensembles of other options\&.
 For example, \fB--dump-domr\fP \fB-imx\fP\ \&\fIfname\fP corresponds with
 \fB--dump-lines\fP \fB--transpose\fP \fB--skeleton\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--write-tabr\fP (\fIdump tab file on row domain\fP)"
+.ZI 2m "\fB--write-tabr\fP (\fIdump tab file on row domain\fP)"
 \&
 .br
 This will only infer the domains from the input matrix\&. It assumes
 the input tab file envelopes the matrix row domain, and it outputs
 a new tab file restricted to that domain\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-imx-cat\fP <fname> (\fIconcatenation matrix file\fP)"
+.ZI 2m "\fB-imx-cat\fP <fname> (\fIconcatenation matrix file\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-imx-tree\fP <fname> (\fIconcatenation cone file\fP)"
+'in -2m
+.ZI 2m "\fB-imx-tree\fP <fname> (\fIconcatenation cone file\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--write-matrix\fP (\fI(deconcatenate) write matrices\fP)"
+'in -2m
+.ZI 2m "\fB--write-matrix\fP (\fI(deconcatenate) write matrices\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-split-stem\fP <str> (\fI(deconcatenate) matrices file name stem\fP)"
+'in -2m
+.ZI 2m "\fB-split-stem\fP <str> (\fI(deconcatenate) matrices file name stem\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-cat-max\fP <num> (\fI(deconcatenate) write first <num> matrices\fP)"
+'in -2m
+.ZI 2m "\fB-cat-max\fP <num> (\fI(deconcatenate) write first <num> matrices\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 \fB-imx-cat\fP is like \fB-imx\fP except that the input is assumed to
@@ -339,21 +339,21 @@ sets, as the set of clusters of a given level is the node set
 of the next level) is transformed
 into a set of flattened clusterings, all on the same node set\&.
 If you do not want this to happen, simply use \fB-imx-cat\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-sep-value\fP <str> (\fInode/value separator\fP)"
+.ZI 2m "\fB-sep-value\fP <str> (\fInode/value separator\fP)"
 \&
 .br
 Set the node/value separator for line based row ensemble output\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-sep-field\fP <str> (\fIfield separator\fP)"
+.ZI 2m "\fB-sep-field\fP <str> (\fIfield separator\fP)"
 \&
 .br
 Set the field separator for different row indices in a given column\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-sep-lead\fP <str> (\fIlead separator\fP)"
+.ZI 2m "\fB-sep-lead\fP <str> (\fIlead separator\fP)"
 \&
 .br
 Set the lead separator\&. In the \fB--dump-lines\fP format it
@@ -362,22 +362,22 @@ row indices\&. It can be useful to make this different from the
 field separator\&. One can for example grep for columns that have
 more than one entry in a matrix mapping nodes to clusters\&. This
 will find nodes in overlap\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-sep-cat\fP <str> (\fIconcatenation separator\fP)"
+.ZI 2m "\fB-sep-cat\fP <str> (\fIconcatenation separator\fP)"
 \&
 .br
 Set the separator that is used between matrix dumps when a concatenation of
 matrices is dumped\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-sort\fP size-{ascending,descending} (\fIconcatenation separator\fP)"
+.ZI 2m "\fB-sort\fP size-{ascending,descending} (\fIconcatenation separator\fP)"
 \&
 .br
 Reorder the matrix columns prior to dumping, based on the number of
 nonzero entries in each column\&.
 Do not use this in conjunction with a tab file for the column domain\&.
-.in -3m
+.in -2m
 .SH AUTHOR
 
 Stijn van Dongen\&.

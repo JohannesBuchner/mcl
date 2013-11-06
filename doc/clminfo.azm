@@ -1,14 +1,18 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{clm info}
-\set{"man::html-title"}{The clm info manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
-\${html}{\"man::maketoc"}
+   {name}{clm info}
+   {html_title}{The clm info manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{clm info}{Compute performance measures for graphs and clusterings.}
@@ -134,5 +138,5 @@
    Amsterdam, May 2000.\|
    \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z}}
 
-\"man::postamble"
+\end{pud::man}
 

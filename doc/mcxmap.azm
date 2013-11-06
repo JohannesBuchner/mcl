@@ -1,14 +1,18 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{mcxmap}
-\set{"man::html-title"}{The mcxmap manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
-\${html}{\"man::maketoc"}
+   {name}{mcxmap}
+   {html_title}{The mcxmap manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{mcxmap}{permute or remap the indices of graphs and matrices.}
@@ -55,8 +59,9 @@
 
 \begin{itemize}{
    {mark}{\*{itembullet}}
-   {compact}{1}
+   {flow}{compact}
    {align}{right}
+   {interitem}{0}
 }
 \item
 \car{
@@ -76,7 +81,8 @@
    An example map matrix is found in the \secref{examples} Section.}
 
 \sec{options}{OPTIONS}
-\begin{itemize}
+
+\begin{itemize}{\mcx_itemopts}
 
 \item{\defopt{-o}{fname}{output file}}
 \car{
@@ -152,7 +158,8 @@
 \par{
    The matrix below has two canonical domains which are identical.
    It denotes a map of the canonical domain onto itself, in which
-   node 0 is relabeled to 8, node 1 is relabeled to 5, et cetera.}
+   node 0 is relabeled to 8, node 1 is relabeled to 5, et cetera.
+   }
 
 \verbatix{\
 (mclheader
@@ -178,14 +185,18 @@ begin
 
 
 \sec{author}{AUTHOR}
-Stijn van Dongen.
+\par{
+   Stijn van Dongen.
+   }
 
 \sec{seealso}{SEE ALSO}
+\par{
    \mysib{mcxio},
    \mysib{mcx},
    \mysib{mcxsubs},
    and \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
+   }
 
-\"man::postamble"
+\end{pud::man}
 

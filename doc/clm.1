@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "clm" 1 "2 Feb 2009" "clm 1\&.008, 09-033" "USER COMMANDS "
+.TH "clm" 1 "29 May 2009" "clm 1\&.008, 09-149" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -80,19 +80,19 @@ and license information\&.
 These are options that pertain to all modes\&. They should be specified
 \fIafter\fP the mode argument\&.
 
-.ZI 3m "\fB-h\fP (\fIsynopsis\fP)"
+.ZI 2m "\fB-h\fP (\fIsynopsis\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--apropos\fP (\fIsynopsis\fP)"
+'in -2m
+.ZI 2m "\fB--apropos\fP (\fIsynopsis\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 List available options\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--nop\fP (\fIno-op\fP)"
+.ZI 2m "\fB--nop\fP (\fIno-op\fP)"
 \&
 .br
 Not an option\&. This option has no effect then to increment
@@ -101,37 +101,37 @@ function without any options\&. Such a mode typically reads from STDIN, writes
 to STDOUT, and uses default settings\&. However, simply specifying a mode
 without options leads \fBclm\fP to output a list of available options for that
 mode\&. This can be averted by using the \fB--nop\fP option\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-set\fP key=val (\fIset key-value pair\fP)"
+.ZI 2m "\fB-set\fP key=val (\fIset key-value pair\fP)"
 \&
 .br
 Sets the key\ \&\fBkey\fP to value\ \&\fBval\fP in the environment\&.
 Some modes allow adjustment of settings in this manner\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-debug\fP <int> (\fIset debug level/flags\fP)"
+.ZI 2m "\fB-debug\fP <int> (\fIset debug level/flags\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--debug\fP (\fIturn default debugging on\fP)"
+'in -2m
+.ZI 2m "\fB--debug\fP (\fIturn default debugging on\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--test\fP (\fIturn default testing on\fP)"
+'in -2m
+.ZI 2m "\fB--test\fP (\fIturn default testing on\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 The first two turn on debugging, the last is for testing\&. The effect of
 these options is otherwise undocumented\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--progress\fP (\fIenable progress reporting\fP)"
+.ZI 2m "\fB--progress\fP (\fIenable progress reporting\fP)"
 \&
 .br
 This will enable some kind of progress reporting, by
 writing to STDERR\&.
-.in -3m
+.in -2m
 .SH AUTHOR
 
 Stijn van Dongen\&.

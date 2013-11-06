@@ -1,42 +1,15 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- Copyright (c) 2009 Stijn van Dongen -->
 <head>
-<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <meta name="keywords" content="manual">
 <style type="text/css">
-body {
-text-align: justify;
-color: #001111;
-background: white;
+/* START zsd.base.css */
+body
+{ text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
 font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-}
-p.default {
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-text-align: justify;
-}
-p.L53 { font-size: 30pt; }
-p.L52 { font-size: 20pt; }
-p.L51 { font-size: 15pt; }
-p.L50 { font-size: 12pt; }
-p.L49 { font-size: 10pt; }
-p.L48 { font-size: 9pt; }
-p.L47 { font-size: 8pt; }
-td {
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-text-align: justify;
-}
-h3 { margin-top:1em; }
-h2 { margin-top:2em; }
-.itembullet { font-size: 10pt; }
-.left { text-align: left; }
-.right { text-align: right; }
-.center { text-align: center; }
-.nowrap { white-space: nowrap; }
-.item { font-size: 12pt;
-text-align: justify;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -69,49 +42,78 @@ div.indent
 { margin-left: 8%;
 margin-right: 0%;
 }
+.right { text-align: right; }
+.left { text-align: left; }
+.nowrap { white-space: nowrap; }
+.item_leader
+{ position: relative;
+margin-left: 8%;
+}
+.item_compact { position: absolute; vertical-align: baseline; }
+.item_cascade { position: relative; }
+.item_leftalign { text-align: left; }
+.item_rightalign
+{ width: 2em;
+text-align: right;
+}
+.item_compact .item_rightalign
+{ position: absolute;
+width: 52em;
+right: -2em;
+text-align: right;
+}
+.item_text
+{ position: relative;
+margin-left: 3em;
+}
+/* END zsd.base.css */
 </style>
-<title>The mcxq manual</title>
+<title>The mcx q manual</title>
 </head>
 <body>
 <p style="text-align:right">
-2 Feb 2009&nbsp;&nbsp;&nbsp;
-<a class="local" href="mcxq.ps"><b>mcxq</b></a>
-1.008, 09-033
+29 May 2009&nbsp;&nbsp;&nbsp;
+<a class="local" href="mcxq.ps"><b>mcx q</b></a>
+1.008, 09-149
 </p>
-<div style="margin-top:1em">
-<table
-cellspacing="0" border=0
-cellpadding="0" summary="itemize">
-<tr valign="baseline"><td width=48 class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div class=item>
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">1.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">2.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">3.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">4.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#options">OPTIONS</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">5.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#seealso">SEE ALSO</a>
-</div></td></tr>
-</table>
-
+</div>
 </div>
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p class="default L50" style="margin-bottom:0">
-mcxq - compute simple graph statistics</p>
+<p style="margin-bottom:0">
+mcxq &mdash; compute simple graph statistics</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p class="default L50" style="margin-bottom:0">mcxq is not in actual fact a program. This manual
+<p style="margin-bottom:0">mcxq is not in actual fact a program. This manual
 page documents the behaviour and options of the mcx program when
 invoked in mode <i>q</i>. The options <b>-h</b>, <b>--apropos</b>,
 <b>--version</b>, <b>-set</b>, <b>--nop</b>, <b>-progress</b>&nbsp;<i>&lt;num&gt;</i>
 are accessible
 in all <b>mcx</b> modes. They are described
 in the <a class="local" href="mcx.html">mcx</a> manual page.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mcxq</b>
 <a class="intern" href="#opt-imx"><b>[-imx</b> &lt;fname&gt; (<i>specify matrix input</i>)<b>]</b></a>
 <a class="intern" href="#opt-o"><b>[-o</b> &lt;fname&gt; (<i>output file name</i>)<b>]</b></a>
@@ -125,53 +127,57 @@ in the <a class="local" href="mcx.html">mcx</a> manual page.</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mcxq</b> computes a number of simple statistics derived from the input
 graph. Among these are the number of arcs, the node neighbour count
 average, standard deviation, and median, and the edge weight
 average, standard deviation, and median.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 When instructed to, it can also compute other quantities related
 to the input graph. See below.
 </p>
 
 <a name="options"></a>
 <h2>OPTIONS</h2>
-<div style="margin-top:1em">
-<table
-cellspacing="0" border=0
-cellpadding="0" summary="itemize">
-<tr valign="baseline"><td colspan=3><a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>input matrix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>input matrix</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 The file name for input that is in mcl native matrix format.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-o"></a><b>-o</b> &lt;fname&gt; (<i>output file name</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-o"></a><b>-o</b> &lt;fname&gt; (<i>output file name</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Set the name of the file where output should be written to.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--edge"></a><b>--edge</b> (<i>compute simple statistics</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--edge"></a><b>--edge</b> (<i>compute simple statistics</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 This is the default setting. If any other option (e.g. <b>--dim</b>)
 is used, <b>--edge</b> has to be specified if this output mode is to
 be activated in parallel.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--edge-list"></a><b>--edge-list</b> (<i>compute simple statistics, node-wisel</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--edge-list"></a><b>--edge-list</b> (<i>compute simple statistics, node-wisel</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 This outputs for each node its neighbour count and the average
 weight of the edges connecting that node with those neighbours.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--dim"></a><b>--dim</b> (<i>only list domain sizes</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--dim"></a><b>--dim</b> (<i>only list domain sizes</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 This outputs the format (native interchange or native binary)
 and the dimensions of the encoded matrix.
 </p>
-</div></td></tr>
-</table>
-
+</div>
 </div>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <a class="local" href="mcxio.html">mcxio</a>,
 and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.</p>

@@ -3,15 +3,13 @@
  mostly *NOT* to mcl.
 
 
-memory loss!
-vger ../../mclcm falkner.mci -c f.start -a "-I 1.4" -stem mcl2 -write stack  --subcluster
+- check TR10.pdf
+   -> jury numbers?
+   -  use minimcl
+      -  fix minimcl
+      #  fix loops.
 
-
-
--  A semafore mechanism to make sure mclvUnionv is not used more than
-   once simultaneously; requires flag (simple bit).
-   Flag will require design when doing matrix copy, transplant, update et cetera.
-
+-  albert
 
 
 +todo____________________________________________________________________________
@@ -20,10 +18,15 @@ vger ../../mclcm falkner.mci -c f.start -a "-I 1.4" -stem mcl2 -write stack  --s
     |    do not shun matrix allocations etc. Aim for time/memory-efficient algorithms
     |    within this context.                                                    |
     |____________________________________________________________________________|
+   $$ mclcm mode where different subcluster runs use different -ceil-nb options.
     - \"man::html-keywords"
+    $ mclvUnionv semaphore
+  $$$ clean up mclcm, modularize, memclean.
+  $$$ clean up memory logic and matrix cache/reread/transform in alg.c.
     $ make mclvaDump static, unify+streamline vector dumping
   $$$ rewrite mcxsubs in a more extendible and generalized framework -> mini-language, mcxi
   $$$ generally rewrite routines to use higher-level routines. Don't fear matrix and vector allocs.
+    $ create stack memory managing code.
     - stress test mcxload (further)
     - analyze dagginess (lattice characteristics)
     - update mcxdeblast
@@ -35,7 +38,6 @@ vger ../../mclcm falkner.mci -c f.start -a "-I 1.4" -stem mcl2 -write stack  --s
     - -pn pruning is order dependent. should probably start with biggest hubs first.
     ! make a vector-dump-debug routine that I am happy with. perhaps build on the one in mcxdump
     - adapt-local: check what it does when mcl iterands become very directed. Only before?
-    - in mcl/alg.c the cache/reread/transform logic is too intricate.
     - clxdo <new-mode>: <id> <nb-count> <max-weight> <mean-weight> <median-weight>
     $ clm lint (mcl lint options)
     $ mcxdump optionally do not parenthesize singletons.

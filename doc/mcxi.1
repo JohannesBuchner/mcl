@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcx" 1 "2 Feb 2009" "mcx 1\&.008, 09-033" "USER COMMANDS "
+.TH "mcxi" 1 "29 May 2009" "mcxi 1\&.008, 09-149" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -31,12 +31,12 @@
 mcx \- a stack language interpreter for interaction with the \fBmcl\fP libraries\&.
 .SH SYNOPSIS
 
-\fBmcx\fP (enter interactive mode)
+\fBmcxi\fP (enter interactive mode)
 
-\fBmcx\fP <mcx expression>
+\fBmcxi\fP <mcxi expression>
 .SH DESCRIPTION
 
-\fBmcx\fP can be used both from the command line and interactively, and supports
+\fBmcxi\fP can be used both from the command line and interactively, and supports
 a rich set of operations such as transposition, scaling, column scaling,
 multiplication, Hadamard powers and products, et cetera\&. It has variables,
 control primitives, and stack manipulation primitives\&.
@@ -49,7 +49,7 @@ matrix, string, and block\fP\&.
 Blocks are used both in control statements such as \fBifelse\fP and
 \fBwhile\fP, and for defining compound statements resembling procedures or
 functions\&.
-Some of \fBmcx\fP\&'s primitives are overloaded\&. The following is a very simple
+Some of \fBmcxi\fP\&'s primitives are overloaded\&. The following is a very simple
 example of implementing and using \fBmcl\fP in this language\&.
 
 .di ZV
@@ -73,10 +73,10 @@ example of implementing and using \fBmcl\fP in this language\&.
 .fi \fR
 
 Somewhat misleadingly, \&'#\&' is not recognized as a comment
-symbol by \fBmcx\fP, so don\&'t use it (yet)\&.
+symbol by \fBmcxi\fP, so don\&'t use it (yet)\&.
 
-\fBmcx\fP has quite a lot of primitives, and they are not all explained in here\&.
-However, \fBmcx\fP has several help facilities\&. \fBmcx\fP\&'s munge modes (command
+\fBmcxi\fP has quite a lot of primitives, and they are not all explained in here\&.
+However, \fBmcxi\fP has several help facilities\&. \fBmcxi\fP\&'s munge modes (command
 line, interactive, and file) are discussed first, followed by some syntactic
 and semantic rules\&.
 Several groups of related primitives are then discussed\&. These are the help
@@ -85,36 +85,36 @@ the binding primitives \fBdef\fP, \fBfree\fP, and \fBunlink\fP,
 the control primitives \fBifelse\fP, \fBdo\fP, \fBrepeat\fP, and \fBwhile\fP,
 and the stack manipulation primitives \fBpop\fP, \fBexch\fP, \fBdup\fP,
 \fBmdup\fP, \fBcopy\fP, \fBroll\fP, \fBclear\fP\&.
-And for the record, \fBmcx\fP has \fBlt\fP, \fBlq\fP, \fBeq\fP, \fBgq\fP, and
+And for the record, \fBmcxi\fP has \fBlt\fP, \fBlq\fP, \fBeq\fP, \fBgq\fP, and
 \fBgt\fP\&.
 In the grandiloquently named \fBINDEX\fP section, you find a list
-of all current \fBmcx\fP primitives\&.
+of all current \fBmcxi\fP primitives\&.
 
-First, there is no difference as far as \fBmcx\fP is concerned whether
+First, there is no difference as far as \fBmcxi\fP is concerned whether
 you give it a bunch of operators and operands directly from the command
 line, or whether you do it in interactive mode\&. Interactive mode is
-line-based; each time you type a carriage return, \fBmcx\fP starts interpreting
+line-based; each time you type a carriage return, \fBmcxi\fP starts interpreting
 the line you typed\&. Newlines can be escaped by preceding them with a
 backslash;
-\fBmcx\fP will delay interpretation and keep building up your expression\&.
+\fBmcxi\fP will delay interpretation and keep building up your expression\&.
 Command line mode is the same as entering interactive mode and entering a
 single line\&. For non-batch processing, interactive mode is the safest,
-because \fBmcx\fP will simply refuse to carry out impossible operations,
+because \fBmcxi\fP will simply refuse to carry out impossible operations,
 whereas in command line mode it will exit\&.
 
-In interactive mode, \fBmcx\fP will by default list the stack after each line you
+In interactive mode, \fBmcxi\fP will by default list the stack after each line you
 type\&. This is verbosity level 1\&. There are four verbosity levels, namely 0,
 1, 2, and 3 (in increasingly verbose order)\&. Set the level with the \fBvb\fP
 primitive\&. Verbosity control is still a bit crude, this is one of the areas
-in which \fBmcx\fP will be improved\&.
+in which \fBmcxi\fP will be improved\&.
 
-There is another \fBmcx\fP munge mode which is entered when reading files
+There is another \fBmcxi\fP munge mode which is entered when reading files
 with the \fBlf\fP (load file) primitive\&. This mode is not line-based,
 the whole file is interpreted in one go \- there is little
 difference with line-based mode\&. Beware though, it is currently
 not possible (nor necessary) to escape newlines in files\&.
 
-Currently, \fBmcx\fP parses lines of text into atoms in an extremely
+Currently, \fBmcxi\fP parses lines of text into atoms in an extremely
 straightforward way: Whitespace is the only separator, and it is always a
 separator\&. This has as a consequence that the block delimiters \fB{\fP and
 \fB}\fP are not allowed to appear next to a non-white character\&. Another
@@ -125,7 +125,7 @@ Strings are always entered
 with a leading slash, and anything with a leading slash is a string, so
 \fC/this\fP is a string\&. Currently, the double quote has no special
 meaning, but it may acquire meaning in the future, especially as in
-\fC/"maybe the mcx future will be brighter"\fP\&.
+\fC/"maybe the mcxi future will be brighter"\fP\&.
 
 Variables names are always entered with a leading dot, and anything with a
 leading dot is a variable name\&. Variables are implicitly typed by the
@@ -146,41 +146,41 @@ a prime as in \fC<m> -> <m\&'>\fP\&.
 this will be a copy of the variable name\&. If one occurrence is
 used to free the associated object by some operator, all other
 instances of the variable become \fIstale\fP\&.
-\fBmcx\fP will notice this and you will see such elements marked as stale
+\fBmcxi\fP will notice this and you will see such elements marked as stale
 handles in the stack listing\&. \fBcopy\fP can be used to copy the
 object associated with a variable\&.
 
-\fBmcx\fP is/interprets a stack language\&. In order to add 1 and 2 you need to
+\fBmcxi\fP is/interprets a stack language\&. In order to add 1 and 2 you need to
 write \fC1 2 add\fP\&. When add is evaluated, it removes the previous two
 items from the stack and replaces it with their sum, in this case the
 integer 3\&.
-\fBmcx\fP\&'s types are denoted as \fC<int>\fP, \fC<real>\fP, \fC<mx>\fP,
+\fBmcxi\fP\&'s types are denoted as \fC<int>\fP, \fC<real>\fP, \fC<mx>\fP,
 \fC<str>\fP, \fC<block>\fP, and so are objects that can be of that type\&. An
 object that is of underspecified type (such as taken by overloaded
 operators) is denoted \fC<obj>\fP\&.
 Where a variable name must occur, \fC<var>\fP is written\&.
-In \fBmcx\fP parlance a \&'variable\&' is the same as \&'handle\&'\&.
+In \fBmcxi\fP parlance a \&'variable\&' is the same as \&'handle\&'\&.
 Remember that a variable named \fCx\fP is written \fC\&.x\fP, and
-that a string "foo" is entered as \fC/foo\fP in \fBmcx\fP\&.
+that a string "foo" is entered as \fC/foo\fP in \fBmcxi\fP\&.
 .SH OPERATORS
 
-.ZI 3m "\fBhelp\fP"
+.ZI 2m "\fBhelp\fP"
 \&
 .br
 \fBhelp\fP with no arguments prints a descriptory line for each primitive\&.
 Can only be used at bottom of stack\&.
 Alias: \fBh\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fC/str\fP \fBhelp\fP"
+.ZI 2m "\fC/str\fP \fBhelp\fP"
 \&
 .br
 \fBhelp\fP with argument \fC/str\fP prints a descriptive line for the
 primitive named \fCstr\fP\&. The string must be identical to the primitive\&'s
 name, or help will not show anything\&. Alias: \fBh\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fC/str\fP \fBgrep\fP"
+.ZI 2m "\fC/str\fP \fBgrep\fP"
 \&
 .br
 Prints each descriptive line in which the string str occurs (literally)\&.
@@ -188,82 +188,82 @@ So \fC/matrix grep\fP should produce a lot of matrix related
 primitives (although it may miss generic primitives such as \fBadd\fP
 and \fBmul\fP)\&. At bottom of stack, prints all descriptive lines\&.
 Alias: \fBg\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fBops\fP"
+.ZI 2m "\fBops\fP"
 \&
 .br
 Lists all primitives and aliases concisely in a paragraph\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fBlist\fP"
+.ZI 2m "\fBlist\fP"
 \&
 .br
 Lists the contents of the operand stack\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fBinfo\fP"
+.ZI 2m "\fBinfo\fP"
 \&
 .br
 Lists the top element of the operand stack\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fC<int>\fP \fBtell\fP"
+.ZI 2m "\fC<int>\fP \fBtell\fP"
 \&
 .br
 Lists the top \fC<int>\fP elements of the operand stack\&.
 The trio of \fBlist\fP, \fBinfo\fP, and \fBtell\fP
 is perhaps overdoing it slightly, but anyway there it is\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fBvars\fP"
+.ZI 2m "\fBvars\fP"
 \&
 .br
 Lists all variables currently bound\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fC<obj>\fP \fC<var>\fP \fBdef\fP"
+.ZI 2m "\fC<obj>\fP \fC<var>\fP \fBdef\fP"
 \&
 .br
 Bind \fC<obj>\fP to \fC<var>\fP\&. Redefinition is allowed\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fC<var>\fP \fBfree\fP"
+.ZI 2m "\fC<var>\fP \fBfree\fP"
 \&
 .br
 Break the binding between \fC<var>\fP and the object it currently binds,
 and remove object\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fBunlink\fP"
+.ZI 2m "\fBunlink\fP"
 \&
 .br
 Break the binding between \fC<var>\fP and the object it currently binds,
 and push object on the stack\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fC<int> <block1> <block2>\fP \fBifelse\fP"
+.ZI 2m "\fC<int> <block1> <block2>\fP \fBifelse\fP"
 \&
 .br
 If \fC<int>\fP is nonzero execute \fC<block1>\fP,
 otherwise execute \fC<block2>\fP\&.
 The equate operators \fBlt\fP, \fBlq\fP, \fBeq\fP, \fBgq\fP, and \fBgt\fP
 can be used to leave an \fC<int>\fP on the stack\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fC<block>\fP \fBdo\fP"
+.ZI 2m "\fC<block>\fP \fBdo\fP"
 \&
 .br
 Execute \fC<block>\fP (one time)\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fC<int> <block>\fP \fBrepeat\fP"
+.ZI 2m "\fC<int> <block>\fP \fBrepeat\fP"
 \&
 .br
 Execute \fC<block>\fP \fC<int>\fP times\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fC<block1> <block2>\fP \fBwhile\fP"
+.ZI 2m "\fC<block1> <block2>\fP \fBwhile\fP"
 \&
 .br
 This primitive repeatedly executes the \fIcondition\fP \fC<block1>\fP,
@@ -271,21 +271,21 @@ This primitive repeatedly executes the \fIcondition\fP \fC<block1>\fP,
 pushed integer is popped\&. If it was non-zero, \fC<block2>\fP is executed,
 \fC<block1>\fP is executed, and the cycle continues\&. If it was zero,
 \fBwhile\fP is done\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fBpop\fP"
+.ZI 2m "\fBpop\fP"
 \&
 .br
 Pops one element off of the stack\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fBexch\fP"
+.ZI 2m "\fBexch\fP"
 \&
 .br
 Exchanges the top two elements of the stack\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fBdup\fP"
+.ZI 2m "\fBdup\fP"
 \&
 .br
 Duplicates the top element and pushes the duplicate onto the stack\&. In case
@@ -293,9 +293,9 @@ of a variable, the name is duplicated and not the object it points to\&. In
 case of anonymous matrices and strings (and whatever other (composite)
 objects may emerge), a \fIdeep copy\fP is made that is completely independent
 of the original object\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fC<int>\fP \fBmdup\fP"
+.ZI 2m "\fC<int>\fP \fBmdup\fP"
 \&
 .br
 Duplicates the top \fC<int>\fP elements\&. See the \fBdup\fP entry
@@ -303,32 +303,32 @@ above for the semantics of duplication\&. I wrote \fBmdup\fP because
 I thought some other operator needed it, which turned out to be false\&.
 In the meantime, I became very much attached to \fBmdup\fP,
 so mail me if you think you have any useful use for it\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fBcopy\fP"
+.ZI 2m "\fBcopy\fP"
 \&
 .br
 Copies the top element and pushes the copy onto the stack\&.
 In case of a variable, copies the object associated with the variable
 rather than the variable\&'s name (as \fBdup\fP would do)\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fC<int1> <int2>\fP \fBroll\fP"
+.ZI 2m "\fC<int1> <int2>\fP \fBroll\fP"
 \&
 .br
 Shift \fC<int1>\fP objects cyclically \fC<int2>\fP times to the right
 if \fC<int2>\fP is positive, to the left otherwise\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fBclear\fP"
+.ZI 2m "\fBclear\fP"
 \&
 .br
 Empty the stack\&. All objects bound to variables are unaffected\&.
-.in -3m
+.in -2m
 .SH INDEX
 
-This is a list of all \fBmcx\fP\&'s primitives, including aliases\&.
-Do \&'mcx /<op> help\&' to see a short descriptive string, where <op>
+This is a list of all \fBmcxi\fP\&'s primitives, including aliases\&.
+Do \&'mcxi /<op> help\&' to see a short descriptive string, where <op>
 is one of the primitives below (remember, strings need a leading slash)\&.
 
 \fBadd\fP \fBaddto\fP \fBcdim\fP \fBch\fP \fBclear\fP \fBcopy\fP \fBdef\fP \fBdgt\fP
@@ -344,5 +344,6 @@ is one of the primitives below (remember, strings need a leading slash)\&.
 
 Stijn van Dongen\&.
 .SH SEE ALSO
+
 \fBmclfamily(7)\fP for an overview of all the documentation
 and the utilities in the mcl family\&.

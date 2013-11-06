@@ -1,42 +1,15 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- Copyright (c) 2009 Stijn van Dongen -->
 <head>
-<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <meta name="keywords" content="manual">
 <style type="text/css">
-body {
-text-align: justify;
-color: #001111;
-background: white;
+/* START zsd.base.css */
+body
+{ text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
 font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-}
-p.default {
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-text-align: justify;
-}
-p.L53 { font-size: 30pt; }
-p.L52 { font-size: 20pt; }
-p.L51 { font-size: 15pt; }
-p.L50 { font-size: 12pt; }
-p.L49 { font-size: 10pt; }
-p.L48 { font-size: 9pt; }
-p.L47 { font-size: 8pt; }
-td {
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-text-align: justify;
-}
-h3 { margin-top:1em; }
-h2 { margin-top:2em; }
-.itembullet { font-size: 10pt; }
-.left { text-align: left; }
-.right { text-align: right; }
-.center { text-align: center; }
-.nowrap { white-space: nowrap; }
-.item { font-size: 12pt;
-text-align: justify;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -69,50 +42,81 @@ div.indent
 { margin-left: 8%;
 margin-right: 0%;
 }
+.right { text-align: right; }
+.left { text-align: left; }
+.nowrap { white-space: nowrap; }
+.item_leader
+{ position: relative;
+margin-left: 8%;
+}
+.item_compact { position: absolute; vertical-align: baseline; }
+.item_cascade { position: relative; }
+.item_leftalign { text-align: left; }
+.item_rightalign
+{ width: 2em;
+text-align: right;
+}
+.item_compact .item_rightalign
+{ position: absolute;
+width: 52em;
+right: -2em;
+text-align: right;
+}
+.item_text
+{ position: relative;
+margin-left: 3em;
+}
+/* END zsd.base.css */
 </style>
 <title>The mclcm manual</title>
 </head>
 <body>
 <p style="text-align:right">
-2 Feb 2009&nbsp;&nbsp;&nbsp;
+29 May 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mclcm.ps"><b>mclcm</b></a>
-1.008, 09-033
+1.008, 09-149
 </p>
-<div style="margin-top:1em">
-<table
-cellspacing="0" border=0
-cellpadding="0" summary="itemize">
-<tr valign="baseline"><td width=48 class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div class=item>
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">1.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">2.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">3.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">4.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#options">OPTIONS</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">5.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#author">AUTHOR</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">6.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#seealso">SEE ALSO</a>
-</div></td></tr>
-</table>
-
+</div>
 </div>
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p class="default L50" style="margin-bottom:0">
-mclcm - hierarchical clustering of graphs with mcl</p>
+<p style="margin-bottom:0">
+mclcm &mdash; hierarchical clustering of graphs with mcl</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p class="default L50" style="margin-bottom:0"><b>mclcm</b> &lt;-|fname&gt; [mclcm-options] [-- "mcl options"*]</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0"><b>mclcm</b> &lt;-|fname&gt; [mclcm-options] [-- "mcl options"*]</p>
+<p style="margin-bottom:0">
 <pre><b>mclcm</b> &lt;-|fname&gt; -a "-I 4 --shadow=vl"
 <b>mclcm</b> &lt;-|fname&gt; -a "-I 3" -- "-I 5"
 <b>mclcm</b> &lt;-|fname&gt; -a "-I 3" -b1 "" -- "-ph 3 --shadow=vl -I 5"</pre>
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mclcm</b> &lt;-fname&gt;
 <a class="intern" href="#opt--contract"><b>[--contract</b> (<i>contraction mode</i>)<b>]</b></a>
 <a class="intern" href="#opt--dispatch"><b>[--dispatch</b> (<i>dispatch mode</i>)<b>]</b></a>
@@ -142,7 +146,7 @@ mclcm - hierarchical clustering of graphs with mcl</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The mclcm options may be followed by a number of trailing arguments.
 The trailing arguments should be separated from the mclcm options
 by the separator <tt>--</tt>.
@@ -160,14 +164,14 @@ described a little below. Note though that <i>dispatch</i> mode is not
 the best mode to use for hierarchical clustering. It is mostly useful
 to generate multiple mcl clusterings in a single run.
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 In all modes <b>mclcm</b> will generate a file, by default called <i>mcl.cone</i>.
 This is a representation of a hierarchical clustering that is particular
 to mcl. It can be converted to <i>newick</i> format like this:
 </p>
 <pre>         mcxdump -imx-tree mcl.cone --newick -o NEWICKFILE
    OR    mcxdump -imx-tree mcl.cone --newick -o NEWICKFILE -tab TABFILE</pre>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 In the last example, TABFILE should be a file containing a mapping
 from mcl labels to application labels. Refer to <a class="local" href="mcxio.html">mcxio</a> for
 more information about tab files and mcl input/ouput formats.
@@ -175,12 +179,10 @@ more information about tab files and mcl input/ouput formats.
 
 <a name="options"></a>
 <h2>OPTIONS</h2>
-<div style="margin-top:1em">
-<table
-cellspacing="0" border=0
-cellpadding="0" summary="itemize">
-<tr valign="baseline"><td colspan=3><a name="opt--contract"></a><b>--contract</b> (<i>repeated contraction mode</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--contract"></a><b>--contract</b> (<i>repeated contraction mode</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 This is the default mode of operation.
 At each successive step of constructing the hierarchy on top of the first
 level mcl clustering, mclcm uses a matrix derived from the input matrix and
@@ -194,7 +196,7 @@ applied to it (if any).
 The <i>expansion matrix</i> is the first expanded matrix of some
 mcl process applied to the input graph.
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 By default the base matrix is constructed from either the start matrix
 or the expansion matrix obtained from the first mcl process.
 It is possible to use a start matrix derived from special purpose
@@ -202,7 +204,7 @@ mcl transformation parameters (such as <b>-ph</b> and <b>-tf</b>)
 or an expansion matrix derived from a special purpose mcl process.
 The <b>-b1</b> and <b>-b2</b> parameters provide the interfaces
 to this functionality.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 You are advised to start with a high inflation value for the input
 graph and to use shadowing, e.g. include <tt>--shadow=vl</tt> in the
 <b>-a</b> argument.
@@ -211,21 +213,27 @@ Shadowing is a transformation where nodes are added to the
 graph, preventing relatively distant nodes from unwanted chaining.
 For more information refer to the <b>mcl</b> manual.
 The invocations in <a class="intern" href="#synopsis">SYNOPSIS</a> are a good starting point.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--dispatch"></a><b>--dispatch</b> (<i>different mcl processes</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--dispatch"></a><b>--dispatch</b> (<i>different mcl processes</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 In this mode each trailing argument is specified as a set of options to pass
 to an mcl process. For each trailing argument an mcl process is thus
 computed. The set of resulting clusterings is integrated into a hierarchy.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--integrate"></a><b>--integrate</b> (<i>existing clusterings</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--integrate"></a><b>--integrate</b> (<i>existing clusterings</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 This mode is similar to <i>dispatch</i> mode. The difference is that with
 this option mclcm simply integrates a set of already existing clusterings.
 Each trailing argument must be the name of a file containing a clustering.
 The set of clusterings thus specified is integrated into a hierarchy.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--subcluster"></a><b>--subcluster</b> (<i>repeated sub-clustering</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--subcluster"></a><b>--subcluster</b> (<i>repeated sub-clustering</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 In this mode each trailing argument specifies a set of options to pass to an
 mcl process. The second clustering process is applied to the graph of
 components induced by the first clustering, resulting in a further
@@ -236,39 +244,53 @@ typically specify increasingly higher inflation values, pre-inflation
 values, and optionally more stringent transformation parameters
 in order to achieve further subdivsions.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-a"></a><b>-a</b> &lt;opts&gt; (<i>shared mcl options</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-a"></a><b>-a</b> &lt;opts&gt; (<i>shared mcl options</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Use this to change and/or set the default mcl options for
 all iterations. Use quotes if necessary.
 Example of usage: -a "-I 5".</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-b1"></a><b>-b1</b> &lt;opts&gt; (<i>dedicated base 1 mcl options</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-b1"></a><b>-b1</b> &lt;opts&gt; (<i>dedicated base 1 mcl options</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 This will apply the mcl options <i>opts</i> to the input matrix. The
 resulting start matrix is used as the base matrix for constucting contracted
 graphs.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-b2"></a><b>-b2</b> &lt;opts&gt; (<i>dedicated base 2 mcl options</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-b2"></a><b>-b2</b> &lt;opts&gt; (<i>dedicated base 2 mcl options</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 This will apply the mcl options <i>opts</i> to the input matrix and
 compute the first iterand of the corresponding mcl process. The first
 iterand, aka the expansion matrix, is used as the base matrix for
 constucting contracted graphs.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-c"></a><b>-c</b> &lt;fname&gt; (<i>input clustering</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-c"></a><b>-c</b> &lt;fname&gt; (<i>input clustering</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 The hierarchical clustering process will be kicked off by
 the clustering found in <i>&lt;fname&gt;</i>.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-n"></a><b>-n</b> &lt;num&gt; (<i>iteration limit</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-n"></a><b>-n</b> &lt;num&gt; (<i>iteration limit</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 This puts an upper bound to the number of contractions that
 will be performed.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--root"></a><b>--root</b> (<i>ensure universe root clustering</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--root"></a><b>--root</b> (<i>ensure universe root clustering</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 In case the graph consists of different connected components,
 the last clustering computed by the mclcm process will
 correspond with those connected components. This option
 simply adds an artificial clustering where all nodes
 have been joined into a single cluster.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-cone"></a><b>-cone</b> &lt;fname&gt; (<i>nested cluster stack file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-cone"></a><b>-cone</b> &lt;fname&gt; (<i>nested cluster stack file</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 File to write the nested cluster stack to.
 The nested cluster stack contains a sequence of clusterings,
 each written as an MCL matrix.
@@ -281,22 +303,28 @@ for the cone/stack discrepancy is simple. To mcxdump
 the contents are simply a stack of matrices. It does not
 care whether the stack is cone shaped, cylindrical, or
 yet another shape.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-stack"></a><b>-stack</b> &lt;fname&gt; (<i>expanded cluster stack file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-stack"></a><b>-stack</b> &lt;fname&gt; (<i>expanded cluster stack file</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 File to write the expanded cluster stack to. The expanded cluster stack is
 similar to the nested cluster stack except that each cluster lists all the
 nodes in the input graph it contains.
 <b>mcxdump</b> can dump this format if the file name is given as
 the <b>-imx-stack</b> option.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-coarse"></a><b>-coarse</b> &lt;fname&gt; (<i>coarsened graphs file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-coarse"></a><b>-coarse</b> &lt;fname&gt; (<i>coarsened graphs file</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 File to write the sequence of coarsened graphs to. Each clustering induces a
 coarsened graph where the nodes represent the clusters and an edge between
 two nodes represents the connectivity between the corresponding two
 clusters. The computation of this connectivity takes into account all edges
 between the two clusters in in the original graph.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-write"></a><b>-write</b> &lt;tag&gt; (<i>select output modes</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-write"></a><b>-write</b> &lt;tag&gt; (<i>select output modes</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Use this option to explictly specify all of the output types you want
 written in a comma-separated string. <i>&lt;tag&gt;</i> may contain
 any of the strings <i>stack</i>, <i>cone</i>, <i>coarse</i>, <i>steps</i>.
@@ -304,49 +332,59 @@ The current default is to write all of these except <i>coarse</i>.
 The latter dumps the intermediate coarsened (aka contracted) graphs
 to a single file.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-write-base"></a><b>-write-base</b> &lt;fname&gt; (<i>write base matrix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-write-base"></a><b>-write-base</b> &lt;fname&gt; (<i>write base matrix</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Write the base matrix to file. This can be useful for debugging
 expectations.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-stem"></a><b>-stem</b> &lt;str&gt; (<i>prefix for all outputs</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-stem"></a><b>-stem</b> &lt;str&gt; (<i>prefix for all outputs</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 All output files share the same prefix. The default is <tt>mcl</tt>
 and can be changed with this option.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--mplex"></a><b>--mplex</b>=y/n (<i>write clusterings separately</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--mplex"></a><b>--mplex</b>=y/n (<i>write clusterings separately</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 If turned on each clustering is written in a separate file. The first
 clustering is written to the file <i>&lt;stem&gt;</i>.3 where <i>&lt;stem&gt;</i> is
 determined by the <b>-stem</b> option. For each subsequent clustering
 the index is incremented by two, so clusterings are written to
 files for which the name ends with an odd index.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-annot"></a><b>-annot</b> str (<i>dummy annotation option</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-annot"></a><b>-annot</b> str (<i>dummy annotation option</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 <b>mclcm</b> writes the command line with which it was invoked to the output file
 (either of the <i>cone</i> or <i>stack</i> files). Use this option to include
 any additional information. mclcm does nothing with this option except copying
 it as just described.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-q"></a><b>-q</b> spec (<i>log levels</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-q"></a><b>-q</b> spec (<i>log levels</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Set the quiet level. Read <a class="local" href="tingea.log.html">tingea.log</a> for syntax and semantics.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-z"></a><b>-z</b> (<i>show default shared options</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-z"></a><b>-z</b> (<i>show default shared options</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Show the default mcl options. These are used for each mcl invocation as
 successively applied to the input graph and succeeding contracted graphs.</p>
-</div></td></tr>
-</table>
-
+</div>
 </div>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p class="default L50">
+<p>
 Stijn van Dongen.
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p class="default L50">
+<p>
 <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
 </body>

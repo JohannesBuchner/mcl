@@ -89,6 +89,7 @@ enum
 ,  ALG_OPT_ADAPTLOCAL
 ,  ALG_OPT_ADAPTTEST
 ,  ALG_OPT_ADAPTSMOOTH
+,  ALG_OPT_REGULARIZED
 ,  ALG_OPT_SHADOW_MODE
 ,  ALG_OPT_SHADOW_VL
 ,  ALG_OPT_SHADOW_S
@@ -289,6 +290,12 @@ mcxOptAnchor mclAlgOptions[] =
    ,  ALG_OPT_ADAPTLOCAL
    ,  NULL
    ,  "locally change inflation based on dispersion"
+   }
+,  {  "--regularized"
+   ,  MCX_OPT_HIDDEN
+   ,  ALG_OPT_REGULARIZED
+   ,  NULL
+   ,  "use 'regularized mcl' expansion step"
    }
 ,  {  "-discard-loops"
    ,  MCX_OPT_HASARG
@@ -669,6 +676,8 @@ fprintf(stderr, "postprocess read tab with %d entries: %p\n", (int) N_TAB(mlp->t
       {  dim sjd_left, sjd_right, n_adjusted
       ;  mclx* cladj
       ;  mclv* lsadj
+
+;if (cl->dom_cols->ivps[0].idx != 0) fprintf(stderr, "miss (start lint)\n")
 
       ;  mcxLog
          (  MCX_LOG_FUNC
@@ -1562,6 +1571,11 @@ mcxstatus mclAlgorithmInit
          ;  break
          ;
 
+            case ALG_OPT_REGULARIZED
+         :  mpp->expansionVariant = 1
+         ;  break
+         ;
+
             case ALG_OPT_CEILNB
          :  i = atoi(opt->val)
          ;  if ((vok = chb(anch->tag, 'i', &i, intGq, &i_1, NULL, NULL)))
@@ -2074,7 +2088,7 @@ static int mclAlgorithmTransform
       ;  }
       }
 
-      if (mlp->pre_inflation > 0)
+      if (mlp->pre_inflation >= 0)
          mclxInflate(mx, mlp->pre_inflation)
       ,  n_ops++
 

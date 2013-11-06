@@ -1,14 +1,18 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{mcxsubs}
-\set{"man::html-title"}{The mcxsubs manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
-\${html}{\"man::maketoc"}
+   {name}{mcxsubs}
+   {html_title}{The mcxsubs manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{mcxsubs}{extract submatrices (subgraphs) of a matrix (graph).}
@@ -26,7 +30,7 @@
 \par{
    Additionally, mcxsubs enables
 }
-\begin{itemize}{{contiguous}{1}{compact}{1}}
+\begin{itemize}{{interitem}{0}{flow}{compact}}
 \item
 \car{
    selecting matrix entries based on value.
@@ -123,7 +127,7 @@
 
 \sec{options}{OPTIONS}
 
-\begin{itemize}
+\begin{itemize}{\mcx_itemopts}
 
 \item{\defopt{-imx}{<fname>}{input matrix}}
 \car{
@@ -346,7 +350,7 @@ It does not matter whether more than one subgraph is specified.
 
 \par{Examples:}
 
-\begin{itemize}
+\begin{itemize}{\mcx_itemopts}
 \item{\v{dom(cr, i(0-6,10,11-14))}}
 \car{
    Principal submatrix on indices 0-6, 10, and 11-14 \- all column and row
@@ -539,7 +543,7 @@ It does not matter whether more than one subgraph is specified.
    corresponding with the order in which they are listed below.
 }
 
-\begin{itemize}{{w1}{6}}
+\begin{itemize}{\mcx_itemopts}
 \item{skel}
    This creates an empty submatrix on the specified domains, and does
    \it{not} fill it with the corresponding entries from the
@@ -609,7 +613,7 @@ the resulting matrix should be output in binary format.
    and \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 
-\"man::postamble"
+\end{pud::man}
 
 
 \done

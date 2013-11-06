@@ -1123,8 +1123,10 @@ int main
 
             mclxFree(&cc)
       ;  }
+         else if (subcluster_g || dispatch_g)
+         mclxFree(&clnext)
 
-         mclAlgParamFree(&mlp, TRUE)                        /* frees mx_coarse */
+      ;  mclAlgParamFree(&mlp, TRUE)                        /* frees mx_coarse */
 
       ;  if (!clnew && !faith)
          {  same = TRUE
@@ -1148,10 +1150,16 @@ int main
       mclxCatReverse(&stck_g)
 
    ;  if (dispatch_g || subcluster_g)
-      {  if (xfstack)
+      {  dim j
+      ;  if (xfstack)
          mclxCatWrite(xfstack, &stck_g, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
       ;  if (xfcone && ! mclxCatConify(&stck_g))
          mclxCatWrite(xfcone, &stck_g, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
+      ;  for (j=0;j<stck_g.n_level;j++)
+         {  mclxAnnot* an = stck_g.level+j
+         ;  mclxFree(&an->mx)
+      ;  }
+         mcxFree(stck_g.level)
    ;  }
 
       mcxIOfree(&xfcoarse)
@@ -1161,8 +1169,9 @@ int main
 
    ;  mcxTingFree(&shared)
 
-   ;  if (!dispatch_g)          /* fixme fixme fixme */
+   ;  if (!dispatch_g && !subcluster_g)          /* fixme fixme fixme */
       mclxFree(&clprev)
+
    ;  mclxFree(&mxbase)
    ;  mclvFree(&start_col_sums_g)
    ;  mcxTingFree(&cline)

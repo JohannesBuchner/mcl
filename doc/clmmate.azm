@@ -1,14 +1,18 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{clm mate}
-\set{"man::html-title"}{The clm mate manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
-\${html}{\"man::maketoc"}
+   {name}{clm mate}
+   {html_title}{The clm mate manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{clm mate}{compute best matches between two clusterings}
@@ -111,5 +115,5 @@ that are subset of a cluster in the second file.}
    and the utilities in the mcl family.
 }
 
-\"man::postamble"
+\end{pud::man}
 

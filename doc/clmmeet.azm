@@ -1,14 +1,18 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{clm meet}
-\set{"man::html-title"}{The clm meet manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
-\${html}{\"man::maketoc"}
+   {name}{clm meet}
+   {html_title}{The clm meet manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{clm meet}{compute the intersection of a set of clusterings.}
@@ -65,5 +69,5 @@
    and the utilities in the mcl family.
 }
 
-\"man::postamble"
+\end{pud::man}
 

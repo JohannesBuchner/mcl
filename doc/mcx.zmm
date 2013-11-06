@@ -33,7 +33,14 @@
 \'setx{"mcx::tag"}{\'tr{{delete}{[:space:]}}{\"mcx::tag"}}
 \'setx{"mcx::stamp"}{\'tr{{delete}{[:space:]}}{\"mcx::stamp"}}
 
-\'setx{"man::tag"}{\"mcx::tag", \"mcx::stamp"}
+\setx{man_share}{
+   {year}    {\"man::year"}
+   {month}   {\"man::month"}
+   {day}     {\"man::day"}
+   {tag}     {\"mcx::tag", \"mcx::stamp"}
+   {stamp}   {\"mcx::stamp"}
+}
+
 \'setx{"mcx::date"}{\"man::day" \"man::month" \"man::year"}
 
 \'def{mcl}{\bf{mcl}}
@@ -120,7 +127,7 @@ in the \sibref{clm} manual page.}}
 \'def{mcxmap}{\bf{mcxmap}}
 \'def{mcxassemble}{\bf{mcxassemble}}
 
-\'def{mcx_itemopts}{{$w1}{2}{$w2}{1}}
+\'def{mcx_itemopts}{{flow}{cascade}{interitem}{1}{$w1}{2}{$w2}{1}{textindent}{2}{itemmargin}{1}}
 
 \: different conventions for html and roff.
 \: in roff I use 'section 5' of the manual pages.

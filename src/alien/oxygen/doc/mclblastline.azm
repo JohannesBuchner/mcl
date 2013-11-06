@@ -1,11 +1,18 @@
 \import{\"mcx-zmm"}
 
-\set{"man::name"}{mclblastline}
-\set{"man::html-title"}{The mclblastline manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
+   {name}{mclblastline}
+   {html_title}{The mclblastline manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\'${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{mclblastline}{a pipeline for clustering from BLAST files.}
@@ -129,5 +136,5 @@
 \par{
    \sib{mcxdeblast}, \sib{mclpipeline}, \sib{mcxassemble}.}
 
-\"man::postamble"
+\end{pud::man}
 

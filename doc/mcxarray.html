@@ -1,42 +1,15 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- Copyright (c) 2009 Stijn van Dongen -->
 <head>
-<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <meta name="keywords" content="manual">
 <style type="text/css">
-body {
-text-align: justify;
-color: #001111;
-background: white;
+/* START zsd.base.css */
+body
+{ text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
 font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-}
-p.default {
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-text-align: justify;
-}
-p.L53 { font-size: 30pt; }
-p.L52 { font-size: 20pt; }
-p.L51 { font-size: 15pt; }
-p.L50 { font-size: 12pt; }
-p.L49 { font-size: 10pt; }
-p.L48 { font-size: 9pt; }
-p.L47 { font-size: 8pt; }
-td {
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-text-align: justify;
-}
-h3 { margin-top:1em; }
-h2 { margin-top:2em; }
-.itembullet { font-size: 10pt; }
-.left { text-align: left; }
-.right { text-align: right; }
-.center { text-align: center; }
-.nowrap { white-space: nowrap; }
-.item { font-size: 12pt;
-text-align: justify;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -69,46 +42,77 @@ div.indent
 { margin-left: 8%;
 margin-right: 0%;
 }
+.right { text-align: right; }
+.left { text-align: left; }
+.nowrap { white-space: nowrap; }
+.item_leader
+{ position: relative;
+margin-left: 8%;
+}
+.item_compact { position: absolute; vertical-align: baseline; }
+.item_cascade { position: relative; }
+.item_leftalign { text-align: left; }
+.item_rightalign
+{ width: 2em;
+text-align: right;
+}
+.item_compact .item_rightalign
+{ position: absolute;
+width: 52em;
+right: -2em;
+text-align: right;
+}
+.item_text
+{ position: relative;
+margin-left: 3em;
+}
+/* END zsd.base.css */
 </style>
 <title>The mcxarray manual</title>
 </head>
 <body>
 <p style="text-align:right">
-2 Feb 2009&nbsp;&nbsp;&nbsp;
+29 May 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxarray.ps"><b>mcxarray</b></a>
-1.008, 09-033
+1.008, 09-149
 </p>
-<div style="margin-top:1em">
-<table
-cellspacing="0" border=0
-cellpadding="0" summary="itemize">
-<tr valign="baseline"><td width=48 class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div class=item>
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">1.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">2.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">3.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">4.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#options">OPTIONS</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">5.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#author">AUTHOR</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">6.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#seealso">SEE ALSO</a>
-</div></td></tr>
-</table>
-
+</div>
 </div>
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p class="default L50" style="margin-bottom:0">
-mcxarray - Transform array data to MCL matrices</p>
+<p style="margin-bottom:0">
+mcxarray &mdash; Transform array data to MCL matrices</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mcxarray</b> [options]</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mcxarray</b>
 <a class="intern" href="#opt-data"><b>[-data</b> fname (<i>input data file</i>)<b>]</b></a>
 <a class="intern" href="#opt-skipr"><b>[-skipr</b> &lt;num&gt; (<i>skip &lt;num&gt; data rows</i>)<b>]</b></a>
@@ -135,7 +139,7 @@ mcxarray - Transform array data to MCL matrices</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mcxarray</b> can either read a flat file containing array data (<b>-data</b>)
 or a matrix file satisfying the mcl input format (<b>-imx</b>). In the
 former case it will by default work with the rows as the data vectors. In
@@ -147,92 +151,126 @@ This can be changed for both using the
 
 <a name="options"></a>
 <h2>OPTIONS</h2>
-<div style="margin-top:1em">
-<table
-cellspacing="0" border=0
-cellpadding="0" summary="itemize">
-<tr valign="baseline"><td colspan=3><a name="opt-data"></a><b>-data</b> fname (<i>input data file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-data"></a><b>-data</b> fname (<i>input data file</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Specify the data file containing the expression values.
 It should be tab-separated.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-imx"></a><b>-imx</b> fname (<i>input matrix file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-imx"></a><b>-imx</b> fname (<i>input matrix file</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 The expression values are read from a file in mcl matrix format.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-skipr"></a><b>-skipr</b> &lt;num&gt; (<i>skip &lt;num&gt; data rows</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-skipr"></a><b>-skipr</b> &lt;num&gt; (<i>skip &lt;num&gt; data rows</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Skip the first <i>&lt;num&gt;</i> data rows.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-skipc"></a><b>-skipc</b> &lt;num&gt; (<i>skip &lt;num&gt; data columns</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-skipc"></a><b>-skipc</b> &lt;num&gt; (<i>skip &lt;num&gt; data columns</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Ignore the first <i>&lt;num&gt;</i> data columns.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-l"></a><b>-l</b> &lt;num&gt; (<i>take labels from column &lt;num&gt;</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-l"></a><b>-l</b> &lt;num&gt; (<i>take labels from column &lt;num&gt;</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Specifies to construct a tab of labels from this data column.
 The tab can be written to file using <a class="intern" href="#opt-write-tab"><b>-write-tab</b>&nbsp;<i>fname</i></a>.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-write-tab"></a><b>-write-tab</b> &lt;fname&gt; (<i>write row labels to file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-write-tab"></a><b>-write-tab</b> &lt;fname&gt; (<i>write row labels to file</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Write a tab file. In the simple case where the labels are in the first
 data column it is sufficient to issue <b>-skipc</b>&nbsp;<b>1</b>.
 If more data columns need to be skipped one must explicitly specify
 the data column to take labels from with <b>-l</b>&nbsp;<i>l</i>.
 </p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-n"></a><b>-n</b> mode (<i>normalization mode</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-n"></a><b>-n</b> mode (<i>normalization mode</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 If <i>mode</i> is set to <b>z</b> the data will be normalized
 based on z-score. No other modes are currently supported.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-o"></a><b>-o</b> fname (<i>output file fname</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-o"></a><b>-o</b> fname (<i>output file fname</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Output file name.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-digits"></a><b>-digits</b> &lt;num&gt; (<i>output precision</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-digits"></a><b>-digits</b> &lt;num&gt; (<i>output precision</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Specify the precision to use in native interchange format.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-co"></a><b>-co</b> num (<i>cutoff for output values</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cutoff"></a><b>-cutoff</b> num (<i>alias for <b>-co</b></i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-co"></a><b>-co</b> num (<i>cutoff for output values</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-cutoff"></a><b>-cutoff</b> num (<i>alias for <b>-co</b></i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Output values smaller than <i>num</i> are removed (set to zero).</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-gq"></a><b>-gq</b> num (<i>ignore input smaller than</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-gq"></a><b>-gq</b> num (<i>ignore input smaller than</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Input values smaller than <i>num</i> are ignored.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-lq"></a><b>-lq</b> num (<i>ignore input larger than</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-lq"></a><b>-lq</b> num (<i>ignore input larger than</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Input values larger than <i>num</i> are ignored.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--transpose"></a><b>--transpose</b> (<i>work with the transpose</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--transpose"></a><b>--transpose</b> (<i>work with the transpose</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Work with the transpose of the input data matrix.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--cosine"></a><b>--cosine</b> (<i>use cosine</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--cosine"></a><b>--cosine</b> (<i>use cosine</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Use the cosine as correlation measure.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--pearson"></a><b>--pearson</b> (<i>use Pearson correlation (default)</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--pearson"></a><b>--pearson</b> (<i>use Pearson correlation (default)</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Compute the Pearson correleation coefficient as the similarity between the
 data columns.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-tear"></a><b>-tear</b> num (<i>inflate input columns</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-tear"></a><b>-tear</b> num (<i>inflate input columns</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Apply (column-wise) inflation with parameter <i>num</i> to the input
 values before further processing.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-teartp"></a><b>-teartp</b> num (<i>inflate tranposed columns</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-teartp"></a><b>-teartp</b> num (<i>inflate tranposed columns</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Apply (column-wise) inflation with parameter <i>num</i> to the input
 values in the transposed matrix before further processing.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-pi"></a><b>-pi</b> num (<i>inflate the result</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-pi"></a><b>-pi</b> num (<i>inflate the result</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Apply inflation with parameter <i>num</i> to the output values.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt--apropos"></a><b>--apropos</b> (<i>print help</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-h"></a><b>-h</b> (<i>print help</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--version"></a><b>--version</b> (<i>print version information</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-</div></td></tr>
-</table>
-
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--apropos"></a><b>--apropos</b> (<i>print help</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-h"></a><b>-h</b> (<i>print help</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--version"></a><b>--version</b> (<i>print version information</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+</div>
 </div>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Stijn van Dongen.</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <a class="local" href="mcl.html">mcl</a>,
 <a class="local" href="mclfaq.html">mclfaq</a>,
 and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation

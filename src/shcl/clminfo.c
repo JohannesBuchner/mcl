@@ -60,6 +60,7 @@ enum
 ,  MY_OPT_ADAPT
 ,  MY_OPT_PI
 ,  MY_OPT_TF
+,  MY_OPT_CEILNB
 ,  MY_OPT_NOODLE
 ,  MY_OPT_CABOODLE
 }  ;
@@ -96,6 +97,12 @@ static mcxOptAnchor infoOptions[] =
    ,  "<tf-spec>"
    ,  "first apply tf-spec to matrix"
    }
+,  {  "-ceil-nb"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_CEILNB
+   ,  "<num>"
+   ,  "remove edges from nodes with more than <num> edges"
+   }
 ,  {  "-cl-tree"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_CLTREE
@@ -130,6 +137,7 @@ static mcxbool caboodle     =  -1;
 static mcxbool noodle       =  -1;
 static mcxbool cone         =  -1;
 static mcxTing* tfting      = (void*) -1;
+static  dim ceilnb_g        =  -1;
 
 
 static mcxstatus infoInit
@@ -145,6 +153,7 @@ static mcxstatus infoInit
    ;  preprune       =  0
    ;  tfting         =  NULL
    ;  caboodle       =  FALSE
+   ;  ceilnb_g       =  0
    ;  noodle         =  FALSE
    ;  cone           =  FALSE
    ;  return STATUS_OK
@@ -178,6 +187,11 @@ static mcxstatus infoArgHandle
 
          case MY_OPT_CABOODLE
       :  caboodle = TRUE
+      ;  break
+      ;
+
+         case MY_OPT_CEILNB
+      :  ceilnb_g = atoi(val)
       ;  break
       ;
 
@@ -243,6 +257,10 @@ static mcxstatus infoMain
    {  int a =  0
    ;  mcxTing* ginfo = mcxTingEmpty(NULL, 40)
 
+   ;  mcxLogLevel =
+      MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
+   ;  mclx_app_init(stderr)
+
    ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_NO)
 
    ;  if
@@ -262,7 +280,22 @@ static mcxstatus infoMain
    ;  xfmx  =  mcxIOnew(argv[a++], "r")
    ;  mx    =  mclxReadx(xfmx, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH)
 
-   ;  if (tfting)
+   ;  if (ceilnb_g)
+      {  dim n_hub, n_in, n_out
+      ;  mclv* sel = mclgCeilNB(mx, ceilnb_g, &n_hub, &n_in, &n_out)
+      ;  mcxLog
+         (  MCX_LOG_FUNC
+         ,  me
+         ,  "considered %lu nodes in prepruning step (%lu needed, %lu edges out, %lu edges in)"
+         ,  (ulong) sel->n_ivps
+         ,  (ulong) n_hub
+         ,  (ulong) n_out
+         ,  (ulong) n_in
+         )
+      ;  mclvFree(&sel)
+   ;  }
+
+      if (tfting)
       {  mclpAR* tfar = mclpTFparse(NULL, tfting)
       ;  if (!tfar)
          mcxDie(1, me, "errors in tf-spec")

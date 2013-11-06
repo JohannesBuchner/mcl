@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "clm imac" 1 "2 Feb 2009" "clm imac 1\&.008, 09-033" "USER COMMANDS "
+.TH "clm imac" 1 "29 May 2009" "clm imac 1\&.008, 09-149" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -64,28 +64,28 @@ Another reason is to investigate how the cluster structure
 associated with the MCL process evolves over time\&.
 .SH OPTIONS
 
-.ZI 3m "\fB-imx\fP fname (\fIinput file\fP)"
+.ZI 2m "\fB-imx\fP fname (\fIinput file\fP)"
 \&
 .br
 The input file is presumably an MCL iterand resulting
 from the mcl option \fB-dump\fP\ \&\fBite\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-strict\fP num (\fIin 0\&.\&.1\fP)"
+.ZI 2m "\fB-strict\fP num (\fIin 0\&.\&.1\fP)"
 \&
 .br
 Higher values (up until 1) will thin out the DAG
 constructed by \fBclm imac\fP\&. The default value is 0\&.00001,
 yielding the full DAG\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-o\fP fname (\fIfile name/stem\fP)"
+.ZI 2m "\fB-o\fP fname (\fIfile name/stem\fP)"
 \&
 .br
 Write to file named \fIfname\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-dag\fP fname (\fIoutput DAG\fP)"
+.ZI 2m "\fB-dag\fP fname (\fIoutput DAG\fP)"
 \&
 .br
 Write the DAG (directed acyclic graph) constructed from the input to
@@ -93,24 +93,24 @@ file\&. This DAG is constructed according to the structure associated
 with diagonally positive semi-definite matrices as described
 in the PhD thesis \fIGraph clustering by flow simulation\fP\&.
 Consult \fBmclfamily(7)\fP for references\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-sort\fP str (\fIsize|revsize|lex|none\fP)"
+.ZI 2m "\fB-sort\fP str (\fIsize|revsize|lex|none\fP)"
 \&
 .br
 Sort the clusters either by increasing size, decreasing size,
 lexicographically by the indices they contain, or use the clustering
 exactly as obtained from the interpretation routine\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-overlap\fP mode (\fIoverlap mode\fP)"
+.ZI 2m "\fB-overlap\fP mode (\fIoverlap mode\fP)"
 \&
 .br
 With \fImode\fP set to \fIcut\fP, remove any overlap by allocating the
 nodes in overlap to the first cluster in which they were found\&. Mode
 \fIkeep\fP leaves overlap unchanged, and mode \fIsplit\fP results in overlapping
 parts excised and introduced as clusters in their own right\&.
-.in -3m
+.in -2m
 .SH AUTHOR
 
 Stijn van Dongen\&.

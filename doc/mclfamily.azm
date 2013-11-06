@@ -1,13 +1,19 @@
 \import{mcx.zmm}
 
-\set{"man::name"}{The\~MCL\~family}
-\set{"man::html-title"}{The MCL family}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{7}
+\begin{pud::man}{
 
-\"man::preamble"
+   {name}{mcl}
+   {html_title}{The\~MCL\~family}
+   {title}{The MCL family}
+   {author}{Stijn van Dongen}
+   {section}{7}
+   {synstyle}{long}
+   {defstyle}{long}
 
-\${html}{\"man::maketoc"}
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \${html}{\sec{name}{NAME}}
 \${roff}{\sec{*}{name}{NAME}}
@@ -25,7 +31,11 @@
 \: of gaining insight, evaluating results, and implementing sanity checks,
 \: using these utilities.
 
-\begin{itemize}{{compact}{1}{contiguous}{1}{w1}{15}{f1}{7}}
+\begin{itemize}{
+   {flow}{compact}
+   {interitem}{0}
+   {textindent}{15}
+}
 \apply{_#2\!{{
       \switch{\1}{
          {skip}{\itemskip}
@@ -223,16 +233,20 @@
    a graph into \mcl. Can also prepare input for mcxassemble
    or can be plugged into the heavy-weight mclblastline.}
 
-\"man::postamble"
+\end{pud::man}
+
+\done
 
 \sec{env}{ENVIRONMENT}
 
-\'begin{itemize}{{compact}{0}{contiguous}{0}{align}{left}}
+\'begin{itemize}{
+   {flow}{cascade}
+   {interitem}{1}
+   {align}{left}
+}
 \item{MCXLOGTAG}
 \car{
    An interface to the logging code used in much of the mcl libraries.}
 \'end{itemize}
-
-\done
 
 

@@ -1,14 +1,18 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{clm residue}
-\set{"man::html-title"}{The clm residue manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
-\${html}{\"man::maketoc"}
+   {name}{clm residue}
+   {html_title}{The clm residue manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{clm residue}{extend clustering of subgraph to clustering of graph.}
@@ -36,7 +40,7 @@
 
 \sec{options}{OPTIONS}
 
-\begin{itemize}
+\begin{itemize}{\mcx_itemopts}
 
 \item{\defopt{-imx}{fname}{input graph}}
 \item{\defopt{-icl}{fname}{input clustering}}
@@ -85,4 +89,4 @@
    and the utilities in the mcl family.
    }
 
-\"man::postamble"
+\end{pud::man}

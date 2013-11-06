@@ -1,12 +1,19 @@
-\setx{__searchpath__}{\__searchpath__\!{}{../../../zoem/mac}}
+\: setx{__searchpath__}{\__searchpath__\!{}{../../../zoem/mac}}
 \import{mcx.zmm}
 
-\set{"man::name"}{mclpipeline}
-\set{"man::html-title"}{The mclpipeline manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
+   {name}{mclpipeline}
+   {html_title}{The mclpipeline manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\'${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{mclpipeline}{a generic pipeline for generating and scrutinizing mcl clusterings.}
@@ -433,4 +440,4 @@ a clustering consisting of tab-separated labels.}
    of \zoem. It can be obtained from
    \httpref{http://micans.org/zoem/} .
 
-\"man::postamble"
+\end{pud::man}

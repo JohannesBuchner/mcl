@@ -1,14 +1,18 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{mcxrand}
-\set{"man::html-title"}{The mcxrand manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
-\${html}{\"man::maketoc"}
+   {name}{mcxrand}
+   {html_title}{The mcxrand manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{mcxrand}{random shuffling, removal, addition, and perturbation of edges of graphs}
@@ -149,7 +153,7 @@ mcxrand -imx <name> -noise-radius f    # add noise to add weights}
 
 \sec{options}{OPTIONS}
 
-\begin{itemize}
+\begin{itemize}{\mcx_itemopts}
 
 \item{\defopt{-imx}{<fname>}{input matrix}}
 \car{
@@ -228,5 +232,5 @@ mcxrand -imx <name> -noise-radius f    # add noise to add weights}
    and \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.}
 
-\"man::postamble"
+\end{pud::man}
 

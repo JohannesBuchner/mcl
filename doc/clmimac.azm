@@ -1,14 +1,18 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{clm imac}
-\set{"man::html-title"}{The clm imac manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
-\${html}{\"man::maketoc"}
+   {name}{clm imac}
+   {html_title}{The clm imac manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{clm imac}{Interpret Matrices (c.q. MCL iterands output by \mcl)\
@@ -101,4 +105,4 @@
    \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.}
 
-\"man::postamble"
+\end{pud::man}

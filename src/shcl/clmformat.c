@@ -407,33 +407,31 @@ char** mknames
    ;  for (i=0;i<N_COLS(cl);i++)
       {  int clid = cl->cols[i].vid
 
-      ;  if (batchsize)
-         {  if (!carry)
-            {  dim j
-            ;  for (j=i;j<N_COLS(cl) && carry<batchsize;j++)
-               carry+= cl->cols[j].n_ivps
-            ;  carry = 0
-            ;  mcxTingWrite(bch, base)
-            ;  mcxTingPrintAfter
-               (  bch
-               ,  "%s%ld"
-               ,  bch->len ? "." : ""
-               ,  (long) clid
-               )
-            ;  if (j-i > 1)
-               mcxTingPrintAfter
-               (  bch
-               ,  "-%ld"
-               ,  (long) (j-1)
-               )
-         ;  }
-            carry += cl->cols[i].n_ivps
-
-         ;  fnames[i] = mcxTingStr(bch)
-         ;  if (carry > batchsize)
-            carry = 0
+      ;  if (!carry)
+         {  dim j
+         ;  for (j=i;j<N_COLS(cl) && carry<batchsize;j++)
+            carry+= cl->cols[j].n_ivps
+         ;  carry = 0
+         ;  mcxTingWrite(bch, base)
+         ;  mcxTingPrintAfter
+            (  bch
+            ,  "%s%ld"
+            ,  bch->len ? "." : ""
+            ,  (long) clid
+            )
+         ;  if (j-i > 1)
+            mcxTingPrintAfter
+            (  bch
+            ,  "-%ld"
+            ,  (long) (j-1)
+            )
       ;  }
-      }
+         carry += cl->cols[i].n_ivps
+
+      ;  fnames[i] = mcxTingStr(bch)
+      ;  if (carry > batchsize)
+         carry = 0
+   ;  }
 
       fnames[N_COLS(cl)] = NULL
 
@@ -1026,7 +1024,10 @@ int main
          return 0
    ;  }
 
-      fnames = mknames(cl, infix, batchsize)
+      if (batchsize <= 0)
+      batchsize = N_ROWS(cl)
+
+   ;  fnames = mknames(cl, infix, batchsize)
 
    ;  if (!clvals)
       clvals = mkclvals(mx, cl, cl_on_cl)
@@ -1076,19 +1077,17 @@ int main
       ;  mcxTingEmpty(txtCL0, 80)
 
       ;  {  int newfile = 0
-         ;  if (batchsize)
-            {  if (i==0 || strcmp(fnames[i-1], fnames[i]))
-               {  if (split)
-                  fprintf(zfp, "\\import{%s}", fname_defs)
-               ;  fprintf(zfp, "\\writeto{%s.\\__device__}\n", fnames[i])
-               ;  newfile = 1
-            ;  }
-            /* __ we need the shortcut: otherwise i+1 might overflow */
-               if (i+1==N_COLS(cl) || strcmp(fnames[i], fnames[i+1]))
-               endfile = 1
+         ;  if (i==0 || strcmp(fnames[i-1], fnames[i]))
+            {  if (split)
+               fprintf(zfp, "\\import{%s}", fname_defs)
+            ;  fprintf(zfp, "\\writeto{%s.\\__device__}\n", fnames[i])
+            ;  newfile = 1
          ;  }
+         /* __ we need the shortcut: otherwise i+1 might overflow */
+            if (i+1==N_COLS(cl) || strcmp(fnames[i], fnames[i+1]))
+            endfile = 1
 
-            mcxTell(me, "Writing cluster %ld in batch [%s]", clid, fnames[i])
+         ;  mcxTell(me, "Writing cluster %ld in batch [%s]", clid, fnames[i])
          ;  if (newfile)
             fprintf(zfp, "\\fmt_header\n")
       ;  }

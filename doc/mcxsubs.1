@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcxsubs" 1 "2 Feb 2009" "mcxsubs 1\&.008, 09-033" "USER COMMANDS "
+.TH "mcxsubs" 1 "29 May 2009" "mcxsubs 1\&.008, 09-149" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -39,24 +39,24 @@ refinements\&.
 
 Additionally, mcxsubs enables
 
-.ZI 3m "\(bu"
+.ZI 2m "\(bu"
 selecting matrix entries based on value\&.
-.in -3m
-.ZI 3m "\(bu"
+.in -2m
+.ZI 2m "\(bu"
 making the result characteristic (set all nonzero values to 1\&.0)\&.
-.in -3m
-.ZI 3m "\(bu"
+.in -2m
+.ZI 2m "\(bu"
 pruning empty columns and empty rows\&.
-.in -3m
-.ZI 3m "\(bu"
+.in -2m
+.ZI 2m "\(bu"
 transposing the result\&.
-.in -3m
-.ZI 3m "\(bu"
+.in -2m
+.ZI 2m "\(bu"
 remapping the indices of the result to consecutive indices\&.
-.in -3m
-.ZI 3m "\(bu"
+.in -2m
+.ZI 2m "\(bu"
 and other miscellaneous operations\&.
-.in -3m
+.in -2m
 .SH SYNOPSIS
 
 \fBmcxsubs\fP \fB-imx\fP <fname> [options] <specs>+
@@ -109,23 +109,23 @@ as described in the specification\&. This can be changed using the
 \fIuni\fP directives from the \fBfin\fP part\&.
 .SH OPTIONS
 
-.ZI 3m "\fB-imx\fP <fname> (\fIinput matrix\fP)"
+.ZI 2m "\fB-imx\fP <fname> (\fIinput matrix\fP)"
 \&
 .br
 Submatrices will all be selected from the matrix in file \fC<fname>\fP\&.
 This option is obligatory, and throughout this manual its argument
 is called the \fIsource matrix\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-dom\fP <fname> (\fIdomain matrix\fP)"
+.ZI 2m "\fB-dom\fP <fname> (\fIdomain matrix\fP)"
 \&
 .br
 Submatrices are specified in terms of sets (or domains) of
 indices\&. These sets are specified by (the label of) the vectors
 from the matrix given by this options\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--block\fP (\fIuse block matrix\fP)"
+.ZI 2m "\fB--block\fP (\fIuse block matrix\fP)"
 \&
 .br
 This replaces the input matrix by the block diagonal matrix
@@ -136,39 +136,39 @@ will not include overlapping parts more than once\&.
 The output file name can either be specified in the submatrix
 specification language using the \fBout\fP(\fIfname\fP) directive,
 or with the \fB-out\fP option\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--blockc\fP (\fIuse complement of block matrix\fP)"
+.ZI 2m "\fB--blockc\fP (\fIuse complement of block matrix\fP)"
 \&
 .br
 This replaces the input matrix by the complement of the block diagonal
 matrix described above, and selection of the output name
 is exactly the same\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--skin-read\fP (\fIread domain structure without entries\fP)"
+.ZI 2m "\fB--skin-read\fP (\fIread domain structure without entries\fP)"
 \&
 .br
 This reads a skeleton matrix by only considering its domain structure
 and not reading any entries, pertaining to the matrix
 specified by the \fB-imx\fP option\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-tf\fP spec (\fIapply tf-spec to input matrix\fP)"
+.ZI 2m "\fB-tf\fP spec (\fIapply tf-spec to input matrix\fP)"
 \&
 .br
 Transform the input matrix values according
 to the syntax described in \fBmcxio(5)\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-tab\fP (\fIread tab file\fP)"
+.ZI 2m "\fB-tab\fP (\fIread tab file\fP)"
 \&
 .br
 Read a tab file\&. Its domain can be used by the \fCt\fP and \fCT\fP
 indicators\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--extend\fP (\fIread extended submatrices\fP)"
+.ZI 2m "\fB--extend\fP (\fIread extended submatrices\fP)"
 \&
 .br
 This causes the selection of submatrices where either a row index
@@ -176,24 +176,24 @@ is in the selected row domain or a columns index is in the selected
 column domain or both\&. Equivalently it only excludes matrix entries
 for which neither the column nor row index is in the selected domains\&.
 The resulting matrix has both domains equal to the source matrix\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-out\fP <fname> (\fIspecial purpose output file name\fP)"
+.ZI 2m "\fB-out\fP <fname> (\fIspecial purpose output file name\fP)"
 \&
 .br
 This specifies an output name that can be used for special purposes\&.
 Normally, output file names are specified in the submatrix specification
 using the \fBout\fP(\fIfname\fP) directive\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-efac\fP <num> (\fIrandom edge selection\fP)"
+.ZI 2m "\fB-efac\fP <num> (\fIrandom edge selection\fP)"
 \&
 .br
 \fInum\fP should be inbetween zero and one\&. It denotes the probability
 with which each edge is selected\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-dfac\fP <num> (\fIrandom domain selection\fP)"
+.ZI 2m "\fB-dfac\fP <num> (\fIrandom domain selection\fP)"
 \&
 .br
 \fInum\fP should be inbetween zero and one\&. It denotes the probability
@@ -236,62 +236,62 @@ mcxsubs -imx foo -dfac 0\&.5 \&'dom(cr), out(foo\&.rnd)\&'
 .ZV
 .fi \fR
 
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-rfac\fP <num> (\fIrandom column selection\fP)"
+.ZI 2m "\fB-rfac\fP <num> (\fIrandom column selection\fP)"
 \&
 .br
 As \fB-dfac\fP, limited to the column domain\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-cfac\fP <num> (\fIrandom row selection\fP)"
+.ZI 2m "\fB-cfac\fP <num> (\fIrandom row selection\fP)"
 \&
 .br
 As \fB-dfac\fP, limited to the row domain\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--rand-merge\fP (\fImerge random selections\fP)"
+.ZI 2m "\fB--rand-merge\fP (\fImerge random selections\fP)"
 \&
 .br
 The random selection(s) of domains identify parts of the
 matrix that will be merged with the result of the main
 selection process (default)\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--rand-discard\fP (\fIremove random selections\fP)"
+.ZI 2m "\fB--rand-discard\fP (\fIremove random selections\fP)"
 \&
 .br
 The random selection(s) of domains identify parts of the
 matrix that will be removed from the result of the main
 selection process\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--rand-intersect\fP (\fIintersect random selections\fP)"
+.ZI 2m "\fB--rand-intersect\fP (\fIintersect random selections\fP)"
 \&
 .br
 The random selection(s) of domains identify parts of the
 matrix that will be intersected with the result of the main
 selection process\&. This is the default\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--rand-exclusive\fP (\fIonly random selections\fP)"
+.ZI 2m "\fB--rand-exclusive\fP (\fIonly random selections\fP)"
 \&
 .br
 The random selection(s) of domains identify parts of the
 matrix from which the result of the main
 selection process will be removed\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-tag-digits\fP k (\fIset precision\fP)"
+.ZI 2m "\fB-tag-digits\fP k (\fIset precision\fP)"
 \&
 .br
 Sets the precision for tagged output\&.
 Setting it to \fB-tag-digits\fP\ \&\fB-1\fP
 disables the output of values altogether \- only the node indices
 and the cluster indices are written\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--tag\fP (\fItag nodes\fP)"
+.ZI 2m "\fB--tag\fP (\fItag nodes\fP)"
 \&
 .br
 Each node in the column (tail node) listing of the matrix (graph)
@@ -300,9 +300,9 @@ the use of the \fB-dom\fP option\&.
 This output mode, called \fItagged matrix\fP, is currently not
 recognized by any of the \fBmcl\fP/\fBmcx\fP input routines\&. It is present
 to facilitate easier visual inspection of clustering results\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--from-disk\fP (\fIspace/speed optimizer\fP)"
+.ZI 2m "\fB--from-disk\fP (\fIspace/speed optimizer\fP)"
 \&
 .br
 Use this if the input graph is in binary format, or if the
@@ -325,7 +325,7 @@ likely be a loss in speed\&.
 With input graphs in binary format, \fBmcxsubs\fP will
 be *very* much faster, to the extent of 400-fold speed gains\&.
 It does not matter whether more than one subgraph is specified\&.
-.in -3m
+.in -2m
 .SH SUBMATRIX SPECIFICATIONS
 
 A submatrix or subgraph spec may contain a number of spec parts\&. Each part
@@ -371,7 +371,7 @@ indicators indicate that the complement is being specified\&.
 
 Examples:
 
-.ZI 3m "\fCdom(cr, i(0-6,10,11-14))\fP"
+.ZI 2m "\fCdom(cr, i(0-6,10,11-14))\fP"
 \&
 .br
 Principal submatrix on indices 0-6, 10, and 11-14 \- all column and row
@@ -379,47 +379,47 @@ indices are from this set\&. Equivalently, this encodes the subgraph on
 nodes 0-6, 10, 11-14\&. The \&'c\&' stands for column, the \&'r\&' for row, and the
 \&'i\&' for index\&. It is also possible to specify a \&'d\&' part
 (standing for domain), this is shown further below\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fCdom(c, i(0-6,10,11-14)), dom(r, i(1-6,10,11-14))\fP"
+.ZI 2m "\fCdom(c, i(0-6,10,11-14)), dom(r, i(1-6,10,11-14))\fP"
 \&
 .br
 Equivalent (but less clear) spec of the above\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fCdom(cR, i(0-6,10,11-14))\fP"
+.ZI 2m "\fCdom(cR, i(0-6,10,11-14))\fP"
 \&
 .br
 Matrix with column indices in 0-6, 10, 11-14, and row indices
 in the complement of this set\&. Corresponds with all edges going
 \fIout\fP from the set 0-6, 10, 11-14\&. Complements are triggered
 by the use of a capital; see the next examples\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fCdom(c, i(0-6,10,11-14)), dom(R, i(1-6,10,11-14))\fP"
+.ZI 2m "\fCdom(c, i(0-6,10,11-14)), dom(R, i(1-6,10,11-14))\fP"
 \&
-'in -3m
-.ZI 3m "\fCdom(c, i(0-6,10,11-14)), dom(r, I(1-6,10,11-14))\fP"
+'in -2m
+.ZI 2m "\fCdom(c, i(0-6,10,11-14)), dom(r, I(1-6,10,11-14))\fP"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 Both these examples are equivalent to the previous one\&.
 In the last example, the capital \&'I\&' indicates that the complement
 should be taken\&. In this example, \&'r\&' combined with \&'I\&' has the
 same effect as \&'R\&' combined with \&'i\&'\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fCdom(c, d(3,5-9)), dom(r, d(8-14), i(10-30))\fP"
+.ZI 2m "\fCdom(c, d(3,5-9)), dom(r, d(8-14), i(10-30))\fP"
 \&
 .br
 Column indices are taken from the domains 3, 5-9 (from the
 domain matrix specified by \fB-dom\fP), row indices are taken
 from domains 8-14 plus the indices 10-30\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fCdom(cR, d(0-2))\fP"
+.ZI 2m "\fCdom(cR, d(0-2))\fP"
 \&
 .br
 Column indices are all indices from domains 0-2, row indices
@@ -430,7 +430,7 @@ The use of \&'D\&' is analogous to that of \&'C\&', \&'R\&', and \&'I\&'\&.
 Thus, \fCD(0-3,8,21-30)\fP specifies all indices which are in the
 complement of the set formed by taking the union of
 domains 0-3,8,21-30\&.
-.in -3m
+.in -2m
 
 The \fCc\fP and \fCr\fP indicators must be followed by a
 pair of matching parentheses\&. They specify to take respectively
@@ -517,7 +517,7 @@ according to the domain and value specifications\&. Exceptions are indicated
 below\&. Currently, there is a fixed order in which actions are considered,
 corresponding with the order in which they are listed below\&.
 
-.ZI 7m "skel"
+.ZI 2m "skel"
 \&
 .br
 This creates an empty submatrix on the specified domains, and does
@@ -525,49 +525,49 @@ This creates an empty submatrix on the specified domains, and does
 source matrix\&.
 Options from the \fBfin\fP part that affect the column and
 row domains of a matrix will still be in effect\&.
-.in -7m
+.in -2m
 
-.ZI 7m "uni"
+.ZI 2m "uni"
 \&
-'in -7m
-.ZI 7m "unir"
+'in -2m
+.ZI 2m "unir"
 \&
-'in -7m
-.ZI 7m "unic"
+'in -2m
+.ZI 2m "unic"
 \&
-'in -7m
-'in +7m
+'in -2m
+'in +2m
 \&
 .br
 After the submatrix is selected from the source matrix, its domains
 are changed to mirror one or both of the domains of the source matrix\&.
-.in -7m
+.in -2m
 
-.ZI 7m "tp"
+.ZI 2m "tp"
 \&
 .br
 The resulting submatrix is replaced by its transpose\&.
-.in -7m
+.in -2m
 
-.ZI 7m "cc"
+.ZI 2m "cc"
 \&
 .br
 The resulting submatrix is made characteristic\&.
-.in -7m
+.in -2m
 
-.ZI 7m "scrubc"
+.ZI 2m "scrubc"
 \&
-'in -7m
-.ZI 7m "scrubr"
+'in -2m
+.ZI 2m "scrubr"
 \&
-'in -7m
-.ZI 7m "scrubg"
+'in -2m
+.ZI 2m "scrubg"
 \&
-'in -7m
-.ZI 7m "scrub"
+'in -2m
+.ZI 2m "scrub"
 \&
-'in -7m
-'in +7m
+'in -2m
+'in +2m
 \&
 .br
 Domains are shrunk if there are no corresponding entries in the matrix\&.
@@ -576,22 +576,22 @@ column domain if \fCscrubc\fP is specified, and for the row domain
 if \fCscrubr\fP is specified\&. Thus, with \fCscrubc\fP columns are removed
 from the domain and the matrix if they are empty\&.
 With \fCscrubg\fP the union of the resulting domains is taken\&.
-.in -7m
+.in -2m
 
-.ZI 7m "mapc"
+.ZI 2m "mapc"
 \&
-'in -7m
-.ZI 7m "mapr"
+'in -2m
+.ZI 2m "mapr"
 \&
-'in -7m
-.ZI 7m "map"
+'in -2m
+.ZI 2m "map"
 \&
-'in -7m
-'in +7m
+'in -2m
+'in +2m
 \&
 .br
 The appropriate domains are mapped onto consecutive indices starting at zero\&.
-.in -7m
+.in -2m
 
 \fBOUTPUT\fP
 .br

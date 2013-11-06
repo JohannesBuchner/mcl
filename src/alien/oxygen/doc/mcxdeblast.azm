@@ -1,12 +1,20 @@
 \setx{__searchpath__}{\__searchpath__\!{}{../../../../../zoem/mac}}
 \import{\"mcx-zmm"}
 
-\set{"man::name"}{mcxdeblast}
-\set{"man::html-title"}{The mcxdeblast manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
+   {name}{mcxdeblast}
+   {html_title}{The mcxdeblast manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\'${html}{\"pud::man::maketoc"}
+
 
 \sec{name}{NAME}
 \NAME{mcxdeblast}{parse BLAST files and stream
@@ -172,4 +180,4 @@ in \sibref{mcl}{the mcl manual}.}
    \sib{mclblastline}, \sib{mcxassemble}, \sib{mcl},
    \sib{clmformat}.
 
-\"man::postamble"
+\end{pud::man}

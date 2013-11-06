@@ -120,6 +120,7 @@ typedef struct
 
 mclMatrix* mclExpand
 (  const mclMatrix*  mx
+,  const mclMatrix*  mxright
 ,  mclExpandParam*   mxp
 )  ;
 

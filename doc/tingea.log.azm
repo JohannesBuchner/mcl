@@ -1,12 +1,16 @@
-
 \import{mcx.zmm}
 
-\set{"man::name"}{tingea.log}
-\set{"man::html-title"}{How to set the Tingea log parameters}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{7}
+\begin{pud::man}{
 
-\"man::preamble"
+   {name}{tingea.log}
+   {html_title}{How to set the Tingea log parameters}
+   {author}{Stijn van Dongen}
+   {section}{7}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
 
 \sec{*}{name}{NAME}
 \NAME{tingea.log}{How to set the Tingea log parameters}
@@ -156,5 +160,5 @@
 \car{
    Stijn van Dongen.}
 
-\"man::postamble"
+\end{pud::man}
 

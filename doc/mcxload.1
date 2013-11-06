@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcxload" 1 "2 Feb 2009" "mcxload 1\&.008, 09-033" "USER COMMANDS "
+.TH "mcxload" 1 "29 May 2009" "mcxload 1\&.008, 09-149" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -174,25 +174,25 @@ should use the label options as described above and below\&.
 .br
 Conceptually, input matrix creation consists of the following stages
 
-.ZJ 4m 3m "i"
+.ZJ 2m 2m "i"
 Read the input stream, apply \fB-stream-tf\fP transformation
 specification, and optionally push reverse elements
 (\fB--stream-mirror\fP)\&.
-.in -7m
-.ZJ 4m 3m "ii"
+.in -4m
+.ZJ 2m 2m "ii"
 Deduplicate edges in the context of all edges/arcs originating from
 a given node according to the \fB-re\fP option\&.
-.in -7m
-.ZJ 4m 3m "iii"
+.in -4m
+.ZJ 2m 2m "iii"
 Apply transpose symmetrification according to the
 \fB-ri\fP option, if used\&.
-.in -7m
-.ZJ 4m 3m "iv"
+.in -4m
+.ZJ 2m 2m "iv"
 Apply \fB-tf\fP transformation specification\&.
-.in -7m
+.in -4m
 .SH OPTIONS
 
-.ZI 3m "\fB-abc\fP <fname> (\fIlabel file\fP)"
+.ZI 2m "\fB-abc\fP <fname> (\fIlabel file\fP)"
 \&
 .br
 The file to read label data from\&. Labels are separated by white-space\&. The
@@ -202,23 +202,23 @@ corresponding with the labels\&. If a tab is present on an input line it is
 presumed to be the separator for that line, including the value if present\&.
 Lines for which the first non-blank character is the octothorpe (\&'\fC#\fP\&')
 are skipped\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-123\fP <fname> (\fIidentifier file\fP)"
+.ZI 2m "\fB-123\fP <fname> (\fIidentifier file\fP)"
 \&
 .br
 The file to read numerical data from\&. The format is the same as
 for label data, but the identifiers are directly mapped onto mcl identifiers
 as described earlier\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-o\fP <fname> (\fIoutput file\fP)"
+.ZI 2m "\fB-o\fP <fname> (\fIoutput file\fP)"
 \&
 .br
 The output file where the constructed matrix is written\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--stream-mirror\fP (\fIsymmetrify, same domain\fP)"
+.ZI 2m "\fB--stream-mirror\fP (\fIsymmetrify, same domain\fP)"
 \&
 .br
 Whenever \fIlabel1\fP \fIlabel2\fP \fIvalue\fP
@@ -226,15 +226,15 @@ is encountered in the input, mcxload inserts
 \fIlabel2\fP \fIlabel1\fP \fIvalue\fP in the input
 stream as well\&. This option implies that both labels
 belong to the same domain\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--graph\fP (\fIassume same domain\fP)"
+.ZI 2m "\fB--graph\fP (\fIassume same domain\fP)"
 \&
 .br
 This tells mcxload that both labels belong to the same domain\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-re\fP <max|add|mul|first|last> (\fIdeduplication mode\fP)"
+.ZI 2m "\fB-re\fP <max|add|mul|first|last> (\fIdeduplication mode\fP)"
 \&
 .br
 This specifies how mcxload should collapse repeated entries, that is edges
@@ -244,121 +244,121 @@ input stream\&. Note that \fB--stream-mirror\fP will result in
 duplicated entries if the input contains edge specifications in both ways\&.
 Also note that \fBfirst\fP and \fBlast\fP might not result in
 symmetric input if only \fB--stream-mirror\fP is used\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-write-tab\fP <fname> (\fIsave domain tab\fP)"
+.ZI 2m "\fB-write-tab\fP <fname> (\fIsave domain tab\fP)"
 \&
 .br
 Write the domain to file\&. It applies to both label types\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-write-tabc\fP <fname> (\fIsave column tab\fP)"
+.ZI 2m "\fB-write-tabc\fP <fname> (\fIsave column tab\fP)"
 \&
 .br
 Write the column domain to file\&. It applies to the first label found
 on each input line\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-write-tabr\fP <fname> (\fIsave row tab\fP)"
+.ZI 2m "\fB-write-tabr\fP <fname> (\fIsave row tab\fP)"
 \&
 .br
 Write the column domain to file\&. It applies to the second label found
 on each input line\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-strict-tab\fP <fname> (\fItab universe\fP)"
+.ZI 2m "\fB-strict-tab\fP <fname> (\fItab universe\fP)"
 \&
 .br
 Read a dictionary from file and require each label to be present in the
 dictionary\&. mcxload will exit on absentees\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-strict-tabc\fP <fname> (\fItabc universe\fP)"
+.ZI 2m "\fB-strict-tabc\fP <fname> (\fItabc universe\fP)"
 \&
 .br
 Read a dictionary from file and require the first label on each line
 to be present in the dictionary\&. mcxload will exit on absentees\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-strict-tabr\fP <fname> (\fItabr universe\fP)"
+.ZI 2m "\fB-strict-tabr\fP <fname> (\fItabr universe\fP)"
 \&
 .br
 Read a dictionary from file and require the second label on each line
 to be present in the dictionary\&. mcxload will exit on absentees\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-restrict-tab\fP <fname> (\fItab world\fP)"
+.ZI 2m "\fB-restrict-tab\fP <fname> (\fItab world\fP)"
 \&
 .br
 Read a dictionary from file and only accept input lines (edges)
 for which both labels are present in the dictionary\&.
 mcxload will ignore absentees\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-restrict-tabc\fP <fname> (\fItabc world\fP)"
+.ZI 2m "\fB-restrict-tabc\fP <fname> (\fItabc world\fP)"
 \&
 .br
 Read a dictionary from file and ignore input lines
 for which the first label is absent from the dictionary\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-restrict-tabr\fP <fname> (\fItabr world\fP)"
+.ZI 2m "\fB-restrict-tabr\fP <fname> (\fItabr world\fP)"
 \&
 .br
 Read a dictionary from file and ignore input lines
 for which the second label is absent from the dictionary\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-extend-tab\fP <fname> (\fItab launch\fP)"
+.ZI 2m "\fB-extend-tab\fP <fname> (\fItab launch\fP)"
 \&
 .br
 Read a dictionary from file and extend it with any
 label from the input not yet present in the dictionary\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-extend-tabc\fP <fname> (\fItabc launch\fP)"
+.ZI 2m "\fB-extend-tabc\fP <fname> (\fItabc launch\fP)"
 \&
 .br
 Read a dictionary from file and extend it with all
 first labels from the input not yet present in the dictionary\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-extend-tabr\fP <fname> (\fItabr launch\fP)"
+.ZI 2m "\fB-extend-tabr\fP <fname> (\fItabr launch\fP)"
 \&
 .br
 Read a dictionary from file and extend it with all
 second labels from the input not yet present in the dictionary\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--stream-log\fP (\fIlog transform stream values\fP)"
+.ZI 2m "\fB--stream-log\fP (\fIlog transform stream values\fP)"
 \&
 .br
 Replace each entry by its natural logarithm\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--stream-neg-log\fP (\fIminus log transform stream values\fP)"
+.ZI 2m "\fB--stream-neg-log\fP (\fIminus log transform stream values\fP)"
 \&
 .br
 Replace each entry by the negative of its natural logarithm\&.
 This is most likely useful to convert scores that denote probabilities
 or p-values such as BLAST scores\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-stream-tf\fP (\fItransform stream values\fP)"
+.ZI 2m "\fB-stream-tf\fP (\fItransform stream values\fP)"
 \&
 .br
 Transform the stream values as they are read in according
 to the syntax described in \fBmcxio(5)\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-tf\fP <tf-spec> (\fItransform (not so) final matrix\fP)"
+.ZI 2m "\fB-tf\fP <tf-spec> (\fItransform (not so) final matrix\fP)"
 \&
 .br
 Transform the matrix values after deduplication and symmetrification
 according to the syntax described in \fBmcxio(5)\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-ri\fP (\fI<max|add|mul>\fP)"
+.ZI 2m "\fB-ri\fP (\fI<max|add|mul>\fP)"
 \&
 .br
 After the initial matrix has been assembled, it can be symmetrified by
@@ -366,28 +366,28 @@ either of these options\&. They indicate the operation used to combine the
 entries of the transposed matrix and the original matrix\&. \fBmul\fP
 is special in that it treats missing entries (which are normally considered
 zero in mcl matrix operations) as one\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--transpose\fP (\fItranspose\fP)"
+.ZI 2m "\fB--transpose\fP (\fItranspose\fP)"
 \&
 .br
 Write the transposed matrix to file\&. This is obviously not useful
 when a symmetric matrix has been generated\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-etc\fP <fname> (\fIleader \&'etc\&' label file\fP)"
+.ZI 2m "\fB-etc\fP <fname> (\fIleader \&'etc\&' label file\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-etc-ai\fP <fname> (\fIleaderless \&'etc\&' label file\fP)"
+'in -2m
+.ZI 2m "\fB-etc-ai\fP <fname> (\fIleaderless \&'etc\&' label file\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-235\fP <fname> (\fIleader \&'235\&' label file\fP)"
+'in -2m
+.ZI 2m "\fB-235\fP <fname> (\fIleader \&'235\&' label file\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-235-ai\fP <fname> (\fIleaderless \&'235\&' label file\fP)"
+'in -2m
+.ZI 2m "\fB-235-ai\fP <fname> (\fIleaderless \&'235\&' label file\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 The input is read in lines; each line is split on whitespace into labels\&.
@@ -403,21 +403,21 @@ labels\&.
 The \fB-235\fP options are similar except that the input is not
 interpreted as labels but must consist of numbers that explicitly
 specify the matrix to be built\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--write-binary\fP (\fIoutput binary format\fP)"
+.ZI 2m "\fB--write-binary\fP (\fIoutput binary format\fP)"
 \&
 .br
 The output matrix is written in native binary format \- refer to
 \fBmcxio(5)\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--debug\fP (\fIdebug\fP)"
+.ZI 2m "\fB--debug\fP (\fIdebug\fP)"
 \&
 .br
 Among other things, this turns on warnings when \fBrestrict\fP tab
 files are used and labels are found to be missing\&.
-.in -3m
+.in -2m
 .SH AUTHOR
 Stijn van Dongen\&.
 .SH SEE ALSO

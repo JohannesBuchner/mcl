@@ -543,14 +543,6 @@ dim clmAdjust
          ,  cov_adj, frac_adj, (ulong) score_adj.n_hits
          ,  cov_curr, frac_curr, (ulong) score_curr.n_hits
          )
-
-;if(0)
-{  mcxTing*  t = mcxTingEmpty(NULL, 10)
-;  mclvSprintf(t, cid_affected, 0, 0)
-;  fprintf(stderr, "cid[%s]\n", t->str)
-;  mcxTingFree(&t)
-;
-}
                            /* experience tells us that mcl's funneling
                             * worsens frac
                            */

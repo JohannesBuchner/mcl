@@ -21,19 +21,6 @@
 #include "impala/matrix.h"
 #include "util/types.h"
 
-#if 0
-#define  ENSTRICT_KEEP_OVERLAP   1
-#define  ENSTRICT_LEAVE_MISSING  2
-#define  ENSTRICT_KEEP_EMPTY     4
-#define  ENSTRICT_SPLIT_OVERLAP  8
-#define  ENSTRICT_JOIN_MISSING  16
-
-#define  ENSTRICT_TRULY          0
-#define  ENSTRICT_REPORT_ONLY    ENSTRICT_KEEP_OVERLAP\
-                              |  ENSTRICT_LEAVE_MISSING\
-                              |  ENSTRICT_KEEP_EMPTY
-#endif
-
 
 typedef struct
 {  double   efficiency
@@ -171,31 +158,6 @@ void clmPerformancePrint
 )  ;
 
 
-#endif
-
-
-#if 0
-/* May change cl->cols and accordingly dom_cols, N_COLS(cl),
- * and the vid members of the columns.
- *
- * ENSTRICT_SPLIT_OVERLAP negates ENSTRICT_KEEP_EMPTY
-*/
-
-dim clmEnstrict
-(  mclMatrix*  c1
-,  dim         *overlap
-,  dim         *missing
-,  dim         *empty
-,  mcxbits     flags
-)  ;
-
-   /*
-    * mcxbits should be in MCLX_IS_{GRAPH,CAN,CANR,CANC,PARTITION}
-   */
-mcxstatus clmStackCB
-(  mclx* mx
-,  void* cb_data     /* pointer to mcxbits */
-)  ;
 #endif
 
 

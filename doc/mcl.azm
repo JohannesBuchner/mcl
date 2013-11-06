@@ -1,17 +1,18 @@
-\'def{"man::synstyle"}{long}
-\'def{"man::defstyle"}{long}
-\'import{mcx.zmm}
+\import{mcx.zmm}
 
+\begin{pud::man}{
 
-\'set{"man::name"}{mcl}
-\'set{"man::html-title"}{The mcl manual}
-\'set{"man::author"}{Stijn van Dongen}
-\'set{"man::section"}{1}
+   {name}{mcl}
+   {html_title}{The mcl manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
 
-\'set{"html::charset"}{ISO-8859-1}
+   \man_share
+}
 
-\"man::preamble"
-\'${html}{\"man::maketoc"}
+\'${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{mcl}{The Markov Cluster Algorithm, aka the MCL algorithm.}
@@ -465,7 +466,11 @@ label format and the addition of the \genoptref{--abc} option.}
 
 \sec{options}{OPTIONS}
 
-\'begin{itemize}{\mcx_itemopts}
+\'begin{itemize}{
+   {flow}{cascade}
+   {interitem}{1}
+   \mcx_itemopts
+}
 
 \item{\defopt{-I}{f}{inflation}}
 \car{
@@ -534,7 +539,7 @@ label format and the addition of the \genoptref{--abc} option.}
    weakened. The different types of characteristics that can be regulated
    are}
 
-\begin{itemize}{{$compact}{1}{$contiguous}{1}}
+\begin{itemize}{{flow}{compact}{interitem}{0}}
 \item{\bf{vl}}   value low - nodes for which the average value of its edges
             is low compared with the same number across its neighbours.
 \item{\bf{vh}}   value high - nodes for which the average value of its edges
@@ -1301,7 +1306,11 @@ mcxdump -imx - --no-values --dump-rlines\\
 
 \sec{pruneoptions}{PRUNING OPTIONS}
 
-\'begin{itemize}{\mcx_itemopts}
+\'begin{itemize}{
+   {flow}{cascade}
+   {interitem}{1}
+   \mcx_itemopts
+}
 
 \items{
    {\defopt{-p}{f}{cutoff}}
@@ -1698,7 +1707,11 @@ with value 0.8.}
 }
 \sec{environment}{ENVIRONMENT}
 
-\'begin{itemize}{{compact}{0}{contiguous}{0}{align}{left}}
+\'begin{itemize}{
+   {flow}{cascade}
+   {interitem}{1}
+   {align}{left}
+}
 \item{MCLXIODIGITS}
 \car{
    When writing matrices in interchange format, mcl will use this variable (if
@@ -1711,7 +1724,11 @@ with value 0.8.}
    input/output from/to disk. The verbosity level can be regulated
    via MCLXIOVERBOSITY. These are the levels it can currently be set to.}
 
-\'begin{itemize}{{compact}{1}{contiguous}{1}{align}{right}{w2}{2}}
+\'begin{itemize}{
+   {flow}{compact}
+   {interitem}{0}
+   {align}{right}
+}
 \item{1} Silent but applications may alter this.
 \item{2} Silent and applications can not alter this.
 \item{4} Verbose but applications may alter this.
@@ -1725,7 +1742,11 @@ with value 0.8.}
    The desired format can be controlled via the variable 
    MCLXIOFORMAT. These are the levels it can currently be set to.}
 
-\'begin{itemize}{{compact}{1}{w2}{2}{contiguous}{1}{align}{right}}
+\'begin{itemize}{
+   {flow}{compact}
+   {interitem}{0}
+   {align}{right}
+}
 \item{1} Interchange format but applications may alter this.
 \item{2} Interchange format and applications can not alter this (default).
 \item{4} Binary format but applications may alter this.
@@ -1925,4 +1946,5 @@ with value 0.8.}
    \'${html}{\lref{mcl.ps}{This} is the PostScript derived from the zoem troff
    output.}}
 
-\"man::postamble"
+\end{pud::man}
+

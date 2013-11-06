@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcxrand" 1 "2 Feb 2009" "mcxrand 1\&.008, 09-033" "USER COMMANDS "
+.TH "mcxrand" 1 "29 May 2009" "mcxrand 1\&.008, 09-149" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -163,26 +163,26 @@ then the new value will be accepted only if it lies within the interval,
 otherwise the edge will not be perturbed\&.
 .SH OPTIONS
 
-.ZI 3m "\fB-imx\fP <fname> (\fIinput matrix\fP)"
+.ZI 2m "\fB-imx\fP <fname> (\fIinput matrix\fP)"
 \&
 .br
 The file name for input\&. STDIN is assumed if neither
 \fB-imx\fP nor \fB-gen\fP\ \&\fInum\fP is specified\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-o\fP <fname> (\fIoutput matrix to <fname>\fP)"
+.ZI 2m "\fB-o\fP <fname> (\fIoutput matrix to <fname>\fP)"
 \&
 .br
 The file to write the transformed matrix to\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--write-binary\fP (\fIwrite output in binary format\fP)"
+.ZI 2m "\fB--write-binary\fP (\fIwrite output in binary format\fP)"
 \&
 .br
 Write the output matrix in native binary format\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-shuffle\fP <num> (\fIshuffle edge pair <num> times\fP)"
+.ZI 2m "\fB-shuffle\fP <num> (\fIshuffle edge pair <num> times\fP)"
 \&
 .br
 Shuffle edge pair <num> times\&. An edge shuffle
@@ -192,80 +192,80 @@ be different\&. If either none of the edges in \fIw(a,c)\fP, \fIw(b,d)\fP
 or none of the edges in \fIw(a,d)\fP, \fIw(b,c)\fP exists
 the original two edges are removed and is replaced
 by an edge pair for which both edges did not exist before\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-remove\fP <num> (\fIremove <num> edges\fP)"
+.ZI 2m "\fB-remove\fP <num> (\fIremove <num> edges\fP)"
 \&
 .br
 Remove this many edges from the input graph\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-add\fP <num> (\fIadd <num> edges not yet present\fP)"
+.ZI 2m "\fB-add\fP <num> (\fIadd <num> edges not yet present\fP)"
 \&
 .br
 Create this many new edges\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-gen\fP <num> (\fInode number\fP)"
+.ZI 2m "\fB-gen\fP <num> (\fInode number\fP)"
 \&
 .br
 Use in conjunction with \fB-add\fP to generate
 a random graph on \fI<num>\fP nodes\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-noise-radius\fP <num> (\fImaximum spread to add noise with\fP)"
+.ZI 2m "\fB-noise-radius\fP <num> (\fImaximum spread to add noise with\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-noise-sdev\fP <num> (\fIstandard deviation\fP)"
+'in -2m
+.ZI 2m "\fB-noise-sdev\fP <num> (\fIstandard deviation\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-noise-range\fP <fac> (\fInumber of standard deviations allowed\fP)"
+'in -2m
+.ZI 2m "\fB-noise-range\fP <fac> (\fInumber of standard deviations allowed\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 See the discussion in \fBDESCRIPTION\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-edge-min\fP <num> (\fIglobal edge weight minimum\fP)"
+.ZI 2m "\fB-edge-min\fP <num> (\fIglobal edge weight minimum\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-edge-max\fP <num> (\fIglobal edge weight maximum\fP)"
+'in -2m
+.ZI 2m "\fB-edge-max\fP <num> (\fIglobal edge weight maximum\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 See the discussion in \fBDESCRIPTION\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-skew\fP <num> (\fIskew towards min or max\fP)"
+.ZI 2m "\fB-skew\fP <num> (\fIskew towards min or max\fP)"
 \&
 .br
 See the discussion in \fBDESCRIPTION\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-new-g-mean\fP <num> (\fImean to generate new edges with\fP)"
+.ZI 2m "\fB-new-g-mean\fP <num> (\fImean to generate new edges with\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-new-g-sdev\fP <num> (\fIstandard deviation to generate new edges with\fP)"
+'in -2m
+.ZI 2m "\fB-new-g-sdev\fP <num> (\fIstandard deviation to generate new edges with\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-new-g-radius\fP <num> (\fImaximum spread to generate new edges with\fP)"
+'in -2m
+.ZI 2m "\fB-new-g-radius\fP <num> (\fImaximum spread to generate new edges with\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-new-g-min\fP <num> (\fIlower bound selection (Gaussian)\fP)"
+'in -2m
+.ZI 2m "\fB-new-g-min\fP <num> (\fIlower bound selection (Gaussian)\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-new-g-max\fP <num> (\fIupper bound selection (Gaussian)\fP)"
+'in -2m
+.ZI 2m "\fB-new-g-max\fP <num> (\fIupper bound selection (Gaussian)\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 See the discussion in \fBDESCRIPTION\fP\&.
-.in -3m
+.in -2m
 .SH SEE ALSO
 
 \fBmcxio(5)\fP,

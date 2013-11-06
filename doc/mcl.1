@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcl" 1 "2 Feb 2009" "mcl 1\&.008, 09-033" "USER COMMANDS "
+.TH "mcl" 1 "29 May 2009" "mcl 1\&.008, 09-149" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -497,7 +497,7 @@ In the \fBOPTIONS\fP section options are listed in order of
 importance, with related options grouped together\&.
 .SH OPTIONS
 
-.ZI 3m "\fB-I\fP f (\fIinflation\fP)"
+.ZI 2m "\fB-I\fP f (\fIinflation\fP)"
 \&
 .br
 Sets the main inflation value to f\&. This value is the main handle
@@ -516,9 +516,9 @@ With low values for \fB-I\fP, like \fB-I\fP\ \&\fB1\&.2\fP, you should be
 prepared to use more resources in order to maintain quality of
 clusterings, i\&.e\&. increase the argument to the
 \fB-scheme\fP option\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-o\fP str (\fIfname\fP)"
+.ZI 2m "\fB-o\fP str (\fIfname\fP)"
 \&
 .br
 Output the clustering to file named fname\&. It is possible to send the
@@ -533,27 +533,27 @@ discussed at \fB--abc\fP\&.
 Look at the \fB-ap\fP\ \&\fIprefix\fP option and its siblings for the
 automatic naming constructions employed by \fBmcl\fP if the \fB-o\fP option is
 not used\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-od\fP <dir> (\fIdirectory\fP)"
+.ZI 2m "\fB-od\fP <dir> (\fIdirectory\fP)"
 \&
 .br
 Specify the directory where to output clusterings\&. This is useful
 when you let mcl automatically construct the output file name,
 but want the clustering in a directory different from the
 one where the input graph resides\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-shadow\fP mode (\fIapply shadowing\fP)"
+.ZI 2m "\fB-shadow\fP mode (\fIapply shadowing\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-shadow-s\fP <num> (\fIboost factor (experimental)\fP)"
+'in -2m
+.ZI 2m "\fB-shadow-s\fP <num> (\fIboost factor (experimental)\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--shadow-vl\fP (\fIshadow distant nodes\fP)"
+'in -2m
+.ZI 2m "\fB--shadow-vl\fP (\fIshadow distant nodes\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 
@@ -572,22 +572,22 @@ characteristics is correlated with the extent to which its connectivity is
 weakened\&. The different types of characteristics that can be regulated
 are
 
-.ZI 3m "\fBvl\fP"
+.ZI 2m "\fBvl\fP"
 value low - nodes for which the average value of its edges
 is low compared with the same number across its neighbours\&.
-.in -3m
-.ZI 3m "\fBvh\fP"
+.in -2m
+.ZI 2m "\fBvh\fP"
 value high - nodes for which the average value of its edges
 is high compared with the same number across its neighbours\&.
-.in -3m
-.ZI 3m "\fBel\fP"
+.in -2m
+.ZI 2m "\fBel\fP"
 edge low - nodes for which the number of neighbours
 is low compared with the same number across its neighbours\&.
-.in -3m
-.ZI 3m "\fBeh\fP"
+.in -2m
+.ZI 2m "\fBeh\fP"
 edge high - nodes for which the number of neighbours
 is high compared with the same number across its neighbours\&.
-.in -3m
+.in -2m
 The characteristics above, e\&.g\&. \fBvl\fP, correspond to the modes
 that can be passed to the \fB-shadow\fP argument\&. The first mode \fBvl\fP
 is the one most likely to be useful\&. Combining different modes is possible
@@ -596,50 +596,50 @@ may similarly lead to unbalanced hierachies\&.
 
 The boost factor can be set e\&.g\&. to 2\&.0 to increase the effect of shadowing\&.
 The default setting is 1\&.0\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-c\fP <num> (\fIreweight loops\fP)"
+.ZI 2m "\fB-c\fP <num> (\fIreweight loops\fP)"
 \&
 .br
 As the final step of loop computation (i\&.e\&. after initialization
 and shadowing), all loop weights are multiplied by \fB<num>\fP,
 if supplied\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--discard-loops\fP=y/n (\fIdiscard loops in input\fP)"
+.ZI 2m "\fB--discard-loops\fP=y/n (\fIdiscard loops in input\fP)"
 \&
 .br
 By default \fBmcl\fP will remove any loops that are present in the input\&. Use
 \fB--discard-loops\fP=\fBn\fP to turn this off\&. Bear in mind that loops will
 still be modified in all cases where the loop weight is not maximal among
 the list of edge weights for a given node\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--abc\fP fname (\fIexpect/write labels\fP)"
+.ZI 2m "\fB--abc\fP fname (\fIexpect/write labels\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--expect-abc\fP (\fIexpect labels\fP)"
+'in -2m
+.ZI 2m "\fB--expect-abc\fP (\fIexpect labels\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--yield-abc\fP fname (\fIwrite labels\fP)"
+'in -2m
+.ZI 2m "\fB--yield-abc\fP fname (\fIwrite labels\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-use-tab\fP fname (\fIuse mapping to write\fP)"
+'in -2m
+.ZI 2m "\fB-use-tab\fP fname (\fIuse mapping to write\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-strict-tab\fP fname (\fIuse mapping to enforce\fP)"
+'in -2m
+.ZI 2m "\fB-strict-tab\fP fname (\fIuse mapping to enforce\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-restrict-tab\fP fname (\fIuse mapping to restrict\fP)"
+'in -2m
+.ZI 2m "\fB-restrict-tab\fP fname (\fIuse mapping to restrict\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-extend-tab\fP fname (\fIuse mapping and extend\fP)"
+'in -2m
+.ZI 2m "\fB-extend-tab\fP fname (\fIuse mapping and extend\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-write-tab\fP fname (\fIwrite mapping\fP)"
+'in -2m
+.ZI 2m "\fB-write-tab\fP fname (\fIwrite mapping\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 These items all relate to label input and/or label output\&.
@@ -686,21 +686,21 @@ but it requires mcxdump to act as an intermediary -
 \fBmcxdump(1)\fP has no such limitations\&. This need in
 general not be of concern to you\&. If a tab file is created by
 mcl or mcxdeblast it will always be canonical\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-tf\fP <tf-spec> (\fItransform input matrix values\fP)"
+.ZI 2m "\fB-tf\fP <tf-spec> (\fItransform input matrix values\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-abc-tf\fP <tf-spec> (\fItransform input stream values\fP)"
+'in -2m
+.ZI 2m "\fB-abc-tf\fP <tf-spec> (\fItransform input stream values\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--abc-log\fP (\fItake logarithm of stream values\fP)"
+'in -2m
+.ZI 2m "\fB--abc-log\fP (\fItake logarithm of stream values\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--abc-neg-log\fP (\fItake negative logarithm of stream values\fP)"
+'in -2m
+.ZI 2m "\fB--abc-neg-log\fP (\fItake negative logarithm of stream values\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 \fB-tf\fP transforms the values of the input matrix according
@@ -713,18 +713,18 @@ first replaced by their (negative) logarithm\&.
 The reason for their existence is documented in \fBmcxio(5)\fP\&.
 For a description of the transform language excpected/accepted
 in \fB<tf-spec>\fP refer to the same\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-write-graph\fP fname (\fIwrite graph\fP)"
+.ZI 2m "\fB-write-graph\fP fname (\fIwrite graph\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-write-graphx\fP fname (\fIwrite transformed graph\fP)"
+'in -2m
+.ZI 2m "\fB-write-graphx\fP fname (\fIwrite transformed graph\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-write-expanded\fP fname (\fIwrite expanded graph\fP)"
+'in -2m
+.ZI 2m "\fB-write-expanded\fP fname (\fIwrite expanded graph\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 If you work with label input, \fB-write-graph\fP can be
@@ -812,9 +812,9 @@ mcxdump -imx - --no-values --dump-rlines\e
 .fi \fR
 
 Behold, this is a very time and space efficient setup\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-scheme\fP k (\fIuse a preset resource scheme\fP)"
+.ZI 2m "\fB-scheme\fP k (\fIuse a preset resource scheme\fP)"
 \&
 .br
 There are currently seven different resource schemes, indexed 1\&.\&.7\&.
@@ -842,15 +842,15 @@ If your input graph is extremely dense, with an average node degree
 500, you may need to filter the input graph by removing edges,
 for example by using the
 \fB-ceil-nb\fP option\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-lint-k\fP <numk> (\fIcluster size assimilation threshold\fP)"
+.ZI 2m "\fB-lint-k\fP <numk> (\fIcluster size assimilation threshold\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-lint-l\fP <numl> (\fIcluster size pry threshold\fP)"
+'in -2m
+.ZI 2m "\fB-lint-l\fP <numl> (\fIcluster size pry threshold\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 These options will result in postprocessing on the clustering, reallocating
@@ -883,9 +883,9 @@ With \fB-lint-k\fP clusters up to the given size \fInumk\fP
 are assimilated by a larger cluster if a suitable candidate is found\&.
 This is based on the same criteria as described above, except
 that a cluster is absorbed in its entirety\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--adapt-local\fP (\fIlocalize inflation (experimental)\fP)"
+.ZI 2m "\fB--adapt-local\fP (\fIlocalize inflation (experimental)\fP)"
 \&
 .br
 \fBExperimental\fP
@@ -898,9 +898,9 @@ For regions with high dispersion (low clustering coefficient)
 inflation is adapted towards a higher value, for regions with
 low dispersion (high clustering coefficient) inflation is adapted
 towards a lower value\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--show-schemes\fP (\fIshow preset resource schemes\fP)"
+.ZI 2m "\fB--show-schemes\fP (\fIshow preset resource schemes\fP)"
 \&
 .br
 Shows the explicit settings to which the different preset schemes
@@ -908,15 +908,15 @@ correspond\&.
 
 The characteristics are written in the same format (more or less) as
 the output triggered by \fB-v\fP\ \&\fBpruning\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-V\fP str (\fIverbosity type off\fP)"
+.ZI 2m "\fB-V\fP str (\fIverbosity type off\fP)"
 \&
 .br
 See the \fB-v\fP option below\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-v\fP str (\fIverbosity type on\fP)"
+.ZI 2m "\fB-v\fP str (\fIverbosity type on\fP)"
 \&
 .br
 These are the different verbosity modes:
@@ -928,9 +928,9 @@ These are the different verbosity modes:
 \fBcls\fP
 .br
 \fBall\fP
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-q\fP spec (\fIlog levels\fP)"
+.ZI 2m "\fB-q\fP spec (\fIlog levels\fP)"
 \&
 .br
 
@@ -945,23 +945,23 @@ turns them all on, \fB-V\fP\ \&\fBall\fP turns them all off\&. \fB-v\fP\ \&\fIst
 \fB-V\fP\ \&\fIstr\fP turn on/off the single mode \fIstr\fP (for \fIstr\fP
 equal to one of \fBpruning\fP, \fBcls\fP, or \fBexplain\fP)\&. Each verbosity
 mode is given its own entry below\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-v\fP\ \&\fBexplain\fP"
+.ZI 2m "\fB-v\fP\ \&\fBexplain\fP"
 \&
 .br
 This mode causes the output of explanatory headers illuminating the
 output generated with the \fBpruning\fP verbosity mode\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-v\fP\ \&\fBpruning\fP"
+.ZI 2m "\fB-v\fP\ \&\fBpruning\fP"
 \&
 .br
 This mode causes output of resource-related quantities\&. It has
 a separate entry in the PRUNING OPTIONS section\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-v\fP\ \&\fBcls\fP"
+.ZI 2m "\fB-v\fP\ \&\fBcls\fP"
 \&
 .br
 This mode (on by default) prints a terse list of characteristics of the
@@ -973,15 +973,15 @@ in overlap, and the \fIdag depth\fP associated with the DAG (directed acyclic
 graph) associated with the iterand\&. For more information on this DAG refer
 to the \fB-dump\fP option description in this manual and also
 \fBmclfaq(7)\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-aa\fP str (\fIappend str to suffix\fP)"
+.ZI 2m "\fB-aa\fP str (\fIappend str to suffix\fP)"
 \&
 .br
 See the \fB-ap\fP option below\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-ap\fP str (\fIuse str as file name prefix\fP)"
+.ZI 2m "\fB-ap\fP str (\fIuse str as file name prefix\fP)"
 \&
 .br
 If the \fB-o\fP\ \&\fIfname\fP option is not used,
@@ -1028,15 +1028,15 @@ mcl small\&.mci -I 3 -c 2\&.5 -pi 0\&.8 -scheme 5
 results in the file name \fCout\&.small\&.mci\&.I30s5c25pi08\fP\&.
 If you want to know beforehand what file name will be produced,
 use the \fB-az\fP option\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-az\fP (\fIshow output file name and exit\fP)"
+.ZI 2m "\fB-az\fP (\fIshow output file name and exit\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-ax\fP (\fIshow output suffix and exit\fP)"
+'in -2m
+.ZI 2m "\fB-ax\fP (\fIshow output suffix and exit\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 If \fBmcl\fP automatically constructs a file name, it can be helpful to known
@@ -1049,18 +1049,18 @@ By default mcl incorporates the input file name into the output file
 name and appends a short suffix describing the most important
 option settings\&. Use \fB-ax\fP to find out what that suffix is\&.
 This can be useful in wrapper pipeline scripts such as clxcoarse\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-annot\fP str (\fIdummy annotation option\fP)"
+.ZI 2m "\fB-annot\fP str (\fIdummy annotation option\fP)"
 \&
 .br
 \fBmcl\fP writes the command line with which it was invoked to the output
 clustering file\&. Use this option to include any additional
 information\&. MCL does nothing with this option except copying
 it as just described\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-te\fP k (\fI#expansion threads\fP)"
+.ZI 2m "\fB-te\fP k (\fI#expansion threads\fP)"
 \&
 .br
 Threading is useful if you have a multi-processor system\&. \fBmcl\fP will
@@ -1072,9 +1072,9 @@ When threading, it is best not to turn on pruning verbosity
 mode if you are letting mcl run unattended, unless you want to
 scrutinize its output later\&. This is because it makes \fBmcl\fP run
 somewhat slower, although the difference is not dramatic\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-l\fP n (\fIinitial iteration number\fP) (small letter ell)"
+.ZI 2m "\fB-l\fP n (\fIinitial iteration number\fP) (small letter ell)"
 \&
 .br
 The number of times \fBmcl\fP will use a different inflation value
@@ -1101,9 +1101,9 @@ one lets expansion prevail during the first two iterations,
 followed by inflation catching up (in a figurative way of writing)\&.
 This may be useful in certain cases, but this type of experiment
 is \fIcertainly secondary\fP to simply varying \fB-I\fP (capital eye)\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-L\fP n (\fImain iteration number\fP)"
+.ZI 2m "\fB-L\fP n (\fImain iteration number\fP)"
 \&
 .br
 Normally, \fBmcl\fP computes the MCL process until it has converged
@@ -1114,23 +1114,23 @@ The \fB-L\fP option can be used to specify the number of
 iterations mcl may do at most\&. When this number is reached,
 mcl will output the clustering associated with the iterand
 last computed\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-i\fP f (\fIinitial inflation\fP)"
+.ZI 2m "\fB-i\fP f (\fIinitial inflation\fP)"
 \&
 .br
 The inflation value used during the first n iterations,
 where n is specified by the \fB-l\fP (ell) option\&.
 By default, n=0 and f=2\&.0\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-pi\fP f (\fIpre-inflation\fP)"
+.ZI 2m "\fB-pi\fP f (\fIpre-inflation\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-ph\fP f (\fIpre-inflation, max-bound\fP)"
+'in -2m
+.ZI 2m "\fB-ph\fP f (\fIpre-inflation, max-bound\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 If used, \fBmcl\fP will apply inflation one time to the input graph
@@ -1148,9 +1148,9 @@ the maximum value found in the column stays the same after
 inflation was applied\&. This is for use in conjunction with
 \fB--shadow\fP=\fIvl\fP, as the latter option is affected by
 absolute differences in edge weights\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-if\fP f (\fIstart-inflation\fP)"
+.ZI 2m "\fB-if\fP f (\fIstart-inflation\fP)"
 \&
 .br
 If used, \fBmcl\fP will apply inflation one time to the input graph
@@ -1162,60 +1162,60 @@ the \fB-if\fP (mnemonic for \fIinflation-first\fP)
 option is to use it on graphs saved
 with the \fB--write-expanded\fP option and convey
 to mcl that it should not apply those transformations\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-di\fP i:j (\fIdump interval\fP)"
+.ZI 2m "\fB-di\fP i:j (\fIdump interval\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-di\fP\ \&\fIall\fP"
+'in -2m
+.ZI 2m "\fB-di\fP\ \&\fIall\fP"
 \&
-'in -3m
-.ZI 3m "\fB-dump-interval\fP\ \&\fIi:j\fP"
+'in -2m
+.ZI 2m "\fB-dump-interval\fP\ \&\fIi:j\fP"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 Dump during iterations i\&.\&.j-1\&. Use \fIall\fP to dump in all
 iterations\&. See the \fB-dump\fP\ \&\fIstr\fP option below\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-dm\fP k (\fIdump i+0\&.\&.i+k\&.\&.\fP)"
+.ZI 2m "\fB-dm\fP k (\fIdump i+0\&.\&.i+k\&.\&.\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-dump-modulo\fP\ \&\fIk\fP"
+'in -2m
+.ZI 2m "\fB-dump-modulo\fP\ \&\fIk\fP"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 Sampling rate: select only these iterations in the dump interval\&.
 See the \fB-dump\fP\ \&\fIstr\fP option below\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-ds\fP stem (\fIfile stem\fP)"
+.ZI 2m "\fB-ds\fP stem (\fIfile stem\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-dump-stem\fP\ \&\fIstem\fP"
+'in -2m
+.ZI 2m "\fB-dump-stem\fP\ \&\fIstem\fP"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 Set the the stem for file names of dumped
 objects (default \fImcl\fP)\&. See the \fB-dump\fP\ \&\fIstr\fP option below\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-dump-subi\fP spec (\fIindex list for submatrix dump\fP)"
+.ZI 2m "\fB-dump-subi\fP spec (\fIindex list for submatrix dump\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-dump-subd\fP spec (\fIdomain list for submatrix dump\fP)"
+'in -2m
+.ZI 2m "\fB-dump-subd\fP spec (\fIdomain list for submatrix dump\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-dump-dom\fP fname (\fIdomain matrix file\fP)"
+'in -2m
+.ZI 2m "\fB-dump-dom\fP fname (\fIdomain matrix file\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 \fB-dump-subi\fP specifies a range of indices which will be
@@ -1228,9 +1228,9 @@ If \fB-dump-dom\fP is used and specifies a matrix file,
 the indices specified in the \fB-dump-subd\fP option should index
 columns in that matrix\&. These columns are merged and added to the
 list of entries used in selecting the extended principal submatrix\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-dump\fP str (\fItype\fP)"
+.ZI 2m "\fB-dump\fP str (\fItype\fP)"
 \&
 .br
 \fIstr\fP is checked for substring occurrences of the following entries\&.
@@ -1282,9 +1282,9 @@ amount of mass kept for that column \fIafter pruning\fP\&.
 The \fB-ds\fP option sets the stem for file names of dumped
 objects (default \fImcl\fP)\&. The \fB-di\fP and \fB-dm\fP
 options allow a selection of iterands to be made\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-digits\fP n (\fIprinting precision\fP)"
+.ZI 2m "\fB-digits\fP n (\fIprinting precision\fP)"
 \&
 .br
 This has two completely different uses\&. It sets
@@ -1292,9 +1292,9 @@ the number of decimals used for pretty-printing \fBmcl\fP iterands
 when using the \fB--show\fP option (see below),
 and it sets the number of decimals used for writing
 the expanded matrix when using the \fB-write-expanded\fP option\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--show\fP (\fIprint matrices to screen\fP)"
+.ZI 2m "\fB--show\fP (\fIprint matrices to screen\fP)"
 \&
 .br
 Print matrices to screen\&. The number of significant digits to be
@@ -1305,18 +1305,18 @@ with two digits\&. This can give you an idea of how \fBmcl\fP operates,
 and what the effect of pruning is\&.
 Use e\&.g\&. \fB-S\fP\ \&\fB6\fP for such
 a small graph and view the MCL matrix iterands with \fB--show\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--write-binary\fP (\fIoutput format\fP)"
+.ZI 2m "\fB--write-binary\fP (\fIoutput format\fP)"
 \&
 .br
 Write matrix dump output in binary mcl format rather
 than interchange mcl format (the default)\&. Note that \fBmcxconvert(1)\fP
 can be used to convert each one into the other\&.
 See \fBmcxio(5)\fP and \fBmcxconvert(1)\fP for more information\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-sort\fP str (\fIsort mode\fP)"
+.ZI 2m "\fB-sort\fP str (\fIsort mode\fP)"
 \&
 .br
 \fIstr\fP can be one of \fBlex\fP, \fBsize\fP, \fBrevsize\fP,
@@ -1326,9 +1326,9 @@ come first, if the mode is \&'lex\&', clusters are ordered
 lexicographically, and if the mode is \&'none\&', the order
 is the same as produced by the procedure used by mcl to
 map matrices onto clusterings\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-overlap\fP str (\fIoverlap mode\fP)"
+.ZI 2m "\fB-overlap\fP str (\fIoverlap mode\fP)"
 \&
 .br
 Mode \fIkeep\fP causes mcl to retain overlap should this improbable event
@@ -1362,15 +1362,15 @@ This option has no effect on the clusterings that are
 output when using \fB-dump\fP\ \&\fIcls\fP -
 the default for those is that overlap is not touched,
 and this default can not yet be overridden\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--force-connected\fP=y/n (\fIanalyze components\fP)"
+.ZI 2m "\fB--force-connected\fP=y/n (\fIanalyze components\fP)"
 \&
-'in -3m
-.ZI 3m "\fB--check-connected\fP=y/n (\fIanalyze components\fP)"
+'in -2m
+.ZI 2m "\fB--check-connected\fP=y/n (\fIanalyze components\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 If the input graph has strong bipartite characteristics,
@@ -1392,38 +1392,38 @@ These options are not on by default, as the analysis
 is currently (overly) time-consuming
 and mcl\&'s behaviour actually makes some sense
 (when taking bipartite characteristics into account)\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--output-limit\fP=y/n (\fIwrite limit matrix\fP)"
+.ZI 2m "\fB--output-limit\fP=y/n (\fIwrite limit matrix\fP)"
 \&
 .br
 This will write the limit matrix to a file named
 \fBbase\fP-limit\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--analyze\fP=y/n (\fIperformance criteria\fP)"
+.ZI 2m "\fB--analyze\fP=y/n (\fIperformance criteria\fP)"
 \&
 .br
 With this mode turned on, \fBmcl\fP will reread the input matrix
 and compute a few performance criteria and attach them to
 the output file\&. Off by default\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--append-log\fP=y/n (\fIappend log\fP)"
+.ZI 2m "\fB--append-log\fP=y/n (\fIappend log\fP)"
 \&
 .br
 Appends a log with the process characteristics to the output file\&.
 Off by default\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--show-log\fP=y/n (\fIshow log\fP)"
+.ZI 2m "\fB--show-log\fP=y/n (\fIshow log\fP)"
 \&
 .br
 Shows the log with process characteristics on STDOUT\&.
 By default, this mode is off\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-ceil-nb\fP N (\fIpreprune count\fP)"
+.ZI 2m "\fB-ceil-nb\fP N (\fIpreprune count\fP)"
 \&
 .br
 The nodes of the input graph are considered in descending order of the
@@ -1433,21 +1433,21 @@ corresponding reciprocal edges from nodes further down the list are removed
 as well\&. Subsequent nodes are treated in the same way until all nodes in
 the graph have at most \fBN\fP neighbours\&. This may be considered a poor
 man\&'s hub removal\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--jury-charter\fP (\fIexplains jury\fP)"
+.ZI 2m "\fB--jury-charter\fP (\fIexplains jury\fP)"
 \&
 .br
 Explains how the jury synopsis is computed from the jury marks\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--version\fP (\fIshow version\fP)"
+.ZI 2m "\fB--version\fP (\fIshow version\fP)"
 \&
 .br
 Show version\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-how-much-ram\fP n (\fIRAM upper bound\fP)"
+.ZI 2m "\fB-how-much-ram\fP n (\fIRAM upper bound\fP)"
 \&
 .br
 \fBn\fP is interpreted as the number of nodes of an input graph\&.
@@ -1478,47 +1478,47 @@ the average node degree of the input graph does not exceed k\&. The
 \fB-how-much-ram\fP option takes other command-line arguments into
 account (such as \fB-S\fP and \fB-R\fP), and it expresses the
 amount of RAM in megabyte units\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-h\fP (\fIshow help\fP)"
+.ZI 2m "\fB-h\fP (\fIshow help\fP)"
 \&
 .br
 Shows a selection of the most important \fBmcl\fP options\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--apropos\fP (\fIshow help\fP)"
+.ZI 2m "\fB--apropos\fP (\fIshow help\fP)"
 \&
 .br
 Gives a one-line description for all options\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-z\fP (\fIshow settings\fP)"
+.ZI 2m "\fB-z\fP (\fIshow settings\fP)"
 \&
 .br
 Show current settings for tunable parameters\&.
 \fB--show-settings\fP is a synonym\&.
-.in -3m
+.in -2m
 .SH PRUNING OPTIONS
 
-.ZI 3m "\fB-p\fP f (\fIcutoff\fP)"
+.ZI 2m "\fB-p\fP f (\fIcutoff\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-P\fP n (\fI1/cutoff\fP)"
+'in -2m
+.ZI 2m "\fB-P\fP n (\fI1/cutoff\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-S\fP s (\fIselection number\fP)"
+'in -2m
+.ZI 2m "\fB-S\fP s (\fIselection number\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-R\fP r (\fIrecover number\fP)"
+'in -2m
+.ZI 2m "\fB-R\fP r (\fIrecover number\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-pct\fP pct (\fIrecover percentage\fP)"
+'in -2m
+.ZI 2m "\fB-pct\fP pct (\fIrecover percentage\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-my-scheme\fP n (\fItag custom scheme\fP)"
+'in -2m
+.ZI 2m "\fB-my-scheme\fP n (\fItag custom scheme\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 After computing a new (column stochastic) matrix vector during expansion
@@ -1582,15 +1582,15 @@ a relatively long string describing the settings of the
 \fB-P\fP, \fB-pct\fP, \fB-R\fP, and \fB-S\fP parameters,
 e\&.g\&. \fBP600Q85R1000S1200\fP (where \fBQ\fP tags the \fIpct\fP setting)\&.
 If used, mcl will simply use the tag \fBs\fP\fIn\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-warn-pct\fP k (\fIprune warn percentage\fP)"
+.ZI 2m "\fB-warn-pct\fP k (\fIprune warn percentage\fP)"
 \&
-'in -3m
-.ZI 3m "\fB-warn-factor\fP k (\fIprune warn factor\fP)"
+'in -2m
+.ZI 2m "\fB-warn-factor\fP k (\fIprune warn factor\fP)"
 \&
-'in -3m
-'in +3m
+'in -2m
+'in +2m
 \&
 .br
 The two options \fB-warn-pct\fP and \fB-warn-factor\fP relate to
@@ -1609,9 +1609,9 @@ warning\&.
 something like 30 and 50\&.0\&. If you want to see less warnings, decrease
 \fIwarn-pct\fP and increase \fIwarn-factor\fP\&. Set \fIwarn-factor\fP to zero
 if you want no warnings\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-v\fP\ \&\fBpruning\fP"
+.ZI 2m "\fB-v\fP\ \&\fBpruning\fP"
 \&
 .br
 Pruning verbosity mode causes \fBmcl\fP to emit several statistics related to
@@ -1706,7 +1706,7 @@ From a fixed set of windows those that are applicable are tracked, that
 is, all those windows for which the width does not exceed the graph
 cardinality\&. The windows in the fixed set have respective sizes 1, 2, 5,
 10, 20, 50, and so on up until 5000000 (which makes 15 windows in all)\&.
-.in -3m
+.in -2m
 .SH PIPELINES
 
 As of the 1\&.006 release, label data can be directly streamed into
@@ -1884,36 +1884,36 @@ There are currently no resource nor configuration files\&.
 The mcl matrix format is described in the \fBmcxio(5)\fP section\&.
 .SH ENVIRONMENT
 
-.ZI 3m "MCLXIODIGITS"
+.ZI 2m "MCLXIODIGITS"
 \&
 .br
 When writing matrices in interchange format, mcl will use this variable (if
 present) as the precision (number of digits) for printing the fractional
 part of values\&.
-.in -3m
+.in -2m
 
-.ZI 3m "MCLXIOVERBOSITY"
+.ZI 2m "MCLXIOVERBOSITY"
 \&
 .br
 MCL and its sibling applications will usually report about matrix
 input/output from/to disk\&. The verbosity level can be regulated
 via MCLXIOVERBOSITY\&. These are the levels it can currently be set to\&.
 
-.ZJ 2m 2m "1"
+.ZJ 1m 1m "1"
 Silent but applications may alter this\&.
-.in -4m
-.ZJ 2m 2m "2"
+.in -2m
+.ZJ 1m 1m "2"
 Silent and applications can not alter this\&.
-.in -4m
-.ZJ 2m 2m "4"
+.in -2m
+.ZJ 1m 1m "4"
 Verbose but applications may alter this\&.
-.in -4m
-.ZJ 2m 2m "8"
+.in -2m
+.ZJ 1m 1m "8"
 Verbose and applications can not alter this (default)\&.
-.in -4m
-.in -3m
+.in -2m
+.in -2m
 
-.ZI 3m "MCLXIOFORMAT"
+.ZI 2m "MCLXIOFORMAT"
 \&
 .br
 MCL and its sibling applications will by default output matrices
@@ -1921,21 +1921,21 @@ in interchange format rather than binary format (cf\&. \fBmcxio(5)\fP)\&.
 The desired format can be controlled via the variable
 MCLXIOFORMAT\&. These are the levels it can currently be set to\&.
 
-.ZJ 2m 2m "1"
+.ZJ 1m 1m "1"
 Interchange format but applications may alter this\&.
-.in -4m
-.ZJ 2m 2m "2"
+.in -2m
+.ZJ 1m 1m "2"
 Interchange format and applications can not alter this (default)\&.
-.in -4m
-.ZJ 2m 2m "4"
+.in -2m
+.ZJ 1m 1m "4"
 Binary format but applications may alter this\&.
-.in -4m
-.ZJ 2m 2m "8"
+.in -2m
+.ZJ 1m 1m "8"
 Binary format and applications can not alter this\&.
-.in -4m
-.in -3m
+.in -2m
+.in -2m
 
-.ZI 3m "MCLXICFLAGS"
+.ZI 2m "MCLXICFLAGS"
 \&
 .br
 If matrices are output in interchange format, by default empty vectors
@@ -1945,9 +1945,9 @@ note that the \fIpresence\fP of a vector is established using
 the domain information found in the header part\&.
 It is possible to enforce listing of empty vectors by
 setting bit \&'1\&' in the variable MCLXICFLAGS\&.
-.in -3m
+.in -2m
 
-.ZI 3m "MCLXIOUNCHECKED"
+.ZI 2m "MCLXIOUNCHECKED"
 \&
 .br
 MCL and its sibling applications will always check a matrix for consistency
@@ -1955,7 +1955,7 @@ while it is being read\&. If this variable is set, the consistency check is
 omitted\&. For large graphs the speed up can be considerable\&. However, if the
 input graph is not conforming it will likely crash the application that
 is using it\&.
-.in -3m
+.in -2m
 .SH DIAGNOSTICS
 
 If \fBmcl\fP issues a diagnostic error, it will most likely be

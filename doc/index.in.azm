@@ -74,10 +74,16 @@
 
 
 \${roff}{
-   \set{"man::name"}{mclindex}
-   \set{"man::author"}{Stijn van Dongen}
-   \set{"man::section"}{7}
-   \"man::preamble"
+
+   \begin{pud::man}{
+
+      {name}{mclindex}
+      {author}{Stijn van Dongen}
+      {section}{7}
+
+      \man_share
+   }
+
 \sec{name}{NAME}
 \NAME{mclindex}{a list of the utilities and modules present in the MCL distribution.}
 \par
@@ -145,5 +151,5 @@
 </html>
 }}
 
-\${roff}{\"man::postamble"}
+\${roff}{\end{pud::man}}
 

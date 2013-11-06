@@ -1,42 +1,15 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- Copyright (c) 2009 Stijn van Dongen -->
 <head>
-<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <meta name="keywords" content="manual">
 <style type="text/css">
-body {
-text-align: justify;
-color: #001111;
-background: white;
+/* START zsd.base.css */
+body
+{ text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
 font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-}
-p.default {
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-text-align: justify;
-}
-p.L53 { font-size: 30pt; }
-p.L52 { font-size: 20pt; }
-p.L51 { font-size: 15pt; }
-p.L50 { font-size: 12pt; }
-p.L49 { font-size: 10pt; }
-p.L48 { font-size: 9pt; }
-p.L47 { font-size: 8pt; }
-td {
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
-text-align: justify;
-}
-h3 { margin-top:1em; }
-h2 { margin-top:2em; }
-.itembullet { font-size: 10pt; }
-.left { text-align: left; }
-.right { text-align: right; }
-.center { text-align: center; }
-.nowrap { white-space: nowrap; }
-.item { font-size: 12pt;
-text-align: justify;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -69,56 +42,87 @@ div.indent
 { margin-left: 8%;
 margin-right: 0%;
 }
+.right { text-align: right; }
+.left { text-align: left; }
+.nowrap { white-space: nowrap; }
+.item_leader
+{ position: relative;
+margin-left: 8%;
+}
+.item_compact { position: absolute; vertical-align: baseline; }
+.item_cascade { position: relative; }
+.item_leftalign { text-align: left; }
+.item_rightalign
+{ width: 2em;
+text-align: right;
+}
+.item_compact .item_rightalign
+{ position: absolute;
+width: 52em;
+right: -2em;
+text-align: right;
+}
+.item_text
+{ position: relative;
+margin-left: 3em;
+}
+/* END zsd.base.css */
 </style>
 <title>The mcx convert manual</title>
 </head>
 <body>
 <p style="text-align:right">
-2 Feb 2009&nbsp;&nbsp;&nbsp;
+29 May 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxconvert.ps"><b>mcx convert</b></a>
-1.008, 09-033
+1.008, 09-149
 </p>
-<div style="margin-top:1em">
-<table
-cellspacing="0" border=0
-cellpadding="0" summary="itemize">
-<tr valign="baseline"><td width=48 class="left nowrap">1.</td><td width=8>&nbsp;</td><td><div class=item>
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">1.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#name">NAME</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">2.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">2.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">3.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">3.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">4.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">4.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#options">OPTIONS</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">5.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">5.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#author">AUTHOR</a>
-</div></td></tr><tr valign="baseline"><td width=48 class="left nowrap">6.</td><td width=8>&nbsp;</td><td><div class=item>
+</div>
+<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">6.</div></div>
+<div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#seealso">SEE ALSO</a>
-</div></td></tr>
-</table>
-
+</div>
 </div>
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p class="default L50" style="margin-bottom:0">
-mcx convert - convert between mcx storage types</p>
+<p style="margin-bottom:0">
+mcx convert &mdash; convert between mcx storage types</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mcx convert</b> &lt;matrix-file-in&gt; &lt;matrix-file-out&gt;<br>
 <b>mcx convert</b> [--write-binary] --cone-to-stack &lt;cat-file-in&gt; &lt;cat-file-out&gt;<br>
 <b>mcx convert</b> [--write-binary] --stack-to-cone &lt;cat-file-in&gt; &lt;cat-file-out&gt;
 </p>
-<p class="default L50" style="margin-bottom:0">mcxconvert is not in actual fact a program. This manual
+<p style="margin-bottom:0">mcxconvert is not in actual fact a program. This manual
 page documents the behaviour and options of the mcx program when
 invoked in mode <i>convert</i>. The options <b>-h</b>, <b>--apropos</b>,
 <b>--version</b>, <b>-set</b>, <b>--nop</b>, <b>-progress</b>&nbsp;<i>&lt;num&gt;</i>
 are accessible
 in all <b>mcx</b> modes. They are described
 in the <a class="local" href="mcx.html">mcx</a> manual page.</p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <b>mcx convert</b>
 <a class="intern" href="#opt--cone-to-stack"><b>[--cone-to-stack</b> (<i>transform cone file to stack file</i>)<b>]</b></a>
 <a class="intern" href="#opt--stack-to-cone"><b>[--stack-to-cone</b> (<i>transform stack file to cone file</i>)<b>]</b></a>
@@ -126,7 +130,7 @@ in the <a class="local" href="mcx.html">mcx</a> manual page.</p>
 <a class="intern" href="#opt--cat"><b>[--cat</b> (<i>read and write cat format</i>)<b>]</b></a>
 <a class="intern" href="#opt-cat-max"><b>[-cat-max</b> &lt;num&gt; (<i>limit the stack conversion to &lt;num&gt; matrices</i>)<b>]</b></a>
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 In the two-argument invocation without additional arguments, <b>mcx convert</b>
 converts from the format found in the first file to the other format, i.e.
 from native interchange to native binary format or the other way around. When
@@ -138,14 +142,14 @@ between the two types of concatenated output provided by <b>mclcm</b>.
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The <b>mcl</b> libraries make extensive use of matrices. Matrices
 are used to encode graphs, matrices and clusterings.
 They can be stored either in interchange or in binary format. The latter is
 somewhat more efficient in storage and much faster in both reading and
 writing, but the default is interchange format.
 </p>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 The <b>mcl</b> input routines recognize the type of storage they are dealing
 with. If you want to convert a matrix to the other storage type,
 simply specify the file name of the matrix you want to convert.
@@ -155,39 +159,43 @@ to the file specified as the second argument.
 
 <a name="options"></a>
 <h2>OPTIONS</h2>
-<div style="margin-top:1em">
-<table
-cellspacing="0" border=0
-cellpadding="0" summary="itemize">
-<tr valign="baseline"><td colspan=3><a name="opt--cone-to-stack"></a><b>--cone-to-stack</b> (<i>transform cone file to stack file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--cone-to-stack"></a><b>--cone-to-stack</b> (<i>transform cone file to stack file</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 This option requires two trailing options, the names of respectively the
 source cone file and the target stack file.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--stack-to-cone"></a><b>--stack-to-cone</b> (<i>transform stack file to cone file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--stack-to-cone"></a><b>--stack-to-cone</b> (<i>transform stack file to cone file</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 This option requires two trailing options, the names of respectively the
 source stack file and the target cone file.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--cat"></a><b>--cat</b> (<i>read and write cat format</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt-cat-max"></a><b>-cat-max</b> &lt;num&gt; (<i>limit the stack conversion to &lt;num&gt; matrices</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr valign="baseline"><td colspan=3><a name="opt--write-binary"></a><b>--write-binary</b> (<i>output native binary format</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div class=item>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--cat"></a><b>--cat</b> (<i>read and write cat format</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-cat-max"></a><b>-cat-max</b> &lt;num&gt; (<i>limit the stack conversion to &lt;num&gt; matrices</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--write-binary"></a><b>--write-binary</b> (<i>output native binary format</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 This option is only useful with either of the options <a class="intern" href="#opt--cone-to-stack"><b>--cone-to-stack</b></a>,
 <a class="intern" href="#opt--stack-to-cone"><b>--stack-to-cone</b></a>, or <a class="intern" href="#opt--cat"><b>--cat</b></a>.
 </p>
-</div></td></tr>
-</table>
-
+</div>
 </div>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 Stijn van Dongen.
 </p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p class="default L50" style="margin-bottom:0">
+<p style="margin-bottom:0">
 <a class="local" href="mcxio.html">mcxio</a>,
 and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.

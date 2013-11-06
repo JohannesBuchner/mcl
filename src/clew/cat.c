@@ -852,7 +852,7 @@ dim clmEnstrict
 ,  dim     *empty
 ,  mcxbits  bits
 )
-   {  dim n_overlap = 0, n_empty = 0, n_missing = 0
+   {  dim n_overlap = 0, n_empty = 0, n_missing = 0, n_found = 0
 
                            /* compute how many are empty. do this at
                             * the start, as in some implementations
@@ -873,6 +873,7 @@ dim clmEnstrict
       {  mclv* nodes_found
       ;  mclgUnionvReset(cl)
       ;  nodes_found = mclgUnionv(cl, cl->dom_rows, NULL, SCRATCH_READY, NULL)
+      ;  n_found = nodes_found->n_ivps
       ;  n_missing = 0
       ;  if (nodes_found->n_ivps < N_ROWS(cl) && !(bits & ENSTRICT_REPORT_ONLY))
          {  mclv* truants = mcldMinus(cl->dom_rows, nodes_found, NULL)
@@ -881,7 +882,7 @@ dim clmEnstrict
                            /* ^ dangersign; changes N_COLS(cl) */
          ;  mclvFree(&truants)
       ;  }
-         n_overlap = mclxNrofEntries(cl) - nodes_found->n_ivps
+         n_overlap = n_found - nodes_found->n_ivps
       ;  if (missing) *missing = n_missing
       ;  if (overlap) *overlap = n_overlap
       ;  mclvFree(&nodes_found)
@@ -897,7 +898,8 @@ dim clmEnstrict
             /* no more overlap. cracking */
 
    ;  if (n_empty && !(bits & ENSTRICT_REPORT_ONLY))
-      mclxScrub(cl, MCLX_SCRUB_COLS)
+         mclxScrub(cl, MCLX_SCRUB_COLS)
+      ,  mclxMapCols(cl, NULL)
             /* no more empty clusters. yay. */
 
    ;  return n_empty + n_missing + n_overlap

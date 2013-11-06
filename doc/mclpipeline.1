@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mclpipeline" 1 "2 Feb 2009" "mclpipeline 1\&.008, 09-033" "USER COMMANDS "
+.TH "mclpipeline" 1 "29 May 2009" "mclpipeline 1\&.008, 09-149" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -299,29 +299,29 @@ The order of appending is alphabetical with capitals preceding
 lowercase, so a full example is \fCI25c30i35l2pi28s3\fP\&.
 .SH OPTIONS
 
-.ZI 3m "\fB--whatif\fP (\fIdo not execute\fP)"
+.ZI 2m "\fB--whatif\fP (\fIdo not execute\fP)"
 \&
 .br
 Shows only what would be done without executing it\&.
 Hugely useful!
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--start-assemble\fP (\fIskip parse stage\fP)"
+.ZI 2m "\fB--start-assemble\fP (\fIskip parse stage\fP)"
 \&
 .br
 Skip the parse stage, assume the necessary files have been created in a
 previous run\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--prepare-mcl\fP (\fIdo preparatory stages\fP)"
+.ZI 2m "\fB--prepare-mcl\fP (\fIdo preparatory stages\fP)"
 \&
 .br
 Do the parsing and assembly stage, then quit\&. Useful if you
 want to do multiple cluster runs for a given graph - use
 \fB--start-mcl\fP
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--start-mcl\fP (\fIskip earlier stages\fP)"
+.ZI 2m "\fB--start-mcl\fP (\fIskip earlier stages\fP)"
 \&
 .br
 Immediately start the mcl stage\&.
@@ -340,158 +340,158 @@ with the parse and assembly stage (cf\&. \fB--xo-dat\fP and
 \fB--xo-ass\fP)\&.
 If you are not clear on this (and you should not be), exercise
 the \fB--whatif\fP option to be sure\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--start-format\fP (\fIskip earlier stages\fP)"
+.ZI 2m "\fB--start-format\fP (\fIskip earlier stages\fP)"
 \&
 .br
 Immediately start the format stage\&.
 Assume the necessary files have been created in a previous run\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--help\fP (\fIsummary of options\fP)"
+.ZI 2m "\fB--help\fP (\fIsummary of options\fP)"
 \&
 .br
 Print a terse summary of options\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--xi\fP suf (\fIstrip suffix from data file\fP)"
+.ZI 2m "\fB--xi\fP suf (\fIstrip suffix from data file\fP)"
 \&
 .br
 In normal usage, this will strip the specified suffix from the data file
 to obtain the base name for further output\&.
 When used with \fB--start-mcl\fP=\fIfname\fP the same behaviour is applied
 to the mcl input file name specified in \fIfname\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--xo-dat\fP suf (\fIattach suf to parse output\fP)"
+.ZI 2m "\fB--xo-dat\fP suf (\fIattach suf to parse output\fP)"
 \&
 .br
 This suffix will be attached to the base name of the parse output\&.
 It can be used to distinguish between different parse parametrizations
 if this is applicable\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--xo-ass\fP suf (\fIattach suf to assembly output\fP)"
+.ZI 2m "\fB--xo-ass\fP suf (\fIattach suf to assembly output\fP)"
 \&
 .br
 This suffix will be attached to the base name of the assembly output\&.
 It can be used to distinguish between different assembly parametrizations
 if this is applicable\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--xo-mcl\fP suf (\fIreplace mcl output suffix\fP)"
+.ZI 2m "\fB--xo-mcl\fP suf (\fIreplace mcl output suffix\fP)"
 \&
 .br
 This suffix will be used instead of the suffix by default created
 by the pipeline\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--xa-mcl\fP str (\fIappend to mcl output suffix\fP)"
+.ZI 2m "\fB--xa-mcl\fP str (\fIappend to mcl output suffix\fP)"
 \&
 .br
 This string will be appended to the suffix by default created
 by the pipeline\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--xe-mcl\fP suf (\fIappend to mcl output\fP)"
+.ZI 2m "\fB--xe-mcl\fP suf (\fIappend to mcl output\fP)"
 \&
 .br
 This string will be appended as a single suffix to the output base
 name before mclpipeline appends its own suffix\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--xo-fmt\fP suf (\fIattach suf to clmformat output\fP)"
+.ZI 2m "\fB--xo-fmt\fP suf (\fIattach suf to clmformat output\fP)"
 \&
 .br
 This suffix will be used instead of the suffix by default used
 by the formatting stage\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--ass-repeat\fP str (\fIassembly repeat option\fP)"
+.ZI 2m "\fB--ass-repeat\fP str (\fIassembly repeat option\fP)"
 \&
 .br
 Corresponds with the \fBmcxassemble\fP \fB-r\fP\ \&\fImode\fP option\&.
 Refer to the \fBmcxassemble(1)\fP manual\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--ass-opt\fP val (\fIassembly option transporter\fP)"
+.ZI 2m "\fB--ass-opt\fP val (\fIassembly option transporter\fP)"
 \&
 .br
 Transfer \fB-opt\fP\ \&\fIval\fP to \fBmcxassemble\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--ass-nomap\fP (\fIignore map file\fP)"
+.ZI 2m "\fB--ass-nomap\fP (\fIignore map file\fP)"
 \&
 .br
 Either no map file is present or it should be ignored\&.
 For parsers that don\&'t write map files\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--mcl-I\fP float (\fImcl inflation value\fP)"
+.ZI 2m "\fB--mcl-I\fP float (\fImcl inflation value\fP)"
 \&
 .br
 The (main) inflation value mcl should use\&.
 \fIThis is the primary mcl option\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--mcl-scheme\fP i (\fImcl scheme index\fP)"
+.ZI 2m "\fB--mcl-scheme\fP i (\fImcl scheme index\fP)"
 \&
 .br
 The scheme index to use\&. This options is also important\&.
 Refer to the \fBmcl(1)\fP manual\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--mcl-te\fP num (\fI#expansion threads\fP)"
+.ZI 2m "\fB--mcl-te\fP num (\fI#expansion threads\fP)"
 \&
 .br
 The number of threads \fBmcl\fP should use\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--mcl-i\fP float (\fImcl initial inflation value\fP)"
+.ZI 2m "\fB--mcl-i\fP float (\fImcl initial inflation value\fP)"
 \&
 .br
 The initial inflation value mcl should use\&.
 Only for fine-tuning or testing\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--mcl-l\fP float (\fImcl initial loop length\fP)"
+.ZI 2m "\fB--mcl-l\fP float (\fImcl initial loop length\fP)"
 \&
 .br
 The length of the loop in which initial inflation
 is applied\&. By default zero\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--mcl-c\fP float (\fImcl center value\fP)"
+.ZI 2m "\fB--mcl-c\fP float (\fImcl center value\fP)"
 \&
 .br
 The center value\&. One may attempt to affect granularity
 by exercising this option, which controls the loop weights
 in the input matrix\&. Refer to the \fBmcl(1)\fP manual\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--mcl-pi\fP float (\fImcl pre-inflation value\fP)"
+.ZI 2m "\fB--mcl-pi\fP float (\fImcl pre-inflation value\fP)"
 \&
 .br
 Pre-inflation, another option which may possibly affect granularity by
 changing the input matrix\&. It makes the edge weight
 distribution either more or less homogeneous\&.
 Refer to the \fBmcl(1)\fP manual\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--mcl-o\fP fname (\fIdo not use\fP)"
+.ZI 2m "\fB--mcl-o\fP fname (\fIdo not use\fP)"
 \&
 .br
 Set the mcl output name\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--mcl-opt\fP val (\fImcl option transporter\fP)"
+.ZI 2m "\fB--mcl-opt\fP val (\fImcl option transporter\fP)"
 \&
 .br
 Transfer \fB-opt\fP\ \&\fIval\fP to \fBmcl\fP\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--fmt-dump-stats\fP (\fIadd simple measures to dump file\fP)"
+.ZI 2m "\fB--fmt-dump-stats\fP (\fIadd simple measures to dump file\fP)"
 \&
 .br
 This adds some simple performance measures to the dump file\&. For each
@@ -502,41 +502,41 @@ efficiency of the cluster (which is the average of the efficiency of all its
 nodes), and the maximum efficiency (average of the max-efficiency of all the
 nodes)\&. Look into the \fBclmformat manual\fP for more
 information on and references to the efficiency measures\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--fmt-fancy\fP (\fIcreate detailed output (requires zoem)\fP)"
+.ZI 2m "\fB--fmt-fancy\fP (\fIcreate detailed output (requires zoem)\fP)"
 \&
 .br
 Creates extensive description of node/cluster and cluster/cluster
 relationships\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--fmt-lump-count\fP num (\fIcollect formatted output\fP)"
+.ZI 2m "\fB--fmt-lump-count\fP num (\fIcollect formatted output\fP)"
 \&
 .br
 Collect clusters in the same file until the total number
 of nodes has exceeded \fInum\fP (in the formatted output)\&.
 Only meaninful when \fB--fmt-fancy\fP is given\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--fmt-tab\fP (\fIuse this tab file\fP)"
+.ZI 2m "\fB--fmt-tab\fP (\fIuse this tab file\fP)"
 \&
 .br
 Explicitly specify the tab file to use\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--fmt-notab\fP (\fIignore tab file\fP)"
+.ZI 2m "\fB--fmt-notab\fP (\fIignore tab file\fP)"
 \&
 .br
 Either no tab file is present or it should be ignored\&.
 For parsers that don\&'t write tab files\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--fmt-opt\fP val (\fIclmformat option transporter\fP)"
+.ZI 2m "\fB--fmt-opt\fP val (\fIclmformat option transporter\fP)"
 \&
 .br
 Transfer \fB-opt\fP\ \&\fIval\fP to \fBclm format\fP\&.
-.in -3m
+.in -2m
 .SH AUTHOR
 
 Stijn van Dongen

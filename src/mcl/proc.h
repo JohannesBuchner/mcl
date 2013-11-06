@@ -67,6 +67,7 @@ typedef struct
                                                      
 ;  int                  printMatrix
 ;  int                  printDigits
+;  int                  expansionVariant
 
 ;  mclInterpretParam*   ipp
 ;  int                  dimension /* of input matrix */

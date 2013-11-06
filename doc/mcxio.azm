@@ -1,12 +1,16 @@
-
 \import{mcx.zmm}
 
-\set{"man::name"}{mcxio}
-\set{"man::html-title"}{The mcl matrix format specification}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{5}
+\begin{pud::man}{
 
-\"man::preamble"
+   {name}{mcxio}
+   {html_title}{The mcl matrix format specification}
+   {author}{Stijn van Dongen}
+   {section}{5}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
 
 \:   Other information can be stored in the header, \mcl cares only about
 \:   keys it recognizes. Note that other keys might become meaningful in
@@ -22,7 +26,7 @@
 \car{
    This document describes}
    
-\begin{itemize}
+\begin{itemize}{\mcx_itemopts}
 \item{native matrix format}
 \car{
    The format that can be read in by any mcl application
@@ -111,8 +115,7 @@
    program is one of the programs in the mcl family.  The remainder of this
    document contains the following sections.}
 
-\"man::maketoc"
-
+\${html}{\"pud::man::maketoc"}
 
 \sec{internal}{Internal representation of matrices in MCL}
 
@@ -183,7 +186,7 @@
    The matrix M is specified in three parts, for which the second is optional.
    The parts are:}
 
-\begin{itemize}
+\begin{itemize}{\mcx_itemopts}
 \item{Header specification}
 \car{
    This specifies the dimensions K and L of the matrix, where K is the
@@ -469,7 +472,11 @@ hit bit  0.16
    the invocation looks like \bf{func}(). The following
    functions are supported.}
 
-\begin{itemize}{{w1}{8}{compact}{1}}
+\begin{itemize}{
+   {textindent}{9}
+   {flow}{compact}
+   {align}{left}
+}
 \item{lt}   Filter out values greater than or equal to arg.
 \item{lq}   Filter out values greater than arg.
 \item{gq}   Filter out values less than arg.
@@ -505,5 +512,5 @@ hit bit  0.16
 \car{
    Stijn van Dongen.}
 
-\"man::postamble"
+\end{pud::man}
 

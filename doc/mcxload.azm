@@ -1,14 +1,18 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
 \import{mcx.zmm}
 
-\set{"man::name"}{mcxload}
-\set{"man::html-title"}{The mcxload manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\begin{pud::man}{
 
-\"man::preamble"
-\${html}{\"man::maketoc"}
+   {name}{mcxload}
+   {html_title}{The mcxload manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{mcxload}{load matrices and tab files from label format}
@@ -184,7 +188,14 @@
 \cpar{STAGES}{
    Conceptually, input matrix creation consists of the following stages}
 
-\begin{itemize}{{compact}{1}{contiguous}{1}{type}{roman}{w1}{4}{w2}{3}{align}{right}}
+\begin{itemize}{
+   {flow}{compact}
+   {interitem}{0}
+   {type}{roman}
+   {textindent}{4}
+   {itemmargin}{2}
+   {align}{right}
+} 
 \item
 \car{
    Read the input stream, apply \genoptref{-stream-tf} transformation
@@ -205,7 +216,7 @@
 
 \sec{options}{OPTIONS}
 
-\begin{itemize}
+\begin{itemize}{\mcx_itemopts}
 
 \item{\defopt{-abc}{<fname>}{label file}}
 \car{
@@ -394,5 +405,5 @@
    and \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.}
 
-\"man::postamble"
+\end{pud::man}
 

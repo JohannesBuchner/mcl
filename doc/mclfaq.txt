@@ -222,7 +222,7 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
           the  year  2002.  This date stamp agrees (as of April 2000) with the
           (differently presented) date stamp used in all manual pages  shipped
           with  that  release.  For example, the date stamp of the FAQ you are
-          reading is 2 Feb 2009, which corresponds with the MCL stamp  09-033.
+          reading is 29 May 2009, which corresponds with the MCL stamp 09-149.
           The Changelog file contains a list of what's changed/added with each
           release. Currently, the date stamp is the primary way of identifying
           an  mcl  release. When asked for its version by using --version, mcl
@@ -856,85 +856,85 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
           Very  easy,  if you will be doing small graphs only, say up to a few
           thousand entries at most. These are the basic ingredients:
 
-          o  Adding loops to the  input  graph,  conversion  to  a  stochastic
-             matrix.
-          o  Matrix multiplication and matrix inflation.
-          o  The  interpretation function mapping MCL limits onto clusterings.
+          o Adding loops to  the  input  graph,  conversion  to  a  stochastic
+            matrix.
+          o Matrix multiplication and matrix inflation.
+          o The interpretation function mapping MCL limits onto clusterings.
 
           These must be wrapped in a program that does graph input and cluster
-          output,  alternates multiplication (i.e. expansion) and inflation in
+          output, alternates multiplication (i.e. expansion) and inflation  in
           a loop, monitors the matrix iterands thus found, quits the loop when
           convergence is detected, and interprets the last iterand.
 
           Implementing matrix muliplication is a standard exercise. Implement-
-          ing inflation is nearly trivial. The hardest part  may  actually  be
-          the  interpretation  function,  because you need to cover the corner
-          cases of overlap and attractor systems of cardinality  greater  than
-          one.  Note  that MCL does not use intricate and expensive operations
+          ing  inflation  is  nearly trivial. The hardest part may actually be
+          the interpretation function, because you need to  cover  the  corner
+          cases  of  overlap and attractor systems of cardinality greater than
+          one. Note that MCL does not use intricate and  expensive  operations
           such as matrix inversion or matrix reductions.
 
-          In Mathematica or Maple, mcl should be doable in at most  100  lines
-          of  code.   For  perl you may need twice that amount. In lower level
-          languages such as C or Fortran a basic MCL program may  need  a  few
-          hundred  lines,  but  the largest part will probably be input/output
+          In  Mathematica  or Maple, mcl should be doable in at most 100 lines
+          of code.  For perl you may need twice that amount.  In  lower  level
+          languages  such  as  C or Fortran a basic MCL program may need a few
+          hundred lines, but the largest part will  probably  be  input/output
           and interpretation.
 
-          To illustrate all these points, mcl now ships with minimcl, a  small
-          perl  script  that  implements  mcl  for  educational purposes.  Its
+          To  illustrate all these points, mcl now ships with minimcl, a small
+          perl script that  implements  mcl  for  educational  purposes.   Its
           structure is very simple and should be easy to follow.
 
-          Implementing the basic MCL algorithm makes a nice programming  exer-
-          cise.  However, if you need an implementation that scales to several
+          Implementing  the basic MCL algorithm makes a nice programming exer-
+          cise. However, if you need an implementation that scales to  several
           hundreds of thousands of nodes and possibly beyond, then your duties
           become much heavier. This is because one needs to prune MCL iterands
-          (c.q. matrices) such that they remain  sparse.  This  must  be  done
-          carefully  and  preferably  in  such  a way that a trade-off between
-          speed, memory usage, and potential losses or gains in  accuracy  can
-          be  controlled  via  monitoring and logging of relevant characteris-
-          tics.  Some other points are i) support for threading via  pthreads,
-          openMP,  or  some  other parallel programming API.  ii) a robust and
-          generic interpretation function is written in terms of  weakly  con-
+          (c.q.  matrices)  such  that  they  remain sparse. This must be done
+          carefully and preferably in such a  way  that  a  trade-off  between
+          speed,  memory  usage, and potential losses or gains in accuracy can
+          be controlled via monitoring and logging  of  relevant  characteris-
+          tics.   Some other points are i) support for threading via pthreads,
+          openMP, or some other parallel programming API.  ii)  a  robust  and
+          generic  interpretation  function is written in terms of weakly con-
           nected components.
 
                   Cluster overlap / MCL iterand cluster interpretation
 
    9.1    Introduction
 
-          A  natural  mapping exists of MCL iterands to DAGs (directed acyclic
+          A natural mapping exists of MCL iterands to DAGs  (directed  acyclic
           graphs). This is because MCL iterands are generally diagonally posi-
-          tive  semi-definite  -  see [3].  Such a DAG can be interpreted as a
-          clustering, simply by taking as cores all endnodes  (sinks)  of  the
+          tive semi-definite - see [3].  Such a DAG can be  interpreted  as  a
+          clustering,  simply  by  taking as cores all endnodes (sinks) of the
           DAG, and by attaching to each core all the nodes that reach it. This
           procedure may result in clusterings containing overlap.
 
-          In the MCL limit, the associated DAG has in general a very  degener-
-          ated  form,  which  induces overlap only on very rare occasions (see
+          In  the MCL limit, the associated DAG has in general a very degener-
+          ated form, which induces overlap only on very  rare  occasions  (see
           faq entry 9.2).
 
-          Interpreting mcl iterands as clusterings may  well  be  interesting.
+          Interpreting  mcl  iterands  as clusterings may well be interesting.
           Few experiments have been done so far. It is clear though that early
-          iterands generally contain the most  overlap  (when  interpreted  as
-          clusterings).   Overlap   dissappears  soon  as  the  iterand  index
-          increases. For more information, consult the other entries  in  this
+          iterands  generally  contain  the  most overlap (when interpreted as
+          clusterings).  Overlap  dissappears  soon  as  the   iterand   index
+          increases.  For  more information, consult the other entries in this
           section and the clmimac manual page.
 
    9.2    Can the clusterings returned by mcl contain overlap?
 
-          No.  Clusterings  resulting  from  the abstract MCL algorithm may in
-          theory contain overlap, but the  default  behaviour  in  mcl  is  to
+          No. Clusterings resulting from the abstract  MCL  algorithm  may  in
+          theory  contain  overlap,  but  the  default  behaviour in mcl is to
           remove it should it occur, by allocating the nodes in overlap to the
-          first cluster in which they are seen. mcl  will  warn  you  if  this
-          occurs.  This  behaviour  is  switched off by supplying --keep-over-
+          first  cluster  in  which  they  are seen. mcl will warn you if this
+          occurs. This behaviour is switched  off  by  supplying  --keep-over-
           lap=yes.
 
-          Do note that overlap is mostly a  theoretical  possibility.   It  is
-          conjectured  that it requires the presence of very strong symmetries
-          in the input graph, to the extent that there exists an  automorphism
+          Do  note  that  overlap  is mostly a theoretical possibility.  It is
+          conjectured that it requires the presence of very strong  symmetries
+          in  the input graph, to the extent that there exists an automorphism
           of the input graph mapping the overlapping part onto itself.
 
-          It  is possible to construct (highly symmetric) input graphs leading
-          to cluster overlap. Examples of overlap in which  a  few  nodes  are
-          involved  are easy to construct; examples with many nodes are excep-
+          It is possible to construct (highly symmetric) input graphs  leading
+          to  cluster  overlap.  Examples  of overlap in which a few nodes are
+          involved are easy to construct; examples with many nodes are  excep-
           tionally hard to construct.
 
           Clusterings associated with intermediate/early MCL iterands may very
@@ -944,61 +944,61 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
    9.3    How do I obtain the clusterings associated with MCL iterands?
 
           There are two options. If you are interested in clusterings contain-
-          ing  overlap,  you  should go for the second. If not, use the first,
+          ing overlap, you should go for the second. If not,  use  the  first,
           but beware that the resulting clusterings may contain overlap.
 
           The first solution is to use -dump cls (probably in conjunction with
-          either  -L  or -dumpi in order to limit the number of matrices writ-
-          ten). This will cause mcl to write the clustering generically  asso-
+          either -L or -dumpi in order to limit the number of  matrices  writ-
+          ten).  This will cause mcl to write the clustering generically asso-
           ciated with each iterand to file. The -dumpstem option may be conve-
           nient as well.
 
-          The second solution is to  use  the  -dump ite  option  (-dumpi  and
-          -dumpstem  may  be  of  use again). This will cause mcl to write the
-          intermediate iterands to file. After that, you can  apply  clm  imac
-          (interpret  matrix  as clustering) to those iterands. clm imac has a
-          -tight parameter which affects the mapping of matrices  to  cluster-
+          The  second  solution  is  to  use  the -dump ite option (-dumpi and
+          -dumpstem may be of use again). This will cause  mcl  to  write  the
+          intermediate  iterands  to  file. After that, you can apply clm imac
+          (interpret matrix as clustering) to those iterands. clm imac  has  a
+          -tight  parameter  which affects the mapping of matrices to cluster-
           ings. It takes a value between 0 and 100 as argument. The default is
-          100 and corresponds with the strict  mapping.  Lowering  the  -tight
-          value  will generally result in clusterings containing more overlap.
-          This will have the largest effect for  early  iterands;  its  effect
+          100  and  corresponds  with  the strict mapping. Lowering the -tight
+          value will generally result in clusterings containing more  overlap.
+          This  will  have  the  largest effect for early iterands; its effect
           will diminish as the iterand index increases.
 
-          When  set to 0, the -tight parameter results in the clustering asso-
-          ciated with the DAG associated with an MCL iterand as  described  in
-          [3].  This DAG is pruned (thus possibly resulting in less overlap in
+          When set to 0, the -tight parameter results in the clustering  asso-
+          ciated  with  the DAG associated with an MCL iterand as described in
+          [3]. This DAG is pruned (thus possibly resulting in less overlap  in
           the clustering) by increasing the -tight parameter. [add]
 
                                      Miscellaneous
 
    10.1   How do I find the default settings of mcl?
 
-          Use -z to find out the actual settings - it shows  the  settings  as
-          resulting  from  the command line options (e.g. the default settings
+          Use  -z  to  find out the actual settings - it shows the settings as
+          resulting from the command line options (e.g. the  default  settings
           if no other options are given).
 
    10.2   What's next?
 
-          I'd like to port MCL to cluster computing, using  one  of  the  PVM,
-          MPI,  or  openMP frameworks.  For the 1.002 release, mcl's internals
-          were rewritten to allow  more  general  matrix  computations.  Among
+          I'd  like  to  port  MCL to cluster computing, using one of the PVM,
+          MPI, or openMP frameworks.  For the 1.002 release,  mcl's  internals
+          were  rewritten  to  allow  more  general matrix computations. Among
           other things, mcl's data structures and primitive operations are now
-          more suited to be employed in a distributed  computing  environment.
-          However,  much  remains to be done before mcl can operate in such an
+          more  suited  to be employed in a distributed computing environment.
+          However, much remains to be done before mcl can operate in  such  an
           environment.
 
-          At some point in the future a second, xml-based,  interchange  input
+          At  some  point in the future a second, xml-based, interchange input
           format may be introduced.
 
-          If  you feel that mcl should support some other standard matrix for-
+          If you feel that mcl should support some other standard matrix  for-
           mat, let us know.
 
   BUGS
-          This FAQ tries to compromise between being  concise  and  comprehen-
+          This  FAQ  tries  to compromise between being concise and comprehen-
           sive. The collection of answers should preferably cover the universe
           of questions at a pleasant level of semantic granularity without too
           much overlap. It should offer value to people interested in cluster-
-          ing but without sound mathematical training. Therefore, if this  FAQ
+          ing  but without sound mathematical training. Therefore, if this FAQ
           has not failed somewhere, it must have failed.
 
           Send criticism and missing questions for consideration to mcl-faq at
@@ -1018,33 +1018,33 @@ MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
           sis, University of Utrecht, May 2000.
           http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm
 
-          [2] Stijn van Dongen. A cluster  algorithm  for  graphs.   Technical
-          Report  INS-R0010,  National  Research Institute for Mathematics and
+          [2]  Stijn  van  Dongen.  A cluster algorithm for graphs.  Technical
+          Report INS-R0010, National Research Institute  for  Mathematics  and
           Computer Science in the Netherlands, Amsterdam, May 2000.
           http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z
 
-          [3] Stijn van Dongen. A stochastic uncoupling  process  for  graphs.
-          Technical  Report  INS-R0011, National Research Institute for Mathe-
+          [3]  Stijn  van  Dongen. A stochastic uncoupling process for graphs.
+          Technical Report INS-R0011, National Research Institute  for  Mathe-
           matics and Computer Science in the Netherlands, Amsterdam, May 2000.
           http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z
 
-          [4]  Stijn van Dongen. Performance criteria for graph clustering and
-          Markov cluster experiments.  Technical  Report  INS-R0012,  National
-          Research  Institute  for  Mathematics  and  Computer  Science in the
+          [4] Stijn van Dongen. Performance criteria for graph clustering  and
+          Markov  cluster  experiments.  Technical  Report INS-R0012, National
+          Research Institute for  Mathematics  and  Computer  Science  in  the
           Netherlands, Amsterdam, May 2000.
           http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z
 
-          [5] Enright A.J., Van Dongen S., Ouzounis C.A.  An  efficient  algo-
-          rithm  for  large-scale detection of protein families, Nucleic Acids
+          [5]  Enright  A.J., Van Dongen S., Ouzounis C.A.  An efficient algo-
+          rithm for large-scale detection of protein families,  Nucleic  Acids
           Research 30(7):1575-1584 (2002).
 
   NOTES
-          This   page    was    generated    from    ZOEM    manual    macros,
+          This    page    was    generated    from    ZOEM    manual   macros,
           http://micans.org/zoem. Both html and roff pages can be created from
-          the same source without having to bother with all the usual  conver-
-          sion  problems,  while  keeping  some level of sophistication in the
+          the  same source without having to bother with all the usual conver-
+          sion problems, while keeping some level  of  sophistication  in  the
           typesetting.
 
 
 
-  MCL FAQ 1.008, 09-033             2 Feb 2009                        MCL FAQ(7)
+  MCL FAQ 1.008, 09-149             29 May 2009                       MCL FAQ(7)

@@ -50,10 +50,11 @@ void  mclDumpVector
 
 
 int doIteration
-(  mclMatrix**          mxin
-,  mclMatrix**          mxout
-,  mclProcParam*        mpp
-,  int                  type
+(  const mclx*    mxstart
+,  mclx**         mxin
+,  mclx**         mxout
+,  mclProcParam*  mpp
+,  int            type
 )  ;
 
 
@@ -105,6 +106,7 @@ mclProcParam* mclProcParamNew
 
    ;  mpp->printDigits     =  3
    ;  mpp->printMatrix     =  0
+   ;  mpp->expansionVariant=  0
 
    ;  mpp->dimension       =  0
    ;  return mpp
@@ -152,6 +154,7 @@ mclMatrix*  mclProcess
                                        /* mq check memleak for param and stats
                                         * structs and members
                                        */
+
    ;  if (!mxp->stats)                 /* size dependent init stuff */
       mclExpandParamDim(mxp, mxEven)
 
@@ -182,14 +185,15 @@ mclMatrix*  mclProcess
 
       for (i=0;i<mpp->initLoopLength;i++)
       {  doIteration 
-         (  &mxEven
+         (  mxstart[0]
+         ,  &mxEven
          ,  &mxOdd
          ,  mpp
          ,  ITERATION_INITIAL
          )
 
       ;  if
-         (  (i == 0 && !constmx)
+         (  (i == 0 && !constmx && !mpp->expansionVariant)
          || (i == 1 && !cachexp)
          ||  i > 1
          )
@@ -211,7 +215,8 @@ mclMatrix*  mclProcess
    ;  for (i=0;i<mpp->mainLoopLength;i++)
       {  int convergence
          =  doIteration
-            (  &mxEven
+            (  mxstart[0]
+            ,  &mxEven
             ,  &mxOdd
             ,  mpp
             ,  ITERATION_MAIN
@@ -219,7 +224,7 @@ mclMatrix*  mclProcess
 
       ;  if
          (  mpp->initLoopLength
-         || (i == 0 && !constmx)
+         || (i == 0 && !constmx && !mpp->expansionVariant)
          || (i == 1 && !cachexp)
          ||  i > 1
          )
@@ -326,8 +331,9 @@ if(dump)fprintf(stdout, "%d\t%.3f\n", (int) i, avg);
 
 
 int doIteration
-(  mclMatrix**          mxin
-,  mclMatrix**          mxout
+(  const mclx*          mxstart
+,  mclx**               mxin
+,  mclx**               mxout
 ,  mclProcParam*        mpp
 ,  int                  type
 )
@@ -352,8 +358,8 @@ int doIteration
    ;  if (log_gauge || log_stats)
       fprintf(fplog, "%3d  ", (int) n_ite+1)
 
-   ;  *mxout =  mclExpand(*mxin, mxp)
-   ;  homgAvg = mxp->stats->homgAvg
+   ;  *mxout  =   mclExpand(*mxin, mpp->expansionVariant ? mxstart : *mxin,  mxp)
+   ;  homgAvg =   mxp->stats->homgAvg
 
    ;  homgVec = mxp->stats->homgVec
    ;  mxp->stats->homgVec = NULL       /* fixme ugly ownership */

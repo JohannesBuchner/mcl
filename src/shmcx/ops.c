@@ -1234,7 +1234,7 @@ int opExpand
    ;  if (!mx) return 0
    ;  mclExpandParamDim(mxp, mx)
 
-   ;  sq = mclExpand(mx, mxp)
+   ;  sq = mclExpand(mx, mx, mxp)
   /*  mclExpandParamFree(&mxp)
    *  mqml function does not exist yet.
   */

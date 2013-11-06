@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcxq" 1 "2 Feb 2009" "mcxq 1\&.008, 09-033" "USER COMMANDS "
+.TH "mcx q" 1 "29 May 2009" "mcx q 1\&.008, 09-149" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -59,39 +59,39 @@ When instructed to, it can also compute other quantities related
 to the input graph\&. See below\&.
 .SH OPTIONS
 
-.ZI 3m "\fB-imx\fP <fname> (\fIinput matrix\fP)"
+.ZI 2m "\fB-imx\fP <fname> (\fIinput matrix\fP)"
 \&
 .br
 The file name for input that is in mcl native matrix format\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB-o\fP <fname> (\fIoutput file name\fP)"
+.ZI 2m "\fB-o\fP <fname> (\fIoutput file name\fP)"
 \&
 .br
 Set the name of the file where output should be written to\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--edge\fP (\fIcompute simple statistics\fP)"
+.ZI 2m "\fB--edge\fP (\fIcompute simple statistics\fP)"
 \&
 .br
 This is the default setting\&. If any other option (e\&.g\&. \fB--dim\fP)
 is used, \fB--edge\fP has to be specified if this output mode is to
 be activated in parallel\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--edge-list\fP (\fIcompute simple statistics, node-wisel\fP)"
+.ZI 2m "\fB--edge-list\fP (\fIcompute simple statistics, node-wisel\fP)"
 \&
 .br
 This outputs for each node its neighbour count and the average
 weight of the edges connecting that node with those neighbours\&.
-.in -3m
+.in -2m
 
-.ZI 3m "\fB--dim\fP (\fIonly list domain sizes\fP)"
+.ZI 2m "\fB--dim\fP (\fIonly list domain sizes\fP)"
 \&
 .br
 This outputs the format (native interchange or native binary)
 and the dimensions of the encoded matrix\&.
-.in -3m
+.in -2m
 .SH SEE ALSO
 
 \fBmcxio(5)\fP,
