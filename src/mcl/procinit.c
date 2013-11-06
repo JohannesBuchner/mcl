@@ -1035,7 +1035,7 @@ void mclShowSettings
    ;  mclExpandParam *mxp = mpp->mxp
 
    ;  if (user)
-      {  fprintf(fp, "[mcl] cell size: %d\n", sizeof(ivps) / 10)
+      {  fprintf(fp, "[mcl] cell size: %u\n", (unsigned) (sizeof(ivps)/10))
       ;  fprintf
          (  fp
          ,  "[mcl] cell contents: "

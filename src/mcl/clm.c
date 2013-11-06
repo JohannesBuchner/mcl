@@ -497,7 +497,8 @@ mclMatrix*  mclcSeparate
 
 
 /* fixme
- *    why not a simple while loop ?
+ *    -  why not a simple while loop ?
+ *    -  why not 
 */
 
 void mclx_grow_component
@@ -511,6 +512,7 @@ void mclx_grow_component
    ;  if (!vec)
       return
 
+                              /* fixme; needs new mclvGetIvpAlien */
    ;  if (vec->n_ivps && mcldCountSet(cur, vec, MCLD_CT_RDIFF))
       {  mcldMinus(vec, cur, proj)
       ;  if (proj->n_ivps)
@@ -538,20 +540,20 @@ mclx* mclcComponents
 ,  const mclx* dom
 )
    {  int i, c, n_cls = 0
-   ;  mcxbool user_doms = dom ? TRUE : FALSE
-   ;  mclx* dom2
+   ;  mcxbool project = dom ? TRUE : FALSE
+   ;  mclx* coco                                /* connected components */
    ;  mclv* cur
 
    ;  if (!mx || !mclxIsGraph(mx))
       return NULL
 
-   ;  if (!user_doms)
+   ;  if (!project)
       {  dom = mclxAllocZero
                (mclvInsertIdx(NULL, 0, 1.0), mclvCopy(NULL, mx->dom_rows))
       ;  mclvCopy(dom->cols+0, mx->dom_rows)
    ;  }
 
-      dom2  =  mclxAllocZero
+      coco  =  mclxAllocZero
                (mclvCanonical(NULL, N_COLS(mx), 1.0), mclvCopy(NULL, mx->dom_rows))
    ;  cur   =  mclvInit(NULL)
 
@@ -559,52 +561,53 @@ mclx* mclcComponents
    ;  for (c=0;c<N_COLS(dom);c++)
       {  mclv* clvec = dom->cols+c
       ;  const mclx* sub
-                     =     user_doms
+                     =     project
                         ?  mclxSub(mx, mclvCopy(NULL, clvec), mclvCopy(NULL, clvec))
                         :  mx
+      ;  mclv* done_these =project ? sub->dom_cols : dom->dom_rows 
       ;  mclp* civp = NULL
-      ;  mclvMakeConstant(sub->dom_cols, 0.5)
+      ;  mclvMakeConstant(done_these, 0.5)
                                  /* fixme should not touch sub->dom_cols */
 
       ;  for (i=0;i<clvec->n_ivps;i++)
          {  long cidx = clvec->ivps[i].idx
-         ;  civp = mclvGetIvp(sub->dom_cols, cidx, civp)
+         ;  civp = mclvGetIvp(done_these, cidx, civp)
 
-         ;  if (!civp || civp->val > 1.0)    /* fixme should err (?) */
+         ;  if (!civp || civp->val > 1.0)
             continue
 
          ;  mclvInsertIdx(cur, cidx, 1.0)
          ;  mclx_grow_component(sub, cidx, cur)
          ;  mclvMakeConstant(cur, 1.0)
-         ;  if (0)                  /* recentlychanged 06-026 */
-            mclvUpdate(sub->dom_cols, cur, fltAdd)
+         ;  if (1)                  /* recentlychanged 06-026 */
+            mclvUpdateMeet(done_these, cur, fltAdd)
          ;  else
-            mclvAdd(sub->dom_cols, cur, sub->dom_cols)
-         ;  mclvRenew(dom2->cols+n_cls, cur->ivps, cur->n_ivps)
+            mclvAdd(done_these, cur, done_these)
+         ;  mclvRenew(coco->cols+n_cls, cur->ivps, cur->n_ivps)
          ;  mclvResize(cur, 0)
 ;if (DEBUG) fprintf(stderr, "\n##\n##\n new cluster %ld\n\n", (long) n_cls)
          ;  n_cls++
       ;  }
 
-         if (user_doms)
+         if (project)
          mclxFree((mclx**) &sub)
 
-      ;  if (n_cls == N_COLS(dom2) && c+1 < N_COLS(dom))
+      ;  if (n_cls == N_COLS(coco) && c+1 < N_COLS(dom))
          {  mcxErr("mclcComponents", "ran out of space, fix me")
          ;  break
       ;  }
       }
 
-      if (!user_doms)
+      if (!project)
       mclxFree((mclMatrix**) &dom)   /* we did allocate it ourselves */
 
-   ;  mclvResize(dom2->dom_cols, n_cls)
-   ;  dom2->cols = mcxRealloc(dom2->cols, n_cls * sizeof(mclv), RETURN_ON_FAIL)
+   ;  mclvResize(coco->dom_cols, n_cls)
+   ;  coco->cols = mcxRealloc(coco->cols, n_cls * sizeof(mclv), RETURN_ON_FAIL)
 
-   ;  mclxColumnsRealign(dom2, mclvSizeRevCmp)
+   ;  mclxColumnsRealign(coco, mclvSizeRevCmp)
 
    ;  mclvFree(&cur)
-   ;  return dom2
+   ;  return coco
 ;  }
 
 

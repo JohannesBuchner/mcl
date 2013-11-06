@@ -140,7 +140,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-this = clxcoarse clxdo
+this = clxcoarse clxdo minimcl
 EXTRA_DIST = $(this)
 all: all-am
 

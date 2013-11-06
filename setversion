@@ -13,11 +13,6 @@ MONTHDAY=$(date '+%e')
 MONTH=$(date '+%b')
 YEAR=$(date '+%Y')
 
-VERSION="06-021"
-MONTHDAY=21
-MONTH=Jan
-YEAR=2006
-
 #VERSION='03-277'
 #MONTHDAY=4
 echo $VERSION > VERSION

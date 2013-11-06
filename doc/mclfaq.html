@@ -68,9 +68,9 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-21 Jan 2006&nbsp;&nbsp;&nbsp;
+27 Feb 2006&nbsp;&nbsp;&nbsp;
 <a class="local" href="mclfaq.ps"><b>MCL&nbsp;FAQ</b></a>
-1.006, 06-021
+1.006, 06-058
 </p>
 <div style="margin-top:1em">
 <table
@@ -459,8 +459,8 @@ The current setup, which I hope to continue, is this. All releases are
 identified by a date stamp. For example 02-095 denotes day 95 in the year
 2002. This date stamp agrees (as of April 2000) with the (differently
 presented) date stamp used in all manual pages shipped with that release.
-For example, the date stamp of the FAQ you are reading is <b>21 Jan 2006</b>,
-which corresponds with the MCL stamp <b>06-021</b>.
+For example, the date stamp of the FAQ you are reading is <b>27 Feb 2006</b>,
+which corresponds with the MCL stamp <b>06-058</b>.
 The Changelog file contains a list of what's changed/added with each
 release. Currently, the date stamp is the primary way of identifying an <b>mcl</b>
 release. When asked for its version by using <b>--version</b>, mcl
@@ -1084,8 +1084,9 @@ me know the results if you like.</p>
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
 <tr><td width=32 valign="top" class=left><a name="faq7.1"></a> <a class="quiet" href="#toc-implement">7.1</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><b>How easy is it to implement the MCL algorithm?</b><p class="default L50">
+<p class="default L50" style="margin-bottom:0">
 Very easy, if you will be doing small graphs only, say up to a few thousand
-entries at most. These are the basic ingredients:
+entries at most. These are the basic ingredients:</p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
@@ -1100,25 +1101,31 @@ The interpretation function mapping MCL limits onto clusterings.
 </table>
 
 </div>
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
 These must be wrapped in a program that does graph input and cluster output,
 alternates multiplication (i.e. expansion) and inflation in a loop, monitors
 the matrix iterands thus found, quits the loop when convergence is detected,
-and interprets the last iterand.
-<p class="default L50">
+and interprets the last iterand.</p>
+<p class="default L50" style="margin-bottom:0">
 Implementing matrix muliplication is a standard exercise. Implementing
 inflation is nearly trivial. The hardest part may actually be the
 interpretation function, because you need to cover the corner cases of
-overlap and attractor systems of cardinality greater than one.
-<p class="default L50">
+overlap and attractor systems of cardinality greater than one.</p>
+<p class="default L50" style="margin-bottom:0">
 In Mathematica or Maple, this should be doable in at most 50 lines of code.
 For perl you may need 50 more lines - note that MCL does not use intricate
 and expensive operations such as matrix inversion or matrix reductions. In
 lower level languages such as C a basic MCL program may need a few hundred
 lines, but the largest part will probably be input/output and
-interpretation.
-<p class="default L50">
-It is perhaps even such that implementing the basic MCL algorithm makes a
+interpretation.</p>
+<p class="default L50" style="margin-bottom:0">
+To illustrate all these points, mcl now ships with <a class="local" href="minimcl">minimcl</a>,
+a small perl script that implements mcl for educational purposes.
+Both its line and statement count well exceed the estimation made
+above - it was not coded to be maximally succint. Its structure
+is very simple though and should be easy to follow.</p>
+<p class="default L50" style="margin-bottom:0">
+Implementing the basic MCL algorithm makes a
 nice programming exercise. However, if you need an implementation that
 scales to several hundreds of thousands of nodes and possibly beyond, then
 your duties become much heavier. This is because one needs to prune MCL
@@ -1130,7 +1137,7 @@ Some other points are
 i) support for threading via pthreads, openMP, or some other parallel
 programming API.
 ii) a robust and generic interpretation function is written in
-terms of weakly connected components.
+terms of weakly connected components.</p>
 </div></td></tr>
 </table>
 

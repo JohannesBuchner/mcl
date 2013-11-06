@@ -1,60 +1,60 @@
 
-\set{reqver}{2003-285}
-\if{\cmp{gq}{\__version__}{\reqver}}{}{
-\write{stderr}{txt}{Requires zoem version >= \reqver\|}\exit}
+\'set{reqver}{2006-032}
+\'if{\'cmp{gq}{\__version__}{\reqver}}{}{
+\'write{stderr}{txt}{Requires zoem version >= \reqver\|}\'exit}
 
 \: \setx{__searchpath__}{\__searchpath__\!{}{../../../zoem/mac}}
 \: Used this when using relative path through the micans tree.
 \: Nowadays I oblige myself to use the zoem installed on my system. 
 
-\input{man.zmm}
+\'input{man.zmm}
 
-\setx{"man::year"}{\zinsert{stamp.year}}
-\setx{"man::month"}{\zinsert{stamp.month}}
-\setx{"man::day"}{\zinsert{stamp.day}}
-\setx{"mcx::tag"}{\zinsert{stamp.tag}}
-\setx{"mcx::stamp"}{\zinsert{stamp.stamp}}
+\'setx{"man::year"}{\'zinsert{stamp.year}}
+\'setx{"man::month"}{\'zinsert{stamp.month}}
+\'setx{"man::day"}{\'zinsert{stamp.day}}
+\'setx{"mcx::tag"}{\'zinsert{stamp.tag}}
+\'setx{"mcx::stamp"}{\'zinsert{stamp.stamp}}
 
-\setx{"man::year"}{\tr{{delete}{[:space:]}}{\"man::year"}}
-\setx{"man::month"}{\tr{{delete}{[:space:]}}{\"man::month"}}
-\setx{"man::day"}{\tr{{delete}{[:space:]}}{\"man::day"}}
-\setx{"mcx::tag"}{\tr{{delete}{[:space:]}}{\"mcx::tag"}}
-\setx{"mcx::stamp"}{\tr{{delete}{[:space:]}}{\"mcx::stamp"}}
+\'setx{"man::year"}{\'tr{{delete}{[:space:]}}{\"man::year"}}
+\'setx{"man::month"}{\'tr{{delete}{[:space:]}}{\"man::month"}}
+\'setx{"man::day"}{\'tr{{delete}{[:space:]}}{\"man::day"}}
+\'setx{"mcx::tag"}{\'tr{{delete}{[:space:]}}{\"mcx::tag"}}
+\'setx{"mcx::stamp"}{\'tr{{delete}{[:space:]}}{\"mcx::stamp"}}
 
-\setx{"man::tag"}{\"mcx::tag", \"mcx::stamp"}
-\setx{"mcx::date"}{\"man::day" \"man::month" \"man::year"}
+\'setx{"man::tag"}{\"mcx::tag", \"mcx::stamp"}
+\'setx{"mcx::date"}{\"man::day" \"man::month" \"man::year"}
 
-\def{mcl}{\bf{mcl}}
-\def{mcx}{\bf{mcx}}
-\def{clmdist}{\bf{clmdist}}
-\def{clminfo}{\bf{clminfo}}
-\def{clmmeet}{\bf{clmmeet}}
-\def{clmclose}{\bf{clmclose}}
-\def{clmformat}{\bf{clmformat}}
-\def{mcxload}{\bf{mcxload}}
-\def{clmimac}{\bf{clmimac}}
-\def{clmmate}{\bf{clmmate}}
-\def{clmresidue}{\bf{clmresidue}}
-\def{clmorder}{\bf{clmorder}}
-\def{mcxconvert}{\bf{mcxconvert}}
-\def{mcxarray}{\bf{mcxarray}}
-\def{mcxdump}{\bf{mcxdump}}
-\def{mcxdeblast}{\bf{mcxdeblast}}
-\def{mclblastline}{\bf{mclblastline}}
-\def{mclpipeline}{\bf{mclpipeline}}
-\def{zoem}{\bf{zoem}}
-\def{mcxsubs}{\bf{mcxsubs}}
-\def{mcxmap}{\bf{mcxmap}}
-\def{mcxassemble}{\bf{mcxassemble}}
+\'def{mcl}{\bf{mcl}}
+\'def{mcx}{\bf{mcx}}
+\'def{clmdist}{\bf{clmdist}}
+\'def{clminfo}{\bf{clminfo}}
+\'def{clmmeet}{\bf{clmmeet}}
+\'def{clmclose}{\bf{clmclose}}
+\'def{clmformat}{\bf{clmformat}}
+\'def{mcxload}{\bf{mcxload}}
+\'def{clmimac}{\bf{clmimac}}
+\'def{clmmate}{\bf{clmmate}}
+\'def{clmresidue}{\bf{clmresidue}}
+\'def{clmorder}{\bf{clmorder}}
+\'def{mcxconvert}{\bf{mcxconvert}}
+\'def{mcxarray}{\bf{mcxarray}}
+\'def{mcxdump}{\bf{mcxdump}}
+\'def{mcxdeblast}{\bf{mcxdeblast}}
+\'def{mclblastline}{\bf{mclblastline}}
+\'def{mclpipeline}{\bf{mclpipeline}}
+\'def{zoem}{\bf{zoem}}
+\'def{mcxsubs}{\bf{mcxsubs}}
+\'def{mcxmap}{\bf{mcxmap}}
+\'def{mcxassemble}{\bf{mcxassemble}}
 
-\def{mcx_itemopts}{{w1}{2}{w2}{1}}
+\'def{mcx_itemopts}{{w1}{2}{w2}{1}}
 
 \: different conventions for html and roff.
 \: in roff I use 'section 5' of the manual pages.
 
-\def{sib#1}{\sibref{\1}{\1}}
+\'def{sib#1}{\sibref{\1}{\1}}
 
-\set{%{sibroffmap}}{
+\'set{%{sibroffmap}}{
    {mcxio}{5}
    {mclfaq}{7}
    {mclfamily}{7}
@@ -85,6 +85,6 @@
    {mcxdeblast}{1}
 }
 
-\def{mysib#1}{\sibref{\1}{\1\${roff}{(\%{sibroffmap}{\1})}}}
-\def{mysib#2}{\sibref{\1}{\2}{\1\${roff}{(\%{sibroffmap}{\1})}}}
+\'def{mysib#1}{\sibref{\1}{\1\'${roff}{(\%{sibroffmap}{\1})}}}
+\'def{mysib#2}{\sibref{\1}{\2}{\1\'${roff}{(\%{sibroffmap}{\1})}}}
 

@@ -343,7 +343,7 @@ The maximum coverage measure (refered to as \bf{maxcov}) is similar
 to the normal coverage measure except that it rewards inclusion
 of large edge weights even more.
 The cov and maxcov performance measures have several nice continuity and
-monotonicity properties and are described in \publref{pcfgcmce}.}
+monotonicity properties and are described in \refer{pcfgcmce}.}
 
 
 \cpar{Example cluster header}
@@ -489,7 +489,7 @@ SUM     The sum of *all* edges leaving node idx.}
   the node.  The maxcov measure is a projection value skewed even further,
   correspondingly rewarding the inclusion of large edge weights.  The cov and
   maxcov performance measures have several nice continuity properties and are
-  described in \publref{pcfgcmce}.
+  described in \refer{pcfgcmce}.
 
 \item{[c]}
   All edge weights are written as the fraction of the sum
@@ -517,7 +517,7 @@ SUM     The sum of *all* edges leaving node idx.}
 
 \sec{references}{REFERENCES}
 \par
-   \publanch{pcfgcmce}
+   \reference{pcfgcmce}
    Stijn van Dongen. \it{Performance criteria for graph clustering and Markov
    cluster experiments}.  Technical Report INS-R0012, National Research
    Institute for Mathematics and Computer Science in the Netherlands,

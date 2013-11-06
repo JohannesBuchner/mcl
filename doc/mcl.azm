@@ -1,17 +1,17 @@
-\def{"man::synstyle"}{long}
-\def{"man::defstyle"}{long}
-\import{mcx.zmm}
+\'def{"man::synstyle"}{long}
+\'def{"man::defstyle"}{long}
+\'import{mcx.zmm}
 
 
-\set{"man::name"}{mcl}
-\set{"man::html-title"}{The mcl manual}
-\set{"man::author"}{Stijn van Dongen}
-\set{"man::section"}{1}
+\'set{"man::name"}{mcl}
+\'set{"man::html-title"}{The mcl manual}
+\'set{"man::author"}{Stijn van Dongen}
+\'set{"man::section"}{1}
 
-\set{"html::charset"}{ISO-8859-1}
+\'set{"html::charset"}{ISO-8859-1}
 
 \"man::preamble"
-\${html}{\"man::maketoc"}
+\'${html}{\"man::maketoc"}
 
 \sec{name}{NAME}
 \NAME{mcl}{The Markov Cluster Algorithm, aka the MCL algorithm.}
@@ -137,7 +137,7 @@ label format and the addition of the \genoptref{--abc} option.}
    immaterial.
 }
 
-\""{
+\'""{
    As of the first 1.003 release, \mysib{clmformat} enables you to map a
    clustering onto a format better suited for inspection, using an index file
    (the so called \it{tab file}) mapping mcl indices onto descriptive labels.
@@ -237,7 +237,7 @@ label format and the addition of the \genoptref{--abc} option.}
    \synoptopt{-dump-interval}{i:j}{dump interval}
    \synoptopt{-dump-modulo}{k}{dump modulo}
    \synoptopt{-dump-stem}{stem}{dump file stem}
-   \""{\synoptopt{--db}{dump binary}}
+   \'""{\synoptopt{--db}{dump binary}}
    \synoptopt{-dump}{str}{type}
    \synoptopt{-dump-subi}{spec}{index list for submatrix dump}
    \synoptopt{-dump-subd}{spec}{domain list for submatrix dump}
@@ -415,7 +415,7 @@ label format and the addition of the \genoptref{--abc} option.}
    connectivity; a highly connected graph on 50,000 nodes is large to
    mcl (so that you might want to tune resources) whereas a sparsely
    connected graph on 500,000 nodes may be business as usual.
-\""{If graphs are really huge, the time to read a graph from file can be
+\'""{If graphs are really huge, the time to read a graph from file can be
    shortened by converting the input graph from
    interchane mcl format to binary mcl
    format with \mysib{mcxconvert}.}
@@ -478,7 +478,7 @@ label format and the addition of the \genoptref{--abc} option.}
 }
 \sec{options}{OPTIONS}
 
-\begin{itemize}{\mcx_itemopts}
+\'begin{itemize}{\mcx_itemopts}
 
 \item{\defopt{-I}{f}{inflation}}
 \car{
@@ -959,7 +959,7 @@ mcxdump -imx - --no-values --dump-rlines\\
    list of entries used in selecting the extended principal submatrix.
 }
 
-\""{
+\'""{
    \items{
       {\defopt{--db}{dump binary format}}
       {\genopt{--dump-binary}}
@@ -1186,11 +1186,11 @@ mcxdump -imx - --no-values --dump-rlines\\
    Show current settings for tunable parameters.
    \genopt{--show-settings} is a synonym.
 
-\end{itemize}
+\'end{itemize}
 
 \sec{pruneoptions}{PRUNING OPTIONS}
 
-\begin{itemize}{\mcx_itemopts}
+\'begin{itemize}{\mcx_itemopts}
 
 \items{
    {\defopt{-p}{f}{cutoff}}
@@ -1513,7 +1513,7 @@ all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|
       iterations.  This options sets that number to\~\usearg{l}.
       It affects the \optref{--append-log}{\usekvp{--append-log}{y}} output.
 
-\end{itemize}
+\'end{itemize}
 
 \sec{pipeline}{PIPELINES}
 
@@ -1668,7 +1668,7 @@ with value 0.8.}
 }
 \sec{environment}{ENVIRONMENT}
 
-\begin{itemize}{{compact}{0}{contiguous}{0}{align}{left}}
+\'begin{itemize}{{compact}{0}{contiguous}{0}{align}{left}}
 \item{MCLXIODIGITS}
 \car{
    When writing matrices in interchange format, mcl will use the environment
@@ -1681,12 +1681,12 @@ with value 0.8.}
    input/output from/to disk. The verbosity level can be regulated
    via MCLXIOVERBOSITY. These are the levels it can currently be set to.}
 
-\begin{itemize}{{compact}{1}{contiguous}{1}{align}{right}{w2}{2}}
+\'begin{itemize}{{compact}{1}{contiguous}{1}{align}{right}{w2}{2}}
 \item{1} Silent but applications may alter this.
 \item{2} Silent and applications can not alter this.
 \item{4} Verbose but applications may alter this.
 \item{8} Verbose and applications can not alter this (default).
-\end{itemize}
+\'end{itemize}
 
 \item{MCLXIOFORMAT}
 \car{
@@ -1695,12 +1695,12 @@ with value 0.8.}
    The desired format can be controlled via the variable 
    MCLXIOFORMAT. These are the levels it can currently be set to.}
 
-\begin{itemize}{{compact}{1}{w2}{2}{contiguous}{1}{align}{right}}
+\'begin{itemize}{{compact}{1}{w2}{2}{contiguous}{1}{align}{right}}
 \item{1} Interchange format but applications may alter this.
 \item{2} Interchange format and applications can not alter this (default).
 \item{4} Binary format but applications may alter this.
 \item{8} Binary format and applications can not alter this.
-\end{itemize}
+\'end{itemize}
 
 \item{MCLXICFLAGS}
 \car{
@@ -1720,7 +1720,7 @@ with value 0.8.}
    input graph is not conforming it will likely crash the application that
    is using it.}
 
-\end{itemize}
+\'end{itemize}
 
 
 \sec{diagnostics}{DIAGNOSTICS}
@@ -1877,7 +1877,7 @@ Stijn van Dongen.
    \httpref{http://micans.org/zoem}.  Both html and roff pages can be created
    from the same source without having to bother with all the usual conversion
    problems, while keeping some level of sophistication in the typesetting.
-   \${html}{\lref{mcl.ps}{This} is the PostScript derived from the zoem troff
+   \'${html}{\lref{mcl.ps}{This} is the PostScript derived from the zoem troff
    output.}
 }
 \"man::postamble"

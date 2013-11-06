@@ -1,5 +1,5 @@
 .\" Copyright (c) 2006 Stijn van Dongen
-.TH "clmformat" 1 "21 Jan 2006" "clmformat 1\&.006, 06-021" "USER COMMANDS "
+.TH "clmformat" 1 "27 Feb 2006" "clmformat 1\&.006, 06-058" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -33,13 +33,13 @@ clmformat \- display cluster results in readable form
 (optionally with labels and/or cohesion and stickiness measures
 attached)\&.
 
-Unless used with the \fB-dump\fP\ \fIfname\fP or \fB--dump\fP option,
+Unless used with the \fB-dump\fP\ \&\fIfname\fP or \fB--dump\fP option,
 \fBclmformat\fP depends on the presence of the macro processor \fBzoem\fP, as
 described further below\&.
 
-The \fB-icl\fP\ \fIfname\fP input clustering option is always required\&. The
-\fB-imx\fP\ \fIfname\fP input matrix option is required in fancy mode\&. The tab
-file option \fB-tab\fP\ \fIfname\fP is needed if you want label information in
+The \fB-icl\fP\ \&\fIfname\fP input clustering option is always required\&. The
+\fB-imx\fP\ \&\fIfname\fP input matrix option is required in fancy mode\&. The tab
+file option \fB-tab\fP\ \&\fIfname\fP is needed if you want label information in
 the output rather than mcl identifiers\&.
 .SH SYNOPSIS
 
@@ -58,11 +58,11 @@ labels in case the \fB-tab\fP option is used\&. This dump is easy to parse
 with a simple or even quick-and-dirty script\&.
 You can include some very simple performance measures in this dump file
 by supplying \fB--dump-measures\fP\&. Use
-\fB-dump\fP\ \fIfname\fP to specify the name of the file to dump to, rather
+\fB-dump\fP\ \&\fIfname\fP to specify the name of the file to dump to, rather
 than having \fBclmformat\fP construct a file name by itself\&.
 
 \fBclmformat\fP can combine the both modes by using either \fB--dump\fP or
-\fB-dump\fP\ \fIfname\fP \fIand\fP \fB--fancy\fP\&. In this case the dump file
+\fB-dump\fP\ \&\fIfname\fP \fIand\fP \fB--fancy\fP\&. In this case the dump file
 will be created in the output directory that is used by \fIfancy\fP mode\&.
 
 \fBclmformat\fP
@@ -140,16 +140,16 @@ You need to have zoem installed in your system if you want clmformat
 to be of use\&. Zoem will not be necessary if you are using
 the \fB-dump\fP option\&.
 
-The \fB-imx\fP\ \fImx\fP option is required
+The \fB-imx\fP\ \&\fImx\fP option is required
 unless the \fB-dump\fP option is used\&. The latter option
 results in special behaviour described under the
-\fB-dump\fP\ \fIfname\fP entry\&.
+\fB-dump\fP\ \&\fIfname\fP entry\&.
 
 Output is by default written in a directory that
 is newly created if it does not yet exist (normally several files
 will be created, for which the directory acts as a natural container)\&.
 It is possible to simply output to the current directory, for that you need
-to specify \fB-dir\fP\ \fB\&./\fP\&. If \fB-dir\fP is not specified, the output
+to specify \fB-dir\fP\ \&\fB\&./\fP\&. If \fB-dir\fP is not specified, the output
 directory \fCfmt\&.<clname>\fP will be used, where \fC<clname>\fP is the argument
 to the \fB-cl\fP option\&. In the output directory, clmformat will
 normally write two files\&. One contains zoem macros encoding formatted output
@@ -157,11 +157,11 @@ normally write two files\&. One contains zoem macros encoding formatted output
 macro definitions which are used by the former\&.
 
 The encoding file is by default called \fCfmt\&.azm\fP
-(cf\&. the \fB-fmt\fP\ \fIfname\fP option)\&.
+(cf\&. the \fB-fmt\fP\ \&\fIfname\fP option)\&.
 It contains \fIzoem\fP macros\&. It imports the macro definition file
 called \fCclmformat\&.zmm\fP
 that is normally also written by clmformat\&. Another macro definition
-file can be specified by using the \fB-zmm\fP\ \fI<defsname>\fP
+file can be specified by using the \fB-zmm\fP\ \&\fI<defsname>\fP
 option\&. In this case clmformat will refrain from writing the definition
 file and replace mentions of \fCclmformat\&.zmm\fP in the encoding file
 by \fC<defsname>\fP\&.
@@ -245,7 +245,7 @@ the corresponding tab file entry\&.
 .ZI 3m "\fB--dump\fP (\fIwrite dump to file\fP)"
 \&
 .br
-As \fB-dump\fP\ \fIfname\fP except that \fBclmformat\fP writes to the file
+As \fB-dump\fP\ \&\fIfname\fP except that \fBclmformat\fP writes to the file
 named \fCdump\&.<icl-name>\fP where \fC<icl-name>\fP is the argument to
 the \fB-icl\fP option\&.
 .in -3m
@@ -269,7 +269,7 @@ Works in conjunction with the
 .ZI 3m "\fB--dump-measures\fP (\fIwrite simple performance measures\fP)"
 \&
 .br
-If an input matrix is specified with \fB-imx\fP\ \fIfname\fP, three
+If an input matrix is specified with \fB-imx\fP\ \&\fIfname\fP, three
 measures of efficiency are prepended, respectively the simple projection
 score, efficiency or coverage, and the max-efficiency or max-coverage\&.
 .in -3m
@@ -330,7 +330,7 @@ if it does not exist already\&.
 Write to encoding file \fBfname\fP rather than the default \fCfmt\&.azm\fP\&.
 It is best to supply fname with the standard zoem suffix \fC\&.azm\fP\&. Zoem
 will process file of any name, but those lacking the \fC\&.azm\fP suffix must be
-specified using the zoem \fB-I\fP\ \fIfname\fP option\&.
+specified using the zoem \fB-I\fP\ \&\fIfname\fP option\&.
 .in -3m
 
 .ZI 3m "\fB-zmm\fP defsname (\fIassume macro definitions are in fname\fP)"

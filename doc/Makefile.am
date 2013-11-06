@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-## $Id: Makefile.am,v 1.4 2005/11/10 21:53:10 flux Exp $
+## $Id: Makefile.am,v 1.6 2006-02-26 23:19:36 flux Exp $
 
 TROFF =  groff
 COL   =  col
@@ -35,6 +35,7 @@ doc_DATA_dep = mcl.html mcl.ps mcl.txt \
  clmmeet.html clmmeet.ps \
  clmformat.html clmformat.ps \
  clmorder.html clmorder.ps \
+ minimcl \
  mcxio.html mcxio.ps
 
 doc_DATA = $(doc_DATA_dep) mclmcl.txt
@@ -143,11 +144,14 @@ mclpipeline:    mclpipeline.1    mclpipeline.html    mclpipeline.ps
 
 mcxio:                mcxio.5          mcxio.html          mcxio.ps
 
-mclfaq:  mclfaq.txt  mclfaq.7         mclfaq.html         mclfaq.ps
+mclfaq:  mclfaq.txt  mclfaq.7         mclfaq.html         mclfaq.ps	minimcl
 mclfamily:        mclfamily.7      mclfamily.html      mclfamily.ps
 
 index:             mclindex.7          index.html distindex.html
 
+
+minimcl:
+	cp ../scripts/minimcl .
 
 web: webindex.html
 lit: litindex.html

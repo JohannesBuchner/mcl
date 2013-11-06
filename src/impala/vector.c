@@ -569,18 +569,19 @@ mcxbool mclpSelectValues
 
 
 double mclvSelectValues
-(  mclVector*  vec
+(  mclv        *src
 ,  double      *lft
 ,  double      *rgt
 ,  mcxbits     equate
+,  mclv        *dst
 )
    {  mclpRange range
    ;  range.lft = lft
    ;  range.rgt = rgt
    ;  range.equate = equate
 
-   ;  mclvCopyGiven(vec, vec, mclpSelectValues, &range, 0)
-   ;  return mclvSum(vec)
+   ;  mclvCopyGiven(src, dst, mclpSelectValues, &range, 0)
+   ;  return mclvSum(dst)
 ;  }
 
 
@@ -594,6 +595,7 @@ mclVector* mclvCopyGiven
    {  int         n_src
    ;  mclIvp      *src_ivp, *dst_ivp
 
+                        /* dst allowed to be NULL */
    ;  if (dst != src)
       dst = mclvInstantiate(dst, sup ? sup : src->n_ivps, NULL)
    ; /*

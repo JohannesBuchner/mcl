@@ -36,9 +36,14 @@
 *  Movement for Canadian Literacy
 *  Movement for Compassionate Living
       "aims: To spread the vegan message and promote simple living (..)"
-*  Moving Contact Lubricant
 *  Movement for Compassionate Living
+*  Moving Contact Lubricant
 *  Mothers for Community Life
+*  Macrophage C-type Lectin (gene, mouse)
+*  Myeloid Cell Leukemia (sequence 1)
+*  Mantle Cell Lymphoma
+*  Multiple Cutaneous Leiomyomatosis 
+*  Medial Collateral Ligament
 *  Modern and Classical Languages
 *  Management, Communication [and] Leadership [program at Concordia University]
 *  Maximum Contaminant Level
@@ -60,13 +65,6 @@
 *  Media Centrum Letteren
 *  Meest Comfortabele Luisterniveau
 
- Medical:
-
-*  Medial Collateral Ligament
-*  Mantle Cell Lymphoma
-*  Medical Centers of [Greater] Lowell
-*  Multiple Cutaneous Leiomyomatosis 
-
  Religious (?):
 
 *  Movement for Christian Liberation
@@ -75,12 +73,14 @@
  Other:
 
 *  Mathematics Computing Lab
+*  MixCastLive
 *  Mon Culture and Literature Survival Project
 *  Materials Characterization Laboratory
 *  Multicurricular Computer Lab
 *  MultiCast Library
 *  Multimedia Conversion Library
 *  Materials & Chemistry Laboratory
+*  Medical Centers of [Greater] Lowell
 *  Macromolecular Crystallography Laboratory
 *  Manchester City Library
 *  Medical Center Libraries
@@ -139,6 +139,7 @@
 *  Montgomery Consultants Limited
 *  Mahendra Commercial Limited
 *  Mahanadi Coalfields Limited
+*  Mid Canada Line
 *  Mainstream Communications Limited
 *  Mercy Clinical Laboratory
 *  Multnomah County Library

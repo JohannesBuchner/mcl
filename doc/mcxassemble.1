@@ -1,5 +1,5 @@
 .\" Copyright (c) 2006 Stijn van Dongen
-.TH "mcxassemble" 1 "21 Jan 2006" "mcxassemble 1\&.006, 06-021" "USER COMMANDS "
+.TH "mcxassemble" 1 "27 Feb 2006" "mcxassemble 1\&.006, 06-058" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -127,7 +127,7 @@ by \fBmcxassemble\fP, which takes the form of a very thin matrix file\&.
 .in -3m
 
 The easiest thing to do is to group all input/output files under the same
-base name, say\ \fBbase\fP\&. A standard way of proceeding, which will lead to
+base name, say\ \&\fBbase\fP\&. A standard way of proceeding, which will lead to
 a concise \fBmcxassemble\fP command line, is by creating the input files
 \fBbase\&.raw\fP and \fBbase\&.hdr\fP, and optionally the file \fBbase\&.map\fP\&. The
 default behaviour of mcxassemble is then to create \fBbase\&.sym\fP as the
@@ -190,7 +190,7 @@ This is in fact again allowed in the generic format, except
 that where applications expect generic format warnings will be issued and
 duplicate entries will be disregarded\&. \fBmcxassemble\fP allows customizable
 behaviour dictating how to merge repeated entries\&.
-Refer to the \fB-re\fP,\ \fB-rv\fP,\ \fB-r\fP
+Refer to the \fB-re\fP,\ \&\fB-rv\fP,\ \&\fB-r\fP
 options below\&.
 
 The vectors read by \fBmcxassemble\fP do have to match the domains specified in
@@ -314,9 +314,9 @@ than constructing the file names from a base name and suffixes)\&.
 'in +3m
 \&
 .br
-Map options\&. \fB--cmap\fP combines with the \fB-b\fP\ option,
+Map options\&. \fB--cmap\fP combines with the \fB-b\fP\ \&option,
 and says that the map file in \fBbase\fP\&.\fCcmap\fP (where \fBbase\fP
-was specified with \fB-b\fP\ \fBbase\fP) should be applied to the column
+was specified with \fB-b\fP\ \&\fBbase\fP) should be applied to the column
 domain only\&. \fB--rmap\fP works the same for the
 row domain, and \fB--map\fP can be used to apply the same map
 to both the column and row domains\&.
@@ -325,7 +325,7 @@ to both the column and row domains\&.
 map file to be used, rather than combining a base name with a fixed
 suffix\&.
 \fB-tag\fP and its siblings work in conjuction with
-the \fB-b\fP\ option, and require that a tag be specified from
+the \fB-b\fP\ \&option, and require that a tag be specified from
 which to construct the map file (by appending it to the base name)\&.
 .in -3m
 
@@ -353,11 +353,11 @@ raw data and adding entries to the skeleton matrix as specified
 with the \fB-r\fP, \fB-re\fP, and \fB-rv\fP options\&.
 This matrix can be written using one of the \fBprm\fP options\&.
 Calling the primary matrix A, the skew matrix (as defined here)
-is the matrix \fCA\ -\ A^T\fP, i\&.e\&. A minus its transposed matrix\&.
+is the matrix \fCA\ \&-\ \&A^T\fP, i\&.e\&. A minus its transposed matrix\&.
 It can be written using one of the \fBskw\fP options\&.
 
 If for some reason the symmetrized result is not needed, its output
-can be prevented using the \fB-n\fP\ option\&.
+can be prevented using the \fB-n\fP\ \&option\&.
 .in -3m
 
 .ZI 3m "\fB-xo\fP suf (\fIwrite base\&.suf\fP)"
@@ -375,9 +375,9 @@ can be prevented using the \fB-n\fP\ option\&.
 'in +3m
 \&
 .br
-The \fB-xo\fP\ option is used in conjunction with the \fB-b\fP\ option
+The \fB-xo\fP\ \&option is used in conjunction with the \fB-b\fP\ \&option
 in order to change the suffix for the file in which the symmetrized
-result matrix is written\&. Use e\&.g\&. \fB-xo\fP\ \fBmci\fP to change the suffix
+result matrix is written\&. Use e\&.g\&. \fB-xo\fP\ \&\fBmci\fP to change the suffix
 from the default value \fCsym\fP to \fCmci\fP\&. Use \fB-o\fP to explicitly
 specify the filename in full\&. Use \fB-digits\fP to set the number of
 digits written for matrix entries (c\&.q\&. edge weights)\&.
@@ -462,7 +462,7 @@ The column
 .fi \fR
 
 is encountered in the input, listing entries for the vector labeled
-with index\ \fC0\fP\&. If \fB-re\fP\ \fBadd\fP or \fB-r\fP\ \fBadd\fP
+with index\ \&\fC0\fP\&. If \fB-re\fP\ \&\fBadd\fP or \fB-r\fP\ \&\fBadd\fP
 is used, it will transform to the vector
 
 .di ZV
@@ -477,7 +477,7 @@ is used, it will transform to the vector
 .ZV
 .fi \fR
 
-If \fB-re\fP\ \fBmax\fP or \fB-r\fP\ \fBadd\fP
+If \fB-re\fP\ \&\fBmax\fP or \fB-r\fP\ \&\fBadd\fP
 is used instead, it will transform to the vector
 
 .di ZV
@@ -493,7 +493,7 @@ is used instead, it will transform to the vector
 .fi \fR
 
 Suppose \fIadd\fP mode is used, and that later on another
-vector specification for the index\ \fC0\fP is found, leading
+vector specification for the index\ \&\fC0\fP is found, leading
 to this transformed vector:
 
 .di ZV
@@ -508,7 +508,7 @@ to this transformed vector:
 .ZV
 .fi \fR
 
-If \fB-rv\fP\ \fBmax\fP was specified, this new vector is combined with the
+If \fB-rv\fP\ \&\fBmax\fP was specified, this new vector is combined with the
 previous vector by taking the entry wise maximum:
 
 .di ZV
@@ -527,12 +527,12 @@ previous vector by taking the entry wise maximum:
 .fi \fR
 
 Finally, suppose that somewhere one or more vector listings
-were specified for index\ \fC3\fP, which eventually led to an entry \fC0:50\fP\&.
+were specified for index\ \&\fC3\fP, which eventually led to an entry \fC0:50\fP\&.
 The final symmetrization step will take the \fC[0,3]\fP
-entry of weight\ \fC20\fP and combine it with the \fC[3,0]\fP entry
-of weight\ \fC50\fP\&. The resulting matrix will then have the \fC[0,3]\fP
+entry of weight\ \&\fC20\fP and combine it with the \fC[3,0]\fP entry
+of weight\ \&\fC50\fP\&. The resulting matrix will then have the \fC[0,3]\fP
 and the \fC[3,0]\fP entry both equal to either the maximum, the sum,
-or the product of the two quantities\ \fC50\fP and\ \fC20\fP\&.
+or the product of the two quantities\ \&\fC50\fP and\ \&\fC20\fP\&.
 .in -3m
 
 .ZI 3m "\fB--quiet-re\fP (\fIquiet for repeated entries\fP)"

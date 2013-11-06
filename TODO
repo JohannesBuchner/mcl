@@ -1,24 +1,40 @@
 regularia projectia diligentia
 
+     _____________________________________
+    |                                     |
+   $$ mcxsubs scripting language          |
+    $ extend mcx with data structures|scripting language. ruby/lua/R.
+    $ prune vector.h, move idiosyncratic stuff to place where it is used as static
+    $ smart cattable ascii/binary/123/abc/packed recognition
+    $ reading binary format without seeks.
+    $ make mcxarray read bio-type array data flat files
+    $ smarter vector set operations (+ testing framework)
+    - focus: large graph problems, not just clustering
+    - option to redirect stderr           |
+    - buffer mcl interchange input        |
+    - internally replace tab by hash.     |
+    - make mcl available as library call  |
+    - try to spot/frame siphoning         |
+    / visualize mcl process dynamically   |
+    - stress/test suite-setup             |
+    - slink / fibonacci heap single link clustering
+    - clean up taurus                     |
+    - optimum spanning tree               |
+    - framework for IO domain manipulation|
+    - framework for adapt                 |
+    z general interchange s-expression type input syntax
+    - framework for overlap               |
+    # mcl libs do not unwind on memory errors. (culprit: vector)
+    |_____________________________________|
 
+-  deactivate tribemcl.
 
-
-
--  mclcComponents implementation is hideous.
-
--  --abc-neg-log
-      does it based on e;
-      should support 10-log.
-      also, negative can be done in tf itself, mul(-1).
+?  transform mclx_grow_component to while?
+?  do component stuff on full vectors and use mclvSelectValues.
+   -> for large graphs could be overkill ...
 
 ?  --abc-neg-log=f
 ?  --abc-log=f
-
-   or, support divide-by in tf language
-
-   or, use ceil(460);
-
-
 
 /  cleverer mcldMinus:
 
@@ -47,33 +63,6 @@ regularia projectia diligentia
 This TODO is of the junkyard variety. Like a junkyard, it mostly grows and most
 of it is junk. But items do get picked up and are remove or reorderedd, and
 other items are shoved into the big bytebin.
-
-     _____________________________________
-    |                                     |
-   $$ mcxsubs scripting language          |
-    $ extend mcx with data structures|scripting language. ruby/lua/R.
-    $ prune vector.h, move idiosyncratic stuff to place where it is used as static
-    $ smart cattable ascii/binary/123/abc/packed recognition
-    $ reading binary format without seeks.
-    $ make mcxarray read bio-type array data flat files
-    $ smarter vector set operations (+ testing framework)
-    - focus: large graph problems, not just clustering
-    - option to redirect stderr           |
-    - buffer mcl interchange input        |
-    - internally replace tab by hash.     |
-    - make mcl available as library call  |
-    - try to spot/frame siphoning         |
-    / visualize mcl process dynamically   |
-    - stress/test suite-setup             |
-    - slink / fibonacci heap single link clustering
-    - clean up taurus                     |
-    - optimum spanning tree               |
-    - framework for IO domain manipulation|
-    - framework for adapt                 |
-    z general interchange s-expression type input syntax
-    - framework for overlap               |
-    # mcl libs do not unwind on memory errors. (culprit: vector)
-    |_____________________________________|
 
 
    the rewrite of mclxSub may lead the way to a more general setup,

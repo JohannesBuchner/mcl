@@ -77,7 +77,7 @@ int main
          small->ivps[j].idx += small_delta
    ;  }
       for (j=small->n_ivps-10;j<small->n_ivps+9;j++)
-      fprintf(stdout, "%d %.9f\n", base->ivps[j].idx, (double) base->ivps[j].val)
+      fprintf(stdout, "%ld %.9f\n", (long) base->ivps[j].idx, (double) base->ivps[j].val)
 
    ;  return 0
 ;  }

@@ -1,5 +1,5 @@
 .\" Copyright (c) 2006 Stijn van Dongen
-.TH "mclpipeline" 1 "21 Jan 2006" "mclpipeline 1\&.006, 06-021" "USER COMMANDS "
+.TH "mclpipeline" 1 "27 Feb 2006" "mclpipeline 1\&.006, 06-058" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -293,8 +293,8 @@ The pipeline will automatically append several other mcl parameters
 if they are used\&. These correspond with the pipeline options
 \fB--mcl-i\fP=\fIf\fP, \fB--mcl-l\fP=\fIi\fP, \fB--mcl-c\fP=\fIf\fP,
 and \fB--mcl-pi\fP=\fIf\fP,
-which in turn correspond with the mcl options \fB-i\fP\ \fIf\fP,
-\fB-l\fP\ \fIi\fP, \fB-c\fP\ \fIf\fP, and \fB-pi\fP\ \fIf\fP\&.
+which in turn correspond with the mcl options \fB-i\fP\ \&\fIf\fP,
+\fB-l\fP\ \&\fIi\fP, \fB-c\fP\ \&\fIf\fP, and \fB-pi\fP\ \&\fIf\fP\&.
 The order of appending is alphabetical with capitals preceding
 lowercase, so a full example is \fCI25c30i35l2pi28s3\fP\&.
 .SH OPTIONS
@@ -411,14 +411,14 @@ by the formatting stage\&.
 .ZI 3m "\fB--ass-repeat\fP str (\fIassembly repeat option\fP)"
 \&
 .br
-Corresponds with the \fBmcxassemble\fP \fB-r\fP\ \fImode\fP option\&.
+Corresponds with the \fBmcxassemble\fP \fB-r\fP\ \&\fImode\fP option\&.
 Refer to the \fBmcxassemble(1)\fP manual\&.
 .in -3m
 
 .ZI 3m "\fB--ass-opt\fP val (\fIassembly option transporter\fP)"
 \&
 .br
-Transfer \fB-opt\fP\ \fIval\fP to \fBmcxassemble\fP\&.
+Transfer \fB-opt\fP\ \&\fIval\fP to \fBmcxassemble\fP\&.
 .in -3m
 
 .ZI 3m "\fB--ass-nomap\fP (\fIignore map file\fP)"
@@ -488,7 +488,7 @@ Set the mcl output name\&.
 .ZI 3m "\fB--mcl-opt\fP val (\fImcl option transporter\fP)"
 \&
 .br
-Transfer \fB-opt\fP\ \fIval\fP to \fBmcl\fP\&.
+Transfer \fB-opt\fP\ \&\fIval\fP to \fBmcl\fP\&.
 .in -3m
 
 .ZI 3m "\fB--fmt-dump-stats\fP (\fIadd simple measures to dump file\fP)"
@@ -535,7 +535,7 @@ For parsers that don\&'t write tab files\&.
 .ZI 3m "\fB--fmt-opt\fP val (\fIclmformat option transporter\fP)"
 \&
 .br
-Transfer \fB-opt\fP\ \fIval\fP to \fBclmformat\fP\&.
+Transfer \fB-opt\fP\ \&\fIval\fP to \fBclmformat\fP\&.
 .in -3m
 .SH AUTHOR
 

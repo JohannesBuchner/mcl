@@ -1,4 +1,15 @@
 
+
+Mon, 27 Feb 2006
+
+	*	mcl-06-058 released.
+
+	*	Added scripts/minimcl, a 200-line fully functional mcl
+		implementation in perl. It only accepts label input and
+		has no parameters except inflation. The implementation is
+		hash-based rather than array, which may or may not leverage
+		sparseness properties.
+
 Sat, 21 Jan 2006
 
    *  mcl-06-021 released.

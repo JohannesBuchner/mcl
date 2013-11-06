@@ -213,17 +213,21 @@ mclx* mclxAllocClone
 ;  }
 
 
-/* todo: cleanup after errors; return NULL
- * dom_cols or dom_rows could be NULL due to malloc failure.
-*/
 
 mclMatrix* mclxAllocZero
 (  mclVector * dom_cols
 ,  mclVector * dom_rows
 )
-   {  int i
-   ;  int n_cols  = dom_cols->n_ivps
+   {  int i, n_cols
    ;  mclMatrix *dst
+   ;  const char* me = "mclxAllocZero"
+
+   ;  if (!dom_cols || !dom_rows)
+      {  mcxErr(me, "got NULL arguments (allocation error?)")
+      ;  return NULL
+   ;  }
+
+      n_cols  = dom_cols->n_ivps
    
    ;  if (!(dst = mcxAlloc(sizeof(mclMatrix), RETURN_ON_FAIL)))
       return NULL
@@ -232,7 +236,7 @@ mclMatrix* mclxAllocZero
       (! (dst->cols = mcxAlloc (n_cols * sizeof(mclVector), RETURN_ON_FAIL))
       && n_cols
       )
-      {  mcxMemDenied(stderr, "mclxAllocZero", "mclVector", n_cols)
+      {  mcxMemDenied(stderr, me, "mclVector", n_cols)
       ;  return NULL
    ;  }
 
@@ -240,7 +244,7 @@ mclMatrix* mclxAllocZero
    ;  dst->dom_rows  =  dom_rows
 
    ;  for (i=0; i<n_cols; i++)
-      {  mclv* col = dst->cols+i
+      {  mclv* col   =  dst->cols+i
       ;  col->vid    =  dom_cols->ivps[i].idx
       ;  col->ivps   =  NULL
       ;  col->val    =  0.0
@@ -375,7 +379,7 @@ double mclxSelectValues
    {  long c
    ;  double sum = 0.0
    ;  for (c=0;c<N_COLS(mx);c++)
-      sum += mclvSelectValues(mx->cols+c, lft, rgt, equate)
+      sum += mclvSelectValues(mx->cols+c, lft, rgt, equate, mx->cols+c)
    ;  return sum
 ;  }
 
@@ -1398,17 +1402,17 @@ mclv* mclxSSPxy
    ;  curry = rooty =  mcxLinkSpawn(src, wavey)
 
    ;  while (wavex->n_ivps + wavey->n_ivps)     /* redundant condition */
-      {  mclv* wavex_new = wave_get_new(wavex, seenx, graph)
-      ;  currx = mcxLinkAfter(currx, wavex_new)
-      ;  wavex = wavex_new
+      {  mclv* wavex_new = wave_get_new(wavex, seenx, graph), *wavey_new
+      ;  currx       =  mcxLinkAfter(currx, wavex_new)
+      ;  wavex       =  wavex_new
       ;  if (!wavex_new->n_ivps || mcldCountSet(wavex_new, wavey, MCLD_CT_MEET))
          break
       ;  n_waves_x++
       ;  mcldMerge(seenx, wavex_new, seenx)
 
-      ;  mclv* wavey_new = wave_get_new(wavey, seeny, graph)
-      ;  curry = mcxLinkAfter(curry, wavey_new)
-      ;  wavey = wavey_new
+      ;  wavey_new   =  wave_get_new(wavey, seeny, graph)
+      ;  curry       =  mcxLinkAfter(curry, wavey_new)
+      ;  wavey       =  wavey_new
       ;  if (!wavey_new->n_ivps || mcldCountSet(wavey_new, wavex, MCLD_CT_MEET))
          break
       ;  n_waves_y++

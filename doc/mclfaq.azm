@@ -1,5 +1,6 @@
 
 
+\import{ref.zmm}
 \import{mcx.zmm}
 \import{faq.zmm}
 
@@ -160,7 +161,7 @@ is it labeled 'Markov cluster' anyway?}
    systems.
 \faq{innards}{Where can I learn about the innards of the MCL algorithm/process?}
    Currently, the most basic explanation of the MCL algorithm is found in the
-   technical report \publref{cafg}. It contains sections on several other
+   technical report \refer{cafg}. It contains sections on several other
    (related) subjects though, and it assumes some working knowledge on graphs,
    matrix arithmetic, and stochastic matrices.
 
@@ -341,7 +342,7 @@ pears     apples     1.01}
    applicable.  Generalizing this notion requires inspecting the \it{mixing
    properties} of a subgraph induced by a natural cluster in terms of its
    spectrum. However, the diameter statement is something grounded on heuristic
-   considerations (confirmed by practical evidence \publref{pcfgcmce})
+   considerations (confirmed by practical evidence \refer{pcfgcmce})
    to begin with, so you should probably forget about mixing properties.
 
 
@@ -512,8 +513,8 @@ begin
    The space complexity is of order O(N*K).
 
 \faq{stats}{What statistics are available?}
-   Few. Some experiments are described in \publref{pcfgcmce}, and
-   \publref{eaflsdopf} mentions large graphs being clustered in very reasonable
+   Few. Some experiments are described in \refer{pcfgcmce}, and
+   \refer{eaflsdopf} mentions large graphs being clustered in very reasonable
    time. In protein clustering, \mcl has been applied to graphs with up to one
    million nodes, and on high-end hardware such graphs can be clustered within
    a few hours.
@@ -575,7 +576,7 @@ begin
 
 \faq{elsewhere}{I've read elsewhere that MCL is slow [compared with XYZ]}
    Presumably, they did not know mcl, and did not read the parts
-   in \publref{gcbfs} and \publref{cafg} that discuss implementation.  Perhaps
+   in \refer{gcbfs} and \refer{cafg} that discuss implementation.  Perhaps
    they assume or insist that the only way to implement MCL is to implement the
    ideal process.  And there is always the genuine possibility
    of a \it{really} stupifyingly fast algorithm.
@@ -685,7 +686,7 @@ from a perfectly computed MCL process?}
    split/join distance as computed by \mysib{clmdist}.
 
    Some experiments with randomly generated test graphs, clustering,
-   and pruning are described in \publref{pcfgcmce}.
+   and pruning are described in \refer{pcfgcmce}.
 
 \par
    On a different level of abstraction, note that perturbations of the
@@ -962,8 +963,9 @@ How can I trust the output clustering?}
 }
 
 \faq{}{How easy is it to implement the MCL algorithm?}
+\par{
    Very easy, if you will be doing small graphs only, say up to a few thousand
-   entries at most.  These are the basic ingredients:
+   entries at most.  These are the basic ingredients:}
 
    \begin{itemize}{{compact}{1}{contiguous}{1}}
    \item{o}
@@ -974,28 +976,35 @@ How can I trust the output clustering?}
       The interpretation function mapping MCL limits onto clusterings.
    \end{itemize}
 
-   \par
+\par{
    These must be wrapped in a program that does graph input and cluster output,
    alternates multiplication (i.e. expansion) and inflation in a loop, monitors
    the matrix iterands thus found, quits the loop when convergence is detected,
-   and interprets the last iterand.
+   and interprets the last iterand.}
 
-   \par
+\par{
    Implementing matrix muliplication is a standard exercise.  Implementing
    inflation is nearly trivial. The hardest part may actually be the
    interpretation function, because you need to cover the corner cases of
-   overlap and attractor systems of cardinality greater than one.
+   overlap and attractor systems of cardinality greater than one.}
 
-   \par
+\par{
    In Mathematica or Maple, this should be doable in at most 50 lines of code.
    For perl you may need 50 more lines \- note that MCL does not use intricate
    and expensive operations such as matrix inversion or matrix reductions.  In
    lower level languages such as C a basic MCL program may need a few hundred
    lines, but the largest part will probably be input/output and
-   interpretation.
+   interpretation.}
 
-   \par
-   It is perhaps even such that implementing the basic MCL algorithm makes a
+\par{
+   To illustrate all these points, mcl now ships with \lref{minimcl}{minimcl},
+   a small perl script that implements mcl for educational purposes.
+   Both its line and statement count well exceed the estimation made
+   above \- it was not coded to be maximally succint. Its structure
+   is very simple though and should be easy to follow.}
+
+\par{
+   Implementing the basic MCL algorithm makes a
    nice programming exercise.  However, if you need an implementation that
    scales to several hundreds of thousands of nodes and possibly beyond, then
    your duties become much heavier. This is because one needs to prune MCL
@@ -1007,7 +1016,7 @@ How can I trust the output clustering?}
    i) support for threading via pthreads, openMP, or some other parallel
       programming API.
    ii) a robust and generic interpretation function is written in
-      terms of weakly connected components.
+      terms of weakly connected components.}
 
 \end{faqsec}
 
@@ -1019,7 +1028,7 @@ How can I trust the output clustering?}
 \faq{olapintro}{Introduction}
    A natural mapping exists of MCL iterands to DAGs
    (directed acyclic graphs). This is because MCL iterands are generally
-   \it{diagonally positive semi-definite} \- see \publref{supfg}.
+   \it{diagonally positive semi-definite} \- see \refer{supfg}.
    Such a DAG can be interpreted as a clustering, simply by taking
    as cores all endnodes (sinks) of the DAG, and by attaching to each
    core all the nodes that reach it. This procedure may result
@@ -1092,7 +1101,7 @@ How can I trust the output clustering?}
 \par
    When set to 0, the \genopt{-tight} parameter results in the clustering
    associated with the DAG associated with an MCL iterand as described
-   in \publref{supfg}. This DAG is pruned (thus possibly resulting
+   in \refer{supfg}. This DAG is pruned (thus possibly resulting
    in less overlap in the clustering) by increasing the \genopt{-tight}
    parameter. [add]
 
@@ -1154,27 +1163,27 @@ How can I trust the output clustering?}
 \sec{references}{REFERENCES}
 
 \par
-   \publanch{gcbfs}
+   \reference{gcbfs}
    Stijn van Dongen. \it{Graph Clustering by Flow Simulation}.
    PhD thesis, University of Utrecht, May 2000.\|
    \httpref{http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm}
 
 \par
-   \publanch{cafg}
+   \reference{cafg}
    Stijn van Dongen. \it{A cluster algorithm for graphs}.
    Technical Report INS-R0010, National Research Institute for Mathematics and
    Computer Science in the Netherlands, Amsterdam, May 2000.\|
    \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z}
 
 \par
-   \publanch{supfg}
+   \reference{supfg}
    Stijn van Dongen.  \it{A stochastic uncoupling process for graphs}.
    Technical Report INS-R0011, National Research Institute for Mathematics and
    Computer Science in the Netherlands, Amsterdam, May 2000.\|
    \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z}
 
 \par
-   \publanch{pcfgcmce}
+   \reference{pcfgcmce}
    Stijn van Dongen. \it{Performance criteria for graph clustering and Markov
    cluster experiments}.  Technical Report INS-R0012, National Research
    Institute for Mathematics and Computer Science in the Netherlands,
@@ -1182,7 +1191,7 @@ How can I trust the output clustering?}
    \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z}
 
 \par
-   \publanch{eaflsdopf}
+   \reference{eaflsdopf}
    Enright A.J., Van Dongen S., Ouzounis C.A.
    \it{An efficient algorithm for large-scale detection of protein families},
    Nucleic Acids Research 30(7):1575-1584 (2002). 

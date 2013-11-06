@@ -282,10 +282,11 @@ long  mclvTop
 
 
 double mclvSelectValues
-(  mclVector*     vec
+(  mclv*          src
 ,  double         *lft        /* NULL for turning of lft comparison  */
 ,  double         *rgt        /* NULL for turning of rgt comparison  */
 ,  mcxbits        equate      /*  0,1,or 2 of { MCLX_GQ,  MCLX_LQ }  */
+,  mclv*          dst
 )  ;
 
 

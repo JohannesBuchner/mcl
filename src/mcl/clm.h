@@ -83,9 +83,8 @@ mclMatrix* mclcProject
 )  ;
 
 
-/* dom is perhaps useless feature.
- * mx->dom_cols is clobbered.
- * implementation is ugly.
+/* compute all connected components in the subgraphs induced by dom.
+ * Just compute connected components in case dom == NULL.
 */
 
 mclMatrix*  mclcComponents

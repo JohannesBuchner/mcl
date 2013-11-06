@@ -1235,11 +1235,9 @@ mcxstatus mclAlgorithmInit
          mcxTingPrint(mpp->dump_stem, "%s", mlp->xfout->fn->str)
    ;  }
 
-
-                       /* forgot why the stderr feature, and also forgot
-                        * why it only applies to the full name.
-                        * capturing vs logging I guess.
-                       */
+              /* mkbounce == 2: -az was not the last option.
+               * Print to stderr too as way of a small alert.
+              */
       if (mkbounce)
       {  if (mkbounce == 2)
          fprintf(stderr, "%s\n", mlp->xfout->fn->str)
@@ -1537,6 +1535,7 @@ static mclx* mclAlgorithmStreamIn
 )
    {  mclTab* tabxch = mlp->tab
    ;  mcxbool abc = mlp->stream_modes & MCLXIO_STREAM_ABC
+   ;  mclx* mx = NULL
 
    ;  if
       (  reread
@@ -1546,7 +1545,7 @@ static mclx* mclAlgorithmStreamIn
       )     )  )
       mlp->stream_modes |= MCLXIO_STREAM_TAB_RESTRICT
 
-   ;  mclx* mx
+   ;  mx
       =  mclxIOstreamIn
          (  xfin
          ,  mlp->stream_modes | MCLXIO_STREAM_MIRROR

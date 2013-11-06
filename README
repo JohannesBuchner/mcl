@@ -1,4 +1,4 @@
-# $Id: README,v 1.31 2006-01-12 14:21:47 flux Exp $
+# $Id: README,v 1.32 2006-02-22 12:43:39 flux Exp $
 
    If you use MCL software in your research, cite it as you would cite a
    journal or a book. This includes papers published in regular or electronic
@@ -46,8 +46,7 @@
    The MCL webpage is at http://micans.org/mcl/ .
 
    MCL development is discussed on mcl-devel@lists.micans.org, info about this
-   list can be found at https://lists.micans.org:446/listinfo/mcl-devel this list
-   is archived at https://lists.micans.org:446/pipermail/mcl-devel/ . You can use
+   list can be found at https://lists.micans.org/listinfo/mcl-devel. You can use
    this forum also for asking any MCL-related question.
 
    The version tag, which is of the form dd-ddd, encodes the year and day in
