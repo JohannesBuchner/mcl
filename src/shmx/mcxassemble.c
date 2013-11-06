@@ -40,6 +40,7 @@ enum
 ,  MY_OPT_RAW
 ,  MY_OPT_SINGLE
 ,  MY_OPT_OUTPUT
+,  MY_OPT_DIGITS
 ,  MY_OPT_XO
 ,  MY_OPT_WB
 ,  MY_OPT_PLUS
@@ -88,7 +89,7 @@ mcxOptAnchor options[] =
    ,  NULL
    ,  "print version information"
    }
-,  {  "--apropos"
+,  {  "--help"
    ,  MCX_OPT_DEFAULT | MCX_OPT_INFO
    ,  MY_OPT_APROPOS
    ,  NULL
@@ -214,6 +215,12 @@ mcxOptAnchor options[] =
    ,  "<func(arg)[, func(arg)]*>"
    ,  "apply unary transformations to symmetrified matrix"
    }
+,  {  "-digits"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_DIGITS
+   ,  "<int>"
+   ,  "precision to use in interchange format"
+   }
 ,  {  "-o"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_OUTPUT
@@ -322,6 +329,7 @@ int main
    ;  mcxbool single_data_file = FALSE
    ;  mcxbits warn_repeat = MCLV_WARN_REPEAT
    ;  int EODATA = EOF
+   ;  int digits = MCLXIO_VALUE_GETENV
 
    ;  void (*ivpmerge)(void* ivp1, const void* ivp2)  =  mclpMergeMax
    ;  double (*fltvecbinary)(pval val1, pval val2)    =  fltMax
@@ -732,14 +740,14 @@ int main
       mclxUnaryList(mx, prmtransform)
 
    ;  if (xf_prm)
-      mclxWrite(mx, xf_prm, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
+      mclxWrite(mx, xf_prm, digits, EXIT_ON_FAIL)
 
    ;  if (!noput_sym)
       {  tp = mclxTranspose(mx)
       ;  sym = mclxBinary(mx, tp, fltmxbinary)
       ;  if (symtransform)
          mclxUnaryList(sym, symtransform)
-      ;  mclxWrite(sym, xf_sym, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
+      ;  mclxWrite(sym, xf_sym, digits, EXIT_ON_FAIL)
       ;  mclxFree(&sym)
    ;  }
 
@@ -750,7 +758,7 @@ int main
       ;  mclxUnary(tp, fltxMul, &minone)
       ;  skew = mclxAdd(mx, tp)
       ;  if (write_skw)
-         mclxWrite(skew, xf_skew, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
+         mclxWrite(skew, xf_skew, digits, EXIT_ON_FAIL)
       ;  n = mclxNrofEntries(skew)
       ;  fprintf(stdout, "symmetry check: %ld skew edges\n", (long) (n/2))
    ;  }

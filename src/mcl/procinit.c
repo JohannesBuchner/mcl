@@ -50,11 +50,10 @@ enum
 ,  PROC_OPT_MAININFLATION
 ,  PROC_OPT_SCHEME
 ,  PROC_OPT_RESOURCE
-,  PROC_OPT_MY_SCHEME
+,  PROC_OPT_RPRUNE
 ,  PROC_OPT_SKID
-,  PROC_OPT_ETHREADS
-                        ,  PROC_OPT_ADAPT
-,  PROC_OPT_SHOW        =  PROC_OPT_ADAPT + 2
+                        ,  PROC_OPT_ETHREADS
+,  PROC_OPT_SHOW        =  PROC_OPT_ETHREADS + 2
 ,  PROC_OPT_VERBOSITY
 ,                          PROC_OPT_SILENCE
 ,  PROC_OPT_PRUNE       =  PROC_OPT_SILENCE + 2
@@ -93,19 +92,19 @@ mcxOptAnchor mclProcOptions[] =
    ,  "(small graphs only [#<20]) dump iterands to *screen*"
    }
 ,  {  "-l"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_INITLENGTH
    ,  "<int>"
    ,  "length of initial run (default 0)"
    }
 ,  {  "-L"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_MAINLENGTH
    ,  "<int>"
    ,  "length of main run (default unbounded)"
    }
 ,  {  "-i"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_INITINFLATION
    ,  "<num>"
    ,  "initial inflation value (default 2.0)"
@@ -153,7 +152,7 @@ mcxOptAnchor mclProcOptions[] =
    ,  "\tM!\tDexpansion thread number, use with multiple CPUs"
    }
 ,  {  "-nj"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_NJ
    ,  "<int>"
    ,  "size of jury, bigger = friendlier"
@@ -189,25 +188,25 @@ mcxOptAnchor mclProcOptions[] =
    ,  "the rigid pruning threshold"
    }
 ,  {  "-P"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_PPRUNE
    ,  "<int>"
    ,  "(inverted) rigid pruning threshold (cf -z)"
    }
 ,  {  "-S"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_SELECT
    ,  "<int>"
    ,  "select down to <int> entries if needed"
    }
 ,  {  "-R"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_RECOVER
    ,  "<int>"
    ,  "recover to maximally <int> entries if needed"
    }
 ,  {  "-pct"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_PCT
    ,  "<pct>"
    ,  "try recovery if mass is less than <pct>"
@@ -224,11 +223,11 @@ mcxOptAnchor mclProcOptions[] =
    ,  "<int>"
    ,  "\tM!\tDallow <int> neighbours throughout computation"
    }
-,  {  "-my-scheme"
-   ,  MCX_OPT_HASARG
-   ,  PROC_OPT_MY_SCHEME
+,  {  "-Q"
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  PROC_OPT_RPRUNE
    ,  "<int>"
-   ,  "set tag for custom scheme (cf -P -R -S -pct)"
+   ,  "use inital pruning cutoff <MAX>/<int>"
    }
 ,  {  "-skid"
    ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
@@ -249,76 +248,58 @@ mcxOptAnchor mclProcOptions[] =
    ,  "intermediate iterand interpretation option"
    }
 ,  {  "-warn-pct"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_WARNPCT
    ,  "<pct>"
    ,  "warn if pruning reduces mass to <pct> weight"
    }
 ,  {  "-warn-factor"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_WARNFACTOR
    ,  "<int>"
    ,  "warn if pruning reduces entry count by <int>"
    }
 ,  {  "-dump"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_DUMP
    ,  "<mode>"
    ,  "<mode> in chr|ite|cls|dag (cf manual page)"
    }
 ,  {  "-dump-subi"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_DUMPSUBI
    ,  "<spec>"
    ,  "dump the columns in <spec>"
    }
 ,  {  "-dump-subd"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_DUMPSUBD
    ,  "<spec>"
    ,  "dump columns in <spec> domains"
    }
 ,  {  "-dump-dom"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_DUMPDOM
    ,  "<mx>"
    ,  "domain matrix"
    }
 ,  {  "-dump-stem"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_DUMPSTEM
    ,  "<str>"
    ,  "use <str> to construct dump (file) names"
    }
-,  {  "-ds"
-   ,  MCX_OPT_HASARG
-   ,  PROC_OPT_DUMPSTEM
-   ,  "<str>"
-   ,  "alias to -dump-stem"
-   }
 ,  {  "-dump-interval"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_DUMPINTERVAL
    ,  "<int>:<int>"
    ,  "only dump for iterand indices in this interval"
    }
-,  {  "-di"
-   ,  MCX_OPT_HASARG
-   ,  PROC_OPT_DUMPINTERVAL
-   ,  "<int>:<int>"
-   ,  "alias to -dump-stem"
-   }
 ,  {  "-dump-modulo"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_DUMPMODULO
    ,  "<int>"
    ,  "only dump if the iterand index modulo <int> vanishes"
-   }
-,  {  "-dm"
-   ,  MCX_OPT_HASARG
-   ,  PROC_OPT_DUMPMODULO
-   ,  "<int>"
-   ,  "alias to -dump-modulo"
    }
 ,  {  NULL
    ,  0
@@ -483,12 +464,7 @@ mcxstatus mclProcessInit
          continue
 
       ;  switch(anch->id)
-         {  case PROC_OPT_ADAPT
-         :  mxp->modePruning = MCL_PRUNING_ADAPT
-         ;  break
-         ;
-
-            case PROC_OPT_SHOW
+         {  case PROC_OPT_SHOW
          :  mpp->printMatrix  =  TRUE
          ;  break
          ;
@@ -660,14 +636,6 @@ mcxstatus mclProcessInit
          ;  break
          ;
 
-            case PROC_OPT_MY_SCHEME
-         :  i = atoi(opt->val)
-         ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_0, NULL, NULL)
-         ;  if (vok)
-            mxp->my_scheme = i
-         ;  break
-         ;
-
             case PROC_OPT_SKID
          :  i = atoi(opt->val)
          ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_1, intLq, &i_7)
@@ -714,13 +682,23 @@ mcxstatus mclProcessInit
          ;  break
          ;
 
+            case PROC_OPT_RPRUNE
+         :  i = atoi(opt->val)
+         ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_1, NULL, NULL)
+         ;  if (vok)
+               n_prune  = i
+            ,  mxp->do_rprune = i
+            ,  user_scheme = 1
+         ;  break
+         ;
+
             case PROC_OPT_RESOURCE
          :  i = atoi(opt->val)
          ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_1, NULL, NULL)
          ;  if (vok)
                n_select =  i
             ,  n_recover =  i
-            ,  n_prune = 10 * i
+            ,  n_prune = n_prune >= 0 ? n_prune : 10 * i
             ,  user_scheme = 1
          ;  break
          ;
@@ -939,22 +917,6 @@ void mclShowSettings
             ,  (ulong) (mxp->nj + 1)
             ,   ""
             ,  "[-nj n]"
-      )
-
-   ;  if (user || mxp->modePruning == MCL_PRUNING_ADAPT) fprintf
-      (  fp ,  "%-40s%11.2f%5s%s\n"
-            ,  "adapt-exponent"
-            ,  mxp->cutExp
-            ,  ""
-            ,  "[-ae f]"
-      )
-
-   ;  if (user || mxp->modePruning == MCL_PRUNING_ADAPT) fprintf
-      (  fp ,  "%-40s%11.2f%5s%s\n"
-            ,  "adapt-factor"
-            ,  mxp->cutCof
-            ,  ""
-            ,  "[-af f]"
       )
 
    ;  if (user) fprintf

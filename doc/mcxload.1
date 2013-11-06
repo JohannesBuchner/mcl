@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcxload" 1 "18 Sep 2009" "mcxload 1\&.008, 09-261" "USER COMMANDS "
+.TH "mcxload" 1 "4 Nov 2009" "mcxload 1\&.008, 09-308" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -38,7 +38,7 @@ mcxload \- load matrices and tab files from label format
 \fB[-123\fP <fname> (\fIidentifier file\fP)\fB]\fP
 \fB[-o\fP <fname> (\fIoutput file\fP)\fB]\fP
 \fB[--stream-mirror\fP (\fIsymmetrify, same domain\fP)\fB]\fP
-\fB[--graph\fP (\fIassume same domain\fP)\fB]\fP
+\fB[--stream-split\fP (\fIassume different domains\fP)\fB]\fP
 \fB[-re\fP <mode> (\fIedge deduplication mode\fP)\fB]\fP
 \fB[-ri\fP <mode> (\fIimage symmetrification mode\fP)\fB]\fP
 \fB[-etc\fP <fname> (\fIleader \&'etc\&' label file\fP)\fB]\fP
@@ -57,8 +57,12 @@ mcxload \- load matrices and tab files from label format
 \fB[-extend-tab\fP <fname> (\fItab launch\fP)\fB]\fP
 \fB[-extend-tabc\fP <fname> (\fItabc launch\fP)\fB]\fP
 \fB[-extend-tabr\fP <fname> (\fItabr launch\fP)\fB]\fP
+\fB[-123-max\fP <int> (\fIset domain range\fP)\fB]\fP
+\fB[-123-maxc\fP <int> (\fIset column range\fP)\fB]\fP
+\fB[-123-maxr\fP <int> (\fIset row range\fP)\fB]\fP
 \fB[--stream-log\fP (\fIlog transform stream values\fP)\fB]\fP
-\fB[--stream-neg-log\fP (\fIminus log transform stream values\fP)\fB]\fP
+\fB[--stream-neg-log\fP (\fInegative log transform stream values\fP)\fB]\fP
+\fB[--stream-neg-log10\fP (\fInegative log-10 transform stream values\fP)\fB]\fP
 \fB[-stream-tf\fP (\fItransform stream values\fP)\fB]\fP
 \fB[-tf\fP <tf-spec> (\fItransform (not so) final matrix\fP)\fB]\fP
 \fB[--transpose\fP (\fItranspose\fP)\fB]\fP
@@ -142,6 +146,7 @@ the values in the input stream and the values in the
 constructed matrix\&. These are
 \fB--stream-log\fP,
 \fB--stream-neg-log\fP,
+\fB--stream-neg-log10\fP,
 \fB-stream-tf\fP and
 \fB-tf\fP\&.
 Refer to \fBmcxio(5)\fP for a description of the syntax accepted
@@ -228,10 +233,13 @@ stream as well\&. This option implies that both labels
 belong to the same domain\&.
 .in -2m
 
-.ZI 2m "\fB--graph\fP (\fIassume same domain\fP)"
+.ZI 2m "\fB--stream-split\fP (\fIassume different domains\fP)"
 \&
 .br
-This tells mcxload that both labels belong to the same domain\&.
+This tells mcxload that the two labels belong to different domains\&.
+The program will create two tab files, one for columns and one
+for rows\&. This can be used for example to create a logical mapping of
+gene identifiers to species identifiers\&.
 .in -2m
 
 .ZI 2m "\fB-re\fP <max|add|mul|first|last> (\fIdeduplication mode\fP)"
@@ -330,17 +338,48 @@ Read a dictionary from file and extend it with all
 second labels from the input not yet present in the dictionary\&.
 .in -2m
 
+.ZI 2m "\fB-123-max\fP <int> (\fIset domain range\fP)"
+\&
+.br
+Numbers starting from \fI<int>\fP will be ignored, and the domain (used
+for both columns and rows) will range from zero up to one less than
+\fI<int>\fP\&.
+.in -2m
+
+.ZI 2m "\fB-123-maxc\fP <int> (\fIset column range\fP)"
+\&
+.br
+Numbers starting from \fI<int>\fP will be ignored in the column domain,
+and the column domain will range from zero up to one
+less than \fI<int>\fP\&.
+.in -2m
+
+.ZI 2m "\fB-123-maxr\fP <int> (\fIset row range\fP)"
+\&
+.br
+Numbers starting from \fI<int>\fP will be ignored in the row domain,
+and the row domain will range from zero up to one
+less than \fI<int>\fP\&.
+.in -2m
+
 .ZI 2m "\fB--stream-log\fP (\fIlog transform stream values\fP)"
 \&
 .br
 Replace each entry by its natural logarithm\&.
 .in -2m
 
-.ZI 2m "\fB--stream-neg-log\fP (\fIminus log transform stream values\fP)"
+.ZI 2m "\fB--stream-neg-log\fP (\fInegative log transform stream values\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--stream-neg-log10\fP (\fInegative log-10 transform stream values\fP)"
+\&
+'in -2m
+'in +2m
 \&
 .br
-Replace each entry by the negative of its natural logarithm\&.
-This is most likely useful to convert scores that denote probabilities
+Replace each entry by the negative of its natural logarithm and
+log-10 representation, respectively\&.
+This is for example useful to convert scores that denote probabilities
 or p-values such as BLAST scores\&.
 .in -2m
 

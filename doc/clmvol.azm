@@ -22,7 +22,7 @@
 \sec{synopsis}{SYNOPSIS}
 \par{
    \clm{vol}
-   \synoptopt{-nff-fac}{num}{nff factor}
+   \synoptopt{-fraction}{num}{nff factor}
    \synoptopt{-o}{fname}{output file}
    <cl file>+
    }
@@ -37,17 +37,17 @@
    considered in turn.
    
    An intersection is deemed to be volatile if the size of the intersection is
-   less than half the size of either parent cluster.
-   
-   In this case, for each node in the intersection the score is incremented by
-   one over the size of the intersection.
+   less than half the size of the smallest of the two clusters.  In that case,
+   for each node in the intersection its volatility score is incremented by one
+   over the size of the intersection.
 
-   The size comparison can be made more stringent by increasing
-   the factor using \genopt{-nff-fac}{<num>} option. It is by default set to
-   \v{0.5}, the fraction taken from the parent cluster sizes.
-   If it is increased all the way up to 1.0, the implication is that an
-   intersection is always considered volatile unless one of the parent
-   clusters is a subset of the other parent cluster.
+   The size comparison can be made more stringent by increasing the
+   \genopt{-fraction}{<frac>} option, which is by default set to \v{0.5}.
+   Volatility occurs if the size of the intersection is less than
+   \usearg{<frac>} times the size of the smallest cluster.  If the
+   \genopt{-fraction} value is increased all the way up to 1.0, the implication
+   is that an intersection is considered volatile unless one of the two
+   clusteres considered is a subset of the other.
    }
 
 
@@ -61,7 +61,7 @@
 
 \'begin{itemize}{\mcx_itemopts}
 
-\item{\defopt{-nff-fac}{num}{nff factor}}
+\item{\defopt{-fraction}{num}{nff factor}}
 \car{See the discussion at \secref{description}.
    }
 

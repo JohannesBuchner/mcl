@@ -15,7 +15,7 @@
 \${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
-\NAME{clm info}{Compute performance measures for graphs and clusterings.}
+\NAME{clm info}{compute performance measures for graphs and clusterings.}
 
 \disclaim_clm{info}
 
@@ -28,7 +28,7 @@
    \clm{info}
       \synoptopt{-o}{fname}{write to file \genopt{fname}}
       \synoptopt{-pi}{f}{apply inflation beforehand}
-      \synoptopt{-tf}
+      \shared_synoptopt{-tf}
       \synoptopt{-cl-tree}{fname}{expect file with nested clusterings}
       \synoptopt{-cl-ceil}{<num>}{skip clusters of size exceeding <num>}
       \synoptopt{-cat-max}{num}{do at most \genopt{num} tree levels}
@@ -83,7 +83,8 @@
    Apply inflation to the graph matrix and compute the performance
    measures for the result.}
 
-\item_defopt{-tf}
+\shared_itemopt{-tf}
+\car{shared_defopt{-tf}}
 
 \items{
    {\defopt{-cl-tree}{fname}{expect file with nested clusterings (cone format)}}

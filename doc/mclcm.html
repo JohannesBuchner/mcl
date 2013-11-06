@@ -9,7 +9,6 @@ body
 { text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -29,14 +28,13 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
-div.copy
-{ font-size: 12pt;
-font-family: monospace;
-text-align: left;
-white-space: pre;
-margin-left: 2em;
+div.verbatim
+{ font-family: monospace;
 margin-top: 1em;
 margin-bottom: 1em;
+font-size: 10pt;
+margin-left: 2em;
+white-space: pre;
 }
 div.indent
 { margin-left: 8%;
@@ -68,14 +66,15 @@ margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
+body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
 </style>
 <title>The mclcm manual</title>
 </head>
 <body>
 <p style="text-align:right">
-18 Sep 2009&nbsp;&nbsp;&nbsp;
+4 Nov 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mclcm.ps"><b>mclcm</b></a>
-1.008, 09-261
+1.008, 09-308
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -113,9 +112,9 @@ mclcm &mdash; hierarchical clustering of graphs with mcl</p>
 <h2>SYNOPSIS</h2>
 <p style="margin-bottom:0" class="asd_par"><b>mclcm</b> &lt;-|fname&gt; [mclcm-options] [-- "mcl options"*]</p>
 <p style="margin-bottom:0" class="asd_par">
-<pre><b>mclcm</b> &lt;-|fname&gt; -a "-I 4 --shadow=vl"
+<div class="verbatim"><b>mclcm</b> &lt;-|fname&gt; -a "-I 4 --shadow=vl"
 <b>mclcm</b> &lt;-|fname&gt; -a "-I 3" -- "-I 5"
-<b>mclcm</b> &lt;-|fname&gt; -a "-I 3" -b1 "" -- "-ph 3 --shadow=vl -I 5"</pre>
+<b>mclcm</b> &lt;-|fname&gt; -a "-I 3" -b1 "" -- "-ph 3 --shadow=vl -I 5"</div>
 </p>
 <p style="margin-bottom:0" class="asd_par">
 <b>mclcm</b> &lt;-fname&gt;
@@ -170,8 +169,8 @@ In all modes <b>mclcm</b> will generate a file, by default called <i>mcl.cone</i
 This is a representation of a hierarchical clustering that is particular
 to mcl. It can be converted to <i>newick</i> format like this:
 </p>
-<pre>         mcxdump -imx-tree mcl.cone --newick -o NEWICKFILE
-   OR    mcxdump -imx-tree mcl.cone --newick -o NEWICKFILE -tab TABFILE</pre>
+<div class="verbatim">         mcxdump -imx-tree mcl.cone --newick -o NEWICKFILE
+   OR    mcxdump -imx-tree mcl.cone --newick -o NEWICKFILE -tab TABFILE</div>
 <p style="margin-bottom:0" class="asd_par">
 In the last example, TABFILE should be a file containing a mapping
 from mcl labels to application labels. Refer to <a class="local sibling" href="mcxio.html">mcxio</a> for

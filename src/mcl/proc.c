@@ -37,7 +37,7 @@
 
 static volatile sig_atomic_t abort_loop = 0;
 
-static int mclVerbosityStart    =  1;        /* mq static */
+static int mclVerbosityStart    =  0;        /* mq static */
 
 
 void  mclDumpVector
@@ -137,15 +137,12 @@ mclMatrix*  mclProcess
    {  mclMatrix*        mxEven      =  *mxstart
    ;  mclMatrix*        mxOdd       =  NULL
    ;  mclMatrix*        mxCluster   =  NULL
-   ;  int               n_cols      =  N_COLS(mxEven)
    ;  int               digits      =  mpp->printDigits
    ;  mclExpandParam    *mxp        =  mpp->mxp
    ;  int               i           =  0
    ;  clock_t           t1          =  clock()
    ;  const char* me                =  "mclProcess"
    ;  FILE*             fplog       =  mcxLogGetFILE()
-   ;  mcxbool           log_gauge   =  mcxLogGet(MCX_LOG_GAUGE) 
-   ;  mcxbool           log_stats   =  XPNVB(mpp->mxp, XPNVB_CLUSTERS)
 
    ;  if (cachexp)
       *cachexp =  NULL
@@ -171,19 +168,7 @@ mclMatrix*  mclProcess
    ;  if (MCPVB(mpp, MCPVB_ITE))
       mclDumpMatrix(mxEven, mpp, "ite", "", 0, TRUE)
 
-   ;  if (log_gauge || log_stats)
-      {  fprintf(fplog, " ite ")
-      ;  if (log_gauge)
-         {  for (i=0;i<n_cols/mxp->vectorProgression;i++)
-            fputc('-', fplog)
-         ;  fputs("  chaos  time hom(avg,lo,hi)", fplog)
-      ;  }
-         if (log_stats)
-         fputs("   E/V  dd    cls   olap avg", fplog)
-      ;  fputc('\n', fplog)
-   ;  }
-
-      for (i=0;i<mpp->initLoopLength;i++)
+   ;  for (i=0;i<mpp->initLoopLength;i++)
       {  doIteration 
          (  mxstart[0]
          ,  &mxEven
@@ -250,15 +235,13 @@ mclMatrix*  mclProcess
    ;  *limit = mxEven
 
    ;  {  mclx* dag = mclDag(mxEven, mpp->ipp)
-;fprintf(stderr, "selfval maxval %f/%f\n", mpp->ipp->w_selfval, mpp->ipp->w_maxval)
-;if (1)
-{  dim j
-;  mclxMakeStochastic(dag)
-;  for (j=0;j<N_COLS(dag);j++)
-mclvSelectGqBar(dag->cols+j, 1.0 / (dag->cols[j].n_ivps + 1))
-;  }
-
-      ;  mxCluster = mclInterpret(dag)
+      ;  if (1)  /* hum ho fixme docme. is-this-really-necessary-or-is-it-a-debug-remnant ? */
+         {  dim j
+         ;  mclxMakeStochastic(dag)
+         ;  for (j=0;j<N_COLS(dag);j++)
+            mclvSelectGqBar(dag->cols+j, 1.0 / (dag->cols[j].n_ivps + 1))
+      ;  }
+         mxCluster = mclInterpret(dag)
       ;  mclxFree(&dag)
    ;  }
 
@@ -271,68 +254,15 @@ void mclInflate
 ,  double   power
 ,  mclv*    homgVec
 )
-   {  mcxbool   local  =   getenv("MCL_AUTO_LOCAL") ? TRUE : FALSE
-   ;  mcxbool   smooth =   getenv("MCL_AUTO_SMOOTH") ? TRUE : FALSE  
-   ;  mcxbool   test   =   getenv("MCL_AUTO_TEST") ? TRUE : FALSE  
-   ;  mcxbool   dump   =   getenv("MCL_AUTO_DUMP") ? TRUE : FALSE
+   {  mcxbool   local   cpl__unused = getenv("MCL_AUTO_LOCAL") ? TRUE : FALSE
+   ;  mcxbool   smooth  cpl__unused = getenv("MCL_AUTO_SMOOTH") ? TRUE : FALSE  
 
    ;  double    infl   =   power
    ;  mclv*     vec_infl = NULL
-   ;  double hom_max = 0.0, hom_min = 10.0
-   ;  dim k, i
-
-   ;  if (local || smooth || test)
-      {  hom_max = mclvMaxValue(homgVec)
-      ;  hom_min = mclvMinValue(homgVec)
-      ;  vec_infl = mclvCanonical(NULL, N_COLS(mx), power)
-      ;  for (i=0;i<N_COLS(mx);i++)
-         {  double avg = 0.0
-         ;  double infllocal = power
-         ;  mclv* nblist = mx->cols+i
-         ;  mclp* ivp = NULL
-         ;  dim j
-
-         ;  if (smooth)
-            for (j=0;j<nblist->n_ivps;j++)
-            {  long idx = nblist->ivps[j].idx
-            ;  if ((ivp = mclvGetIvp(homgVec, idx, ivp)))
-               avg += nblist->ivps[j].val * ivp->val
-         ;  }
-            else
-            {  if ((ivp = mclvGetIvp(homgVec, mx->cols[i].vid, ivp)))
-               avg = ivp->val
-         ;  }
-
-if(dump)fprintf(stdout, "%d\t%.3f\n", (int) i, avg);
-
-                  /* If homogeneity is low, the reasoning is
-                   * that we can decrease inflation as apparently the local
-                   * topology of the graph already encourages skew.
-                   * Empirically, this seems to result in clusters that may be more
-                   * elongated.
-                   *
-                   * Roughly speaking, we may expect high homogeneity to correlate
-                   * with high clustering coefficient.
-                  */
-
-         ;  MCX_RESTRICT(avg, 0.333, 3)
-
-         ;  infllocal = pow(infllocal, avg)
-
-         ;  if (infllocal <= 1.1)
-            infllocal = 1.1
-         ;  if (infllocal >= 10.0)
-            infllocal = 10.0
-
-         ;  vec_infl->ivps[i].val  = infllocal
-      ;  }
-      }
-
-      if (dump)
-      fputc('\n', stdout)
+   ;  dim k
 
    ;  for (k=0;k<N_COLS(mx);k++)
-      mclvInflate(mx->cols+k, local || smooth ? vec_infl->ivps[k].val : infl)
+      mclvInflate(mx->cols+k, vec_infl ? vec_infl->ivps[k].val : infl)
 
    ;  mclvFree(&vec_infl)
 ;  }
@@ -363,7 +293,25 @@ int doIteration
 
    ;  mxp->inflation = inflation
 
-   ;  if (log_gauge || log_stats)
+   ;  if (mclVerbosityStart == 0)
+      {  dim i
+      ;  int n_cols = N_COLS(*mxin)
+      ;  if (XPNVB(mxp,XPNVB_EXPLAIN))
+         mclExpandStatsHeader(fplog, stats, mxp)
+      ;  if (log_gauge)
+         {  fprintf(fplog, " ite ")
+         ;  for (i=0;i<n_cols/mxp->vectorProgression;i++)
+            fputc('-', fplog)
+         ;  fputs("  chaos  time hom(avg,lo,hi)", fplog)
+      ;  }
+         else if (log_stats)
+         fputs("   E/V  dd    cls   olap avg", fplog)
+
+      ;  fputc('\n', fplog)
+      ;  mclVerbosityStart = 1
+   ;  }
+
+      if (log_gauge)
       fprintf(fplog, "%3d  ", (int) n_ite+1)
 
    ;  *mxout  =   mclExpand(*mxin, mpp->expansionVariant ? mxstart : *mxin,  mxp)
@@ -396,6 +344,9 @@ int doIteration
       ,  (double) stats->homgMin
       ,  (double) stats->homgMax
       )
+
+   ;  if (XPNVB(mxp,XPNVB_PRUNING))
+      mclExpandStatsPrint(stats, fplog)
 
    ;  if (log_stats || MCPVB(mpp, (MCPVB_CLUSTERS | MCPVB_DAG)))
       {  dim o, m, e
@@ -440,7 +391,7 @@ mclxWrite(*mxout, xfstdout, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
       ;  mclxFree(&clus)
    ;  }
 
-      if (log_gauge || log_stats)
+      if (mclVerbosityStart)
       fputc('\n', fplog)
 
    ;  if (mpp->printMatrix)
@@ -457,14 +408,6 @@ mclxWrite(*mxout, xfstdout, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
       {  mcxIO* xftmp = mcxIOnew(mpp->fname_expanded->str, "w")
       ;  mclxWrite(*mxout, xftmp, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
       ;  mcxIOfree(&xftmp)
-   ;  }
-
-      if (XPNVB(mxp,XPNVB_PRUNING))
-      {  if (mclVerbosityStart && XPNVB(mxp,XPNVB_EXPLAIN))
-         {  mclExpandStatsHeader(fplog, stats, mxp)
-         ;  mclVerbosityStart = 0
-      ;  }
-         mclExpandStatsPrint(stats, fplog)
    ;  }
 
       mclInflate(*mxout, inflation, homgVec)

@@ -34,7 +34,7 @@
    \synoptopt{--write-sizes}{output component sizes (default)}
    \synoptopt{--write-cc}{output components as clustering}
    \synoptopt{-cc-bound}{num}{select components with size at least num}
-   \synoptopt{-tf}
+   \shared_synoptopt{-tf}
    \stdsynopt
    }
 
@@ -92,7 +92,7 @@
 
 \item{\defopt{-cc-bound}{num}{select components with size at least num}}
 
-\item_defopt{-tf}
+\shared_defopt{-tf}
 
 \stddefopt
 

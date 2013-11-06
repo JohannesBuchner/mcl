@@ -41,8 +41,9 @@
    \clm{dist}
       \synoptopt{-mode}{<sj|vi|mk|sc>}{distance type}
       \synoptopt{-o}{fname}{output file}
+      \synoptopt{--chain}{only compare consecutive clusterings}
+      \synoptopt{--sort}{sort clusterings based on coarseness}
       \synoptopt{-digits}{k}{output decimals}
-      \synoptopt{-width}{k}{tab width}
       \stdsynopt
       <file name> <file name>+}
 
@@ -51,10 +52,13 @@
 \par{
    \clm{dist} computes distances between clusterings. It can compute the
    \it{split/join distance} (described below), the \it{variance of information
-   measure}, and the \it{Mirkin metric}.  It can compute the chosen distance
-   for all pairs of distances in a set of clusterings.  Clusterings must be in
+   measure}, and the \it{Mirkin metric}.  By default it computes the chosen distance
+   for all pairs of distances in the clusterings provided.  Clusterings must be in
    the mcl matrix format (cf. \mysib{mcxio}), and are supplied on the command
-   line as the names of the files in which they are stored.}
+   line as the names of the files in which they are stored.
+   It is possible to compare only consecutive clusterings by using
+   the \genopt{--chain} option.
+   }
 
 \par{
    Currently, \clm{dist} cannot compute different distance types simultaneously.}
@@ -90,15 +94,29 @@ d  d1  d2  N  v  name1  name2  [v50,v75,v90,v95,v99]}
    Use \bf{sj} for the \it{split/join distance} (described below), \bf{vi} for
    the \it{variance of information measure} and \bf{mk} for the \it{Mirkin metric}.}
 
+
+\item{\defopt{--chain}{only compare consecutive clusterings}}
+\car{
+   This option can be used if you know that the clusterings are nested
+   clusterings (or appoximately so) and ordered from coarse to fine-grained
+   or vice versa. An example of this is the set of clusterings resulting
+   from applying \mcl with a range of inflation parameters.
+}
+
+
+\item{\defopt{--sort}{sort clusterings based on coarseness}}
+\car{
+   This option can be useful in conjunction with the \genopt{--chain}
+   option, in case the list of clusterings supplied is not necessarily
+   ordered by granularity.
+}
+
+
 \item{\defopt{-o}{fname}{output file}}
 
 \item{\defopt{-digits}{k}{output decimals}}
 \car{
    The number of decimals printed when using the variance of information measure.}
-
-\item{\defopt{-width}{k}{tab width}}
-\car{
-   The tabbing width in the output table.}
 
 \stddefopt
 

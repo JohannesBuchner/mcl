@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "clm vol" 1 "18 Sep 2009" "clm vol 1\&.008, 09-261" "USER COMMANDS "
+.TH "clm vol" 1 "4 Nov 2009" "clm vol 1\&.008, 09-308" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -39,7 +39,7 @@ in the \fBclm\fP manual page\&.
 .SH SYNOPSIS
 
 \fBclm vol\fP
-\fB[-nff-fac\fP num (\fInff factor\fP)\fB]\fP
+\fB[-fraction\fP num (\fInff factor\fP)\fB]\fP
 \fB[-o\fP fname (\fIoutput file\fP)\fB]\fP
 <cl file>+
 .SH DESCRIPTION
@@ -50,21 +50,22 @@ correlates with what is deemed to be volatile behaviour\&. For all pairs of
 clusterings the set of all intersections is computed, and these are
 considered in turn\&.
 An intersection is deemed to be volatile if the size of the intersection is
-less than half the size of either parent cluster\&.
-In this case, for each node in the intersection the score is incremented by
-one over the size of the intersection\&.
-The size comparison can be made more stringent by increasing
-the factor using \fB-nff-fac\fP\ \&\fI<num>\fP option\&. It is by default set to
-\fC0\&.5\fP, the fraction taken from the parent cluster sizes\&.
-If it is increased all the way up to 1\&.0, the implication is that an
-intersection is always considered volatile unless one of the parent
-clusters is a subset of the other parent cluster\&.
+less than half the size of the smallest of the two clusters\&. In that case,
+for each node in the intersection its volatility score is incremented by one
+over the size of the intersection\&.
+The size comparison can be made more stringent by increasing the
+\fB-fraction\fP\ \&\fI<frac>\fP option, which is by default set to \fC0\&.5\fP\&.
+Volatility occurs if the size of the intersection is less than
+\fB<frac>\fP times the size of the smallest cluster\&. If the
+\fB-fraction\fP value is increased all the way up to 1\&.0, the implication
+is that an intersection is considered volatile unless one of the two
+clusteres considered is a subset of the other\&.
 .SH AUTHOR
 
 Stijn van Dongen\&.
 .SH OPTIONS
 
-.ZI 2m "\fB-nff-fac\fP num (\fInff factor\fP)"
+.ZI 2m "\fB-fraction\fP num (\fInff factor\fP)"
 \&
 .br
 See the discussion at \fBDESCRIPTION\fP\&.

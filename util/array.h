@@ -76,6 +76,19 @@ void* mcxBsearchCeil
 )  ;
 
 
+/* Uses weighted combinations of neighbours when the quartile
+ * range does not fall perfectly on array offsets (i.e.
+ * when the array size is not a multiple of 4.
+*/
+double mcxMedian
+(  void* base
+,  dim   n
+,  dim   sz
+,  double (*get)(const void*)
+,  double* iqr
+)  ;
+
+
 typedef struct
 {  void*       mempptr
 ;  dim         size

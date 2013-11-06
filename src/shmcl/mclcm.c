@@ -298,7 +298,7 @@ mcxOptAnchor options[] =
    ,  "<fname>"
    ,  "controlling clustering"
    }
-,  {  "--apropos"
+,  {  "--help"
    ,  MCX_OPT_DEFAULT | MCX_OPT_INFO
    ,  MY_OPT_APROPOS
    ,  NULL
@@ -605,7 +605,10 @@ static mclx* get_base
 #define  OUTPUT_COARSE  1 <<  3
 #define  OUTPUT_BASE    1 <<  4
 
-                                 /* fixme: to big, although half is initialization */
+                                 /* fixme: too big, although half is initialization
+                                  * a lot of base1 base2 logic.
+                                 */
+
 int main
 (  int                  argc
 ,  const char*          argv[]
@@ -638,7 +641,7 @@ int main
    ;  int multiplex_idx = 1
    ;  int N = 0
    ;  int n_ite = 0
-   ;  dim n_components = 0
+   ;  dim n_components = 0, n_cls = 0
 
 
    ;  int a =  1, i= 0
@@ -897,7 +900,7 @@ int main
       {  for (i=a;i<argc;i++)
          {  mcxIO* xf = mcxIOnew(argv[i], "r")
          ;  mclx* cl = mclxRead(xf, EXIT_ON_FAIL)
-         ;  mclxCatPush(&stck_g, cl, NULL, NULL, mclxCBdomStack, NULL)
+         ;  mclxCatPush(&stck_g, cl, NULL, NULL, mclxCBdomStack, NULL, "dummy-integrate", n_cls++)
       ;  }
 
          integrate_results(&stck_g)
@@ -936,7 +939,7 @@ int main
          (cl, NULL, xfcone, xfstack, plexprefix, multiplex_idx++, NULL)
 
       ;  if (subcluster_g || dispatch_g)
-         mclxCatPush(&stck_g, cl, NULL, NULL, mclxCBdomStack, NULL)
+         mclxCatPush(&stck_g, cl, NULL, NULL, mclxCBdomStack, NULL, "dummy-mclcm", n_cls++)
 
       ;  mcxIOfree(&xfcl)
       ;  if (!b1opts && !b2opts)
@@ -971,7 +974,7 @@ int main
          (cl_coarse, NULL, xfcone, xfstack, plexprefix, multiplex_idx++, mlp)
 
       ;  if (subcluster_g || dispatch_g)
-         mclxCatPush(&stck_g, cl_coarse, NULL, NULL, mclxCBdomStack, NULL)
+         mclxCatPush(&stck_g, cl_coarse, NULL, NULL, mclxCBdomStack, NULL, "dummy-mclcm", n_cls++)
 
       ;  cl = cl_coarse
       ;  n_ite++
@@ -1071,7 +1074,7 @@ int main
          ;  clnew = clnext
 
          ;  if (subcluster_g || dispatch_g)
-            mclxCatPush(&stck_g, clnext, NULL, NULL, mclxCBdomStack, NULL)
+            mclxCatPush(&stck_g, clnext, NULL, NULL, mclxCBdomStack, NULL, "dummy-mclcm", n_cls++)
          ;  else
             mclxFree(&clprev)
 

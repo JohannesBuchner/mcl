@@ -69,14 +69,14 @@ enum
 {                          ALG_OPT_OUTPUTFILE = 0
 ,  ALG_OPT_SHOWVERSION  =  ALG_OPT_OUTPUTFILE + 2
 ,  ALG_OPT_SHOWHELP
+,  ALG_OPT_SHOWLONGHELP
 ,  ALG_OPT_SHOWSETTINGS
 ,  ALG_OPT_SHOWCHARTER
 ,  ALG_OPT_SHOWRAM
 ,  ALG_OPT_SHOWSCHEMES
 ,  ALG_OPT_SHOWSKID
-,  ALG_OPT_AMOIXA
-                        ,  ALG_OPT_APROPOS
-,  ALG_OPT_OVERLAP      =  ALG_OPT_APROPOS + 2
+                        ,  ALG_OPT_AMOIXA
+,  ALG_OPT_OVERLAP      =  ALG_OPT_AMOIXA + 2
 ,  ALG_OPT_FORCE_CONNECTED
 ,  ALG_OPT_CHECK_CONNECTED
 ,  ALG_OPT_OUTPUT_LIMIT
@@ -87,10 +87,12 @@ enum
 ,  ALG_OPT_ADAPTTEST
 ,  ALG_OPT_ADAPTSMOOTH
 ,  ALG_OPT_REGULARIZED
+,  ALG_OPT_NULLNODE
 ,  ALG_OPT_SHADOW_MODE
 ,  ALG_OPT_SHADOW_VL
 ,  ALG_OPT_SHADOW_S
 ,  ALG_OPT_DISCARDLOOPS
+,  ALG_OPT_SUMLOOPS
 ,  ALG_OPT_SCALELOOPS
 ,  ALG_OPT_QUIET
 ,  ALG_OPT_ANALYZE
@@ -100,28 +102,25 @@ enum
 ,  ALG_OPT_SETENV
                         ,  ALG_OPT_BINARY
 ,  ALG_OPT_ABC          =  ALG_OPT_BINARY + 2
-,  ALG_OPT_EXPECT_ABC
-,  ALG_OPT_YIELD_ABC
+,  ALG_OPT_TAB_USE
 ,  ALG_OPT_ABC_TRANSFORM
 ,  ALG_OPT_ABC_LOGTRANSFORM
 ,  ALG_OPT_ABC_NEGLOGTRANSFORM
-,  ALG_OPT_TAB_EXTEND
-,  ALG_OPT_TAB_RESTRICT
-,  ALG_OPT_TAB_STRICT
-,  ALG_OPT_TAB_USE
+,  ALG_OPT_ABC_NEGLOGTRANSFORM10
 ,  ALG_OPT_WRITE_MXIN
 ,  ALG_OPT_WRITE_MXTF
 ,  ALG_OPT_WRITE_SHADOW
-,  ALG_OPT_WRITE_XP
-                        ,  ALG_OPT_WRITE_TAB
-,  ALG_OPT_ANNOT        =  ALG_OPT_WRITE_TAB + 2
+                        ,  ALG_OPT_WRITE_XP
+,  ALG_OPT_ANNOT        =  ALG_OPT_WRITE_XP + 2
 ,  ALG_OPT_AUTOAPPEND
 ,  ALG_OPT_OUTPUTDIR
 ,  ALG_OPT_AUTOBOUNCENAME
 ,  ALG_OPT_AUTOBOUNCEFIX
-                        ,  ALG_OPT_AUTOPREFIX
-,  ALG_OPT_TRANSFORM    =  ALG_OPT_AUTOPREFIX + 2
+,  ALG_OPT_AUTOPREFIX
+                        ,  ALG_OPT_AUTODIR
+,  ALG_OPT_TRANSFORM    =  ALG_OPT_AUTODIR + 2
 ,  ALG_OPT_CEILNB
+,  ALG_OPT_KNN
 ,  ALG_OPT_PREINFLATION
 ,  ALG_OPT_PREINFLATIONX
 ,  ALG_OPT_INFLATE_FIRST
@@ -228,10 +227,10 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "y/n"
    ,  "analyze clustering, make sure it induces cocos"
    }
-,  {  "-write-limit"
-   ,  MCX_OPT_HASARG
+,  {  "--write-limit"
+   ,  MCX_OPT_DEFAULT
    ,  ALG_OPT_OUTPUT_LIMIT
-   ,  "y/n"
+   ,  NULL
    ,  "output the limit matrix"
    }
 ,  {  "-check-connected"
@@ -271,7 +270,7 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "locally change inflation based on dispersion, smoothed"
    }
 ,  {  "--adapt-local"
-   ,  MCX_OPT_DEFAULT
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
    ,  ALG_OPT_ADAPTLOCAL
    ,  NULL
    ,  "locally change inflation based on dispersion"
@@ -282,6 +281,12 @@ mcxOptAnchor mclAlgOptions[] =
    ,  NULL
    ,  "use 'regularized mcl' expansion step"
    }
+,  {  "--sum-loops"
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
+   ,  ALG_OPT_SUMLOOPS
+   ,  NULL
+   ,  "set loop weight to sum of node arc weights"
+   }
 ,  {  "-discard-loops"
    ,  MCX_OPT_HASARG
    ,  ALG_OPT_DISCARDLOOPS
@@ -289,10 +294,16 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "remove loops in input graphs if any"
    }
 ,  {  "-c"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  ALG_OPT_SCALELOOPS
    ,  "<num>"
    ,  "increase loop-weights <num>-fold"
+   }
+,  {  "--null-node"
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
+   ,  ALG_OPT_NULLNODE
+   ,  NULL
+   ,  "use /dev/null node"
    }
 ,  {  "-shadow"
    ,  MCX_OPT_HASARG
@@ -307,13 +318,13 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "shadow low values"
    }
 ,  {  "-shadow-s"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  ALG_OPT_SHADOW_S
    ,  "<power>"
    ,  "set fac = fac ** power when fac > 1"
    }
 ,  {  "-append-log"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  ALG_OPT_APPEND_LOG
    ,  "y/n"
    ,  "append log to clustering"
@@ -346,31 +357,25 @@ mcxOptAnchor mclAlgOptions[] =
    ,  MCX_OPT_DEFAULT
    ,  ALG_OPT_ABC
    ,  NULL
-   ,  "both of --expect-abc and --yield-abc"
+   ,  "expect abc-format (label input), write label output"
    }
-,  {  "--expect-abc"
-   ,  MCX_OPT_DEFAULT
-   ,  ALG_OPT_EXPECT_ABC
-   ,  NULL
-   ,  "expect <label1> <label2> [value] format"
+,  {  "-use-tab"
+   ,  MCX_OPT_HASARG
+   ,  ALG_OPT_TAB_USE
+   ,  "fname"
+   ,  "expect native network format, write label output using dictionary"
    }
-,  {  "--yield-abc"
+,  {  "--abc-neg-log10"
    ,  MCX_OPT_DEFAULT
-   ,  ALG_OPT_YIELD_ABC
+   ,  ALG_OPT_ABC_NEGLOGTRANSFORM10
    ,  NULL
-   ,  "write clusters as tab-separated labels"
-   }
-,  {  "--abc-log"
-   ,  MCX_OPT_DEFAULT
-   ,  ALG_OPT_ABC_LOGTRANSFORM
-   ,  NULL
-   ,  "log-transform label value"
+   ,  "log10-transform label value, negate sign"
    }
 ,  {  "--abc-neg-log"
    ,  MCX_OPT_DEFAULT
    ,  ALG_OPT_ABC_NEGLOGTRANSFORM
    ,  NULL
-   ,  "minus log-transform label value"
+   ,  "log-transform label value, negate sign"
    }
 ,  {  "-abc-tf"
    ,  MCX_OPT_HASARG
@@ -383,12 +388,6 @@ mcxOptAnchor mclAlgOptions[] =
    ,  ALG_OPT_TRANSFORM
    ,  "tf-spec"
    ,  "transform matrix values"
-   }
-,  {  "-write-tab"
-   ,  MCX_OPT_HASARG
-   ,  ALG_OPT_WRITE_TAB
-   ,  "fname"
-   ,  "write tab to file fname"
    }
 ,  {  "-write-graph"
    ,  MCX_OPT_HASARG
@@ -408,32 +407,8 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "<fname>"
    ,  "file name to write expanded graph to"
    }
-,  {  "-use-tab"
-   ,  MCX_OPT_HASARG
-   ,  ALG_OPT_TAB_USE
-   ,  "fname"
-   ,  "tab file"
-   }
-,  {  "-strict-tab"
-   ,  MCX_OPT_HASARG
-   ,  ALG_OPT_TAB_STRICT
-   ,  "fname"
-   ,  "tab file (universe)"
-   }
-,  {  "-restrict-tab"
-   ,  MCX_OPT_HASARG
-   ,  ALG_OPT_TAB_RESTRICT
-   ,  "fname"
-   ,  "tab file (world)"
-   }
-,  {  "-extend-tab"
-   ,  MCX_OPT_HASARG
-   ,  ALG_OPT_TAB_EXTEND
-   ,  "fname"
-   ,  "tab file (extendable)"
-   }
 ,  {  "--write-binary"
-   ,  MCX_OPT_DEFAULT
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
    ,  ALG_OPT_BINARY
    ,  NULL
    ,  "write binary output"
@@ -460,7 +435,7 @@ mcxOptAnchor mclAlgOptions[] =
    ,  MCX_OPT_INFO
    ,  ALG_OPT_SHOWSETTINGS
    ,  NULL
-   ,  "\tMi\tDshow some of the default settings (--show-settings alias)"
+   ,  "\tMi\tDshow some of the default settings"
    }
 ,  {  "--version"
    ,  MCX_OPT_INFO
@@ -474,17 +449,17 @@ mcxOptAnchor mclAlgOptions[] =
    ,  NULL
    ,  ">o<"
    }
-,  {  "--apropos"
-   ,  MCX_OPT_INFO
-   ,  ALG_OPT_APROPOS
-   ,  NULL
-   ,  "\tMi\tDshow summaries of all options"
-   }
 ,  {  "-h"
    ,  MCX_OPT_INFO
    ,  ALG_OPT_SHOWHELP
    ,  NULL
    ,  "\tMi\tDoutput description of most important options"
+   }
+,  {  "--help"
+   ,  MCX_OPT_INFO
+   ,  ALG_OPT_SHOWLONGHELP
+   ,  NULL
+   ,  "\tMi\tDoutput description of options"
    }
 ,  {  "--show-schemes"
    ,  MCX_OPT_INFO
@@ -510,7 +485,7 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "<fname>"
    ,  "\tM!\tDwrite output to file <fname>"
    }
-,  {  "-od"
+,  {  "-odir"
    ,  MCX_OPT_HASARG
    ,  ALG_OPT_OUTPUTDIR
    ,  "<directory>"
@@ -546,11 +521,23 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "<prefix>"
    ,  "prepend <prefix> to mcl-created output file name"
    }
+,  {  "--d"
+   ,  MCX_OPT_DEFAULT
+   ,  ALG_OPT_AUTODIR
+   ,  NULL
+   ,  "use automatic naming and use input directory for output"
+   }
 ,  {  "-ceil-nb"
    ,  MCX_OPT_HASARG
    ,  ALG_OPT_CEILNB
    ,  "<int>"
    ,  "shrink all neighbourhoods to at most <int>, saving heigh weight edges"
+   }
+,  {  "-knn-mutual"
+   ,  MCX_OPT_HASARG
+   ,  ALG_OPT_KNN
+   ,  "<num>"
+   ,  "keep only edges that are in mutual <num>-nearest neighbours"
    }
 ,  {  "-pi"
    ,  MCX_OPT_HASARG
@@ -559,7 +546,7 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "preprocess by applying inflation with parameter <num>"
    }
 ,  {  "-ph"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  ALG_OPT_PREINFLATIONX
    ,  "<num>"
    ,  "as -pi, applied before shadowing"
@@ -617,7 +604,7 @@ const char* mclHelp[]
 ,  "====|   mcl <input.abc> --abc -I 2.0  |==== (abc format, see above)"
 ,  ""
 ,  "Usually you should only need the -I option - for large graphs the -scheme"
-,  "option as well. mcl --apropos shows a summary listing of all options."
+,  "option as well. mcl --help shows a summary listing more options."
 ,  ""
 ,  NULL
 }  ;
@@ -750,6 +737,7 @@ fprintf(stderr, "postprocess read tab with %d entries: %p\n", (int) N_TAB(mlp->t
 
          clmGranularity(cl, &tbl)
       ;  clmGranularityPrint (mlp->xfout->fp, note->str, &tbl)
+      ;  fputc('\n', mlp->xfout->fp)
 
       ;  clmPerformance (mx, cl, &pftable)
       ;  mcxTingPrint
@@ -759,6 +747,7 @@ fprintf(stderr, "postprocess read tab with %d entries: %p\n", (int) N_TAB(mlp->t
          ,  mlp->xfout->fn->str
          )
       ;  clmPerformancePrint (mlp->xfout->fp, note->str, &pftable)
+      ;  fputc('\n', mlp->xfout->fp)
 
       ;  mcxLog(MCX_LOG_APP, me, "included performance measures in cluster output")
       ;  mcxTingFree(&note)
@@ -971,6 +960,7 @@ mcxbool set_bit
       ;  case  ALG_OPT_CACHE_MX        : bit = ALG_CACHE_START       ;  break
       ;  case  ALG_OPT_OUTPUT_LIMIT    : bit = ALG_DO_OUTPUT_LIMIT   ;  break
       ;  case  ALG_OPT_DISCARDLOOPS    : bit = ALG_DO_DISCARDLOOPS   ;  break
+      ;  case  ALG_OPT_SUMLOOPS        : bit = ALG_DO_SUMLOOPS       ;  break
    ;  }
 
       mlp->modes |= bit
@@ -985,6 +975,7 @@ void make_output_name
 ,  mcxTing* suf
 ,  const char* mkappend
 ,  const char* mkprefix
+,  mcxbool usegraphdir
 ,  const char* dirout
 )
    {  mcxTing* name = mcxTingEmpty(NULL, 40)
@@ -1001,6 +992,8 @@ void make_output_name
       mcxTingPrintAfter(suf, "pi%.1f", (double) mlp->pre_inflation)
    ;  if (mlp->pre_maxnum)
       mcxTingPrintAfter(suf, "pn%d", (int) mlp->pre_maxnum)
+   ;  if (mlp->pre_knn)
+      mcxTingPrintAfter(suf, "nn%d", (int) mlp->pre_knn)
    ;  if (mlp->center)
       mcxTingPrintAfter(suf, "c%.1f", (double) mlp->center)
    ;  if (mlp->modes & ALG_DO_SHADOW)
@@ -1024,8 +1017,12 @@ void make_output_name
       else
       {  const char* slash = strrchr(mlp->fnin->str, '/')
       ;  if (slash)
-         {  mcxTingPrint(name, mlp->fnin->str)
-         ;  mcxTingSplice(name, "out.", slash - mlp->fnin->str + 1, 0, 4)
+         {  if (usegraphdir)
+            {  mcxTingPrint(name, mlp->fnin->str)
+            ;  mcxTingSplice(name, "out.", slash - mlp->fnin->str + 1, 0, 4)
+         ;  }
+            else
+            mcxTingPrint(name, "out.%s", slash+1)
       ;  }
          else
          mcxTingPrint(name, "out.%s", mlp->fnin->str)
@@ -1077,6 +1074,8 @@ mcxstatus mclAlgorithmInit
    ;  int i
    ;  long l
    ;  const char* dirout = NULL
+   ;  mcxbool usegraphdir = 0
+   ;  mcxbits helpbits = 0
 
    ;  if (fname)
       {  if (mlp->mx_input)
@@ -1098,13 +1097,14 @@ mcxstatus mclAlgorithmInit
          continue
 
       ;  switch(anch->id)
-         {  case ALG_OPT_EXPECT_ABC
+         {  case ALG_OPT_ABC
          :  mlp->stream_modes |= MCLXIO_STREAM_ABC
+         ;  mlp->stream_write_labels = TRUE
          ;  break
          ;
 
-            case ALG_OPT_ABC
-         :  mlp->stream_modes |= MCLXIO_STREAM_ABC
+            case ALG_OPT_TAB_USE
+         :  mcxTingWrite(mlp->fn_read_tab, opt->val)
          ;  mlp->stream_write_labels = TRUE
          ;  break
          ;
@@ -1114,15 +1114,13 @@ mcxstatus mclAlgorithmInit
          ;  break
          ;
 
-            case ALG_OPT_ABC_LOGTRANSFORM
-         :  BIT_OFF(mlp->stream_modes, MCLXIO_STREAM_NEGLOGTRANSFORM)
-         ;  BIT_ON(mlp->stream_modes, MCLXIO_STREAM_LOGTRANSFORM)
+            case ALG_OPT_ABC_NEGLOGTRANSFORM10
+         :  BIT_ON(mlp->stream_modes, MCLXIO_STREAM_NEGLOGTRANSFORM | MCLXIO_STREAM_LOG10)
          ;  break
          ;
 
             case ALG_OPT_ABC_NEGLOGTRANSFORM
          :  BIT_ON(mlp->stream_modes, MCLXIO_STREAM_NEGLOGTRANSFORM)
-         ;  BIT_OFF(mlp->stream_modes, MCLXIO_STREAM_LOGTRANSFORM)
          ;  break
          ;
 
@@ -1133,40 +1131,6 @@ mcxstatus mclAlgorithmInit
 
             case ALG_OPT_TRANSFORM
          :  mlp->transform_spec  =  mcxTingNew(opt->val)
-         ;  break
-         ;
-
-            case ALG_OPT_WRITE_TAB
-         :  mlp->fn_write_tab  =  mcxTingNew(opt->val)
-         ;  break
-         ;
-
-            case ALG_OPT_TAB_RESTRICT
-         :  mcxTingWrite(mlp->fn_read_tab, opt->val)
-         ;  mlp->stream_modes |= MCLXIO_STREAM_GTAB_RESTRICT
-         ;  break
-         ;
-
-            case ALG_OPT_TAB_EXTEND
-         :  mcxTingWrite(mlp->fn_read_tab, opt->val)
-         ;  mlp->stream_modes |= MCLXIO_STREAM_GTAB_EXTEND
-         ;  break
-         ;
-
-            case ALG_OPT_TAB_STRICT
-         :  mcxTingWrite(mlp->fn_read_tab, opt->val)
-         ;  mlp->stream_modes |= MCLXIO_STREAM_GTAB_STRICT
-         ;  break
-         ;
-
-            case ALG_OPT_TAB_USE
-         :  mcxTingWrite(mlp->fn_read_tab, opt->val)
-         ;  mlp->stream_write_labels = TRUE
-         ;  break
-         ;
-
-            case ALG_OPT_YIELD_ABC
-         :  mlp->stream_write_labels = TRUE
          ;  break
          ;
 
@@ -1204,34 +1168,16 @@ mcxstatus mclAlgorithmInit
          ;
 
             case ALG_OPT_AMOIXA
-         :  mcxOptApropos
-            (  stdout
-            ,  "mcl-algorithm"
-            ,  NULL
-            ,  15
-            ,  MCX_OPT_DISPLAY_HIDDEN |   MCX_OPT_DISPLAY_SKIP
-            ,  mclAlgOptions
-            )
-         ;  mcxOptApropos
-            (  stdout
-            ,  "mcl-process"
-            ,  NULL
-            ,  15
-            ,  MCX_OPT_DISPLAY_HIDDEN |   MCX_OPT_DISPLAY_SKIP
-            ,  mclProcOptions
-            )
-         ;  fputs(legend, stdout)
-;fputs("set MCL_DUMP_SHADOW to dump shadow matrix\n", stdout)
-         ;  return ALG_INIT_DONE
-         ;
+         :  helpbits |= MCX_OPT_DISPLAY_HIDDEN  
+         ;  case ALG_OPT_SHOWLONGHELP
+         :  helpbits |= MCX_OPT_DISPLAY_SKIP  
 
-            case ALG_OPT_APROPOS
-         :  mcxOptApropos
+         ;  mcxOptApropos
             (  stdout
             ,  "mcl-algorithm"
             ,  NULL
             ,  15
-            ,  MCX_OPT_DISPLAY_SKIP
+            ,  helpbits
             ,  mclAlgOptions
             )
          ;  mcxOptApropos
@@ -1239,10 +1185,11 @@ mcxstatus mclAlgorithmInit
             ,  "mcl-process"
             ,  NULL
             ,  15
-            ,  MCX_OPT_DISPLAY_SKIP
+            ,  helpbits
             ,  mclProcOptions
             )
          ;  fputs(legend, stdout)
+;if(0)fputs("set MCL_DUMP_SHADOW to dump shadow matrix\n", stdout)
          ;  return ALG_INIT_DONE
          ;
 
@@ -1303,6 +1250,7 @@ mcxstatus mclAlgorithmInit
                      :  case ALG_OPT_ANALYZE
                         :  case ALG_OPT_CACHE_MX
                            :  case ALG_OPT_DISCARDLOOPS
+                              :  case ALG_OPT_SUMLOOPS
                         :
             vok = set_bit(mlp, opt->anch->tag, anch->id, opt->val)
          ;  break
@@ -1315,11 +1263,13 @@ mcxstatus mclAlgorithmInit
 
             case ALG_OPT_ADAPTSMOOTH
          :  mcxSetenv("MCL_AUTO_SMOOTH=1")
+         ;  mcxTell(us, "--adapt-smooth is a no-op now")
          ;  break
          ;
 
             case ALG_OPT_ADAPTLOCAL
          :  mcxSetenv("MCL_AUTO_LOCAL=1")
+         ;  mcxTell(us, "--adapt-local is a no-op now")
          ;  break
          ;
 
@@ -1343,12 +1293,17 @@ mcxstatus mclAlgorithmInit
          ;
 
             case ALG_OPT_AUTOBOUNCENAME
-         :  mkbounce = opts[1].anch ? 2 : 1  /* check whether it's last option */
+         :  mkbounce = 1
          ;  break
          ;
 
             case ALG_OPT_AUTOBOUNCEFIX
-         :  mkbounce = 3
+         :  mkbounce = 2
+         ;  break
+         ;
+
+            case ALG_OPT_AUTODIR
+         :  usegraphdir = TRUE
          ;  break
          ;
 
@@ -1390,6 +1345,11 @@ mcxstatus mclAlgorithmInit
 
             case ALG_OPT_PREINFLATIONX
          :  mlp->pre_inflationx =  atof(opt->val)
+         ;  break
+         ;
+
+            case ALG_OPT_NULLNODE
+         :  mcxTell("null node", "not yet interfaced")
          ;  break
          ;
 
@@ -1442,6 +1402,13 @@ mcxstatus mclAlgorithmInit
          ;  break
          ;
 
+            case ALG_OPT_KNN
+         :  i = atoi(opt->val)
+         ;  if ((vok = chb(anch->tag, 'i', &i, intGq, &i_1, NULL, NULL)))
+            mlp->pre_knn = i
+         ;  break
+         ;
+
             case ALG_OPT_CEILNB
          :  i = atoi(opt->val)
          ;  if ((vok = chb(anch->tag, 'i', &i, intGq, &i_1, NULL, NULL)))
@@ -1456,7 +1423,7 @@ mcxstatus mclAlgorithmInit
    ;  }
 
       if (!mlp->xfout->fn->len && mlp->modes & ALG_DO_IO)
-      make_output_name(mlp, suf, mkappend, mkprefix, dirout)
+      make_output_name(mlp, suf, mkappend, mkprefix, usegraphdir, dirout)
             /* ^ in mcl mode */
    ;  else if (mlp->xfout->fn->len && !(mlp->modes & ALG_DO_IO))
       mlp->modes |= ALG_DO_IO
@@ -1469,13 +1436,9 @@ mcxstatus mclAlgorithmInit
          mcxTingPrint(mpp->dump_stem, "%s", mlp->xfout->fn->str)
    ;  }
 
-              /* mkbounce == 2: -az was not the last option.
-               * Print to stderr too as way of a small alert.
-              */
+
       if (mkbounce)
       {  if (mkbounce == 2)
-         fprintf(stderr, "%s\n", mlp->xfout->fn->str)
-      ;  if (mkbounce == 3)
          fprintf
          (  stdout
          ,  "%s%s", suf->str
@@ -1535,16 +1498,16 @@ static mclAlgParam* mclAlgParamNew
    ;  mlp->pre_inflation   =    -1.0
    ;  mlp->pre_inflationx  =    -1.0
    ;  mlp->pre_maxnum      =     0
+   ;  mlp->pre_knn         =     0
 
    ;  mlp->modes           =     ALG_DO_SHOW_PID | ALG_DO_SHOW_JURY | ALG_DO_DISCARDLOOPS
    ;  mlp->foundOverlap    =     FALSE
 
    ;  mlp->stream_modes    =     0
    ;  mlp->stream_write_labels =     FALSE
-   ;  mlp->fn_read_tab     =     mcxTingEmpty(NULL, 0)
-   ;  mlp->fn_write_tab    =     NULL
    ;  mlp->fn_write_input  =     NULL
    ;  mlp->fn_write_start  =     NULL
+   ;  mlp->fn_read_tab     =     mcxTingEmpty(NULL, 0)
    ;  mlp->tab             =     NULL
 
    ;  mlp->mx_input        =     mx_input
@@ -1624,10 +1587,9 @@ void mclAlgParamFree
    ;  mclProcParamFree(&(mlp->mpp))
    ;  mcxTingFree(&(mlp->cline))
    ;  mcxTingFree(&(mlp->fnin))
+   ;  mcxTingFree(&(mlp->fn_read_tab))
    ;  mcxIOfree(&(mlp->xfout))
 
-   ;  mcxTingFree(&(mlp->fn_write_tab))
-   ;  mcxTingFree(&(mlp->fn_read_tab))
    ;  mcxTingFree(&(mlp->fn_write_input))
    ;  mcxTingFree(&(mlp->fn_write_start))
 
@@ -1777,6 +1739,36 @@ static mclx* test_tab
 ;  }
 
 
+static void mcl_add_nullsink
+(  mclx* mx
+)
+   {  mclv* maxes = mclxColNums(mx, mclvMaxValue, MCL_VECTOR_COMPLETE)
+   ;  dim nullidx = N_COLS(mx) - 1
+   ;  dim j
+
+   ;  for (j=0;j<N_COLS(mx)-1;j++)
+      {  double weighted_nb_max = 0.0
+      ;  double this_max = maxes->ivps[j].val
+      ;  mclv* nblist = mclvClone(mx->cols+j)
+      ;  dim k
+      ;  ofs o = -1
+
+      ;  mclvInflate(nblist, 1.0)
+
+      ;  for (k=0;k<nblist->n_ivps;k++)
+         {  o =  mclxGetVectorOffset(mx, nblist->ivps[k].idx, RETURN_ON_FAIL, o)
+         ;  if (o >= 0)
+            weighted_nb_max += nblist->ivps[k].val * maxes->ivps[o].val
+      ;  }
+         if (weighted_nb_max > this_max)
+         mclvInsertIdx(mx->cols+j, nullidx, weighted_nb_max - this_max)
+,fprintf(stderr, "node %d add link %.16f to %d\n", (int) j, (double) (weighted_nb_max-this_max), (int) nullidx)
+      ;  mclvFree(&nblist)
+   ;  }
+      mclvFree(&maxes)
+;  }
+
+
 static mclx* mclAlgorithmStreamIn
 (  mcxIO* xfin
 ,  mclAlgParam* mlp
@@ -1808,17 +1800,7 @@ fprintf(stderr, "reconstrict tab with %d entries: %p\n", (int) N_TAB(mlp->tab), 
          ,  EXIT_ON_FAIL
          )
 
-   ;  if (mlp->fn_write_tab)
-      {  mcxIO* xftab = mcxIOnew(mlp->fn_write_tab->str, "w")
-      ;  mcxIOopen(xftab, EXIT_ON_FAIL)
-      ;  if (streamer.tab_sym_out)
-         mclTabWrite(streamer.tab_sym_out, xftab, NULL, RETURN_ON_FAIL)
-      ;  else
-         mclTabWrite(streamer.tab_sym_in, xftab, NULL, RETURN_ON_FAIL)
-      ;  mcxIOfree(&xftab)
-   ;  }
-
-      if (streamer.tab_sym_out)
+   ;  if (streamer.tab_sym_out)
       {  mcxLog(MCX_LOG_MODULE, "mcl", "new tab created")
 ;if(0)fprintf(stderr, "streamin tab_sym_out %p mlp->tab with  %d entries:\n", (void*) streamer.tab_sym_out, (int) N_TAB(streamer.tab_sym_out))
       ;  if (!(reread && mlp->tab))
@@ -1867,6 +1849,18 @@ static int mclAlgorithmTransform
          )
       ;  n_ops++
       ;  mclvFree(&sel)
+   ;  }
+      else if (mlp->pre_knn)
+      {  dim ne = mclxNrofEntries(mx), ne2
+      ;  mclx* knn = mclxKNNmutual(mx, mlp->pre_knn)
+      ;  mclxTransplant(mx, &knn)
+      ;  ne2 = mclxNrofEntries(mx)
+      ;  mcxLog
+         (  MCX_LOG_FUNC
+         ,  "mcl"
+         ,  "mutual knn transformation removed %d edges"
+         ,  (int) (ne - ne2)
+         )
    ;  }
 
       if (mlp->transform)
@@ -1936,7 +1930,19 @@ static int mclAlgorithmTransform
       ;  mclvFree(&shadow_factors)
    ;  }
 
-      else if (mlp->modes & ALG_DO_DISCARDLOOPS)
+   else if (0 && getenv("MCL_NULL_NODE"))
+   {  mclv* new_domain = mclvClone(mx->dom_cols)
+   ;  dim nullidx = MCLV_MAXID(new_domain)+1
+   ;  mclvInsertIdx(new_domain, nullidx, 1.0)
+   ;  mclxAccommodate(mx, new_domain, new_domain)
+   ;  mcl_add_nullsink(mx)
+   ;  mclxAdjustLoops(mx, mclxLoopCBmax, NULL)
+;  }
+
+      else if (mlp->modes & ALG_DO_SUMLOOPS)
+      mclxAdjustLoops(mx, mclxLoopCBsum, NULL)
+
+   ;  else if (mlp->modes & ALG_DO_DISCARDLOOPS)
       mclxAdjustLoops(mx, mclxLoopCBmax, NULL)
 
    ;  if (mlp->center)

@@ -1,0 +1,139 @@
+.\" Copyright (c) 2009 Stijn van Dongen
+.TH "mcx q" 1 "4 Nov 2009" "mcx q 1\&.008, 09-308" "USER COMMANDS "
+.po 2m
+.de ZI
+.\" Zoem Indent/Itemize macro I.
+.br
+'in +\\$1
+.nr xa 0
+.nr xa -\\$1
+.nr xb \\$1
+.nr xb -\\w'\\$2'
+\h'|\\n(xau'\\$2\h'\\n(xbu'\\
+..
+.de ZJ
+.br
+.\" Zoem Indent/Itemize macro II.
+'in +\\$1
+'in +\\$2
+.nr xa 0
+.nr xa -\\$2
+.nr xa -\\w'\\$3'
+.nr xb \\$2
+\h'|\\n(xau'\\$3\h'\\n(xbu'\\
+..
+.if n .ll -2m
+.am SH
+.ie n .in 4m
+.el .in 8m
+..
+.SH NAME
+mcxquery \- compute simple graph statistics
+.SH SYNOPSIS
+
+mcxq is not in actual fact a program\&. This manual
+page documents the behaviour and options of the mcx program when
+invoked in mode \fIq\fP\&. The options \fB-h\fP, \fB--apropos\fP,
+\fB--version\fP, \fB-set\fP, \fB--nop\fP, \fB-progress\fP\ \&\fI<num>\fP
+are accessible
+in all \fBmcx\fP modes\&. They are described
+in the \fBmcx\fP manual page\&.
+
+\fBmcxquery\fP
+\fB[-imx\fP <fname> (\fIspecify matrix input\fP)\fB]\fP
+\fB[-o\fP <fname> (\fIoutput file name\fP)\fB]\fP
+\fB[-vary-threshold\fP <start,end,step,scale> (\fIanalyze graphs at similarity cutoffs\fP)\fB]\fP
+\fB[--vary-correlation\fP (\fIanalyze graphs at correlation cutoffs\fP)\fB]\fP
+\fB[-div\fP <num> (\fIcluster size separating value\fP)\fB]\fP
+\fB[-report-scale\fP <num> (\fIedge weight/threshold scaling\fP)\fB]\fP
+\fB[--dim\fP (\fIreport native format and dimensions\fP)\fB]\fP
+\fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--apropos\fP (\fIprint synopsis, exit\fP)\fB]\fP
+\fB[--version\fP (\fIprint version, exit\fP)\fB]\fP
+.SH DESCRIPTION
+
+The main use of \fBmcxquery\fP is to analyze a graph at different similarity
+cutoffs\&. Typically this is done on a graph constructed using a
+very permissive threshold\&. For example, one can create a graph from
+array expression data using \fBmcxarray\fP with a very low pearson correlation
+cutoff such as\ \&0\&.2 or\ \&0\&.3\&. Then \fBmcxquery\fP can be used to analyze
+the graph at increasingly stringent thresholds of\ \&0\&.25, 0\&.30,
+0\&.35\ \&\&.\&.\ \&0\&.95\&.
+Attributes supplied across different thresholds are the number of connected
+components, statistics (median, average, iqr) on node degrees and edge
+weights, and a graph plotting the R^2 value of the relationship of log(k)
+versus the logarithm of the number of nodes of degree at least k (for the
+graph at a given threshold)\&.
+Scale-free networks are defined by having a high R^2 value\&. It should
+be noted however that in many applications graphs will not be scale-free\&.
+Additionally, for the purpose of clustering scale-free networks are to be
+avoided or transformed, as the highly-connected nodes in scale-free networks
+obfuscate cluster structure\&.
+.SH OPTIONS
+
+.ZI 2m "\fB-imx\fP <fname> (\fIinput matrix\fP)"
+\&
+.br
+The file name for input that is in mcl native matrix format\&.
+.in -2m
+
+.ZI 2m "\fB-o\fP <fname> (\fIoutput file name\fP)"
+\&
+.br
+Set the name of the file where output should be written to\&.
+.in -2m
+
+.ZI 2m "\fB--dim\fP (\fIreport native format and dimensions\fP)"
+\&
+.br
+This will report the matrix format (either interchange or binary)
+and the matrix dimensions\&. For a graph the two reported dimensions
+should be equal\&.
+.in -2m
+
+.ZI 2m "\fB-vary-threshold\fP <start,end,step,scale> (\fIanalyze graphs at similarity cutoffs\fP)"
+\&
+.br
+All of \fIstart\fP, \fIend\fP, \fIstep\fP and \fIscale\fP must
+be integer numbers\&. From these a list of threshold is constructed, starting
+from \fIstart / scale\fP, \fI(start + step) / scale\fP, \fI(start + 2 step) /
+scale\fP, and so on until a value larger than or equal to \fIend / scale\fP is reached\&.
+.in -2m
+
+.ZI 2m "\fB--vary-correlation\fP (\fIanalyze graphs at correlation cutoffs\fP)"
+\&
+.br
+This instructs \fBmcxquery\fP to use a threshold list suitable for use with graphs
+in which the edge weight similarities are correlation\&.
+The list start at 0\&.2 and ends at 0\&.95, with increments of 0\&.05\&.
+If a different start or increment is required it can
+be achieved by using the \fB-vary-threshold\fP option\&.
+For example, a start of\ \&0\&.10 and an increment of\ \&0\&.02 are obtained
+by issueing \fB-vary-threshold\fP\ \&\fB10,100,2,100\fP\&.
+.in -2m
+
+.ZI 2m "\fB-report-scale\fP <num> (\fIedge weight / threshold scaling\fP)"
+\&
+.br
+The edge weights mean, average, and inter-quartile range,
+as well as the different threshold steps are all rescaled
+in the reported output to avoid printing of fractional part\&.
+If \fB-vary-threshold\fP was supplied then
+scaling factor specified in the argument is used\&.
+With \fB--vary-correlation\fP a scaling factor of\ \&100
+is used\&. Either can be overridden by using the present option\&.
+.in -2m
+
+.ZI 2m "\fB-div\fP <num> (\fIcluster size separating value\fP)"
+\&
+.br
+When analyzing graphs at different thresholds with one of the
+options above, \fBmcxquery\fP reports the percentage of nodes contained
+in clusters not exceeding a specified size, by default\ \&3\&.
+This number can be changed using the \fB-div\fP option\&.
+.in -2m
+.SH SEE ALSO
+
+\fBmcxio(5)\fP,
+and \fBmclfamily(7)\fP for an overview of all the documentation
+and the utilities in the mcl family\&.

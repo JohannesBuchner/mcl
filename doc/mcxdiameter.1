@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcx diameter" 1 "18 Sep 2009" "mcx diameter 1\&.008, 09-261" "USER COMMANDS "
+.TH "mcx diameter" 1 "4 Nov 2009" "mcx diameter 1\&.008, 09-308" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -45,6 +45,8 @@ in the \fBmcx\fP manual page\&.
 \fB[-abc\fP <fname> (\fIspecify label input\fP)\fB]\fP
 \fB[-imx\fP <fname> (\fIspecify matrix input\fP)\fB]\fP
 \fB[-tab\fP <fname> (\fIuse tab file\fP)\fB]\fP
+\fB[-t\fP (\fInumber of threads to use\fP)\fB]\fP
+\fB[--summary\fP (\fIoutput diameter and average shortest path length\fP)\fB]\fP
 \fB[--list\fP (\fIlist eccentricity for all nodes\fP)\fB]\fP
 \fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
 \fB[--apropos\fP (\fIprint synopsis, exit\fP)\fB]\fP
@@ -87,15 +89,31 @@ If this option is used in conjunction with \fB-imx\fP the
 tab domain and the matrix domain are required to be identical\&.
 .in -2m
 
-.ZI 2m "\fB--list\fP (\fIlist eccentricity for all nodes\fP)"
+.ZI 2m "\fB-t\fP (\fInumber of threads to use\fP)"
 \&
 .br
-Print eccentricity for all nodes\&. The eccentricity of
+Computing the diameter of a graph is time-intensive\&.
+If you have multiple CPUs available consider using
+as many threads\&.
+.in -2m
+
+.ZI 2m "\fB--list\fP (\fIlist eccentricity for all nodes\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--summary\fP (\fIoutput diameter and average eccentricity\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+The default mode is \fB--list\fP, which results in output
+of the eccentricity of all nodes\&. The eccentricity of
 a node is the distance to any node that is the furthest
 away from it\&. The diameter of a graph is the maximum
 of the eccentricity taken over all nodes in a graph\&.
 In this mode \fBmcx diameter\fP will not output the diameter
-itself\&.
+itself\&. Use \fB--summary\fP to output just the diameter
+and the average eccentricity\&.
 .in -2m
 .SH SEE ALSO
 

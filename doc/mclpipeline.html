@@ -9,7 +9,6 @@ body
 { text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -29,14 +28,13 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
-div.copy
-{ font-size: 12pt;
-font-family: monospace;
-text-align: left;
-white-space: pre;
-margin-left: 2em;
+div.verbatim
+{ font-family: monospace;
 margin-top: 1em;
 margin-bottom: 1em;
+font-size: 10pt;
+margin-left: 2em;
+white-space: pre;
 }
 div.indent
 { margin-left: 8%;
@@ -68,14 +66,15 @@ margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
+body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
 </style>
 <title>The mclpipeline manual</title>
 </head>
 <body>
 <p style="text-align:right">
-18 Sep 2009&nbsp;&nbsp;&nbsp;
+4 Nov 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mclpipeline.ps"><b>mclpipeline</b></a>
-1.008, 09-261
+1.008, 09-308
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -126,22 +125,22 @@ name. In the latter case the <b>--xi-dat</b> option is required. In case
 mclpipeline is indeed used to control all stages from the data input file
 onwards, usage will often be like this:
 </p>
-<pre>   mclpipeline [prepare options] --prepare-mcl &lt;file-name&gt;
+<div class="verbatim">   mclpipeline [prepare options] --prepare-mcl &lt;file-name&gt;
    mclpipeline [cluster options 1] --start-mcl &lt;file-name&gt;
    mclpipeline [cluster options 2] --start-mcl &lt;file-name&gt;
    .. etc
-</pre>
+</div>
 <p style="margin-bottom:0" class="asd_par">
 <b>mclpipeline</b> can also be used to control shorter pipelines, i.e. in
 case the input matrix was already created or in case pre-assembled parts
 of the input matrix were already created. In this case, usage will
 often be like this:
 </p>
-<pre>   mclpipeline [cluster options 1] --start-mcl=&lt;fname&gt;
+<div class="verbatim">   mclpipeline [cluster options 1] --start-mcl=&lt;fname&gt;
    mclpipeline [cluster options 2] --start-mcl=&lt;fname&gt;
 or
    mclpipeline [assembly options] --start-assemble=&lt;fname&gt; --prepare-mcl
-</pre>
+</div>
 <p style="margin-bottom:0"><b>NOTE</b><br>
 It is possible to make mclpipeline output a large arrary
 of performance measures related to nodes and clusters
@@ -233,12 +232,12 @@ care of unique file names for differently parametrized mcl runs. In this
 case there is no need to specify either the parser or the data file, and
 subsequent invocations might look like this:
 </p>
-<pre>
+<div class="verbatim">
    mclpipeline --start-mcl=&lt;fname&gt; --mcl-I=1.6 --mcl-scheme=4
    mclpipeline --start-mcl=&lt;fname&gt; --mcl-I=2.0 --mcl-scheme=4
    mclpipeline --start-mcl=&lt;fname&gt; --mcl-I=2.4 --mcl-scheme=4
    .. etc
-</pre>
+</div>
 <p style="margin-bottom:0" class="asd_par">
 It is easiest if for each parser a wrapper script is written
 encapsulating the parser and <b>mclpipeline</b>. A mechanism is provided
@@ -257,13 +256,13 @@ is a well established way of creating a matrix from
 the input data. In this case, usage
 will look like
 </p>
-<pre>
+<div class="verbatim">
    mclpipeline [parse/assembly options] --prepare-mcl &lt;file-name&gt;
    mclpipeline [cluster options 1] --start-mcl &lt;file-name&gt;
    mclpipeline [cluster options 2] --start-mcl &lt;file-name&gt;
    mclpipeline [cluster options 3] --start-mcl &lt;file-name&gt;
    ...
-</pre>
+</div>
 <p style="margin-bottom:0" class="asd_par">
 Note that <b>mclpipeline</b> will store the output of those runs
 in unique file names derived from the parametrizations.
@@ -316,7 +315,7 @@ The result is then the full base name to which the <tt>raw</tt>, <tt>hdr</tt>,
 and other suffixes will be appended.
 </p>
 <p style="margin-bottom:0"><b>Parser interface examples</b><br></p>
-<pre>&lt;parser&gt; --xi-dat=abc --xo-dat=xyz foo
+<div class="verbatim">&lt;parser&gt; --xi-dat=abc --xo-dat=xyz foo
  *  parser reads foo.abc, writes foo.xyz.raw, foo.xyz.hdr et cetera.
 &lt;parser&gt; --xi-dat=abc --xo-dat=xyz foo.abc
  *  idem
@@ -326,7 +325,7 @@ and other suffixes will be appended.
  *  parser reads foo.abc, writes foo.raw, foo.hdr et cetera.
 &lt;parser&gt; foo.abc
  *  parser reads foo.abc, writes foo.abc.raw, foo.abc.hdr et cetera.
-</pre>
+</div>
 <p style="margin-bottom:0"><b>Output file names construction</b><br>
 The files of primary interest are the mcl output file and
 the formatted output produced by clmformat.

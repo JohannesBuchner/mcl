@@ -75,7 +75,7 @@
 
 \items{
    {\defopt{-h}{synopsis}}
-   {\defopt{--apropos}{synopsis}}
+   {\defopt{--help}{synopsis}}
 }
 \car{
    List available options.

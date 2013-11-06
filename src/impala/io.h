@@ -34,7 +34,7 @@
  *    mcl input format needs a clean approach with grammar and parsing.
  *    Then it would be (much?) faster if not fgetc based but does buffering.
  *
- *    There is now a funky callback mclxIOinfoReset, invoked by mclxIOclose.
+ *    There is now a callback mclxIOinfoReset, invoked by mclxIOclose.
  *    Look out for implications.
 */
 
@@ -338,12 +338,15 @@ void mclvaDump
 #define MCLX_DUMP_PAIRS           1 <<  1
 #define MCLX_DUMP_LINES           1 <<  2
 #define MCLX_DUMP_NOLEAD          1 <<  3
+#define MCLX_DUMP_LEAD_VALUE      1 <<  15
 #define MCLX_DUMP_TABLE           1 <<  12
 #define MCLX_DUMP_KEYS            1 <<  13
 #define MCLX_DUMP_PART_UPPER      1 <<  4
 #define MCLX_DUMP_PART_LOWER      1 <<  5
 #define MCLX_DUMP_PART_UPPERI     1 <<  6
 #define MCLX_DUMP_PART_LOWERI     1 <<  7
+
+#define MCLX_DUMP_TABLE_HEADER    1 <<  14
 
 
 #define MCLX_DUMP_LOOP_ASIS       1 <<  8
@@ -357,6 +360,7 @@ typedef struct
 ;  const char*    sep_lead
 ;  const char*    sep_row
 ;  const char*    sep_val
+;  const char*    prefixc
 ;  double         threshold
 ;  dim            table_nlines      /* correspond to columns (but lines/rows in output)  */
 ;  dim            table_nfields     /* correspond to matrix rows (but columns in output) */

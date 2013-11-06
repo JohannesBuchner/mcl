@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcxdump" 1 "18 Sep 2009" "mcxdump 1\&.008, 09-261" "USER COMMANDS "
+.TH "mcxdump" 1 "4 Nov 2009" "mcxdump 1\&.008, 09-308" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -33,6 +33,7 @@ mcxdump \- dump matrices, optionally map indices to labels
 
 \fBmcxdump\fP
 \fB[-imx\fP <fname> (\fImatrix file\fP)\fB]\fP
+\fB[-icl\fP <fname> (\fIcluster file to be dumped line-wise\fP)\fB]\fP
 \fB[-imx-cat\fP <fname> (\fIconcatenation matrix file\fP)\fB]\fP
 \fB[-imx-tree\fP <fname> (\fIconcatenation cone file\fP)\fB]\fP
 \fB[--skeleton\fP (\fIread empty matrix, honour domains\fP)\fB]\fP
@@ -49,6 +50,7 @@ mcxdump \- dump matrices, optionally map indices to labels
 \fB[--dump-pairs\fP (\fIemit pairs per line\fP)\fB]\fP
 \fB[--dump-lines\fP (\fIemit rows per line\fP)\fB]\fP
 \fB[--dump-rlines\fP (\fIomit leading identifier\fP)\fB]\fP
+\fB[--dump-vlines\fP (\fIadd leading identifier values\fP)\fB]\fP
 \fB[--dump-lead-off\fP (\fIomit leading identifier\fP)\fB]\fP
 \fB[--dump-lower\fP (\fIdump lower part excluding diagonal\fP)\fB]\fP
 \fB[--dump-loweri\fP (\fIdump lower part including diagonal\fP)\fB]\fP
@@ -62,17 +64,16 @@ mcxdump \- dump matrices, optionally map indices to labels
 \fB[--dump-lead-off\fP (\fIdo not dump leading identifiers\fP)\fB]\fP
 \fB[-table-nfields\fP <num> (\fIoutput first <num> fields\fP)\fB]\fP
 \fB[-table-nlines\fP <num> (\fIoutput first <num> lines\fP)\fB]\fP
-\fB[--table-keys\fP (\fIdump field/cell identifiers\fP)\fB]\fP
 \fB[--newick\fP (\fIoutput newick format\fP)\fB]\fP
 \fB[-newick\fP [NBI]+ (\fIexclude Number|Branch-length|Indent\fP)\fB]\fP
 \fB[--write-matrix\fP (\fI(deconcatenate) write matrices\fP)\fB]\fP
 \fB[-split-stem\fP <str> (\fI(deconcatenate) matrices file name stem\fP)\fB]\fP
 \fB[-cat-max\fP <num> (\fI(deconcatenate) write first <num> matrices\fP)\fB]\fP
-\fB[-dump\fP <fname> (\fIalias for -o\fP)\fB]\fP
 \fB[-sep-value\fP <str> (\fInode/value separator\fP)\fB]\fP
 \fB[-sep-field\fP <str> (\fIfield separator\fP)\fB]\fP
 \fB[-sep-lead\fP <str> (\fIlead separator\fP)\fB]\fP
 \fB[-sep-cat\fP <str> (\fIconcatenation separator\fP)\fB]\fP
+\fB[-prefixc\fP <str> (\fIprefix column indices with <str>\fP)\fB]\fP
 \fB[-sort\fP size-{ascending,descending} (\fIvector sort mode\fP)\fB]\fP
 \fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
 \fB[--apropos\fP (\fIprint synopsis, exit\fP)\fB]\fP
@@ -98,6 +99,14 @@ matrices\&. Refer to the group of options headed by
 \&
 .br
 Input matrix\&.
+.in -2m
+
+.ZI 2m "\fB-icl\fP <fname> (\fIcluster file\fP)"
+\&
+.br
+This specifies the input matrix, and sets up a cluster-wise line-based label dump\&.
+This option is fully equivalent to the combination of
+\fB--dump-rlines\fP and \fB--no-values\fP\&.
 .in -2m
 
 .ZI 2m "\fB--transpose\fP (\fIwork with the transpose\fP)"
@@ -183,6 +192,9 @@ Applies only to matrices for which column and row domains are equal\&.
 .ZI 2m "\fB--dump-rlines\fP (\fIomit leading column node\fP)"
 \&
 'in -2m
+.ZI 2m "\fB--dump-vlines\fP (\fIadd leading column values\fP)"
+\&
+'in -2m
 .ZI 2m "\fB--dump-lead-off\fP (\fIdo not dump leading identifiers\fP)"
 \&
 'in -2m
@@ -216,6 +228,12 @@ except that the column identifier is not output\&.
 Use \fB--dump-lead-off\fP to preclude the output of the leading
 identifiers (for line-based outputs)\&.
 
+\fB--dump-vlines\fP is as \fB--dump-lines\fP\&. The
+leading identifiers are followed by a value associated with
+the entire column\&. This can be used to dump the output
+given by \fBclm vol\fP\&. The value provided is a measure
+for the stability of the cluster that follows\&.
+
 The options pertaining to \fIlower\fP and \fIupper\fP dumps currently
 only work with \fB--dump-pairs\fP\&. They act to only output
 the specified part of the matrix\&.
@@ -230,9 +248,6 @@ the specified part of the matrix\&.
 .ZI 2m "\fB-table-nlines\fP (\fIline/row limit\fP)"
 \&
 'in -2m
-.ZI 2m "\fB--table-keys\fP (\fIdo dump field/cell identifiers\fP)"
-\&
-'in -2m
 'in +2m
 \&
 .br
@@ -243,7 +258,6 @@ can be used to limit
 the number of fields and lines to be printed\&. Note that fields correspond
 to MCL matrix rows and that lines correspond to MCL matrix columns, as MCL
 calls its primary indices column indices\&.
-Use \fB--table-keys\fP to include identifiers (tab-derived if a tab file is specified)\&.
 Use \fB--dump-lead-off\fP to preclude the output of the leading
 identifiers (for line-based outputs)\&.
 .in -2m
@@ -257,7 +271,8 @@ identifiers (for line-based outputs)\&.
 'in +2m
 \&
 .br
-Boo\&.
+Output a hierarchical clustering specified by \fB-imx-tree\fP
+in Newick tree format\&.
 .in -2m
 
 .ZI 2m "\fB--write-tabc\fP (\fIdump tab file on column domain\fP)"
@@ -282,20 +297,12 @@ was specified\&.
 domain, and it outputs a new tab file restricted to that domain\&.
 \fB--write-tabr\fP acts analogously for the row domain\&.
 \fB--dump-domc\fP and \fB--dump-domr\fP respectively dump the column
-and domain as a regular dump, outputting labels in case a tab file is
+or row domain as a regular dump, outputting labels in case a tab file is
 specified\&.
 
 These options are implemented as ensembles of other options\&.
 For example, \fB--dump-domr\fP \fB-imx\fP\ \&\fIfname\fP corresponds with
 \fB--dump-lines\fP \fB--transpose\fP \fB--skeleton\fP\&.
-.in -2m
-
-.ZI 2m "\fB--write-tabr\fP (\fIdump tab file on row domain\fP)"
-\&
-.br
-This will only infer the domains from the input matrix\&. It assumes
-the input tab file envelopes the matrix row domain, and it outputs
-a new tab file restricted to that domain\&.
 .in -2m
 
 .ZI 2m "\fB-imx-cat\fP <fname> (\fIconcatenation matrix file\fP)"
@@ -369,6 +376,13 @@ will find nodes in overlap\&.
 .br
 Set the separator that is used between matrix dumps when a concatenation of
 matrices is dumped\&.
+.in -2m
+
+.ZI 2m "\fB-prefixc\fP <str> (\fIprefix column indices with <str>\fP)"
+\&
+.br
+This can be useful when external row names cannot be numbers and
+when a label dictionary is not available or not appropriate\&.
 .in -2m
 
 .ZI 2m "\fB-sort\fP size-{ascending,descending} (\fIconcatenation separator\fP)"

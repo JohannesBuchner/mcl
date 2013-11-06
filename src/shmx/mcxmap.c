@@ -66,7 +66,7 @@ mcxOptAnchor options[] =
    ,  NULL
    ,  "print version information"
    }
-,  {  "--apropos"
+,  {  "--help"
    ,  MCX_OPT_DEFAULT | MCX_OPT_INFO
    ,  MY_OPT_APROPOS
    ,  NULL

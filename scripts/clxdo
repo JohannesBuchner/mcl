@@ -1,24 +1,28 @@
 #!/usr/bin/env bash
 
-#  (C) Copyright 2005, 2006, 2007 Stijn van Dongen
- #
+#  (C) Copyright 2005, 2006, 2007, 2008, 2009  Stijn van Dongen
+#
 #  This file is part of MCL.  You can redistribute and/or modify MCL under the
 #  terms of the GNU General Public License; either version 3 of the License or
 #  (at your option) any later version.  You should have received a copy of the
 #  GPL along with MCL, in the file COPYING.
 
-# make function to require argument count (e.g. sym)
 
 mode=$1
 nargs=$#
 export MCLXIOVERBOSITY=2
 
+if [[ x$mode == x ]]; then
+   mode=-h
+fi
+
 set -e
 
 function require_num() {
    local num=$1
+   local usage=$2
    if let $(($num+1 > $nargs)); then
-      echo "mode $mode needs $num arguments (see -h)"
+      echo "mode $mode needs $num arguments: $usage"
       false
    fi
 }
@@ -31,18 +35,22 @@ function require_num() {
 
     -h)
       cat <<EOU
-Usage:
-clxdo gran          <cl-file>             #  show size distribution (granularity)
-clxdo gran_buckets  <num> <cl-file>       #  show sizes buckets
-clxdo vol           <cl-file>+            #  output list of volatile nodes
-clxdo gran_divide   <num> <cl-file>       #  #clusters, #nodes in clusters >= num
-clxdo gran_largest  <num> <cl-file>       #  <num> biggest sizes
-clxdo sym     <mx-file> <check-file>      #  check symmetry.
-clxdo csym    <mx-file> <check-file>      #  check symmetry of presence.
-clxdo grok    <cl-file> <mx-file> <nsm-name> <ccm-name>    # node-cl and cl-cl
-clxdo rcl     <cl-file>                   #  randomize clustering
-clxdo annot2tab  <tab-file> <annot-file]  #  make tab file from annot file
+clxdo granularity          <cls-file>            #  show cluster sizes
+clxdo granularity_hist     <cls-file>            #  show cluster sizes distribution
+clxdo granularity_largest  <num> <cls-file>      #  <num> biggest sizes
+clxdo granularity_gq  <num> <cls-file>           #  all sizes at least <num>
+clxdo granularity_divide   <num> <cls-file>      #  #clusters, #nodes in clusters >= num
+clxdo volatility           <cls-file>+           #  output list of volatile nodes
+clxdo check_symmetry       <mx-file> <check-file>        #  check symmetry.
+clxdo check_symmetry_present  <mx-file> <check-file>     #  check symmetry of presence.
+clxdo grok    <cls-file> <mx-file> <nsm-name> <ccm-name> #  node-cls and cls-cls
+clxdo randomize_clustering  <cls-file>           #  randomize clustering
+clxdo annot2tab  <dict-file> <annot-file>        #  make dict file from annot file
 clxdo cls_annot_summary <cls-annot-dump-file>
+clxdo dump_clustering <cls-file> <dict-file>     # dump clustering as lines of labels
+clxdo multiplex_coarse_clustering <coarse-clustering> <fine-clustering>
+clxdo factor_table_from_clustering <node-to-factormatrix> <node-clustering> <factor-dictionary>
+clxdo make_map <source-cls> <dest-cls>          #  make map file between clusterings
 EOU
       exit
       ;;
@@ -53,8 +61,8 @@ EOU
 ################################
 
 
-    vol)
-require_num 2
+    volatility)
+require_num 2 "<cls-file>+"
 fac=$2
 shift 2
 clm vol -nff-fac $fac $@ | mcxsubs 'val(gt(1)), out(-)' | mcxdump | cut -f 2,3 | sort -nk 2
@@ -63,23 +71,20 @@ clm vol -nff-fac $fac $@ | mcxsubs 'val(gt(1)), out(-)' | mcxdump | cut -f 2,3 |
 
 ################################
 
-    gran_buckets)
-require_num 2
-export CLXDO_VAL1=$2
-shift 2
-for mx in $@; do
-      export mx
-      mcxdump -imx $mx --no-values --dump-lines -o - \
-   |  /usr/local/bin/perl -ane '$ct{@F-1}++; END { print "# name=$ENV{mx}\n"; print map { "$_ $ct{$_}\n" } sort { $a <=> $b } grep { !$ENV{CLXDO_VAL1} || $_ <= $ENV{CLXDO_VAL1} } keys %ct; print "\n\n";}'
-done
+    granularity_hist)
+require_num 1 "<cls-file>+"
+mx=$2
+shift 1
+mcxdump -imx $mx --no-values --dump-lines -o - \
+|  /usr/local/bin/perl -ane '$ct{@F-1}++; END { print map { "$_ $ct{$_}\n" } sort { $a <=> $b } keys %ct; }'
       ;;
 
 
 
 ################################
 
-    gran_divide)
-require_num 2
+    granularity_divide)
+require_num 2 "<num> <cls-file>+"
 export CLXDO_VAL1=$2
 shift 2
 for mx in $@; do
@@ -92,8 +97,24 @@ done
 
 ################################
 
-    gran_largest)
-require_num 2
+    granularity_gq)
+require_num 2 "<num> <cls-file>+"
+export CLXDO_VAL1=$2
+shift 2
+for mx in $@; do
+     mcxdump -imx $mx --no-values --dump-lines -o - \
+   | perl -ane 'my $x=@F-1; next unless $x >= $ENV{CLXDO_VAL1}; print "$x\n";' \
+   | sort -nr | tr '\n' ' '
+   echo
+done
+      ;;
+
+
+
+################################
+
+    granularity_largest)
+require_num 2 "<num> <cls-file>+"
 export CLXDO_VAL1=$2
 shift 2
 for mx in $@; do
@@ -108,7 +129,8 @@ done
 
 ################################
 
-    gran)
+    granularity)
+require_num 1 "<cls-file>+"
 shift 1
 for mx in $@; do
      mcxdump -imx $mx --no-values --dump-lines -o - \
@@ -118,65 +140,110 @@ for mx in $@; do
 done
       ;;
 
+
 ################################
 
-    sym)
-require_num 1
+    check_symmetry)
+require_num 1 "<mx-file>"
 mx=$2
 mcxi /$mx lm tp -1 mul add /- wm | mcxdump
       ;;
 
+
 ################################
 
-    csym)
-require_num 1
+    check_symmetry_present)
+require_num 1 "<mx-file>"
 mx=$2
 mcxi /$mx lm ch tp -1 mul add /- wm | mcxdump
       ;;
 
+
 ################################
 
     grok)
-require_num 4
-cl=$2
+require_num 4 "<cls-read> <mx-read> <nsm-write> <ccm-write>"
+cls=$2
 mx=$3
 nsm=$4
 ccm=$5
-mcxi /$cl lm tp /$mx lm st mul dup st /$nsm wm pop exch mul st /$ccm wm
+mcxi /$cls lm tp /$mx lm st mul dup st /$nsm wm pop exch mul st /$ccm wm
+      ;;
+
+
+################################
+
+    make_map)
+require_num 2 "<mx-source> <mx-dest>"
+source=$2
+dest=$3
+mcxi  /$dest lm tp /$source lm mul /- wm
+      ;;
+
+
+################################
+
+    factor_table_from_clustering)
+require_num 3 "<factor-mx> <cls-file> <factor-tab>"
+factormatrix=$2
+clustering=$3
+factortab=$4
+mcxi /$factormatrix lm /$clustering lm mul /- wm | mcxdump -tabr $factortab --dump-table --header
+      ;;
+
+
+################################
+
+    dump_clustering)
+require_num 2 "<cls-file> <dict-file>"
+cls=$2
+dict=$3
+mcxdump -imx $cls -tabr $dict --dump-rlines --no-values
+      ;;
+
+
+################################
+
+    multiplex_coarse_clustering)
+require_num 2 "<cls-coarse> <cls-fine>"
+coarse=$2
+fine=$3
+mcxi /$fine lm tp /$coarse lm mul tp /$coarse lm exch mul /- wm
       ;;
 
 
 ################################
 
     cls_annot_summary)
-require_num 1
+require_num 1 "<cls-annot-dump-file>"
 cls=$2
 perl -ane 'BEGIN { $, = " "; } my %a = (); for (@F) { if (/^\?/) { $a{_}++; } else { $a{$_}++; } } print $id++, "\n"; print map { "\t$_ $a{$_}\n" } (sort keys %a);' $cls
-
       ;;
 
 
 ################################
 
     annot2tab)
-require_num 2
+require_num 2 "<annot-file> <tab-file>"
 fnannot=$2
 fntab=$3
 perl -ane 'BEGIN { ($fannot, $ftab) = @ARGV; $" = ":"; } if ($ARGV eq $fannot) { my $f = shift @F; $annot{$f} = "@F"; } else { print "$F[0]\t$annot{$F[1]}\n" if defined($annot{$F[1]}) && $ARGV eq $ftab; }' $fnannot $fntab
-
       ;;
 
 
 ################################
 
-    rcl)
-require_num 1
+    randomize_clustering)
+require_num 1 "<cls-file>"
 clin=$2
-clxdo gran $clin | perl -ne 'use List::Util "shuffle"; $, = " "; chomp; my @v = split; map { $sum += $_ } @v; @w = shuffle(0..$sum-1); $o = 0; while (@v) { $oo = $o; $o += shift @v; print map { $w[$_] } ($oo..$o-1); print "\n"; };' \
+clxdo granularity $clin | perl -ne 'use List::Util "shuffle"; $, = " "; chomp; my @v = split; map { $sum += $_ } @v; @w = shuffle(0..$sum-1); $o = 0; while (@v) { $oo = $o; $o += shift @v; print map { $w[$_] } ($oo..$o-1); print "\n"; };' \
    | mcxload -235-ai -
 
       ;;
 
+   *)
+   echo "unknown mode $mode, please use $0 -h"
+   false
 
 ####
    esac

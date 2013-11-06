@@ -9,7 +9,6 @@ body
 { text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -29,14 +28,13 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
-div.copy
-{ font-size: 12pt;
-font-family: monospace;
-text-align: left;
-white-space: pre;
-margin-left: 2em;
+div.verbatim
+{ font-family: monospace;
 margin-top: 1em;
 margin-bottom: 1em;
+font-size: 10pt;
+margin-left: 2em;
+white-space: pre;
 }
 div.indent
 { margin-left: 8%;
@@ -68,14 +66,15 @@ margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
+body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
 </style>
 <title>The mcx diameter manual</title>
 </head>
 <body>
 <p style="text-align:right">
-18 Sep 2009&nbsp;&nbsp;&nbsp;
+4 Nov 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxdiameter.ps"><b>mcx diameter</b></a>
-1.008, 09-261
+1.008, 09-308
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -121,6 +120,8 @@ in the <a class="local sibling" href="mcx.html">mcx</a> manual page.</p>
 <a class="intern" href="#opt-abc"><b>[-abc</b> &lt;fname&gt; (<i>specify label input</i>)<b>]</b></a>
 <a class="intern" href="#opt-imx"><b>[-imx</b> &lt;fname&gt; (<i>specify matrix input</i>)<b>]</b></a>
 <a class="intern" href="#opt-tab"><b>[-tab</b> &lt;fname&gt; (<i>use tab file</i>)<b>]</b></a>
+<a class="intern" href="#opt-t"><b>[-t</b> (<i>number of threads to use</i>)<b>]</b></a>
+<a class="intern" href="#opt--summary"><b>[--summary</b> (<i>output diameter and average shortest path length</i>)<b>]</b></a>
 <a class="intern" href="#opt--list"><b>[--list</b> (<i>list eccentricity for all nodes</i>)<b>]</b></a>
 <a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
 <a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print synopsis, exit</i>)<b>]</b></a>
@@ -166,15 +167,26 @@ If this option is used in conjunction with <b>-imx</b> the
 tab domain and the matrix domain are required to be identical.
 </p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--list"></a><b>--list</b> (<i>list eccentricity for all nodes</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-t"></a><b>-t</b> (<i>number of threads to use</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
-Print eccentricity for all nodes. The eccentricity of
+Computing the diameter of a graph is time-intensive.
+If you have multiple CPUs available consider using
+as many threads.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--list"></a><b>--list</b> (<i>list eccentricity for all nodes</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--summary"></a><b>--summary</b> (<i>output diameter and average eccentricity</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+The default mode is <b>--list</b>, which results in output
+of the eccentricity of all nodes. The eccentricity of
 a node is the distance to any node that is the furthest
 away from it. The diameter of a graph is the maximum
 of the eccentricity taken over all nodes in a graph.
 In this mode <b>mcx diameter</b> will not output the diameter
-itself.</p>
+itself. Use <b>--summary</b> to output just the diameter
+and the average eccentricity.
+</p>
 </div>
 </div>
 

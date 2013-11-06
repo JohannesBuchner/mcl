@@ -172,13 +172,14 @@ doc_DATA_dep = mcl.html mcl.ps mcl.txt \
  mcxarray.html mcxarray.ps \
  mcxdump.html mcxdump.ps \
  mcxdiameter.html mcxdiameter.ps \
+ mcxalter.html mcxalter.ps \
  mcxclcf.html mcxclcf.ps \
  mcxctty.html mcxctty.ps \
  mcxrand.html mcxrand.ps \
  mcxload.html mcxload.ps \
  mcxsubs.html mcxsubs.ps \
  mcxmap.html mcxmap.ps \
- mcxq.html mcxq.ps \
+ mcxquery.html mcxquery.ps \
  mcxassemble.html mcxassemble.ps \
  mclpipeline.html mclpipeline.ps \
  index.html mclindex.ps \
@@ -194,14 +195,15 @@ doc_DATA_dep = mcl.html mcl.ps mcl.txt \
  clmorder.html clmorder.ps \
  minimcl \
  mcxio.html mcxio.ps \
+ clmprotocols.html clmprotocols.ps \
  tingea.log.html tingea.log.ps
 
 doc_DATA = $(doc_DATA_dep) mclmcl.txt
-man_MANS = mcl.1 mclcm.1 clm.1 mclindex.7 mclfamily.7 mclfaq.7 mcx.1 mcxi.1 mcxio.5 \
+man_MANS = mcl.1 mclcm.1 clm.1 mclindex.7 mclfamily.7 mclfaq.7 mcx.1 mcxi.1 mcxio.5 clmprotocols.5 \
    clmresidue.1 clmclose.1 clmimac.1 clmmate.1 clmmeet.1 clmformat.1 \
    clmvol.1 clmdist.1 clminfo.1 clmorder.1 \
    mcxconvert.1 mcxassemble.1 mcxmap.1 mcxsubs.1 mcxload.1 mcxdump.1 mcxarray.1 mcxrand.1 \
-	mcxdiameter.1 mcxctty.1 mcxclcf.1 mcxq.1 \
+	mcxalter.1 mcxdiameter.1 mcxctty.1 mcxclcf.1 mcxquery.1 \
    mclpipeline.1 \
 	tingea.log.7
 
@@ -211,17 +213,17 @@ EXTRA_DIST = mclmcl.txt mcx.zmm\
  stamp.day stamp.month stamp.stamp stamp.tag stamp.year\
  clmformat.azm clmvol.azm clmdist.azm clmmate.azm clminfo.azm clmmeet.azm\
  clm.azm clmorder.azm mcl.azm mclcm.azm\
- mclfamily.azm mclfaq.azm mcxi.azm mcx.azm mcxq.azm mclpipeline.azm\
- mcxdump.azm mcxconvert.azm mcxio.azm clmresidue.azm clmclose.azm clmimac.azm mcxassemble.azm\
- mcxdiameter.azm mcxctty.azm mcxclcf.azm mcxrand.azm\
+ mclfamily.azm mclfaq.azm mcxi.azm mcx.azm mcxquery.azm mclpipeline.azm\
+ mcxdump.azm mcxconvert.azm clmprotocols.azm mcxio.azm clmresidue.azm clmclose.azm clmimac.azm mcxassemble.azm\
+ mcxalter.azm mcxdiameter.azm mcxctty.azm mcxclcf.azm mcxrand.azm\
  mcxload.azm mcxmap.azm mcxarray.azm mcxsubs.azm index.in.azm index.html distindex.html\
- tingea.log.azm\
+ webindex.azm tingea.log.azm\
  $(ALIENFILES)\
  $(MAINTAINERCLEANFILES)
 
 SUFFIXES = .1 .5 .7 .azm .html .ps .txt
-SHARE1 = "--exclude=version,h,apropos"
-SHARE2 = "--exclude=nop,version,set,h,apropos,debug,test,progress"
+SHARE1 = "--exclude=version,h,help"
+SHARE2 = "--exclude=nop,version,set,h,help,debug,test,progress"
 all: all-am
 
 .SUFFIXES:
@@ -573,11 +575,11 @@ uninstall-man: uninstall-man1 uninstall-man5 uninstall-man7
 # mcx omitted
 # mcxi omitted
 
-# ../scripts/docme --silent --exclude=version,h,apropos ../src/shmcl/mcl mcl.azm
+# ../scripts/docme --silent --exclude=version,h,help ../src/shmcl/mcl mcl.azm
 
 .PHONY: docme-test
 docme-test:
-	../scripts/docme --silent $(SHARE1) ../src/shmcl/mcl mcl.azm
+	../scripts/docme --doc-exceed=21 --silent $(SHARE1) ../src/shmcl/mcl mcl.azm
 	../scripts/docme --silent $(SHARE1) ../src/shmcl/mclcm mclcm.azm
 	../scripts/docme --silent $(SHARE1) ../src/shmx/mcxdump mcxdump.azm
 	../scripts/docme --silent $(SHARE1) ../src/shmx/mcxload mcxload.azm
@@ -598,11 +600,13 @@ docme-test:
 	../scripts/docme --silent $(SHARE2) "../src/shcl/clm imac" clmimac.azm
 	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx convert" mcxconvert.azm
 	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx diameter" mcxdiameter.azm
+	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx alter" mcxalter.azm
 	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx clcf" mcxclcf.azm
-	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx clcf" mcxctty.azm
-	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx q" mcxq.azm
-	../scripts/docme --silent ../src/shcl/mclpipeline mclpipeline.azm
+	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx ctty" mcxctty.azm
+	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx query" mcxquery.azm
 	../scripts/docme --silent ../src/alien/oxygen/src/mcxdeblast ../src/alien/oxygen/doc/mcxdeblast.azm
+
+# ../scripts/docme --silent ../src/shcl/mclpipeline mclpipeline.azm
 
 mclindex.7: index.in.azm
 	$(ZOEM) -i index.in -d roff -o mclindex.7 -s install=1
@@ -638,14 +642,16 @@ mcxload:            mcxload.1        mcxload.html        mcxload.ps
 mcxconvert:      mcxconvert.1     mcxconvert.html     mcxconvert.ps
 
 mcxdiameter:    mcxdiameter.1    mcxdiameter.html    mcxdiameter.ps
+mcxalter:          mcxalter.1       mcxalter.html       mcxalter.ps
 mcxclcf:            mcxclcf.1        mcxclcf.html        mcxclcf.ps
 mcxctty:            mcxctty.1        mcxctty.html        mcxctty.ps
 mcxrand:            mcxrand.1        mcxrand.html        mcxrand.ps
-mcxq:            	     mcxq.1           mcxq.html           mcxq.ps
+mcxquery:           mcxquery.1      mcxquery.html       mcxquery.ps
 
 mclpipeline:    mclpipeline.1    mclpipeline.html    mclpipeline.ps
 
 mcxio:                mcxio.5          mcxio.html          mcxio.ps
+clmprotocols:  clmprotocols.5   clmprotocols.html   clmprotocols.ps
 tingea.log:		  tingea.log.7		 tingea.log.html		tingea.log.ps
 
 mclfaq:  mclfaq.txt  mclfaq.7         mclfaq.html         mclfaq.ps	minimcl

@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcxdeblast" 1 "18 Sep 2009" "mcxdeblast 1\&.008, 09-261" "USER COMMANDS "
+.TH "mcxdeblast" 1 "4 Nov 2009" "mcxdeblast 1\&.008, 09-308" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -36,12 +36,14 @@ output directly into mcl or write mcxassemble input\&.
 \fBmcxdeblast\fP
 \fB[--score=\fP<b|e|r> (\fIbit scores|e-values|normalize bit score\fP)\fB]\fP
 \fB[--m9\fP (\fIexpect BLAST column format\fP)\fB]\fP
+\fB[--out\fP <fname> (\fIoutput file\fP)\fB]\fP
 \fB[--line-mode\fP abc (\fIwrite ID1 ID2 score format\fP)\fB]\fP
 \fB[--sort=\fP<a|o> (\fIalphabetic|occurrence sorting\fP)\fB]\fP
 \fB[--xi-dat=\fP<suf> (\fIstrip <suf> from file-name\fP)\fB]\fP
 \fB[--xo-dat=\fP<suf> (\fIadd <suf> to base name\fP)\fB]\fP
 \fB[--bcut=\fP<val> (\fIbit score cutoff\fP)\fB]\fP
 \fB[--ecut=\fP<val> (\fIE-value cutoff\fP)\fB]\fP
+\fB[--rcut=\fP<val> (\fIraw value cutoff\fP)\fB]\fP
 \fB[--tab=\fP<fname> (\fItab file\fP)\fB]\fP
 <file-name>
 .SH DESCRIPTION
@@ -111,6 +113,12 @@ the total number of different peptides encountered in the BLAST input\&.
 Specify a tab file to use, rather than automatically generating one\&.
 .in -2m
 
+.ZI 2m "\fB--out\fP <fname> (\fIoutput file\fP)"
+\&
+.br
+Specify the name for the output file\&.
+.in -2m
+
 .ZI 2m "\fB--score\fP=<b|e|r> (\fIbit scores|e-values|norm bit score\fP)"
 \&
 .br
@@ -158,13 +166,22 @@ use \fB--score\fP=\fIb\fP \fB--bcut\fP=\fI5\fP \fB--xo-dat\fP=\fIb\fP\&.
 .ZI 2m "\fB--bcut\fP=<val> (\fIbit score cutoff\fP)"
 \&
 .br
-Scores below the cutoff value are ignored\&.
+Bit scores below the cutoff value are ignored\&. This
+triggers the output of bit scores and ignores all other values\&.
 .in -2m
 
 .ZI 2m "\fB--ecut\fP=<val> (\fIE-value cutoff\fP)"
 \&
 .br
-Scores below the cutoff value are ignored\&.
+E-values below the cutoff value are ignored\&. This triggers
+the output of E-values and ignores all other values\&.
+.in -2m
+
+.ZI 2m "\fB--rcut\fP=<val> (\fIraw value cutoff\fP)"
+\&
+.br
+Raw values below the cutoff value are ignored\&. This
+triggers the output of raw values and ignores all other values\&.
 .in -2m
 .SH AUTHOR
 Stijn van Dongen\&.

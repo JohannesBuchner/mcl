@@ -32,6 +32,7 @@ typedef struct
 {  mclx*       mx
 ;  mclx*       mxtp
 ;  void*       usr
+;  mcxTing*    fname
 ;
 }  mclxAnnot   ;
 
@@ -44,25 +45,16 @@ typedef struct
 {  mclxAnnot*  level
 ;  dim         n_level
 ;  dim         n_alloc  
-;  mcxTing*    name
+;  unsigned char type        /* n'one, c'one, s'stack */
 ;
 }  mclxCat   ;
 
 
    /* This define should perhaps be in matrix.h or io.h */
-#define     MCLX_READ_SKELETON   MCLX_MODE_UNUSED
 
-#define     MCLX_CATREAD_CLUSTERTREE                     \
-                              (  MCLX_PRODUCE_DOMTREE    \
-                              |  MCLX_REQUIRE_NESTED     \
-                              |  MCLX_REQUIRE_PARTITION  \
-                              )
-
-#define     MCLX_CATREAD_CLUSTERSTACK                    \
-                              (  MCLX_PRODUCE_DOMSTACK   \
-                              |  MCLX_REQUIRE_NESTED     \
-                              |  MCLX_REQUIRE_PARTITION  \
-                              )
+enum
+{  MCLX_READ_SKELETON = MCLX_MODE_UNUSED
+}  ;
 
 #define     MCLX_CATREAD_MODES                           \
                               (  MCLX_PRODUCE_DOMTREE    \
@@ -75,6 +67,18 @@ typedef struct
                               |  MCLX_REQUIRE_CANONICAL  \
                               |  MCLX_REQUIRE_GRAPH      \
                               |  MCLX_READ_SKELETON      \
+                              )
+
+#define     MCLX_CATREAD_CLUSTERTREE                     \
+                              (  MCLX_PRODUCE_DOMTREE    \
+                              |  MCLX_REQUIRE_NESTED     \
+                              |  MCLX_REQUIRE_PARTITION  \
+                              )
+
+#define     MCLX_CATREAD_CLUSTERSTACK                    \
+                              (  MCLX_PRODUCE_DOMSTACK   \
+                              |  MCLX_REQUIRE_NESTED     \
+                              |  MCLX_REQUIRE_PARTITION  \
                               )
                                              
 
@@ -103,7 +107,6 @@ mcxstatus mclxCatRead
 
 void mclxCatInit
 (  mclxCat*    cat
-,  const char* str
 )  ;
 
 
@@ -114,6 +117,8 @@ mcxstatus mclxCatPush
 ,  void*       cb1_data
 ,  mcxstatus   (*cb2) (mclx* left, mclx* right, void* cb_data)
 ,  void*       cb2_data
+,  const char* fname
+,  dim         fidx
 )  ;
 
 
@@ -131,9 +136,9 @@ mcxstatus mclxCBdomStack
 )  ;
 
 
-mcxstatus mclxCBunary
+mcxstatus mclxCatUnaryCheck
 (  mclx* mx
-,  void* cb_data
+,  void* cb_data           /* will be cast to type mcxbits* */
 )  ;
 
 
@@ -152,6 +157,21 @@ void mclxCatReverse
 )  ;
 
 
+void mclxCatSortCoarseFirst
+(  mclxCat*    cat
+)  ;
+
+
+void mclxCatSortCoarseLast
+(  mclxCat*    cat
+)  ;
+
+
+mcxstatus mclxCatTransposeAll
+(  mclxCat* cat
+)  ;
+
+
 mcxstatus mclxCatWrite
 (  mcxIO*      xf
 ,  mclxCat*    cat
@@ -164,6 +184,7 @@ mcxstatus mclxCatWrite
 #define  ENSTRICT_KEEP_OVERLAP   2
 #define  ENSTRICT_CUT_OVERLAP    4
 #define  ENSTRICT_REPORT_ONLY    8
+#define  ENSTRICT_PARTITION      4
 
 
 /* May change cl->cols and accordingly dom_cols, N_COLS(cl),

@@ -29,6 +29,7 @@
       \synoptopt{-abc}{<fname>}{specify label input}
       \synoptopt{-imx}{<fname>}{specify matrix input}
       \synoptopt{-tab}{<fname>}{use tab file}
+      \synoptopt{-t}{number of threads to use}
       \synoptopt{--list}{list clustering coefficient for all nodes}
       \stdsynopt
    }
@@ -67,6 +68,13 @@
    a graph only on the labels found in the tab file.
    If this option is used in conjunction with \genopt{-imx} the
    tab domain and the matrix domain are required to be identical.
+   }
+
+\item{\defopt{-t}{number of threads to use}}
+\car{
+   Computing centrality scores in a graph is time-intensive.
+   If you have multiple CPUs available consider using
+   as many threads.
    }
 
 \item{\defopt{--list}{print result for each node}}

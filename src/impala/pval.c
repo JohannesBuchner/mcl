@@ -12,6 +12,7 @@
 #include <stdlib.h>
 
 #include "util/minmax.h"
+#include "util/compile.h"
 #include "util/rand.h"
 #include "pval.h"
 
@@ -118,6 +119,14 @@ double fltxLog
       return -FLT_MAX
    ;  else
       return 0.0
+;  }
+
+
+double fltxAbs
+(  pval     flt
+,  void*    arg_unused cpl__unused
+)
+   {  return flt > 0 ? flt : -flt
 ;  }
 
 
@@ -260,6 +269,22 @@ double fltMax
 ,  pval     d2
 )
    {  return (d1 > d2) ? d1 : d2
+;  }
+
+
+double fltMinNZ
+(  pval     d1
+,  pval     d2
+)
+   {  return (d1 && d2) ? fltMin(d1, d2) : 0.0
+;  }
+
+
+double fltMaxNZ
+(  pval     d1
+,  pval     d2
+)
+   {  return (d1 && d2) ? fltMax(d1, d2) : 0.0
 ;  }
 
 

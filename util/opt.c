@@ -817,7 +817,7 @@ int mcxDispatch
             /* caller screwed up: it's IDs should top the
              * largest ID in the shared options.
             */
-   ;  if (delg_id_max >= hk->options[0].id)
+   ;  if (hk->n_options && delg_id_max >= hk->options[0].id)
       mcxDie(1, me, "PBD option merge is pointless")
 
    ;  delgOpts    =  mcxOptHash(hk->options, NULL)

@@ -1,0 +1,146 @@
+\import{mcx.zmm}
+
+\begin{pud::man}{
+
+   {name}{mcx q}
+   {html_title}{The mcx q manual}
+   {author}{Stijn van Dongen}
+   {section}{1}
+   {synstyle}{long}
+   {defstyle}{long}
+
+   \man_share
+}
+
+\${html}{\"pud::man::maketoc"}
+
+\sec{name}{NAME}
+\NAME{mcxquery}{compute simple graph statistics}
+
+\sec{synopsis}{SYNOPSIS}
+
+\disclaim_mcx{q}
+
+\par{
+   \mcxquery
+      \synoptopt{-imx}{<fname>}{specify matrix input}
+      \synoptopt{-o}{<fname>}{output file name}
+      \synoptopt{-vary-threshold}{<start,end,step,scale>}{analyze graphs at similarity cutoffs}
+      \synoptopt{--vary-correlation}{analyze graphs at correlation cutoffs}
+      \synoptopt{-div}{<num>}{cluster size separating value}
+      \synoptopt{-report-scale}{<num>}{edge weight/threshold scaling}
+      \: kynoptopt{-digits}{<num>}{width of fractional part}
+      \synoptopt{--dim}{report native format and dimensions}
+      \stdsynopt
+   }
+
+\sec{description}{DESCRIPTION}
+\par{
+   The main use of \mcxquery is to analyze a graph at different similarity
+   cutoffs. Typically this is done on a graph constructed using a
+   very permissive threshold. For example, one can create a graph from
+   array expression data using \mcxarray with a very low pearson correlation
+   cutoff such as\~0.2 or\~0.3. Then \mcxquery can be used to analyze
+   the graph at increasingly stringent thresholds of\~0.25, 0.30,
+   0.35\~..\~0.95.
+
+   Attributes supplied across different thresholds are the number of connected
+   components, statistics (median, average, iqr) on node degrees and edge
+   weights, and a graph plotting the R^2 value of the relationship of log(k)
+   versus the logarithm of the number of nodes of degree at least k (for the
+   graph at a given threshold).
+
+   Scale-free networks are defined by having a high R^2 value.  It should
+   be noted however that in many applications graphs will not be scale-free.
+   Additionally, for the purpose of clustering scale-free networks are to be
+   avoided or transformed, as the highly-connected nodes in scale-free networks
+   obfuscate cluster structure.
+}
+
+\sec{options}{OPTIONS}
+
+\begin{itemize}{\mcx_itemopts}
+
+
+\item{\defopt{-imx}{<fname>}{input matrix}}
+\car{
+   The file name for input that is in mcl native matrix format.
+   }
+
+\item{\defopt{-o}{<fname>}{output file name}}
+\car{
+   Set the name of the file where output should be written to.
+   }
+
+\item{\defopt{--dim}{report native format and dimensions}}
+\car{
+   This will report the matrix format (either interchange or binary)
+   and the matrix dimensions. For a graph the two reported dimensions
+   should be equal.
+   }
+
+\item{\defopt{-vary-threshold}{<start,end,step,scale>}{analyze graphs at similarity cutoffs}}
+\car{
+   All of \genarg{start}, \genarg{end}, \genarg{step} and \genarg{scale} must
+   be integer numbers.  From these a list of threshold is constructed, starting
+   from \it{start / scale}, \it{(start + step) / scale}, \it{(start + 2 step) /
+   scale}, and so on until a value larger than or equal to \it{end / scale} is reached.
+   }
+
+\item{\defopt{--vary-correlation}{analyze graphs at correlation cutoffs}}
+\car{
+   This instructs \mcxquery to use a threshold list suitable for use with graphs
+   in which the edge weight similarities are correlation.
+   The list start at 0.2 and ends at 0.95, with increments of 0.05.
+   If a different start or increment is required it can
+   be achieved by using the \genopt{-vary-threshold} option.
+   For example, a start of\~0.10 and an increment of\~0.02 are obtained
+   by issueing \useopt{-vary-threshold}{10,100,2,100}.
+
+   }
+
+\""{
+\item{\kefopt{-digits}{<num>}{width of fractional part}}
+\car{
+   In the output graph and table, the thresholds are by default
+   printed with two digits for the fractional part. This
+   can be changed using this option.
+
+   }}
+
+
+\item{\defopt{-report-scale}{<num>}{edge weight / threshold scaling}}
+\car{
+   The edge weights mean, average, and inter-quartile range,
+   as well as the different threshold steps are all rescaled
+   in the reported output to avoid printing of fractional part.
+   If \genopt{-vary-threshold} was supplied then
+   scaling factor specified in the argument is used.
+   With \genopt{--vary-correlation} a scaling factor of\~100
+   is used. Either can be overridden by using the present option.
+
+   }
+
+
+\item{\defopt{-div}{<num>}{cluster size separating value}}
+\car{
+   When analyzing graphs at different thresholds with one of the
+   options above, \mcxquery reports the percentage of nodes contained
+   in clusters not exceeding a specified size, by default\~3.
+   This number can be changed using the \genopt{-div} option.
+
+   }
+
+\stddefopt
+
+\end{itemize}
+
+
+\sec{seealso}{SEE ALSO}
+\par{
+   \mysib{mcxio},
+   and \mysib{mclfamily} for an overview of all the documentation
+   and the utilities in the mcl family.}
+
+\end{pud::man}
+

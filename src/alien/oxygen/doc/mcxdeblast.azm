@@ -28,12 +28,14 @@ output directly into mcl or write mcxassemble input.}
    \mcxdeblast
    \synoptkvp{--score}{<b|e|r>}{bit scores|e-values|normalize bit score}
    \synoptopt{--m9}{expect BLAST column format}
+   \synoptopt{--out}{<fname>}{output file}
    \synoptopt{--line-mode}{abc}{write ID1 ID2 score format}
    \synoptkvp{--sort}{<a|o>}{alphabetic|occurrence sorting}
    \synoptkvp{--xi-dat}{<suf>}{strip <suf> from file-name}
    \synoptkvp{--xo-dat}{<suf>}{add <suf> to base name}
    \synoptkvp{--bcut}{<val>}{bit score cutoff}
    \synoptkvp{--ecut}{<val>}{E-value cutoff}
+   \synoptkvp{--rcut}{<val>}{raw value cutoff}
    \synoptkvp{--tab}{<fname>}{tab file}
 
    <file-name>}
@@ -120,6 +122,13 @@ in \sibref{mcl}{the mcl manual}.}
    Specify a tab file to use, rather than automatically generating one.
    }
 
+
+\item{\defopt{--out}{<fname>}{output file}}
+\car{
+   Specify the name for the output file.
+   }
+
+
 \item{\defkvp{--score}{<b|e|r>}{bit scores|e-values|norm bit score}}
 \car{
    Specify whether to use bit scores, E-values, or bit scores
@@ -160,12 +169,20 @@ in \sibref{mcl}{the mcl manual}.}
 
 \item{\defkvp{--bcut}{<val>}{bit score cutoff}}
 \car{
-   Scores below the cutoff value are ignored.
+   Bit scores below the cutoff value are ignored. This
+   triggers the output of bit scores and ignores all other values.
    }
 
 \item{\defkvp{--ecut}{<val>}{E-value cutoff}}
 \car{
-   Scores below the cutoff value are ignored.
+   E-values below the cutoff value are ignored. This triggers
+   the output of E-values and ignores all other values.
+   }
+
+\item{\defkvp{--rcut}{<val>}{raw value cutoff}}
+\car{
+   Raw values below the cutoff value are ignored. This
+   triggers the output of raw values and ignores all other values.
    }
 
 \end{itemize}

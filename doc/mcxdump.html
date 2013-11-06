@@ -9,7 +9,6 @@ body
 { text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -29,14 +28,13 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
-div.copy
-{ font-size: 12pt;
-font-family: monospace;
-text-align: left;
-white-space: pre;
-margin-left: 2em;
+div.verbatim
+{ font-family: monospace;
 margin-top: 1em;
 margin-bottom: 1em;
+font-size: 10pt;
+margin-left: 2em;
+white-space: pre;
 }
 div.indent
 { margin-left: 8%;
@@ -68,14 +66,15 @@ margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
+body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
 </style>
 <title>The mcxdump manual</title>
 </head>
 <body>
 <p style="text-align:right">
-18 Sep 2009&nbsp;&nbsp;&nbsp;
+4 Nov 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxdump.ps"><b>mcxdump</b></a>
-1.008, 09-261
+1.008, 09-308
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -114,6 +113,7 @@ mcxdump &mdash; dump matrices, optionally map indices to labels</p>
 <p style="margin-bottom:0" class="asd_par">
 <b>mcxdump</b>
 <a class="intern" href="#opt-imx"><b>[-imx</b> &lt;fname&gt; (<i>matrix file</i>)<b>]</b></a>
+<a class="intern" href="#opt-icl"><b>[-icl</b> &lt;fname&gt; (<i>cluster file to be dumped line-wise</i>)<b>]</b></a>
 <a class="intern" href="#opt-imx-cat"><b>[-imx-cat</b> &lt;fname&gt; (<i>concatenation matrix file</i>)<b>]</b></a>
 <a class="intern" href="#opt-imx-tree"><b>[-imx-tree</b> &lt;fname&gt; (<i>concatenation cone file</i>)<b>]</b></a>
 <a class="intern" href="#opt--skeleton"><b>[--skeleton</b> (<i>read empty matrix, honour domains</i>)<b>]</b></a>
@@ -130,6 +130,7 @@ mcxdump &mdash; dump matrices, optionally map indices to labels</p>
 <a class="intern" href="#opt--dump-pairs"><b>[--dump-pairs</b> (<i>emit pairs per line</i>)<b>]</b></a>
 <a class="intern" href="#opt--dump-lines"><b>[--dump-lines</b> (<i>emit rows per line</i>)<b>]</b></a>
 <a class="intern" href="#opt--dump-rlines"><b>[--dump-rlines</b> (<i>omit leading identifier</i>)<b>]</b></a>
+<a class="intern" href="#opt--dump-vlines"><b>[--dump-vlines</b> (<i>add leading identifier values</i>)<b>]</b></a>
 <a class="intern" href="#opt--dump-lead-off"><b>[--dump-lead-off</b> (<i>omit leading identifier</i>)<b>]</b></a>
 <a class="intern" href="#opt--dump-lower"><b>[--dump-lower</b> (<i>dump lower part excluding diagonal</i>)<b>]</b></a>
 <a class="intern" href="#opt--dump-loweri"><b>[--dump-loweri</b> (<i>dump lower part including diagonal</i>)<b>]</b></a>
@@ -143,17 +144,16 @@ mcxdump &mdash; dump matrices, optionally map indices to labels</p>
 <a class="intern" href="#opt--dump-lead-off"><b>[--dump-lead-off</b> (<i>do not dump leading identifiers</i>)<b>]</b></a>
 <a class="intern" href="#opt-table-nfields"><b>[-table-nfields</b> &lt;num&gt; (<i>output first &lt;num&gt; fields</i>)<b>]</b></a>
 <a class="intern" href="#opt-table-nlines"><b>[-table-nlines</b> &lt;num&gt; (<i>output first &lt;num&gt; lines</i>)<b>]</b></a>
-<a class="intern" href="#opt--table-keys"><b>[--table-keys</b> (<i>dump field/cell identifiers</i>)<b>]</b></a>
 <a class="intern" href="#opt--newick"><b>[--newick</b> (<i>output newick format</i>)<b>]</b></a>
 <a class="intern" href="#opt-newick"><b>[-newick</b> [NBI]+ (<i>exclude Number|Branch-length|Indent</i>)<b>]</b></a>
 <a class="intern" href="#opt--write-matrix"><b>[--write-matrix</b> (<i>(deconcatenate) write matrices</i>)<b>]</b></a>
 <a class="intern" href="#opt-split-stem"><b>[-split-stem</b> &lt;str&gt; (<i>(deconcatenate) matrices file name stem</i>)<b>]</b></a>
 <a class="intern" href="#opt-cat-max"><b>[-cat-max</b> &lt;num&gt; (<i>(deconcatenate) write first &lt;num&gt; matrices</i>)<b>]</b></a>
-<a class="intern" href="#opt-dump"><b>[-dump</b> &lt;fname&gt; (<i>alias for -o</i>)<b>]</b></a>
 <a class="intern" href="#opt-sep-value"><b>[-sep-value</b> &lt;str&gt; (<i>node/value separator</i>)<b>]</b></a>
 <a class="intern" href="#opt-sep-field"><b>[-sep-field</b> &lt;str&gt; (<i>field separator</i>)<b>]</b></a>
 <a class="intern" href="#opt-sep-lead"><b>[-sep-lead</b> &lt;str&gt; (<i>lead separator</i>)<b>]</b></a>
 <a class="intern" href="#opt-sep-cat"><b>[-sep-cat</b> &lt;str&gt; (<i>concatenation separator</i>)<b>]</b></a>
+<a class="intern" href="#opt-prefixc"><b>[-prefixc</b> &lt;str&gt; (<i>prefix column indices with &lt;str&gt;</i>)<b>]</b></a>
 <a class="intern" href="#opt-sort"><b>[-sort</b> size-{ascending,descending} (<i>vector sort mode</i>)<b>]</b></a>
 <a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
 <a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print synopsis, exit</i>)<b>]</b></a>
@@ -186,6 +186,14 @@ matrices. Refer to the group of options headed by
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Input matrix.</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-icl"></a><b>-icl</b> &lt;fname&gt; (<i>cluster file</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+This specifies the input matrix, and sets up a cluster-wise line-based label dump.
+This option is fully equivalent to the combination of
+<b>--dump-rlines</b> and <b>--no-values</b>.
+</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--transpose"></a><b>--transpose</b> (<i>work with the transpose</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -252,7 +260,7 @@ For each column, force output of a row entry that matches the
 column index.
 Applies only to matrices for which column and row domains are equal.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-pairs"></a><b>--dump-pairs</b> (<i>emit pairs per line</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-lines"></a><b>--dump-lines</b> (<i>emit rows per line</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-rlines"></a><b>--dump-rlines</b> (<i>omit leading column node</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-lead-off"></a><b>--dump-lead-off</b> (<i>do not dump leading identifiers</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-lower"></a><b>--dump-lower</b> (<i>dump lower part excluding diagonal</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-loweri"></a><b>--dump-loweri</b> (<i>dump lower part including diagonal</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-upper"></a><b>--dump-upper</b> (<i>dump upper part excluding diagonal</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-upperi"></a><b>--dump-upperi</b> (<i>dump upper part including diagonal</i>)</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-pairs"></a><b>--dump-pairs</b> (<i>emit pairs per line</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-lines"></a><b>--dump-lines</b> (<i>emit rows per line</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-rlines"></a><b>--dump-rlines</b> (<i>omit leading column node</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-vlines"></a><b>--dump-vlines</b> (<i>add leading column values</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-lead-off"></a><b>--dump-lead-off</b> (<i>do not dump leading identifiers</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-lower"></a><b>--dump-lower</b> (<i>dump lower part excluding diagonal</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-loweri"></a><b>--dump-loweri</b> (<i>dump lower part including diagonal</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-upper"></a><b>--dump-upper</b> (<i>dump upper part excluding diagonal</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-upperi"></a><b>--dump-upperi</b> (<i>dump upper part including diagonal</i>)</div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 <b>--dump-pairs</b> is the default mode of output. Each matrix entry
@@ -273,12 +281,19 @@ Use <b>--dump-lead-off</b> to preclude the output of the leading
 identifiers (for line-based outputs).
 </p>
 <p style="margin-bottom:0" class="asd_par">
+<b>--dump-vlines</b> is as <b>--dump-lines</b>. The
+leading identifiers are followed by a value associated with
+the entire column. This can be used to dump the output
+given by <b>clm vol</b>. The value provided is a measure
+for the stability of the cluster that follows.
+</p>
+<p style="margin-bottom:0" class="asd_par">
 The options pertaining to <i>lower</i> and <i>upper</i> dumps currently
 only work with <b>--dump-pairs</b>. They act to only output
 the specified part of the matrix.
 </p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-table"></a><b>--dump-table</b> (<i>dump table format</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-table-nfields"></a><b>-table-nfields</b> (<i>field limit</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-table-nlines"></a><b>-table-nlines</b> (<i>line/row limit</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--table-keys"></a><b>--table-keys</b> (<i>do dump field/cell identifiers</i>)</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-table"></a><b>--dump-table</b> (<i>dump table format</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-table-nfields"></a><b>-table-nfields</b> (<i>field limit</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-table-nlines"></a><b>-table-nlines</b> (<i>line/row limit</i>)</div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Output table format. In table format no indices are printed by default
@@ -288,7 +303,6 @@ can be used to limit
 the number of fields and lines to be printed. Note that fields correspond
 to MCL matrix rows and that lines correspond to MCL matrix columns, as MCL
 calls its primary indices column indices.
-Use <b>--table-keys</b> to include identifiers (tab-derived if a tab file is specified).
 Use <b>--dump-lead-off</b> to preclude the output of the leading
 identifiers (for line-based outputs).
 </p>
@@ -296,7 +310,8 @@ identifiers (for line-based outputs).
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--newick"></a><b>--newick</b> (<i>output newick format</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-newick"></a><b>-newick</b> [NBI]+ (<i>newick, exclude Number|Branch-length|Indent</i>)</div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
-Boo.
+Output a hierarchical clustering specified by <b>-imx-tree</b>
+in Newick tree format.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-tabc"></a><b>--write-tabc</b> (<i>dump tab file on column domain</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-tabr"></a><b>--write-tabr</b> (<i>dump tab file on row domain</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-domc"></a><b>--dump-domc</b> (<i>dump column domain</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--dump-domr"></a><b>--dump-domr</b> (<i>dump row domain</i>)</div>
@@ -309,7 +324,7 @@ was specified.
 domain, and it outputs a new tab file restricted to that domain.
 <b>--write-tabr</b> acts analogously for the row domain.
 <b>--dump-domc</b> and <b>--dump-domr</b> respectively dump the column
-and domain as a regular dump, outputting labels in case a tab file is
+or row domain as a regular dump, outputting labels in case a tab file is
 specified.
 </p>
 <p style="margin-bottom:0" class="asd_par">
@@ -317,13 +332,6 @@ These options are implemented as ensembles of other options.
 For example, <b>--dump-domr</b> <b>-imx</b>&nbsp;<i>fname</i> corresponds with
 <b>--dump-lines</b> <b>--transpose</b> <b>--skeleton</b>.
 </p>
-</div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--write-tabr"></a><b>--write-tabr</b> (<i>dump tab file on row domain</i>)</div></div>
-<div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
-This will only infer the domains from the input matrix. It assumes
-the input tab file envelopes the matrix row domain, and it outputs
-a new tab file restricted to that domain.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-imx-cat"></a><b>-imx-cat</b> &lt;fname&gt; (<i>concatenation matrix file</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-imx-tree"></a><b>-imx-tree</b> &lt;fname&gt; (<i>concatenation cone file</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-matrix"></a><b>--write-matrix</b> (<i>(deconcatenate) write matrices</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-split-stem"></a><b>-split-stem</b> &lt;str&gt; (<i>(deconcatenate) matrices file name stem</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-cat-max"></a><b>-cat-max</b> &lt;num&gt; (<i>(deconcatenate) write first &lt;num&gt; matrices</i>)</div>
 <div class=" item_text " style="margin-left:2em">
@@ -379,6 +387,12 @@ will find nodes in overlap.</p>
 <p style="margin-top:0em; margin-bottom:0em">
 Set the separator that is used between matrix dumps when a concatenation of
 matrices is dumped.</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-prefixc"></a><b>-prefixc</b> &lt;str&gt; (<i>prefix column indices with &lt;str&gt;</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+This can be useful when external row names cannot be numbers and
+when a label dictionary is not available or not appropriate.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-sort"></a><b>-sort</b> size-{ascending,descending} (<i>concatenation separator</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">

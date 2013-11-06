@@ -9,7 +9,6 @@ body
 { text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -29,14 +28,13 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
-div.copy
-{ font-size: 12pt;
-font-family: monospace;
-text-align: left;
-white-space: pre;
-margin-left: 2em;
+div.verbatim
+{ font-family: monospace;
 margin-top: 1em;
 margin-bottom: 1em;
+font-size: 10pt;
+margin-left: 2em;
+white-space: pre;
 }
 div.indent
 { margin-left: 8%;
@@ -68,14 +66,15 @@ margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
+body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
 </style>
 <title>The mcxsubs manual</title>
 </head>
 <body>
 <p style="text-align:right">
-18 Sep 2009&nbsp;&nbsp;&nbsp;
+4 Nov 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxsubs.ps"><b>mcxsubs</b></a>
-1.008, 09-261
+1.008, 09-308
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -194,7 +193,7 @@ and other miscellaneous operations.
 <p style="margin-bottom:0" class="asd_par">
 If you are a frequent <b>mcxsubs</b> user with very large graphs, consider
 converting the input matrix into binary format using
-<a class="local sibling" href="mcxconvert.html">mcxconvert</a> and then using the mcxsubs
+<b>mcxconvert</b> and then using the mcxsubs
 <b>--from-disk</b> option. This should give you a 400-fold speed gain.
 </p>
 
@@ -268,13 +267,8 @@ This reads a skeleton matrix by only considering its domain structure
 and not reading any entries, pertaining to the matrix
 specified by the <b>-imx</b> option.
 </p>
-</div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tf"></a><b>-tf</b> spec (<i>apply tf-spec to input matrix</i>)</div></div>
-<div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
 Transform the input matrix values according
 to the syntax described in <a class="local sibling" href="mcxio.html">mcxio</a>.
-</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tab"></a><b>-tab</b> (<i>read tab file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -324,12 +318,12 @@ this, use <b>-rfac</b> and <b>-cfac</b> separately.
 </p>
 <p style="margin-bottom:0" class="asd_par">
 If you just want a randomized selection, doing</p>
-<pre>mcxsubs -imx foo -dfac 0.5 'out(foo.rnd)'</pre>
+<div class="verbatim">mcxsubs -imx foo -dfac 0.5 'out(foo.rnd)'</div>
 <p style="margin-top:0em; margin-bottom:0em">
 will not yield the expected result. Randomized selections only work
 if a domain has explicitly been specified. The minimal way to achieve
 this is the following:</p>
-<pre>mcxsubs -imx foo -dfac 0.5 'dom(cr), out(foo.rnd)'</pre>
+<div class="verbatim">mcxsubs -imx foo -dfac 0.5 'dom(cr), out(foo.rnd)'</div>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-rfac"></a><b>-rfac</b> &lt;num&gt; (<i>random column selection</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">

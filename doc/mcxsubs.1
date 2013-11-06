@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcxsubs" 1 "18 Sep 2009" "mcxsubs 1\&.008, 09-261" "USER COMMANDS "
+.TH "mcxsubs" 1 "4 Nov 2009" "mcxsubs 1\&.008, 09-308" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -86,7 +86,7 @@ and other miscellaneous operations\&.
 
 If you are a frequent \fBmcxsubs\fP user with very large graphs, consider
 converting the input matrix into binary format using
-\fBmcxconvert(1)\fP and then using the mcxsubs
+\fBmcxconvert\fP and then using the mcxsubs
 \fB--from-disk\fP option\&. This should give you a 400-fold speed gain\&.
 .SH DESCRIPTION
 
@@ -152,11 +152,6 @@ is exactly the same\&.
 This reads a skeleton matrix by only considering its domain structure
 and not reading any entries, pertaining to the matrix
 specified by the \fB-imx\fP option\&.
-.in -2m
-
-.ZI 2m "\fB-tf\fP spec (\fIapply tf-spec to input matrix\fP)"
-\&
-.br
 Transform the input matrix values according
 to the syntax described in \fBmcxio(5)\fP\&.
 .in -2m

@@ -36,6 +36,8 @@ mcxstatus mclxCatPush
 ,  void*       cb1_data
 ,  mcxstatus   (*cb2) (mclx* left, mclx* right, void* cb_data)
 ,  void*       cb2_data
+,  const char* fname
+,  dim         fidx
 )
    {  if
       (  stack->n_level
@@ -44,8 +46,7 @@ mcxstatus mclxCatPush
       )
       {  mcxErr
          (  "mclxCatPush"
-         ,  "stack <%s> chain error at level %d"
-         ,  stack->name->str
+         ,  "chain error at level %d"
          ,  (int) stack->n_level
          )
       ;  return STATUS_FAIL
@@ -54,8 +55,7 @@ mcxstatus mclxCatPush
       if (cb1 && cb1(mx, cb1_data))
       {  mcxErr
          (  "mclxCatPush"
-         ,  "stack <%s> matrix error at level %d"
-         ,  stack->name->str
+         ,  "matrix error at level %d"
          ,  (int) stack->n_level
          )
       ;  return STATUS_FAIL
@@ -81,28 +81,34 @@ mcxstatus mclxCatPush
       stack->level[stack->n_level].mx     =  mx
    ;  stack->level[stack->n_level].mxtp   =  NULL
    ;  stack->level[stack->n_level].usr    =  NULL
+   ;  stack->level[stack->n_level].fname  =     fidx
+                                             ?  mcxTingPrint(NULL, "%s(%d)", fname, (int) fidx)
+                                             :  mcxTingNew(fname)
    ;  stack->n_level++
    ;  return STATUS_OK
 ;  }
 
 
-void mclxCatTransposeAll
+mcxstatus mclxCatTransposeAll
 (  mclxCat* cat
 )
    {  dim l
    ;  for (l=0;l<cat->n_level;l++)
-      if (!cat->level[l].mxtp)
-      cat->level[l].mxtp = mclxTranspose(cat->level[l].mx)
+      {  if (!cat->level[l].mxtp)
+         cat->level[l].mxtp = mclxTranspose(cat->level[l].mx)
+      ;  if (!cat->level[l].mxtp)
+         break
+   ;  }
+      return l == cat->n_level ? STATUS_OK : STATUS_FAIL
 ;  }
 
 
 void mclxCatInit
 (  mclxCat*  stack
-,  const char* str
 )
-   {  stack->name =  mcxTingNew(str)
-   ;  stack->n_level = 0
+   {  stack->n_level = 0
    ;  stack->n_alloc = 0
+   ;  stack->type =  'n'
    ;  stack->level = NULL
 ;  }
  
@@ -142,8 +148,7 @@ mcxstatus mclxCatUnconify
          )
          {  mcxErr
             (  "mclxCatUnconify warning"
-            ,  "stack <%s> domain inconsistency at level %d-%d"
-            ,  st->name->str
+            ,  "domain inconsistency at level %d-%d"
             ,  (int) i
             ,  (int) (i+1)
             )
@@ -181,7 +186,7 @@ mcxstatus mclxCBdomStack
 ;  }
 
 
-mcxstatus mclxCBunary
+mcxstatus mclxCatUnaryCheck
 (  mclx* mx
 ,  void* cb_data
 )
@@ -212,7 +217,13 @@ mcxstatus mclxCBunary
       )
       return STATUS_FAIL
 
-   ;  return STATUS_OK
+   ;  if (bits & MCLX_PRODUCE_PARTITION)
+      {  dim x = clmEnstrict(mx, &o, &m, &e, ENSTRICT_PARTITION)
+      ;  if (x)
+         mcxErr("mclxCatRead", "not a partition (fixed)")
+   ;  }
+
+      return STATUS_OK
 ;  }
 
 
@@ -521,16 +532,13 @@ mcxstatus mclxCatRead
    ;  mcxTing* line = mcxTingEmpty(NULL, 20)
    ;  const char* me = "mclxCatRead"
    ;  dim n_uncanon = 0          
+   ;  dim n_xf = 0
 
    ;  mclx* mx = NULL
-   ;  mcxbool have_stack = FALSE
-   ;  mcxbool have_cone = FALSE
    ;  mcxbool stack_or_cone
       =     MCLX_PRODUCE_DOMTREE | MCLX_PRODUCE_DOMSTACK
          |  MCLX_REQUIRE_DOMTREE | MCLX_REQUIRE_DOMSTACK
    ;  const char* err = NULL
-
-   ;  mclxCatInit(st, xf->fn->str)
 
    ;  while (status == STATUS_OK)
       {  dim o, m, e
@@ -601,28 +609,28 @@ mcxstatus mclxCatRead
             {  err = "fish nor fowl"
             ;  break
          ;  }
-            if (!have_stack && !have_cone)
+            if (st->type == 'n')
             {  if (see_stack && see_cone)
                NOTHING              /* all clusters could be singletons */
             ;  else if (see_stack)
-               have_stack = TRUE
+               st->type = 's'
             ;  else if (see_cone)
-               have_cone = TRUE
+               st->type = 'c'
          ;  }
-            else if (have_cone)
+            else if (st->type == 'c')
             {  if (see_stack || (bits & MCLX_REQUIRE_DOMSTACK))
                {  err = "cone/stack violation"
                ;  break
             ;  }
             }
-            else if (have_stack)
+            else if (st->type == 's')
             {  if (see_cone || (bits & MCLX_REQUIRE_DOMTREE))
                {  err = "stack/cone violation"
                ;  break
             ;  }
             }
 
-            if ((bits & MCLX_REQUIRE_NESTED) && have_stack)
+            if ((bits & MCLX_REQUIRE_NESTED) && st->type == 's')
             {  mclx* cing = clmContingency(mxprev, mx)
             ;  mcxbool ok = TRUE
             ;  dim j
@@ -637,13 +645,16 @@ mcxstatus mclxCatRead
          ;  }
          }
 
-      ;  if (mclxCatPush(st, mx, NULL, NULL, NULL, NULL))
+      ;  if (mclxCatPush(st, mx, mclxCatUnaryCheck, &bits, NULL, NULL, xf->fn->str, n_xf))
          {  err = "no push!"
          ;  break
       ;  }
 
-                     /* read trailing ')' so that EOF check later works */
-         if (mclxIOformat(xf) == 'a')
+         n_xf++
+                     /* read trailing ')' so that EOF check later works
+                      * fixme/docme: has that ')' been ungetc"ed?
+                     */
+      ;  if (mclxIOformat(xf) == 'a')
          mcxIOreadLine(xf, line, MCX_READLINE_CHOMP)
       ;  mcxIOreset(xf)
 
@@ -668,21 +679,22 @@ mcxstatus mclxCatRead
             ,  mclvCopy(NULL, mx->dom_cols)
             ,  1.0
             )
-      ;  if (mclxCatPush(st, root, NULL, NULL, NULL, NULL))
+      ;  if (mclxCatPush(st, root, mclxCatUnaryCheck, &bits, NULL, NULL, xf->fn->str, n_xf))
             err = "no push!"
          ,  status = STATUS_FAIL
+      ;  n_xf++
    ;  }
 
       if (status && st->n_level && st->level[st->n_level-1].mx != mx)
       mclxFree(&mx)
 
    ;  if (err)
-      mcxErr(me, "%s at level %lu", err, (ulong) st->n_level)
+      mcxErr(me, "%s at level %lu in file %s", err, (ulong) st->n_level, xf->fn->str)
 
    ;  if (!status && stack_or_cone)
-      {  if (have_stack && (bits & MCLX_PRODUCE_DOMTREE))
+      {  if (st->type == 's' && (bits & MCLX_PRODUCE_DOMTREE))
          return mclxCatConify(st)
-      ;  else if (have_cone && (bits & MCLX_PRODUCE_DOMSTACK))
+      ;  else if (st->type == 'c' && (bits & MCLX_PRODUCE_DOMSTACK))
          return mclxCatUnconify(st)
    ;  }
 
@@ -744,6 +756,7 @@ static void clm_cut_overlap
    ;  for (d=0;d<N_COLS(cltp);d++)
       mclvResize(cltp->cols+d, 1)
    ;  cl2 = mclxTranspose(cltp)
+   ;  mclxFree(&cltp)
    ;  mclxTransplant(cl, &cl2)
 ;  }
 
@@ -876,7 +889,7 @@ dim clmEnstrict
                            */
       {  mclv* nodes_found
       ;  mclgUnionvReset(cl)
-      ;  nodes_found = mclgUnionv(cl, cl->dom_rows, NULL, SCRATCH_READY, NULL)
+      ;  nodes_found = mclgUnionv(cl, cl->dom_cols, NULL, SCRATCH_READY, NULL)
       ;  n_missing = 0
       ;  if (nodes_found->n_ivps < N_ROWS(cl) && !(bits & ENSTRICT_REPORT_ONLY))
          {  mclv* truants = mcldMinus(cl->dom_rows, nodes_found, NULL)
@@ -908,5 +921,41 @@ dim clmEnstrict
    ;  return n_empty + n_missing + n_overlap
 ;  }
 
+
+static int cmp_annot_ssq
+(  const void* va
+,  const void* vb
+)
+   {  const mclxAnnot* a = va
+   ;  const mclxAnnot* b = vb
+   ;  dim i, sa = 0, sb = 0
+   ;  for (i=0;i<N_COLS(a->mx);i++)
+      sa += a->mx->cols[i].n_ivps * a->mx->cols[i].n_ivps
+   ;  for (i=0;i<N_COLS(b->mx);i++)
+      sb += b->mx->cols[i].n_ivps * b->mx->cols[i].n_ivps
+   ;  return sa < sb ? -1 : sa > sb ? 1 : 0
+;  }
+
+
+static int cmp_annot_ssq_rev
+(  const void* a
+,  const void* b
+)
+   {  return -1 * cmp_annot_ssq(a, b)
+;  }
+
+
+void mclxCatSortCoarseFirst
+(  mclxCat*    cat
+)
+   {  qsort(cat->level, cat->n_level, sizeof(cat->level[0]), cmp_annot_ssq_rev)
+;  }
+
+
+void mclxCatSortCoarseLast
+(  mclxCat*    cat
+)
+   {  qsort(cat->level, cat->n_level, sizeof(cat->level[0]), cmp_annot_ssq)
+;  }
 
 

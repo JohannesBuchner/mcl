@@ -361,7 +361,7 @@ void clmGranularityPrint
       (  fp
       ,  "clusters=%lu max=%lu %s"
          " ctr=%.1f avg=%.1f min=%lu DGI=%lu TWI=%lu TWL=%lu"
-         " sgl=%lu qrt=%lu\n"
+         " sgl=%lu qrt=%lu"
 
       ,  (ulong) tbl->n_clusters
       ,  (ulong) tbl->size_cluster_max
@@ -385,7 +385,7 @@ void clmPerformancePrint
 )
    {  fprintf
       (  fp
-      ,  "efficiency=%.5f massfrac=%.5f areafrac=%.5f %s\n"
+      ,  "efficiency=%.5f massfrac=%.5f areafrac=%.5f %s"
       ,  pf->efficiency
       ,  pf->massfrac
       ,  pf->areafrac

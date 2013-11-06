@@ -15,34 +15,45 @@
 \${html}{\"pud::man::maketoc"}
 
 \sec{name}{NAME}
-\NAME{clm order}{reorder indices to represent blocks from different clusterings.}
+\NAME{clm order}{reorder clusterings conformal to inclusion structure}
 
 \disclaim_clm{order}
 
 \sec{synopsis}{SYNOPSIS}
 \par{
    \clm{order}
-   \synoptopt{-o}{fname}{output file}
-   <cl-stack-file>
+   \synoptopt{-prefix}{<string>}{file multiplex prefix}
+   \synoptopt{-o}{<fname>}{concatenated output in single file}
+   <cluster|stack>+
    }
 
 \sec{description}{DESCRIPTION}
 
 \par{
-   Given a set of concatenated input clusterings (encoded in a single file/stream),
-   \clm{order} reorders indices so that
-   the ordering represents blocks from different clusterings (which are
-   preferably more or less hierarchically organized).  It puts nodes that
-   share many clusters over the different clusters nearby, and puts nodes
-   in larger clusters earlier in the ordering.  It is presumed that the
-   clusterings are successive subclusterings, but it need not be strictly
-   the case - \clm{order} will convert the input clusterings to a strictly
-   nested sequence.
+   Given a set of input clusterings \clm{order} first transform it into a stack
+   of strictly nesting clusterings. It does this by splitting clusters where
+   necessary.
+
+   It then reorders the coarsest (i.e. level-one) clustering, from large to
+   small clusters.  After that it reorders the second coarsest clustering
+   conformally such that the first batch among its reordered clusters covers the
+   level-one largest cluster, the second batch covers the level-one second
+   largest cluster, and so on.  Within these constraints, each batch of
+   second-level clusters (corresponding to a single first-level cluster) is
+   again ordered from larger to smaller clusters.  This process is applied
+   recursively throughout the entire stack of input clusters.
    }
 
 \par{
-   \clm{order} expects a trailing file name argument for a file
-   containing concatenated matrices (see \mysib{mcxio}).
+   The input can be specified in multiple files, and a single file may contain
+   multiple clusterings. The output is by default written as a concatenation of
+   matrix files, the so-called stack format.  Use the \genopt{-o} option to
+   specify the output file.  The stacked format can be converted to Newick
+   format using \mysib{mcxdump}.  The output can be written to multiple files,
+   one for each projected clustering, by using the \genopt{-prefix} option.  By
+   example, \useopt{-prefix}{P} leads to output in files named \v{P1}, \v{P2},
+   ..\v{PN}, where \v{N} is the number of clusters in the input, \v{P1} is the
+   most fine-grained ordered clustering, and \v{PN} is the coarsest clustering.
    }
 
 \sec{options}{OPTIONS}
@@ -50,7 +61,13 @@
 
 \'begin{itemize}{\mcx_itemopts}
 
-\item{\defopt{-o}{fname}{output file}}
+\items{
+{\defopt{-prefix}{<string>}}
+{\defopt{-o}{<fname>}}
+}
+\car{
+   As decribed above.
+   }
 
 \'end{itemize}
 

@@ -246,7 +246,7 @@ mcxOptAnchor options[] =
    ,  NULL
    ,  "this info"
    }
-,  {  "--apropos"
+,  {  "--help"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_HELP
    ,  NULL

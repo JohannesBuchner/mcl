@@ -4,7 +4,7 @@
 include $(top_srcdir)/include/include.am
 
 this = clxcoarse minimcl mlm-fifofum mlm-summary mlm-quilt \
-			piclo pichi clmsnare mlm-analyze docme mcxplotlines.R
+			gengraph movgraph piclo pichi clmsnare mlm-analyze docme mcxplotlines.R
 
 noinst_SCRIPTS = clxdo tree3.pl
 

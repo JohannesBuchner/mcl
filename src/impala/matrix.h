@@ -128,12 +128,13 @@ typedef struct
 #define     MCLX_REQUIRE_DOMSTACK      1 <<  3
 #define     MCLX_REQUIRE_NESTED        1 <<  4      /* with stack format */
 #define     MCLX_ENSURE_ROOT           1 <<  5
-#define     MCLX_REQUIRE_PARTITION     1 <<  6
-#define     MCLX_REQUIRE_CANONICALC    1 <<  7
-#define     MCLX_REQUIRE_CANONICALR    1 <<  8
+#define     MCLX_PRODUCE_PARTITION     1 <<  6
+#define     MCLX_REQUIRE_PARTITION     1 <<  7
+#define     MCLX_REQUIRE_CANONICALC    1 <<  8
+#define     MCLX_REQUIRE_CANONICALR    1 <<  9
 #define     MCLX_REQUIRE_CANONICAL     (MCLX_REQUIRE_CANONICALC | MCLX_REQUIRE_CANONICALR)
-#define     MCLX_REQUIRE_GRAPH         1 <<  9
-#define     MCLX_MODE_UNUSED           1 << 10
+#define     MCLX_REQUIRE_GRAPH         1 << 10
+#define     MCLX_MODE_UNUSED           1 << 11
 
 
 /* args become members of object */
@@ -655,6 +656,12 @@ double mclxLoopCBmax
 ,  void*data
 )  ;
 
+double mclxLoopCBsum
+(  mclv  *vec
+,  long r
+,  void*data
+)  ;
+
 
 /*************************************/
 
@@ -759,104 +766,10 @@ mclv* mclgUnionv2             /*  This one has a const matrix argument, addition
 )  ;
 
 
-
-#if 0
-typedef struct
-{  mclx*       mx
-;  mclx*       mxtp
-;  void*       usr
-;
-}  mclxAnnot   ;
-
-
-/* TODO
- *    put mclxStackPush callback in the struct
-*/
-
-typedef struct
-{  mclxAnnot*  level
-;  dim         n_level
-;  dim         n_alloc  
-;  mcxTing*    name
-;
-}  mclxStack   ;
-
-
-void mclxStackInit
-(  mclxStack*  stack
-,  const char* str
+mclx* mclxKNNmutual
+(  const mclx* mx
+,  dim knn
 )  ;
-
-
-mcxstatus mclxStackPush
-(  mclxStack*  stack
-,  mclx*       mx
-,  mcxstatus   (*cb1) (mclx* mx, void* cb_data)
-,  void*       cb1_data
-,  mcxstatus   (*cb2) (mclx* left, mclx* right, void* cb_data)
-,  void*       cb2_data
-)  ;
-
-
-mcxstatus mclxStackRead
-(  mcxIO*      xf
-,  mclxStack*  stack
-,  dim         n_max
-,  mcxstatus   (*cb1) (mclx* mx, void* cb_data)
-,  void*       cb1_data
-,  mcxstatus   (*cb2) (mclx* left, mclx* right, void* cb_data)
-,  void*       cb2_data
-)  ;
-
-
-mcxstatus mclxStackReadArgv
-(  const char* argv[]
-,  int         argc
-,  mclxStack*  stack
-,  mcxstatus   (*cb1) (mclx* mx, void* cb_data)
-,  void*       cb1_data
-,  mcxstatus   (*cb2) (mclx* left, mclx* right, void* cb_data)
-,  void*       cb2_data
-)  ;
-
-
-mcxstatus mclxStackCBcone
-(  mclx* left
-,  mclx* right
-,  void* cb_data
-)  ;
-
-
-mcxstatus mclxStackCBstack
-(  mclx* left
-,  mclx* right
-,  void* cb_data
-)  ;
-
-
-mcxstatus mclxStackConify
-(  mclxStack* st
-)  ;
-
-
-mcxstatus mclxStackUnconify
-(  mclxStack* st
-)  ;
-
-
-void mclxStackReverse
-(  mclxStack*  stack
-)  ;
-
-
-mcxstatus mclxStackWrite
-(  mcxIO*      xf
-,  mclxStack*  stack
-,  int         valdigits
-,  mcxOnFail   ON_FAIL
-)  ;
-#endif
-
 
 #endif
 

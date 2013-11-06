@@ -1479,6 +1479,24 @@ int mclvVidCmp
 ;  }
 
 
+int mclvValCmp
+(  const void*  p1
+,  const void*  p2
+)
+   {  double diff = ((mclVector*) p1)->val - ((mclVector*)p2)->val
+   ;  return MCX_SIGN(diff)
+;  }
+
+
+int mclvValRevCmp
+(  const void*  p1
+,  const void*  p2
+)
+   {  double diff = ((mclVector*) p2)->val - ((mclVector*)p1)->val
+   ;  return MCX_SIGN(diff)
+;  }
+
+
 int mclvSizeRevCmp
 (  const void*  p1
 ,  const void*  p2
@@ -1536,6 +1554,24 @@ int mclvSumRevCmp
 ,  const void* p2
 )  
    {  return mclvSumCmp(p2, p1)
+;  }
+
+
+void mclvSelectHighestQ
+(  mclVector*  vec
+,  dim         max_n_ivps
+)  
+   {  double f
+   ;  if (vec->n_ivps <= max_n_ivps)
+      return
+
+   ;  f =   vec->n_ivps >= 2 * max_n_ivps
+            ?  mclvKBar
+               (vec, max_n_ivps, PVAL_MAX, KBAR_SELECT_LARGE)
+            :  mclvKBar
+               (vec, vec->n_ivps - max_n_ivps + 1, -PVAL_MAX, KBAR_SELECT_SMALL)
+
+   ;  mclvSelectGqBar(vec, f)
 ;  }
 
 

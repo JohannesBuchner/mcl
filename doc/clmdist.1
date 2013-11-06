@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "clm dist" 1 "18 Sep 2009" "clm dist 1\&.008, 09-261" "USER COMMANDS "
+.TH "clm dist" 1 "4 Nov 2009" "clm dist 1\&.008, 09-308" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -47,8 +47,9 @@ in the \fBclm\fP manual page\&.
 \fBclm dist\fP
 \fB[-mode\fP <sj|vi|mk|sc> (\fIdistance type\fP)\fB]\fP
 \fB[-o\fP fname (\fIoutput file\fP)\fB]\fP
+\fB[--chain\fP (\fIonly compare consecutive clusterings\fP)\fB]\fP
+\fB[--sort\fP (\fIsort clusterings based on coarseness\fP)\fB]\fP
 \fB[-digits\fP k (\fIoutput decimals\fP)\fB]\fP
-\fB[-width\fP k (\fItab width\fP)\fB]\fP
 \fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
 \fB[--apropos\fP (\fIprint synopsis, exit\fP)\fB]\fP
 \fB[--version\fP (\fIprint version, exit\fP)\fB]\fP
@@ -57,10 +58,12 @@ in the \fBclm\fP manual page\&.
 
 \fBclm dist\fP computes distances between clusterings\&. It can compute the
 \fIsplit/join distance\fP (described below), the \fIvariance of information
-measure\fP, and the \fIMirkin metric\fP\&. It can compute the chosen distance
-for all pairs of distances in a set of clusterings\&. Clusterings must be in
+measure\fP, and the \fIMirkin metric\fP\&. By default it computes the chosen distance
+for all pairs of distances in the clusterings provided\&. Clusterings must be in
 the mcl matrix format (cf\&. \fBmcxio(5)\fP), and are supplied on the command
 line as the names of the files in which they are stored\&.
+It is possible to compare only consecutive clusterings by using
+the \fB--chain\fP option\&.
 
 Currently, \fBclm dist\fP cannot compute different distance types simultaneously\&.
 
@@ -99,6 +102,23 @@ Use \fBsj\fP for the \fIsplit/join distance\fP (described below), \fBvi\fP for
 the \fIvariance of information measure\fP and \fBmk\fP for the \fIMirkin metric\fP\&.
 .in -2m
 
+.ZI 2m "\fB--chain\fP (\fIonly compare consecutive clusterings\fP)"
+\&
+.br
+This option can be used if you know that the clusterings are nested
+clusterings (or appoximately so) and ordered from coarse to fine-grained
+or vice versa\&. An example of this is the set of clusterings resulting
+from applying \fBmcl\fP with a range of inflation parameters\&.
+.in -2m
+
+.ZI 2m "\fB--sort\fP (\fIsort clusterings based on coarseness\fP)"
+\&
+.br
+This option can be useful in conjunction with the \fB--chain\fP
+option, in case the list of clusterings supplied is not necessarily
+ordered by granularity\&.
+.in -2m
+
 .ZI 2m "\fB-o\fP fname (\fIoutput file\fP)"
 \&
 .br
@@ -108,12 +128,6 @@ the \fIvariance of information measure\fP and \fBmk\fP for the \fIMirkin metric\
 \&
 .br
 The number of decimals printed when using the variance of information measure\&.
-.in -2m
-
-.ZI 2m "\fB-width\fP k (\fItab width\fP)"
-\&
-.br
-The tabbing width in the output table\&.
 .in -2m
 .SH SPLIT/JOIN DISTANCE
 

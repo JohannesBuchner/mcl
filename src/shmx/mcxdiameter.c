@@ -245,7 +245,7 @@ mcxOptAnchor cttyOptions[] =
    ,  "end index (exclusive)"
    }
 ,  {  "--with-ends"
-   ,  MCX_OPT_DEFAULT
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
    ,  MY_OPT_INCLUDE_ENDS
    ,  NULL
    ,  "include scores for lattice sources and sinks"

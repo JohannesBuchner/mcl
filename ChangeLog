@@ -1,6 +1,94 @@
 
 
+Wed, 04 Nov 2009
+
+   *  mcl-09-308 released.
+
+   *  The mcl cluster interpretation function did not deal correctly with
+      graphs that were encoded in gappy representations. Fixed.  This would not
+      have been an issue for normal mcl usage, as mcl itself never constructs
+      such graphs (e.g. from label input).
+
+   *  The 'q' mode to mcx (invoked as 'mcx q') has been renamed as 'mcx query'.
+      The new mode --vary-correlation triggers analysis of a correlation graph
+      at a series of thresholds, e.g. the number of connected components,
+      statistics (median, average, iqr) on node degrees and edge weights,
+      and a graph plotting the log(k) / log(#nodes of degree >=k) R^2 value
+      (high for scale-free-ish networks).
+
+   *  mcl has had many not-so-interesting options removed or hidden.
+
+   *  mcl has a new option, -knn-mutual <num>.
+      This considers the <num> best neighbours for each node, then only keeps
+      edges that occur in both best-neighbour lists for the two incident nodes.
+
+   *  clm has a new mode 'stable', which outputs a (possibly overlapping) clustering
+      derived from a set of input clusterings. Each output cluster has a
+      stability value associated with it. If it is high, it means that
+      the output cluster occurred in some form in many of the input clusterings.
+      Such a matrix can be dumped with inclusion of the stability score
+      using the mcxdump option --dump-vlines.
+
+   *  clm dist has new option --chain and --sort. The first causes only
+      consecutive comparisons to be made, the second sorts the clusterings
+      in order of (descending) granularity.
+
+   *  If automatic naming of output files is employed (by not using the -o
+      option), mcl will only use the trailing part of the input file name.
+      Output will accordingly be written in the current directory, rather than
+      the directory in which the input file resides, as was previously the
+      case.  The latter behaviour can be obtained by using the new unary --d
+      option.
+
+   *  clm order and mcxarray have received polishing and upgrades.
+      -  mcxarray now preserves negative correlations and
+      makes them available for later transformation (i.e. either
+      discarding or absolute value replacement).
+      -  clm order finally outputs sensible output, namely a clustering
+      ordered in a manner consistent with the received set of nesting
+      clusterings, with largest clusters first, recursively,
+      starting from the coarsest clustering. It is possible to
+      halt this procedure at any level in the hierarchy using
+      the new -level option.
+      -  clm order used to accept just a cluster hierarchy (such as produced
+      by mclcm or simple concatenating of cluster files). It now accepts
+      multiple separate clusterings as well, and one can even mix hierarchies
+      and clusterings all at the same time.
+
+   *  The mcxplotlines.R script shipped with mcl has been improved and can
+      display a coarse experiment ordering (derived from clustering experiments
+      rather than probes) such as provided by 'clm order' on the expression
+      plots. The script should be regarded as a template for further
+      customization, although it does accept a number of parameters.
+
+      The expression plots now plot expression for all probes in a given
+      cluster, as well as the median value of expression of all probes
+      across a given experiment.
+
+      It is possible to let mcxplotlines.R handle a secondary coarser
+      clustering encoded by 'clm order'. The script will group together
+      information for the clusters within each supercluster, and plot
+      the medians of expression for all the subclusters as well as the
+      median of expression across the supercluster.
+
+   *  mcx alter and mcxarray have both acquired the -tf option common in
+      several other programs. Use this option to transform values; e.g.
+
+         mcxarray -data t.expr -co 0.7 -tf 'abs(),add(-0.7)' -o t.mci
+
+      takes expression data, computes the pearson correlation coefficient,
+      takes values >= 0.7 and <= -0.7, takes the absolute value,
+      and maps the interval [0.7-1.0] to [0-0.3].
+
+   *  The mcl options --adapt-smooth and --adapt-local have been turned
+      to no-ops.  The implementation of these experimental options was not
+      sufficiently supported and not sufficiently elegant.
+
+   *  Fixed a bug in mcxload, where mcxload -etc-ai would consistently crash.
+
 Fri, 18 Sep 2009
+
+   *  mcl-09-261 released.
 
    *  And a bug it did have (cf entry Wed 12 Jul 2009). When a resulting
       clustering contains overlap, mcl tries to split off the overlapping part.
@@ -18,7 +106,10 @@ Fri, 18 Sep 2009
       Use -ceil-nb <num> if you want to reduce the input graph in
       the same manner.
 
+
 Wed, 12 Jul 2009
+
+   *  mcl-09-182 released.
 
    *  Lint modes have been removed from mcl. Linting can now be achieved
       using 'clm adjust'.

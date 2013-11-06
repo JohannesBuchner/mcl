@@ -86,10 +86,7 @@ typedef struct
 ;  dim               num_select
 ;  dim               num_recover
 ;  int               scheme
-;  int               my_scheme
-
-;  double            cutCof
-;  double            cutExp
+;  mcxbool           do_rprune
 
 #define  XPNVB(mxp, bit)   (mxp->verbosity & bit)
 

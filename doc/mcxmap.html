@@ -9,7 +9,6 @@ body
 { text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -29,14 +28,13 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
-div.copy
-{ font-size: 12pt;
-font-family: monospace;
-text-align: left;
-white-space: pre;
-margin-left: 2em;
+div.verbatim
+{ font-family: monospace;
 margin-top: 1em;
 margin-bottom: 1em;
+font-size: 10pt;
+margin-left: 2em;
+white-space: pre;
 }
 div.indent
 { margin-left: 8%;
@@ -68,14 +66,15 @@ margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
+body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
 </style>
 <title>The mcxmap manual</title>
 </head>
 <body>
 <p style="text-align:right">
-18 Sep 2009&nbsp;&nbsp;&nbsp;
+4 Nov 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxmap.ps"><b>mcxmap</b></a>
-1.008, 09-261
+1.008, 09-308
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -119,9 +118,9 @@ mcxmap &mdash; permute or remap the indices of graphs and matrices.</p>
 <b>mcxmap</b>
 <a class="intern" href="#opt-imx"><b>-imx</b> fname (<i>input</i>)</a></p>
 <a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output</i>)<b>]</b></a>
-<a class="intern" href="#opt-cann"><b>[-cann</b> (<i>output map file name</i>)<b>]</b></a>
-<a class="intern" href="#opt-cannc"><b>[-cannc</b> (<i>output map file name</i>)<b>]</b></a>
-<a class="intern" href="#opt-cannr"><b>[-cannr</b> (<i>output map file name</i>)<b>]</b></a>
+<a class="intern" href="#opt-make-map"><b>[-make-map</b> (<i>output map file name</i>)<b>]</b></a>
+<a class="intern" href="#opt-make-mapc"><b>[-make-mapc</b> (<i>output map file name</i>)<b>]</b></a>
+<a class="intern" href="#opt-make-mapr"><b>[-make-mapr</b> (<i>output map file name</i>)<b>]</b></a>
 <a class="intern" href="#opt-cmul"><b>[-cmul</b> a (<i>coefficient</i>)<b>]</b></a>
 <a class="intern" href="#opt-cshift"><b>[-cshift</b> b (<i>translate</i>)<b>]</b></a>
 <a class="intern" href="#opt-rmul"><b>[-rmul</b> c (<i>coefficient</i>)<b>]</b></a>
@@ -193,7 +192,7 @@ Input file.</p>
 <p style="margin-top:0em; margin-bottom:0em">
 Different ways to specify map files.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-cann"></a><b>-cann</b> (<i>output map file name</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-cannc"></a><b>-cannc</b> (<i>output map file name</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-cannr"></a><b>-cannr</b> (<i>output map file name</i>)</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-make-map"></a><b>-make-map</b> (<i>output map file name</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-make-mapc"></a><b>-make-mapc</b> (<i>output map file name</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-make-mapr"></a><b>-make-mapr</b> (<i>output map file name</i>)</div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Generate a map that maps the specified domain onto
@@ -237,7 +236,7 @@ The matrix below has two canonical domains which are identical.
 It denotes a map of the canonical domain onto itself, in which
 node 0 is relabeled to 8, node 1 is relabeled to 5, et cetera.
 </p>
-<pre>(mclheader
+<div class="verbatim">(mclheader
 mcltype matrix
 dimensions 12x12
 )
@@ -256,7 +255,7 @@ begin
 10 11 $
 11 0  $
 )
-</pre>
+</div>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>

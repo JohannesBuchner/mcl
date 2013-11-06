@@ -275,6 +275,12 @@ void mclvSortUniq
 )  ;
 
 
+void mclvSelectHighestQ
+(  mclVector*     vec
+,  dim            max_n_ivps
+)  ;
+
+
 void mclvSelectHighest
 (  mclVector*     vec
 ,  dim            max_n_ivps
@@ -717,6 +723,15 @@ int mclvVidCmp
 ,  const void*  p2
 )  ;
 
+int mclvValCmp
+(  const void*  p1
+,  const void*  p2
+)  ;
+
+int mclvValRevCmp
+(  const void*  p1
+,  const void*  p2
+)  ;
 
 int mclvSumCmp
 (  const void*  p1

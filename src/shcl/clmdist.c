@@ -64,20 +64,14 @@ enum
 */
 
 
-typedef struct
-{  mclx*       cl
-;  mclx*       cltp
-;  mcxTing*    name
-;
-}  clnode      ;
-
-
 static const char* me = "clm dist";
 
 
 enum
 {  DIST_OPT_OUTPUT = CLM_DISP_UNUSED
 ,  DIST_OPT_MODE
+,  DIST_OPT_CONSECUTIVE
+,  DIST_OPT_SORT
 ,  DIST_OPT_DIGITS
 ,  DIST_OPT_FACTOR
 }  ;
@@ -95,11 +89,11 @@ static mcxOptAnchor volOptions[] =
    ,  "<fname>"
    ,  "output file name"
    }
-,  {  "-nff-fac"
+,  {  "-fraction"
    ,  MCX_OPT_HASARG
    ,  VOL_OPT_FACTOR
    ,  "<num>"
-   ,  "stringency factor (require |meet| >= <num> * |cls-size|)"
+   ,  "stringency factor: require |meet| >= <num> * |cls-size| (default 0.5)"
    }
 ,  {  NULL ,  0 ,  0 ,  NULL, NULL}
 }  ;
@@ -124,11 +118,23 @@ static mcxOptAnchor distOptions[] =
    ,  "<num>"
    ,  "number of trailing digits for floats"
    }
-,  {  "-nff-fac"
+,  {  "--chain"
+   ,  MCX_OPT_DEFAULT
+   ,  DIST_OPT_CONSECUTIVE
+   ,  NULL
+   ,  "only compare consecutive clusterings"
+   }
+,  {  "--sort"
+   ,  MCX_OPT_DEFAULT
+   ,  DIST_OPT_SORT
+   ,  NULL
+   ,  "sort from coarse to fine-grained before computing distances"
+   }
+,  {  "-fraction"
    ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  DIST_OPT_FACTOR
    ,  "<num>"
-   ,  "stringency factor (require |meet| >= <num> * |cls-size|)"
+   ,  "stringency factor: require |meet| >= <num> * |cls-size| (default 0.5)"
    }
 ,  {  NULL ,  0 ,  0 ,  NULL, NULL}
 }  ;
@@ -139,6 +145,8 @@ static int digits       =  -1;
 static int mode_g       =  -1;
 static mcxbool i_am_vol =  FALSE;   /* node faithfulness */
 static double  nff_fac  =  FLT_MAX;
+static mcxbool consecutive_g = -1;
+static mcxbool sort_g = -1;
 
 
 static mcxstatus distInit
@@ -148,6 +156,8 @@ static mcxstatus distInit
    ;  mode_g = 0
    ;  digits = 2
    ;  nff_fac     =  0.5
+   ;  consecutive_g = FALSE
+   ;  sort_g = FALSE
    ;  return STATUS_OK
 ;  }
 
@@ -200,6 +210,16 @@ static mcxstatus distArgHandle
       ;  break
       ;
 
+         case DIST_OPT_CONSECUTIVE
+      :  consecutive_g = TRUE
+      ;  break
+      ;
+
+         case DIST_OPT_SORT
+      :  sort_g = TRUE
+      ;  break
+      ;
+
          case DIST_OPT_FACTOR
       :  nff_fac = atof(val)
       ;  break
@@ -230,11 +250,15 @@ static mcxstatus distMain
 ,  const char*          argv[]
 )
    {  int               i, j
-   ;  int n_clusterings =  0
-   ;  clnode*  cls      =  mcxAlloc(argc * sizeof(clnode), EXIT_ON_FAIL)
    ;  int a             =  0
    ;  int digits        =  2
    ;  mclx* nff_scores  =  NULL
+   ;  mcxIO* xfin       =  mcxIOnew("-", "r")
+   ;  mcxbits bits      =  MCLX_PRODUCE_PARTITION | MCLX_REQUIRE_DOMSTACK
+
+   ;  mclxCat st
+
+   ;  mclxCatInit(&st)
 
    ;  if (i_am_vol)
       me = "clm vol"
@@ -247,41 +271,34 @@ static mcxstatus distMain
 
    ;  mcxIOopen(xfout, EXIT_ON_FAIL)
 
-   ;  for (i=a;i<argc;i++)
-      {  mcxIO *xfcl    =  mcxIOnew(argv[i], "r")
-      ;  mclx*   cl     =  mclxRead(xfcl, EXIT_ON_FAIL)
-      ;  dim o, m, e, err
-      ;  if ((err = clmEnstrict(cl, &o, &m, &e, ENSTRICT_CUT_OVERLAP)))
-         report_partition("clm dist/vol", cl, xfcl->fn, o, m, e)
-      ;  if 
-         (  n_clusterings
-         && !  mcldEquate
-               (cl->dom_rows, cls[n_clusterings-1].cl->dom_rows, MCLD_EQT_EQUAL)
-         )
-         mcxDie
-         (  1
-         ,  me
-         ,  "domains differ between %s and %s"
-         ,  xfcl->fn->str, cls[n_clusterings-1].name->str
-         )
-      ;  cls[n_clusterings].cl   =  cl
-      ;  cls[n_clusterings].name =  mcxTingNew(xfcl->fn->str)
-      ;  cls[n_clusterings].cltp =  i_am_vol ? mclxTranspose(cl) : NULL
-      ;  n_clusterings++
+   ;  while(a < argc)
+      {  mcxstatus status
+      ;  mcxIOnewName(xfin, argv[a])
+      ;  status = mclxCatRead(xfin, &st, 0, NULL, NULL, bits)
+      ;  mcxIOclose(xfin)
+      ;  if (status)
+         break
+      ;  a++
    ;  }
 
-      if (i_am_vol && n_clusterings)
+      if (!a || a != argc)
+      mcxDie(1, me, "failed to read one or more cluster files")
+
+   ;  if (sort_g)
+      mclxCatSortCoarseFirst(&st)
+
+   ;  if (i_am_vol && st.n_level)
       nff_scores
       =  mclxCartesian
          (  mclvCanonical(NULL, 1, 1.0)
-         ,  mclvClone(cls[0].cl->dom_rows)
+         ,  mclvClone(st.level[0].mx->dom_rows)
          ,  1.0
          )
 
-   ;  for (i=0;i<n_clusterings;i++)
-      {  mclx* c1    =  cls[i].cl
-      ;  for (j=i+1; j<n_clusterings;j++)      /* fixme; diagonal is special:zero */ 
-         {  mclx* c2  =  cls[j].cl
+   ;  for (i=0;i<st.n_level;i++)
+      {  mclx* c1    =  st.level[i].mx
+      ;  for (j=i+1; j<st.n_level;j++)
+         {  mclx* c2  =  st.level[j].mx
          ;  mclx* meet12, *meet21
          ;  double dist1d, dist2d
          ;  dim dist1i, dist2i
@@ -349,7 +366,6 @@ static mcxstatus distMain
                continue
          ;  }
 
-
             if (mode_g == DIST_SPLITJOIN)
                clmSJDistance(c1, c2, meet12, meet21, &dist1i, &dist2i)
             ,  fprintf
@@ -362,8 +378,8 @@ static mcxstatus distMain
                ,  (long) N_COLS(c1)
                ,  (long) N_COLS(c2)
                ,  (long) n_volatile
-               ,  cls[i].name->str
-               ,  cls[j].name->str
+               ,  st.level[i].fname->str
+               ,  st.level[j].fname->str
                ,  (long) nff[0]
                ,  (long) nff[1]
                ,  (long) nff[2]
@@ -382,8 +398,8 @@ static mcxstatus distMain
                ,  (long) N_ROWS(c1)
                ,  (long) N_COLS(c1)
                ,  (long) N_COLS(c2)
-               ,  cls[i].name->str
-               ,  cls[j].name->str
+               ,  st.level[i].fname->str
+               ,  st.level[j].fname->str
                )
 
          ;  else if (mode_g == DIST_MIRKIN)
@@ -397,12 +413,14 @@ static mcxstatus distMain
                ,  (long) N_ROWS(c1)
                ,  (long) N_COLS(c1)
                ,  (long) N_COLS(c2)
-               ,  cls[i].name->str
-               ,  cls[j].name->str
+               ,  st.level[i].fname->str
+               ,  st.level[j].fname->str
                )
 
          ;  mclxFree(&meet12)
          ;  mclxFree(&meet21)
+         ;  if (consecutive_g)
+            break
       ;  }
       }
 

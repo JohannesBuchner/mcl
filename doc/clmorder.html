@@ -9,7 +9,6 @@ body
 { text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -29,14 +28,13 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
-div.copy
-{ font-size: 12pt;
-font-family: monospace;
-text-align: left;
-white-space: pre;
-margin-left: 2em;
+div.verbatim
+{ font-family: monospace;
 margin-top: 1em;
 margin-bottom: 1em;
+font-size: 10pt;
+margin-left: 2em;
+white-space: pre;
 }
 div.indent
 { margin-left: 8%;
@@ -68,14 +66,15 @@ margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
+body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
 </style>
 <title>The clm order manual</title>
 </head>
 <body>
 <p style="text-align:right">
-18 Sep 2009&nbsp;&nbsp;&nbsp;
+4 Nov 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="clmorder.ps"><b>clm order</b></a>
-1.008, 09-261
+1.008, 09-308
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -107,7 +106,7 @@ margin-left: 3em;
 <a name="name"></a>
 <h2>NAME</h2>
 <p style="margin-bottom:0" class="asd_par">
-clm order &mdash; reorder indices to represent blocks from different clusterings.</p>
+clm order &mdash; reorder clusterings conformal to inclusion structure</p>
 <p style="margin-bottom:0" class="asd_par">clmorder is not in actual fact a program. This manual
 page documents the behaviour and options of the clm program when
 invoked in mode <i>order</i>. The options <b>-h</b>, <b>--apropos</b>,
@@ -119,33 +118,46 @@ in the <a class="local sibling" href="clm.html">clm</a> manual page.</p>
 <h2>SYNOPSIS</h2>
 <p style="margin-bottom:0" class="asd_par">
 <b>clm order</b>
-<a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output file</i>)<b>]</b></a>
-&lt;cl-stack-file&gt;
+<a class="intern" href="#opt-prefix"><b>[-prefix</b> &lt;string&gt; (<i>file multiplex prefix</i>)<b>]</b></a>
+<a class="intern" href="#opt-o"><b>[-o</b> &lt;fname&gt; (<i>concatenated output in single file</i>)<b>]</b></a>
+&lt;cluster|stack&gt;+
 </p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
 <p style="margin-bottom:0" class="asd_par">
-Given a set of concatenated input clusterings (encoded in a single file/stream),
-<b>clm order</b> reorders indices so that
-the ordering represents blocks from different clusterings (which are
-preferably more or less hierarchically organized). It puts nodes that
-share many clusters over the different clusters nearby, and puts nodes
-in larger clusters earlier in the ordering. It is presumed that the
-clusterings are successive subclusterings, but it need not be strictly
-the case - <b>clm order</b> will convert the input clusterings to a strictly
-nested sequence.
+Given a set of input clusterings <b>clm order</b> first transform it into a stack
+of strictly nesting clusterings. It does this by splitting clusters where
+necessary.
+It then reorders the coarsest (i.e. level-one) clustering, from large to
+small clusters. After that it reorders the second coarsest clustering
+conformally such that the first batch among its reordered clusters covers the
+level-one largest cluster, the second batch covers the level-one second
+largest cluster, and so on. Within these constraints, each batch of
+second-level clusters (corresponding to a single first-level cluster) is
+again ordered from larger to smaller clusters. This process is applied
+recursively throughout the entire stack of input clusters.
 </p>
 <p style="margin-bottom:0" class="asd_par">
-<b>clm order</b> expects a trailing file name argument for a file
-containing concatenated matrices (see <a class="local sibling" href="mcxio.html">mcxio</a>).
+The input can be specified in multiple files, and a single file may contain
+multiple clusterings. The output is by default written as a concatenation of
+matrix files, the so-called stack format. Use the <b>-o</b> option to
+specify the output file. The stacked format can be converted to Newick
+format using <a class="local sibling" href="mcxdump.html">mcxdump</a>. The output can be written to multiple files,
+one for each projected clustering, by using the <b>-prefix</b> option. By
+example, <b>-prefix</b>&nbsp;<b>P</b> leads to output in files named <tt>P1</tt>, <tt>P2</tt>,
+..<tt>PN</tt>, where <tt>N</tt> is the number of clusters in the input, <tt>P1</tt> is the
+most fine-grained ordered clustering, and <tt>PN</tt> is the coarsest clustering.
 </p>
 
 <a name="options"></a>
 <h2>OPTIONS</h2>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
-<div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-o"></a><b>-o</b> fname (<i>output file</i>)</div></div>
+<div class=" item_cascade item_leftalign nowrap" ><a name="opt-prefix"></a><b>-prefix</b> (<i>&lt;string&gt;</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-o"></a><b>-o</b> (<i>&lt;fname&gt;</i>)</div>
 <div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+As decribed above.
+</p>
 </div>
 </div>
 

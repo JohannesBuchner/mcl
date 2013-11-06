@@ -662,7 +662,9 @@ fprintf(stderr, "%%> level %.2f-%.2f put %d\n", lo, hi, (int) n_put)
       ;  dim i,j,k
       ;  mcxbits bits   =     MCLX_REQUIRE_DOMSTACK
                            |  MCLX_REQUIRE_CANONICAL
-                           |  MCLX_REQUIRE_PARTITION
+                           |  MCLX_PRODUCE_PARTITION
+
+      ;  mclxCatInit(&st)
       ;  if (mclxCatRead(xfstack, &st, n_cl_max, NULL, NULL, bits))
          mcxDie(1, me, "error reading stack")
 

@@ -147,6 +147,8 @@ static mcxstatus convertMain
    ;  xfin  = mcxIOnew(argv[0], "r")
    ;  xfout = mcxIOnew(argv[1], "w")
 
+   ;  mclxCatInit(&st)
+
    ;  if (main_mode == 'l')
       {  if (mclxCatRead(xfin, &st, catmax, NULL, NULL, 0))
          mcxDie(1, me, "failure is, if not an option, the result after all")

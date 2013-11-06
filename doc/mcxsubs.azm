@@ -73,7 +73,7 @@
    \mcxsubs
    \synreqopt{-imx}{<fname>}{input matrix}
    \synoptopt{-dom}{<fname>}{domain matrix}
-   \synoptopt{-tf}
+   \shared_synoptopt{-tf}
    \synoptopt{--block}{use block matrix}
    \synoptopt{--blockc}{use complement of block matrix}
    \synoptopt{--skin-read}{read domain structure without entries}
@@ -97,7 +97,7 @@
 \par{
    If you are a frequent \mcxsubs user with very large graphs, consider
    converting the input matrix into binary format using
-   \mysib{mcxconvert} and then using the mcxsubs
+   \mcxconvert and then using the mcxsubs
    \genopt{--from-disk} option. This should give you a 400-fold speed gain.
 }
 
@@ -169,7 +169,7 @@
    specified by the \genopt{-imx} option.
 }
 
-\item_defopt{-tf}
+\shared_defopt{-tf}
 
 \item{\defopt{-tab}{read tab file}}
 \car{
@@ -646,18 +646,18 @@ with which each edge is selected.
 
 \done
 
-   \synoptopt{--spec-doms}{use specified domains}
-   \synoptopt{--spec-cols}{use specified column domain}
-   \synoptopt{--spec-rows}{use specified row domain}
+   \synoptopt {--spec-doms}{use specified domains}
+   \synoptopt {--spec-cols}{use specified column domain}
+   \synoptopt {--spec-rows}{use specified row domain}
 
-\item{\defopt{--spec-doms}{use specified domains}}
+\item{\defopt {--spec-doms}{use specified domains}}
 By default, the initial submatrix has its domains restricted to be subdomains
 of the input matrix.  This option overrides that behaviour, so that the
 submatrix domains will, at the initial selection stage, be identical to the
 domains resulting from the specificiation process.
 
-\item{\defopt{--spec-cols}{use specified column domain}}
+\item{\defopt {--spec-cols}{use specified column domain}}
 See the \genopt{--spec-doms} option above.
 
-\item{\defopt{--spec-rows}{use specified row domain}}
+\item{\defopt {--spec-rows}{use specified row domain}}
 See the \genopt{--spec-doms} option above.

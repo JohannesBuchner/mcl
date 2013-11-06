@@ -55,7 +55,7 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
-am_mcx_OBJECTS = mcx.$(OBJEXT) mcxconvert.$(OBJEXT) mcxq.$(OBJEXT) \
+am_mcx_OBJECTS = mcx.$(OBJEXT) mcxconvert.$(OBJEXT) mcxquery.$(OBJEXT) \
 	mcxdiameter.$(OBJEXT) mcxclcf.$(OBJEXT) mcxerdos.$(OBJEXT) \
 	mcxcollect.$(OBJEXT) mcxtab.$(OBJEXT) mcxalter.$(OBJEXT)
 mcx_OBJECTS = $(am_mcx_OBJECTS)
@@ -228,7 +228,7 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)
 LDADD = ../mcl/libmcl.a ../clew/libclew.a ../taurus/libtaurus.a ../gryphon/libgryphon.a ../impala/libimpala.a ../../util/libutil.a
-EXTRA_DIST = fake mcx.h mcxconvert.h mcxminusmeet.c mcxq.h mcxdiameter.h mcxclcf.h mcxerdos.h mcxcollect.h mcxtab.h mcxalter.h
+EXTRA_DIST = fake mcx.h mcxconvert.h mcxminusmeet.c mcxquery.h mcxdiameter.h mcxclcf.h mcxerdos.h mcxcollect.h mcxtab.h mcxalter.h
 mcxassemble_SOURCES = mcxassemble.c
 mcxsubs_SOURCES = mcxsubs.c
 mcxmap_SOURCES = mcxmap.c
@@ -238,7 +238,7 @@ mcxarray_SOURCES = mcxarray.c
 mcxload_SOURCES = mcxload.c
 mcxrand_SOURCES = mcxrand.c
 mcxminusmeet_SOURCES = mcxminusmeet.c
-mcx_SOURCES = mcx.c mcxconvert.c mcxq.c mcxdiameter.c mcxclcf.c mcxerdos.c mcxcollect.c mcxtab.c mcxalter.c
+mcx_SOURCES = mcx.c mcxconvert.c mcxquery.c mcxdiameter.c mcxclcf.c mcxerdos.c mcxcollect.c mcxtab.c mcxalter.c
 all: all-am
 
 .SUFFIXES:
@@ -348,7 +348,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxload.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxmap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxminusmeet.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxq.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxquery.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxrand.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxsubs.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mcxtab.Po@am__quote@

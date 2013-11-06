@@ -43,6 +43,7 @@ typedef struct
 ;  int                  expandDigits
 
 ;  int                  pre_maxnum
+;  int                  pre_knn
 ;  double               pre_inflation
 ;  double               pre_inflationx
 ;  mcxbool              foundOverlap
@@ -62,16 +63,16 @@ typedef struct
 #  define   ALG_DO_SHADOW              1  << 15
 #  define   ALG_DO_SHOW_PID            1  << 16
 #  define   ALG_DO_SHOW_JURY           1  << 17
+#  define   ALG_DO_SUMLOOPS            1  << 18
 
 ;  mcxbits              modes
 
 ;  mcxbits              stream_modes
 ;  mcxbool              stream_write_labels
 ;  mclTab*              tab
-;  mcxTing*             fn_write_tab
-;  mcxTing*             fn_read_tab
 ;  mcxTing*             fn_write_input
 ;  mcxTing*             fn_write_start
+;  mcxTing*             fn_read_tab
 
 ;  mcxTing*             stream_transform_spec
 ;  mclpAR*              stream_transform

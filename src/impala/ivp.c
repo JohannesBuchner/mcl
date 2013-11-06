@@ -324,6 +324,7 @@ enum
 ,  MCLX_UNARY_LOG
 ,  MCLX_UNARY_NEGLOG
 ,  MCLX_UNARY_UNUSED
+,  MCLX_UNARY_ABS
 }  ;
 #endif
 
@@ -343,6 +344,7 @@ double (*mclp_unary_tab[])(pval, void*)
 ,  fltxExp
 ,  fltxLog
 ,  fltxNeglog
+,  fltxAbs
 ,  NULL           /* (double (f*)(pval* flt, void*arg)) NULL */
 }  ;
 
@@ -362,7 +364,7 @@ double mclpUnary
       ;  }
          val = mclp_unary_tab[mode](val, &arg)
       ;  if (!val)
-         switch(mode)
+         switch(mode)            /* docme what's going on here? */
          {  case MCLX_UNARY_LT
          :  case MCLX_UNARY_LQ
          :  case MCLX_UNARY_GQ

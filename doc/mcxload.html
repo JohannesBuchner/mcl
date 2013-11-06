@@ -9,7 +9,6 @@ body
 { text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -29,14 +28,13 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
-div.copy
-{ font-size: 12pt;
-font-family: monospace;
-text-align: left;
-white-space: pre;
-margin-left: 2em;
+div.verbatim
+{ font-family: monospace;
 margin-top: 1em;
 margin-bottom: 1em;
+font-size: 10pt;
+margin-left: 2em;
+white-space: pre;
 }
 div.indent
 { margin-left: 8%;
@@ -68,14 +66,15 @@ margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
+body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
 </style>
 <title>The mcxload manual</title>
 </head>
 <body>
 <p style="text-align:right">
-18 Sep 2009&nbsp;&nbsp;&nbsp;
+4 Nov 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxload.ps"><b>mcxload</b></a>
-1.008, 09-261
+1.008, 09-308
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -119,7 +118,7 @@ mcxload &mdash; load matrices and tab files from label format</p>
 <a class="intern" href="#opt-123"><b>[-123</b> &lt;fname&gt; (<i>identifier file</i>)<b>]</b></a>
 <a class="intern" href="#opt-o"><b>[-o</b> &lt;fname&gt; (<i>output file</i>)<b>]</b></a>
 <a class="intern" href="#opt--stream-mirror"><b>[--stream-mirror</b> (<i>symmetrify, same domain</i>)<b>]</b></a>
-<a class="intern" href="#opt--graph"><b>[--graph</b> (<i>assume same domain</i>)<b>]</b></a>
+<a class="intern" href="#opt--stream-split"><b>[--stream-split</b> (<i>assume different domains</i>)<b>]</b></a>
 <a class="intern" href="#opt-re"><b>[-re</b> &lt;mode&gt; (<i>edge deduplication mode</i>)<b>]</b></a>
 <a class="intern" href="#opt-ri"><b>[-ri</b> &lt;mode&gt; (<i>image symmetrification mode</i>)<b>]</b></a>
 <a class="intern" href="#opt-etc"><b>[-etc</b> &lt;fname&gt; (<i>leader 'etc' label file</i>)<b>]</b></a>
@@ -138,8 +137,12 @@ mcxload &mdash; load matrices and tab files from label format</p>
 <a class="intern" href="#opt-extend-tab"><b>[-extend-tab</b> &lt;fname&gt; (<i>tab launch</i>)<b>]</b></a>
 <a class="intern" href="#opt-extend-tabc"><b>[-extend-tabc</b> &lt;fname&gt; (<i>tabc launch</i>)<b>]</b></a>
 <a class="intern" href="#opt-extend-tabr"><b>[-extend-tabr</b> &lt;fname&gt; (<i>tabr launch</i>)<b>]</b></a>
+<a class="intern" href="#opt-123-max"><b>[-123-max</b> &lt;int&gt; (<i>set domain range</i>)<b>]</b></a>
+<a class="intern" href="#opt-123-maxc"><b>[-123-maxc</b> &lt;int&gt; (<i>set column range</i>)<b>]</b></a>
+<a class="intern" href="#opt-123-maxr"><b>[-123-maxr</b> &lt;int&gt; (<i>set row range</i>)<b>]</b></a>
 <a class="intern" href="#opt--stream-log"><b>[--stream-log</b> (<i>log transform stream values</i>)<b>]</b></a>
-<a class="intern" href="#opt--stream-neg-log"><b>[--stream-neg-log</b> (<i>minus log transform stream values</i>)<b>]</b></a>
+<a class="intern" href="#opt--stream-neg-log"><b>[--stream-neg-log</b> (<i>negative log transform stream values</i>)<b>]</b></a>
+<a class="intern" href="#opt--stream-neg-log10"><b>[--stream-neg-log10</b> (<i>negative log-10 transform stream values</i>)<b>]</b></a>
 <a class="intern" href="#opt-stream-tf"><b>[-stream-tf</b> (<i>transform stream values</i>)<b>]</b></a>
 <a class="intern" href="#opt-tf"><b>[-tf</b> &lt;tf-spec&gt; (<i>transform (not so) final matrix</i>)<b>]</b></a>
 <a class="intern" href="#opt--transpose"><b>[--transpose</b> (<i>transpose</i>)<b>]</b></a>
@@ -227,6 +230,7 @@ the values in the input stream and the values in the
 constructed matrix. These are
 <a class="intern" href="#opt--stream-log"><b>--stream-log</b></a>,
 <a class="intern" href="#opt--stream-neg-log"><b>--stream-neg-log</b></a>,
+<a class="intern" href="#opt--stream-neg-log10"><b>--stream-neg-log10</b></a>,
 <a class="intern" href="#opt-stream-tf"><b>-stream-tf</b></a> and
 <a class="intern" href="#opt-tf"><b>-tf</b></a>.
 Refer to <a class="local sibling" href="mcxio.html">mcxio</a> for a description of the syntax accepted
@@ -319,10 +323,14 @@ is encountered in the input, mcxload inserts
 stream as well. This option implies that both labels
 belong to the same domain.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--graph"></a><b>--graph</b> (<i>assume same domain</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--stream-split"></a><b>--stream-split</b> (<i>assume different domains</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
-This tells mcxload that both labels belong to the same domain.</p>
+This tells mcxload that the two labels belong to different domains.
+The program will create two tab files, one for columns and one
+for rows. This can be used for example to create a logical mapping of
+gene identifiers to species identifiers.
+</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-re"></a><b>-re</b> &lt;max|add|mul|first|last&gt; (<i>deduplication mode</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -407,17 +415,43 @@ first labels from the input not yet present in the dictionary.</p>
 Read a dictionary from file and extend it with all
 second labels from the input not yet present in the dictionary.</p>
 </div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-123-max"></a><b>-123-max</b> &lt;int&gt; (<i>set domain range</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+Numbers starting from <i>&lt;int&gt;</i> will be ignored, and the domain (used
+for both columns and rows) will range from zero up to one less than
+<i>&lt;int&gt;</i>.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-123-maxc"></a><b>-123-maxc</b> &lt;int&gt; (<i>set column range</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+Numbers starting from <i>&lt;int&gt;</i> will be ignored in the column domain,
+and the column domain will range from zero up to one
+less than <i>&lt;int&gt;</i>.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-123-maxr"></a><b>-123-maxr</b> &lt;int&gt; (<i>set row range</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+Numbers starting from <i>&lt;int&gt;</i> will be ignored in the row domain,
+and the row domain will range from zero up to one
+less than <i>&lt;int&gt;</i>.
+</p>
+</div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--stream-log"></a><b>--stream-log</b> (<i>log transform stream values</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Replace each entry by its natural logarithm.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--stream-neg-log"></a><b>--stream-neg-log</b> (<i>minus log transform stream values</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--stream-neg-log"></a><b>--stream-neg-log</b> (<i>negative log transform stream values</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--stream-neg-log10"></a><b>--stream-neg-log10</b> (<i>negative log-10 transform stream values</i>)</div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
-Replace each entry by the negative of its natural logarithm.
-This is most likely useful to convert scores that denote probabilities
-or p-values such as BLAST scores.</p>
+Replace each entry by the negative of its natural logarithm and
+log-10 representation, respectively.
+This is for example useful to convert scores that denote probabilities
+or p-values such as BLAST scores.
+</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-stream-tf"></a><b>-stream-tf</b> (<i>transform stream values</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">

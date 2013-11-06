@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcxarray" 1 "18 Sep 2009" "mcxarray 1\&.008, 09-261" "USER COMMANDS "
+.TH "mcxarray" 1 "4 Nov 2009" "mcxarray 1\&.008, 09-308" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -43,6 +43,7 @@ mcxarray \- Transform array data to MCL matrices
 \fB[-n\fP mode (\fInormalize input\fP)\fB]\fP
 \fB[-o\fP fname (\fIoutput file fname\fP)\fB]\fP
 \fB[-digits\fP <num> (\fIoutput precision\fP)\fB]\fP
+\fB[--write-binary\fP (\fIwrite output in binary format\fP)\fB]\fP
 \fB[-co\fP num (\fIcutoff for output values\fP)\fB]\fP
 \fB[-cutoff\fP num (\fIcutoff for output values\fP)\fB]\fP
 \fB[-gq\fP num (\fIignore input smaller than\fP)\fB]\fP
@@ -50,9 +51,10 @@ mcxarray \- Transform array data to MCL matrices
 \fB[--transpose\fP (\fIwork with the transposed data matrix\fP)\fB]\fP
 \fB[--cosine\fP (\fIuse cosine\fP)\fB]\fP
 \fB[--pearson\fP (\fIuse Pearson correlation (default)\fP)\fB]\fP
-\fB[-tear\fP num (\fIinflate input columns\fP)\fB]\fP
+\fB[--spearman\fP (\fIuse Spearman rank correlation\fP)\fB]\fP
 \fB[-pi\fP num (\fIinflate the result\fP)\fB]\fP
-\fB[--apropos\fP (\fIprint this help\fP)\fB]\fP
+\fB[-tf\fP spec (\fIapply tf-spec to input matrix\fP)\fB]\fP
+\fB[--help\fP (\fIprint this help\fP)\fB]\fP
 \fB[-h\fP (\fIprint this help\fP)\fB]\fP
 \fB[--version\fP (\fIprint version information\fP)\fB]\fP
 .SH DESCRIPTION
@@ -71,12 +73,6 @@ This can be changed for both using the
 .br
 Specify the data file containing the expression values\&.
 It should be tab-separated\&.
-.in -2m
-
-.ZI 2m "\fB-imx\fP fname (\fIinput matrix file\fP)"
-\&
-.br
-The expression values are read from a file in mcl matrix format\&.
 .in -2m
 
 .ZI 2m "\fB-skipr\fP <num> (\fIskip <num> data rows\fP)"
@@ -107,6 +103,12 @@ If more data columns need to be skipped one must explicitly specify
 the data column to take labels from with \fB-l\fP\ \&\fIl\fP\&.
 .in -2m
 
+.ZI 2m "\fB-imx\fP fname (\fIinput matrix file\fP)"
+\&
+.br
+The expression values are read from a file in mcl matrix format\&.
+.in -2m
+
 .ZI 2m "\fB-n\fP mode (\fInormalization mode\fP)"
 \&
 .br
@@ -126,10 +128,16 @@ Output file name\&.
 Specify the precision to use in native interchange format\&.
 .in -2m
 
+.ZI 2m "\fB--write-binary\fP (\fIwrite output in binary format\fP)"
+\&
+.br
+Write output matrices in native binary format\&.
+.in -2m
+
 .ZI 2m "\fB-co\fP num (\fIcutoff for output values\fP)"
 \&
 'in -2m
-.ZI 2m "\fB-cutoff\fP num (\fIalias for \fB-co\fP\fP)"
+.ZI 2m "\fB-cutoff\fP num (\fIalias for -co\fP)"
 \&
 'in -2m
 'in +2m
@@ -158,31 +166,28 @@ Work with the transpose of the input data matrix\&.
 
 .ZI 2m "\fB--cosine\fP (\fIuse cosine\fP)"
 \&
-.br
-Use the cosine as correlation measure\&.
-.in -2m
-
+'in -2m
 .ZI 2m "\fB--pearson\fP (\fIuse Pearson correlation (default)\fP)"
 \&
-.br
-Compute the Pearson correleation coefficient as the similarity between the
-data columns\&.
-.in -2m
-
-.ZI 2m "\fB-tear\fP num (\fIinflate input columns\fP)"
+'in -2m
+.ZI 2m "\fB--spearman\fP (\fIuse Spearman rank correlation\fP)"
+\&
+'in -2m
+'in +2m
 \&
 .br
-Apply (column-wise) inflation with parameter \fInum\fP to the input
-values before further processing\&.
+Use one of these to specify the correlation measure\&.
 .in -2m
 
 .ZI 2m "\fB-pi\fP num (\fIinflate the result\fP)"
 \&
 .br
 Apply inflation with parameter \fInum\fP to the output values\&.
+Transform the input matrix values according
+to the syntax described in \fBmcxio(5)\fP\&.
 .in -2m
 
-.ZI 2m "\fB--apropos\fP (\fIprint help\fP)"
+.ZI 2m "\fB--help\fP (\fIprint help\fP)"
 \&
 'in -2m
 .ZI 2m "\fB-h\fP (\fIprint help\fP)"

@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcxio" 5 "18 Sep 2009" "mcxio 1\&.008, 09-261" "FILE FORMATS "
+.TH "mcxio" 5 "4 Nov 2009" "mcxio 1\&.008, 09-308" "FILE FORMATS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -93,7 +93,7 @@ versions of mcl\&. Its distinct advantage is that for very large
 graphs the speed advantage over interchange format is dramatic\&.
 
 Conversion between the two formats is easily achieved with
-\fBmcxconvert(1)\fP\&. Both \fBmcl(1)\fP and \fBmcxload(1)\fP
+\fBmcxconvert\fP\&. Both \fBmcl(1)\fP and \fBmcxload(1)\fP
 can save a matrix in either format after constructing it from
 label input\&.
 
@@ -504,15 +504,16 @@ Take minus log in base arg (\fIe\fP if omitted)\&.
 
 \fBNOTE\fP
 .br
-\fBmcl(1)\fP accepts \fB--abc-log\fP and \fB--abc-neg-log\fP to specify
-log transformations\&. Similarly, \fBmcxload(1)\fP accepts \fB--stream-log\fP
-and \fB--stream-neg-log\fP\&. The reason is that probabilities are
-sometimes encoded below the precision dictated by the IEEE (32 bit) float
+\fBmcl(1)\fP accepts \fB--abc-neg-log\fP and \fB--abc-neg-log10\fP
+to specify log transformations\&. Similarly, \fBmcxload(1)\fP accepts
+\fB--stream-log\fP, \fB--stream-neg-log\fP, and
+\fB--stream-neg-log10\fP\&. The reason is that probabilities are sometimes
+encoded below the precision dictated by the IEEE (32 bit) float
 specification\&. This poses a problem as the mcl applications encode values
 by default as floats, and the transformation specifications are always
-applied to the mcl encoding\&. The options just mentioned are applied
-after a value has been read from an input stream and \fIbefore\fP it
-is converted to the native encoding\&.
+applied to the mcl encoding\&. The options just mentioned are applied after a
+value has been read from an input stream and \fIbefore\fP it is converted to
+the native encoding\&.
 .SH SEE ALSO
 \fBmcxassemble(1)\fP,
 and \fBmclfamily(7)\fP for an overview of all the documentation

@@ -7,6 +7,9 @@
 */
 
 /* TODO
+ *    This is tricky code, a bit too sprawling. Has to support many modes
+ *    in terms of abc|etc|123|235 modes, extend|strict|restrict,
+ *    cmax|rmax symmetric|directed.
  *    With -restrict-tabr?, what are the domains of the resulting matrix?
  *
  *    err if *ai and tab_col_in both present.
@@ -57,6 +60,9 @@ const char* module = "mclxIOstreamIn";
 
 #define MCLXIO_STREAM_CTAB_RO (MCLXIO_STREAM_CTAB_STRICT | MCLXIO_STREAM_CTAB_RESTRICT)
 #define MCLXIO_STREAM_RTAB_RO (MCLXIO_STREAM_RTAB_STRICT | MCLXIO_STREAM_RTAB_RESTRICT)
+
+#define MCLXIO_STREAM_ETCANY (MCLXIO_STREAM_ETC | MCLXIO_STREAM_ETC_AI)
+#define MCLXIO_STREAM_235ANY (MCLXIO_STREAM_235 | MCLXIO_STREAM_235_AI)
 
 #define DEBUG 0
 #define DEBUG2 0
@@ -217,10 +223,10 @@ static mcxstatus handle_label
    /* Purpose: read a single x/y combination. The x may be cached
     * due to the etc format, where a single line always refers to the same x
     * and that x is listed only at the start or line, or omitted with
-    * the etc-ai format.
+    * the etc-ai and 235-ai formats.
     *
-    * state->x_prev may be read by read_etc in order to obtain the
-    * current x index (hierverder: check)
+    * state->x_prev may be used by read_etc in order to obtain the
+    * current x index.
    */
 static mcxstatus read_etc
 (  mcxIO*         xf
@@ -338,7 +344,8 @@ static mcxstatus read_etc
          ;  iface->statusy = STATUS_IGNORE
          ;  break
       ;  }
-         else if (bits & (MCLXIO_STREAM_235_AI | MCLXIO_STREAM_235))
+
+         if (bits & (MCLXIO_STREAM_235_AI | MCLXIO_STREAM_235))
          {  if (1 != sscanf(state->etcbuf->str+state->etcbuf_ofs, "%lu%n", &(iface->y), &n_char_read))
             {  char* s = state->etcbuf->str+state->etcbuf_ofs
             ;  while(isspace((uchar) s[0]))
@@ -358,8 +365,7 @@ static mcxstatus read_etc
             ;  if (iface->map_r->max_seen+1 < iface->y+1)      /* note mixed-sign comparison */
                iface->map_r->max_seen = iface->y
          ;  }
-            break
-      ;  }
+         }
          else  /* ETCANY */
          {  ykey = mcxTingEmpty(NULL, state->etcbuf->len)
          ;  if (1 != sscanf(state->etcbuf->str+state->etcbuf_ofs, "%s%n", ykey->str, &n_char_read))
@@ -371,29 +377,30 @@ static mcxstatus read_etc
 
          ;  iface->statusy
             =  handle_label(&ykey, &(iface->y), iface->map_r, label_rbits | label_dbits, "row")
-
-                     /* this won't scale well in terms of organisation if  and when
-                      * tabs are allowed with 235 mode, because in that case,
-                      * with 235-ai and restrict-tabr and extend-tabc we will
-                      * need the stuff below duplicated in the 235 branch above.
-
-                      * what happens here is that we only decide now whether
-                      * the auto-increment is actually happening. It depends
-                      * on there being at least one y that was not rejected.
-                     */
-         ;  if
-            (  (bits & MCLXIO_STREAM_ETC_AI)
-            && (iface->statusy == STATUS_OK || iface->statusy == STATUS_NEW)
-            && !state->n_y
-            )
-            {  iface->x = state->x_prev + 1         /* works first time around */
-            ;  iface->map_c->max_seen = state->x_prev + 1
-            ;  state->n_y++
-            ;  state->x_prev = iface->x
-         ;  }
-;if(DEBUG2)fprintf(stdbug, "etc handle label we have y %d status %s\n", (int) iface->y, MCXSTATUS(iface->statusy))
       ;  }
-      }
+
+                  /* this won't scale well in terms of organisation if  and when
+                   * tabs are allowed with 235 mode, because in that case,
+                   * with 235-ai and restrict-tabr and extend-tabc we will
+                   * need the stuff below duplicated in the 235 branch above.
+
+                   * what happens here is that we only decide now whether
+                   * the auto-increment is actually happening. It depends
+                   * on there being at least one y that was not rejected.
+                  */
+      ;  if
+         (  (bits & (MCLXIO_STREAM_ETC_AI | MCLXIO_STREAM_235_AI))
+         && (iface->statusy == STATUS_OK || iface->statusy == STATUS_NEW)
+         && !state->n_y
+         )
+         {  iface->x = state->x_prev + 1         /* works first time around */
+         ;  iface->map_c->max_seen = state->x_prev + 1
+         ;  state->n_y++
+         ;  state->x_prev = iface->x
+      ;  }
+
+;if(DEBUG2)fprintf(stdbug, "etc handle label we have y %d status %s\n", (int) iface->y, MCXSTATUS(iface->statusy))
+;     }
       while (0)
 
 ;if(DEBUG2)fprintf(stdbug, "status %s\n", MCXSTATUS(status))
@@ -631,7 +638,10 @@ static mcxstatus read_123
          else if (!(*value < FLT_MAX))
          *value = 1.0
 
-      ;  if (x >= streamer->cmax_123 || y >= streamer->rmax_123)
+      ;  if
+         (  (streamer->cmax_123 && x >= streamer->cmax_123)
+         || (streamer->rmax_123 && y >= streamer->rmax_123)
+         )
          {  status = STATUS_IGNORE
          ;  break
       ;  }
@@ -764,8 +774,10 @@ static void stream_state_set_map
 
 
 static mclx* make_mx_from_pars
-(  stream_state* iface
+(  mclxIOstreamer* streamer
+,  stream_state* iface
 ,  void  (*ivpmerge)(void* ivp1, const void* ivp2)
+,  mcxbits bits
 )
    {  mclpAR* pars = iface->pars
    ;  long dc_max_seen = iface->map_c->max_seen
@@ -774,7 +786,18 @@ static mclx* make_mx_from_pars
    ;  mclv* domc, *domr
    ;  dim i
 
-;if(DEBUG3)fprintf(stderr, "maxc=%d maxr=%d\n", (int) dc_max_seen, (int) dr_max_seen)
+   ;  if (bits & MCLXIO_STREAM_235ANY)
+      {  if (streamer->cmax_235 > 0 && dc_max_seen < streamer->cmax_235 - 1)
+         dc_max_seen = streamer->cmax_235-1
+   ;  }
+      else if (bits & MCLXIO_STREAM_123)
+      {  if (streamer->cmax_123 > 0 && dc_max_seen < streamer->cmax_123 - 1)
+         dc_max_seen = streamer->cmax_123-1
+      ;  if (streamer->rmax_123 > 0 && dr_max_seen < streamer->rmax_123 - 1)
+         dr_max_seen = streamer->rmax_123-1
+   ;  }
+
+mcxTell("stream", "maxc=%d maxr=%d", (int) dc_max_seen, (int) dr_max_seen)
 
    ;  if (iface->pars_n_used != iface->map_c->max_seen+1)
       mcxDie
@@ -810,7 +833,7 @@ static mclx* make_mx_from_pars
       ;  mclvFree(&domr)
    ;  }
       else
-      for (i=0;i<domc->n_ivps;i++)  /* careful with signedness */
+      for (i=0;i<iface->pars_n_used;i++)  /* careful with signedness */
       {  long d = domc->ivps[i].idx
 ;if(DEBUG3)fprintf(stderr, "column %d alloc %d\n", (int) d, (int) iface->pars_n_alloc);
       ;  mclvFromPAR(mx->cols+i, pars+d, 0, ivpmerge, NULL)
@@ -853,9 +876,6 @@ mclx* mclxIOstreamIn
 ,  mclxIOstreamer* streamer
 ,  mcxOnFail ON_FAIL
 )
-#define MCLXIO_STREAM_ETCANY (MCLXIO_STREAM_ETC | MCLXIO_STREAM_ETC_AI)
-#define MCLXIO_STREAM_235ANY (MCLXIO_STREAM_235 | MCLXIO_STREAM_235_AI)
-
    {  mcxstatus status  =  STATUS_FAIL
    ;  const char* me    =  module
 
@@ -969,14 +989,14 @@ mclx* mclxIOstreamIn
       ;  x = iface.x
       ;  y = iface.y
 
-                        /* hierverder: etc status ignore could still expand column range.
+                        /* considerme: etc status ignore could still expand column range.
                          * do we change the status and deal with not incorporating the row,
                          * or do we keep status, and change realloc/ignore logic below?
                         */
 ;if(0)fprintf(stderr, "#x now %lu status %s\n", (ulong) (iface.map_c->max_seen+1), MCXSTATUS(status))
                         /* etc/235 are special in that with NEW x and IGNORE y
                          * we respect x
-                         * (fixme: should not do that for auto-increment).
+                         * fixme: should not do that for auto-increment
                         */
       ;  if (status == STATUS_IGNORE)     /* maybe restrict mode */
          {  if
@@ -1006,6 +1026,8 @@ mclx* mclxIOstreamIn
             value = value > 0 ? log(value) : -DBL_MAX
          ;  else if (bits & MCLXIO_STREAM_NEGLOGTRANSFORM)
             value = value > 0 ? -log(value) : DBL_MAX
+         ;  if (bits & MCLXIO_STREAM_LOG10)
+            value /= log(10)
       ;  }
 
          if (transform)
@@ -1038,7 +1060,7 @@ mclx* mclxIOstreamIn
    ;  if (status == STATUS_FAIL || ferror(xf->fp))
       mcxErr(me, "error occurred (status %d lc %d)", (int) status, (int) xf->lc)
    ;  else
-      {  mx = make_mx_from_pars(&iface, ivpmerge)
+      {  mx = make_mx_from_pars(streamer, &iface, ivpmerge, bits)
       ;  status = mx ? STATUS_OK : STATUS_FAIL
    ;  }
 

@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "clm order" 1 "18 Sep 2009" "clm order 1\&.008, 09-261" "USER COMMANDS "
+.TH "clm order" 1 "4 Nov 2009" "clm order 1\&.008, 09-308" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -28,7 +28,7 @@
 .el .in 8m
 ..
 .SH NAME
-clm order \- reorder indices to represent blocks from different clusterings\&.
+clm order \- reorder clusterings conformal to inclusion structure
 
 clmorder is not in actual fact a program\&. This manual
 page documents the behaviour and options of the clm program when
@@ -39,27 +39,44 @@ in the \fBclm\fP manual page\&.
 .SH SYNOPSIS
 
 \fBclm order\fP
-\fB[-o\fP fname (\fIoutput file\fP)\fB]\fP
-<cl-stack-file>
+\fB[-prefix\fP <string> (\fIfile multiplex prefix\fP)\fB]\fP
+\fB[-o\fP <fname> (\fIconcatenated output in single file\fP)\fB]\fP
+<cluster|stack>+
 .SH DESCRIPTION
 
-Given a set of concatenated input clusterings (encoded in a single file/stream),
-\fBclm order\fP reorders indices so that
-the ordering represents blocks from different clusterings (which are
-preferably more or less hierarchically organized)\&. It puts nodes that
-share many clusters over the different clusters nearby, and puts nodes
-in larger clusters earlier in the ordering\&. It is presumed that the
-clusterings are successive subclusterings, but it need not be strictly
-the case - \fBclm order\fP will convert the input clusterings to a strictly
-nested sequence\&.
+Given a set of input clusterings \fBclm order\fP first transform it into a stack
+of strictly nesting clusterings\&. It does this by splitting clusters where
+necessary\&.
+It then reorders the coarsest (i\&.e\&. level-one) clustering, from large to
+small clusters\&. After that it reorders the second coarsest clustering
+conformally such that the first batch among its reordered clusters covers the
+level-one largest cluster, the second batch covers the level-one second
+largest cluster, and so on\&. Within these constraints, each batch of
+second-level clusters (corresponding to a single first-level cluster) is
+again ordered from larger to smaller clusters\&. This process is applied
+recursively throughout the entire stack of input clusters\&.
 
-\fBclm order\fP expects a trailing file name argument for a file
-containing concatenated matrices (see \fBmcxio(5)\fP)\&.
+The input can be specified in multiple files, and a single file may contain
+multiple clusterings\&. The output is by default written as a concatenation of
+matrix files, the so-called stack format\&. Use the \fB-o\fP option to
+specify the output file\&. The stacked format can be converted to Newick
+format using \fBmcxdump(1)\fP\&. The output can be written to multiple files,
+one for each projected clustering, by using the \fB-prefix\fP option\&. By
+example, \fB-prefix\fP\ \&\fBP\fP leads to output in files named \fCP1\fP, \fCP2\fP,
+\&.\&.\fCPN\fP, where \fCN\fP is the number of clusters in the input, \fCP1\fP is the
+most fine-grained ordered clustering, and \fCPN\fP is the coarsest clustering\&.
 .SH OPTIONS
 
-.ZI 2m "\fB-o\fP fname (\fIoutput file\fP)"
+.ZI 2m "\fB-prefix\fP (\fI<string>\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-o\fP (\fI<fname>\fP)"
+\&
+'in -2m
+'in +2m
 \&
 .br
+As decribed above\&.
 .in -2m
 .SH AUTHOR
 

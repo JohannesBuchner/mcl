@@ -33,7 +33,7 @@
    \synoptopt{-o}{<fname>}{output file}
 
    \synoptopt{--stream-mirror}{symmetrify, same domain}
-   \synoptopt{--graph}{assume same domain}
+   \synoptopt{--stream-split}{assume different domains}
    \synoptopt{-re}{<mode>}{edge deduplication mode}
    \synoptopt{-ri}{<mode>}{image symmetrification mode}
 
@@ -56,9 +56,13 @@
    \synoptopt{-extend-tab}{<fname>}{tab launch}
    \synoptopt{-extend-tabc}{<fname>}{tabc launch}
    \synoptopt{-extend-tabr}{<fname>}{tabr launch}
+   \synoptopt{-123-max}{<int>}{set domain range}
+   \synoptopt{-123-maxc}{<int>}{set column range}
+   \synoptopt{-123-maxr}{<int>}{set row range}
 
    \synoptopt{--stream-log}{log transform stream values}
-   \synoptopt{--stream-neg-log}{minus log transform stream values}
+   \synoptopt{--stream-neg-log}{negative log transform stream values}
+   \synoptopt{--stream-neg-log10}{negative log-10 transform stream values}
    \synoptopt{-stream-tf}{transform stream values}
    \synoptopt{-tf}{<tf-spec>}{transform (not so) final matrix}
 
@@ -154,6 +158,7 @@
    constructed matrix. These are
 \genoptref{--stream-log},
 \genoptref{--stream-neg-log},
+\genoptref{--stream-neg-log10},
 \genoptref{-stream-tf} and
 \genoptref{-tf}.
    Refer to \mysib{mcxio} for a description of the syntax accepted
@@ -247,9 +252,13 @@
    stream as well. This option implies that both labels
    belong to the same domain.}
 
-\item{\defopt{--graph}{assume same domain}}
+\item{\defopt{--stream-split}{assume different domains}}
 \car{
-   This tells mcxload that both labels belong to the same domain.}
+   This tells mcxload that the two labels belong to different domains.
+   The program will create two tab files, one for columns and one
+   for rows. This can be used for example to create a logical mapping of
+   gene identifiers to species identifiers.
+   }
 
 \item{\defopt{-re}{<max|add|mul|first|last>}{deduplication mode}}
 \car{
@@ -321,15 +330,41 @@
    Read a dictionary from file and extend it with all
    second labels from the input not yet present in the dictionary.}
 
+\item{\defopt{-123-max}{<int>}{set domain range}}
+\car{
+   Numbers starting from \genarg{<int>} will be ignored, and the domain (used
+   for both columns and rows) will range from zero up to one less than
+   \genarg{<int>}.
+   }
+
+\item{\defopt{-123-maxc}{<int>}{set column range}}
+\car{
+   Numbers starting from \genarg{<int>} will be ignored in the column domain,
+   and the column domain will range from zero up to one
+   less than \genarg{<int>}.
+   }
+
+\item{\defopt{-123-maxr}{<int>}{set row range}}
+\car{
+   Numbers starting from \genarg{<int>} will be ignored in the row domain,
+   and the row domain will range from zero up to one
+   less than \genarg{<int>}.
+   }
+
 \item{\defopt{--stream-log}{log transform stream values}}
 \car{
    Replace each entry by its natural logarithm.}
 
-\item{\defopt{--stream-neg-log}{minus log transform stream values}}
+\items{
+{\defopt{--stream-neg-log}{negative log transform stream values}}
+{\defopt{--stream-neg-log10}{negative log-10 transform stream values}}
+}
 \car{
-   Replace each entry by the  negative of its natural logarithm.
-   This is most likely useful to convert scores that denote probabilities
-   or p-values such as BLAST scores.}
+   Replace each entry by the  negative of its natural logarithm and
+   log-10 representation, respectively.
+   This is for example useful to convert scores that denote probabilities
+   or p-values such as BLAST scores.
+   }
 
 \item{\defopt{-stream-tf}{transform stream values}}
 \car{

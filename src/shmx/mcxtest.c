@@ -63,6 +63,7 @@ int main
    {  mcxIO* xf = mcxIOnew(argv[1], "r")
    ;  dim j
    ;  mclxCat st
+   ;  mclxCatInit(&st)
    ;  if (mclxCatRead(xf, &st, 10, NULL, NULL, atoi(argv[2])))
       mcxDie(1, "test", "nope")
    ;  for (j=0;j<st.n_level;j++)

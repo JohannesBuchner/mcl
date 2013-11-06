@@ -74,7 +74,8 @@ char* mclTabGet
  *    hash, *do* free the ting, do not free the str!  - use mcxTingAbandon
  *    callback.
  *
- *    Future: remove this.
+ *    Quite awful dependencies.
+ *    Future: remove this (implementation and/or (entire) interface).
 */
 
 mclTab* mclTabFromMap

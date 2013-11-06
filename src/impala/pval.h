@@ -42,6 +42,7 @@ enum
 ,  MCLX_UNARY_EXP
 ,  MCLX_UNARY_LOG
 ,  MCLX_UNARY_NEGLOG
+,  MCLX_UNARY_ABS
 ,  MCLX_UNARY_UNUSED
 }  ;
 
@@ -132,6 +133,11 @@ double fltxLog
 ,  void*    base
 )  ;
 
+double fltxAbs
+(  pval     flt
+,  void*    base
+)  ;
+
 double fltxNeglog
 (  pval     flt
 ,  void*    base
@@ -215,6 +221,14 @@ double fltMin
 
 
 double fltMax
+(  pval     d1
+,  pval     d2
+)  ;
+
+
+/* returns the max if both are nonzero, zero otherwise */
+
+double fltMaxNZ
 (  pval     d1
 ,  pval     d2
 )  ;

@@ -733,6 +733,7 @@ void mclxChangeCDomain
       ;  if (cvec)
          {  newcol->ivps   =  cvec->ivps
          ;  newcol->n_ivps =  cvec->n_ivps
+         ;  newcol->val    =  cvec->val
          ;  cvec->ivps     =  NULL
          ;  cvec->n_ivps   =  0
          ;  cvec++
@@ -898,7 +899,8 @@ static mclx* mclx_collect_vectors
          {  mclvCopy(mx->cols+n_done, vec)
          ;  mcldMerge(mx->dom_rows, vec, mx->dom_rows)
       ;  }
-         n_done++
+         mx->cols[n_done].vid = vid++
+      ;  n_done++
    ;  }
       mclvResize(mx->dom_cols, n_done)
    ;  mclvMakeCharacteristic(mx->dom_rows)
@@ -949,7 +951,7 @@ void mclxAddto
 
    ;  if (mcldCountParts(m1->dom_rows, m2->dom_rows, NULL, NULL, &rdiff))
       join_row = mcldMerge(m1->dom_rows, m2->dom_rows, NULL)
-   ;  if (mcldCountParts(m1->dom_rows, m2->dom_rows, NULL, NULL, &rdiff))
+   ;  if (mcldCountParts(m1->dom_cols, m2->dom_cols, NULL, NULL, &rdiff))
       join_col = mcldMerge(m1->dom_cols, m2->dom_cols, NULL)
 
    ;  mclxAccommodate(m1, join_col, join_row)
@@ -1413,6 +1415,18 @@ double mclxLoopCBremove
 ;  }
 
 
+double mclxLoopCBsum
+(  mclv  *vec
+,  long r_unused           cpl__unused
+,  void*data_unused        cpl__unused
+)
+   {  double sum = mclvSum(vec)
+   ;  if (vec->n_ivps && sum)
+      return sum
+   ;  return 1.0
+;  }
+
+
 double mclxLoopCBmax
 (  mclv  *vec
 ,  long r_unused           cpl__unused
@@ -1555,7 +1569,7 @@ mclv* mclgUnionv2
                (  restrict
                && 0 > (o_restrict = mclvGetIvpOffset(restrict, idx, o_restrict))
                )
-               continue                /* not found in restriction domain */
+               continue               /* not found in restriction domain */
 
             ;  if (row_scratch->ivps[o_scratch].val < MCLG_UNIONV_SENTINEL)
                   row_scratch->ivps[o_scratch].val = MCLG_UNIONV_SENTINEL + 0.5
@@ -1587,6 +1601,21 @@ mclv* mclgUnionv2
       mclvFree(&row_scratch)
 
    ;  return dst
+;  }
+
+
+mclx* mclxKNNmutual
+(  const mclx* mx
+,  dim knn
+)
+   {  dim i
+   ;  mclx* mxtp, *res
+   ;  for (i=0;i<N_COLS(mx);i++)
+      mclvSelectHighestQ(mx->cols+i, knn)
+   ;  mxtp = mclxTranspose(mx)
+   ;  res = mclxBinary(mx, mxtp, fltMaxNZ)
+   ;  mclxFree(&mxtp)
+   ;  return res
 ;  }
 
 

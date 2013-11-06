@@ -65,6 +65,7 @@ enum
 ,  ID_FRAME
 ,  ID_CLOSE
 ,  ID_VOL
+,  ID_STABLE
 ,  ID_DAG
 ,  ID_FORMAT
 ,  ID_RESIDUE
@@ -83,6 +84,7 @@ mcxDispEntry clm_dir[] =
 {  {  ID_MATE,    mcxDispHookMate  }
 ,  {  ID_MEET,    mcxDispHookMeet  }
 ,  {  ID_VOL,     mcxDispHookVol   }
+,  {  ID_STABLE,  mcxDispHookStable}
 ,  {  ID_DIST,    mcxDispHookDist  }
 ,  {  ID_INFO,    mcxDispHookInfo  }
 ,  {  ID_IMAC,    mcxDispHookImac  }
@@ -151,7 +153,7 @@ mcxOptAnchor clmSharedOptions[] =
    ,  NULL
    ,  "this"
    }
-,  {  "--apropos"
+,  {  "--help"
    ,  MCX_OPT_DEFAULT
    ,  CLM_DISP_APROPOS
    ,  NULL
@@ -183,7 +185,8 @@ mcxstatus sharedArgHandle
       {  case CLM_DISP_HELP
       :  case CLM_DISP_APROPOS
       :  case CLM_DISP_AMOIXA
-      :  mcxOptApropos
+      :  
+         mcxOptApropos
          (  stdout
          ,  hook->name
          ,  full_syntax->str
@@ -264,8 +267,8 @@ int main
    {  mcxDispBundle bundle 
 
    ;  mcxLogLevel =
-      MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
-   ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
+      MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_GAUGE | MCX_LOG_WARN
+   ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_NO)
    ;  mclx_app_init(stderr)
 
    ;  bundle.disp_argc     =  argc

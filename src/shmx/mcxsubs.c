@@ -107,7 +107,7 @@ enum
 
 mcxOptAnchor options[] =
 {
-   {  "--apropos"
+   {  "--help"
    ,  MCX_OPT_DEFAULT | MCX_OPT_INFO
    ,  MY_OPT_APROPOS
    ,  NULL

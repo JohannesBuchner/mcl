@@ -9,7 +9,6 @@ body
 { text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -29,14 +28,13 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
-div.copy
-{ font-size: 12pt;
-font-family: monospace;
-text-align: left;
-white-space: pre;
-margin-left: 2em;
+div.verbatim
+{ font-family: monospace;
 margin-top: 1em;
 margin-bottom: 1em;
+font-size: 10pt;
+margin-left: 2em;
+white-space: pre;
 }
 div.indent
 { margin-left: 8%;
@@ -68,14 +66,15 @@ margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
+body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
 </style>
 <title>The clm info manual</title>
 </head>
 <body>
 <p style="text-align:right">
-18 Sep 2009&nbsp;&nbsp;&nbsp;
+4 Nov 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="clminfo.ps"><b>clm info</b></a>
-1.008, 09-261
+1.008, 09-308
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -111,7 +110,7 @@ margin-left: 3em;
 <a name="name"></a>
 <h2>NAME</h2>
 <p style="margin-bottom:0" class="asd_par">
-clm info &mdash; Compute performance measures for graphs and clusterings.</p>
+clm info &mdash; compute performance measures for graphs and clusterings.</p>
 <p style="margin-bottom:0" class="asd_par">clminfo is not in actual fact a program. This manual
 page documents the behaviour and options of the clm program when
 invoked in mode <i>info</i>. The options <b>-h</b>, <b>--apropos</b>,
@@ -183,12 +182,9 @@ fine-grained/coarse clustering.</p>
 Apply inflation to the graph matrix and compute the performance
 measures for the result.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tf"></a><b>-tf</b> spec (<i>apply tf-spec to input matrix</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tf"></a><b>-tf</b> &lt;tf-spec&gt; (<i>transform input matrix values</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
-Transform the input matrix values according
-to the syntax described in <a class="local sibling" href="mcxio.html">mcxio</a>.
-</p>
+<p style="margin-top:0em; margin-bottom:0em">shared_defopt{-tf}</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-cl-tree"></a><b>-cl-tree</b> fname (<i>expect file with nested clusterings (cone format)</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-cl-ceil"></a><b>-cl-ceil</b> &lt;num&gt; (<i>skip (nested) clusters of size exceeding &lt;num&gt;</i>)</div>
 <div class=" item_text " style="margin-left:2em">

@@ -14,7 +14,7 @@
 #include "mcx.h"
 
 #include "mcxconvert.h"
-#include "mcxq.h"
+#include "mcxquery.h"
 #include "mcxdiameter.h"
 #include "mcxerdos.h"
 #include "mcxclcf.h"
@@ -45,7 +45,6 @@ const char* mcx_syntax =
 
 enum
 {  ID_CONVERT = 0
-,  ID_Q
 ,  ID_QUERY
 ,  ID_ERDOS
 ,  ID_CTTY
@@ -60,7 +59,7 @@ enum
 
 mcxDispEntry mcx_dir[] =
 {  {  ID_CONVERT  ,  mcxDispHookConvert      }
-,  {  ID_Q        ,  mcxDispHookq            }
+,  {  ID_QUERY    ,  mcxDispHookquery        }
 ,  {  ID_DIAMETER ,  mcxDispHookDiameter     }
 ,  {  ID_CLCF     ,  mcxDispHookClcf         }
 ,  {  ID_ERDOS    ,  mcxDispHookErdos        }
@@ -127,7 +126,7 @@ mcxOptAnchor mcxSharedOptions[] =
    ,  NULL
    ,  "this"
    }
-,  {  "--apropos"
+,  {  "--help"
    ,  MCX_OPT_DEFAULT
    ,  MCX_DISP_APROPOS
    ,  NULL

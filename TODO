@@ -2,25 +2,36 @@
  relate to other graph-related applications and helper applications,
  mostly *NOT* to mcl.
 
+
 +todo____________________________________________________________________________
     |                      general guidelines                                    |
     |  - code as much as possible in high-level routines, do not micro-optimize. |
     |    do not shun matrix allocations etc. Aim for time/memory-efficient algorithms
     |    within this context.                                                    |
     |____________________________________________________________________________|
+$$$$$ an option that does both matrix, vector and ivp transforms: include -tf  -ceil-nb -knn-mutual  
+  $$$ proper initialization for streamer. think e.g. of cmax_123 (extend,fail,ignore)
+  $$$ mclcm revisit coarsening.
+    $ mcxdump --write-tabc --write-tabr --dump-domc --dump-domr are all mcxsuby and suspect.
+   $$ only load connected components of size >= X; which app?  mcxload mcxsubs mcx convert
+    $ mclxReadx option to ignore loops.
+    - catread now can produce a partition. [ test ]
+    - orthomcl type transformations. BRH easy. PP & CO harder.
   ??? more logical adapt-inflation behaviour.
-    -> what does adapt-inflation do on satellite type graphs?
+    - mcxdump option to output largest edge lists first ..
+    - mcx convert: split stack over multiple files.
+    - mcx q or mcx equate -sub -equal -project et cetera (cf. mcxsubs language)
+   $$ mcxarray: accept '-', 'na', 'nan'
+   /> what does adapt-inflation do on satellite type graphs?
    $$ smarter coarsening. clustering vs aborption ? size balancing ?
-    - \"man::html-keywords"
     f mclvUnionv semaphore
     $ clean up mclcm, modularize, memclean.
     $ clean up memory logic and matrix cache/reread/transform in alg.c.
     $ make mclvaDump static, unify+streamline vector dumping (+ easy macro for dumping)
-  $$$ rewrite mcxsubs in a more extendible and generalized framework -> mini-language, mcxi
-  $$$ generally rewrite routines to use higher-level routines. Don't fear matrix and vector allocs.
     $ create stack memory managing code.
     - stress test mcxload (further)
     - analyze dagginess (lattice characteristics)
+$$$$$ rewrite mcxsubs in a more extendible and generalized framework -> mini-language, mcxi
     - update mcxdeblast
     - mcxerdos directed mode would be interesting for wikipedia type graphs.
     - check mclvSelectHighest implementation with -R -S and > to >= change.
@@ -29,7 +40,6 @@
     - clxdo <new-mode>: <id> <nb-count> <max-weight> <mean-weight> <median-weight>
     $ clm lint (mcl lint options)
     $ mcxdump optionally do not parenthesize singletons.
-    ! adapt-local. optimize the fundament
     - visual unify of 'clm <mode> -h' and 'clm help <mode>' in clm -h
     - check referenceable va_list autoconf macro. necessary on x86_64 + gcc ?
     - tree distance based on average node pair subtree leaf set hamming distance, IYKWIM
@@ -38,8 +48,6 @@
          with -123 instead of -abc, gaps (except for the last, if present!)
          are filled.
     - read in newick format
-    - mcxarray make -tf option
-    - mcxarray: accept '-', 'na', 'nan'
     - mcx q: dump nblist sizes directly
     - add env variable for verbosity on non-matching domains
     - taking submatrix with same domains, is that slow?
@@ -59,7 +67,7 @@
     $ transform to add diagonals in diamonds. (lattice application).
   $$$ true tree representation
     $ integrate skeleton read with matrix read .. ? restructure read code?
-   $$ tfparse still broken as gq(0), add(10)) will not result in 0 -> 10
+   $$ tfparse still half/broken as gq(0), add(10)) will not result in 0 -> 10
     $ cleverer read routines (domainequatinglywise): {stack,tab,io}.h
    $$ simplify mcl/alg.c {stream:1/0} vs {cache:1/0} vs {transforms} framework.
     - can scatter distance be fixed?
@@ -215,10 +223,40 @@ vector.[ch]
       mclxAddto (changed to accommodate domains)
       mclxCatVectors (new)
 
--  stress test mcxarray, where -skipc exceeds actual columnc count et cetera.
+-  comparing cluster algorithms gotchas
+      -  use optimizaton criterion as comparison criterion
+      -  include (parameterized) graph transformations in one cluster algorithm, not the other
+      -  use 'default parameters'
+      -  algorithm that is trained
+      -  granularity-biased ground truth: specialized test case.
+      -  selective testing: test only one of weighted/undirected
 
--  output mcl expand/inflate statistics to gauge candidates for logical inflation regime.
-   slope/center ..
+-  can we establish a way to incorporate a-priori information into mcl,
+   i.e. the clustering must respect a coarse a priori partitioning.
+   this can be done by using the induced subgraphs, but is it possible
+   to consider intra-cluster edges during the mcl process, while
+   ensuring a consistent subclustering, in an elegant way?
+
+-  mcxload
+      -123-rmax:     extend options:
+      -123-cmax         fail |  ignore | extend
+      -235-cmax
+      -235-rmax (not yet implemented)>
+
+-  mcxload          | mcl
+   -stream-tf       | -abc-tf
+   --stream-neg-log | --abc-neg-log
+
+
+
+   orthology
+
+big matrix + species annotation.
+
+   best reciprocal hits: mutual 1-nn, {species A, species B} - wise
+   putatitve paralogs:     s(a,b) > max s(a,x) && s(a,b) > max(b,x)
+   co-orthologs:  for BRH ..
+
 
 
 

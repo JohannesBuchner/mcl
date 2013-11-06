@@ -22,9 +22,9 @@
    \mcxmap
    \synreqopt{-imx}{fname}{input}}
    \synoptopt{-o}{fname}{output}
-   \synoptopt{-cann}{output map file name}
-   \synoptopt{-cannc}{output map file name}
-   \synoptopt{-cannr}{output map file name}
+   \synoptopt{-make-map}{output map file name}
+   \synoptopt{-make-mapc}{output map file name}
+   \synoptopt{-make-mapr}{output map file name}
    \synoptopt{-cmul}{a}{coefficient}
    \synoptopt{-cshift}{b}{translate}
    \synoptopt{-rmul}{c}{coefficient}
@@ -104,9 +104,9 @@
    Different ways to specify map files.}
 
 \items{
-   {\defopt{-cann}{output map file name}}
-   {\defopt{-cannc}{output map file name}}
-   {\defopt{-cannr}{output map file name}}
+   {\defopt{-make-map}{output map file name}}
+   {\defopt{-make-mapc}{output map file name}}
+   {\defopt{-make-mapr}{output map file name}}
 }
 \car{
    Generate a map that maps the specified domain onto

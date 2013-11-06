@@ -67,6 +67,7 @@ mclMatrix* mclDag
       ;  int n_bar =  mclvCountGiven(vec, mclpGivenValGQ, &bar)
       ;  mclvCopyGiven(dst, vec, mclpGivenValGQ, &bar, n_bar)
    ;  }
+if (0)
 { dim ne = mclxNrofEntries(M)
 ;fprintf(stderr, "nroff entries %u\n", (unsigned) ne)
 ;
@@ -151,8 +152,9 @@ int mclDagTest
 ;  }
 
 
-   /* fixme this should pbb be a generic utility routine */
-   /* fixme wave1 copy seems too much. simpler desig should be possible */
+   /* fixme this should pbb be a generic utility routine
+      fixme wave1 copy seems too much. simpler design should be possible
+   */
 
 static mclv* get_closure
 (  mclx*  mx               /* caller must have invoked mclgUnionvReset before */

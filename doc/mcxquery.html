@@ -9,7 +9,6 @@ body
 { text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -29,14 +28,13 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
-div.copy
-{ font-size: 12pt;
-font-family: monospace;
-text-align: left;
-white-space: pre;
-margin-left: 2em;
+div.verbatim
+{ font-family: monospace;
 margin-top: 1em;
 margin-bottom: 1em;
+font-size: 10pt;
+margin-left: 2em;
+white-space: pre;
 }
 div.indent
 { margin-left: 8%;
@@ -68,14 +66,15 @@ margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
+body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
 </style>
 <title>The mcx q manual</title>
 </head>
 <body>
 <p style="text-align:right">
-18 Sep 2009&nbsp;&nbsp;&nbsp;
-<a class="local" href="mcxq.ps"><b>mcx q</b></a>
-1.008, 09-261
+4 Nov 2009&nbsp;&nbsp;&nbsp;
+<a class="local" href="mcxquery.ps"><b>mcx q</b></a>
+1.008, 09-308
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -103,7 +102,7 @@ margin-left: 3em;
 <a name="name"></a>
 <h2>NAME</h2>
 <p style="margin-bottom:0" class="asd_par">
-mcxq &mdash; compute simple graph statistics</p>
+mcxquery &mdash; compute simple graph statistics</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
@@ -115,12 +114,14 @@ are accessible
 in all <b>mcx</b> modes. They are described
 in the <a class="local sibling" href="mcx.html">mcx</a> manual page.</p>
 <p style="margin-bottom:0" class="asd_par">
-<b>mcxq</b>
+<b>mcxquery</b>
 <a class="intern" href="#opt-imx"><b>[-imx</b> &lt;fname&gt; (<i>specify matrix input</i>)<b>]</b></a>
 <a class="intern" href="#opt-o"><b>[-o</b> &lt;fname&gt; (<i>output file name</i>)<b>]</b></a>
-<a class="intern" href="#opt--edge"><b>[--edge</b> (<i>list simple edge statistics</i>)<b>]</b></a>
-<a class="intern" href="#opt--edge-list"><b>[--edge-list</b> (<i>list edge statistics per node</i>)<b>]</b></a>
-<a class="intern" href="#opt--dim"><b>[--dim</b> (<i>only list domain sizes</i>)<b>]</b></a>
+<a class="intern" href="#opt-vary-threshold"><b>[-vary-threshold</b> &lt;start,end,step,scale&gt; (<i>analyze graphs at similarity cutoffs</i>)<b>]</b></a>
+<a class="intern" href="#opt--vary-correlation"><b>[--vary-correlation</b> (<i>analyze graphs at correlation cutoffs</i>)<b>]</b></a>
+<a class="intern" href="#opt-div"><b>[-div</b> &lt;num&gt; (<i>cluster size separating value</i>)<b>]</b></a>
+<a class="intern" href="#opt-report-scale"><b>[-report-scale</b> &lt;num&gt; (<i>edge weight/threshold scaling</i>)<b>]</b></a>
+<a class="intern" href="#opt--dim"><b>[--dim</b> (<i>report native format and dimensions</i>)<b>]</b></a>
 <a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
 <a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print synopsis, exit</i>)<b>]</b></a>
 <a class="intern" href="#opt--version"><b>[--version</b> (<i>print version, exit</i>)<b>]</b></a>
@@ -129,13 +130,23 @@ in the <a class="local sibling" href="mcx.html">mcx</a> manual page.</p>
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
 <p style="margin-bottom:0" class="asd_par">
-<b>mcxq</b> computes a number of simple statistics derived from the input
-graph. Among these are the number of arcs, the node neighbour count
-average, standard deviation, and median, and the edge weight
-average, standard deviation, and median.</p>
-<p style="margin-bottom:0" class="asd_par">
-When instructed to, it can also compute other quantities related
-to the input graph. See below.
+The main use of <b>mcxquery</b> is to analyze a graph at different similarity
+cutoffs. Typically this is done on a graph constructed using a
+very permissive threshold. For example, one can create a graph from
+array expression data using <b>mcxarray</b> with a very low pearson correlation
+cutoff such as&nbsp;0.2 or&nbsp;0.3. Then <b>mcxquery</b> can be used to analyze
+the graph at increasingly stringent thresholds of&nbsp;0.25, 0.30,
+0.35&nbsp;..&nbsp;0.95.
+Attributes supplied across different thresholds are the number of connected
+components, statistics (median, average, iqr) on node degrees and edge
+weights, and a graph plotting the R^2 value of the relationship of log(k)
+versus the logarithm of the number of nodes of degree at least k (for the
+graph at a given threshold).
+Scale-free networks are defined by having a high R^2 value. It should
+be noted however that in many applications graphs will not be scale-free.
+Additionally, for the purpose of clustering scale-free networks are to be
+avoided or transformed, as the highly-connected nodes in scale-free networks
+obfuscate cluster structure.
 </p>
 
 <a name="options"></a>
@@ -144,7 +155,8 @@ to the input graph. See below.
 <div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>input matrix</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
-The file name for input that is in mcl native matrix format.</p>
+The file name for input that is in mcl native matrix format.
+</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-o"></a><b>-o</b> &lt;fname&gt; (<i>output file name</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -152,26 +164,54 @@ The file name for input that is in mcl native matrix format.</p>
 Set the name of the file where output should be written to.
 </p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--edge"></a><b>--edge</b> (<i>compute simple statistics</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--dim"></a><b>--dim</b> (<i>report native format and dimensions</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
-This is the default setting. If any other option (e.g. <b>--dim</b>)
-is used, <b>--edge</b> has to be specified if this output mode is to
-be activated in parallel.
+This will report the matrix format (either interchange or binary)
+and the matrix dimensions. For a graph the two reported dimensions
+should be equal.
 </p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--edge-list"></a><b>--edge-list</b> (<i>compute simple statistics, node-wisel</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-vary-threshold"></a><b>-vary-threshold</b> &lt;start,end,step,scale&gt; (<i>analyze graphs at similarity cutoffs</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
-This outputs for each node its neighbour count and the average
-weight of the edges connecting that node with those neighbours.
+All of <i>start</i>, <i>end</i>, <i>step</i> and <i>scale</i> must
+be integer numbers. From these a list of threshold is constructed, starting
+from <i>start / scale</i>, <i>(start + step) / scale</i>, <i>(start + 2 step) /
+scale</i>, and so on until a value larger than or equal to <i>end / scale</i> is reached.
 </p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--dim"></a><b>--dim</b> (<i>only list domain sizes</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--vary-correlation"></a><b>--vary-correlation</b> (<i>analyze graphs at correlation cutoffs</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
-This outputs the format (native interchange or native binary)
-and the dimensions of the encoded matrix.
+This instructs <b>mcxquery</b> to use a threshold list suitable for use with graphs
+in which the edge weight similarities are correlation.
+The list start at 0.2 and ends at 0.95, with increments of 0.05.
+If a different start or increment is required it can
+be achieved by using the <b>-vary-threshold</b> option.
+For example, a start of&nbsp;0.10 and an increment of&nbsp;0.02 are obtained
+by issueing <b>-vary-threshold</b>&nbsp;<b>10,100,2,100</b>.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-report-scale"></a><b>-report-scale</b> &lt;num&gt; (<i>edge weight / threshold scaling</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+The edge weights mean, average, and inter-quartile range,
+as well as the different threshold steps are all rescaled
+in the reported output to avoid printing of fractional part.
+If <b>-vary-threshold</b> was supplied then
+scaling factor specified in the argument is used.
+With <b>--vary-correlation</b> a scaling factor of&nbsp;100
+is used. Either can be overridden by using the present option.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-div"></a><b>-div</b> &lt;num&gt; (<i>cluster size separating value</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+When analyzing graphs at different thresholds with one of the
+options above, <b>mcxquery</b> reports the percentage of nodes contained
+in clusters not exceeding a specified size, by default&nbsp;3.
+This number can be changed using the <b>-div</b> option.
 </p>
 </div>
 </div>

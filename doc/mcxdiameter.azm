@@ -28,6 +28,8 @@
    \synoptopt{-abc}{<fname>}{specify label input}
    \synoptopt{-imx}{<fname>}{specify matrix input}
    \synoptopt{-tab}{<fname>}{use tab file}
+   \synoptopt{-t}{number of threads to use}
+   \synoptopt{--summary}{output diameter and average shortest path length}
    \synoptopt{--list}{list eccentricity for all nodes}
    \stdsynopt
    }
@@ -70,14 +72,29 @@
    tab domain and the matrix domain are required to be identical.
    }
 
-\item{\defopt{--list}{list eccentricity for all nodes}}
+
+\item{\defopt{-t}{number of threads to use}}
 \car{
-   Print eccentricity for all nodes. The eccentricity of
+   Computing the diameter of a graph is time-intensive.
+   If you have multiple CPUs available consider using
+   as many threads.
+   }
+
+\items{
+   {\defopt{--list}{list eccentricity for all nodes}}
+   {\defopt{--summary}{output diameter and average eccentricity}}
+}
+\car{
+   The default mode is \genopt{--list}, which results in output
+   of the eccentricity of all nodes. The eccentricity of
    a node is the distance to any node that is the furthest
    away from it. The diameter of a graph is the maximum
    of the eccentricity taken over all nodes in a graph.
    In this mode \mcx{diameter} will not output the diameter
-   itself.}
+   itself. Use \genopt{--summary} to output just the diameter
+   and the average eccentricity.
+
+   }
 
 \end{itemize}
 

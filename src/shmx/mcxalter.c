@@ -47,6 +47,8 @@ enum
 ,  MY_OPT_TAB
 ,  MY_OPT_O
 ,  MY_OPT_CEILNB
+,  MY_OPT_KNN
+,  MY_OPT_TRANSFORM
 ,  MY_OPT_CANONICAL
 }  ;
 
@@ -82,6 +84,18 @@ mcxOptAnchor alterOptions[] =
    ,  "<num>"
    ,  "remove edges from nodes with more than <num> edges"
    }
+,  {  "-knn-mutual"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_KNN
+   ,  "<num>"
+   ,  "keep only edges that are in mutual <num>-nearest neighbours"
+   }
+,  {  "-tf"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_TRANSFORM
+   ,  "<func(arg)[, func(arg)]*>"
+   ,  "apply unary transformations to matrix values"
+   }
 ,  {  "-canonical"
    ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  MY_OPT_CANONICAL
@@ -92,15 +106,16 @@ mcxOptAnchor alterOptions[] =
 }  ;
 
 
-static  unsigned debug_g   =   -1;
-
 static  mcxIO* xfmx_g      =   (void*) -1;
 static  mcxIO* xfabc_g     =   (void*) -1;
 static  mcxIO* xftab_g     =   (void*) -1;
 static  mcxIO* xfout_g     =   (void*) -1;
 static  mclTab* tab_g      =   (void*) -1;
 static  dim ceilnb_g       =   -1;
+static  dim knn_g          =   -1;
 static  dim canonical_g    =   -1;
+static  mclpAR* transform  =   (void*) -1;
+static  mcxTing* transform_spec = (void*) -1;
 
 
 static mcxstatus alterInit
@@ -110,8 +125,11 @@ static mcxstatus alterInit
    ;  xfabc_g        =  NULL
    ;  xftab_g        =  NULL
    ;  xfout_g        =  mcxIOnew("-", "w")
+   ;  transform      =  NULL
+   ;  transform_spec =  NULL
    ;  tab_g          =  NULL
    ;  ceilnb_g       =  0
+   ;  knn_g          =  0
    ;  canonical_g    =  0
    ;  return STATUS_OK
 ;  }
@@ -144,6 +162,16 @@ static mcxstatus alterArgHandle
 
          case MY_OPT_TAB
       :  xftab_g = mcxIOnew(val, "r")
+      ;  break
+      ;
+
+         case MY_OPT_TRANSFORM
+      :  transform_spec = mcxTingNew(val)
+      ;  break
+      ;
+
+         case MY_OPT_KNN
+      :  knn_g = atoi(val)
       ;  break
       ;
 
@@ -196,9 +224,18 @@ static mcxstatus alterMain
          tab_g = mclTabRead(xftab_g, mx->dom_cols, EXIT_ON_FAIL)
    ;  }
 
-      mcxIOopen(xfout_g, EXIT_ON_FAIL)
+      mclxAdjustLoops(mx, mclxLoopCBremove, NULL)
 
-   ;  if (ceilnb_g)
+   ;  mcxIOopen(xfout_g, EXIT_ON_FAIL)
+
+   ;  if (transform_spec)
+      { if (!(transform = mclpTFparse(NULL, transform_spec)))
+         mcxDie(1, me, "input -tf spec does not parse")
+      ;  mclxUnaryList(mx, transform)
+   ;  }
+
+
+      if (ceilnb_g)
       {  dim n_hub, n_in, n_out
       ;  mclv* sel = mclgCeilNB(mx, ceilnb_g, &n_hub, &n_in, &n_out)
       ;  mcxLog
@@ -211,6 +248,11 @@ static mcxstatus alterMain
          ,  (ulong) n_in
          )
       ;  mclvFree(&sel)
+   ;  }
+      else if (knn_g)
+      {  mclx* knn = mclxKNNmutual(mx, knn_g)
+      ;  mclxFree(&mx)
+      ;  mx = knn
    ;  }
 
       if (canonical_g)

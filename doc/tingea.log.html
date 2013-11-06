@@ -9,7 +9,6 @@ body
 { text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -29,14 +28,13 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
-div.copy
-{ font-size: 12pt;
-font-family: monospace;
-text-align: left;
-white-space: pre;
-margin-left: 2em;
+div.verbatim
+{ font-family: monospace;
 margin-top: 1em;
 margin-bottom: 1em;
+font-size: 10pt;
+margin-left: 2em;
+white-space: pre;
 }
 div.indent
 { margin-left: 8%;
@@ -68,14 +66,15 @@ margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
+body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
 </style>
 <title>How to set the Tingea log parameters</title>
 </head>
 <body>
 <p style="text-align:right">
-18 Sep 2009&nbsp;&nbsp;&nbsp;
+4 Nov 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="tingea.log.ps"><b>tingea.log</b></a>
-1.008, 09-261
+1.008, 09-308
 </p>
 
 <a name="name"></a>
@@ -138,7 +137,7 @@ if the user specifies IO and DATA at AGGR level with OR semantics.</p>
 <h2>SYNTAX</h2>
 <p style="margin-top:0em; margin-bottom:0em">
 The syntax of the TINGEA_LOG_TAG environment variable is described by</p>
-<pre>   [[189x]]{&lt;[dfgimpstABC][1-9]&gt;*,[V]}</pre>
+<div class="verbatim">   [[189x]]{&lt;[dfgimpstABC][1-9]&gt;*,[V]}</div>
 <p style="margin-top:0em; margin-bottom:0em">
 which translates to the following. An optional lead tag is followed
 by a concatenation of units. A unit is either a pair in
@@ -147,7 +146,7 @@ The leading tag semantics are described further below.
 The single character <tt>V</tt>, if present, specifies that OR semantics
 should be used rather than the default AND semantics. The semantics
 for the other units are given below.</p>
-<pre>   d     DATA
+<div class="verbatim">   d     DATA
             1  CELL
             2  LIST
             3  AGGR
@@ -176,15 +175,15 @@ for the other units are given below.</p>
                   |        x off
    A     SLOT1    |
    B     SLOT2    |
-   C     SLOT3    |</pre>
+   C     SLOT3    |</div>
 <p style="margin-top:0em; margin-bottom:0em">
 The leading tag can be used to set levels for all categories at once.
 Subsequent units may then alter this intial setting.
 The lead tag settings and their meaning are these:</p>
-<pre>   1     d1f1m1g1i1p1s1t1A1B1C1     # very yappy
+<div class="verbatim">   1     d1f1m1g1i1p1s1t1A1B1C1     # very yappy
    9     d3f4m5gxixpxsxtxAxBxCx     # very terse, only d f m
    8     d3f4m5g1i1p1s1t1A1B1C1     # less terse
-   x     dxfxmxgxixpxsxtxAxBxCx     # silent</pre>
+   x     dxfxmxgxixpxsxtxAxBxCx     # silent</div>
 <p style="margin-top:0em; margin-bottom:0em">
 All categories accept values between <tt>1</tt> and <tt>9</tt> in addition to the
 value <tt>x</tt>. As seen above, only a few categories contain more than

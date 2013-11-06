@@ -33,6 +33,7 @@
    \synoptopt{-n}{mode}{normalize input}
    \synoptopt{-o}{fname}{output file fname}
    \synoptopt{-digits}{<num>}{output precision}
+   \synoptopt{--write-binary}{write output in binary format}
    \synoptopt{-co}{num}{cutoff for output values}
    \synoptopt{-cutoff}{num}{cutoff for output values}
    \synoptopt{-gq}{num}{ignore input smaller than}
@@ -40,9 +41,10 @@
    \synoptopt{--transpose}{work with the transposed data matrix}
    \synoptopt{--cosine}{use cosine}
    \synoptopt{--pearson}{use Pearson correlation (default)}
-   \synoptopt{-tear}{num}{inflate input columns}
+   \synoptopt{--spearman}{use Spearman rank correlation}
    \synoptopt{-pi}{num}{inflate the result}}
-   \synoptopt{--apropos}{print this help}
+   \shared_synoptopt{-tf}
+   \synoptopt{--help}{print this help}
    \synoptopt{-h}{print this help}
    \synoptopt{--version}{print version information}
 
@@ -67,11 +69,6 @@
    It should be tab-separated.
    }
 
-\item{\defopt{-imx}{fname}{input matrix file}}
-\car{
-   The expression values are read from a file in mcl matrix format.
-   }
-
 \item{\defopt{-skipr}{<num>}{skip <num> data rows}}
 \car{
    Skip the first \genarg{<num>} data rows.}
@@ -94,6 +91,11 @@
    the data column to take labels from with \genopt{-l}{l}.
    }
 
+\item{\defopt{-imx}{fname}{input matrix file}}
+\car{
+   The expression values are read from a file in mcl matrix format.
+   }
+
 \item{\defopt{-n}{mode}{normalization mode}}
 \car{
    If \genarg{mode} is set to \usearg{z} the data will be normalized
@@ -107,9 +109,14 @@
 \car{
    Specify the precision to use in native interchange format.}
 
+\item{\defopt{--write-binary}{write output in binary format}}
+\car{
+   Write output matrices in native binary format.
+   }
+
 \items{
    {\defopt{-co}{num}{cutoff for output values}}
-   {\defopt{-cutoff}{num}{alias for \genopt{-co}}}
+   {\defopt{-cutoff}{num}{alias for -co}}
 }
 \car{
    Output values smaller than \genarg{num} are removed (set to zero).}
@@ -126,26 +133,23 @@
 \car{
    Work with the transpose of the input data matrix.}
 
-\item{\defopt{--cosine}{use cosine}}
+\items{
+   {\defopt{--cosine}{use cosine}}
+   {\defopt{--pearson}{use Pearson correlation (default)}}
+   {\defopt{--spearman}{use Spearman rank correlation}}
+}
 \car{
-   Use the cosine as correlation measure.}
-
-\item{\defopt{--pearson}{use Pearson correlation (default)}}
-\car{
-   Compute the Pearson correleation coefficient as the similarity between the
-   data columns.}
-
-\item{\defopt{-tear}{num}{inflate input columns}}
-\car{
-   Apply (column-wise) inflation with parameter \genarg{num} to the input
-   values before further processing.}
+   Use one of these to specify the correlation measure.
+   }
 
 \item{\defopt{-pi}{num}{inflate the result}}
 \car{
    Apply inflation with parameter \genarg{num} to the output values.}
 
+\shared_defopt{-tf}
+
 \items{
-   {\defopt{--apropos}{print help}}
+   {\defopt{--help}{print help}}
    {\defopt{-h}{print help}}
 }
 

@@ -9,7 +9,6 @@ body
 { text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -29,14 +28,13 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
-div.copy
-{ font-size: 12pt;
-font-family: monospace;
-text-align: left;
-white-space: pre;
-margin-left: 2em;
+div.verbatim
+{ font-family: monospace;
 margin-top: 1em;
 margin-bottom: 1em;
+font-size: 10pt;
+margin-left: 2em;
+white-space: pre;
 }
 div.indent
 { margin-left: 8%;
@@ -68,14 +66,15 @@ margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
+body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
 </style>
 <title>The mcxdeblast manual</title>
 </head>
 <body>
 <p style="text-align:right">
-18 Sep 2009&nbsp;&nbsp;&nbsp;
+4 Nov 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxdeblast.ps"><b>mcxdeblast</b></a>
-1.008, 09-261
+1.008, 09-308
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -125,12 +124,14 @@ output directly into mcl or write mcxassemble input.</p>
 <b>mcxdeblast</b>
 <a class="intern" href="#opt--score"><b>[--score=</b>&lt;b|e|r&gt; (<i>bit scores|e-values|normalize bit score</i>)<b>]</b></a>
 <a class="intern" href="#opt--m9"><b>[--m9</b> (<i>expect BLAST column format</i>)<b>]</b></a>
+<a class="intern" href="#opt--out"><b>[--out</b> &lt;fname&gt; (<i>output file</i>)<b>]</b></a>
 <a class="intern" href="#opt--line-mode"><b>[--line-mode</b> abc (<i>write ID1 ID2 score format</i>)<b>]</b></a>
 <a class="intern" href="#opt--sort"><b>[--sort=</b>&lt;a|o&gt; (<i>alphabetic|occurrence sorting</i>)<b>]</b></a>
 <a class="intern" href="#opt--xi-dat"><b>[--xi-dat=</b>&lt;suf&gt; (<i>strip &lt;suf&gt; from file-name</i>)<b>]</b></a>
 <a class="intern" href="#opt--xo-dat"><b>[--xo-dat=</b>&lt;suf&gt; (<i>add &lt;suf&gt; to base name</i>)<b>]</b></a>
 <a class="intern" href="#opt--bcut"><b>[--bcut=</b>&lt;val&gt; (<i>bit score cutoff</i>)<b>]</b></a>
 <a class="intern" href="#opt--ecut"><b>[--ecut=</b>&lt;val&gt; (<i>E-value cutoff</i>)<b>]</b></a>
+<a class="intern" href="#opt--rcut"><b>[--rcut=</b>&lt;val&gt; (<i>raw value cutoff</i>)<b>]</b></a>
 <a class="intern" href="#opt--tab"><b>[--tab=</b>&lt;fname&gt; (<i>tab file</i>)<b>]</b></a>
 &lt;file-name&gt;</p>
 
@@ -209,6 +210,12 @@ the total number of different peptides encountered in the BLAST input.</p>
 Specify a tab file to use, rather than automatically generating one.
 </p>
 </div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--out"></a><b>--out</b> &lt;fname&gt; (<i>output file</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+Specify the name for the output file.
+</p>
+</div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--score"></a><b>--score</b>=&lt;b|e|r&gt; (<i>bit scores|e-values|norm bit score</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
@@ -256,13 +263,22 @@ use <b>--score</b>=<i>b</i> <b>--bcut</b>=<i>5</i> <b>--xo-dat</b>=<i>b</i>.
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--bcut"></a><b>--bcut</b>=&lt;val&gt; (<i>bit score cutoff</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
-Scores below the cutoff value are ignored.
+Bit scores below the cutoff value are ignored. This
+triggers the output of bit scores and ignores all other values.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--ecut"></a><b>--ecut</b>=&lt;val&gt; (<i>E-value cutoff</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
-Scores below the cutoff value are ignored.
+E-values below the cutoff value are ignored. This triggers
+the output of E-values and ignores all other values.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--rcut"></a><b>--rcut</b>=&lt;val&gt; (<i>raw value cutoff</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+Raw values below the cutoff value are ignored. This
+triggers the output of raw values and ignores all other values.
 </p>
 </div>
 </div>

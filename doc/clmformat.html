@@ -9,7 +9,6 @@ body
 { text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -29,14 +28,13 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
-div.copy
-{ font-size: 12pt;
-font-family: monospace;
-text-align: left;
-white-space: pre;
-margin-left: 2em;
+div.verbatim
+{ font-family: monospace;
 margin-top: 1em;
 margin-bottom: 1em;
+font-size: 10pt;
+margin-left: 2em;
+white-space: pre;
 }
 div.indent
 { margin-left: 8%;
@@ -68,14 +66,15 @@ margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
+body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
 </style>
 <title>The clmformat manual</title>
 </head>
 <body>
 <p style="text-align:right">
-18 Sep 2009&nbsp;&nbsp;&nbsp;
+4 Nov 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="clmformat.ps"><b>clmformat</b></a>
-1.008, 09-261
+1.008, 09-308
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">2.</div></div>
@@ -248,8 +247,8 @@ by <tt>&lt;defsname&gt;</tt>.
 The encoding file needs to be processed by issuing one of the following
 commands from within the directory where the file is located.
 </p>
-<pre>   zoem -i fmt -d html
-   zoem -i fmt -d txt</pre>
+<div class="verbatim">   zoem -i fmt -d html
+   zoem -i fmt -d txt</div>
 <p style="margin-top:0em; margin-bottom:0em">
 The first will result in HTML formatted output, the second in
 plain text format. Obviously, you need to have installed zoem
@@ -490,12 +489,12 @@ The cov and maxcov performance measures have several nice continuity and
 monotonicity properties and are described in <a class="intern" href="#pcfgcmce">[1]</a>.
 </p>
 <p style="margin-bottom:0"><b>Example cluster header</b><br></p>
-<pre>Cluster 0 sz 15 self 0.82 cov 0.43-0.26
+<div class="verbatim">Cluster 0 sz 15 self 0.82 cov 0.43-0.26
    10: 0.11
    18: 0.05
-   12: 0.02</pre>
+   12: 0.02</div>
 <p style="margin-bottom:0"><b>explanation</b><br></p>
-<pre>Cluster 0 sz 15 self 0.82 cov 0.43-0.26
+<div class="verbatim">Cluster 0 sz 15 self 0.82 cov 0.43-0.26
         |    |       |           | |
         clid count   proj      cov covmax
 
@@ -515,17 +514,17 @@ maxcov  Max-coverage measure for cluster clid [d].
 clidx1  Index of other cluster sharing relatively many edges.
 projx1  Projection value for the clid/clidx1 pair of clusters [e].
 clidx2  :
-projx2  : as clidx1 and projx1</pre>
+projx2  : as clidx1 and projx1</div>
 <p style="margin-bottom:0"><b>Example inner node</b><br>
 An inner node is listed under a cluster, and it is simply a member of that
 cluster. The name is as opposed to 'outer node', described below.
 </p>
-<pre>[foo bar zut]
+<div class="verbatim">[foo bar zut]
     21     7-5      0.73 0.420-0.331  0.282-0.047  0.071-0.035 &lt;3.54&gt;
       10   6/3      0.16 0.071-0.047  0.268-0.442 
-      12   4/2      0.11 0.071-0.035  0.296-0.515</pre>
+      12   4/2      0.11 0.071-0.035  0.296-0.515</div>
 <p style="margin-bottom:0"><b>explanation</b><br></p>
-<pre>[label]
+<div class="verbatim">[label]
     21     7-5      0.73 0.420-0.331  0.282-0.047  0.071-0.035 &lt;3.54&gt;
      |     | |      |        | |          | |          | |     |
     idx  nbi nbo    proj   cov covmax max_i min_i  max_o-min_o SUM
@@ -554,16 +553,16 @@ proj    Projection value of edges from node idx to cluster clusid.
 cov     Skewed projection of edges from node idx to cluster clusid.
 covmax  Maximally skewed projection, as above.
 max_o   Largest edge weight for node idx to cluster clusid [c].
-min_o   Smallest edge weight for  node idx to cluster clusid [c].</pre>
+min_o   Smallest edge weight for  node idx to cluster clusid [c].</div>
 <p style="margin-bottom:0"><b>Example outer node</b><br>
 An outer node is listed under a cluster. The node is not part of that
 cluster, but seems to have substantial connections to that cluster.
 </p>
-<pre>[zoo eek few]
+<div class="verbatim">[zoo eek few]
     29   18#2        2-5      0.65 0.883-0.815  0.436-0.218  0.073-0.055
-                      /4      0.27 0.070-0.109  0.073-0.055</pre>
+                      /4      0.27 0.070-0.109  0.073-0.055</div>
 <p style="margin-bottom:0"><b>explanation</b><br></p>
-<pre>[label]
+<div class="verbatim">[label]
     29   18#2        2-5      0.65 0.883-0.815  0.436-0.218  0.073-0.055
     |    |  |        | |      |        | |          | |          | |
     idx  cl sz     nbi nbo    proj   cov maxcov max_i min_i  max_o min_o
@@ -590,7 +589,7 @@ cov     Skewed projection (rewards large edge weights), as above.
 covmax  Maximally skewed projection, as above.
 max_o   Largest edge weight for node idx in current cluster [c].
 min_o   smallest edge weight for node idx in current cluster [c].
-SUM     The sum of *all* edges leaving node idx.</pre>
+SUM     The sum of *all* edges leaving node idx.</div>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-1em">[a]</div></div>
 <div class=" item_text " style="margin-left:3em">

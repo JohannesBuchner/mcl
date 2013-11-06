@@ -17,9 +17,9 @@
    \: analysis tools (like Stijn's docme) can pick them up
    \: as definition instances and reconcile them with `prog --apropos`.
 
-\'set{dummydefopt#2}{\genopt{\1}{\2}}
-\'set{dummydefopt#3}{\genopt{\1}{\2}{\3}}
-\'set{dummydefkvp#3}{\defkvp{\1}{\2}{\3}}
+\'set{defoptdummy#2}{\genopt{\1}{\2}}
+\'set{defoptdummy#3}{\genopt{\1}{\2}{\3}}
+\'set{defkvpdummy#3}{\defkvp{\1}{\2}{\3}}
 
 \'setx{"man::year"}{\'zinsert{stamp.year}}
 \'setx{"man::month"}{\'zinsert{stamp.month}}
@@ -52,6 +52,7 @@
    {clm}       {\bf{clm}}
    {clmdist}   {\bf{clm dist}}
    {clmvol}    {\bf{clm vol}}
+   {clmstable}    {\bf{clm vol}}
    {clminfo}   {\bf{clm info}}
    {clmmeet}   {\bf{clm meet}}
    {clmclose}  {\bf{clm close}}
@@ -93,23 +94,56 @@ in the \sibref{clm} manual page.}}
    \synoptopt{--apropos}{print synopsis, exit}
    \synoptopt{--version}{print version, exit}}
 
-\def{synoptopt#1}{
+
+\def{shared_synoptopt#1}{
    \switch{\1}{
-      {-tf}{\synoptopt{-tf}{spec}{apply tf-spec to input matrix}}
-      {\inform{not supported for synoptopt#1: \1}\exit}
+      {-tf}
+         {\synoptopt{-tf}{spec}{apply tf-spec to input matrix}}
+      {-ceil-nb}
+         {\synoptopt{-ceil-nb}{n}{reduce neighbourhoods}}
+      {-knn-mutual}
+         {\synoptopt{-knn-mutual}{n}{keep mutually close neighbours}}
+      {\inform{not supported for shared_synoptopt#1: \1}\exit}
    }
 }
 
-\def{item_defopt#1}{
+\def{shared_itemopt#1}{
    \switch{\1}{
-      {-tf}{\item{\defopt{-tf}{spec}{apply tf-spec to input matrix}}
-\car{
-   Transform the input matrix values according
-   to the syntax described in \mysib{mcxio}.
-   }}
-      {\inform{not supported for synoptopt#1: \1}\exit}
+      {-tf}
+         {\item{\defopt{-tf}{<tf-spec>}{transform input matrix values}}}
+      {-ceil-nb}
+         {\item{\defopt{-ceil-nb}{n}{reduce neighbourhoods}}}
+      {-knn-mutual}
+         {\item{\defopt{-knn-mutual}{<num>}{keep mutually close neighbours}}}
+
+      {\inform{not supported for shared_itemopt#1: \1}\exit}
    }
 }
+
+
+\def{shared_defopt#1}{
+   \switch{\1}{
+      {-tf}{
+Transform the input matrix values according
+to the syntax described in \mysib{mcxio}.
+      }
+      {-ceil-nb}{
+The nodes of the input graph are considered in descending order of the
+number of neighbours they posses.  The first nodes has it neighbours of
+lowest edge weight removed until no more than \genopt{N} remain.  The
+corresponding reciprocal edges from nodes further down the list are removed
+as well.  Subsequent nodes are treated in the same way until all nodes in
+the graph have at most \genopt{N} neighbours.  This may be considered a poor
+man's hub removal.
+      }
+      {-knn-mutual}{
+This considers the \genarg{<num>} best neighbours for each node, then only keeps
+edges that occur in both best-neighbour lists for the two incident nodes.
+      }
+      {\inform{not supported for shared_defopt#1: \1}\exit}
+   }
+}
+
 
 \'def{mcxload}{\bf{mcxload}}
 \'def{mcxconvert}{\bf{mcxconvert}}
@@ -117,7 +151,7 @@ in the \sibref{clm} manual page.}}
 \'def{mcxdump}{\bf{mcxdump}}
 \'def{mcxdiameter}{\bf{mcxdiameter}}
 \'def{mcxclcf}{\bf{mcxclcf}}
-\'def{mcxq}{\bf{mcxq}}
+\'def{mcxquery}{\bf{mcxquery}}
 \'def{mcxrand}{\bf{mcxrand}}
 \'def{mcxdeblast}{\bf{mcxdeblast}}
 \'def{mclblastline}{\bf{mclblastline}}
@@ -125,6 +159,7 @@ in the \sibref{clm} manual page.}}
 \'def{zoem}{\bf{zoem}}
 \'def{mcxsubs}{\bf{mcxsubs}}
 \'def{mcxmap}{\bf{mcxmap}}
+\'def{mcxalter}{\bf{mcxalter}}
 \'def{mcxassemble}{\bf{mcxassemble}}
 
 \'def{mcx_itemopts}{{flow}{cascade}{interitem}{1}{$w1}{2}{$w2}{1}{textindent}{2}{itemmargin}{1}}
@@ -136,6 +171,7 @@ in the \sibref{clm} manual page.}}
 
 \'set{%{sibroffmap}}{
    {mcxio}{5}
+   {clmprotocols}{5}
    {mclfaq}{7}
    {mclfamily}{7}
    {tingea.log}{7}
@@ -150,11 +186,12 @@ in the \sibref{clm} manual page.}}
    {mcxrand}{1}
    {mcxdiameter}{1}
    {mcxclcf}{1}
-   {mcxq}{1}
+   {mcxquery}{1}
    {mcxdump}{1}
    {mcxload}{1}
    {mcxsubs}{1}
    {mcxmap}{1}
+   {mcxalter}{1}
    {mcxassemble}{1}
 
    {clm}{1}
@@ -164,6 +201,7 @@ in the \sibref{clm} manual page.}}
    {clmdist}{1}
    {clminfo}{1}
    {clmvol}{1}
+   {clmstable}{1}
    {clmmate}{1}
    {clmmeet}{1}
    {clmformat}{1}
@@ -184,4 +222,7 @@ in the \sibref{clm} manual page.}}
 
 \'def{mysib#1}{\sibref{\1}{\1\'${roff}{(\%{sibroffmap}{\1})}}}
 \'def{mysib#2}{\sibref{\1}{\2}{\1\'${roff}{(\%{sibroffmap}{\1})}}}
+
+\def{abc}{\sc{ABC}}
+\def{MCL}{\sc{MCL}}
 

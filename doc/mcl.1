@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcl" 1 "18 Sep 2009" "mcl 1\&.008, 09-261" "USER COMMANDS "
+.TH "mcl" 1 "4 Nov 2009" "mcl 1\&.008, 09-308" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -30,14 +30,49 @@
 .SH NAME
 mcl \- The Markov Cluster Algorithm, aka the MCL algorithm\&.
 
-\fBmcl\fP is a cluster algorithm for graphs\&. A single option controls the
-granularity of the output clustering\&. This is the \fB-I\fP\ \&\fIinflation\fP
-option, described further below\&.
+This program implements \fBmcl\fP, a cluster algorithm for graphs\&. A single
+parameter controls the granularity of the output clustering, namely the
+\fB-I\fP\ \&\fIinflation\fP option described further below\&. This option
+affects the granularity of the the resulting clustering\&. In standard usage
+of the program this parameter is the only one that may require changing\&. By
+default it is set to\ \&2\&.0 and this is a good way to start\&.
+If you want to explore cluster structure in graphs with MCL, vary
+this parameter to obtain clusterings at different levels of granularity\&.
+A good set of starting values is 1\&.4, 2, 4, and 6\&.
+
+The program has a rather large set of options\&. Except for \fB-I\fP
+none affects the clustering method itself\&. The other options are for a
+variety of aspects, such as study of the underlying MCL process (i\&.e\&.
+dumping of iterands), network preprocessing (incorporated for efficiency),
+resource allocation options (for large-scale analyses), output naming
+and placement, output formatting, setting of verbosity levels, and so on\&.
+
+Network construction and reduction techniques should not be considered as
+part of a clustering algorithm\&. Nevertheless particular techniques may
+benefit particular methods or applications\&. This program implements a few
+transformations that may be useful\&. The first is \fB-tf\fP, that can
+be used for general edge weight transformations and selection\&. It is for
+example possible to remove edges with weight below 0\&.7 by issuing
+\fB-tf\fP\ \&\fB\&'gq(0\&.7)\&'\fP, where the quotes are necessary to prevent the shell
+from interpreting the parentheses\&. The option accepts more complicated
+sequences, such as \fB-tf\fP\ \&\fB\&'gq(0\&.7),add(-0\&.7)\&'\fP\&. This causes all
+remaining edge weights to be shifted to the range [0-0\&.3], assuming that the
+input contains correlations\&. The second is \fB-pi\fP, which can be
+used to increase the contrast in edge weights\&. This may be useful when
+clusterings are coarse and fine-grained clusterings are difficult to obtain\&.
+The third is \fB-knn-mutual\fP, which only keeps those edges that
+occur in the list of edges of highest weight in both of its incident nodes\&.
+It may be useful to reduce noise or spurious edges in dense networks, and
+has a parameter which is the size of the lists under consideration\&. The
+fourth is \fB-ceil-nb\fP, which removes edges from nodes of highest
+degree first, proceeding until all node degrees satisfy the given threshold\&.
 .SH GETTING STARTED
 There are two main modes of invocation\&. The most accessible is
 \fIlabel mode\fP
-that assumes label input\&. The input is then a file or stream in which each
-line encodes an edge in terms of two labels and a numerical value, separated
+which assumes a format alternatively called label input or ABC-format\&.
+The input is then a file or stream in which each
+line encodes an edge in terms of two labels (the \&'A\&' and the \&'B\&')
+and a numerical value (the \&'C\&'), all separated
 by white space\&. The most basic example of usage is this:
 
 .di ZV
@@ -53,126 +88,24 @@ by white space\&. The most basic example of usage is this:
 .fi \fR
 
 The output is then a file where each line is a cluster of tab-separated
-labels\&. MCL works natively with a numerical encoding of its input\&. This
-\fImatrix input\fP is the second mode of operation\&. Label mode can save its
-input for later use in matrix input\&. Here is how to do it\&.
-
-.di ZV
-.in 0
-.nf \fC
-   \fBmcl\fP <-|fname> \fB--abc\fP \fB-o\fP\ \&\fIfname-out\fP\e
-      \fB-write-tab\fP\ \&\fImap-name\fP \fB-write-graph\fP\ \&\fIgraph-name\fP
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-Native mode (matrix input) is entered simply by \fInot\fP specifying
-\fB--abc\fP\&. The input file should then have been created by an earlier
-invocation of \fB-write-graph\fP\ \&\fIfname\fP or by other means,
-e\&.g\&. \fBmcxload(1)\fP\&. It is
-possible to obtain label output in native mode by specifying a label
-dictionary, possibly one that was saved earlier using the
-\fB-write-tab\fP\ \&\fIfname\fP option\&. An example is this:
-
-.di ZV
-.in 0
-.nf \fC
-   \fBmcl\fP <-|fname> \fB--yield-abc\fP \fB-o\fP\ \&\fIfname-out\fP\e
-      \fB-strict-tab\fP\ \&\fIfname-map\fP
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-Here \fB-strict-tab\fP tells mcl that the input should not contain native
-identifiers other than found in the file \fBfname-map\fP\&. It is possible
-to relax this by using \fB-restrict-tab\fP\ \&\fIfname-map\fP or
-\fB-extend-tab\fP\ \&\fIfname-map\fP\&.
-
-Label mode is very convenient for easy and fast exploration\&. A decided
-advantage of full native mode (where both graph input and cluster output are
-in matrix format) is that the data can easily be analyzed and subjected to
-further processing\&. Second, input that is stored in native binary format
-loads much faster than label data when the input data size grows large\&. If
-neither of these is of concern then label mode may be entirely sufficient\&.
-For more information on label mode and native mode refer to examples in this
-manual and \fBmcxio(5)\fP\&.
-
-\fBGranularity\fP
-.br
-If you want to explore cluster structure in graphs with MCL, do use
-the \fB-I\fP\ \&\fIinflation\fP option with varying parameters
-to obtain clusterings at different levels of granularity\&.
-
-\fBClustering from blast files\fP
-.br
-Refer to the group of options discussed with
-\fB--abc\fP\&. By way of a small example, consider these\&.
-
-.di ZV
-.in 0
-.nf \fC
-mcxdeblast --line-mode=abc --out=- hsfsp\&.blast | mcl - --abc -o -
-mcxdeblast --m9 --line-mode=abc --out=- hsfsp\&.blast | mcl - --abc -o -
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-The single hyphens in this example (other than word-separators)
-indicate that output is written to STDOUT or read from STDIN\&.
-The blast files are respectively in default and column (-m8 or -m9) format\&.
-They are parsed, the output is sent to mcl, and mcl sends a list of
-tab-separated labels to STDOUT\&. All the \fCabc\fP strings serve to indicate
-that the mode of communication between these programs is \fIlabel format\fP\&.
-It is possible to cache the input graph in native mcl matrix format:
-
-.di ZV
-.in 0
-.nf \fC
-mcxdeblast --line-mode=-abc --out=- hsfsp\&.blast | \e
-   mcxload -abc - --stream-mirror -o hsfsp\&.mcx -write-tab hsfsp\&.tab --write-binary
-mcl hsfsp\&.mcx -use-tab hsfsp\&.tab -o  hsfsp\&.my-nice-clustering
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-The matrix is written in binary format to speed up
-subsequent reads\&. The speed-up factor is approximately ten-fold\&.
-For large graphs it is recommended to use binary format\&.
-Keep in mind though that it is not portable across machines
-and is not garantueed to be portable across different versions
-of mcl or differently compiled versions of mcl\&.
-\fBmcl\fP also accepts the \fB--write-binary\fP option, ensuring that
-graphs written with \fB-write-graph\fP are output in binary
-format\&.
-The \fBmcxload(1)\fP \fB--mirror\fP option ensures that
-the resulting graph is undirected\&. When mcl itself is in charge of processing
-the label input (rather than mcxload as in the example under discussion)
-it is not necessary to instruct mcl to do so\&.
+labels\&.
+If clustering is part of a larger workflow where it
+is desirable to analyse and compare multiple clusterings,
+then it is a good idea to use native mode rather than ABC\ \&mode\&.
+The reason for this is that native mode is understood
+by all programs in the mcl suite\&. It is a more stringent
+and unambiguous format, and hence more suitable for data exchange\&.
+The reader is refered to \fBclmprotocols(5)\fP for more information\&.
 .SH SYNOPSIS
-The example invocation below assumes matrix input, as described in the
-\fBmcxio(5)\fP section\&. Switching to label mode requires the input file to be in
-label format and the addition of the \fB--abc\fP option\&.
+The example invocation below assumes matrix input, as explained above
+and described in the \fBmcxio(5)\fP section\&. Switching to label mode requires
+the input file to be in ABC-format and the addition of the \fB--abc\fP
+option\&.
 
 \fBmcl\fP <-|fname>
-\fB[-I\fP f (\fIinflation\fP)\fB]\fP
-\fB[-o\fP str (\fIfname\fP)\fB]\fP
-\fB[-scheme\fP k (\fIresource scheme\fP)\fB]\fP
+\fB[-I\fP <num> (\fIinflation\fP)\fB]\fP
+\fB[-o\fP <str> (\fIfname\fP)\fB]\fP
+\fB[-scheme\fP <int> (\fIresource scheme\fP)\fB]\fP
 
 These options are sufficient in 95 percent of the cases or more\&. The first
 argument must be the name of a file containing a graph/matrix in the mcl
@@ -180,113 +113,97 @@ input format, or a hyphen to read from STDIN\&. With respect to clustering,
 the \fB-I\fP option and \fB-scheme\fP
 option are foremost relevant\&.
 
-A mechanism for pipelines is supported (as of the first 1\&.003 release)\&.
-Refer to the \fBPIPELINES\fP section for more information\&.
-A prepackaged pipeline for BLAST data is present in the form of
-\fBmclblastline(1)\fP\&. As of release 1\&.006 a lightweight BLAST clustering
-mechanism is also supported\&. \fBGETTING STARTED\fP is a small introduction,
-with some examples of using BLAST results\&.
-
-The full listing of \fBmcl\fP options is shown below, separated
+The full listing of \fBmcl\fP options is shown further below, separated
 into parts corresponding with functional aspects such
-as clustering, threading, verbosity, pruning and resource management,
+as clustering, threading, verbosity, network preprocessing, pruning and resource management,
 automatic output naming, and dumping\&.
 The \fB-scheme\fP parameter provides a single access point to the
 pruning options, and should be sufficient in most cases\&.
-\fBmcl\fP allows comprehensive tuning and access to its internals
-for those who are interested, so it has many options\&.
 
 \fBBaseline clustering options\fP
 .br
 \fB[-I\fP <num> (\fIinflation\fP)\fB]\fP
-\fB[-o\fP str (\fIfname\fP)\fB]\fP
-\fB[-od\fP str (\fIdirectory\fP)\fB]\fP
-\fB[-scheme\fP k (\fIresource scheme\fP)\fB]\fP
-\fB[--shadow-vl\fP (\fIshadow distant nodes\fP)\fB]\fP
-\fB[-c\fP <num> (\fIreweight loops\fP)\fB]\fP
+\fB[-o\fP <fname> (\fIfname\fP)\fB]\fP
+\fB[-scheme\fP <num> (\fIresource scheme\fP)\fB]\fP
 
-\fBStream options\fP
+\fBOutput options\fP
 .br
-\fB[--abc\fP fname (\fIexpect/write labels\fP)\fB]\fP
-\fB[--expect-abc\fP (\fIexpect labels\fP)\fB]\fP
-\fB[--yield-abc\fP fname (\fIwrite labels\fP)\fB]\fP
-\fB[-use-tab\fP fname (\fIuse mapping to write\fP)\fB]\fP
-\fB[-strict-tab\fP fname (\fIuse mapping to enforce\fP)\fB]\fP
-\fB[-restrict-tab\fP fname (\fIuse mapping to restrict\fP)\fB]\fP
-\fB[-extend-tab\fP fname (\fIuse mapping and extend\fP)\fB]\fP
-\fB[-write-tab\fP fname (\fIwrite mapping\fP)\fB]\fP
+\fB[-odir\fP <dname> (\fIdirectory\fP)\fB]\fP
+\fB[--d\fP (\fIuse input directory for output\fP)\fB]\fP
+
+\fBInput options\fP
+.br
+\fB[--abc\fP <fname> (\fIexpect/write labels\fP)\fB]\fP
+\fB[-use-tab\fP <fname> (\fIuse mapping to write\fP)\fB]\fP
 
 \fBTransform options\fP
 .br
 \fB[-tf\fP <tf-spec> (\fItransform input matrix values\fP)\fB]\fP
 \fB[-abc-tf\fP <tf-spec> (\fItransform input stream values\fP)\fB]\fP
-\fB[--abc-log\fP (\fItake logarithm of stream values\fP)\fB]\fP
-\fB[--abc-neg-log\fP (\fItake negative logarithm of stream values\fP)\fB]\fP
+\fB[--abc-neg-log10\fP (\fItake log10 of stream values, negate sign\fP)\fB]\fP
+\fB[--abc-neg-log\fP (\fItake log of stream values, negate sign\fP)\fB]\fP
 
 \fBCache options\fP
 .br
-\fB[-write-graph\fP fname (\fIwrite graph\fP)\fB]\fP
-\fB[-write-graphx\fP fname (\fIwrite transformed graph\fP)\fB]\fP
-\fB[-write-expanded\fP fname (\fIwrite expanded graph\fP)\fB]\fP
-
-\fBAdditional clustering options\fP
-.br
-\fB[-l\fP n (\fIinitial iteration number\fP)\fB]\fP
-\fB[-L\fP n (\fImain iteration number\fP)\fB]\fP
-\fB[-i\fP f (\fIinitial inflation\fP)\fB]\fP
-\fB[--adapt-local\fP (\fIlocalize inflation (experimental)\fP)\fB]\fP
-\fB[--shadow\fP mode (\fImodulation type\fP)\fB]\fP
-\fB[-shadow-s\fP f (\fIboost factor\fP)\fB]\fP
+\fB[-write-graph\fP <fname> (\fIwrite graph\fP)\fB]\fP
+\fB[-write-graphx\fP <fname> (\fIwrite transformed graph\fP)\fB]\fP
+\fB[-write-expanded\fP <fname> (\fIwrite expanded graph\fP)\fB]\fP
+\fB[--write-limit\fP (\fIwrite mcl process limit\fP)\fB]\fP
 
 \fBInput manipulation options\fP
 .br
-\fB[-pi\fP f (\fIpre-inflation\fP)\fB]\fP
-\fB[-ph\fP f (\fIpre-inflation, max-bound\fP)\fB]\fP
-\fB[-if\fP f (\fIstart-inflation\fP)\fB]\fP
-\fB[-ceil-nb\fP n (\fIreduce neighbourhods\fP)\fB]\fP
-\fB[--discard-loops=\fPy/n (\fIdiscard y/n loops in input\fP)\fB]\fP
+\fB[-pi\fP <num> (\fIpre-inflation\fP)\fB]\fP
+\fB[-ph\fP <num> (\fIpre-inflation, max-bound\fP)\fB]\fP
+\fB[-if\fP <num> (\fIstart-inflation\fP)\fB]\fP
+\fB[-ceil-nb\fP n (\fIreduce neighbourhoods\fP)\fB]\fP
+\fB[-knn-mutual\fP n (\fIkeep mutually close neighbours\fP)\fB]\fP
+\fB[--discard-loops=\fP<y/n> (\fIdiscard y/n loops in input\fP)\fB]\fP
+\fB[--shadow\fP <mode> (\fImodulation type\fP)\fB]\fP
+\fB[-shadow-s\fP <num> (\fIboost factor\fP)\fB]\fP
+\fB[--shadow-vl\fP (\fIshadow distant nodes\fP)\fB]\fP
+\fB[--sum-loops\fP (\fIset loops to sum of other arcs weights\fP)\fB]\fP
+\fB[-c\fP <num> (\fIreweight loops\fP)\fB]\fP
 
-\fBClustering result options\fP
+\fBClustering processing options\fP
 .br
-\fB[-sort\fP str (\fIsort mode\fP)\fB]\fP
-\fB[-overlap\fP str (\fIoverlap mode\fP)\fB]\fP
-\fB[--output-limit=\fPy/n (\fIwrite limit matrix\fP)\fB]\fP
-\fB[--force-connected=\fPy/n (\fIanalyze components\fP)\fB]\fP
-\fB[--check-connected=\fPy/n (\fIanalyze components\fP)\fB]\fP
-\fB[--analyze=\fPy/n (\fIperformance criteria\fP)\fB]\fP
-\fB[--show-log=\fPy/n (\fIshow log\fP)\fB]\fP
-\fB[--append-log=\fPy/n (\fIappend log\fP)\fB]\fP
+\fB[-sort\fP <str> (\fIsort mode\fP)\fB]\fP
+\fB[-overlap\fP <str> (\fIoverlap mode\fP)\fB]\fP
+\fB[--force-connected=\fP<y/n> (\fIanalyze components\fP)\fB]\fP
+\fB[--check-connected=\fP<y/n> (\fIanalyze components\fP)\fB]\fP
+\fB[--analyze=\fP<y/n> (\fIperformance criteria\fP)\fB]\fP
+\fB[--show-log=\fP<y/n> (\fIshow log\fP)\fB]\fP
+\fB[--append-log=\fP<y/n> (\fIappend log\fP)\fB]\fP
 
 \fBVerbosity options\fP
 .br
-\fB[-q\fP spec (\fIlog levels\fP)\fB]\fP
-\fB[-v\fP str (\fIverbosity type on\fP)\fB]\fP
-\fB[-V\fP str (\fIverbosity type off\fP)\fB]\fP
+\fB[-q\fP <spec> (\fIlog levels\fP)\fB]\fP
+\fB[-v\fP <str> (\fIverbosity type on\fP)\fB]\fP
+\fB[-V\fP <str> (\fIverbosity type off\fP)\fB]\fP
 \fB[--show\fP (\fIprint (small) matrices to screen\fP)\fB]\fP
 
 \fBThread options\fP
 .br
-\fB[-te\fP k (\fI#expansion threads\fP)\fB]\fP
+\fB[-te\fP <int> (\fI#expansion threads\fP)\fB]\fP
 
 \fBOutput file name and annotation options\fP
 .br
-\fB[-o\fP str (\fIfname\fP)\fB]\fP
-\fB[-ap\fP str (\fIuse str as file name prefix\fP)\fB]\fP
-\fB[-aa\fP str (\fIappend str to suffix\fP)\fB]\fP
+\fB[-o\fP <str> (\fIfname\fP)\fB]\fP
+\fB[-ap\fP <str> (\fIuse str as file name prefix\fP)\fB]\fP
+\fB[-aa\fP <str> (\fIappend str to suffix\fP)\fB]\fP
 \fB[-az\fP (\fIshow output file name and exit\fP)\fB]\fP
 \fB[-ax\fP (\fIshow output suffix and exit\fP)\fB]\fP
-\fB[-annot\fP str (\fIdummy annotation option\fP)\fB]\fP
+\fB[-annot\fP <str> (\fIdummy annotation option\fP)\fB]\fP
 
 \fBDump options\fP
 .br
-\fB[-dump-interval\fP i:j (\fIdump interval\fP)\fB]\fP
-\fB[-dump-modulo\fP k (\fIdump modulo\fP)\fB]\fP
-\fB[-dump-stem\fP stem (\fIdump file stem\fP)\fB]\fP
-\fB[-dump\fP str (\fItype\fP)\fB]\fP
-\fB[-dump-subi\fP spec (\fIindex list for submatrix dump\fP)\fB]\fP
-\fB[-dump-subd\fP spec (\fIdomain list for submatrix dump\fP)\fB]\fP
-\fB[-dump-dom\fP fname (\fIdomain matrix file\fP)\fB]\fP
-\fB[-digits\fP n (\fIprinting precision\fP)\fB]\fP
+\fB[-dump-interval\fP <i:j> (\fIdump interval\fP)\fB]\fP
+\fB[-dump-modulo\fP <int> (\fIdump modulo\fP)\fB]\fP
+\fB[-dump-stem\fP <stem> (\fIdump file stem\fP)\fB]\fP
+\fB[-dump\fP <str> (\fItype\fP)\fB]\fP
+\fB[-dump-subi\fP <spec> (\fIindex list for submatrix dump\fP)\fB]\fP
+\fB[-dump-subd\fP <spec> (\fIdomain list for submatrix dump\fP)\fB]\fP
+\fB[-dump-dom\fP <fname> (\fIdomain matrix file\fP)\fB]\fP
+\fB[-digits\fP <int> (\fIprinting precision\fP)\fB]\fP
 \fB[--write-binary\fP (\fIwrite matrices in binary format\fP)\fB]\fP
 
 \fBInfo options\fP
@@ -295,7 +212,7 @@ for those who are interested, so it has many options\&.
 \fB[--version\fP (\fIshow version\fP)\fB]\fP
 \fB[-how-much-ram\fP k (\fIRAM upper bound\fP)\fB]\fP
 \fB[-h\fP (\fImost important options\fP)\fB]\fP
-\fB[--apropos\fP (\fIone-line description for all options\fP)\fB]\fP
+\fB[--help\fP (\fIone-line description for all options\fP)\fB]\fP
 \fB[-z\fP (\fIshow current settings\fP)\fB]\fP
 \fB[-az\fP (\fIshow output file name and exit\fP)\fB]\fP
 \fB[-ax\fP (\fIshow output suffix and exit\fP)\fB]\fP
@@ -309,15 +226,16 @@ section, accompanied by a description of the mcl pruning strategy\&.
 If your graphs are huge
 and you have an appetite for tuning, have a look at the following:
 
-\fB[-p\fP f (\fIcutoff\fP)\fB]\fP
-\fB[-P\fP n (\fI1/cutoff\fP)\fB]\fP
-\fB[-S\fP n (\fIselection number\fP)\fB]\fP
-\fB[-R\fP n (\fIrecovery number\fP)\fB]\fP
-\fB[-pct\fP f (\fIrecover percentage\fP)\fB]\fP
-\fB[-my-scheme\fP n (\fItag custom scheme\fP)\fB]\fP
-\fB[-warn-pct\fP n (\fIprune warn percentage\fP)\fB]\fP
-\fB[-warn-factor\fP n (\fIprune warn factor\fP)\fB]\fP
-\fB[--adapt\fP (\fIpruning\fP)\fB]\fP
+\fB[-p\fP <num> (\fIcutoff\fP)\fB]\fP
+\fB[-P\fP <int> (\fI1/cutoff\fP)\fB]\fP
+\fB[-S\fP <int> (\fIselection number\fP)\fB]\fP
+\fB[-R\fP <int> (\fIrecovery number\fP)\fB]\fP
+\fB[-pct\fP <int> (\fIrecover percentage\fP)\fB]\fP
+\fB[-my-scheme\fP <int> (\fItag custom scheme\fP)\fB]\fP
+\fB[-resource\fP <int> (\fIper-node resource maximum\fP)\fB]\fP
+\fB[-warn-pct\fP <int> (\fIprune warn percentage\fP)\fB]\fP
+\fB[-warn-factor\fP <int> (\fIprune warn factor\fP)\fB]\fP
+\fB[-nj\fP <int> (\fIjury window index\fP)\fB]\fP
 
 The first argument of \fBmcl\fP must be a file name, but some options are allowed
 to appear as the first argument instead\&. These are the options that cause
@@ -326,12 +244,11 @@ exit\&. The full list of these options is
 
 \fB-z\fP,
 \fB-h\fP,
-\fB--apropos\fP,
+\fB--help\fP,
 \fB--version\fP,
 \fB--show-settings\fP,
 \fB--show-schemes\fP,
-\fB--jury-charter\fP,
-\fB-how-much-ram\fP\ \&\fIk\fP\&.
+\fB--jury-charter\fP\&.
 .SH DESCRIPTION
 
 \fBmcl\fP implements the \fBMCL algorithm\fP, short for the \fBMarkov cluster
@@ -359,64 +276,13 @@ pleasant if you do not have to skip over an immutable parameter all the
 time\&.
 
 The \fB-I\fP\ \&\fIf\fP option is the main control,
-affecting cluster granularity\&. Using \fBmcl\fP is as simple as
-typing (assuming a file \fIproteins\fP contains a matrix/graph
-in native matrix format)
-
-.di ZV
-.in 0
-.nf \fC
-mcl proteins -I 2\&.0
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-The above will result in a clustering written to the file
-named \fIout\&.proteins\&.I20s2\fP\&. It is - of course -
-possible to explicitly specify the name of the output file
-using the \fB-o\fP\ \&\fIfname\fP option\&. Refer to the
-\fB-ap\fP option for a description of mcl\&'s procedure
-in automatically constructing file names from it parameters\&.
-
-In native mode clusterings are stored as matrices
-- this is discussed in the \fBmcxio(5)\fP section\&.
-You presumably want to convert the output to something that
-is easier to interpret\&. The native mcl matrix format is perhaps
-unpleasant to parse in the quick and dirty way\&. You can use
-
-.di ZV
-.in 0
-.nf \fC
-mcl proteins -I 2\&.0 -use-tab proteins\&.tab --yield-abc
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-to get a line/tab based output format,
-each line containing a cluster in the form of tab-separated labels\&.
-Here \fBproteins\&.tab\fP should be a tab file previously
-created by \fBmcxdeblast(1)\fP or mcl\&.
-Refer to \fBmcxio(5)\fP for more information on tab files,
-and the entries grouped under \fB--abc\fP for an extensive
-discussion of the various ways in which mcl can combine
-label format and matrix format in input and output\&.
-
+affecting cluster granularity\&.
 In finding good \fBmcl\fP parameter settings for a particular domain,
 or in finding cluster structure at different levels of granularity,
 one typically runs mcl multiple times for varying values of f (refer
 to the \fB-I\fP\ \&\fIinflation\fP option for further information)\&.
 
-\fBNOTE\fP
-.br
-mcl interprets the matrix
+\fBNOTE\fP MCL interprets the matrix
 entries or graph edge weights as \fBsimilarities\fP, and it likes
 \fBundirected input graphs\fP best\&. It can handle directed graphs, but any
 node pair (i,j) for which w(i,j) is much smaller than w(j,i) or vice versa
@@ -431,7 +297,7 @@ choose the negated logarithm of the BLAST probabilities (see
 circumstances\&. Taking default parameters, mcl has been used to generate
 good protein clusters on 133k proteins, taking 10 minutes running time on a
 Compaq ES40 system with four alpha EV6\&.7 processors\&. It has been applied
-(with good results) to graphs with 800k nodes, and if you have the memory
+(with good results) to graphs with two million nodes, and if you have the memory
 (and preferably CPUs as well) nothing should stop you from going further\&.
 
 For large graphs, there are several groups of parameters available for
@@ -482,7 +348,7 @@ force mcl to stop by sending it the ALRM signal (usually done
 by \fBkill -s ALRM\fP \fIpid\fP)\&. It will finish the current
 iteration, and interpret the last iterand as a clustering\&. Alternatively, you
 can wait and mcl might converge by itself or it will certainly stop after
-10,000 iterations (the default value for the \fB-L\fP option)\&. The
+10,000 iterations\&. The
 most probable explanation for such an infinite loop is that the input graph
 contains the flip-flop graph of node size three as a subgraph\&.
 
@@ -495,10 +361,10 @@ In the \fBOPTIONS\fP section options are listed in order of
 importance, with related options grouped together\&.
 .SH OPTIONS
 
-.ZI 2m "\fB-I\fP f (\fIinflation\fP)"
+.ZI 2m "\fB-I\fP <num> (\fIinflation\fP)"
 \&
 .br
-Sets the main inflation value to f\&. This value is the main handle
+Sets the main inflation value to \fI<num>\fP\&. This value is the main handle
 for affecting cluster granularity\&. It is usually chosen somewhere
 in the range [1\&.2-5\&.0]\&. \fB-I\fP\ \&\fB5\&.0\fP will tend to result
 in fine-grained clusterings, and \fB-I\fP\ \&\fB1\&.2\fP will tend to
@@ -516,12 +382,38 @@ clusterings, i\&.e\&. increase the argument to the
 \fB-scheme\fP option\&.
 .in -2m
 
-.ZI 2m "\fB-o\fP str (\fIfname\fP)"
+.ZI 2m "\fB-o\fP <fname> (\fIoutput file name\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-odir\fP <dname> (\fIoutput directory name\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--d\fP (\fIuse input directory for output\fP)"
+\&
+'in -2m
+'in +2m
 \&
 .br
-Output the clustering to file named fname\&. It is possible to send the
-clustering to stdout by supplying \fB-o\fP\ \&\fB-\fP\&. If either one of
-\fB--abc\fP, \fB--yield-abc\fP, or
+The default mode of output creation for \fBmcl\fP is to create a file name that
+uses the input file name stripped of any leading path components, augmented
+with a prefix \&'\fCout\&.\fP\&' and a suffix encoding pivotal \fBmcl\fP parameters\&.
+This will usually be the inflation value which is the argument to the \fB-I\fP
+option\&. By default the output file is written in the current directory\&.
+For example, if the input is named \fCdata/small\&.mci\fP for example and
+inflation is set to three, the output file will be named
+\fCout\&.small\&.mci\&.I30\fP\&.
+
+This behaviour can be overridden in various ways\&. The \fB-o\fP option simply
+specifies the output file name, which may include path components that
+should exist\&. It is possible to send the clustering to STDOUT by supplying
+\fB-o\fP\ \&\fB-\fP\&. With the \fB-odir\fP\ \&\fI<dname>\fP option \fBmcl\fP constructs the
+output file name as before, but writes the file in the directory \fI<dname>\fP\&.
+Finally, the option \fB--d\fP is similar but more specific in that \fBmcl\fP
+will write the output in the directory specified by the path component of
+the input file, that is, the directory in which the input file resides\&.
+
+If either one of
+\fB--abc\fP or
 \fB-use-tab\fP\ \&\fItab-file\fP is used the output will be in label format \-
 provided a tab file is specified or the input is in label format\&. Otherwise
 the clustering is output in the mcl matrix format; see the \fBmcxio(5)\fP
@@ -533,16 +425,7 @@ automatic naming constructions employed by \fBmcl\fP if the \fB-o\fP option is
 not used\&.
 .in -2m
 
-.ZI 2m "\fB-od\fP <dir> (\fIdirectory\fP)"
-\&
-.br
-Specify the directory where to output clusterings\&. This is useful
-when you let mcl automatically construct the output file name,
-but want the clustering in a directory different from the
-one where the input graph resides\&.
-.in -2m
-
-.ZI 2m "\fB-shadow\fP mode (\fIapply shadowing\fP)"
+.ZI 2m "\fB-shadow\fP <mode> (\fIapply shadowing\fP)"
 \&
 'in -2m
 .ZI 2m "\fB-shadow-s\fP <num> (\fIboost factor (experimental)\fP)"
@@ -599,13 +482,19 @@ The default setting is 1\&.0\&.
 
 .ZI 2m "\fB-c\fP <num> (\fIreweight loops\fP)"
 \&
+'in -2m
+.ZI 2m "\fB--sum-loops\fP (\fIset loops to sum of other arcs weights\fP)"
+\&
+'in -2m
+'in +2m
+\&
 .br
-As the final step of loop computation (i\&.e\&. after initialization
-and shadowing), all loop weights are multiplied by \fB<num>\fP,
-if supplied\&.
+With the \fB-c\fP\ \&\fI<num>\fP option, as the final step of loop computation
+(i\&.e\&. after initialization and shadowing) all loop weights are multiplied by
+\fB<num>\fP, if supplied\&.
 .in -2m
 
-.ZI 2m "\fB--discard-loops\fP=y/n (\fIdiscard loops in input\fP)"
+.ZI 2m "\fB--discard-loops\fP=<y/n> (\fIdiscard loops in input\fP)"
 \&
 .br
 By default \fBmcl\fP will remove any loops that are present in the input\&. Use
@@ -614,28 +503,10 @@ still be modified in all cases where the loop weight is not maximal among
 the list of edge weights for a given node\&.
 .in -2m
 
-.ZI 2m "\fB--abc\fP fname (\fIexpect/write labels\fP)"
+.ZI 2m "\fB--abc\fP <fname> (\fIexpect/write labels\fP)"
 \&
 'in -2m
-.ZI 2m "\fB--expect-abc\fP (\fIexpect labels\fP)"
-\&
-'in -2m
-.ZI 2m "\fB--yield-abc\fP fname (\fIwrite labels\fP)"
-\&
-'in -2m
-.ZI 2m "\fB-use-tab\fP fname (\fIuse mapping to write\fP)"
-\&
-'in -2m
-.ZI 2m "\fB-strict-tab\fP fname (\fIuse mapping to enforce\fP)"
-\&
-'in -2m
-.ZI 2m "\fB-restrict-tab\fP fname (\fIuse mapping to restrict\fP)"
-\&
-'in -2m
-.ZI 2m "\fB-extend-tab\fP fname (\fIuse mapping and extend\fP)"
-\&
-'in -2m
-.ZI 2m "\fB-write-tab\fP fname (\fIwrite mapping\fP)"
+.ZI 2m "\fB-use-tab\fP <fname> (\fIuse mapping to write\fP)"
 \&
 'in -2m
 'in +2m
@@ -644,47 +515,11 @@ the list of edge weights for a given node\&.
 These items all relate to label input and/or label output\&.
 \fB--abc\fP tells mcl to expect label input and output clusters
 in terms of those labels\&.
-It is equivalent to the combination of \fB--expect-abc\fP
-and \fB--yield-abc\fP\&.
-
-\fB-restrict-tab\fP and \fB-strict-tab\fP
-can be used both with label input and native format\&.
-When label input is used, they restrict, respectively require
-labels to be present in the tab file\&.
-When native input is used they restrict, respectively require
-indices to be present in the tab domain\&.
-\fB-strict-tab\fP fails in the face of exceptions, \fB-restrict-tab\fP
-will simply ignore them\&.
-\fB-strict-tab\fP and \fB-restrict-tab\fP do \fInot\fP
-automatically yield label output\&. You need \fB--abc\fP or
-\fB--yield-abc\fP\&.
-
-\fB-extend-tab\fP is only useful when label input is used\&.
-It will create a new label/index mapping when a label is not found
-in the tab file\&. Presumably you want to use the \fB-write-tab\fP
-as well then\&.
 
 \fB-use-tab\fP is only useful when matrix input is used\&.
 It will use the tab file to convert the output to labels; it does
-not hitch on indices missing from the tab file\&. Take a pick
-from \fB-restrict-tab\fP or \fB-strict-tab\fP \fIand\fP
-\fB--abc\fP or \fB--yield-abc\fP if that is what you want\&.
-
-\fB-write-tab\fP can be used to preserve the tab file
-that was constructed from label input, either from scratch
-or by extension from a previous tab file in case \fB-extend-tab\fP
-was used\&.
-
-\fBNOTE\fP
-.br
-in all its dealings with tab files, mcl will only accept those
-for which the associated domain is \fIcanonical\fP, that is,
-domains for which the indices range from zero to some number \fCN\fP
-without omissions\&. It is possible to hook up any tab file to mcl,
-but it requires mcxdump to act as an intermediary -
-\fBmcxdump(1)\fP has no such limitations\&. This need in
-general not be of concern to you\&. If a tab file is created by
-mcl or mcxdeblast it will always be canonical\&.
+not fail on indices missing from the tab file, but will bind
+these to generated dummy labels\&.
 .in -2m
 
 .ZI 2m "\fB-tf\fP <tf-spec> (\fItransform input matrix values\fP)"
@@ -693,10 +528,10 @@ mcl or mcxdeblast it will always be canonical\&.
 .ZI 2m "\fB-abc-tf\fP <tf-spec> (\fItransform input stream values\fP)"
 \&
 'in -2m
-.ZI 2m "\fB--abc-log\fP (\fItake logarithm of stream values\fP)"
+.ZI 2m "\fB--abc-neg-log10\fP (\fItake log10 of stream values, negate sign\fP)"
 \&
 'in -2m
-.ZI 2m "\fB--abc-neg-log\fP (\fItake negative logarithm of stream values\fP)"
+.ZI 2m "\fB--abc-neg-log\fP (\fItake log of stream values, negate sign\fP)"
 \&
 'in -2m
 'in +2m
@@ -704,116 +539,45 @@ mcl or mcxdeblast it will always be canonical\&.
 .br
 \fB-tf\fP transforms the values of the input matrix according
 to \fB<tf-spec>\fP\&. \fB-abc-tf\fP transforms the stream values
-(when \fB--abc\fP or \fB--expect-abc\fP is used)
-according to \fB<tf-spec>\fP\&.
-\fB--abc-neg-log\fP and \fB--abc-log\fP
-respectively imply that the stream input values are
-first replaced by their (negative) logarithm\&.
+(when \fB--abc\fP is used) according to \fB<tf-spec>\fP\&.
+\fB--abc-neg-log\fP and \fB--abc-neg-log10\fP
+imply that the stream input values are
+replaced by the negation of their log or log10 values, respectively\&.
 The reason for their existence is documented in \fBmcxio(5)\fP\&.
 For a description of the transform language excpected/accepted
 in \fB<tf-spec>\fP refer to the same\&.
 .in -2m
 
-.ZI 2m "\fB-write-graph\fP fname (\fIwrite graph\fP)"
+.ZI 2m "\fB-write-graph\fP <fname> (\fIwrite graph\fP)"
 \&
 'in -2m
-.ZI 2m "\fB-write-graphx\fP fname (\fIwrite transformed graph\fP)"
+.ZI 2m "\fB-write-graphx\fP <fname> (\fIwrite transformed graph\fP)"
 \&
 'in -2m
-.ZI 2m "\fB-write-expanded\fP fname (\fIwrite expanded graph\fP)"
+.ZI 2m "\fB-write-expanded\fP <fname> (\fIwrite expanded graph\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--write-limit\fP (\fIwrite mcl process limit\fP)"
 \&
 'in -2m
 'in +2m
 \&
 .br
-If you work with label input, \fB-write-graph\fP can be
-used to save the matrix mcl constructs from the input stream\&.
-\fB-write-graphx\fP is similar except that it applies to the graph after
-transformations have been applied to it (such as specified by the
-\fB-tf\fP option)\&. In a following mcl invocation, you can use this
-graph rather than the label input\&. This should greatly speed up matters\&.
-Presumably the first time around you have use the
-\fB-write-tab\fP\ \&\fImy\&.tab\fP option\&. You can put that \fCmy\&.tab\fP file to
-good use by passing it in as \fB-use-tab\fP\ \&\fImy\&.tab\fP the second time
-around\&. The session below puts everything together\&.
-
-.di ZV
-.in 0
-.nf \fC
-mcl xyz\&.data --abc -I 2\&.0 -o xyz\&.cls-I20 --write-binary\e
-            -write-graph xyz\&.mci -write-tab xyz\&.tab
-mcl xyz\&.mci -I 2\&.4 -use-tab xyz\&.tab -o xyz\&.cls-I24
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-The \fB--write-binary\fP option is useful for large graphs as it
-will drastically speed up subsequent load times\&. Otherwise it
-is not necessary, and bear in mind that binary format is not
-portable across machines and it is not garantueed to be portable
-across different version of mcl\&.
-For very large graphs it could be a bit wasteful to load a large tab
-structure into memory\&. The second line can then be replaced by
-
-.di ZV
-.in 0
-.nf \fC
-mcl xyz\&.mci -I 2\&.4 -o -|\e
-mcxdump -imx - --no-values --dump-rlines\e
-            -tabr xyz\&.tab -o xyz\&.cls-I24
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-Admittedly this is beginning to look like black magic, but truthfully
-it is not\&. \fBmcxdump(1)\fP
-simply needs to be told how it should format its output\&. It needs to know
-it should dump the matrix columns (clusters in this case) on a per-line
-basis, that it should not dump the index that identifies the cluster
-(an arbitrary rank in our case), and that there is no need to output values\&.
-\fBmcxdump\fP furthermore does not know how the tab file relates to
-its input matrix, whereas mcl previously had the advantage of knowing\&.
-Hence \fB-tabr\fP is telling mcxdump that the \fIrow domain\fP
-in the clustering matrix identify the nodes\&.
-
-The first step in almost any mcl run is that the matrix constructed from the
-input is \fIsquared\fP or \fIexpanded\fP\&. This is a rather costly operation
-if the input size is large\&. When you are doing multiple runs it can thus be
-useful to cache the expanded matrix at the cost of a little more hassle\&.
-Use \fB-write-expanded\fP\ \&\fIfname\fP to write this matrix to \fIfname\fP\&.
-In subsequent runs supply \fIfname\fP as the input argument to mcl and
-use \fB-if\fP\ \&\fInum\fP to indicate that the first thing to apply should be
-inflation with parameter \fInum\fP\&. Combining our previous two
-examples then yields
-
-.di ZV
-.in 0
-.nf \fC
-mcl xyz\&.data --abc -I 2\&.0 -o xyz\&.cls-I20 --write-binary\e
-            -write-expanded xyz\&.mxp -write-tab xyz\&.tab
-mcl xyz\&.mxp -if 2\&.4 -I 2\&.4 -o -|\e
-mcxdump -imx - --no-values --dump-rlines\e
-            -tabr xyz\&.tab -o xyz\&.cls-I24
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-Behold, this is a very time and space efficient setup\&.
+The first two options are somewhat outdated, in that the prefered way of
+loading networks is by using \fBmcxload(1)\fP\&. The option
+\fB-write-expanded\fP can be useful for exploring more complicated input
+transformations that incorporate an expansion step, but is not really
+relevant for production use\&. The last option is mainly educational and for
+analyzing the \fBmcl\fP process itself\&.
 .in -2m
 
-.ZI 2m "\fB-scheme\fP k (\fIuse a preset resource scheme\fP)"
+.ZI 2m "\fB-scheme\fP <num> (\fIuse a preset resource scheme\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-resource\fP <num> (\fIallow n neighbours throughout\fP)"
+\&
+'in -2m
+'in +2m
 \&
 .br
 There are currently seven different resource schemes, indexed 1\&.\&.7\&.
@@ -825,6 +589,9 @@ resulting clustering is bad\fP - but anyway, a low grade should be reason
 to try for a higher scheme\&. The grades are listed in the
 \fBPRUNING OPTIONS\fP section under the
 \fB-nj\fP option\&.
+
+Use the \fB-resource\fP\ \&\fI<num>\fP option to cap for each nodes the number of
+neighbours tracked during computation at \fI<num>\fP nodes\&.
 
 The \fBPRUNING OPTIONS\fP section contains an elaborate description
 of the way \fBmcl\fP manages resources, should you be interested\&.
@@ -839,23 +606,8 @@ own sound judgment on the other hand\&.
 If your input graph is extremely dense, with an average node degree
 (i\&.e\&. the number of neighbours per node) that is somewhere above
 500, you may need to filter the input graph by removing edges,
-for example by using the
-\fB-ceil-nb\fP option\&.
-.in -2m
-
-.ZI 2m "\fB--adapt-local\fP (\fIlocalize inflation (experimental)\fP)"
-\&
-.br
-\fBExperimental\fP
-.br
-Inflation is adapted depending on the amount of local dispersion,
-where dispersion is a measure for how quickly stochastic flow
-disperses throughout the graph\&. Regions with a low/high clustering
-coefficient will have comparatively high/low dispersion\&.
-For regions with high dispersion (low clustering coefficient)
-inflation is adapted towards a higher value, for regions with
-low dispersion (high clustering coefficient) inflation is adapted
-towards a lower value\&.
+for example by using one of \fB-ceil-nb\fP
+or \fB-knn-mutual\fP\&.
 .in -2m
 
 .ZI 2m "\fB--show-schemes\fP (\fIshow preset resource schemes\fP)"
@@ -868,13 +620,13 @@ The characteristics are written in the same format (more or less) as
 the output triggered by \fB-v\fP\ \&\fBpruning\fP\&.
 .in -2m
 
-.ZI 2m "\fB-V\fP str (\fIverbosity type off\fP)"
+.ZI 2m "\fB-V\fP <str> (\fIverbosity type off\fP)"
 \&
 .br
 See the \fB-v\fP option below\&.
 .in -2m
 
-.ZI 2m "\fB-v\fP str (\fIverbosity type on\fP)"
+.ZI 2m "\fB-v\fP <str> (\fIverbosity type on\fP)"
 \&
 .br
 These are the different verbosity modes:
@@ -888,7 +640,7 @@ These are the different verbosity modes:
 \fBall\fP
 .in -2m
 
-.ZI 2m "\fB-q\fP spec (\fIlog levels\fP)"
+.ZI 2m "\fB-q\fP <spec> (\fIlog levels\fP)"
 \&
 .br
 
@@ -933,13 +685,13 @@ to the \fB-dump\fP option description in this manual and also
 \fBmclfaq(7)\fP\&.
 .in -2m
 
-.ZI 2m "\fB-aa\fP str (\fIappend str to suffix\fP)"
+.ZI 2m "\fB-aa\fP <str> (\fIappend <str> to suffix\fP)"
 \&
 .br
 See the \fB-ap\fP option below\&.
 .in -2m
 
-.ZI 2m "\fB-ap\fP str (\fIuse str as file name prefix\fP)"
+.ZI 2m "\fB-ap\fP <str> (\fIuse <str> as file name prefix\fP)"
 \&
 .br
 If the \fB-o\fP\ \&\fIfname\fP option is not used,
@@ -963,8 +715,8 @@ file name suffix\&.
 
 The suffix is constructed as follows\&. The \fB-I\fP\ \&\fIf\fP
 and \fB-scheme\fP parameter are always encoded\&.
-The \fB-pi\fP\ \&\fIf\fP, \fB-l\fP\ \&\fIk\fP, and \fB-i\fP\ \&\fIf\fP
-options are only encoded if they are used\&. Any real argument \fIf\fP
+Other options, such as \fB-pi\fP\ \&\fIf\fP and \fB-knn-mutual\fP
+are only encoded if they are used\&. Any real argument \fIf\fP
 is encoded using \fIexactly one\fP trailing digit behind the decimal
 separator (which itself is not written)\&. The setting \fB-I\fP\ \&\fB3\&.14\fP
 is thus encoded as I31\&. The \fB-scheme\fP option is encoded using the
@@ -1009,7 +761,7 @@ option settings\&. Use \fB-ax\fP to find out what that suffix is\&.
 This can be useful in wrapper pipeline scripts such as clxcoarse\&.
 .in -2m
 
-.ZI 2m "\fB-annot\fP str (\fIdummy annotation option\fP)"
+.ZI 2m "\fB-annot\fP <str> (\fIdummy annotation option\fP)"
 \&
 .br
 \fBmcl\fP writes the command line with which it was invoked to the output
@@ -1018,7 +770,7 @@ information\&. MCL does nothing with this option except copying
 it as just described\&.
 .in -2m
 
-.ZI 2m "\fB-te\fP k (\fI#expansion threads\fP)"
+.ZI 2m "\fB-te\fP <int> (\fI#expansion threads\fP)"
 \&
 .br
 Threading is useful if you have a multi-processor system\&. \fBmcl\fP will
@@ -1032,60 +784,10 @@ scrutinize its output later\&. This is because it makes \fBmcl\fP run
 somewhat slower, although the difference is not dramatic\&.
 .in -2m
 
-.ZI 2m "\fB-l\fP n (\fIinitial iteration number\fP) (small letter ell)"
-\&
-.br
-The number of times \fBmcl\fP will use a different inflation value
-before it switches to the (main) inflation given by the \fB-I\fP
-(capital eye) option\&. The different value is called \fIinitial
-inflation\fP and is tunable using the \fB-i\fP\ \&\fIf\fP
-option (default value f=2\&.0)\&. The default value (to \fB-l\fP)
-is zero\&. This option supplies new ways of affecting cluster
-granularity, e\&.g\&. by supplying
-
-.di ZV
-.in 0
-.nf \fC
-mcl proteins -i 1\&.4 -l 2 -I 4\&.0
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-one lets expansion prevail during the first two iterations,
-followed by inflation catching up (in a figurative way of writing)\&.
-This may be useful in certain cases, but this type of experiment
-is \fIcertainly secondary\fP to simply varying \fB-I\fP (capital eye)\&.
-.in -2m
-
-.ZI 2m "\fB-L\fP n (\fImain iteration number\fP)"
-\&
-.br
-Normally, \fBmcl\fP computes the MCL process until it has converged
-fully to a doubly idempotent matrix\&. The number of iterations
-required is typically somewhere in the range 10-100\&.
-The first few iterations generally take the longest time\&.
-The \fB-L\fP option can be used to specify the number of
-iterations mcl may do at most\&. When this number is reached,
-mcl will output the clustering associated with the iterand
-last computed\&.
-.in -2m
-
-.ZI 2m "\fB-i\fP f (\fIinitial inflation\fP)"
-\&
-.br
-The inflation value used during the first n iterations,
-where n is specified by the \fB-l\fP (ell) option\&.
-By default, n=0 and f=2\&.0\&.
-.in -2m
-
-.ZI 2m "\fB-pi\fP f (\fIpre-inflation\fP)"
+.ZI 2m "\fB-pi\fP <num> (\fIpre-inflation\fP)"
 \&
 'in -2m
-.ZI 2m "\fB-ph\fP f (\fIpre-inflation, max-bound\fP)"
+.ZI 2m "\fB-ph\fP <num> (\fIpre-inflation, max-bound\fP)"
 \&
 'in -2m
 'in +2m
@@ -1096,7 +798,7 @@ before entering the main process\&. This can be useful for
 making the edge weights in a graph either more homogeneous (which
 may result in less granular clusterings) or more heterogeneous
 (which may result in more granular clusterings)\&.
-Homogeneity is achieved for values \fIf\fP less than one,
+Homogeneity is achieved for values \fI<num>\fP less than one,
 heterogeneity for values larger than one\&.
 Values to try are normally in the range \fC[2\&.0,10\&.0]\fP\&.
 
@@ -1108,7 +810,7 @@ inflation was applied\&. This is for use in conjunction with
 absolute differences in edge weights\&.
 .in -2m
 
-.ZI 2m "\fB-if\fP f (\fIstart-inflation\fP)"
+.ZI 2m "\fB-if\fP <num> (\fIstart-inflation\fP)"
 \&
 .br
 If used, \fBmcl\fP will apply inflation one time to the input graph
@@ -1122,13 +824,10 @@ with the \fB--write-expanded\fP option and convey
 to mcl that it should not apply those transformations\&.
 .in -2m
 
-.ZI 2m "\fB-di\fP i:j (\fIdump interval\fP)"
+.ZI 2m "\fB-dump-interval\fP <i:j> (\fIdump interval\fP)"
 \&
 'in -2m
-.ZI 2m "\fB-di\fP\ \&\fIall\fP"
-\&
-'in -2m
-.ZI 2m "\fB-dump-interval\fP\ \&\fIi:j\fP"
+.ZI 2m "\fB-dump-interval\fP\ \&\fIall\fP"
 \&
 'in -2m
 'in +2m
@@ -1138,10 +837,7 @@ Dump during iterations i\&.\&.j-1\&. Use \fIall\fP to dump in all
 iterations\&. See the \fB-dump\fP\ \&\fIstr\fP option below\&.
 .in -2m
 
-.ZI 2m "\fB-dm\fP k (\fIdump i+0\&.\&.i+k\&.\&.\fP)"
-\&
-'in -2m
-.ZI 2m "\fB-dump-modulo\fP\ \&\fIk\fP"
+.ZI 2m "\fB-dump-modulo\fP <int> (\fIdump i+0\&.\&.i+<int>\&.\&.\fP)"
 \&
 'in -2m
 'in +2m
@@ -1151,10 +847,7 @@ Sampling rate: select only these iterations in the dump interval\&.
 See the \fB-dump\fP\ \&\fIstr\fP option below\&.
 .in -2m
 
-.ZI 2m "\fB-ds\fP stem (\fIfile stem\fP)"
-\&
-'in -2m
-.ZI 2m "\fB-dump-stem\fP\ \&\fIstem\fP"
+.ZI 2m "\fB-dump-stem\fP <stem> (\fIfile stem\fP)"
 \&
 'in -2m
 'in +2m
@@ -1164,13 +857,13 @@ Set the the stem for file names of dumped
 objects (default \fImcl\fP)\&. See the \fB-dump\fP\ \&\fIstr\fP option below\&.
 .in -2m
 
-.ZI 2m "\fB-dump-subi\fP spec (\fIindex list for submatrix dump\fP)"
+.ZI 2m "\fB-dump-subi\fP <spec> (\fIindex list for submatrix dump\fP)"
 \&
 'in -2m
-.ZI 2m "\fB-dump-subd\fP spec (\fIdomain list for submatrix dump\fP)"
+.ZI 2m "\fB-dump-subd\fP <spec> (\fIdomain list for submatrix dump\fP)"
 \&
 'in -2m
-.ZI 2m "\fB-dump-dom\fP fname (\fIdomain matrix file\fP)"
+.ZI 2m "\fB-dump-dom\fP <fname> (\fIdomain matrix file\fP)"
 \&
 'in -2m
 'in +2m
@@ -1188,7 +881,7 @@ columns in that matrix\&. These columns are merged and added to the
 list of entries used in selecting the extended principal submatrix\&.
 .in -2m
 
-.ZI 2m "\fB-dump\fP str (\fItype\fP)"
+.ZI 2m "\fB-dump\fP <str> (\fItype\fP)"
 \&
 .br
 \fIstr\fP is checked for substring occurrences of the following entries\&.
@@ -1242,7 +935,7 @@ objects (default \fImcl\fP)\&. The \fB-di\fP and \fB-dm\fP
 options allow a selection of iterands to be made\&.
 .in -2m
 
-.ZI 2m "\fB-digits\fP n (\fIprinting precision\fP)"
+.ZI 2m "\fB-digits\fP <int> (\fIprinting precision\fP)"
 \&
 .br
 This has two completely different uses\&. It sets
@@ -1269,12 +962,12 @@ a small graph and view the MCL matrix iterands with \fB--show\fP\&.
 \&
 .br
 Write matrix dump output in binary mcl format rather
-than interchange mcl format (the default)\&. Note that \fBmcxconvert(1)\fP
+than interchange mcl format (the default)\&. Note that \fBmcxconvert\fP
 can be used to convert each one into the other\&.
-See \fBmcxio(5)\fP and \fBmcxconvert(1)\fP for more information\&.
+See \fBmcxio(5)\fP and \fBmcx(1)\fP for more information\&.
 .in -2m
 
-.ZI 2m "\fB-sort\fP str (\fIsort mode\fP)"
+.ZI 2m "\fB-sort\fP <str> (\fIsort mode\fP)"
 \&
 .br
 \fIstr\fP can be one of \fBlex\fP, \fBsize\fP, \fBrevsize\fP,
@@ -1286,7 +979,7 @@ is the same as produced by the procedure used by mcl to
 map matrices onto clusterings\&.
 .in -2m
 
-.ZI 2m "\fB-overlap\fP str (\fIoverlap mode\fP)"
+.ZI 2m "\fB-overlap\fP <str> (\fIoverlap mode\fP)"
 \&
 .br
 Mode \fIkeep\fP causes mcl to retain overlap should this improbable event
@@ -1308,24 +1001,16 @@ two nodes are put in the same new cluster if and only if
 they always occur paired in the clusters of the
 overlapping clustering\&.
 
-This option has more than theoretical use because \fBmcl\fP is able
-to generate clusterings associated with intermediate iterands\&.
-For these clusterings, overlap is more than a theoretical
-possibility, and will often occur\&. If you specify
-the \fB-L\fP\ \&\fIk\fP option, mcl will output the
-clustering associated with the last iterand computed, and
-it may well contain overlap\&.
-
 This option has no effect on the clusterings that are
 output when using \fB-dump\fP\ \&\fIcls\fP -
 the default for those is that overlap is not touched,
 and this default can not yet be overridden\&.
 .in -2m
 
-.ZI 2m "\fB--force-connected\fP=y/n (\fIanalyze components\fP)"
+.ZI 2m "\fB--force-connected\fP=<y/n> (\fIanalyze components\fP)"
 \&
 'in -2m
-.ZI 2m "\fB--check-connected\fP=y/n (\fIanalyze components\fP)"
+.ZI 2m "\fB--check-connected\fP=<y/n> (\fIanalyze components\fP)"
 \&
 'in -2m
 'in +2m
@@ -1352,14 +1037,7 @@ and mcl\&'s behaviour actually makes some sense
 (when taking bipartite characteristics into account)\&.
 .in -2m
 
-.ZI 2m "\fB--output-limit\fP=y/n (\fIwrite limit matrix\fP)"
-\&
-.br
-This will write the limit matrix to a file named
-\fBbase\fP-limit\&.
-.in -2m
-
-.ZI 2m "\fB--analyze\fP=y/n (\fIperformance criteria\fP)"
+.ZI 2m "\fB--analyze\fP=<y/n> (\fIperformance criteria\fP)"
 \&
 .br
 With this mode turned on, \fBmcl\fP will reread the input matrix
@@ -1367,21 +1045,21 @@ and compute a few performance criteria and attach them to
 the output file\&. Off by default\&.
 .in -2m
 
-.ZI 2m "\fB--append-log\fP=y/n (\fIappend log\fP)"
+.ZI 2m "\fB--append-log\fP=<y/n> (\fIappend log\fP)"
 \&
 .br
 Appends a log with the process characteristics to the output file\&.
 Off by default\&.
 .in -2m
 
-.ZI 2m "\fB--show-log\fP=y/n (\fIshow log\fP)"
+.ZI 2m "\fB--show-log\fP=<y/n> (\fIshow log\fP)"
 \&
 .br
 Shows the log with process characteristics on STDOUT\&.
 By default, this mode is off\&.
 .in -2m
 
-.ZI 2m "\fB-ceil-nb\fP N (\fIpreprune count\fP)"
+.ZI 2m "\fB-ceil-nb\fP n (\fIreduce neighbourhoods\fP)"
 \&
 .br
 The nodes of the input graph are considered in descending order of the
@@ -1391,6 +1069,13 @@ corresponding reciprocal edges from nodes further down the list are removed
 as well\&. Subsequent nodes are treated in the same way until all nodes in
 the graph have at most \fBN\fP neighbours\&. This may be considered a poor
 man\&'s hub removal\&.
+.in -2m
+
+.ZI 2m "\fB-knn-mutual\fP <num> (\fIkeep mutually close neighbours\fP)"
+\&
+.br
+This considers the \fI<num>\fP best neighbours for each node, then only keeps
+edges that occur in both best-neighbour lists for the two incident nodes\&.
 .in -2m
 
 .ZI 2m "\fB--jury-charter\fP (\fIexplains jury\fP)"
@@ -1405,21 +1090,21 @@ Explains how the jury synopsis is computed from the jury marks\&.
 Show version\&.
 .in -2m
 
-.ZI 2m "\fB-how-much-ram\fP n (\fIRAM upper bound\fP)"
+.ZI 2m "\fB-how-much-ram\fP <int> (\fIRAM upper bound\fP)"
 \&
 .br
-\fBn\fP is interpreted as the number of nodes of an input graph\&.
+\fB<int>\fP is interpreted as the number of nodes of an input graph\&.
 mcl will print the maximum amount of RAM it needs for its computations\&.
 The formula for this number in bytes is:
 
 .di ZV
 .in 0
 .nf \fC
-   2 * c * k * n
+   2 * c * k * <int>
 
    2  :  two matrices are concurrently held in memory\&.
    c  :  mcl cell size (as shown by -z)\&.
-   n  :  graph cardinality (number of nodes)\&.
+ <int>:  graph cardinality (number of nodes)\&.
    k  :  MAX(s, r)\&.
    s  :  select number (-S, -scheme options)\&.
    r  :  recover number (-R, -scheme options)\&.
@@ -1444,7 +1129,7 @@ amount of RAM in megabyte units\&.
 Shows a selection of the most important \fBmcl\fP options\&.
 .in -2m
 
-.ZI 2m "\fB--apropos\fP (\fIshow help\fP)"
+.ZI 2m "\fB--help\fP (\fIshow help\fP)"
 \&
 .br
 Gives a one-line description for all options\&.
@@ -1458,22 +1143,22 @@ Show current settings for tunable parameters\&.
 .in -2m
 .SH PRUNING OPTIONS
 
-.ZI 2m "\fB-p\fP f (\fIcutoff\fP)"
+.ZI 2m "\fB-p\fP <num> (\fIcutoff\fP)"
 \&
 'in -2m
-.ZI 2m "\fB-P\fP n (\fI1/cutoff\fP)"
+.ZI 2m "\fB-P\fP <int> (\fI1/cutoff\fP)"
 \&
 'in -2m
-.ZI 2m "\fB-S\fP s (\fIselection number\fP)"
+.ZI 2m "\fB-S\fP <int> (\fIselection number\fP)"
 \&
 'in -2m
-.ZI 2m "\fB-R\fP r (\fIrecover number\fP)"
+.ZI 2m "\fB-R\fP <int> (\fIrecover number\fP)"
 \&
 'in -2m
-.ZI 2m "\fB-pct\fP pct (\fIrecover percentage\fP)"
+.ZI 2m "\fB-pct\fP <pct> (\fIrecover percentage\fP)"
 \&
 'in -2m
-.ZI 2m "\fB-my-scheme\fP n (\fItag custom scheme\fP)"
+.ZI 2m "\fB-my-scheme\fP <int> (\fItag custom scheme\fP)"
 \&
 'in -2m
 'in +2m
@@ -1496,24 +1181,23 @@ at the end of this section\&.
 \fIcutoff\fP are removed, resulting in a vector with at most
 \fI1/cutoff\fP entries\&. The cutoff can be supplied either by
 \fB-p\fP, or as the inverse value by \fB-P\fP\&. The latter is more
-intuitive, if your intuition is like mine (and the P stands for precision
-or pruning by the way)\&.
+intuitive, if your intuition is like mine (P stands for precision or pruning)\&.
 The cutoff just described is rigid; it is the same for all vectors\&. The
 \fB--adapt\fP option causes the computation of a
 cutoff that depends on a vector\&'s homogeneity properties, and this option
 may or may not speed up mcl\&.
 
 Second, if the remaining stochastic mass (i\&.e\&. the sum of all remaining
-entries) is less than \fIpct\fP/100 and the number of remaining
-entries is less than \fIr\fP (as specified by the \fB-R\fP flag),
+entries) is less than \fI<pct>\fP/100 and the number of remaining
+entries is less than \fI<r>\fP (as specified by the \fB-R\fP flag),
 \fBmcl\fP will try to regain ground by recovering the largest discarded
 entries\&. The total number of entries is not allowed to grow larger than
-\fIr\fP\&.
+\fI<r>\fP\&.
 If recovery was not necessary, mcl tries to prune the vector further
 down to at most \fIs\fP entries (if applicable), as specified by the
 \fB-S\fP flag\&. If this results in a vector that satisfies the recovery
 condition then recovery is attempted, exactly as described above\&. The
-latter will not occur of course if \fIr\fP <= \fIs\fP\&.
+latter will not occur of course if \fI<r>\fP <= \fI<s>\fP\&.
 
 The default setting is something like \fB-P\fP\ \&\fB4000\fP \fB-S\fP\ \&\fB500\fP
 \fB-R\fP\ \&\fB600\fP\&. Check the \fB-z\fP flag to be sure\&. There is a set
@@ -1542,10 +1226,10 @@ e\&.g\&. \fBP600Q85R1000S1200\fP (where \fBQ\fP tags the \fIpct\fP setting)\&.
 If used, mcl will simply use the tag \fBs\fP\fIn\fP\&.
 .in -2m
 
-.ZI 2m "\fB-warn-pct\fP k (\fIprune warn percentage\fP)"
+.ZI 2m "\fB-warn-pct\fP <int> (\fIprune warn percentage\fP)"
 \&
 'in -2m
-.ZI 2m "\fB-warn-factor\fP k (\fIprune warn factor\fP)"
+.ZI 2m "\fB-warn-factor\fP <int> (\fIprune warn factor\fP)"
 \&
 'in -2m
 'in +2m
@@ -1665,50 +1349,35 @@ is, all those windows for which the width does not exceed the graph
 cardinality\&. The windows in the fixed set have respective sizes 1, 2, 5,
 10, 20, 50, and so on up until 5000000 (which makes 15 windows in all)\&.
 .in -2m
-.SH PIPELINES
 
-As of the 1\&.006 release, label data can be directly streamed into
-MCL as described in \fBGETTING STARTED\fP and \fBEXAMPLES\fP\&.
-For BLAST input this is achieved
-by hooking up \fBmcxdeblast(1)\fP \fB--abc-out\fP=\fI-\fP with
-\fBmcl\fP - \fB--abc\fP\&. Refer to \fBGETTING STARTED\fP for examples\&.
+.ZI 2m "\fB-nj\fP i (\fIjury window index\fP)"
+\&
+.br
+The \fB-nj\fP denotes a window index in the same way as \fB-nx\fP
+and \fB-ny\fP do\&. This particular window is used for computing the
+\fIjury marks\fP, which are the three number reported by \fBmcl\fP when it is
+done\&. They are a reminder of the existence of pruning and its importance
+for both speed and accuracy, and they are \fIindicative rather than
+authorative\fP\&.
 
-The classic mode of operation is more heavyweight, and the remainder
-of this section describes the underlying design\&.
-Much of the code now used for streaming directly into mcl was
-derived from this earlier framework\&.
+These jury marks are simply the respective mass averages in the jury
+window for the first three iterations\&. The marks are even further
+simplified and mapped to the jury synopsis, which is a single grade
+expressed as an adjective\&. The grades are, in decreasing order of
+achievement, \fIperfect exceptional superior excellent good acceptable
+mediocre poor bad lousy miserable awful wretched atrocious\fP\&. Doing \&'mcl
+--jury-charter\&' will tell you how the jury marks map onto the jury
+synopsis\&.
 
-In general, clustering requires several stages; creating the matrix,
-running mcl, and displaying the result\&. The display stage is supported
-by \fBclm format\fP\&. The matrix creation stage often needs only be
-done once for a given data collection, followed by repeated runs of
-the other two stages for varying inflation values and scheme settings\&.
-
-The matrix creation stage can often be split up in two more stages,
-namely parsing a data file in some given format, and assembling a
-matrix from the data bits and pieces, such as node indices and edge
-weights or even edge weight contributions\&.
-The assembly step can be done by \fBmcxassemble(1)\fP,
-which allows a very general input format and customizable behaviour
-in how the bits and pieces should be transformed to the input graph\&.
-This leaves the parse stage to be filled in\&.
-
-The \fBmclpipeline script\fP implements a generic and
-customizable pipeline encapsulating the four stages distinguished
-here (parsing, assembly, clustering, display)\&. It is possible to
-let only part of the pipeline be active, and many other features are
-supported\&. The IO mechanism is entirely file based, and files are
-associated with parametrizations via file name extensions (by all
-means a simple mechanism)\&.
-
-\fBmclpipeline(1)\fP requires a single parse script to be specified\&.
-It will be plugged into the pipeline and you should be set to run\&.
-The parse script must satisfy the interface requirements described
-in the \fBmclpipeline manual page\fP\&.
-
-For BLAST input, the \fBmclblastline script\fP
-provides a dedicated mclpipeline interface\&. It uses the
-\fBmcxdeblast script\fP that comes prepackaged with mcl\&.
+The jury marks should preferably be higher than 70\&. If they are in the
+vicinity of 80 or 90, \fBmcl\fP is doing fine as far as pruning is concerned\&.
+Choose a higher scheme if you think them too low\&. For very dense graphs
+that do have strong cluster structure, the jury marks can sink as low as
+to the 30\&'s and 40\&'s, but the clusterings generated by mcl may still be
+good\&. The marks and the synopsis grade the severity of pruning, not
+cluster quality\&. Note that the jury becomes friendlier, resp\&. harsher
+when the \fB-nj\fP option is increased/decreased\&.
+.in -2m
 .SH EXAMPLES
 
 The following is an example of label input

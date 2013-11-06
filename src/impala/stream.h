@@ -54,6 +54,7 @@ mcxstatus mclxIOstreamOut
 
 #define MCLXIO_STREAM_LOGTRANSFORM     1 << 18
 #define MCLXIO_STREAM_NEGLOGTRANSFORM  1 << 19
+#define MCLXIO_STREAM_LOG10         1 << 20
 
 #define MCLXIO_STREAM_GTAB_EXTEND (MCLXIO_STREAM_RTAB_EXTEND | MCLXIO_STREAM_CTAB_EXTEND)
 #define MCLXIO_STREAM_GTAB_RESTRICT (MCLXIO_STREAM_RTAB_RESTRICT | MCLXIO_STREAM_CTAB_RESTRICT)
@@ -76,6 +77,7 @@ typedef struct
 ;  mclTab*        tab_row_out
 ;  dim            cmax_123
 ;  dim            rmax_123
+;  dim            cmax_235
 ;
 }  mclxIOstreamer ;
 

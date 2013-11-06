@@ -168,10 +168,7 @@ mclExpandParam* mclExpandParamNew
    ;  mxp->num_select      =  1444u /* should be overridden by scheme or user */
    ;  mxp->num_recover     =  1444u /* should be overridden by scheme or user */
    ;  mxp->scheme          =  6
-   ;  mxp->my_scheme       =  -1
-
-   ;  mxp->cutCof          =  4.0
-   ;  mxp->cutExp          =  2.0
+   ;  mxp->do_rprune       =  0
 
    ;  mxp->vectorProgression     =  20
 
@@ -288,7 +285,6 @@ double mclExpandVector
                      
    ;  double         maxval         =  0.0
    ;  double         center         =  0.0
-   ;  double         cut_adapt      =  0.0
    ;  double         colInhomogeneity =  0.0
 
    ;  mcxbool        progress       =  mcxLogGet(MCX_LOG_GAUGE)
@@ -309,7 +305,11 @@ double mclExpandVector
 
       if (mxp->modePruning == MCL_PRUNING_RIGID)
       {  vecMeasure(dstvec, &maxval, &center)
-      ;  if (mxp->precision)
+      ;  if (mxp->do_rprune)
+         {  cut            =  maxval / mxp->num_prune
+         ;  rg_mass_prune  =  mclvSelectGqBar (dstvec, cut)
+      ;  }
+         else if (mxp->precision)
          {  cut            =  mxp->precision
          ;  rg_mass_prune  =  mclvSelectGqBar (dstvec, cut)
       ;  }
@@ -319,21 +319,8 @@ double mclExpandVector
       ;  rg_n_prune        =  dstvec->n_ivps
       ;  rg_mass_final     =  rg_mass_prune
    ;  }
-
-      else if (mxp->modePruning == MCL_PRUNING_ADAPT)
-      {  vecMeasure(dstvec, &maxval, &center)
-      ;  cut_adapt         =  (1/mxp->cutCof)
-                              *  center
-                              *  pow(center/maxval,mxp->cutExp)
-      ;  cut               =  MCX_MAX(cut_adapt, mxp->precision)
-      ;  rg_mass_prune     =  mclvSelectGqBar(dstvec, cut)
-      ;  rg_n_prune        =  dstvec->n_ivps
-      ;  rg_mass_final     =  rg_mass_prune
-   ;  }
-      
       else
-      {  /* E.g. DENSE mode. */
-         /* fixme; above two branches should be exhaustive [check] */
+      {  /* fixme; should above branch be exhaustive? enables dense mode? */
    ;  }
 
    ;  if
@@ -875,7 +862,7 @@ void mclExpandStatsPrint
 )
    {  fprintf
       (  fp
-      ,  "#]%3d%3d%3d %3d%3d%3d %s %s %-7d %-7d %-7d\n"
+      ,  "#|%3d%3d%3d %3d%3d%3d %s %s %-7d %-7d %-7d"
       ,  (int) (100.0*stats->mass_prune_all)
       ,  (int) (100.0*stats->mass_prune_low[stats->ny])
       ,  (int) (100.0*stats->mass_prune_low[stats->nx])
@@ -1104,20 +1091,10 @@ void mclExpandStatsHeader
 ,  mclExpandStats* stats
 ,  mclExpandParam*  mxp
 )  
-   {  const char* pruneMode
-      =  (mxp->modePruning == MCL_PRUNING_ADAPT)
-         ?  "adaptive"
-         :  "rigid"  
-   ;  const char* pStatus
-      =  (mxp->modePruning == MCL_PRUNING_ADAPT)
-         ?  "minimum"
-         :  "rigid"  
-   ;
-
+   {
 fprintf
 (  vbfp
-,  "The %s threshold value equals [%f] (-p <f> or -P <i>)).\n"
-,  pStatus
+,  "The threshold value equals [%f] (-p <f> or -P <i>)).\n"
 ,  (double) mxp->precision
 )  ;
 
@@ -1131,9 +1108,8 @@ fprintf
 if (mxp->num_recover)
 fprintf
 (  vbfp
-,  "If %s thresholding leaves less than %2.0f%% mass (-pct) and less than\n"
+,  "If thresholding leaves less than %2.0f%% mass (-pct) and less than\n"
    "%d entries, as much mass as possible is recovered (-R).\n"
-,  pruneMode
 ,  (double) 100 * mxp->pct
 ,  (int) mxp->num_recover
 )  ;
@@ -1158,12 +1134,12 @@ fprintf
 fprintf
 (  vbfp
 ,  "\n"
-"#]---------------------------------------------------------------------------\n"
-"#] mass percentages  | distr of vec footprints       |#recover cases <>      \n"
-"#]         |         |____ expand ___.____ prune ____||    #select cases []  \n"
-"#]  prune  | final   |e4   e3   e2   |e4   e3   e2   ||       |    #below pct\n"
-"#]all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|V       V        V     \n"
-"#]---------.---------.---------------.---------.-----.--------.-------.------\n"
+"#|---------------------------------------------------------------------------\n"
+"#| mass percentages  | distr of vec footprints       |#recover cases <>      \n"
+"#|         |         |____ expand ___.____ prune ____||    #select cases []  \n"
+"#|  prune  | final   |e4   e3   e2   |e4   e3   e2   ||       |    #below pct\n"
+"#|all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|V       V       V      \n"
+"#|---------.---------.---------------.---------.-----.--------.-------.------"
 )  ;
 
    }

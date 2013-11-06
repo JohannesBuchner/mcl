@@ -16,5 +16,10 @@ mcxDispHook* mcxDispHookOrder
 (  void
 )  ;
 
+
+mcxDispHook* mcxDispHookStable
+(  void
+)  ;
+
 #endif
 

@@ -83,8 +83,9 @@ enum
 ,  MY_OPT_SCRUB_DOMC
 ,  MY_OPT_OUT_TABC
 ,  MY_OPT_CMAX
+,  MY_OPT_CREQUIRE_235
 
-,  MY_OPT_STRICT_TABR = MY_OPT_OUT_TABC + 2
+,  MY_OPT_STRICT_TABR = MY_OPT_CMAX + 2
 ,  MY_OPT_RESTRICT_TABR
 ,  MY_OPT_EXTEND_TABR
 ,  MY_OPT_SCRUB_DOMR
@@ -97,6 +98,7 @@ enum
 ,  MY_OPT_TRANSFORM
 ,  MY_OPT_STREAM_LOG
 ,  MY_OPT_STREAM_NEGLOG
+,  MY_OPT_STREAM_NEGLOG10
 ,  MY_OPT_IMAGE
 ,  MY_OPT_TRANSPOSE
 ,  MY_OPT_CLEANUP
@@ -122,7 +124,7 @@ mcxOptAnchor options[] =
    ,  NULL
    ,  "debug"
    }
-,  {  "--apropos"
+,  {  "--help"
    ,  MCX_OPT_DEFAULT | MCX_OPT_INFO
    ,  MY_OPT_APROPOS
    ,  NULL
@@ -178,38 +180,38 @@ mcxOptAnchor options[] =
    }
 
 ,  {  "--scrub"
-   ,  MCX_OPT_DEFAULT
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
    ,  MY_OPT_SCRUB_DOMG
    ,  NULL
    ,  "with -(re)strict-tab, remove unseen labels"
    }
 ,  {  "--scrubc"
-   ,  MCX_OPT_DEFAULT
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
    ,  MY_OPT_SCRUB_DOMC
    ,  NULL
    ,  "with -(re)strict-tabc, remove unseen labels"
    }
 ,  {  "--scrubr"
-   ,  MCX_OPT_DEFAULT
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
    ,  MY_OPT_SCRUB_DOMR
    ,  NULL
    ,  "with -(re)strict-tabr, remove unseen labels"
    }
 
 ,  {  "--canonical"
-   ,  MCX_OPT_DEFAULT
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
    ,  MY_OPT_CANONICALG
    ,  NULL
    ,  "map result matrix and tab onto canonical domains"
    }
 ,  {  "--canonicalc"
-   ,  MCX_OPT_DEFAULT
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
    ,  MY_OPT_CANONICALC
    ,  NULL
    ,  "map result matrix and tab onto canonical column domain"
    }
 ,  {  "--canonicalr"
-   ,  MCX_OPT_DEFAULT
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
    ,  MY_OPT_CANONICALR
    ,  NULL
    ,  "map result matrix and tab onto canonical row domain"
@@ -234,25 +236,30 @@ mcxOptAnchor options[] =
    ,  "output row tab to file <fname>"
    }
 
-,  {  "-123-maxd"
+,  {  "-123-max"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_DMAX
    ,  "<num>"
-   ,  "excluxive maximum for column and row ranges with -123 option"
+   ,  "set column and row ranges with -123 option"
    }
 ,  {  "-123-maxc"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_CMAX
    ,  "<num>"
-   ,  "excluxive maximum for column range with -123 option"
+   ,  "set column range with -123 option"
    }
 ,  {  "-123-maxr"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_RMAX
    ,  "<num>"
-   ,  "excluxive maximum for row range with -123 option"
+   ,  "set row range with -123 option"
    }
-
+,  {  "-235-maxc"
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MY_OPT_CREQUIRE_235
+   ,  "<num>"
+   ,  "number of columns is set to <num> at least"
+   }
 ,  {  "-extend-tab"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_EXTEND_TABG
@@ -376,6 +383,12 @@ mcxOptAnchor options[] =
    ,  NULL
    ,  "take negative log of stream value"
    }
+,  {  "--stream-neg-log10"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_STREAM_NEGLOG10
+   ,  NULL
+   ,  "take negative log-10 of stream value"
+   }
 ,  {  "--transpose"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_TRANSPOSE
@@ -449,8 +462,9 @@ int main
    ;  streamer.tab_col_out =  NULL
    ;  streamer.tab_row_in  =  NULL
    ;  streamer.tab_row_out =  NULL
-   ;  streamer.cmax_123    =  DIM_MAX
-   ;  streamer.rmax_123    =  DIM_MAX
+   ;  streamer.cmax_123    =  0
+   ;  streamer.rmax_123    =  0
+   ;  streamer.cmax_235    =  0
 
    ;  mcxLogLevel =
       MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
@@ -527,6 +541,11 @@ int main
 
             case MY_OPT_CMAX
          :  streamer.cmax_123 = atoi(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_CREQUIRE_235
+         :  streamer.cmax_235 = atoi(opt->val)
          ;  break
          ;
 
@@ -635,6 +654,11 @@ int main
             case MY_OPT_ABC
          :  mcxIOrenew(xfin, opt->val, NULL)
          ;  bits_stream_input = MCLXIO_STREAM_ABC
+         ;  break
+         ;
+
+            case MY_OPT_STREAM_NEGLOG10
+         :  bits_stream_other |= MCLXIO_STREAM_NEGLOGTRANSFORM | MCLXIO_STREAM_LOG10
          ;  break
          ;
 
@@ -964,6 +988,7 @@ fprintf(stderr, "tab s=%p c=%p r=%p\n", (void*) tab_sym, (void*) tab_col, (void*
    ;  mcxIOfree(&xfusetabr)
    ;  mcxIOfree(&xferr)
    ;  mcxIOfree(&xfin)
+   ;  mclxFree(&mx)
    ;  return 0
 ;  }
 

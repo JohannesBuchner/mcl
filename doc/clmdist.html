@@ -9,7 +9,6 @@ body
 { text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -29,14 +28,13 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
-div.copy
-{ font-size: 12pt;
-font-family: monospace;
-text-align: left;
-white-space: pre;
-margin-left: 2em;
+div.verbatim
+{ font-family: monospace;
 margin-top: 1em;
 margin-bottom: 1em;
+font-size: 10pt;
+margin-left: 2em;
+white-space: pre;
 }
 div.indent
 { margin-left: 8%;
@@ -68,14 +66,15 @@ margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
+body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
 </style>
 <title>The clm dist manual</title>
 </head>
 <body>
 <p style="text-align:right">
-18 Sep 2009&nbsp;&nbsp;&nbsp;
+4 Nov 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="clmdist.ps"><b>clm dist</b></a>
-1.008, 09-261
+1.008, 09-308
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -139,8 +138,9 @@ in the <a class="local sibling" href="clm.html">clm</a> manual page.</p>
 <b>clm dist</b>
 <a class="intern" href="#opt-mode"><b>[-mode</b> &lt;sj|vi|mk|sc&gt; (<i>distance type</i>)<b>]</b></a>
 <a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output file</i>)<b>]</b></a>
+<a class="intern" href="#opt--chain"><b>[--chain</b> (<i>only compare consecutive clusterings</i>)<b>]</b></a>
+<a class="intern" href="#opt--sort"><b>[--sort</b> (<i>sort clusterings based on coarseness</i>)<b>]</b></a>
 <a class="intern" href="#opt-digits"><b>[-digits</b> k (<i>output decimals</i>)<b>]</b></a>
-<a class="intern" href="#opt-width"><b>[-width</b> k (<i>tab width</i>)<b>]</b></a>
 <a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
 <a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print synopsis, exit</i>)<b>]</b></a>
 <a class="intern" href="#opt--version"><b>[--version</b> (<i>print version, exit</i>)<b>]</b></a>
@@ -151,17 +151,20 @@ in the <a class="local sibling" href="clm.html">clm</a> manual page.</p>
 <p style="margin-bottom:0" class="asd_par">
 <b>clm dist</b> computes distances between clusterings. It can compute the
 <i>split/join distance</i> (described below), the <i>variance of information
-measure</i>, and the <i>Mirkin metric</i>. It can compute the chosen distance
-for all pairs of distances in a set of clusterings. Clusterings must be in
+measure</i>, and the <i>Mirkin metric</i>. By default it computes the chosen distance
+for all pairs of distances in the clusterings provided. Clusterings must be in
 the mcl matrix format (cf. <a class="local sibling" href="mcxio.html">mcxio</a>), and are supplied on the command
-line as the names of the files in which they are stored.</p>
+line as the names of the files in which they are stored.
+It is possible to compare only consecutive clusterings by using
+the <b>--chain</b> option.
+</p>
 <p style="margin-bottom:0" class="asd_par">
 Currently, <b>clm dist</b> cannot compute different distance types simultaneously.</p>
 <p style="margin-bottom:0" class="asd_par">
 The output is linewise, each line giving information about
 the distance between a pair of clusterings. A line has the
 following format:</p>
-<pre>d  d1  d2  N  v  name1  name2  [v50,v75,v90,v95,v99]</pre>
+<div class="verbatim">d  d1  d2  N  v  name1  name2  [v50,v75,v90,v95,v99]</div>
 <p style="margin-top:0em; margin-bottom:0em">
 where <tt>dT</tt> is the distance between the two clusterings, <tt>d1</tt> is the
 distance from the first clustering to the greatest common subclustering
@@ -184,6 +187,23 @@ defined, <tt>name1</tt> is the name of the file containing the first clustering,
 Use <b>sj</b> for the <i>split/join distance</i> (described below), <b>vi</b> for
 the <i>variance of information measure</i> and <b>mk</b> for the <i>Mirkin metric</i>.</p>
 </div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--chain"></a><b>--chain</b> (<i>only compare consecutive clusterings</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+This option can be used if you know that the clusterings are nested
+clusterings (or appoximately so) and ordered from coarse to fine-grained
+or vice versa. An example of this is the set of clusterings resulting
+from applying <b>mcl</b> with a range of inflation parameters.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--sort"></a><b>--sort</b> (<i>sort clusterings based on coarseness</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+This option can be useful in conjunction with the <b>--chain</b>
+option, in case the list of clusterings supplied is not necessarily
+ordered by granularity.
+</p>
+</div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-o"></a><b>-o</b> fname (<i>output file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 </div>
@@ -191,11 +211,6 @@ the <i>variance of information measure</i> and <b>mk</b> for the <i>Mirkin metri
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 The number of decimals printed when using the variance of information measure.</p>
-</div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-width"></a><b>-width</b> k (<i>tab width</i>)</div></div>
-<div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
-The tabbing width in the output table.</p>
 </div>
 </div>
 
@@ -289,14 +304,14 @@ clustering in particular can be chosen as 'best', because all clusterings
 seem at least acceptable. They do aid however in showing the relative
 merits of each clusterings. The most important issue in this respect is
 cluster granularity. The table below shows the output of <b>clm info</b>.</p>
-<pre>
+<div class="verbatim">
      Efficiency  Mass frac  Area frac  Cl weight  Mx link weight
 1.2   0.42364     0.98690    0.02616    52.06002    50.82800
 1.6   0.58297     0.95441    0.01353    55.40282    50.82800
 2.0   0.63279     0.92386    0.01171    58.09409    50.82800
 2.4   0.65532     0.90702    0.01091    59.58283    50.82800
 2.8   0.66854     0.84954    0.00940    63.19183    50.82800
-3.2   0.67674     0.82275    0.00845    66.10831    50.82800</pre>
+3.2   0.67674     0.82275    0.00845    66.10831    50.82800</div>
 <p style="margin-top:0em; margin-bottom:0em">
 This data shows that there is exceptionally strong cluster structure present
 in the input graph. The 1.2 clustering captures almost all edge mass using
@@ -304,7 +319,7 @@ only 2.5 percent of 'area'. The 3.2 clustering still captures 82 percent of
 the mass using less than 1 percent of area. We continue with looking at the
 mutual consistency of the six clusterings. Below is a table that shows all
 pairwise distances between the clusterings.</p>
-<pre>
+<div class="verbatim">
     |   1.6  |   2.0  |   2.4  |   2.8  |   3.2  |   3.6
 -----------------------------------------------------------.
 1.2 |2096,38 |2728,41 |3045,48 |3404,45 |3621,43 |3800, 42 |
@@ -319,7 +334,7 @@ pairwise distances between the clusterings.</p>
 -----------------------------------------------------------|
 3.2 |        |        |        |        |        | 350,110 |
 -----------------------------------------------------------.
-</pre>
+</div>
 <p style="margin-bottom:0" class="asd_par">
 The table shows that the different clusterings are pretty consistent with
 each other, because for two different clusterings it is generally true that
@@ -332,17 +347,17 @@ the other.</p>
 <p style="margin-bottom:0" class="asd_par">
 The overall consistency becomes all the more clear by looking at the meet of
 all the clusterings:</p>
-<pre>
+<div class="verbatim">
 clm meet -o meet out12 out16 out20 out24 out28 out32
-clm dist meet out12 out16 out20 out24 out28 out32</pre>
+clm dist meet out12 out16 out20 out24 out28 out32</div>
 <p style="margin-top:0em; margin-bottom:0em">
 results in the following distances between the respective clusterings
 and their meet.</p>
-<pre>
+<div class="verbatim">
     |   1.2  |    1.6 |  2.0   |   2.4  |  2.8   |  3.2    |  
 -------------- --------------------------------------------.
 meet|  0,3663|  0,1972| 0,1321 |  0,958 | 0,559  | 0,283   |
--------------- --------------------------------------------.</pre>
+-------------- --------------------------------------------.</div>
 <p style="margin-top:0em; margin-bottom:0em">
 This shows that by rearranging only 283 nodes in the 3.2 clustering,
 one obtains a subclustering of all other clusterings.</p>
@@ -351,7 +366,7 @@ In the last experiment, <b>mcl</b> was run with inflation parameter 1.4,
 for each of the four different preset pruning schemes <tt>k=1,2,3,4</tt>.
 The <b>clm dist</b> distances between the different clusterings
 are shown below.</p>
-<pre>
+<div class="verbatim">
     |  k=2   |   k=3  |   k=4  |
 -------------------------------.
 k=1 |  17,17 |  16,16 |  16,16 |
@@ -359,7 +374,7 @@ k=1 |  17,17 |  16,16 |  16,16 |
 k=2 |        |   3,3  |   5,5  |
 -------------------------------.
 k=3 |        |        |   4,4  |
--------------------------------.</pre>
+-------------------------------.</div>
 <p style="margin-top:0em; margin-bottom:0em">
 This example is a little boring in that the cheapest scheme seems adequate.
 If anything, the gaps between the <tt>k=1</tt> scheme and the rest are a little

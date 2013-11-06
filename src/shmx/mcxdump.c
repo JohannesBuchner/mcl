@@ -1,4 +1,4 @@
-/*   (C) Copyright 2003, 2004, 2005, 2006, 2007, 2008 Stijn van Dongen
+/*   (C) Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -40,12 +40,14 @@ const char* sep_lead_g = "\t";
 const char* sep_row_g = "\t";
 const char* sep_val_g = ":";
 const char* sep_cat_g = "===";
+const char* prefixc_g = "";
 
 const char* syntax = "Usage: mcxdump -imx <fname> [-o <fname>] [options]";
 
 
 enum
 {  MY_OPT_IMX
+,  MY_OPT_ICL
 ,  MY_OPT_CAT
 ,  MY_OPT_TREECAT
 ,  MY_OPT_OUTPUT
@@ -54,6 +56,7 @@ enum
 ,  MY_OPT_TABR
 ,  MY_OPT_LAZY_TAB
 ,  MY_OPT_NO_VALUES
+,  MY_OPT_PREFIXC
 ,  MY_OPT_NO_LOOPS
 ,  MY_OPT_SORT
 ,  MY_OPT_FORCE_LOOPS
@@ -68,12 +71,12 @@ enum
 ,  MY_OPT_DUMP_LOWERI
 ,  MY_OPT_DUMP_LINES
 ,  MY_OPT_DUMP_RLINES
+,  MY_OPT_DUMP_VLINES
 ,  MY_OPT_DUMP_NEWICK
 ,  MY_OPT_NEWICK_MODE
 ,  MY_OPT_DUMP_TABLE
 ,  MY_OPT_TABLE_NFIELDS
 ,  MY_OPT_TABLE_NLINES
-,  MY_OPT_DUMP_KEYS
 ,  MY_OPT_DUMP_NOLEAD
 ,  MY_OPT_DIGITS
 ,  MY_OPT_WRITE_TABC
@@ -105,7 +108,7 @@ mcxOptAnchor options[] =
    ,  NULL
    ,  "print version information"
    }
-,  {  "--apropos"
+,  {  "--help"
    ,  MCX_OPT_DEFAULT | MCX_OPT_INFO
    ,  MY_OPT_APROPOS
    ,  NULL
@@ -122,6 +125,12 @@ mcxOptAnchor options[] =
    ,  MY_OPT_IMX
    ,  "<fname>"
    ,  "read matrix from file <fname>"
+   }
+,  {  "-icl"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_ICL
+   ,  "<fname>"
+   ,  "read clustering from file <fname>, dump lines"
    }
 ,  {  "-imx-cat"
    ,  MCX_OPT_HASARG
@@ -164,6 +173,12 @@ mcxOptAnchor options[] =
    ,  MY_OPT_NO_VALUES
    ,  NULL
    ,  "do not emit values"
+   }
+,  {  "-prefixc"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_PREFIXC
+   ,  "<string>"
+   ,  "prefix column indices with <string>"
    }
 ,  {  "--no-loops"
    ,  MCX_OPT_DEFAULT
@@ -303,17 +318,11 @@ mcxOptAnchor options[] =
    ,  "<num>"
    ,  "limit table dump to first <num> fields"
    }
-,  {  "--table-keys"
-   ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_DUMP_KEYS
-   ,  NULL
-   ,  "dump keys too (with --dump-table)"
-   }
 ,  {  "--dump-lead-off"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_DUMP_NOLEAD
    ,  NULL
-   ,  "dump lead node (with --dump-table)"
+   ,  "do not dump lead node (with --dump-table)"
    }
 ,  {  "--transpose"
    ,  MCX_OPT_DEFAULT
@@ -326,6 +335,12 @@ mcxOptAnchor options[] =
    ,  MY_OPT_DUMP_LINES
    ,  NULL
    ,  "join all row entries on a single line"
+   }
+,  {  "--dump-vlines"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_DUMP_VLINES
+   ,  NULL
+   ,  "join all row entries on a single line, print column value"
    }
 ,  {  "--dump-rlines"
    ,  MCX_OPT_DEFAULT
@@ -469,13 +484,13 @@ int main
          ;  break
          ;
 
-            case MY_OPT_LAZY_TAB
-         :  lazy_tab = TRUE
+            case MY_OPT_PREFIXC
+         :  prefixc_g = opt->val
          ;  break
          ;
 
-            case MY_OPT_DUMP_KEYS
-         :  BIT_ON(modes, MCLX_DUMP_KEYS)
+            case MY_OPT_LAZY_TAB
+         :  lazy_tab = TRUE
          ;  break
          ;
 
@@ -487,6 +502,12 @@ int main
             case MY_OPT_DUMP_RLINES
          :  mode_dump = MCLX_DUMP_LINES
          ;  BIT_ON(modes, MCLX_DUMP_NOLEAD)
+         ;  break
+         ;
+
+            case MY_OPT_DUMP_VLINES
+         :  mode_dump = MCLX_DUMP_LINES
+         ;  BIT_ON(modes, MCLX_DUMP_LEAD_VALUE)
          ;  break
          ;
 
@@ -556,6 +577,14 @@ int main
 
             case MY_OPT_IMX
          :  mcxIOnewName(xf_mx, opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_ICL
+         :  mcxIOnewName(xf_mx, opt->val)
+         ;  mode_dump = MCLX_DUMP_LINES
+         ;  BIT_ON(modes, MCLX_DUMP_NOLEAD)
+         ;  BIT_OFF(modes, MCLX_DUMP_VALUES)
          ;  break
          ;
 
@@ -700,6 +729,8 @@ int main
       ;  if (xf_tab && !(tabr =  mclTabRead(xf_tab, NULL, RETURN_ON_FAIL)))
          mcxDie(1, me, "error reading tab file")
 
+      ;  mclxCatInit(&cat)
+
       ;  if
          (  mclxCatRead
             (  xf_mx
@@ -725,6 +756,8 @@ int main
 
       ;  if (xf_tab && !lazy_tab)
          cat_bits |= MCLX_REQUIRE_GRAPH
+
+      ;  mclxCatInit(&cat)
 
       ;  if (mclxCatRead(xf_mx, &cat, catmax, NULL, NULL, cat_bits))
          break
@@ -778,9 +811,13 @@ int main
             ;  }
             }
 
-            mclxIOdumpSet(&dumper, modes, sep_lead_g, sep_row_g, sep_val_g)
+            if ((modes & MCLX_DUMP_TABLE) && tabr)
+            BIT_ON(modes, MCLX_DUMP_TABLE_HEADER)
+
+         ;  mclxIOdumpSet(&dumper, modes, sep_lead_g, sep_row_g, sep_val_g)
          ;  dumper.table_nlines  = table_nlines
          ;  dumper.table_nfields = table_nfields
+         ;  dumper.prefixc = prefixc_g
 
          ;  if (split_stem)
             {  mcxTing* ting = mcxTingPrint(NULL, "%s.%03d", split_stem, split_idx)

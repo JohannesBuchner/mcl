@@ -235,8 +235,7 @@ void handle_ceil
 (  mclx*    mx
 ,  mcxTing* sa
 )
-   {  char* eonum
-   ;  long ceil = 0
+   {  long ceil = 0
    
    ;  if (mcxStrTol(sa->str, &ceil, NULL) || ceil < 0)
       fprintf(stdout,  "(error number-no-good)\n")

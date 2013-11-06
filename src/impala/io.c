@@ -544,7 +544,7 @@ mclx* mclxSubReadx
          )
          {  mcxErr
             (  "mclxReadGraph"
-            ,  "domains are not equal in file %s"
+            ,  "domains are not equal in file %s (not a graph)"
             ,  xf->fn->str
             )
          ;  break
@@ -2288,10 +2288,11 @@ void mclxIOdumpSet
    ;  dump->threshold = -DBL_MAX
    ;  dump->table_nfields = 0
    ;  dump->table_nlines  = 0
+   ;  dump->prefixc  =  ""
 ;  }
 
 
-static void  dump_label
+static void dump_label
 (  mcxIO* xf
 ,  const mclTab* tab
 ,  const char* label
@@ -2318,7 +2319,9 @@ mcxstatus mclxIOdump
 ,  mcxOnFail   ON_FAIL
 )
    {  mcxbits modes = dumper->modes
-   ;  mcxbool dump_key = !(modes & MCLX_DUMP_TABLE) || (modes & MCLX_DUMP_KEYS)
+   ;  mcxbool dump_key = !(modes & MCLX_DUMP_TABLE)
+   ;  mcxbool dump_lead = !(modes & MCLX_DUMP_NOLEAD)
+   ;  mcxbool dump_lead_value = modes & MCLX_DUMP_LEAD_VALUE
    ;  valdigits = get_interchange_digits(valdigits)
 
    ;  if (mcxIOtestOpen(xf_dump, ON_FAIL))
@@ -2398,10 +2401,37 @@ mcxstatus mclxIOdump
       ;  long labelc_o = -1
       ;  char* labelc = "", *labelr = ""
 
-      ;  for (d=0;d<N_COLS(mx);d++)
+      ;  if (modes & MCLX_DUMP_TABLE_HEADER)
+         {  long labelr_o = -1
+         ;  if (dump_lead)
+            fprintf(xf_dump->fp, "dummy")
+         
+         ;  if (dump_lead_value)
+            fprintf(xf_dump->fp, "\tcvalue")
+
+         ;  for (d=0;d<N_ROWS(mx);d++)
+            {  ofs vid = mx->dom_rows->ivps[d].idx 
+            ;  if (tabr) labelr = mclTabGet(tabr, vid, &labelr_o)
+
+            ;  if
+               (  (modes & MCLX_DUMP_TABLE)
+               && dumper->table_nlines
+               && d >= dumper->table_nlines
+               )
+               break
+
+            ;  if (!d)
+               fputs(dump_lead ? dumper->sep_lead : "", xf_dump->fp)
+            ;  else
+               fputs(dumper->sep_row, xf_dump->fp)
+            ;  dump_label(xf_dump, tabr, labelr, vid)
+         ;  }
+            fputc('\n', xf_dump->fp)
+      ;  }
+
+         for (d=0;d<N_COLS(mx);d++)
          {  mclv* vec = mx->cols+d, *vec_complete = NULL
          ;  long labelr_o = -1
-         ;  mcxbool busy = FALSE
 
          ;  if
             (  (modes & MCLX_DUMP_TABLE)
@@ -2419,17 +2449,15 @@ mcxstatus mclxIOdump
          ;  if (tabc)
             labelc = mclTabGet(tabc, vec->vid, &labelc_o)
 
-         ;  if (!(modes & MCLX_DUMP_NOLEAD))
-            dump_label(xf_dump, tabc, labelc, vec->vid)
+         ;  if (dump_lead)
+               fputs(dumper->prefixc, xf_dump->fp)
+            ,  dump_label(xf_dump, tabc, labelc, vec->vid)
+
+         ;  if (dump_lead_value)
+            fprintf(xf_dump->fp, "%s%.*g", dumper->sep_lead, valdigits, vec->val)
 
          ;  for (e=0;e<vec->n_ivps;e++)
-            {  const char* sep
-               =     ((modes & MCLX_DUMP_NOLEAD) && !busy)
-                  ?  ""
-                  :     (!e && !(modes & MCLX_DUMP_NOLEAD))
-                     ?  dumper->sep_lead
-                     :  dumper->sep_row
-            ;  mclp* ivp = vec->ivps+e
+            {  mclp* ivp = vec->ivps+e
 
             ;  if (ivp->val < dumper->threshold)
                continue
@@ -2441,11 +2469,14 @@ mcxstatus mclxIOdump
                )
                break
 
-            ;  busy = TRUE
             ;  if (tabr)
                labelr = mclTabGet(tabr, ivp->idx, &labelr_o)
 
-            ;  fputs(sep, xf_dump->fp)
+            ;  if (!e)
+               fputs(dump_lead ? dumper->sep_lead : "", xf_dump->fp)
+            ;  else
+               fputs(dumper->sep_row, xf_dump->fp)
+
             ;  if (dump_key)
                dump_label(xf_dump, tabr, labelr, ivp->idx)
 
@@ -2542,6 +2573,8 @@ mclpAR* mclpTFparse
             mode = MCLX_UNARY_SCALE
          ;  else if (!strcmp(key, "add"))
             mode = MCLX_UNARY_ADD
+         ;  else if (!strcmp(key, "abs"))
+            mode = MCLX_UNARY_ABS
          ;  else if (!strcmp(key, "ceil"))
             mode = MCLX_UNARY_CEIL
          ;  else if (!strcmp(key, "floor"))
@@ -2561,7 +2594,7 @@ mclpAR* mclpTFparse
          ;  }
 
             if (nought)
-            {  if (mode == MCLX_UNARY_LOG || mode == MCLX_UNARY_NEGLOG)
+            {  if (mode == MCLX_UNARY_LOG || mode == MCLX_UNARY_NEGLOG || mode == MCLX_UNARY_ABS)
                d = 0.0
             ;  else if (mode == MCLX_UNARY_EXP)
                d = 0.0

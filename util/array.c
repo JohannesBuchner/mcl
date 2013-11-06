@@ -371,3 +371,49 @@ void* mcxBsearchFloor
 ;  }
 
 
+double mcxMedian
+(  void* base
+,  dim   n
+,  dim   sz
+,  double (*get)(const void*)
+,  double* iqr
+)
+   {  double median = 0.0, q1 = 0.0, q2 = 0.0, quant = 0.0
+   ;  if (n > 1)
+      median = (get((char*) base + sz * (n/2)) + get((char*) base+ sz * ((n-1)/2))) / 2.0
+   ;  else if (n == 1)
+      median = get(base)
+
+         /* p locates the left boundary of quantile,
+          * q locates the right boundary. We need to interpolate
+          * neighbours in case the boundaries don't fall exacly
+          * on integer offsets. In that case pLoffset and rOffset
+          * are different and a weighted mean between them
+          * is computed.
+         */
+   ;  if (n > 1)
+      {  dim n3 = 3 * n
+      ;  dim pLoffset = n / 4
+      ;  dim pRoffset = pLoffset + 1
+      ;  double pLweight = (4 - (n % 4)) / 4.0
+      ;  double pRweight = 1.0 - pLweight
+
+      ;  dim qRoffset = (n3 - (n3 % 4)) / 4
+      ;  dim qLoffset = qRoffset - 1
+      ;  double qRweight = (n3 % 4) / 4.0
+      ;  double qLweight = 1 - qRweight
+
+      ;  q1 =     pLweight * get((char*) base + sz * pLoffset)
+               +  pRweight * get((char*) base + sz * pRoffset)
+      ;  q2 =     qLweight * get((char*) base + sz * qLoffset)
+               +  qRweight * get((char*) base + sz * qRoffset)
+      ;  quant = q2 - q1
+      ;  if (quant < 0)
+         quant = -quant
+   ;  }
+
+      *iqr = quant
+   ;  return median
+;  }
+
+

@@ -648,9 +648,9 @@ static dim clm_clm_prune
             self_val = pself->val
          ,  pself->val *= 1.001  /* to push it up in case of equal weights */
 
-         /* hierverder */
+;if(0)fprintf(stderr, "test size %d\n", (int) clthis->n_ivps)
       ;  if (prune_sz && clthis->n_ivps > prune_sz)
-         break
+         continue
 
       ;  while (1)
          {  mclv* clthat
@@ -680,9 +680,10 @@ static dim clm_clm_prune
             ) )
             break
 
-                     /* works for special case prune_sz == 0 */
-         ;  if (clthat->n_ivps + clthis->n_ivps > prune_sz)
-            {  mcxLog
+                     /*    works for special case prune_sz == 0               */
+                     /*    if (clthat->n_ivps + clthis->n_ivps > prune_sz)    */
+                     /*    ^iced. inconsistent behaviour as k grows.          */
+         ;  {  mcxLog
                (  MCX_LOG_LIST
                ,  me
                ,  "source %ld|%lu|%.3f absorbed by %ld|%lu|%.3f"

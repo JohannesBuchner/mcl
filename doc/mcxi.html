@@ -9,7 +9,6 @@ body
 { text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -29,14 +28,13 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
-div.copy
-{ font-size: 12pt;
-font-family: monospace;
-text-align: left;
-white-space: pre;
-margin-left: 2em;
+div.verbatim
+{ font-family: monospace;
 margin-top: 1em;
 margin-bottom: 1em;
+font-size: 10pt;
+margin-left: 2em;
+white-space: pre;
 }
 div.indent
 { margin-left: 8%;
@@ -68,14 +66,15 @@ margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
+body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
 </style>
 <title>The mcxi manual</title>
 </head>
 <body>
 <p style="text-align:right">
-18 Sep 2009&nbsp;&nbsp;&nbsp;
+4 Nov 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxi.ps"><b>mcxi</b></a>
-1.008, 09-261
+1.008, 09-308
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -141,7 +140,7 @@ functions.
 Some of <b>mcxi</b>'s primitives are overloaded. The following is a very simple
 example of implementing and using <b>mcl</b> in this language.
 </p>
-<pre>
+<div class="verbatim">
  2.0 .i def                   # define inflation value.
  /small lm                    # load matrix in file 'small'.
  dim id add                   # add identity matrix.
@@ -150,7 +149,7 @@ example of implementing and using <b>mcl</b> in this language.
  20 .x .mcl repeat            # iterate 20 times
  imac                         # interpret matrix as clustering.
  vm                           # view matrix (clustering).
-</pre>
+</div>
 <p style="margin-top:0em; margin-bottom:0em">
 Somewhat misleadingly, '#' is not recognized as a comment
 symbol by <b>mcxi</b>, so don't use it (yet).

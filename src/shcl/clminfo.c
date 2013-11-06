@@ -98,7 +98,7 @@ static mcxOptAnchor infoOptions[] =
    ,  "first apply tf-spec to matrix"
    }
 ,  {  "-ceil-nb"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN     /* rather unify -tf -ceil-nb -knn-mutual */
    ,  MY_OPT_CEILNB
    ,  "<num>"
    ,  "remove edges from nodes with more than <num> edges"
@@ -228,7 +228,10 @@ void do_stack
    {  mclxCat st
    ;  dim i
    ;  mcxstatus status
-      =  mclxCatRead
+
+   ;  mclxCatInit(&st)
+
+   ;  status = mclxCatRead
          (  xfstack, &st, n_cl_max, NULL, mx->dom_rows
          ,  MCLX_PRODUCE_DOMSTACK | MCLX_ENSURE_ROOT | MCLX_REQUIRE_PARTITION
          )
@@ -258,10 +261,13 @@ static mcxstatus infoMain
    ;  mcxTing* ginfo = mcxTingEmpty(NULL, 40)
 
    ;  mcxLogLevel =
-      MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
-   ;  mclx_app_init(stderr)
+      MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_GAUGE | MCX_LOG_WARN
 
-   ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_NO)
+   ;  if(1)
+      mclx_app_init(stderr)
+
+   ;  if(1)
+      mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_YES)
 
    ;  if
       (  (xfstack && 1 != argc)
@@ -337,6 +343,8 @@ static mcxstatus infoMain
 
          xfcl =  mcxIOnew(argv[a], "r")
 
+      ;  mclxCatInit(&st)
+
       ;  if
          (( status
          =  mclxCatRead
@@ -363,11 +371,13 @@ static mcxstatus infoMain
             ;  if (st.n_level > 1)
                mcxTingPrintAfter(linfo, ":%03d", (int) (j+1))
 
-            ;  clmGranularity(cl, &tbl)
-            ;  clmGranularityPrint(xfout->fp, linfo->str, &tbl)
-
             ;  clmPerformance(mx, cl, &pftable)
             ;  clmPerformancePrint(xfout->fp, linfo->str, &pftable)
+
+            ;  fputc(' ', xfout->fp)
+            ;  clmGranularity(cl, &tbl)
+            ;  clmGranularityPrint(xfout->fp, NULL, &tbl)
+            ;  fputc('\n', xfout->fp)
          ;  }
             if (a < argc-1 || j <st.n_level-1)
             fprintf(xfout->fp, "===\n")

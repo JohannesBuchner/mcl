@@ -9,7 +9,6 @@ body
 { text-align: justify;
 margin-left: 8%;
 margin-right: 8%;
-font-family: "Garamond", "Gill Sans", "Verdana", sans-serif;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -29,14 +28,13 @@ a.extern:visited { color: #661111; }
 a.quiet:link { color: black; }
 a.quiet:active { color: black; }
 a.quiet:visited { color: black; }
-div.copy
-{ font-size: 12pt;
-font-family: monospace;
-text-align: left;
-white-space: pre;
-margin-left: 2em;
+div.verbatim
+{ font-family: monospace;
 margin-top: 1em;
 margin-bottom: 1em;
+font-size: 10pt;
+margin-left: 2em;
+white-space: pre;
 }
 div.indent
 { margin-left: 8%;
@@ -68,14 +66,15 @@ margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
+body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
 </style>
 <title>The mclblastline manual</title>
 </head>
 <body>
 <p style="text-align:right">
-18 Sep 2009&nbsp;&nbsp;&nbsp;
+4 Nov 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mclblastline.ps"><b>mclblastline</b></a>
-1.008, 09-261
+1.008, 09-308
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -172,8 +171,8 @@ mcxdeblast options must be passed using the mechanism described above.</p>
 
 <a name="examples"></a>
 <h2>EXAMPLES</h2>
-<pre>   mclblastline --blast-score=b
-      --blast-sort=a --blast-bcut=5 --mcl-I=2.5 myblastfile</pre>
+<div class="verbatim">   mclblastline --blast-score=b
+      --blast-sort=a --blast-bcut=5 --mcl-I=2.5 myblastfile</div>
 <p style="margin-top:0em; margin-bottom:0em">
 This will use bit scores, sort cluster indices such that the corresponding
 labels are ordered alphabetically, ignore bit scores not exceeding 5, and
@@ -181,13 +180,13 @@ use inflation value 2.5. In this case, the output clustering will be in the
 file named <tt>myblastfile.I25s2</tt> (I25 identifying the inflation value and s2
 identifying the resource scheme) and the formatted output will be in the
 file <tt>myblastfile.I25s2.fmt</tt>.</p>
-<pre>   mclblastline --prepare-mcl myblastfile
+<div class="verbatim">   mclblastline --prepare-mcl myblastfile
    mclblastline --start-mcl --mcl-I=1.2 myblastfile
    mclblastline --start-mcl --mcl-I=1.6 myblastfile
    mclblastline --start-mcl --mcl-I=2.0 myblastfile
    mclblastline --start-mcl --mcl-I=2.4 myblastfile
    mclblastline --start-mcl --mcl-I=2.8 myblastfile
-   etc ..</pre>
+   etc ..</div>
 <p style="margin-top:0em; margin-bottom:0em">
 The first run prepares an input matrix to be read by <b>mcl</b>.
 In this case its file will be named <tt>myblastfile.sym</tt>.
@@ -198,13 +197,13 @@ in the <a class="local sibling" href="mclpipeline.html">mclpipeline</a> manual -
 that affect names of (intermediate) files. Most importantly,
 this concerns the mclpipeline options that have prefix
 <b>--xo</b> or <b>--xi</b>. For example,</p>
-<pre>   mclblastline --prepare-mcl --blast-score=b --xo-dat=b myblastfile
+<div class="verbatim">   mclblastline --prepare-mcl --blast-score=b --xo-dat=b myblastfile
    mclblastline --start-mcl --xo-dat=b --mcl-I=1.2 myblastfile
    mclblastline --start-mcl --xo-dat=b --mcl-I=1.6 myblastfile
    mclblastline --start-mcl --xo-dat=b --mcl-I=2.0 myblastfile
    mclblastline --start-mcl --xo-dat=b --mcl-I=2.4 myblastfile
    mclblastline --start-mcl --xo-dat=b --mcl-I=2.8 myblastfile
-   etc ..</pre>
+   etc ..</div>
 <p style="margin-bottom:0" class="asd_par">
 In this case, the matrix file will be named <tt>myblastfile.b.sym</tt>,
 and the <b>--xo-dat</b> options must be repeated in all runs

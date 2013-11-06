@@ -14,7 +14,7 @@
 #include "util/opt.h"
 #include "util/types.h"
 
-mcxDispHook* mcxDispHookq
+mcxDispHook* mcxDispHookquery
 (  void
 )  ;
 

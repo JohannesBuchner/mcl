@@ -85,7 +85,7 @@
 
 \par{
    Conversion between the two formats is easily achieved with
-   \mysib{mcxconvert}. Both \mysib{mcl} and \mysib{mcxload}
+   \mcxconvert. Both \mysib{mcl} and \mysib{mcxload}
    can save a matrix in either format after constructing it from
    label input.}
 
@@ -492,15 +492,17 @@ hit bit  0.16
 \end{itemize}
 
 \cpar{NOTE}{
-   \mysib{mcl} accepts \genopt{--abc-log} and \genopt{--abc-neg-log} to specify
-   log transformations. Similarly, \mysib{mcxload} accepts \genopt{--stream-log}
-   and \genopt{--stream-neg-log}.  The reason is that probabilities are
-   sometimes encoded below the precision dictated by the IEEE (32 bit) float
+   \mysib{mcl} accepts \genopt{--abc-neg-log} and \genopt{--abc-neg-log10}
+   to specify log transformations. Similarly, \mysib{mcxload} accepts
+   \genopt{--stream-log}, \genopt{--stream-neg-log}, and
+   \genopt{--stream-neg-log10}.  The reason is that probabilities are sometimes
+   encoded below the precision dictated by the IEEE (32 bit) float
    specification.  This poses a problem as the mcl applications encode values
    by default as floats, and the transformation specifications are always
-   applied to the mcl encoding. The options just mentioned are applied
-   after a value has been read from an input stream and \it{before} it
-   is converted to the native encoding.}
+   applied to the mcl encoding. The options just mentioned are applied after a
+   value has been read from an input stream and \it{before} it is converted to
+   the native encoding.
+   }
 
 \sec{seealso}{SEE ALSO}
 \car{
