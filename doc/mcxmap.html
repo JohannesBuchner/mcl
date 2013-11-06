@@ -4,7 +4,7 @@
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
-/* START zsd.base.css */
+/* START aephea.base.css */
 body
 { text-align: justify;
 margin-left: 8%;
@@ -66,15 +66,16 @@ text-align: right;
 { position: relative;
 margin-left: 3em;
 }
-/* END zsd.base.css */
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
 </style>
 <title>The mcxmap manual</title>
 </head>
 <body>
 <p style="text-align:right">
-1 Jul 2009&nbsp;&nbsp;&nbsp;
+18 Sep 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxmap.ps"><b>mcxmap</b></a>
-1.008, 09-182
+1.008, 09-261
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -109,12 +110,12 @@ margin-left: 3em;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 mcxmap &mdash; permute or remap the indices of graphs and matrices.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxmap</b>
 <a class="intern" href="#opt-imx"><b>-imx</b> fname (<i>input</i>)</a></p>
 <a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output</i>)<b>]</b></a>
@@ -137,7 +138,7 @@ mcxmap &mdash; permute or remap the indices of graphs and matrices.</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 This utility relabels graphs or matrices. Its main use is in applying a
 <i>map file</i> to a given matrix or graph. A map file contains a so called
 <i>map matrix</i> in mcl format that has some special properties (given
@@ -149,7 +150,7 @@ alone. When dealing with huge matrices, considerable gains in efficiency
 memory-wise and time-wise can be achieved by doing the mapping in-place.
 This is what mcxmap does. In the future, its functionality may be
 embedded in <b>mcx</b> with new mcx operators.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The special properties of a map matrix are</p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign " style="right:-1em"><span class="itembullet">&bull;</span></div></div>
@@ -169,7 +170,7 @@ Each column has exactly one entry.</p>
 Each row domain index occurs in exactly one column.</p>
 </div>
 </div>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 These properties imply that the matrix can be used
 as a map from the column domain onto the row domain.
 An example map matrix is found in the <a class="intern" href="#examples">EXAMPLES</a> Section.</p>
@@ -231,7 +232,7 @@ mapped tab definition.
 
 <a name="examples"></a>
 <h2>EXAMPLES</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The matrix below has two canonical domains which are identical.
 It denotes a map of the canonical domain onto itself, in which
 node 0 is relabeled to 8, node 1 is relabeled to 5, et cetera.
@@ -259,17 +260,17 @@ begin
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Stijn van Dongen.
 </p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0">
-<a class="local" href="mcxio.html">mcxio</a>,
-<a class="local" href="mcx.html">mcx</a>,
-<a class="local" href="mcxsubs.html">mcxsubs</a>,
-and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+<p style="margin-bottom:0" class="asd_par">
+<a class="local sibling" href="mcxio.html">mcxio</a>,
+<a class="local sibling" href="mcx.html">mcx</a>,
+<a class="local sibling" href="mcxsubs.html">mcxsubs</a>,
+and <a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
 </p>
 </body>

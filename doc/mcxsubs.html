@@ -4,7 +4,7 @@
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
-/* START zsd.base.css */
+/* START aephea.base.css */
 body
 { text-align: justify;
 margin-left: 8%;
@@ -66,15 +66,16 @@ text-align: right;
 { position: relative;
 margin-left: 3em;
 }
-/* END zsd.base.css */
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
 </style>
 <title>The mcxsubs manual</title>
 </head>
 <body>
 <p style="text-align:right">
-1 Jul 2009&nbsp;&nbsp;&nbsp;
+18 Sep 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxsubs.ps"><b>mcxsubs</b></a>
-1.008, 09-182
+1.008, 09-261
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -109,9 +110,9 @@ margin-left: 3em;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 mcxsubs &mdash; extract submatrices (subgraphs) of a matrix (graph).</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxsubs</b> can be used to
 inspect local cluster structure in a graph, for example by looking at the
 subgraph induced by a single cluster or a couple of clusterings, or the
@@ -119,7 +120,7 @@ edge set where all tail nodes are from a set of domains and all head
 nodes are from the complement of this set, and many other variants and
 refinements.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Additionally, mcxsubs enables
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
@@ -163,10 +164,10 @@ and other miscellaneous operations.
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxsubs</b> <b>-imx</b> &lt;fname&gt; [options] &lt;specs&gt;+
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxsubs</b>
 <a class="intern" href="#opt-imx"><b>-imx</b> &lt;fname&gt; (<i>input matrix</i>)</a>
 <a class="intern" href="#opt-dom"><b>[-dom</b> &lt;fname&gt; (<i>domain matrix</i>)<b>]</b></a>
@@ -190,16 +191,16 @@ and other miscellaneous operations.
 <a class="intern" href="#opt--tag"><b>[--tag</b> (<i>tag nodes</i>)<b>]</b></a>
 &lt;specs&gt;+
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 If you are a frequent <b>mcxsubs</b> user with very large graphs, consider
 converting the input matrix into binary format using
-<a class="local" href="mcxconvert.html">mcxconvert</a> and then using the mcxsubs
+<a class="local sibling" href="mcxconvert.html">mcxconvert</a> and then using the mcxsubs
 <b>--from-disk</b> option. This should give you a 400-fold speed gain.
 </p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxsubs</b> lets you extract submatrices/subgraphs corresponding with index
 sets and (possibly) sets of domains from a given domain matrix (e.g.
 a matrix representing a clustering). Columns and
@@ -207,7 +208,7 @@ rows of the target submatrix can be specified both independently and
 simultaneously, and can be specified as unions of simple index and domain
 ranges and complements of these.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Because a submatrix or subgraph specification is composed of type,
 location, column, row, index, and set specifications,
 the word specification is
@@ -272,7 +273,7 @@ specified by the <b>-imx</b> option.
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Transform the input matrix values according
-to the syntax described in <a class="local" href="mcxio.html">mcxio</a>.
+to the syntax described in <a class="local sibling" href="mcxio.html">mcxio</a>.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tab"></a><b>-tab</b> (<i>read tab file</i>)</div></div>
@@ -316,12 +317,12 @@ selection used for subsequent processing. By default the randomized
 selection is intersected with whatever the other selection criteria (if any)
 yield, i.e. the behaviour under the <b>--rand-intersect</b> option.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 If the column and row domain are identical, they are submitted to
 the same selection process and will end up identical. If you don't want
 this, use <b>-rfac</b> and <b>-cfac</b> separately.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 If you just want a randomized selection, doing</p>
 <pre>mcxsubs -imx foo -dfac 0.5 'out(foo.rnd)'</pre>
 <p style="margin-top:0em; margin-bottom:0em">
@@ -332,80 +333,102 @@ this is the following:</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-rfac"></a><b>-rfac</b> &lt;num&gt; (<i>random column selection</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 As <b>-dfac</b>, limited to the column domain.
+</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-cfac"></a><b>-cfac</b> &lt;num&gt; (<i>random row selection</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 As <b>-dfac</b>, limited to the row domain.
+</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--rand-merge"></a><b>--rand-merge</b> (<i>merge random selections</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 The random selection(s) of domains identify parts of the
 matrix that will be merged with the result of the main
 selection process (default).
+</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--rand-discard"></a><b>--rand-discard</b> (<i>remove random selections</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 The random selection(s) of domains identify parts of the
 matrix that will be removed from the result of the main
 selection process.
+</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--rand-intersect"></a><b>--rand-intersect</b> (<i>intersect random selections</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 The random selection(s) of domains identify parts of the
 matrix that will be intersected with the result of the main
 selection process. This is the default.
+</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--rand-exclusive"></a><b>--rand-exclusive</b> (<i>only random selections</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 The random selection(s) of domains identify parts of the
 matrix from which the result of the main
 selection process will be removed.
+</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tag-digits"></a><b>-tag-digits</b> k (<i>set precision</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Sets the precision for tagged output.
 Setting it to <b>-tag-digits</b>&nbsp;<b>-1</b>
 disables the output of values altogether &mdash; only the node indices
 and the cluster indices are written.
+</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--tag"></a><b>--tag</b> (<i>tag nodes</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Each node in the column (tail node) listing of the matrix (graph)
 spec is tagged with the domain it is in. This requires
 the use of the <b>-dom</b> option.
 This output mode, called <i>tagged matrix</i>, is currently not
 recognized by any of the <b>mcl</b>/<b>mcx</b> input routines. It is present
 to facilitate easier visual inspection of clustering results.
+</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--from-disk"></a><b>--from-disk</b> (<i>space/speed optimizer</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
 Use this if the input graph is in binary format, or if the
 input graph is very large and the subgraph(s) to extract
 are small in comparison, or if the available memory
 does not comfortably exceed the size of the graph.
-<p>
+</p>
+<p style="margin-bottom:0" class="asd_par">
 The effect of this option is that the subgraph will be read
 directly from disk, without reading in the entire graph
 in advance. This will be done repeatedly for all subgraphs that are
 specified.
-<p>
+</p>
+<p style="margin-bottom:0" class="asd_par">
 This option reduces memory consumption to the size of the subgraph(s)
 to be extracted.
-<p>
+</p>
+<p style="margin-bottom:0" class="asd_par">
 For graphs in interchange format, the speed gain is not
 dramatic. If more than one subgraph is specified, there will most
 likely be a loss in speed.
-<p>
+</p>
+<p style="margin-bottom:0" class="asd_par">
 With input graphs in binary format, <b>mcxsubs</b> will
 be *very* much faster, to the extent of 400-fold speed gains.
 It does not matter whether more than one subgraph is specified.
+</p>
 </div>
 </div>
 
 <a name="spec"></a>
 <h2>SUBMATRIX SPECIFICATIONS</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 A submatrix or subgraph spec may contain a number of spec parts. Each part
 is specified in a function-style notation. Different parts are separated by
 commas. Parts may occur multiple times, but for most parts only the last one
@@ -416,10 +439,10 @@ below in the sections DOMAINS, EXTENSION, VALUES, SIZE, FINALIZE and OUTPUT.
 <p style="margin-bottom:0"><b>DOMAINS</b><br>
 The domain part is specified as
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>dom</b>(<i>X</i> &lt;, <i>Y</i>(<i>ispec</i>) &gt;+)
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Here <i>X</i> is the row/column indicator. Rows are indicated with
 either <tt>r</tt> or <tt>R</tt>, columns are indicated with either
 <tt>c</tt> or <tt>C</tt>. <i>X</i> may contain one or two indicators, with
@@ -427,7 +450,7 @@ a single indicator per column domain and row domain allowed.
 Uppercase indicators indicate that the complement is being specified
 relative to the corresponding domain in the target matrix.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <i>Y</i> is the type indicator, it is exactly one of
 <tt>i</tt>, <tt>I</tt>, <tt>d</tt>, <tt>D</tt>, <tt>c</tt>, <tt>r</tt>, <tt>t</tt>, or <tt>T</tt>.
 The <tt>i/I</tt> indicators specify
@@ -441,7 +464,7 @@ to the domains in the <i>domain matrix</i>.
 to the domain encoded in the tab file as specified by the
 <b>-tab</b> option. Their usage is described further below.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 For domain specifications (<tt>d/D</tt>) the columns indexed by
 these integers in the matrix specified in the <b>-dom</b>
 option will be fetched and merged. If <b>-dom</b> was not used
@@ -450,7 +473,7 @@ used. For simple specifications
 (<tt>i/I</tt>) the result is simply the list of integers itself. Uppercase
 indicators indicate that the complement is being specified.
 </p>
-<p style="margin-bottom:0">Examples:</p>
+<p style="margin-bottom:0" class="asd_par">Examples:</p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_cascade"><div class=" item_leftalign nowrap " ><tt>dom(cr, i(0-6,10,11-14))</tt></div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -501,7 +524,7 @@ Column indices are all indices from domains 0-2, row indices
 are all other indices. This gives all edges going <i>out</i>
 from domains 0-2.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The use of 'D' is analogous to that of 'C', 'R', and 'I'.
 Thus, <tt>D(0-3,8,21-30)</tt> specifies all indices which are in the
 complement of the set formed by taking the union of
@@ -509,17 +532,17 @@ domains 0-3,8,21-30.
 </p>
 </div>
 </div>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The <tt>c</tt> and <tt>r</tt> indicators must be followed by a
 pair of matching parentheses. They specify to take respectively
 the column domain and the row domain of the domain matrix (cf. <a class="intern" href="#opt-dom"><b>-dom</b></a>).
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The <tt>t</tt> and <tt>T</tt> indicators must be followed by a
 pair of matching parentheses. They specify to take the domain
 found in the tab file or its complement.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 As seen above, indices (either representing themselves or domains) are
 entered as comma-separated lists of single indices, ranges of indices
 (which may overlap), or staircases of indices (lists of indices with
@@ -531,20 +554,20 @@ complement if 'I' is specified (for simple indices) or 'D' is specified
 union of the results of both is taken and passed along. If the latter
 result is passed to either 'C' or 'R', it is replaced by its complement.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 A range is specified e.g. as <tt>10-14</tt> and it is inclusive, denoting
 in this case the indices <tt>{10,11,12,13,14}</tt>.
 </p>
 <p style="margin-bottom:0"><b>EXTENSION</b><br>
 The extension part is specified as
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>ext</b>( &lt; <b>disc</b>(<i>k</i>) | <b>cdisc</b>(<i>k</i>) | <b>rdisc</b>(<i>k</i>) &gt;)
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 This option requires the input matrix to be held in memory. This implies it
 will not work with the <b>--from-disk</b> option.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 This <i>assumes that the input matrix encodes a graph</i>, so the column
 and row domains must be equal.
 It will take the currently selected domain (column domain for
@@ -553,26 +576,26 @@ all nodes to it that are reachable in <i>k</i> steps.
 The <b>disc</b> variant replaces both column and row domains by
 the extended domain, the other variants just change a single domain.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Setting <i>k</i> to <tt>-1</tt> results in adding <i>all</i> nodes that
 can be reached from the start domain.
 </p>
 <p style="margin-bottom:0"><b>VALUES</b><br>
 The value part is specified as
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>val</b>(&lt;tf-spec&gt;)</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 It transforms or removes values according to <i>&lt;tf-spec&gt;</i>.
-Refer to <a class="local" href="mcxio.html">mcxio</a> for a description of the transformation
+Refer to <a class="local sibling" href="mcxio.html">mcxio</a> for a description of the transformation
 specification syntax and the available transformation primitives.</p>
 <p style="margin-bottom:0"><b>SIZE</b><br>
 The size part is specified as
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>size</b>( &lt; <b>lt</b>(<i>x</i>) | <b>ceil</b>(<i>x</i>) | <b>gq</b>(<i>x</i>) | <b>rmgq</b>(<i>x</i>) &gt; + )
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Where <i>x</i> is a nonnegative integer, and multiple specifications
 are separated by commas.
 The strings 'lt', 'lq', 'gq', 'gt', respectively denote
@@ -582,7 +605,7 @@ The strings 'lt', 'lq', 'gq', 'gt', respectively denote
 and
 <i>greater than</i>.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 This prunes or removes column vectors based on their size. If <b>lt</b>
 is used, column vectors are removed if the number of entries exceeds
 the specified bound. If <b>gq</b> is used, vectors are discarded
@@ -635,22 +658,26 @@ With <tt>scrubg</tt> the union of the resulting domains is taken.
 The appropriate domains are mapped onto consecutive indices starting at zero.
 </div>
 </div>
-<p><b>OUTPUT</b><br>
+<p style="margin-bottom:0"><b>OUTPUT</b><br>
 The output part is specified as
 <b>out</b>( <i>fname</i> &lt;, <i>key</i> &gt;* )
 that is, the <i>fname</i> option is obligatory if the <b>out</b> part is specified.
 Currently, key can be a single directive, namely <b>wb</b> specifying that
 the resulting matrix should be output in binary format.
+</p>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p>
+<p style="margin-bottom:0" class="asd_par">
 Stijn van Dongen.
+</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<a class="local" href="mcx.html">mcx</a>,
-and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+<p style="margin-bottom:0" class="asd_par">
+<a class="local sibling" href="mcx.html">mcx</a>,
+and <a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
+</p>
 </body>
 </html>

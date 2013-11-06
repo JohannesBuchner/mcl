@@ -4,7 +4,7 @@
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
-/* START zsd.base.css */
+/* START aephea.base.css */
 body
 { text-align: justify;
 margin-left: 8%;
@@ -66,15 +66,16 @@ text-align: right;
 { position: relative;
 margin-left: 3em;
 }
-/* END zsd.base.css */
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
 </style>
 <title>The mclcm manual</title>
 </head>
 <body>
 <p style="text-align:right">
-1 Jul 2009&nbsp;&nbsp;&nbsp;
+18 Sep 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mclcm.ps"><b>mclcm</b></a>
-1.008, 09-182
+1.008, 09-261
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -105,18 +106,18 @@ margin-left: 3em;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 mclcm &mdash; hierarchical clustering of graphs with mcl</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0"><b>mclcm</b> &lt;-|fname&gt; [mclcm-options] [-- "mcl options"*]</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par"><b>mclcm</b> &lt;-|fname&gt; [mclcm-options] [-- "mcl options"*]</p>
+<p style="margin-bottom:0" class="asd_par">
 <pre><b>mclcm</b> &lt;-|fname&gt; -a "-I 4 --shadow=vl"
 <b>mclcm</b> &lt;-|fname&gt; -a "-I 3" -- "-I 5"
 <b>mclcm</b> &lt;-|fname&gt; -a "-I 3" -b1 "" -- "-ph 3 --shadow=vl -I 5"</pre>
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mclcm</b> &lt;-fname&gt;
 <a class="intern" href="#opt--contract"><b>[--contract</b> (<i>contraction mode</i>)<b>]</b></a>
 <a class="intern" href="#opt--dispatch"><b>[--dispatch</b> (<i>dispatch mode</i>)<b>]</b></a>
@@ -146,7 +147,7 @@ mclcm &mdash; hierarchical clustering of graphs with mcl</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The mclcm options may be followed by a number of trailing arguments.
 The trailing arguments should be separated from the mclcm options
 by the separator <tt>--</tt>.
@@ -164,16 +165,16 @@ described a little below. Note though that <i>dispatch</i> mode is not
 the best mode to use for hierarchical clustering. It is mostly useful
 to generate multiple mcl clusterings in a single run.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 In all modes <b>mclcm</b> will generate a file, by default called <i>mcl.cone</i>.
 This is a representation of a hierarchical clustering that is particular
 to mcl. It can be converted to <i>newick</i> format like this:
 </p>
 <pre>         mcxdump -imx-tree mcl.cone --newick -o NEWICKFILE
    OR    mcxdump -imx-tree mcl.cone --newick -o NEWICKFILE -tab TABFILE</pre>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 In the last example, TABFILE should be a file containing a mapping
-from mcl labels to application labels. Refer to <a class="local" href="mcxio.html">mcxio</a> for
+from mcl labels to application labels. Refer to <a class="local sibling" href="mcxio.html">mcxio</a> for
 more information about tab files and mcl input/ouput formats.
 </p>
 
@@ -196,7 +197,7 @@ applied to it (if any).
 The <i>expansion matrix</i> is the first expanded matrix of some
 mcl process applied to the input graph.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 By default the base matrix is constructed from either the start matrix
 or the expansion matrix obtained from the first mcl process.
 It is possible to use a start matrix derived from special purpose
@@ -204,7 +205,7 @@ mcl transformation parameters (such as <b>-ph</b> and <b>-tf</b>)
 or an expansion matrix derived from a special purpose mcl process.
 The <b>-b1</b> and <b>-b2</b> parameters provide the interfaces
 to this functionality.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 You are advised to start with a high inflation value for the input
 graph and to use shadowing, e.g. include <tt>--shadow=vl</tt> in the
 <b>-a</b> argument.
@@ -367,7 +368,7 @@ it as just described.
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-q"></a><b>-q</b> spec (<i>log levels</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
-Set the quiet level. Read <a class="local" href="tingea.log.html">tingea.log</a> for syntax and semantics.</p>
+Set the quiet level. Read <a class="local sibling" href="tingea.log.html">tingea.log</a> for syntax and semantics.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-z"></a><b>-z</b> (<i>show default shared options</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -379,13 +380,15 @@ successively applied to the input graph and succeeding contracted graphs.</p>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p>
+<p style="margin-bottom:0" class="asd_par">
 Stijn van Dongen.
+</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p>
-<a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+<p style="margin-bottom:0" class="asd_par">
+<a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
+</p>
 </body>
 </html>

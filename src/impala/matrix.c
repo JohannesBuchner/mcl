@@ -1255,13 +1255,6 @@ mclv* mclxColSums
 ;  }
 
 
-mclv* mclxColSizes
-(  const mclx*     m
-,  mcxenum        mode
-)
-   {  return mclxColNums(m, mclvSize, mode)
-;  }
-
 
 double mclxMass
 (  const mclx*     m

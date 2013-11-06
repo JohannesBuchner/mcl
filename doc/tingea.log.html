@@ -4,7 +4,7 @@
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
-/* START zsd.base.css */
+/* START aephea.base.css */
 body
 { text-align: justify;
 margin-left: 8%;
@@ -66,20 +66,21 @@ text-align: right;
 { position: relative;
 margin-left: 3em;
 }
-/* END zsd.base.css */
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
 </style>
 <title>How to set the Tingea log parameters</title>
 </head>
 <body>
 <p style="text-align:right">
-1 Jul 2009&nbsp;&nbsp;&nbsp;
+18 Sep 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="tingea.log.ps"><b>tingea.log</b></a>
-1.008, 09-182
+1.008, 09-261
 </p>
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 tingea.log &mdash; How to set the Tingea log parameters</p>
 
 <a name="description"></a>
@@ -90,7 +91,7 @@ In this context logging means that a pgrogram issues statements
 about what it is doing. It can do so for different purposes
 and at different levels of verbosity. By default logging statements
 are written on STDERR.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Tingea logging provides a quick and easy way for programmers to associate
 verbosity levels with logging statements.
 Only logging statements for which the verbosity
@@ -108,7 +109,7 @@ can be regulated with the TINGEA_LOG_TAG environment variable.
 If a <b>-q</b> type option is present and the environment variable
 is set, then the environment variable is interpreted first followed
 by the <b>-q</b> argument.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Tingea logging allows a programmer to assign categories to logging
 statements. The categories FUNCTION and DATA have a subdivision
 ranging from fine-grained to coarse-grained. The categorie MONITORING has
@@ -116,7 +117,7 @@ a subdivision ranging from low priority to high priority.
 The other categories are unimodal. These are IO, THREAD, PROCESS,
 and GAUGE. Three unspecified unimodal categories are SLOT1, SLOT2,
 and SLOT3. They can be used to encode program-specific semantics.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The programmer may assign multiple categories to a single logging statement.
 It is unusual for more than two categories to be specified. For example, IO
 and DATA at the LIST level may be combined to indicate a logging statement
@@ -125,7 +126,7 @@ of granularity the DATA levels are CELL, LIST, and AGGREGRATE. If the user
 accepts IO logging and accepts DATA logging at level CELL or LIST the
 statement will be executed. If no IO logging is accepted or DATA logging is
 only accepted at the AGGREGRATE level, the statement will be skipped.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 By default, all categories that are specified by the programmer need
 to pass the threshold specified by the user for that category.
 The user may relax this requirement so that only one category needs
@@ -190,7 +191,7 @@ value <tt>x</tt>. As seen above, only a few categories contain more than
 one level and no category contains more than five levels.
 The rule is that if a level exceeds the maximul level available for a category
 it is simply interpreted as the maximum level.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The GAUGE category, if set, indicates that a program may write line based
 progress bars or other output in which a single line is accumulated over
 multiple statements. This implies that a single GAUGE logging statement may

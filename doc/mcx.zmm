@@ -1,5 +1,5 @@
 
-\'set{reqver}{2006-032}
+\'set{reqver}{2009-250}
 \'if{\'cmp{gq}{\__version__}{\reqver}}{}{
 \'write{stderr}{txt}{Requires zoem version >= \reqver\|}\'exit}
 
@@ -7,7 +7,7 @@
    \: Used this when using relative path through the micans tree.
    \: Nowadays I oblige myself to use the zoem installed on my system. 
 
-\'input{man.zmm}
+\'input{pud/man.zmm}
 
    \: The three definitions below are for options defined in
    \: an \items{ .. } macro.

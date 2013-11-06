@@ -4,7 +4,7 @@
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
-/* START zsd.base.css */
+/* START aephea.base.css */
 body
 { text-align: justify;
 margin-left: 8%;
@@ -66,15 +66,16 @@ text-align: right;
 { position: relative;
 margin-left: 3em;
 }
-/* END zsd.base.css */
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
 </style>
 <title>The clm close manual</title>
 </head>
 <body>
 <p style="text-align:right">
-1 Jul 2009&nbsp;&nbsp;&nbsp;
+18 Sep 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="clmclose.ps"><b>clm close</b></a>
-1.008, 09-182
+1.008, 09-261
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -105,21 +106,21 @@ margin-left: 3em;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 clm close &mdash; Fetch connected components from graphs or subgraphs</p>
-<p style="margin-bottom:0">clmclose is not in actual fact a program. This manual
+<p style="margin-bottom:0" class="asd_par">clmclose is not in actual fact a program. This manual
 page documents the behaviour and options of the clm program when
 invoked in mode <i>close</i>. The options <b>-h</b>, <b>--apropos</b>,
 <b>--version</b>, <b>-set</b>, <b>--nop</b> are accessible
 in all <b>clm</b> modes. They are described
-in the <a class="local" href="clm.html">clm</a> manual page.</p>
+in the <a class="local sibling" href="clm.html">clm</a> manual page.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>clm close</b> -imx &lt;fname&gt; [options]
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>clm close</b>
 <a class="intern" href="#opt-imx"><b>-imx</b> fname (<i>specify matrix input</i>)</a>
 <a class="intern" href="#opt-abc"><b>-abc</b> fname (<i>specify label input</i>)</a>
@@ -137,7 +138,7 @@ in the <a class="local" href="clm.html">clm</a> manual page.</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Use <b>clm close</b> to fetch the connected components from a graph. Different
 output modes are supported (see below). In matrix mode (i.e. using
 the <b>-imx</b> option) the output returned with
@@ -191,21 +192,21 @@ write the components as a clustering in mcl format with
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Transform the input matrix values according
-to the syntax described in <a class="local" href="mcxio.html">mcxio</a>.
+to the syntax described in <a class="local sibling" href="mcxio.html">mcxio</a>.
 </p>
 </div>
 </div>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Stijn van Dongen.
 </p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0">
-<a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+<p style="margin-bottom:0" class="asd_par">
+<a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
 </p>
 </body>

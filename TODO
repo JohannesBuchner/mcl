@@ -8,11 +8,13 @@
     |    do not shun matrix allocations etc. Aim for time/memory-efficient algorithms
     |    within this context.                                                    |
     |____________________________________________________________________________|
-  $$$ more logical adapt-inflation behaviour.
+  ??? more logical adapt-inflation behaviour.
+    -> what does adapt-inflation do on satellite type graphs?
+   $$ smarter coarsening. clustering vs aborption ? size balancing ?
     - \"man::html-keywords"
-    $ mclvUnionv semaphore
-  $$$ clean up mclcm, modularize, memclean.
-  $$$ clean up memory logic and matrix cache/reread/transform in alg.c.
+    f mclvUnionv semaphore
+    $ clean up mclcm, modularize, memclean.
+    $ clean up memory logic and matrix cache/reread/transform in alg.c.
     $ make mclvaDump static, unify+streamline vector dumping (+ easy macro for dumping)
   $$$ rewrite mcxsubs in a more extendible and generalized framework -> mini-language, mcxi
   $$$ generally rewrite routines to use higher-level routines. Don't fear matrix and vector allocs.
@@ -20,12 +22,8 @@
     - stress test mcxload (further)
     - analyze dagginess (lattice characteristics)
     - update mcxdeblast
-    / mcldagtest was rewritten.
-    -> write mclInterpret2 based on dag stuff (make it much simpler).
-    -> compare with mclInterpret.
     - mcxerdos directed mode would be interesting for wikipedia type graphs.
     - check mclvSelectHighest implementation with -R -S and > to >= change.
-    - -pn pruning is order dependent. should probably start with biggest hubs first.
     ! make a vector-dump-debug routine that I am happy with. perhaps build on the one in mcxdump
     - adapt-local: check what it does when mcl iterands become very directed. Only before?
     - clxdo <new-mode>: <id> <nb-count> <max-weight> <mean-weight> <median-weight>
@@ -216,3 +214,11 @@ vector.[ch]
       ->  option to throw away diagonal entirely or add diagonal (but mcxi can already do it).
       mclxAddto (changed to accommodate domains)
       mclxCatVectors (new)
+
+-  stress test mcxarray, where -skipc exceeds actual columnc count et cetera.
+
+-  output mcl expand/inflate statistics to gauge candidates for logical inflation regime.
+   slope/center ..
+
+
+

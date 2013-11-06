@@ -225,70 +225,93 @@ with which each edge is selected.
 \verbatim{mcxsubs -imx foo -dfac 0.5 'dom(cr), out(foo.rnd)'}
 
 \item{\defopt{-rfac}{<num>}{random column selection}}
-As \genopt{-dfac}, limited to the column domain.
+   \car{
+   As \genopt{-dfac}, limited to the column domain.
+   }
 
 \item{\defopt{-cfac}{<num>}{random row selection}}
-As \genopt{-dfac}, limited to the row domain.
+\car{
+   As \genopt{-dfac}, limited to the row domain.
+   }
+
 
 \item{\defopt{--rand-merge}{merge random selections}}
-The random selection(s) of domains identify parts of the
-matrix that will be merged with the result of the main
-selection process (default).
+\car{
+   The random selection(s) of domains identify parts of the
+   matrix that will be merged with the result of the main
+   selection process (default).
+   }
 
 \item{\defopt{--rand-discard}{remove random selections}}
-The random selection(s) of domains identify parts of the
-matrix that will be removed from the result of the main
-selection process.
+\car{
+   The random selection(s) of domains identify parts of the
+   matrix that will be removed from the result of the main
+   selection process.
+   }
 
 \item{\defopt{--rand-intersect}{intersect random selections}}
-The random selection(s) of domains identify parts of the
-matrix that will be intersected with the result of the main
-selection process. This is the default.
+\car{
+   The random selection(s) of domains identify parts of the
+   matrix that will be intersected with the result of the main
+   selection process. This is the default.
+   }
 
 \item{\defopt{--rand-exclusive}{only random selections}}
-The random selection(s) of domains identify parts of the
-matrix from which the result of the main
-selection process will be removed.
+\car{
+   The random selection(s) of domains identify parts of the
+   matrix from which the result of the main
+   selection process will be removed.
+   }
 
 \item{\defopt{-tag-digits}{k}{set precision}}
-Sets the precision for tagged output.
-Setting it to \useopt{-tag-digits}{-1}
-disables the output of values altogether \- only the node indices
-and the cluster indices are written.
+\car{
+   Sets the precision for tagged output.
+   Setting it to \useopt{-tag-digits}{-1}
+   disables the output of values altogether \- only the node indices
+   and the cluster indices are written.
+   }
 
 \item{\defopt{--tag}{tag nodes}}
-Each node in the column (tail node) listing of the matrix (graph)
-spec is tagged with the domain it is in. This requires
-the use of the \genopt{-dom} option.
-This output mode, called \it{tagged matrix}, is currently not
-recognized by any of the \mcl/\mcx input routines. It is present
-to facilitate easier visual inspection of clustering results.
+\car{
+   Each node in the column (tail node) listing of the matrix (graph)
+   spec is tagged with the domain it is in. This requires
+   the use of the \genopt{-dom} option.
+   This output mode, called \it{tagged matrix}, is currently not
+   recognized by any of the \mcl/\mcx input routines. It is present
+   to facilitate easier visual inspection of clustering results.
+   }
 
 \item{\defopt{--from-disk}{space/speed optimizer}}
-Use this if the input graph is in binary format, or if the
-input graph is very large and the subgraph(s) to extract
-are small in comparison, or if the available memory
-does not comfortably exceed the size of the graph.
+\car{
+   Use this if the input graph is in binary format, or if the
+   input graph is very large and the subgraph(s) to extract
+   are small in comparison, or if the available memory
+   does not comfortably exceed the size of the graph.
+   }
 
-\par
-The effect of this option is that the subgraph will be read
-directly from disk, without reading in the entire graph
-in advance. This will be done repeatedly for all subgraphs that are
-specified.
+\par{
+   The effect of this option is that the subgraph will be read
+   directly from disk, without reading in the entire graph
+   in advance. This will be done repeatedly for all subgraphs that are
+   specified.
+   }
 
-\par
-This option reduces memory consumption to the size of the subgraph(s)
-to be extracted.
+\par{
+   This option reduces memory consumption to the size of the subgraph(s)
+   to be extracted.
+   }
 
-\par
-For graphs in interchange format, the speed gain is not
-dramatic. If more than one subgraph is specified, there will most
-likely be a loss in speed.
+\par{
+   For graphs in interchange format, the speed gain is not
+   dramatic. If more than one subgraph is specified, there will most
+   likely be a loss in speed.
+   }
 
-\par
-With input graphs in binary format, \mcxsubs will
-be *very* much faster, to the extent of 400-fold speed gains.
-It does not matter whether more than one subgraph is specified.
+\par{
+   With input graphs in binary format, \mcxsubs will
+   be *very* much faster, to the extent of 400-fold speed gains.
+   It does not matter whether more than one subgraph is specified.
+   }
 
 
 
@@ -593,27 +616,32 @@ It does not matter whether more than one subgraph is specified.
    \end{itemize}
 }
 
-\cpar{OUTPUT}
-The output part is specified as
+\cpar{OUTPUT}{
+   The output part is specified as
 
-\bf{out}( \it{fname} <, \it{key} >* )
+   \bf{out}( \it{fname} <, \it{key} >* )
 
-that is, the \it{fname} option is obligatory if the \bf{out} part is specified.
-Currently, key can be a single directive, namely \bf{wb} specifying that
-the resulting matrix should be output in binary format.
+   that is, the \it{fname} option is obligatory if the \bf{out} part is specified.
+   Currently, key can be a single directive, namely \bf{wb} specifying that
+   the resulting matrix should be output in binary format.
+   }
 
 
 \sec{author}{AUTHOR}
-\par
+\par{
    Stijn van Dongen.
+   }
 
 \sec{seealso}{SEE ALSO}
 
+\par{
    \mysib{mcx},
    and \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
+   }
 
 \end{pud::man}
+
 
 
 \done

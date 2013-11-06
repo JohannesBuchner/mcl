@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcxarray" 1 "1 Jul 2009" "mcxarray 1\&.008, 09-182" "USER COMMANDS "
+.TH "mcxarray" 1 "18 Sep 2009" "mcxarray 1\&.008, 09-261" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -47,11 +47,10 @@ mcxarray \- Transform array data to MCL matrices
 \fB[-cutoff\fP num (\fIcutoff for output values\fP)\fB]\fP
 \fB[-gq\fP num (\fIignore input smaller than\fP)\fB]\fP
 \fB[-lq\fP num (\fIignore input larger than\fP)\fB]\fP
-\fB[--transpose\fP (\fIwork with the transpose\fP)\fB]\fP
+\fB[--transpose\fP (\fIwork with the transposed data matrix\fP)\fB]\fP
 \fB[--cosine\fP (\fIuse cosine\fP)\fB]\fP
 \fB[--pearson\fP (\fIuse Pearson correlation (default)\fP)\fB]\fP
 \fB[-tear\fP num (\fIinflate input columns\fP)\fB]\fP
-\fB[-teartp\fP num (\fIinflate tranposed columns\fP)\fB]\fP
 \fB[-pi\fP num (\fIinflate the result\fP)\fB]\fP
 \fB[--apropos\fP (\fIprint this help\fP)\fB]\fP
 \fB[-h\fP (\fIprint this help\fP)\fB]\fP
@@ -175,13 +174,6 @@ data columns\&.
 .br
 Apply (column-wise) inflation with parameter \fInum\fP to the input
 values before further processing\&.
-.in -2m
-
-.ZI 2m "\fB-teartp\fP num (\fIinflate tranposed columns\fP)"
-\&
-.br
-Apply (column-wise) inflation with parameter \fInum\fP to the input
-values in the transposed matrix before further processing\&.
 .in -2m
 
 .ZI 2m "\fB-pi\fP num (\fIinflate the result\fP)"

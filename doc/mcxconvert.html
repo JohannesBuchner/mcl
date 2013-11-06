@@ -4,7 +4,7 @@
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
-/* START zsd.base.css */
+/* START aephea.base.css */
 body
 { text-align: justify;
 margin-left: 8%;
@@ -66,15 +66,16 @@ text-align: right;
 { position: relative;
 margin-left: 3em;
 }
-/* END zsd.base.css */
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
 </style>
 <title>The mcx convert manual</title>
 </head>
 <body>
 <p style="text-align:right">
-1 Jul 2009&nbsp;&nbsp;&nbsp;
+18 Sep 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxconvert.ps"><b>mcx convert</b></a>
-1.008, 09-182
+1.008, 09-261
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -105,24 +106,24 @@ margin-left: 3em;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 mcx convert &mdash; convert between mcx storage types</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcx convert</b> &lt;matrix-file-in&gt; &lt;matrix-file-out&gt;<br>
 <b>mcx convert</b> [--write-binary] --cone-to-stack &lt;cat-file-in&gt; &lt;cat-file-out&gt;<br>
 <b>mcx convert</b> [--write-binary] --stack-to-cone &lt;cat-file-in&gt; &lt;cat-file-out&gt;
 </p>
-<p style="margin-bottom:0">mcxconvert is not in actual fact a program. This manual
+<p style="margin-bottom:0" class="asd_par">mcxconvert is not in actual fact a program. This manual
 page documents the behaviour and options of the mcx program when
 invoked in mode <i>convert</i>. The options <b>-h</b>, <b>--apropos</b>,
 <b>--version</b>, <b>-set</b>, <b>--nop</b>, <b>-progress</b>&nbsp;<i>&lt;num&gt;</i>
 are accessible
 in all <b>mcx</b> modes. They are described
-in the <a class="local" href="mcx.html">mcx</a> manual page.</p>
-<p style="margin-bottom:0">
+in the <a class="local sibling" href="mcx.html">mcx</a> manual page.</p>
+<p style="margin-bottom:0" class="asd_par">
 <b>mcx convert</b>
 <a class="intern" href="#opt--cone-to-stack"><b>[--cone-to-stack</b> (<i>transform cone file to stack file</i>)<b>]</b></a>
 <a class="intern" href="#opt--stack-to-cone"><b>[--stack-to-cone</b> (<i>transform stack file to cone file</i>)<b>]</b></a>
@@ -130,7 +131,7 @@ in the <a class="local" href="mcx.html">mcx</a> manual page.</p>
 <a class="intern" href="#opt--cat"><b>[--cat</b> (<i>read and write cat format</i>)<b>]</b></a>
 <a class="intern" href="#opt-cat-max"><b>[-cat-max</b> &lt;num&gt; (<i>limit the stack conversion to &lt;num&gt; matrices</i>)<b>]</b></a>
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 In the two-argument invocation without additional arguments, <b>mcx convert</b>
 converts from the format found in the first file to the other format, i.e.
 from native interchange to native binary format or the other way around. When
@@ -142,14 +143,14 @@ between the two types of concatenated output provided by <b>mclcm</b>.
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The <b>mcl</b> libraries make extensive use of matrices. Matrices
 are used to encode graphs, matrices and clusterings.
 They can be stored either in interchange or in binary format. The latter is
 somewhat more efficient in storage and much faster in both reading and
 writing, but the default is interchange format.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The <b>mcl</b> input routines recognize the type of storage they are dealing
 with. If you want to convert a matrix to the other storage type,
 simply specify the file name of the matrix you want to convert.
@@ -189,15 +190,15 @@ This option is only useful with either of the options <a class="intern" href="#o
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Stijn van Dongen.
 </p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0">
-<a class="local" href="mcxio.html">mcxio</a>,
-and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+<p style="margin-bottom:0" class="asd_par">
+<a class="local sibling" href="mcxio.html">mcxio</a>,
+and <a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
 </p>
 </body>

@@ -4,7 +4,7 @@
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
-/* START zsd.base.css */
+/* START aephea.base.css */
 body
 { text-align: justify;
 margin-left: 8%;
@@ -66,15 +66,16 @@ text-align: right;
 { position: relative;
 margin-left: 3em;
 }
-/* END zsd.base.css */
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
 </style>
 <title>The clm manual</title>
 </head>
 <body>
 <p style="text-align:right">
-1 Jul 2009&nbsp;&nbsp;&nbsp;
+18 Sep 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="clm.ps"><b>clm</b></a>
-1.008, 09-182
+1.008, 09-261
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -105,7 +106,7 @@ margin-left: 3em;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 clm &mdash; perform various computations on graphs and clusterings</p>
 
 <a name="synopsis"></a>
@@ -114,46 +115,46 @@ clm &mdash; perform various computations on graphs and clusterings</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>clm</b> implements a variety of computations on graphs and clusterings. The
 first argument to <b>clm</b> should be a <i>mode</i>, which is a string establishing
 the type of computation to invoke. Each mode <i>mode</i> is described in the
 clm<i>mode</i> manual page. The currently available modes are
-<a class="local" href="clmdist.html">clm dist</a>,
-<a class="local" href="clminfo.html">clm info</a>,
-<a class="local" href="clmmeet.html">clm meet</a>,
-<a class="local" href="clmmate.html">clm mate</a>,
-<a class="local" href="clmclose.html">clm close</a>,
-<a class="local" href="clmorder.html">clm order</a>,
-<a class="local" href="clmimac.html">clm imac</a>,
-<a class="local" href="clmvol.html">clm vol</a>, and
-<a class="local" href="clmresidue.html">clm residue</a>.
+<a class="local sibling" href="clmdist.html">clm dist</a>,
+<a class="local sibling" href="clminfo.html">clm info</a>,
+<a class="local sibling" href="clmmeet.html">clm meet</a>,
+<a class="local sibling" href="clmmate.html">clm mate</a>,
+<a class="local sibling" href="clmclose.html">clm close</a>,
+<a class="local sibling" href="clmorder.html">clm order</a>,
+<a class="local sibling" href="clmimac.html">clm imac</a>,
+<a class="local sibling" href="clmvol.html">clm vol</a>, and
+<a class="local sibling" href="clmresidue.html">clm residue</a>.
 The <b>dist</b> mode is thus described in the
-<a class="local" href="clmdist.html">clmdist</a> manual page.
+<a class="local sibling" href="clmdist.html">clmdist</a> manual page.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Invoking <b>clm</b> without arguments causes it to print out a list
 of available modes with a short description of the type of
 command line expected by that mode.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Invoking <b>clm</b> with just a mode will print out a longer listing
 of options available for that particular mode.
 Modes that are able to function normally without arguments
 can be invoked by adding the <i>--nop</i> argument.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Several options are shared between all <b>clm</b> modes. Note that
 these options are specified after the <b>mode</b>. See <a class="intern" href="#options">OPTIONS</a>.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The <b>--version</b> option causes <b>clm</b> to print out version
 and license information.
 </p>
 
 <a name="options"></a>
 <h2>OPTIONS</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 These are options that pertain to all modes. They should be specified
 <i>after</i> the mode argument.
 </p>
@@ -200,13 +201,14 @@ writing to STDERR.
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p>
+<p style="margin-bottom:0" class="asd_par">
 Stijn van Dongen.
+</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0">
-<a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+<p style="margin-bottom:0" class="asd_par">
+<a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
 </p>
 </body>

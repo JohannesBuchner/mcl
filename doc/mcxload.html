@@ -4,7 +4,7 @@
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
-/* START zsd.base.css */
+/* START aephea.base.css */
 body
 { text-align: justify;
 margin-left: 8%;
@@ -66,15 +66,16 @@ text-align: right;
 { position: relative;
 margin-left: 3em;
 }
-/* END zsd.base.css */
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
 </style>
 <title>The mcxload manual</title>
 </head>
 <body>
 <p style="text-align:right">
-1 Jul 2009&nbsp;&nbsp;&nbsp;
+18 Sep 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxload.ps"><b>mcxload</b></a>
-1.008, 09-182
+1.008, 09-261
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -105,15 +106,15 @@ margin-left: 3em;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 mcxload &mdash; load matrices and tab files from label format</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxload</b> <a class="intern" href="#opt-abc"><b>-abc</b> &lt;fname&gt; (<i>label file</i>)</a>
 <a class="intern" href="#opt-o"><b>-o</b> &lt;fname&gt; (<i>output file</i>)</a></p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <a class="intern" href="#opt-abc"><b>[-abc</b> &lt;fname&gt; (<i>label file</i>)<b>]</b></a>
 <a class="intern" href="#opt-123"><b>[-123</b> &lt;fname&gt; (<i>identifier file</i>)<b>]</b></a>
 <a class="intern" href="#opt-o"><b>[-o</b> &lt;fname&gt; (<i>output file</i>)<b>]</b></a>
@@ -159,7 +160,7 @@ the absence of a value, mcxload will use the default value 1.0. If a tab is
 present on an input line, mcxload will assume that the tab character is the
 separator for that line. Lines for which the first non-whitespace character
 is an octothorpe ('<tt>#</tt>') are skipped.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxload</b> will transform the labels into mcl numerical identifiers and the
 pairs of labels into graph edges or equivalently matrix entries. The weight
 of an edge is the value associated with the associated labels. mcxload
@@ -167,20 +168,20 @@ constructs dictionaries (sometimes just one) that map labels onto mcl
 identifiers as it goes along. It can optionally write these to file. In MCL
 (family) parlance, such a dictionary written to file is called a <i>tab
 file</i>.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 It is possible to specify numerical identifiers directly with
 the <a class="intern" href="#opt-123"><b>-123</b></a> option. In this case <b>mcxload</b> assumes a canonical
-domain (cf <a class="local" href="mcxio.html">mcxio</a>) and will create the minimal canonical
+domain (cf <a class="local sibling" href="mcxio.html">mcxio</a>) and will create the minimal canonical
 domain that supports the data. Also bear in mind the caveat further
 below.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 It is possible to effectively predeclare labels and thus enforce
 an a-priori known mapping of labels onto numerical identifiers.
 Labels receive an identifier in the order in which they occur
 in the input. Predeclaring labels can be achieved by
 having them appear in the desired order and setting the edge
 weight to zero.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 A major mcxload modality is whether the input refers to a single
 domain or to two separate domains. An example of the first is where
 labels are names of people and the value is the extent to which they
@@ -190,7 +191,7 @@ case is to create a single dictionary with all names wherever
 they occur. All <b>tab</b> options (as opposed to <b>tabc</b> and <b>tabr</b>)
 pertain to this scenario and likewise for the options <a class="intern" href="#opt--graph"><b>--graph</b></a>
 and <a class="intern" href="#opt--stream-mirror"><b>--stream-mirror</b></a>.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 An example of the second mode is where the first label is again the name of
 a person, the second label is the name of an animal species, and the value
 is the extent to which that person appreciates the species. In this case,
@@ -200,8 +201,8 @@ this scenario. The <b>tabc</b> options <i>always refer to the first label</i>
 and the <b>tabr</b> options <i>always refer to the second label</i>.
 The letters <b>c</b> and <b>r</b> refer to <i>column</i> and <i>row</i> respectively.
 The latter are the names of the matrix domains corresponding
-to the input domains. Refer to <a class="local" href="mcxio.html">mcxio</a>.</p>
-<p style="margin-bottom:0">
+to the input domains. Refer to <a class="local sibling" href="mcxio.html">mcxio</a>.</p>
+<p style="margin-bottom:0" class="asd_par">
 A further mcxload modality is whether it constructs dictionaries
 on the fly, or whether it proceeds from a tab file already
 available.
@@ -217,10 +218,10 @@ The <b>extend</b> options extend the existing tab file with
 labels that are not found.
 It presumably only makes sense to do so if the corresponding
 <b>-write</b> options are used as well.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The input stream is deduplicated on a per-node neighbourhood basis
 using the <a class="intern" href="#opt-re"><b>-re</b></a> option.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 mcxload has a few options to transform or select based on
 the values in the input stream and the values in the
 constructed matrix. These are
@@ -228,16 +229,16 @@ constructed matrix. These are
 <a class="intern" href="#opt--stream-neg-log"><b>--stream-neg-log</b></a>,
 <a class="intern" href="#opt-stream-tf"><b>-stream-tf</b></a> and
 <a class="intern" href="#opt-tf"><b>-tf</b></a>.
-Refer to <a class="local" href="mcxio.html">mcxio</a> for a description of the syntax accepted
+Refer to <a class="local sibling" href="mcxio.html">mcxio</a> for a description of the syntax accepted
 by the latter two options &mdash; it is a syntax accepted
 by a few more mcl siblings.
 Finally it is possible to transpose the final result
 using the <a class="intern" href="#opt--transpose"><b>--transpose</b></a> option. Keep in mind that
 mcxload does not accordingly change its idea of row and
 column domains.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The final matrix can be symmetrified using the <a class="intern" href="#opt-ri"><b>-ri</b></a> option.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The <a class="intern" href="#opt-etc"><b>-etc</b> and <b>-235</b></a> options may be useful for
 the odd job. These options assume a format where all entries for a given
 column (or equivalently all neighbours for a given node) are joined onto a
@@ -422,13 +423,13 @@ or p-values such as BLAST scores.</p>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Transform the stream values as they are read in according
-to the syntax described in <a class="local" href="mcxio.html">mcxio</a>.</p>
+to the syntax described in <a class="local sibling" href="mcxio.html">mcxio</a>.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tf"></a><b>-tf</b> &lt;tf-spec&gt; (<i>transform (not so) final matrix</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Transform the matrix values after deduplication and symmetrification
-according to the syntax described in <a class="local" href="mcxio.html">mcxio</a>.</p>
+according to the syntax described in <a class="local sibling" href="mcxio.html">mcxio</a>.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-ri"></a><b>-ri</b> (<i>&lt;max|add|mul&gt;</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -457,7 +458,7 @@ destination nodes and mcxload automatically creates a source node for each
 line it reads. This option can be useful to read in files encoding a
 clustering, where each line represents a cluster of white-space separated
 labels.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The <b>-235</b> options are similar except that the input is not
 interpreted as labels but must consist of numbers that explicitly
 specify the matrix to be built.</p>
@@ -466,7 +467,7 @@ specify the matrix to be built.</p>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 The output matrix is written in native binary format &mdash; refer to
-<a class="local" href="mcxio.html">mcxio</a>.</p>
+<a class="local sibling" href="mcxio.html">mcxio</a>.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--debug"></a><b>--debug</b> (<i>debug</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -484,11 +485,11 @@ Stijn van Dongen.</p>
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
 <p style="margin-top:0em; margin-bottom:0em">
-<a class="local" href="mcxio.html">mcxio</a>,
-<a class="local" href="mcxdump.html">mcxdump</a>,
-<a class="local" href="mcl.html">mcl</a>,
-<a class="local" href="mclfaq.html">mclfaq</a>,
-and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+<a class="local sibling" href="mcxio.html">mcxio</a>,
+<a class="local sibling" href="mcxdump.html">mcxdump</a>,
+<a class="local sibling" href="mcl.html">mcl</a>,
+<a class="local sibling" href="mclfaq.html">mclfaq</a>,
+and <a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.</p>
 </body>
 </html>

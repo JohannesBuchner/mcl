@@ -293,13 +293,15 @@
 \end{itemize}
 
 \sec{author}{AUTHOR}
-\par
+\par{
    Stijn van Dongen.
+   }
 
 \sec{seealso}{SEE ALSO}
-\par
+\par{
    \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
+   }
 
 \end{pud::man}
 

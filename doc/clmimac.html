@@ -4,7 +4,7 @@
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
-/* START zsd.base.css */
+/* START aephea.base.css */
 body
 { text-align: justify;
 margin-left: 8%;
@@ -66,15 +66,16 @@ text-align: right;
 { position: relative;
 margin-left: 3em;
 }
-/* END zsd.base.css */
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
 </style>
 <title>The clm imac manual</title>
 </head>
 <body>
 <p style="text-align:right">
-1 Jul 2009&nbsp;&nbsp;&nbsp;
+18 Sep 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="clmimac.ps"><b>clm imac</b></a>
-1.008, 09-182
+1.008, 09-261
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -105,21 +106,21 @@ margin-left: 3em;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 clm imac &mdash; Interpret Matrices (c.q. MCL iterands output by <b>mcl</b>) As Clusterings.</p>
-<p style="margin-bottom:0">clmimac is not in actual fact a program. This manual
+<p style="margin-bottom:0" class="asd_par">clmimac is not in actual fact a program. This manual
 page documents the behaviour and options of the clm program when
 invoked in mode <i>imac</i>. The options <b>-h</b>, <b>--apropos</b>,
 <b>--version</b>, <b>-set</b>, <b>--nop</b> are accessible
 in all <b>clm</b> modes. They are described
-in the <a class="local" href="clm.html">clm</a> manual page.</p>
+in the <a class="local sibling" href="clm.html">clm</a> manual page.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>clm imac</b> -imx &lt;fname&gt; [options]
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>clm imac</b>
 <a class="intern" href="#opt-imx"><b>-imx</b> fname (<i>input file</i>)</a>
 <a class="intern" href="#opt-o"><b>[-o</b> fname (<i>name/stem for output</i>)<b>]</b></a>
@@ -134,10 +135,10 @@ in the <a class="local" href="clm.html">clm</a> manual page.</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Use <b>clm imac</b> to interpret matrices (as clusterings) output by <b>mcl</b> using
 <b>mcl</b>'s <b>-dump</b>&nbsp;<b>ite</b> option.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Use <b>clm imac</b> only if you have a special reason; the normal usage
 of <b>mcl</b> is to do multiple runs for varying <b>-I</b> parameters
 and use the clusterings output by <b>mcl</b> itself.
@@ -175,7 +176,7 @@ Write the DAG (directed acyclic graph) constructed from the input to
 file. This DAG is constructed according to the structure associated
 with diagonally positive semi-definite matrices as described
 in the PhD thesis <i>Graph clustering by flow simulation</i>.
-Consult <a class="local" href="mclfamily.html">mclfamily</a> for references.</p>
+Consult <a class="local sibling" href="mclfamily.html">mclfamily</a> for references.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-sort"></a><b>-sort</b> str (<i>size|revsize|lex|none</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -197,13 +198,13 @@ parts excised and introduced as clusters in their own right.
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Stijn van Dongen.</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0">
-<a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+<p style="margin-bottom:0" class="asd_par">
+<a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.</p>
 </body>
 </html>

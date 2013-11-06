@@ -77,6 +77,9 @@ typedef struct
  *   NWrite           |
  *                    |
  *           Append,Insert,Delete,PrintSplice
+
+ * TODO
+ *    the library should be able to deal with embedded \0's. Really.
 */
 
 

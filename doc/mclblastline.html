@@ -4,7 +4,7 @@
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
-/* START zsd.base.css */
+/* START aephea.base.css */
 body
 { text-align: justify;
 margin-left: 8%;
@@ -66,15 +66,16 @@ text-align: right;
 { position: relative;
 margin-left: 3em;
 }
-/* END zsd.base.css */
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
 </style>
 <title>The mclblastline manual</title>
 </head>
 <body>
 <p style="text-align:right">
-1 Jul 2009&nbsp;&nbsp;&nbsp;
+18 Sep 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mclblastline.ps"><b>mclblastline</b></a>
-1.008, 09-182
+1.008, 09-261
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -109,21 +110,21 @@ margin-left: 3em;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 mclblastline &mdash; a pipeline for clustering from BLAST files.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
 <p style="margin-top:0em; margin-bottom:0em">
 <b>mclblastline</b> file-name</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mclblastline</b> [deblast options] [pipeline options] file-name</p>
 <p style="margin-bottom:0"><b>NOTE</b><br>
 <b>mcl</b> has acquired the ability to proceed from label input
 as produced by <b>mcxdeblast</b>. This enables a very lightweight
 mechanism of generating clusterings from BLAST files.
 You might want to use this mechanism,
-documented in the <a class="local" href="mcl.html">mcl manual</a>.</p>
+documented in the <a class="local sibling" href="mcl.html">mcl manual</a>.</p>
 <p style="margin-bottom:0"><b>NOTE</b><br>
 mclblastline used to require (given default parameters)
 the presence of the <b>zoem</b> macro processor to produce detailed output.
@@ -139,8 +140,8 @@ In that case, zoem obviously has to be installed.</p>
 <b>--parser</b>=<i>app</i>
 and <b>--parser-tag</b>=<i>str</i> options, setting them respectively
 to <i>mcxdeblast</i> and <i>blast</i>. This tells
-<a class="local" href="mclpipeline.html">mclpipeline</a> to use
-<a class="local" href="mcxdeblast.html">mcxdeblast</a> as the parse script in its pipeline.
+<a class="local sibling" href="mclpipeline.html">mclpipeline</a> to use
+<a class="local sibling" href="mcxdeblast.html">mcxdeblast</a> as the parse script in its pipeline.
 The significance of
 the <i>blast</i> tag is that any mcxdeblast option can be passed through
 mclblastline and mclpipeline by inserting this tag into the option.
@@ -148,17 +149,17 @@ For example, mcxdeblast accepts the <b>--score</b>=<i>x</i> option.
 When using mclblastline, you specify it as <b>--blast-score</b>=<i>x</i>.
 There are two exceptions to this rule, namely the
 <b>--xi-dat</b>=<i>str</i> and <b>--xo-dat</b>=<i>str</i> options. Refer to
-the <a class="local" href="mclpipeline.html">mclpipeline</a> manual for more information.</p>
-<p style="margin-bottom:0">
-Additionally, all mclpipeline options are acceptable to <a class="local" href="mcxdeblast.html">mcxdeblast</a> as
+the <a class="local sibling" href="mclpipeline.html">mclpipeline</a> manual for more information.</p>
+<p style="margin-bottom:0" class="asd_par">
+Additionally, all mclpipeline options are acceptable to <a class="local sibling" href="mcxdeblast.html">mcxdeblast</a> as
 well. The <b>--whatif</b> is useful for getting a feel for the pipeline.
 The <b>--mcl-I</b>=<i>f</i> inflation option and <b>--mcl-scheme</b>=<i>i</i> scheme
 index options are your basic means for respectively manipulating cluster
-granularity and allocating resources. Read the <a class="local" href="mcl.html">mcl</a> manual entries for
+granularity and allocating resources. Read the <a class="local sibling" href="mcl.html">mcl</a> manual entries for
 a description of the corresponding <b>-I</b> and <b>-scheme</b> mcl
 options.</p>
-<p style="margin-bottom:0">
-The best advice is to glance over the <a class="local" href="mcxdeblast.html">mcxdeblast</a> and <a class="local" href="mclpipeline.html">mclpipeline</a>
+<p style="margin-bottom:0" class="asd_par">
+The best advice is to glance over the <a class="local sibling" href="mcxdeblast.html">mcxdeblast</a> and <a class="local sibling" href="mclpipeline.html">mclpipeline</a>
 options in order to get a feeling for which of those may come in handy for
 you. Then start experimenting. Use the <b>--whatif</b> option, it will
 tell you what would happen without actually doing it.</p>
@@ -166,7 +167,7 @@ tell you what would happen without actually doing it.</p>
 <a name="options"></a>
 <h2>OPTIONS</h2>
 <p style="margin-top:0em; margin-bottom:0em">
-All <a class="local" href="mcxdeblast.html">mcxdeblast</a> and <a class="local" href="mclpipeline.html">mclpipeline</a> options.
+All <a class="local sibling" href="mcxdeblast.html">mcxdeblast</a> and <a class="local sibling" href="mclpipeline.html">mclpipeline</a> options.
 mcxdeblast options must be passed using the mechanism described above.</p>
 
 <a name="examples"></a>
@@ -193,7 +194,7 @@ In this case its file will be named <tt>myblastfile.sym</tt>.
 The subsequent runs use this matrix.
 <b>CAVEAT</b> there are some options that you need to repeat
 when executing such a resumed run. They are clearly marked
-in the <a class="local" href="mclpipeline.html">mclpipeline</a> manual - namely those options
+in the <a class="local sibling" href="mclpipeline.html">mclpipeline</a> manual - namely those options
 that affect names of (intermediate) files. Most importantly,
 this concerns the mclpipeline options that have prefix
 <b>--xo</b> or <b>--xi</b>. For example,</p>
@@ -204,19 +205,19 @@ this concerns the mclpipeline options that have prefix
    mclblastline --start-mcl --xo-dat=b --mcl-I=2.4 myblastfile
    mclblastline --start-mcl --xo-dat=b --mcl-I=2.8 myblastfile
    etc ..</pre>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 In this case, the matrix file will be named <tt>myblastfile.b.sym</tt>,
 and the <b>--xo-dat</b> options must be repeated in all runs
 so that the pipeline reconstructs the correct file name(s).</p>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Stijn van Dongen</p>
 
 <a name="sealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0">
-<a class="local" href="mcxdeblast.html">mcxdeblast</a>, <a class="local" href="mclpipeline.html">mclpipeline</a>, <a class="local" href="mcxassemble.html">mcxassemble</a>.</p>
+<p style="margin-bottom:0" class="asd_par">
+<a class="local sibling" href="mcxdeblast.html">mcxdeblast</a>, <a class="local sibling" href="mclpipeline.html">mclpipeline</a>, <a class="local sibling" href="mcxassemble.html">mcxassemble</a>.</p>
 </body>
 </html>

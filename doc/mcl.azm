@@ -57,9 +57,9 @@ by white space.  The most basic example of usage is this:}
       \genoptref{-strict-tab}{fname-map}}
 
 \par{
-   Here \genopt{-strict-tab} tells mcl that the input should not contain
-   labels other than found in the file \genopt{fname-map}. It is possible to
-   relax this by using \genoptref{-restrict-tab}{fname-map} or
+   Here \genopt{-strict-tab} tells mcl that the input should not contain native
+   identifiers other than found in the file \genopt{fname-map}. It is possible
+   to relax this by using \genoptref{-restrict-tab}{fname-map} or
    \genoptref{-extend-tab}{fname-map}.}
 
 \par{
@@ -537,7 +537,11 @@ label format and the addition of the \genoptref{--abc} option.}
    weakened. The different types of characteristics that can be regulated
    are}
 
-\begin{itemize}{{flow}{compact}{interitem}{0}}
+\begin{itemize}{
+   {flow}{compact}
+   {interitem}{0}
+   {textindent}{4}
+}
 \item{\bf{vl}}   value low - nodes for which the average value of its edges
             is low compared with the same number across its neighbours.
 \item{\bf{vh}}   value high - nodes for which the average value of its edges
@@ -548,7 +552,7 @@ label format and the addition of the \genoptref{--abc} option.}
             is high compared with the same number across its neighbours.
 \end{itemize}   
 
-\car{The characteristics above, e.g. \bf{vl}, correspond to the modes
+\par{The characteristics above, e.g. \bf{vl}, correspond to the modes
    that can be passed to the \genopt{-shadow} argument.  The first mode \bf{vl}
    is the one most likely to be useful.  Combining different modes is possible
    but may lead to unbalanced clusterings.  Using the mode \bf{el} in \mclcm

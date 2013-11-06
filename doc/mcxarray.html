@@ -4,7 +4,7 @@
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
-/* START zsd.base.css */
+/* START aephea.base.css */
 body
 { text-align: justify;
 margin-left: 8%;
@@ -66,15 +66,16 @@ text-align: right;
 { position: relative;
 margin-left: 3em;
 }
-/* END zsd.base.css */
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
 </style>
 <title>The mcxarray manual</title>
 </head>
 <body>
 <p style="text-align:right">
-1 Jul 2009&nbsp;&nbsp;&nbsp;
+18 Sep 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxarray.ps"><b>mcxarray</b></a>
-1.008, 09-182
+1.008, 09-261
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -105,14 +106,14 @@ margin-left: 3em;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 mcxarray &mdash; Transform array data to MCL matrices</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxarray</b> [options]</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxarray</b>
 <a class="intern" href="#opt-data"><b>[-data</b> fname (<i>input data file</i>)<b>]</b></a>
 <a class="intern" href="#opt-skipr"><b>[-skipr</b> &lt;num&gt; (<i>skip &lt;num&gt; data rows</i>)<b>]</b></a>
@@ -127,11 +128,10 @@ mcxarray &mdash; Transform array data to MCL matrices</p>
 <a class="intern" href="#opt-cutoff"><b>[-cutoff</b> num (<i>cutoff for output values</i>)<b>]</b></a>
 <a class="intern" href="#opt-gq"><b>[-gq</b> num (<i>ignore input smaller than</i>)<b>]</b></a>
 <a class="intern" href="#opt-lq"><b>[-lq</b> num (<i>ignore input larger than</i>)<b>]</b></a>
-<a class="intern" href="#opt--transpose"><b>[--transpose</b> (<i>work with the transpose</i>)<b>]</b></a>
+<a class="intern" href="#opt--transpose"><b>[--transpose</b> (<i>work with the transposed data matrix</i>)<b>]</b></a>
 <a class="intern" href="#opt--cosine"><b>[--cosine</b> (<i>use cosine</i>)<b>]</b></a>
 <a class="intern" href="#opt--pearson"><b>[--pearson</b> (<i>use Pearson correlation (default)</i>)<b>]</b></a>
 <a class="intern" href="#opt-tear"><b>[-tear</b> num (<i>inflate input columns</i>)<b>]</b></a>
-<a class="intern" href="#opt-teartp"><b>[-teartp</b> num (<i>inflate tranposed columns</i>)<b>]</b></a>
 <a class="intern" href="#opt-pi"><b>[-pi</b> num (<i>inflate the result</i>)<b>]</b></a></p>
 <a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print this help</i>)<b>]</b></a>
 <a class="intern" href="#opt-h"><b>[-h</b> (<i>print this help</i>)<b>]</b></a>
@@ -139,7 +139,7 @@ mcxarray &mdash; Transform array data to MCL matrices</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxarray</b> can either read a flat file containing array data (<b>-data</b>)
 or a matrix file satisfying the mcl input format (<b>-imx</b>). In the
 former case it will by default work with the rows as the data vectors. In
@@ -244,12 +244,6 @@ data columns.</p>
 Apply (column-wise) inflation with parameter <i>num</i> to the input
 values before further processing.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-teartp"></a><b>-teartp</b> num (<i>inflate tranposed columns</i>)</div></div>
-<div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
-Apply (column-wise) inflation with parameter <i>num</i> to the input
-values in the transposed matrix before further processing.</p>
-</div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-pi"></a><b>-pi</b> num (<i>inflate the result</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
@@ -265,15 +259,15 @@ Apply inflation with parameter <i>num</i> to the output values.</p>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Stijn van Dongen.</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0">
-<a class="local" href="mcl.html">mcl</a>,
-<a class="local" href="mclfaq.html">mclfaq</a>,
-and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+<p style="margin-bottom:0" class="asd_par">
+<a class="local sibling" href="mcl.html">mcl</a>,
+<a class="local sibling" href="mclfaq.html">mclfaq</a>,
+and <a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.</p>
 </body>
 </html>

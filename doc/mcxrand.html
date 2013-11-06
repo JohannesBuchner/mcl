@@ -4,7 +4,7 @@
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
-/* START zsd.base.css */
+/* START aephea.base.css */
 body
 { text-align: justify;
 margin-left: 8%;
@@ -66,15 +66,16 @@ text-align: right;
 { position: relative;
 margin-left: 3em;
 }
-/* END zsd.base.css */
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
 </style>
 <title>The mcxrand manual</title>
 </head>
 <body>
 <p style="text-align:right">
-1 Jul 2009&nbsp;&nbsp;&nbsp;
+18 Sep 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxrand.ps"><b>mcxrand</b></a>
-1.008, 09-182
+1.008, 09-261
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -101,21 +102,21 @@ margin-left: 3em;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 mcxrand &mdash; random shuffling, removal, addition, and perturbation of edges of graphs</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxrand</b> [options]
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <pre>mcxrand -gen K -add N -new-g-mean f    # random graph on K nodes, N edges
 mcxrand -imx &lt;name&gt; -remove N -add N   # remove then add edges
 mcxrand -imx &lt;name&gt; -shuffle N         # shuffle N edge pairs
 mcxrand -imx &lt;name&gt; -noise-radius f    # add noise to add weights</pre>
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxrand</b>
 <a class="intern" href="#opt-imx"><b>[-imx</b> &lt;fname&gt; (<i>input matrix</i>)<b>]</b></a>
 <a class="intern" href="#opt-o"><b>[-o</b> &lt;fname&gt; (<i>output matrix to &lt;fname&gt;</i>)<b>]</b></a>
@@ -142,21 +143,21 @@ mcxrand -imx &lt;name&gt; -noise-radius f    # add noise to add weights</pre>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 This utility is a recent addition to the mcl suite and the schemes
 explained below will likely be evolved, simplified, and extended
 with future releases.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The input graph/matrix, if specified with the <b>-imx</b> option,
 has to be in mcl matrix/graph format.
 You can use label input instead by preprocessing the label input
-with <a class="local" href="mcxload.html">mcxload</a>, i.e.</p>
+with <a class="local sibling" href="mcxload.html">mcxload</a>, i.e.</p>
 <pre>   mcxload -abc &lt;label-file&gt; | mcxrand [options]</pre>
-<p style="margin-bottom:0">
-Refer to <a class="local" href="mcxio.html">mcxio</a> for a description of these two input formats.
+<p style="margin-bottom:0" class="asd_par">
+Refer to <a class="local sibling" href="mcxio.html">mcxio</a> for a description of these two input formats.
 By default <b>mcxrand</b> reads from STDIN. Change this with the <a class="intern" href="#opt-imx"><b>-imx</b></a>
 option.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxrand</b> can randomly remove and add edges to a graph, or add gaussian noise
 to the edge weights of a graph. It can also shuffle edge pairs while
 preserving the degree sequence of the graph.
@@ -165,25 +166,25 @@ In <i>removal mode</i> (<a class="intern" href="#opt-remove"><b>-remove</b>&nbsp
 <b>mcxrand</b> enforces arc symmetry by only working with edges
 <i>w(i,j)</i> where <i>i &lt; j</i> and symmetrifying the result and adding any
 loops that were present in the input graph just before the output stage.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 In <i>perturbation mode</i> (<a class="intern" href="#opt-noise-radius"><b>-noise-radius</b></a>, with no other mode specified)
 the input can be any graph.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <i>Shuffle mode</i> (<a class="intern" href="#opt-shuffle"><b>-shuffle</b>&nbsp;<i>&lt;num&gt;</i></a>) requires an undirected graph
 but will only fail when it picks an arc for which the arc in the reverse
 direction is not present. This means it may or may not fail on directed
 input depending on the random choices. It does not check equality of the two
 arc weights and randomly picks one to represent the edge weight.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Edge removal, edge creation, and edge perturbation are applied in this order
 if both are specified. Edge shuffling presently cannot be combined with one
 of the previous modes.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 A random graph can be generated with <a class="intern" href="#opt-gen"><b>-gen</b>&nbsp;<i>k</i></a>, which
 specifies the number of nodes the graph should have. It is equivalent
 with pasing (the file name of) an empty graph of the same dimensions as the argument
 to <b>-imx</b>.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 When adding (i.e. creating) edges, the default is to use the uniform
 distribution for new edge weights ranging in some interval.
 The default interval is [0,1] and can be modified using the
@@ -198,7 +199,7 @@ lie within the interval <i>[L,R]</i> if and only if
 <a class="intern" href="#opt-new-g-min"><b>-new-g-min</b>&nbsp;<i>L</i></a> and <a class="intern" href="#opt-new-g-max"><b>-new-g-max</b>&nbsp;<i>R</i></a> have
 been specified.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 For both uniform and Gaussian edge creation the edge weights
 can be skewed towards either side of the distribution with
 <a class="intern" href="#opt-skew"><b>-skew</b>&nbsp;<i>c</i></a>. Skewing is applied by mapping
@@ -210,7 +211,7 @@ weights towards the left bound.
 This is a rather crude approach that will likely be
 changed in the future.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Edge weights can be perturbed by specifying <a class="intern" href="#opt-noise-radius"><b>-noise-radius</b>&nbsp;<i>radius</i></a>.
 This sets the maximum perturbation allowed. Noise is generated with
 a standard deviation that is by default set to 0.5 and can be altered
@@ -296,9 +297,9 @@ See the discussion in <a class="intern" href="#description">DESCRIPTION</a>.</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0">
-<a class="local" href="mcxio.html">mcxio</a>,
-and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+<p style="margin-bottom:0" class="asd_par">
+<a class="local sibling" href="mcxio.html">mcxio</a>,
+and <a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.</p>
 </body>
 </html>

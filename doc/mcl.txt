@@ -36,9 +36,9 @@ mcl(1)                          USER COMMANDS                           mcl(1)
          mcl <-|fname> --yield-abc -o fname-out\
             -strict-tab fname-map
 
-      Here  -strict-tab  tells  mcl  that  the input should not contain labels
-      other than found in the file fname-map. It is possible to relax this  by
-      using -restrict-tab fname-map or -extend-tab fname-map.
+      Here  -strict-tab  tells  mcl  that  the input should not contain native
+      identifiers other than found in the file fname-map. It  is  possible  to
+      relax this by using -restrict-tab fname-map or -extend-tab fname-map.
 
       Label  mode  is very convenient for easy and fast exploration. A decided
       advantage of full native mode (where both graph input and cluster output
@@ -374,14 +374,15 @@ mcl(1)                          USER COMMANDS                           mcl(1)
         with the extent to which its connectivity is weakened.  The  different
         types of characteristics that can be regulated are
 
-        vlvalue  low  -  nodes for which the average value of its edges is low
-          compared with the same number across its neighbours.
-        vhvalue high - nodes for which the average value of its edges is  high
-          compared with the same number across its neighbours.
-        eledge  low - nodes for which the number of neighbours is low compared
-          with the same number across its neighbours.
-        ehedge high - nodes for which the number of neighbours  is  high  com-
-          pared with the same number across its neighbours.
+        vl  value  low - nodes for which the average value of its edges is low
+            compared with the same number across its neighbours.
+        vh  value high - nodes for which the average value  of  its  edges  is
+            high compared with the same number across its neighbours.
+        el  edge  low  -  nodes for which the number of neighbours is low com-
+            pared with the same number across its neighbours.
+        eh  edge high - nodes for which the number of neighbours is high  com-
+            pared with the same number across its neighbours.
+
         The  characteristics  above, e.g. vl, correspond to the modes that can
         be passed to the -shadow argument. The first mode vl is the  one  most
         likely  to  be  useful.  Combining different modes is possible but may
@@ -525,8 +526,8 @@ mcl(1)                          USER COMMANDS                           mcl(1)
         The PRUNING OPTIONS section contains an elaborate description  of  the
         way  mcl manages resources, should you be interested.  In case you are
         worried  about  the  validation  of  the  resulting  clusterings,  the
-        mclfaq(7)  section  has  several  entries  discussing  this issue. The
-        bottom line is that you have to compare the clusterings resulting from
+        mclfaq(7)  section has several entries discussing this issue. The bot-
+        tom line is that you have to compare the  clusterings  resulting  from
         different schemes (and otherwise identical parameters) using utilities
         such as clm dist, clm info on the one hand, and your own  sound  judg-
         ment on the other hand.
@@ -591,9 +592,9 @@ mcl(1)                          USER COMMANDS                           mcl(1)
         number  of outgoing arcs per node (as an average), the number of clus-
         ters in the overlapping clustering associated with  the  iterand,  the
         number  of nodes in overlap, and the dag depth associated with the DAG
-        (directed  acyclic  graph)  associated  with  the  iterand.  For  more
-        information  on this DAG refer to the -dump option description in this
-        manual and also mclfaq(7).
+        (directed acyclic graph) associated with the iterand. For more  infor-
+        mation  on this DAG refer to the -dump option description in this man-
+        ual and also mclfaq(7).
 
       -aa str (append str to suffix)
         See the -ap option below.
@@ -1119,8 +1120,8 @@ mcl(1)                          USER COMMANDS                           mcl(1)
       mclpipeline manual page.
 
       For   BLAST   input,   the  mclblastline  script  provides  a  dedicated
-      mclpipeline  interface.  It  uses  the  mcxdeblast  script  that   comes
-      prepackaged with mcl.
+      mclpipeline interface. It uses the mcxdeblast script that comes prepack-
+      aged with mcl.
 
   EXAMPLES
       The following is an example of label input
@@ -1380,4 +1381,4 @@ mcl(1)                          USER COMMANDS                           mcl(1)
 
 
 
-  mcl 1.008, 09-182                 1 Jul 2009                            mcl(1)
+  mcl 1.008, 09-261                 18 Sep 2009                           mcl(1)

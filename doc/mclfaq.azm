@@ -1,6 +1,6 @@
-\import{ref.zmm}
+\import{aephea/ref.zmm}
 \import{mcx.zmm}
-\import{faq.zmm}
+\import{pud/faq.zmm}
 
 \begin{pud::man}{
 

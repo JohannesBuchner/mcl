@@ -4,7 +4,7 @@
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
-/* START zsd.base.css */
+/* START aephea.base.css */
 body
 { text-align: justify;
 margin-left: 8%;
@@ -66,15 +66,16 @@ text-align: right;
 { position: relative;
 margin-left: 3em;
 }
-/* END zsd.base.css */
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
 </style>
 <title>The mcxi manual</title>
 </head>
 <body>
 <p style="text-align:right">
-1 Jul 2009&nbsp;&nbsp;&nbsp;
+18 Sep 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxi.ps"><b>mcxi</b></a>
-1.008, 09-182
+1.008, 09-261
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -109,21 +110,21 @@ margin-left: 3em;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 mcx &mdash; a stack language interpreter for interaction with the <b>mcl</b> libraries.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxi</b> (enter interactive mode)
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxi</b> &lt;mcxi expression&gt;
 </p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxi</b> can be used both from the command line and interactively, and supports
 a rich set of operations such as transposition, scaling, column scaling,
 multiplication, Hadamard powers and products, et cetera. It has variables,
@@ -154,7 +155,7 @@ example of implementing and using <b>mcl</b> in this language.
 Somewhat misleadingly, '#' is not recognized as a comment
 symbol by <b>mcxi</b>, so don't use it (yet).
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxi</b> has quite a lot of primitives, and they are not all explained in here.
 However, <b>mcxi</b> has several help facilities. <b>mcxi</b>'s munge modes (command
 line, interactive, and file) are discussed first, followed by some syntactic
@@ -170,7 +171,7 @@ And for the record, <b>mcxi</b> has <b>lt</b>, <b>lq</b>, <b>eq</b>, <b>gq</b>, 
 In the grandiloquently named <a class="intern" href="#index">INDEX</a> section, you find a list
 of all current <b>mcxi</b> primitives.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 First, there is no difference as far as <b>mcxi</b> is concerned whether
 you give it a bunch of operators and operands directly from the command
 line, or whether you do it in interactive mode. Interactive mode is
@@ -183,21 +184,21 @@ single line. For non-batch processing, interactive mode is the safest,
 because <b>mcxi</b> will simply refuse to carry out impossible operations,
 whereas in command line mode it will exit.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 In interactive mode, <b>mcxi</b> will by default list the stack after each line you
 type. This is verbosity level 1. There are four verbosity levels, namely 0,
 1, 2, and 3 (in increasingly verbose order). Set the level with the <b>vb</b>
 primitive. Verbosity control is still a bit crude, this is one of the areas
 in which <b>mcxi</b> will be improved.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 There is another <b>mcxi</b> munge mode which is entered when reading files
 with the <b>lf</b> (load file) primitive. This mode is not line-based,
 the whole file is interpreted in one go &mdash; there is little
 difference with line-based mode. Beware though, it is currently
 not possible (nor necessary) to escape newlines in files.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Currently, <b>mcxi</b> parses lines of text into atoms in an extremely
 straightforward way: Whitespace is the only separator, and it is always a
 separator. This has as a consequence that the block delimiters <b>{</b> and
@@ -205,14 +206,14 @@ separator. This has as a consequence that the block delimiters <b>{</b> and
 consequence is that strings cannot contain white spaces. Both these
 conditions may be relaxed in the future though.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Strings are always entered
 with a leading slash, and anything with a leading slash is a string, so
 <tt>/this</tt> is a string. Currently, the double quote has no special
 meaning, but it may acquire meaning in the future, especially as in
 <tt>/"maybe the mcxi future will be brighter"</tt>.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Variables names are always entered with a leading dot, and anything with a
 leading dot is a variable name. Variables are implicitly typed by the
 object to which they are bound. There is no support for arrays (yet).
@@ -220,7 +221,7 @@ If variables are used, as in <tt>.x .y add</tt>, only the names of
 the variables are popped, and the binding between the names and their
 values stays intact.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 There are some operators that do in-place modification of the object that
 they act on, such as <tt>infl</tt> (inflation). Currently, these are all
 operators acting on matrices. When presented with a variable,
@@ -229,7 +230,7 @@ In the built-in documentation strings (accessible with <b>help</b>
 and <b>grep</b>), such in-place modification is denoted with
 a prime as in <tt>&lt;m&gt; -&gt; &lt;m'&gt;</tt>.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>dup</b> can be used to duplicate objects. In case of variables,
 this will be a copy of the variable name. If one occurrence is
 used to free the associated object by some operator, all other
@@ -238,7 +239,7 @@ instances of the variable become <i>stale</i>.
 handles in the stack listing. <b>copy</b> can be used to copy the
 object associated with a variable.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxi</b> is/interprets a stack language. In order to add 1 and 2 you need to
 write <tt>1 2 add</tt>. When add is evaluated, it removes the previous two
 items from the stack and replaces it with their sum, in this case the
@@ -422,12 +423,12 @@ Empty the stack. All objects bound to variables are unaffected.
 
 <a name="index"></a>
 <h2>INDEX</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 This is a list of all <b>mcxi</b>'s primitives, including aliases.
 Do 'mcxi /&lt;op&gt; help' to see a short descriptive string, where &lt;op&gt;
 is one of the primitives below (remember, strings need a leading slash).
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>add</b> <b>addto</b> <b>cdim</b> <b>ch</b> <b>clear</b> <b>copy</b> <b>def</b> <b>dgt</b>
 <b>dim</b> <b>div</b> <b>do</b> <b>dup</b> <b>eq</b> <b>exch</b> <b>free</b> <b>gq</b>
 <b>grep</b> <b>gt</b> <b>hdm</b> <b>hdp</b> <b>help</b> <b>id</b> <b>ifelse</b> <b>imac</b>
@@ -441,14 +442,14 @@ is one of the primitives below (remember, strings need a leading slash).
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Stijn van Dongen.
 </p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0">
-<a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+<p style="margin-bottom:0" class="asd_par">
+<a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 </p>
 and the utilities in the mcl family.
 </body>

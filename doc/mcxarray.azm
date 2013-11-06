@@ -37,11 +37,10 @@
    \synoptopt{-cutoff}{num}{cutoff for output values}
    \synoptopt{-gq}{num}{ignore input smaller than}
    \synoptopt{-lq}{num}{ignore input larger than}
-   \synoptopt{--transpose}{work with the transpose}
+   \synoptopt{--transpose}{work with the transposed data matrix}
    \synoptopt{--cosine}{use cosine}
    \synoptopt{--pearson}{use Pearson correlation (default)}
    \synoptopt{-tear}{num}{inflate input columns}
-   \synoptopt{-teartp}{num}{inflate tranposed columns}
    \synoptopt{-pi}{num}{inflate the result}}
    \synoptopt{--apropos}{print this help}
    \synoptopt{-h}{print this help}
@@ -140,11 +139,6 @@
 \car{
    Apply (column-wise) inflation with parameter \genarg{num} to the input
    values before further processing.}
-
-\item{\defopt{-teartp}{num}{inflate tranposed columns}}
-\car{
-   Apply (column-wise) inflation with parameter \genarg{num} to the input
-   values in the transposed matrix before further processing.}
 
 \item{\defopt{-pi}{num}{inflate the result}}
 \car{

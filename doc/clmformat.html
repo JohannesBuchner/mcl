@@ -4,7 +4,7 @@
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
-/* START zsd.base.css */
+/* START aephea.base.css */
 body
 { text-align: justify;
 margin-left: 8%;
@@ -66,15 +66,16 @@ text-align: right;
 { position: relative;
 margin-left: 3em;
 }
-/* END zsd.base.css */
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
 </style>
 <title>The clmformat manual</title>
 </head>
 <body>
 <p style="text-align:right">
-1 Jul 2009&nbsp;&nbsp;&nbsp;
+18 Sep 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="clmformat.ps"><b>clmformat</b></a>
-1.008, 09-182
+1.008, 09-261
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">2.</div></div>
@@ -109,18 +110,18 @@ margin-left: 3em;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 clm format &mdash; display cluster results in readable form</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 (optionally with labels and/or cohesion and stickiness measures
 attached).
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Unless used with the <b>-dump</b>&nbsp;<i>fname</i> or <b>--dump</b> option,
 <b>clm format</b> depends on the presence of the macro processor <b>zoem</b>, as
 described further below.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The <b>-icl</b>&nbsp;<i>fname</i> input clustering option is always required. The
 <b>-imx</b>&nbsp;<i>fname</i> input matrix option is required in fancy mode. The tab
 file option <b>-tab</b>&nbsp;<i>fname</i> is needed if you want label information in
@@ -129,7 +130,7 @@ the output rather than mcl identifiers.
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>clm format</b> has two different modes of output: <i>dump</i> and <i>fancy</i>.
 If neither is specified, <i>fancy</i> is used. In this mode, <b>clm format</b>
 generates a large arrary of performance measures related to nodes and
@@ -138,7 +139,7 @@ will be contained in an output directory that is newly created if not yet
 existing. In fancy mode the <b>-imx</b> option is required and the macro
 processor <b>zoem</b> must be available (<a class="extern" href="http://micans.org/zoem">http://micans.org/zoem</a>).
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 If <i>dump</i> is specified (see below how to do this) <b>clm format</b> just
 generates a dump file where each line
 contains a cluster in the form of tab-separated indices, or tab-separated
@@ -149,13 +150,13 @@ by supplying <b>--dump-measures</b>. Use
 <b>-dump</b>&nbsp;<i>fname</i> to specify the name of the file to dump to, rather
 than having <b>clm format</b> construct a file name by itself.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>clm format</b> can combine the both modes by using either <b>--dump</b> or
 <b>-dump</b>&nbsp;<i>fname</i> <i>and</i> <b>--fancy</b>. In this case the dump file
 will be created in the output directory that is used by <i>fancy</i> mode.
 </p>
-<p style="margin-bottom:0"><b>clm format</b></p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par"><b>clm format</b></p>
+<p style="margin-bottom:0" class="asd_par">
 <a class="intern" href="#opt-icl"><b>-icl</b> fname (<i>input cluster file</i>)</a>
 <a class="intern" href="#opt-imx"><b>-imx</b> fname (<i>input matrix/graph file</i>)</a>
 <a class="intern" href="#opt-tf"><b>[-tf</b> spec (<i>apply tf-spec to input matrix</i>)<b>]</b></a>
@@ -181,27 +182,27 @@ will be created in the output directory that is used by <i>fancy</i> mode.
 <a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print synopsis, exit</i>)<b>]</b></a>
 <a class="intern" href="#opt--version"><b>[--version</b> (<i>print version, exit</i>)<b>]</b></a>
 </p>
-<p style="margin-bottom:0">Consult the option descriptions and the introduction above for
+<p style="margin-bottom:0" class="asd_par">Consult the option descriptions and the introduction above for
 interdependencies of options.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>clm format</b> generates in fancy mode a logical description of the
 to-be-formatted content in a very small vocabulary of format-specific
 zoem macros. The appearance of the output can be easily changed by adapting
 a zoem macro definition file (also output by <b>clm format</b>) that is used by the
 zoem interpreter to interpret the logical elements.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The output format is apt to change over subsequent releases, as a result of
 user feedback. Such changes will most likely be confined to the zoem macro
 definition file.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The OUTPUT EXPLAINED section further below is likely to be of interest.
 </p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The primary function of <b>clm format</b> is to display cluster results and
 associated confidence measures in a readable form, by listing clusters in
 terms of the labels associated with the indices that are used in the mcl
@@ -214,13 +215,13 @@ You need to have zoem installed in your system if you want <b>clm format</b>
 to be of use. Zoem will not be necessary if you are using
 the <b>-dump</b> option.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The <a class="intern" href="#opt-imx"><b>-imx</b>&nbsp;<i>mx</i></a> option is required
 unless the <b>-dump</b> option is used. The latter option
 results in special behaviour described under the
 <a class="intern" href="#opt-dump"><b>-dump</b>&nbsp;<i>fname</i></a> entry.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Output is by default written in a directory that
 is newly created if it does not yet exist (normally several files
 will be created, for which the directory acts as a natural container).
@@ -232,7 +233,7 @@ normally write two files. One contains zoem macros encoding formatted output
 (the encoding file), and the second (the definition file) contains zoem
 macro definitions which are used by the former.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The encoding file is by default called <tt>fmt.azm</tt>
 (cf. the <a class="intern" href="#opt-fmt"><b>-fmt</b>&nbsp;<i>fname</i></a> option).
 It contains <i>zoem</i> macros. It imports the macro definition file
@@ -243,7 +244,7 @@ option. In this case <b>clm format</b> will refrain from writing the definition
 file and replace mentions of <tt>clmformat.zmm</tt> in the encoding file
 by <tt>&lt;defsname&gt;</tt>.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The encoding file needs to be processed by issuing one of the following
 commands from within the directory where the file is located.
 </p>
@@ -254,7 +255,7 @@ The first will result in HTML formatted output, the second in
 plain text format. Obviously, you need to have installed zoem
 (e.g. from <a class="extern" href="http://micans.org/zoem/src/">http://micans.org/zoem/src/</a>) for this to work.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 For each cluster a paragraph is output. First comes a listing of other
 clusters (in order of relevance, possibly empty) for which a significant
 amount of edges exists between the other and the current cluster. Second
@@ -265,12 +266,12 @@ edge weights is significant.
 Several quantities are output for each node/cluster pair that is
 deemed relevant. These are explained in the section OUTPUT EXPLAINED.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Clusters will by default be output to file until the total node count has
 exceeded a threshold (refer to the <a class="intern" href="#opt-lump-count"><b>-lump-count</b>
 option</a>).
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>clm format</b> also shows how well each node fits in the cluster it is in and
 how cohesive each cluster is, using simple but effective measures
 (described in section OUTPUT EXPLAINED).
@@ -298,14 +299,14 @@ Name of the graph/matrix file.
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Transform the input matrix values according
-to the syntax described in <a class="local" href="mcxio.html">mcxio</a>.
+to the syntax described in <a class="local sibling" href="mcxio.html">mcxio</a>.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tab"></a><b>-tab</b> fname (<i>read tab file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 The file <tt>fname</tt> should be in <i>tab format</i>. Refer
-to <a class="local" href="mcxio.html">mcxio</a>.
+to <a class="local sibling" href="mcxio.html">mcxio</a>.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--lazy-tab"></a><b>--lazy-tab</b> (<i>allow mismatched tab-file</i>)</div></div>
@@ -377,7 +378,7 @@ This will cause the efficiency scores to place a higher reward on
 high-weight edges being covered by a clustering (assuming that
 <i>num</i> is larger than one).
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 This option is also useful when <b>mcl</b> itself was instructed to use
 pre-inflation when clustering a graph.
 </p>
@@ -461,7 +462,7 @@ first cluster.
 
 <a name="xpl"></a>
 <h2>OUTPUT EXPLAINED</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 What follows is an explanation of the output provided by the
 standard zoem macros. The output comes in a pretty terse number-packed
 format. The decision was made not to include headers and captions
@@ -470,7 +471,7 @@ You might want to print out the following annotated examples.
 At the same side of the equation, the following is probably tough
 reading unless you have an actual example of clmformatted output at hand.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Below mention is made of the projection value for a node/cluster pair.
 This is simply the total amount of edge weights for that node
 in that cluster (corresponding to neighbours of the node in the
@@ -488,12 +489,12 @@ of large edge weights even more.
 The cov and maxcov performance measures have several nice continuity and
 monotonicity properties and are described in <a class="intern" href="#pcfgcmce">[1]</a>.
 </p>
-<p><b>Example cluster header</b><br>
+<p style="margin-bottom:0"><b>Example cluster header</b><br></p>
 <pre>Cluster 0 sz 15 self 0.82 cov 0.43-0.26
    10: 0.11
    18: 0.05
    12: 0.02</pre>
-<p><b>explanation</b><br>
+<p style="margin-bottom:0"><b>explanation</b><br></p>
 <pre>Cluster 0 sz 15 self 0.82 cov 0.43-0.26
         |    |       |           | |
         clid count   proj      cov covmax
@@ -523,7 +524,7 @@ cluster. The name is as opposed to 'outer node', described below.
     21     7-5      0.73 0.420-0.331  0.282-0.047  0.071-0.035 &lt;3.54&gt;
       10   6/3      0.16 0.071-0.047  0.268-0.442 
       12   4/2      0.11 0.071-0.035  0.296-0.515</pre>
-<p><b>explanation</b><br>
+<p style="margin-bottom:0"><b>explanation</b><br></p>
 <pre>[label]
     21     7-5      0.73 0.420-0.331  0.282-0.047  0.071-0.035 &lt;3.54&gt;
      |     | |      |        | |          | |          | |     |
@@ -561,7 +562,7 @@ cluster, but seems to have substantial connections to that cluster.
 <pre>[zoo eek few]
     29   18#2        2-5      0.65 0.883-0.815  0.436-0.218  0.073-0.055
                       /4      0.27 0.070-0.109  0.073-0.055</pre>
-<p><b>explanation</b><br>
+<p style="margin-bottom:0"><b>explanation</b><br></p>
 <pre>[label]
     29   18#2        2-5      0.65 0.883-0.815  0.436-0.218  0.073-0.055
     |    |  |        | |      |        | |          | |          | |
@@ -644,13 +645,13 @@ of the sum of all edge weights of edges leaving x.
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Stijn van Dongen.
 </p>
 
 <a name="references"></a>
 <h2>REFERENCES</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <a name="pcfgcmce">[1]</a>
 Stijn van Dongen. <i>Performance criteria for graph clustering and Markov
 cluster experiments</i>. Technical Report INS-R0012, National Research
@@ -661,8 +662,8 @@ Amsterdam, May 2000.<br>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0">
-<a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+<p style="margin-bottom:0" class="asd_par">
+<a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
 </p>
 </body>

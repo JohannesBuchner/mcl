@@ -148,11 +148,11 @@ mclv* mcl_get_shadow_turtle_factors
 
       ;  double master_sz     =  v_master->n_ivps
       ;  double lc_sz_avg     =  0.0
-      ;  double lc_gg         =  0.0
+      ;  double lc_gg         =  0.0         /* local gauge */
       ;  double fac_sz        =  1.0
       ;  double fac_final     =  1.0
       ;  double fac_gg        =  1.0
-      ;  double master_gg
+      ;  double master_gg     =  0.0
       ;  mclv* nbhood = NULL
 
       ;  dim j
@@ -166,10 +166,16 @@ mclv* mcl_get_shadow_turtle_factors
 
          ;  master_gg = mclvAvg(v_master)
 
-                                 /* compute weighted averages of
-                                  * node edge value medians and node edge counts
-                                  * in the neighbour(hood) list.
-                                 */
+               /* compute weighted averages of
+                * node edge value averages and node edge counts
+                * in the neighbour(hood) list.
+
+                * nbhood    : the list of neighbours for v_master
+                * nb        : one in the list of neighbours
+                * p         : ivp of the reverse arc from nb to v_master, if present
+                * lc_sz_avg : sum of  { outgoing weight * #neighbours-of-nb }
+                * lc_gg     : sum of  { outgoing weight * avg(outgoing-weight-of-nb) }
+               */
          ;  for (j=0;j<nbhood->n_ivps;j++)
             {  long nb    =   nbhood->ivps[j].idx
                                  /* fixme: canonical dependency */

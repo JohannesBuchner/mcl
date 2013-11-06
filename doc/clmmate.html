@@ -4,7 +4,7 @@
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
-/* START zsd.base.css */
+/* START aephea.base.css */
 body
 { text-align: justify;
 margin-left: 8%;
@@ -66,15 +66,16 @@ text-align: right;
 { position: relative;
 margin-left: 3em;
 }
-/* END zsd.base.css */
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
 </style>
 <title>The clm mate manual</title>
 </head>
 <body>
 <p style="text-align:right">
-1 Jul 2009&nbsp;&nbsp;&nbsp;
+18 Sep 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="clmmate.ps"><b>clm mate</b></a>
-1.008, 09-182
+1.008, 09-261
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -105,18 +106,18 @@ margin-left: 3em;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 clm mate &mdash; compute best matches between two clusterings</p>
-<p style="margin-bottom:0">clmmate is not in actual fact a program. This manual
+<p style="margin-bottom:0" class="asd_par">clmmate is not in actual fact a program. This manual
 page documents the behaviour and options of the clm program when
 invoked in mode <i>mate</i>. The options <b>-h</b>, <b>--apropos</b>,
 <b>--version</b>, <b>-set</b>, <b>--nop</b> are accessible
 in all <b>clm</b> modes. They are described
-in the <a class="local" href="clm.html">clm</a> manual page.</p>
+in the <a class="local sibling" href="clm.html">clm</a> manual page.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>clm mate</b>
 <a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output file name</i>)<b>]</b></a>
 <a class="intern" href="#opt-b"><b>[-b</b> (<i>omit headers</i>)<b>]</b></a>
@@ -129,7 +130,7 @@ in the <a class="local" href="clm.html">clm</a> manual page.</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>clm mate</b> computes for each cluster <tt>X</tt> in <tt>clfile1</tt> all clusters
 <tt>Y</tt> in <tt>clfile2</tt> that have non-empty intersection and outputs
 a line with the data points listed below.</p>
@@ -144,16 +145,16 @@ a line with the data points listed below.</p>
    projection(X, clfile2)     # see below
    projection(Y, clfile1)     # see below
 </pre>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The projected size of a cluster <tt>X</tt> relative to a clustering <tt>K</tt> is
 simply the sum of all the nodes shared between any cluster <tt>Y</tt> in <tt>K</tt>
 and <tt>X</tt>, duplications allowed. For example, the projected size of
 <tt>(0,1)</tt> relative to <tt>{(0,2,4), (1,4,9), (1,3,5)}</tt> equals <tt>3</tt>.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The overlap between <tt>X</tt> and <tt>Y</tt> is exactly
 1.0 if the two clusters are identical, and for nearly identical
 clusterings the score will be close to 1.0.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 All of this information can also be obtained from the
 contingency matrix defined for two clusterings.
 The <tt>[i,j]</tt> row-column entry in a contigency matrix between
@@ -172,7 +173,7 @@ mcx /clfile2 lm /clfile1 lm tp mul /ting wm</pre>
 will create the contingency matrix in mcl matrix format
 in the file <tt>ting</tt>, where columns range over the clusters
 in <tt>clfile1</tt>.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The output can be put to good use by sorting it numerically on
 that first score field. It is advisable to use a stable sort routine
 (use the <b>-s</b> option for UNIX sort)
@@ -199,13 +200,14 @@ that are subset of a cluster in the second file.</p>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p>
+<p style="margin-bottom:0" class="asd_par">
 Stijn van Dongen.
+</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="margin-bottom:0">
-<a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+<p style="margin-bottom:0" class="asd_par">
+<a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
 </p>
 </body>

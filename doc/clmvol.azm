@@ -52,8 +52,9 @@
 
 
 \sec{author}{AUTHOR}
-\par
+\par{
    Stijn van Dongen.
+   }
 
 
 \sec{options}{OPTIONS}

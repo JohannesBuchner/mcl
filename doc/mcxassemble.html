@@ -4,7 +4,7 @@
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
-/* START zsd.base.css */
+/* START aephea.base.css */
 body
 { text-align: justify;
 margin-left: 8%;
@@ -66,15 +66,16 @@ text-align: right;
 { position: relative;
 margin-left: 3em;
 }
-/* END zsd.base.css */
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
 </style>
 <title>The mcxassemble manual</title>
 </head>
 <body>
 <p style="text-align:right">
-1 Jul 2009&nbsp;&nbsp;&nbsp;
+18 Sep 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxassemble.ps"><b>mcxassemble</b></a>
-1.008, 09-182
+1.008, 09-261
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -105,12 +106,12 @@ margin-left: 3em;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 mcxassemble &mdash; transform raw cooccurrence data to mcl matrix format.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxassemble</b>
 <a class="intern" href="#opt-b"><b>-b</b> base (<i>base name</i>)</a>
 <a class="intern" href="#opt-o"><b>[-o</b> fname (<i>write to file fname</i>)<b>]</b></a>
@@ -125,7 +126,7 @@ mcxassemble &mdash; transform raw cooccurrence data to mcl matrix format.</p>
 <a class="intern" href="#opt-sym-tf"><b>[-sym-tf</b> (<i>apply transform spec to symmetrified matrix</i>)<b>]</b></a>
 <a class="intern" href="#opt-q"><b>[-q</b> (<i>quiet mode</i>)<b>]</b></a>
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The options above embody the default setup when using mcxassemble.
 There are many more options which mostly provide subtly different
 ways of doing input/output, set warning levels, or regulate
@@ -135,13 +136,13 @@ Read <a class="intern" href="#description">DESCRIPTION</a> for learning about mc
 and the functionality it provides.
 </p>
 <p style="margin-bottom:0"><b>NOTE</b><br>
-As of release 05-314 <a class="local" href="mcl.html">mcl</a> is able to cluster label-type input
+As of release 05-314 <a class="local sibling" href="mcl.html">mcl</a> is able to cluster label-type input
 on the fly. In most cases, this will be sufficient. Alternatively,
-<a class="local" href="mcxload.html">mcxload</a> can be used to map label-type input onto mcl
+<a class="local sibling" href="mcxload.html">mcxload</a> can be used to map label-type input onto mcl
 matrices. Consequently, there are likely fewer scenarios nowadays
 where <b>mcxassemble</b> is the best solution. Consider first whether
 <b>mcl</b> in label mode or <b>mcxload</b> can do the job as well.</p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxassemble</b>
 <a class="intern" href="#opt-b"><b>[-b</b> base (<i>base name</i>)<b>]</b></a>
 <a class="intern" href="#opt-hdr"><b>[-hdr</b> fname (<i>read header file</i>)<b>]</b></a>
@@ -182,7 +183,7 @@ where <b>mcxassemble</b> is the best solution. Consider first whether
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxassemble</b> enables easy matrix creation from an intermediate raw matrix
 format that can easily be constructed from a one-pass-parse of cooccurrence
 data. The basic setup is as follows.
@@ -223,7 +224,7 @@ by <b>mcxassemble</b>, which takes the form of a very thin matrix file.
 </p>
 </div>
 </div>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The easiest thing to do is to group all input/output files under the same
 base name, say&nbsp;<b>base</b>. A standard way of proceeding, which will lead to
 a concise <b>mcxassemble</b> command line, is by creating the input files
@@ -250,14 +251,14 @@ each time the largest entry seen thus far will be taken.
 <p style="margin-bottom:0"><b>Header file</b><br>
 This file contains a header as usually found in generic mcl matrix files,
 i.e. the required <i>header</i> part, and optionally the <i>domain</i> part(s)
-if not all domains are canonical. Refer to <a class="local" href="mcxio.html">mcxio</a> for more information.
+if not all domains are canonical. Refer to <a class="local sibling" href="mcxio.html">mcxio</a> for more information.
 The domain information in the header file will be used to pre-construct a
 skeleton matrix and to validate the entries in the raw data file as they
 fill the skeleton matrix.
 </p>
 <p style="margin-bottom:0"><b>Raw input format</b><br>
 The file from which raw input is read should have the raw format as
-described in <a class="local" href="mcxio.html">mcxio</a>. Simply put; no header specification, no domain
+described in <a class="local sibling" href="mcxio.html">mcxio</a>. Simply put; no header specification, no domain
 specification, and no matrix introduction syntax is used. The file just
 contains a listing of vectors. An example fragment is the following:
 </p>
@@ -276,13 +277,13 @@ behaviour dictating how to merge repeated entries.
 Refer to the <a class="intern" href="#opt-re"><b>-re</b>,&nbsp;<b>-rv</b>,&nbsp;<b>-r</b></a>
 options below.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The vectors read by <b>mcxassemble</b> do have to match the domains specified in
 the header file. The leading index that specifies the column index has to be
 present in the column domain; all subsequent indices that specify column
 entries have to be present in the row domain.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <i>If one concatenates the contents of the header file and the data file</i>,
 the result is <i>almost but not quite</i> a file containing a matrix in
 syntactically correct mcl generic matrix format. The parts missing
@@ -313,7 +314,7 @@ Each row domain index occurs in exactly one column.
 </p>
 </div>
 </div>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 Such a matrix is used to relabel the nodes as found in the raw data. A
 situation that might occur when parsing some external format (and producing
 raw matrix format), is that ID's (indices) are handed out on the fly during
@@ -371,7 +372,7 @@ domain only. <b>--rmap</b> works the same for the
 row domain, and <b>--map</b> can be used to apply the same map
 to both the column and row domains.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>-cmap</b> and its siblings are used to explicitly specify the
 map file to be used, rather than combining a base name with a fixed
 suffix.
@@ -392,7 +393,7 @@ Calling the primary matrix A, the skew matrix (as defined here)
 is the matrix <tt>A&nbsp;-&nbsp;A^T</tt>, i.e. A minus its transposed matrix.
 It can be written using one of the <b>skw</b> options.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 If for some reason the symmetrized result is not needed, its output
 can be prevented using the <b>-n</b>&nbsp;option.
 </p>
@@ -407,7 +408,7 @@ from the default value <tt>sym</tt> to <tt>mci</tt>. Use <b>-o</b> to explicitly
 specify the filename in full. Use <b>-digits</b> to set the number of
 digits written for matrix entries (c.q. edge weights).
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The <b>-i</b> option is special. It causes
 <b>mcxassemble</b> to read both the header information and the raw data
 from the same file, where the syntax should be fully conforming
@@ -428,7 +429,7 @@ The first applies its transformation spec to the values
 as found in the raw data. The second applies its transformation
 spec to the primary matrix. The third applies its transformation
 step to the symmetrified matrix.
-Refer to <a class="local" href="mcxio.html">mcxio</a> for documentation on the transformation
+Refer to <a class="local sibling" href="mcxio.html">mcxio</a> for documentation on the transformation
 spec syntax.</p>
 </div>
 <div class=" item_cascade item_leftalign nowrap" ><a name="opt-rv"></a><b>-rv</b> add|max|min|mul|left|right (<i>action for repeated vectors</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-re"></a><b>-re</b> add|max|min|mul|left|right (<i>action for repeated entries</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-ri"></a><b>-ri</b> add|max|min|mul (<i>adding mirror image</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-r"></a><b>-r</b> add|max|min|mul|left|right (<i>same for entries and vectors</i>)</div>
@@ -443,14 +444,14 @@ Additionally, the final result is by default symmetrized by combining with
 the mirror image (in matrix terminology, the <i>transposed</i> matrix). This
 symmetrization can be done in the same variety of ways.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The <b>re</b> option, for repeats within the same column, is carried out
 first. It is applied <i>after</i> the column has its entries sorted, so the
 <tt>left</tt> and <tt>right</tt> options are not garantueed to follow the order found
 in the raw input. The <b>rv</b> option, for repeats over different columns,
 is carried out second.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The option <b>-ri</b>&nbsp;<b>min</b> can assist in implementing
 a (top-list) best reciprocal hit criterion.
 </p>
@@ -509,8 +510,8 @@ Stijn van Dongen.
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
 <p style="margin-top:0em; margin-bottom:0em">
-<a class="local" href="mcxio.html">mcxio</a>, <a class="local" href="mcl.html">mcl</a>, <a class="local" href="mcxload.html">mcxload</a>
-and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+<a class="local sibling" href="mcxio.html">mcxio</a>, <a class="local sibling" href="mcl.html">mcl</a>, <a class="local sibling" href="mcxload.html">mcxload</a>
+and <a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
 </p>
 </body>

@@ -321,8 +321,8 @@ mcxOptAnchor mclAlgOptions[] =
 ,  {  "-overlap"
    ,  MCX_OPT_HASARG
    ,  ALG_OPT_OVERLAP
-   ,  "<split|remove|keep>"
-   ,  "what to do with overlap (default remove)"
+   ,  "<split|cut|keep>"
+   ,  "what to do with overlap (default cut)"
    }
 ,  {  "-sort"
    ,  MCX_OPT_HASARG
@@ -650,7 +650,7 @@ void postprocess
       {  mcxLog(MCX_LOG_MODULE, "mcl", "re-reading matrix to do all kinds of stuff")
       ;  if (STATUS_OK == mclAlgorithmStart(mlp, reread))
          mx = mlp->mx_start
-;if (mlp->tab)
+;if (0 && mlp->tab)
 fprintf(stderr, "postprocess read tab with %d entries: %p\n", (int) N_TAB(mlp->tab), (void*) mlp->tab)
    ;  }
 
@@ -888,11 +888,11 @@ mcxstatus mclAlgorithm
       ,  enstrict_modes
       )
 
-   ;  if (o>0)
+   ;  if (o > 0)
       {  const char* did =    mlp->overlap_mode == 'k'
                            ?  "kept"
                            :     mlp->overlap_mode == 'c'
-                              ?  "removed"
+                              ?  "cut"
                               :  "split"
       ;  mcxWarn(me, "%s <%lu> instances of overlap", did, (ulong) o)
       ;  mlp->foundOverlap = TRUE
@@ -1570,7 +1570,7 @@ static mclAlgParam* mclAlgParamNew
 
    ;  mlp->write_mode      =     'a'
    ;  mlp->sort_mode       =     'S'
-   ;  mlp->overlap_mode    =     's'
+   ;  mlp->overlap_mode    =     'c'
    ;  mlp->fnin            =     mcxTingEmpty(NULL, 10)
    ;  mlp->cline           =     mcxTingEmpty(NULL, 10)
    ;  return mlp
@@ -1794,7 +1794,7 @@ static mclx* mclAlgorithmStreamIn
       {  BIT_OFF(mlp->stream_modes, stream_tab_modes)
       ;  BIT_ON(mlp->stream_modes, MCLXIO_STREAM_GTAB_RESTRICT)
       ;  mcxLog(MCX_LOG_MODULE, "mclAlgorithmStreamIn", "reconstricting matrix")
-;if (mlp->tab)
+;if (0 && mlp->tab)
 fprintf(stderr, "reconstrict tab with %d entries: %p\n", (int) N_TAB(mlp->tab), (void*) mlp->tab)
    ;  }
 
@@ -1820,11 +1820,11 @@ fprintf(stderr, "reconstrict tab with %d entries: %p\n", (int) N_TAB(mlp->tab), 
 
       if (streamer.tab_sym_out)
       {  mcxLog(MCX_LOG_MODULE, "mcl", "new tab created")
-;fprintf(stderr, "streamin tab_sym_out %p mlp->tab with  %d entries:\n", (void*) streamer.tab_sym_out, (int) N_TAB(streamer.tab_sym_out))
+;if(0)fprintf(stderr, "streamin tab_sym_out %p mlp->tab with  %d entries:\n", (void*) streamer.tab_sym_out, (int) N_TAB(streamer.tab_sym_out))
       ;  if (!(reread && mlp->tab))
          mclTabFree(&(mlp->tab))
       ;  mlp->tab = streamer.tab_sym_out
-;fprintf(stderr, "streamin read tab with %d entries: %p\n", (int) N_TAB(mlp->tab), (void*) mlp->tab)
+;if(0)fprintf(stderr, "streamin read tab with %d entries: %p\n", (int) N_TAB(mlp->tab), (void*) mlp->tab)
    ;  }
 
    /*  hierverder: when 'reconstricting' no real new tab is made, apparently.

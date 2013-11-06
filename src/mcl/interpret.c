@@ -67,6 +67,10 @@ mclMatrix* mclDag
       ;  int n_bar =  mclvCountGiven(vec, mclpGivenValGQ, &bar)
       ;  mclvCopyGiven(dst, vec, mclpGivenValGQ, &bar, n_bar)
    ;  }
+{ dim ne = mclxNrofEntries(M)
+;fprintf(stderr, "nroff entries %u\n", (unsigned) ne)
+;
+}
       return M
 ;  }
 

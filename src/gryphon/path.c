@@ -18,9 +18,9 @@
 
 
 #if 0
-#define dbg(...) if(0)fprintf(stderr, __VA_ARGS__);
+#define dbg(format, ...) if(1)fprintf(stderr, format, ## __VA_ARGS__);
 #else
-#define dbg(...) ;
+#define dbg(format, ...) ;
 #endif
 
 

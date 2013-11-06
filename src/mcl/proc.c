@@ -250,6 +250,14 @@ mclMatrix*  mclProcess
    ;  *limit = mxEven
 
    ;  {  mclx* dag = mclDag(mxEven, mpp->ipp)
+;fprintf(stderr, "selfval maxval %f/%f\n", mpp->ipp->w_selfval, mpp->ipp->w_maxval)
+;if (1)
+{  dim j
+;  mclxMakeStochastic(dag)
+;  for (j=0;j<N_COLS(dag);j++)
+mclvSelectGqBar(dag->cols+j, 1.0 / (dag->cols[j].n_ivps + 1))
+;  }
+
       ;  mxCluster = mclInterpret(dag)
       ;  mclxFree(&dag)
    ;  }

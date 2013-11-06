@@ -1,5 +1,23 @@
 
 
+Fri, 18 Sep 2009
+
+   *  And a bug it did have (cf entry Wed 12 Jul 2009). When a resulting
+      clustering contains overlap, mcl tries to split off the overlapping part.
+      However, since the last release it has been doing this in a botched way,
+      causing erratic results. Bug reported by Tao Yue, now fixed.
+
+   *  The mcxarray --transpose option now transposes the input data matrix,
+      rather than the result matrix, and -write-tab finds and writes the
+      correct labels in the presence of --transpose.  Bugs were reported by
+      Jose Afonso Guerra Assuncao.  The mcxarray --teartp option has been
+      removed.
+
+   *  Added -resource <num> flag to mcl. Throughout the process, each
+      node will only keep track of at most <num> neighbours.
+      Use -ceil-nb <num> if you want to reduce the input graph in
+      the same manner.
+
 Wed, 12 Jul 2009
 
    *  Lint modes have been removed from mcl. Linting can now be achieved
@@ -10,7 +28,7 @@ Wed, 12 Jul 2009
 
    *  The interpretation routines were rewritten to be more compact and at a
       somewhat higher-level of expressiveness, and should accordingly be
-      more understandable, maintanable, and extensible. They might have new
+      more understandable, maintainable, and extensible. They might have new
       bugs too.
 
    *  mcl and 'mcx alter' and 'mcx erdos' have acquired the option -ceil-nb

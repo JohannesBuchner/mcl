@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcl" 1 "1 Jul 2009" "mcl 1\&.008, 09-182" "USER COMMANDS "
+.TH "mcl" 1 "18 Sep 2009" "mcl 1\&.008, 09-261" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -91,9 +91,9 @@ dictionary, possibly one that was saved earlier using the
 .ZV
 .fi \fR
 
-Here \fB-strict-tab\fP tells mcl that the input should not contain
-labels other than found in the file \fBfname-map\fP\&. It is possible to
-relax this by using \fB-restrict-tab\fP\ \&\fIfname-map\fP or
+Here \fB-strict-tab\fP tells mcl that the input should not contain native
+identifiers other than found in the file \fBfname-map\fP\&. It is possible
+to relax this by using \fB-restrict-tab\fP\ \&\fIfname-map\fP or
 \fB-extend-tab\fP\ \&\fIfname-map\fP\&.
 
 Label mode is very convenient for easy and fast exploration\&. A decided
@@ -570,22 +570,23 @@ characteristics is correlated with the extent to which its connectivity is
 weakened\&. The different types of characteristics that can be regulated
 are
 
-.ZI 2m "\fBvl\fP"
+.ZI 4m "\fBvl\fP"
 value low - nodes for which the average value of its edges
 is low compared with the same number across its neighbours\&.
-.in -2m
-.ZI 2m "\fBvh\fP"
+.in -4m
+.ZI 4m "\fBvh\fP"
 value high - nodes for which the average value of its edges
 is high compared with the same number across its neighbours\&.
-.in -2m
-.ZI 2m "\fBel\fP"
+.in -4m
+.ZI 4m "\fBel\fP"
 edge low - nodes for which the number of neighbours
 is low compared with the same number across its neighbours\&.
-.in -2m
-.ZI 2m "\fBeh\fP"
+.in -4m
+.ZI 4m "\fBeh\fP"
 edge high - nodes for which the number of neighbours
 is high compared with the same number across its neighbours\&.
-.in -2m
+.in -4m
+
 The characteristics above, e\&.g\&. \fBvl\fP, correspond to the modes
 that can be passed to the \fB-shadow\fP argument\&. The first mode \fBvl\fP
 is the one most likely to be useful\&. Combining different modes is possible

@@ -407,7 +407,7 @@
    }
 
 
-\cpar{Example cluster header}
+\cpar{Example cluster header}{}
 
 \verbatim{\
 Cluster 0 sz 15 self 0.82 cov 0.43-0.26
@@ -416,7 +416,7 @@ Cluster 0 sz 15 self 0.82 cov 0.43-0.26
    12: 0.02}
 
 
-\cpar{explanation}
+\cpar{explanation}{}
 
 \verbatim{\
 Cluster 0 sz 15 self 0.82 cov 0.43-0.26
@@ -455,7 +455,7 @@ projx2  : as clidx1 and projx1}
       10   6/3      0.16 0.071-0.047  0.268-0.442 
       12   4/2      0.11 0.071-0.035  0.296-0.515}
 
-\cpar{explanation}
+\cpar{explanation}{}
 
 \verbatim{\
 [label]
@@ -503,7 +503,7 @@ min_o   Smallest edge weight for  node idx to cluster clusid [c].}
     29   18#2        2-5      0.65 0.883-0.815  0.436-0.218  0.073-0.055
                       /4      0.27 0.070-0.109  0.073-0.055}
 
-\cpar{explanation}
+\cpar{explanation}{}
 
 \verbatim{\
 [label]

@@ -778,14 +778,16 @@ static void clm_split_overlap
       ;  mclv* clusvec = cl->cols+d       /* cluster d itself */
       ;  dim e
 
-      ;  if (ctgyvec->n_ivps <= 1)        /* only self-projection exists */
-         continue
                                  /* do not consider self-self intersection */
       ;  mclvRemoveIdx(ctgyvec, ctgyvec->vid)
       ;  if (clus_overlap->n_ivps)
          mclgUnionvReset(cl)
                                  /* clus_overlap contains all nodes in overlap */
       ;  mclgUnionv(cl, ctgyvec, NULL, SCRATCH_READY, clus_overlap)
+#if 0
+;fprintf(stderr, "<---- clus_overlap now\n")
+;mclvaDump(clus_overlap, stdout, -1, " ", 0)
+#endif
 
                                  /* clus_unique contains nodes unique to the
                                   * cluster; create a star graph on those

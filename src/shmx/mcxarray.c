@@ -1,5 +1,5 @@
 /*   (C) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -47,6 +47,7 @@ enum
 ,  MY_OPT_IMX
 ,  MY_OPT_TAB
 ,  MY_OPT_L
+,  MY_OPT_TABLE
 ,  MY_OPT_NORMALIZE
 ,  MY_OPT_RSKIP
 ,  MY_OPT_CSKIP
@@ -59,7 +60,6 @@ enum
 ,  MY_OPT_GQ
 ,  MY_OPT_O
 ,  MY_OPT_TEAR
-,  MY_OPT_TEARTP
 ,  MY_OPT_PI
 ,  MY_OPT_DIGITS
 ,  MY_OPT_HELP
@@ -90,7 +90,7 @@ mcxOptAnchor options[]
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_TP
    ,  NULL
-   ,  "work with the transposed matrix"
+   ,  "work with the transposed data matrix"
    }
 ,  {  "-skipc"
    ,  MCX_OPT_HASARG
@@ -144,7 +144,13 @@ mcxOptAnchor options[]
    ,  MCX_OPT_HASARG
    ,  MY_OPT_L
    ,  "<int>"
-   ,  "column containing labels (default 1)"
+   ,  "column (or row, with --transpose) containing labels (default 1)"
+   }
+,  {  "-write-table"
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MY_OPT_TABLE
+   ,  "<fname>"
+   ,  "write table file to file (debug option)"
    }
 ,  {  "-cutoff"
    ,  MCX_OPT_HASARG
@@ -188,12 +194,6 @@ mcxOptAnchor options[]
    ,  "<num>"
    ,  "inflate the input columns"
    }
-,  {  "-teartp"
-   ,  MCX_OPT_HASARG
-   ,  MY_OPT_TEARTP
-   ,  "<num>"
-   ,  "inflate the transposed columns"
-   }
 ,  {  "-digits"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_DIGITS
@@ -213,6 +213,7 @@ static mclx* read_data
 ,  unsigned skipr
 ,  unsigned skipc
 ,  unsigned labelidx
+,  mcxbool  transpose
 )
    {  mcxTing* line = mcxTingEmpty(NULL, 1000)
    ;  dim  N_cols =  0
@@ -221,8 +222,9 @@ static mclx* read_data
    ;  mclv* cols  =  mcxNAlloc(N_rows, sizeof(mclVector), mclvInit_v, EXIT_ON_FAIL)
    ;  mclv* scratch = mclvCanonical(NULL, 100, 1.0)
    ;  mclx* mx    =  mcxAlloc(sizeof mx[0], EXIT_ON_FAIL)
-   ;  mcxHash* index = xftab ? mcxHashNew(100, mcxStrHash, mcxStrCmp) : NULL
+   ;  mcxHash* index = xftab ? mcxHashNew(100, mcxStrHash, mcxStrCmp) : NULL       /* user rows */
    ;  long linect = 0
+   ;  unsigned skiprr = skipr
 
    ;  while (STATUS_OK == mcxIOreadLine(xfin, line, MCX_READLINE_CHOMP))
       {  const char* p = line->str
@@ -234,8 +236,32 @@ static mclx* read_data
 
       ;  linect++
 
-      ;  if (skipr > 0)
-         {  skipr--
+      ;  if (skiprr > 0)
+         {  if (transpose && skipr+1 - skiprr == labelidx)        /* this is the line with labels */
+            {  mcxbool seetab = strchr(p, '\t') ? TRUE : FALSE
+            ;  while (p < z)
+               {  const char* o = p
+               ;  p = seetab ? strchr(p, '\t') : mcxStrChrIs(p, isspace, -1)
+
+               ;  if (!p)
+                  p = z
+
+               ;  if (skipcc == 0)              /* skipped all we needed to */
+                  {  N_cols++
+                  ;  if (xftab)
+                     {  char* label = mcxStrNDup(o, (dim) (p-o))
+                     ;  mcxKV* kv = mcxHashSearch(label, index, MCX_DATUM_INSERT)
+                     ;  if (kv->key != label)
+                        mcxDie(1, me, "column label <%s> occurs more than once", label)
+                     ;  fprintf(xftab->fp, "%d\t%s\n", (int) (N_cols-1), label)
+                  ;  }
+                  }
+                  else
+                  skipcc--
+               ;  p = seetab ? p + 1 : mcxStrChrAint(p, isspace, -1)
+            ;  }
+            }
+            skiprr--
          ;  continue
       ;  }
 
@@ -246,11 +272,11 @@ static mclx* read_data
             ;  p = seetab ? strchr(p, '\t') : mcxStrChrIs(p, isspace, -1)
             ;  if (!p)
                break
-            ;  if (xftab && (skipc+1-skipcc) == labelidx)
+            ;  if (!transpose && xftab && (skipc+1-skipcc) == labelidx)
                {  char* label = mcxStrNDup(o, (dim) (p-o))
                ;  mcxKV* kv = mcxHashSearch(label, index, MCX_DATUM_INSERT)
                ;  if (kv->key != label)
-                  mcxDie(1, me, "label <%s> occurs more than once", label)
+                  mcxDie(1, me, "row label <%s> occurs more than once", label)
                ;  fprintf(xftab->fp, "%d\t%s\n", n_rows, label)
             ;  }
                p = seetab ? p + 1 : mcxStrChrAint(p, isspace, -1)
@@ -288,16 +314,24 @@ static mclx* read_data
       ;  n_rows++
    ;  }
 
-      if (xftab)
+      if (!n_rows)
+      mcxErr(me, "no rows read")
+
+   ;  if (xftab)
       mcxIOclose(xftab)
    ;  mx->dom_cols = mclvCanonical(NULL, n_rows, 1.0)
    ;  mx->dom_rows = mclvCanonical(NULL, N_cols, 1.0)
    ;  mx->cols
       =  mcxNRealloc(cols, n_rows, N_rows, sizeof(mclVector), NULL, EXIT_ON_FAIL)
    ;  mcxTingFree(&line)
-
    ;  mclvFree(&scratch)
-   ;  return mx
+
+   ;  if (transpose)
+      {  mclx* mxtp = mclxTranspose(mx)
+      ;  mclxFree(&mx)
+      ;  mx = mxtp
+   ;  }
+      return mx
 ;  }
 
 
@@ -306,10 +340,10 @@ int main
 ,  const char*          argv[]
 )
    {  int digits = MCLXIO_VALUE_GETENV
-   ;  double cutoff = -1.0001, tear = 0.0, teartp = 0.0, pi = 0.0
+   ;  double cutoff = -1.0001, tear = 0.0, pi = 0.0
    ;  double lq = DBL_MAX, gq = -DBL_MAX
    ;  mclx* tbl, *res
-   ;  mcxIO* xfin = mcxIOnew("-", "r"), *xfout, *xftab = NULL
+   ;  mcxIO* xfin = mcxIOnew("-", "r"), *xfout = NULL, *xftab = NULL, *xftbl = NULL
    ;  mclv* Nssqs, *sums, *scratch
    ;  mcxbool transpose = FALSE
    ;  mcxbool read_matrix = FALSE, z_score = FALSE
@@ -356,6 +390,11 @@ int main
 
             case MY_OPT_L
          :  labelidx = atoi(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_TABLE
+         :  xftbl = mcxIOnew(opt->val, "w")
          ;  break
          ;
 
@@ -430,11 +469,6 @@ int main
          ;  break
          ;
 
-            case MY_OPT_TEARTP
-         :  teartp = atof(opt->val)
-         ;  break
-         ;
-
             case MY_OPT_DIGITS
          :  digits = strtol(opt->val, NULL, 10)
          ;  break
@@ -445,12 +479,14 @@ int main
 
    ;  if (!cutoff_specified)
       mcxDie(1, me, "-co <cutoff> option is required")
-   ;  if (labelidx && labelidx > cskip)
-      mcxDie(1, me, "labelidx value requires larger or equally large skipc argument")
-   ;  else if (xftab && !labelidx && cskip == 1)
+   ;  if (labelidx && ((transpose && labelidx > rskip) || (!transpose && labelidx > cskip)))
+      mcxDie(1, me, "-l value requires larger or equally large skipc/skipr argument")
+   ;  else if (transpose && xftab && !labelidx && rskip == 1)
+      labelidx = 1
+   ;  else if (!transpose && xftab && !labelidx && cskip == 1)
       labelidx = 1
    ;  else if (xftab && !labelidx)
-      mcxDie(1, me, "which column gives the label? Use -l")
+      mcxDie(1, me, "which column or row gives the label? Use -l")
 
    ;  xfout = mcxIOnew(out, "w")
    ;  mcxIOopen(xfin, EXIT_ON_FAIL)
@@ -461,9 +497,14 @@ int main
    ;  tbl
       =     read_matrix
          ?  mclxRead(xfin, EXIT_ON_FAIL)
-         :  read_data(xfin, xftab, rskip, cskip, labelidx)
+         :  read_data(xfin, xftab, rskip, cskip, labelidx, transpose)
 
-   ;  if (lq < DBL_MAX)
+   ;  if (xftbl)
+      {  mclxWrite(tbl, xftbl, digits, EXIT_ON_FAIL)
+      ;  mcxIOfree(&xftbl)
+   ;  }
+
+      if (lq < DBL_MAX)
       {  double mass = mclxMass(tbl)
       ;  double kept = mclxSelectValues(tbl, NULL, &lq, MCLX_EQT_LQ)
       ;  fprintf(stderr, "orig %.2f kept %.2f\n", mass, kept)
@@ -497,15 +538,7 @@ int main
       if (tear)
       mclxInflate(tbl, tear)
 
-   ;  if (transpose)
-      {  mclx* tblt = mclxTranspose(tbl)
-      ;  mclxFree(&tbl)
-      ;  tbl = tblt
-      ;  if (teartp)
-         mclxInflate(tbl, teartp)
-   ;  }
-
-      Nssqs = mclvCopy(NULL, tbl->dom_cols)
+   ;  Nssqs = mclvCopy(NULL, tbl->dom_cols)
    ;  sums = mclvCopy(NULL, tbl->dom_cols)
    ;  scratch = mclvCopy(NULL, tbl->dom_cols)
 
@@ -554,9 +587,9 @@ int main
    *                  n  /_ x y   -  /_ x /_ y
    *   -----------------------------------------------------------
    *      ___________________________________________________________
-   *     /  _    __        __ 2   _       _    __        __ 2   _   |
-   * \  /  |     \   2     \       |     |     \   2     \       | 
-   *  \/   |_  n /_ x   -  /_ x   _|  *  |_  n /_ y   -  /_ y   _| 
+   *     /       __        __ 2                __        __ 2       |
+   * \  /  /     \   2     \       \     /     \   2     \       \ 
+   *  \/   \   n /_ x   -  /_ x    /  *  \   n /_ y   -  /_ y    / 
   */
 
             else if (mode == 'p')

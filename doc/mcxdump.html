@@ -4,7 +4,7 @@
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
-/* START zsd.base.css */
+/* START aephea.base.css */
 body
 { text-align: justify;
 margin-left: 8%;
@@ -66,15 +66,16 @@ text-align: right;
 { position: relative;
 margin-left: 3em;
 }
-/* END zsd.base.css */
+.smallcaps { font-size: smaller; text-transform: uppercase }
+/* END aephea.base.css */
 </style>
 <title>The mcxdump manual</title>
 </head>
 <body>
 <p style="text-align:right">
-1 Jul 2009&nbsp;&nbsp;&nbsp;
+18 Sep 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxdump.ps"><b>mcxdump</b></a>
-1.008, 09-182
+1.008, 09-261
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -105,12 +106,12 @@ margin-left: 3em;
 
 <a name="name"></a>
 <h2>NAME</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 mcxdump &mdash; dump matrices, optionally map indices to labels</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxdump</b>
 <a class="intern" href="#opt-imx"><b>[-imx</b> &lt;fname&gt; (<i>matrix file</i>)<b>]</b></a>
 <a class="intern" href="#opt-imx-cat"><b>[-imx-cat</b> &lt;fname&gt; (<i>concatenation matrix file</i>)<b>]</b></a>
@@ -161,9 +162,9 @@ mcxdump &mdash; dump matrices, optionally map indices to labels</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxdump</b> reads a data file satisfying the mcl input format
-(refer to <a class="local" href="mcxio.html">mcxio</a>). It outputs a line-based format. The
+(refer to <a class="local sibling" href="mcxio.html">mcxio</a>). It outputs a line-based format. The
 <b>--dump-pairs</b> option yields a single matrix entry per line,
 identified by the respective column and row identifiers (either index or
 label) separated by the field separator.
@@ -172,7 +173,7 @@ joining of all row entries on a single line, separated by the field
 separator. For both formats, the matrix value corresponding with
 a particular entry is by default output as well.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>mcxdump</b> can also act on files that contain concatenated
 matrices. Refer to the group of options headed by
 <a class="intern" href="#opt-imx-cat"><b>-imx-cat</b>&nbsp;<i>fname</i></a>.
@@ -259,19 +260,19 @@ is output as a single pair of column-identifier and row-identifier per line,
 optionally followed by the value of the corresponding matrix entry.
 All fields are separated by the field separator.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 With <b>--dump-lines</b>, each matrix column is output on a
 single line, with row identifiers separated by the field separator
 and values attached to the row identifier by the node/value separator.
 In this format, the column identifier is output as the leading field.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>--dump-rlines</b> is as <b>--dump-lines</b>,
 except that the column identifier is not output.
 Use <b>--dump-lead-off</b> to preclude the output of the leading
 identifiers (for line-based outputs).
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 The options pertaining to <i>lower</i> and <i>upper</i> dumps currently
 only work with <b>--dump-pairs</b>. They act to only output
 the specified part of the matrix.
@@ -311,7 +312,7 @@ domain, and it outputs a new tab file restricted to that domain.
 and domain as a regular dump, outputting labels in case a tab file is
 specified.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 These options are implemented as ensembles of other options.
 For example, <b>--dump-domr</b> <b>-imx</b>&nbsp;<i>fname</i> corresponds with
 <b>--dump-lines</b> <b>--transpose</b> <b>--skeleton</b>.
@@ -340,7 +341,7 @@ In all cases (respectively dumping and writing matrices
 to either the same stream or multiple files) the number of
 matrices to be dumped can be limited with <b>-cat-max</b>.
 </p>
-<p style="margin-bottom:0">
+<p style="margin-bottom:0" class="asd_par">
 <b>-imx-tree</b> is like <b>-imx-cat</b> except that the input
 is assumed to be in cone format (the format output by <b>mclcm</b>).
 This format encodes a tree as a concatenation of matrices with
@@ -390,15 +391,18 @@ Do not use this in conjunction with a tab file for the column domain.</p>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-<p>
+<p style="margin-bottom:0" class="asd_par">
 Stijn van Dongen.
+</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<a class="local" href="mcxload.html">mcxload</a>,
-<a class="local" href="mcl.html">mcl</a>,
-<a class="local" href="mclfaq.html">mclfaq</a>,
-and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+<p style="margin-bottom:0" class="asd_par">
+<a class="local sibling" href="mcxload.html">mcxload</a>,
+<a class="local sibling" href="mcl.html">mcl</a>,
+<a class="local sibling" href="mclfaq.html">mclfaq</a>,
+and <a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
+</p>
 </body>
 </html>

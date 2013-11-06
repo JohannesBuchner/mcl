@@ -525,10 +525,7 @@ mclv* mclxDiagValues
 )  ;
 
 
-mclv* mclxColSizes
-(  const mclx*    m
-,  mcxenum        mode
-)  ;
+#define mclxColSizes(m, mode) mclxColNums(m, mclvSize, mode)
 
 
 ofs mclxGetVectorOffset

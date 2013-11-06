@@ -49,6 +49,7 @@ enum
 ,  PROC_OPT_INITINFLATION
 ,  PROC_OPT_MAININFLATION
 ,  PROC_OPT_SCHEME
+,  PROC_OPT_RESOURCE
 ,  PROC_OPT_MY_SCHEME
 ,  PROC_OPT_SKID
 ,  PROC_OPT_ETHREADS
@@ -217,6 +218,12 @@ mcxOptAnchor mclProcOptions[] =
    ,  "<int>"
    ,  "\tM!\tDuse a preset resource scheme (cf --show-schemes)"
    }
+,  {  "-resource"
+   ,  MCX_OPT_HASARG
+   ,  PROC_OPT_RESOURCE
+   ,  "<int>"
+   ,  "\tM!\tDallow <int> neighbours throughout computation"
+   }
 ,  {  "-my-scheme"
    ,  MCX_OPT_HASARG
    ,  PROC_OPT_MY_SCHEME
@@ -315,7 +322,7 @@ mcxOptAnchor mclProcOptions[] =
    }
 ,  {  NULL
    ,  0
-   ,  0                       
+   ,  0
    ,  NULL
    ,  NULL
    }
@@ -703,6 +710,17 @@ mcxstatus mclProcessInit
          ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_0, NULL, NULL)
          ;  if (vok)
                n_recover   =  i
+            ,  user_scheme = 1
+         ;  break
+         ;
+
+            case PROC_OPT_RESOURCE
+         :  i = atoi(opt->val)
+         ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_1, NULL, NULL)
+         ;  if (vok)
+               n_select =  i
+            ,  n_recover =  i
+            ,  n_prune = 10 * i
             ,  user_scheme = 1
          ;  break
          ;
