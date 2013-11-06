@@ -1,5 +1,54 @@
 
 
+Thu 27 Oct 2005
+
+   *  mcl-05-300 released.
+
+   *  Added Q+A in FAQ on how to get application data into MCL format.
+
+   *  Changed mcxassemble to pick the maximum between repeated entries
+      by default.
+
+   *  clmmate was changed to do something reasonable when presented with
+      overlapping clusterings.
+
+   *  Changed mcxdeblast to put the tab file in occurrence order by default.
+
+   *  Fixed mcxsubs bug, introduced in last release, where selections never
+      materialize unless one mysteriously specifies --rand-merge.
+
+   *  mcxsubs acquired the ext(dist(k)) spec option, where k is a number.
+      It applies to graphs and tells to extend the graph on the current
+      specification by including neighbours reachable in at most k steps.
+
+      ext(cdisc(k)) and ext(rdisc(k)) exist as well.
+
+      For example, the spec
+
+         'dom(cr, i(0-5)), ext(disc(2)), out(-)'
+
+      first takes the nodes 0-5 and then adds all nodes reachable
+      in at most 2 steps.
+
+   *  mcxsubs can now also read a domain from a tab file.
+      use -tab <fname> with t() in the dom spec, e.g. dom(cr, i(0-5), t()).
+
+      mcxsubs -imx small.mci -dfac 0.8 'out(-)'
+
+      will now randomly select about 80 percent of the domains.
+
+   *  mcxdump acquired the -sep-lead option to change the col-rowlist
+      separator. The -sep option was renamed to -sep-field.
+
+   *  mcxdump can now also be used to restrict tab files.
+   
+      mcxdump -imx matrix-file -tab tab-file --dump-tabc
+      mcxdump -imx matrix-file -tab tab-file --dump-tabr
+
+      The first will output the restriction of the input tab file
+      to the matrix column domain.
+      The second will do the same for the row domain.
+
 Thu, 29 Sep 2005
 
    *  mcl-05-272 released

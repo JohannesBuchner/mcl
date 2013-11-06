@@ -344,6 +344,7 @@ void mclvaDump2
 
 typedef struct
 {  mcxbits        modes
+;  const char*    sep_lead
 ;  const char*    sep_row
 ;  const char*    sep_val
 ;  double         threshold
@@ -351,9 +352,14 @@ typedef struct
 }  mclxIOdumper   ;
 
 
+/* Note. we could stabilize the interface by a string-based format
+ * + hiding the mclxIOdumper struct. oh well.
+*/
+
 void mclxIOdumpSet
 (  mclxIOdumper*  dump
 ,  mcxbits        modes
+,  const char*    sep_lead
 ,  const char*    sep_row
 ,  const char*    sep_val
 )  ;

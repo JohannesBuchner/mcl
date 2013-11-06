@@ -99,28 +99,40 @@ typedef struct grade
 grade gradeDir[] =
 {  {  10000, "impossible" }
 ,  { 100, "yabadabadoo!" }
-,  {  99, "perfect" }
+,  {  98, "perfect" }
+,  {  97, "marvelous" }
 ,  {  96, "superb" }
-,  {  93, "superior" }
-,  {  92, "fabulous" }
-,  {  90, "excellent" }
-,  {  88, "smashing baby!" }
-,  {  86, "cracking" }
+,  {  95, "sensational" }
+,  {  93, "fabulous" }
+,  {  92, "ripping" }
+,  {  91, "smashing baby!" }
+,  {  89, "cracking" }
+,  {  88, "top-notch" }
+,  {  87, "excellent" }
+,  {  86, "splendid" }
 ,  {  85, "outstanding" }
 ,  {  84, "really neat" }
 ,  {  83, "swell" }
 ,  {  82, "dandy" }
 ,  {  80, "favourable" }
-,  {  75, "good" }
+,  {  79, "not bad at all" }
+,  {  78, "groovy" }
+,  {  77, "good" }
+,  {  76, "all-right" }
 ,  {  74, "solid" }
+,  {  72, "decent" }
 ,  {  70, "adequate" }
-,  {  65, "fair" }
+,  {  66, "fair" }
+,  {  63, "fairish" }
 ,  {  60, "satisfactory" }
 ,  {  55, "acceptable" }
 ,  {  50, "mediocre" }
-,  {  45, "poor" }
+,  {  48, "shabby" }
+,  {  46, "shoddy" }
+,  {  43, "poor" }
 ,  {  40, "bad" }
 ,  {  35, "deplorable" }
+,  {  32, "rotten" }
 ,  {  30, "lousy" }
 ,  {  26, "abominable" }
 ,  {  24, "miserable" }
@@ -711,7 +723,7 @@ mcxstatus mclAlgorithm
          i++
       ;  mcxTell
          (  me
-         ,  "jury pruning synopsis: <%.0f or %s> (cf -scheme, -do log)"
+         ,  "jury pruning synopsis: <%.1f or %s> (cf -scheme, -do log)"
          ,  f
          ,  gradeDir[i].ind
          )
@@ -1037,7 +1049,7 @@ mcxstatus mclAlgorithmInit
       ;  if (mlp->pre_maxnum)
          mcxTingPrintAfter(suf, "pp%d", (int) mlp->pre_maxnum)
 
-      ;  mcxTingTr(suf, ".", "", 0)
+      ;  mcxTingTr(suf, NULL, NULL, ".", "", 0)
 
       ;  if (mkappend)
          mcxTingPrintAfter(suf, "%s", mkappend)

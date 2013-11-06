@@ -11,7 +11,6 @@ background: white;
 margin-left: 8%;
 margin-right: 8%;
 font-family: Helvetica, Univers, Verdana, sans-serif;
-text-align: justify;
 }
 p.default {
 font-family: Helvetica, Univers, Verdana, sans-serif;
@@ -69,9 +68,9 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-29 Sep 2005&nbsp;&nbsp;&nbsp;
+27 Oct 2005&nbsp;&nbsp;&nbsp;
 <a class="local" href="mclblastline.ps"><b>mclblastline</b></a>
-1.005, 05-272
+1.005, 05-300
 </p>
 
 <a name="name"></a>
@@ -89,14 +88,12 @@ This program is a relatively new addition to the MCL suite.
 If it does not work as expected, please file a bug report
 with the developer and/or subscribe to mcl-devel as
 indicated on <a class="extern" href="http://micans.org/mcl/">http://micans.org/mcl/</a>.
-<p class="default L50" style="margin-bottom:0"><b>NOTE</b><br>With the default settings, mclblastline requires the presence
-of the <b>zoem</b> macro processor to produce pretty-printed output
-(refer to the <a class="local" href="mclpipeline.html">mclpipeline manual</a> and the
-<a class="local" href="clmformat.html">clmformat manual</a> for more information on zoem and
-its usage in the pipeline).
-If the <b>--fmt-dump</b> option
-or the <b>--prepare-format</b> option is used,
-zoem will not be required.</p>
+<p class="default L50" style="margin-bottom:0"><b>NOTE</b><br>mclblastline used to require (given default parameters)
+the presence of the <b>zoem</b> macro processor to produce detailed output.
+This is no longer the case. By default mclblastline now creates
+a line-based tab-separated dump file.
+Zoem <i>will</i> be invoked when the --fmt-fancy option is supplied.
+In that case, zoem obviously has to be installed.</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
@@ -186,9 +183,5 @@ Stijn van Dongen
 <h2>SEE ALSO</h2>
 <p class="default L50">
 <a class="local" href="mcxdeblast.html">mcxdeblast</a>, <a class="local" href="mclpipeline.html">mclpipeline</a>, <a class="local" href="mcxassemble.html">mcxassemble</a>.
-<p class="default L50">
-With default settings, <b>mclblastline</b> depends on the presence
-of <b>zoem</b>. It can be obtained from
-<a class="extern" href="http://micans.org/zoem/">http://micans.org/zoem/</a> .
 </body>
 </html>

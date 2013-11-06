@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcxdump" 1 "29 Sep 2005" "mcxdump 1\&.005, 05-272" "USER COMMANDS "
+.TH "mcxdump" 1 "27 Oct 2005" "mcxdump 1\&.005, 05-300" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -38,15 +38,19 @@ mcxdump \- dump matrices, optionally map indices to labels
 \fB[-tabc\fP <fname> (\fIcolumn tab file\fP)\fB]\fP
 \fB[-tabr\fP <fname> (\fIrow tab file\fP)\fB]\fP
 \fB[--lazy-tab\fP (\fIallow tab/domain mismatch\fP)\fB]\fP
+\fB[--transpose\fP (\fIwork with the transpose\fP)\fB]\fP
 \fB[--no-values\fP (\fIomit values\fP)\fB]\fP
 \fB[--no-loops\fP (\fIomit loops\fP)\fB]\fP
 \fB[--force-loops\fP (\fIforce loops\fP)\fB]\fP
 \fB[--dump-pairs\fP (\fIemit pairs per line\fP)\fB]\fP
 \fB[--dump-lines\fP (\fIemit rows per line\fP)\fB]\fP
 \fB[--dump-rlines\fP (\fIomit leading column node\fP)\fB]\fP
+\fB[--dump-tabc\fP (\fIdump tab file on column domain\fP)\fB]\fP
+\fB[--dump-tabr\fP (\fIdump tab file on row domain\fP)\fB]\fP
 \fB[-dump\fP <fname> (\fIalias for -o\fP)\fB]\fP
 \fB[-sep-value\fP <str> (\fInode/value separator\fP)\fB]\fP
-\fB[-sep\fP <str> (\fIfield separator\fP)\fB]\fP
+\fB[-sep-field\fP <str> (\fIfield separator\fP)\fB]\fP
+\fB[-sep-lead\fP <str> (\fIlead separator\fP)\fB]\fP
 \fB[-h\fP (\fIlist help\fP)\fB]\fP
 \fB[--apropos\fP (\fIlist synopsis of all options\fP)\fB]\fP
 .SH DESCRIPTION
@@ -146,23 +150,49 @@ In this format, the column identifier is output as the leading field\&.
 As the option above, except that the column identifier is not output\&.
 .in -3m
 
+.ZI 3m "\fB--dump-tabc\fP (\fIdump tab file on column domain\fP)"
+\&
+.br
+This will only infer the domains from the input matrix\&. It assumes
+the input tab file envelopes the matrix column domain, and it outputs
+a new tab file restricted to that domain\&.
+.in -3m
+
+.ZI 3m "\fB--dump-tabr\fP (\fIdump tab file on row domain\fP)"
+\&
+.br
+This will only infer the domains from the input matrix\&. It assumes
+the input tab file envelopes the matrix row domain, and it outputs
+a new tab file restricted to that domain\&.
+.in -3m
+
 .ZI 3m "\fB-sep-value\fP <str> (\fInode/value separator\fP)"
 \&
 .br
 Set the node/value separator for line based row ensemble output\&.
 .in -3m
 
-.ZI 3m "\fB-sep\fP <str> (\fIfield separator\fP)"
+.ZI 3m "\fB-sep-field\fP <str> (\fIfield separator\fP)"
 \&
 .br
-Set the field separator\&.
+Set the field separator for different row indices in a given column\&.
+.in -3m
+
+.ZI 3m "\fB-sep-lead\fP <str> (\fIlead separator\fP)"
+\&
+.br
+Set the lead separator\&. In the \fB--dump-lines\fP format it
+separates the leading column index from the following ensembl of
+row indices\&. It can be useful to make this different from the
+field separator\&. One can for example grep for columns that have
+more than one entry in a matrix mapping nodes to clusters\&. This
+will find nodes in overlap\&.
 .in -3m
 
 .ZI 3m "\fB-h\fP (\fIlist help\fP)"
 \&
 .br
-Print help, this could possibly be the same output as
-supplied with \fB--apropos\fP\&.
+Print help, same as \fB--apropos\fP\&.
 .in -3m
 
 .ZI 3m "\fB--apropos\fP (\fIlist synopsis of all options\fP)"

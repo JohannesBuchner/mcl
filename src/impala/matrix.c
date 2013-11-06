@@ -1081,6 +1081,14 @@ mclMatrix* mclxMax
 ;  }
 
 
+mclMatrix* mclxMinus
+(  const mclMatrix*        m1
+,  const mclMatrix*        m2
+)  
+   {  return mclxBinary(m1, m2, fltSubtract)
+;  }
+
+
 mclMatrix* mclxAdd
 (  const mclMatrix*        m1
 ,  const mclMatrix*        m2

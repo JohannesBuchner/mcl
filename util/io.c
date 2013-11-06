@@ -1,9 +1,9 @@
 /*   Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
- * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
- * (at your option) any later version.  You should have received a copy of the
- * GPL along with MCL, in the file COPYING.
+ * This file is part of tingea.  You can redistribute and/or modify tingea
+ * under the terms of the GNU General Public License; either version 2 of the
+ * License or (at your option) any later version.  You should have received a
+ * copy of the GPL along with tingea, in the file COPYING.
 */
 
 #include <stdlib.h>
@@ -140,7 +140,8 @@ mcxIO* mcxIOrenew
       ;  xf->fp   =  NULL
       ;  xf->mode =  NULL
    ;  }
-      else if (mcxIOwarnOpenfp(xf, "mcxIOrenew"))
+      else if (xf->stdio)
+   ;  else if (mcxIOwarnOpenfp(xf, "mcxIOrenew"))
       mcxIOclose(xf)
 
    ;  mcxIOreset(xf)
@@ -738,9 +739,11 @@ mcxbool mcxIOwriteCookie
 )
    {  int n_written = fwrite(&number, sizeof(int), 1, xf->fp)
    ;  if (n_written != 1)
-      return FALSE
+      {  mcxErr("mcxIOwriteCookie", "failed to write <%d>", number)
+      ;  return FALSE
+   ;  }
 
-   ;  return TRUE
+      return TRUE
 ;  }
 
 

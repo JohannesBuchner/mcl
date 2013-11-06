@@ -7,7 +7,9 @@
 */
 
 /* TODO
- * adapt or warn on mismatched domains.
+ * compute when inner loop can be broken; all of xproj has been accounted for.
+ *    (sum meetsize)
+ * ? adapt or warn on mismatched domains.
 */
 
 
@@ -35,8 +37,8 @@ const char* usagelines[] =
 {  "clmmate [options] clfile1 clfile2"
 ,  ""
 ,  "Options:"
-,  "-twins <fname>   for each cluster in clfile1, write best match in clfile2"
-,  "                 (creates line based output suitable for sorting)"
+,  "-o <fname>    write to fname"
+,  "-l            write leading legend"
 ,  NULL
 }  ;
 
@@ -46,11 +48,11 @@ int main
 (  int                  argc
 ,  const char*          argv[]
 )
-   {  int digits = 8
-   ;  mcxIO* xfx, *xfy, *xftwins = NULL
-   ;  mclx* mx, *my, *meet, *teem, *mxt
+   {  mcxIO* xfx, *xfy, *xftwins = mcxIOnew("-", "w")
+   ;  mclx* mx, *my, *meet, *teem, *myt
    ;  int a = 1, x, y
    ;  mclxIOsetQMode("MCLXIOVERBOSITY", MCL_APP_VB_NO)
+   ;  mcxbool legend = FALSE
 
    ;  if (argc == 1)
       goto help
@@ -65,16 +67,12 @@ int main
          {  app_report_version(me)
          ;  exit(0)
       ;  }
-         else if (!strcmp(argv[a], "-twins"))
+         else if (!strcmp(argv[a], "-l"))
+         legend = TRUE
+      ;  else if (!strcmp(argv[a], "-o"))
          {  if (a++ + 1 >= argc)
             goto arg_missing
-         ;  xftwins = mcxIOnew(argv[a], "w")
-         ;  mcxIOopen(xftwins, EXIT_ON_FAIL)
-      ;  }
-         else if (!strcmp(argv[a], "-digits"))
-         {  if (a++ + 1 >= argc)
-            goto arg_missing
-         ;  digits = atoi(argv[a])
+         ;  mcxIOnewName(xftwins, argv[a])
       ;  }
          else if (0)
          {  arg_missing:
@@ -90,7 +88,9 @@ int main
       ;  a++
    ;  }
 
-      if (a+2 != argc)
+      mcxIOopen(xftwins, EXIT_ON_FAIL)
+
+   ;  if (a+2 != argc)
          mcxUsage(stdout, me, usagelines)
       ,  mcxExit(1)
 
@@ -99,29 +99,42 @@ int main
    ;  mcxIOclose(xfx)
    ;  xfy =  mcxIOnew(argv[a+1], "r")
    ;  my  =  mclxRead(xfy, EXIT_ON_FAIL)
-   ;  mxt =  mclxTranspose(mx)
+   ;  myt =  mclxTranspose(my)
 
-   ;  meet=  mclxCompose(mxt, my, 0)
+   ;  if (!MCLD_EQUAL(mx->dom_rows, my->dom_rows))
+      mcxDie(1, me, "domains are not equal")
+
+   ;  meet=  mclxCompose(myt, mx, 0)
    ;  teem=  mclxTranspose(meet)
+
+   ;  if (legend)
+      fprintf
+      (  xftwins->fp
+      ,  "%-10s %6s %6s %6s %6s %6s %6s %6s %6s %6s\n"
+      ,  "overlap"
+      ,  "x-idx"
+      ,  "y-idx"
+      ,  "meet"
+      ,  "xdiff"
+      ,  "ydiff"
+      ,  "x-size"
+      ,  "y-size"
+      ,  "x-proj"
+      ,  "y-proj"
+      )
 
    ;  for (x=0;x<N_COLS(meet);x++)
       {  mclv* xvec = meet->cols+x
       ;  long X = xvec->vid
-      ;  long xsize = mclvSum(xvec)
-
-      ;  printf
-         (  "cl %ld, %ld entries, file %s; iterating over file %s\n"
-         ,  X, xsize, xfy->fn->str, xfx->fn->str
-         )
-      ;  printf
-         (  " %10s: %9s %9s %9s %9s\n"
-         ,  "id", "meet", "ldif", "rdif", "rsize"
-         )
+      ;  long xproj = mclvSum(xvec)
+      ;  long xsize = mx->cols[x].n_ivps
+      ;  long x
 
       ;  for (y=0;y<N_COLS(teem);y++)
          {  mclv* yvec = teem->cols+y
          ;  long Y = yvec->vid
-         ;  long ysize = mclvSum(yvec)
+         ;  long yproj = mclvSum(yvec)
+         ;  long ysize = my->cols[y].n_ivps
          ;  double twinfac
          ;  long meetsize
          ;  mclp* ivp = mclvGetIvp(yvec, X, NULL)
@@ -133,29 +146,26 @@ int main
          */
 
          ;  meetsize = ivp->val
-         ;  printf
-            (  " %10ld: %9ld %9ld %9ld %9ld\n"
-            ,  Y
-            ,  meetsize
-            ,  xsize - meetsize
-            ,  ysize - meetsize
-            ,  ysize
-            )
 
-         ;  if (!xsize && !ysize)
+         ;  if (!xsize && !ysize)         /* paranoia */
             continue
+
          ;  twinfac = 2 * meetsize / ( (double) (xsize + ysize) )
 
          ;  if (xftwins)
             fprintf
             (  xftwins->fp
-            ,  "%-10.3f %6ld,%-6ld %6ld %6ld %6ld\n"
+            ,  "%-10.3f %6ld %6ld %6ld %6ld %6ld %6ld %6ld %6ld %6ld\n"
             ,  twinfac
             ,  X
             ,  Y
             ,  meetsize
             ,  xsize - meetsize
             ,  ysize - meetsize
+            ,  xsize
+            ,  ysize
+            ,  xproj
+            ,  yproj
             )
       ;  }
       }

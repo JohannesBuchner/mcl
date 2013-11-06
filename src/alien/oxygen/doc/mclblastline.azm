@@ -23,14 +23,12 @@
    with the developer and/or subscribe to mcl-devel as
    indicated on \httpref{http://micans.org/mcl/}.
 
-\cpar{NOTE}{With the default settings, mclblastline requires the presence
-of the \zoem macro processor to produce pretty-printed output
-(refer to the \sibref{mclpipeline}{mclpipeline manual} and the
-\sibref{clmformat}{clmformat manual} for more information on zoem and
-its usage in the pipeline).
-If the \genopt{--fmt-dump} option
-or the \genopt{--prepare-format} option is used,
-zoem will not be required.}
+\cpar{NOTE}{mclblastline used to require (given default parameters)
+the presence of the \zoem macro processor to produce detailed output.
+This is no longer the case. By default mclblastline now creates
+a line-based tab-separated dump file.
+Zoem \it{will} be invoked when the --fmt-fancy option is supplied.
+In that case, zoem obviously has to be installed.}
 
 \sec{description}{DESCRIPTION}
 
@@ -128,11 +126,6 @@ zoem will not be required.}
 \sec{sealso}{SEE ALSO}
 \par
    \sib{mcxdeblast}, \sib{mclpipeline}, \sib{mcxassemble}.
-
-\par
-   With default settings, \mclblastline depends on the presence
-   of \zoem. It can be obtained from
-   \httpref{http://micans.org/zoem/} .
 
 \"man::postamble"
 

@@ -15,11 +15,11 @@
 \setx{"mcx::tag"}{\zinsert{stamp.tag}}
 \setx{"mcx::stamp"}{\zinsert{stamp.stamp}}
 
-\setx{"man::year"}{\tr{}{\012}{}{\"man::year"}}
-\setx{"man::month"}{\tr{}{\012}{}{\"man::month"}}
-\setx{"man::day"}{\tr{}{\012}{}{\"man::day"}}
-\setx{"mcx::tag"}{\tr{}{\012}{}{\"mcx::tag"}}
-\setx{"mcx::stamp"}{\tr{}{\012}{}{\"mcx::stamp"}}
+\setx{"man::year"}{\tr{{delete}{[:space:]}}{\"man::year"}}
+\setx{"man::month"}{\tr{{delete}{[:space:]}}{\"man::month"}}
+\setx{"man::day"}{\tr{{delete}{[:space:]}}{\"man::day"}}
+\setx{"mcx::tag"}{\tr{{delete}{[:space:]}}{\"mcx::tag"}}
+\setx{"mcx::stamp"}{\tr{{delete}{[:space:]}}{\"mcx::stamp"}}
 
 \setx{"man::tag"}{\"mcx::tag", \"mcx::stamp"}
 \setx{"mcx::date"}{\"man::day" \"man::month" \"man::year"}

@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-## $Id: Makefile.am,v 1.4 2005/07/12 10:32:06 flux Exp $
+## $Id: Makefile.am,v 1.5 2005/09/29 11:15:46 flux Exp $
 
 exampledir = $(datadir)/doc/$(PACKAGE)/examples
 

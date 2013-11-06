@@ -11,7 +11,6 @@ background: white;
 margin-left: 8%;
 margin-right: 8%;
 font-family: Helvetica, Univers, Verdana, sans-serif;
-text-align: justify;
 }
 p.default {
 font-family: Helvetica, Univers, Verdana, sans-serif;
@@ -69,9 +68,9 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-29 Sep 2005&nbsp;&nbsp;&nbsp;
+27 Oct 2005&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxdump.ps"><b>mcxdump</b></a>
-1.005, 05-272
+1.005, 05-300
 </p>
 <div style="margin-top:1em">
 <table
@@ -109,15 +108,19 @@ mcxdump - dump matrices, optionally map indices to labels</p>
 <a class="intern" href="#opt-tabc"><b>[-tabc</b> &lt;fname&gt; (<i>column tab file</i>)<b>]</b></a>
 <a class="intern" href="#opt-tabr"><b>[-tabr</b> &lt;fname&gt; (<i>row tab file</i>)<b>]</b></a>
 <a class="intern" href="#opt--lazy-tab"><b>[--lazy-tab</b> (<i>allow tab/domain mismatch</i>)<b>]</b></a>
+<a class="intern" href="#opt--transpose"><b>[--transpose</b> (<i>work with the transpose</i>)<b>]</b></a>
 <a class="intern" href="#opt--no-values"><b>[--no-values</b> (<i>omit values</i>)<b>]</b></a>
 <a class="intern" href="#opt--no-loops"><b>[--no-loops</b> (<i>omit loops</i>)<b>]</b></a>
 <a class="intern" href="#opt--force-loops"><b>[--force-loops</b> (<i>force loops</i>)<b>]</b></a>
 <a class="intern" href="#opt--dump-pairs"><b>[--dump-pairs</b> (<i>emit pairs per line</i>)<b>]</b></a>
 <a class="intern" href="#opt--dump-lines"><b>[--dump-lines</b> (<i>emit rows per line</i>)<b>]</b></a>
 <a class="intern" href="#opt--dump-rlines"><b>[--dump-rlines</b> (<i>omit leading column node</i>)<b>]</b></a>
+<a class="intern" href="#opt--dump-tabc"><b>[--dump-tabc</b> (<i>dump tab file on column domain</i>)<b>]</b></a>
+<a class="intern" href="#opt--dump-tabr"><b>[--dump-tabr</b> (<i>dump tab file on row domain</i>)<b>]</b></a>
 <a class="intern" href="#opt-dump"><b>[-dump</b> &lt;fname&gt; (<i>alias for -o</i>)<b>]</b></a>
 <a class="intern" href="#opt-sep-value"><b>[-sep-value</b> &lt;str&gt; (<i>node/value separator</i>)<b>]</b></a>
-<a class="intern" href="#opt-sep"><b>[-sep</b> &lt;str&gt; (<i>field separator</i>)<b>]</b></a>
+<a class="intern" href="#opt-sep-field"><b>[-sep-field</b> &lt;str&gt; (<i>field separator</i>)<b>]</b></a>
+<a class="intern" href="#opt-sep-lead"><b>[-sep-lead</b> &lt;str&gt; (<i>lead separator</i>)<b>]</b></a>
 <a class="intern" href="#opt-h"><b>[-h</b> (<i>list help</i>)<b>]</b></a>
 <a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>list synopsis of all options</i>)<b>]</b></a>
 
@@ -176,13 +179,27 @@ and values attached to the row identifier by the node/value separator.
 In this format, the column identifier is output as the leading field.
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--dump-rlines"></a><b>--dump-rlines</b> (<i>omit leading column node</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 As the option above, except that the column identifier is not output.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--dump-tabc"></a><b>--dump-tabc</b> (<i>dump tab file on column domain</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+This will only infer the domains from the input matrix. It assumes
+the input tab file envelopes the matrix column domain, and it outputs
+a new tab file restricted to that domain.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--dump-tabr"></a><b>--dump-tabr</b> (<i>dump tab file on row domain</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+This will only infer the domains from the input matrix. It assumes
+the input tab file envelopes the matrix row domain, and it outputs
+a new tab file restricted to that domain.
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-sep-value"></a><b>-sep-value</b> &lt;str&gt; (<i>node/value separator</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Set the node/value separator for line based row ensemble output.
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-sep"></a><b>-sep</b> &lt;str&gt; (<i>field separator</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Set the field separator.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-sep-field"></a><b>-sep-field</b> &lt;str&gt; (<i>field separator</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Set the field separator for different row indices in a given column.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-sep-lead"></a><b>-sep-lead</b> &lt;str&gt; (<i>lead separator</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Set the lead separator. In the <b>--dump-lines</b> format it
+separates the leading column index from the following ensembl of
+row indices. It can be useful to make this different from the
+field separator. One can for example grep for columns that have
+more than one entry in a matrix mapping nodes to clusters. This
+will find nodes in overlap.
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-h"></a><b>-h</b> (<i>list help</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-Print help, this could possibly be the same output as
-supplied with <b>--apropos</b>.
+Print help, same as <b>--apropos</b>.
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--apropos"></a><b>--apropos</b> (<i>list synopsis of all options</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 List a one-line synopsis for all options.
 </div></td></tr>

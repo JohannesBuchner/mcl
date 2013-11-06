@@ -31,6 +31,7 @@
 #define     SORT_OPHOOKS 1
 
 int      opMul                (  void  )  ;
+int      opBlock              (  void  )  ;
 int      opImac               (  void  )  ;
 int      opAdd                (  void  )  ;
 int      opAddtp              (  void  )  ;
@@ -155,6 +156,12 @@ opHook opHookDir[] =
    ,  "add to object"
    ,  "<o1> <o2>"
    ,  "<o1+o2> <o2>"
+   }
+,  {  opBlock
+   ,  TOKEN_BLOCK
+   ,  "compute block matrix and its complement"
+   ,  "<mx> <dom>"
+   ,  "<mx> <blc> <bl>"
    }
 ,  {  opPow
    ,  TOKEN_POW
@@ -972,6 +979,31 @@ int opMul
    ;  zsPop()
 
    ;  zsPush(o3)
+   ;  return 1
+;  }
+
+
+int opBlock
+(  void
+)
+   {  int ok = zsHaveNargs(2) ? 1 : 0
+   ;  mclx* mx, *dom, *block, *blockc
+
+   ;  if (!ok)
+      return 0
+
+   ;  mx    =  zsGetOb(1, UTYPE_MX)
+   ;  dom   =  zsGetOb(0, UTYPE_MX)
+
+   ;  if (!mx || !dom)
+      return 0
+
+   ;  block    =  mclxBlocks(mx, dom)
+   ;  blockc   =  mclxMinus(mx, block)
+   ;  zsPop()
+
+   ;  zgPush(UTYPE_MX, blockc)
+   ;  zgPush(UTYPE_MX, block)
    ;  return 1
 ;  }
 

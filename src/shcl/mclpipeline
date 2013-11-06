@@ -298,6 +298,7 @@ while (@ARGV && $ARGV[0] =~ /^--/) {
    }
    elsif ($key eq 'fmt-fancy') {
       $fmt_fancy = 1;
+      $endlevel = 5;
    }
    elsif ($key =~ /^fmt(.*)$/) {
       my $fmtkey = $1;
@@ -597,7 +598,7 @@ sub report_files {
       }
       else {
          print "zoem should further process the files in $fmt_dir_name\n";
-         print "but  you don't seem to have zoem installed --\n";
+         print "but you don't seem to have zoem installed --\n";
          print "visit http://micans.org/zoem if you like\n";
       }
    }

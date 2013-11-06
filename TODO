@@ -1,16 +1,99 @@
-regularia projectia diligentia        _____________________________________
-                                     |                                     |
-                                     - make mcl available as library call  |
-                                     - extend mcl with scripting language. |
-                                     - visualize mcl process dynamically   |
-                                     - framework for IO domain manipulation|
-                                     - framework for adapt                 |
-                                     |_____________________________________|
+regularia projectia diligentia
+
+     _____________________________________
+    |                                     |
+    - allow unpredeclared input format (cannonical only)
+    - undeclared binary format (canonical only)
+    - make mcl available as library call  |
+    - buffer mcl  input                   |
+    - extend mcx with scripting language. try ruby and lua.
+    - move mcxsubs to mcx                 |
+    - visualize mcl process dynamically   |
+    - try to spot/frame siphoning         |
+    - framework for IO domain manipulation|
+    - framework for adapt                 |
+    - framework for overlap               |
+    |_____________________________________|
+
+
+-  enable binary output without seeking.
+
+-  towards streaming input 
+
 
 --------------------
 
+on domain operations,
+   mclfam should emit notification when it is adjusting domains.
+   serves as signal to user.
+
+--------------------
+
+scripting language needed to avoid making primitives out of
+   'colsizes' etc.
+   many issues, one of which is sparseness.
+
+suppose you work with a huge matrix and want to extract some
+   submatrices and subtabs without reading it into memory multiple
+   times.
+   On the one hand, just reading it should not be that expensive then, 
+   on the other hand,
+   we might try to move everything into mcx.
+
+--------------------
+
+/  mcxsubs acting on tabs.
+   should be relatively easy: just a different output primitive
+   tab(foo)
+   note that mcxdump already can take subselections.
+
+-  allow unpredeclared input format, canonical only.
+   mcxassemble-like options for dealing with repeats.
+   force-equal-doms,
+   fill in gaps in domain.
+
+(mclheader
+mcltype undeclared-matrix
+)
+
+-  advertise mcxdeblast --abc
+-  perhaps duplicate it under a different name. 
+
+--------------------
+
+-  FAQ things you know or should know.
+   mcxdeblast
+   threads
+
+--------------------
+
+!  make a vector-dump-debug routine that I am happy with.
+perhaps build on the one in mcxdump
+
+-  mcxsubs fin noloop option.
+
+/  mcxsubs can read a domain from a tab file.
+   [then how about multiple tab files?  [linked list .. [shhhh]]]
+
+-  how about symmetrifying selections only for edges currently present?
+
 -  work on clmps for easy creation of graphics.
 
+--------------------
+
+/  ring functionality in mcxsubs.
+   only support it for graphs and enforce this.
+   likely force cdom == rdom
+-  move extend_disc code from mcxsubs to impala.
+   fix mclxUnionv inefficiency.
+
+--------------------
+
+p  for selections involving submatrices (e.g. compute union row domain)
+   it could be useful to base heuristics on the number of entries
+   in the submatrix, or the estimated number.
+
+   then e.g. branch on sparse operation vs full operation
 
 -  sth to make matrices symmetric; by add or max or mul ..
    generalize addTranspose to mclxMergeTranspose
@@ -34,8 +117,6 @@ p
    *  optify dumper.threshold.
 
 =  sanitize/rework the mcl IO dump interface. it's crowded.
-
-=  mclxChangeRDomain etc better take const domain arg?
 
 -  mclcComponents assumes symmetric input (0/1 pattern). That's a pity.
 

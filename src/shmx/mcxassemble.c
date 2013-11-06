@@ -295,9 +295,9 @@ int main
    ;  mcxbits warn_repeat = MCLV_WARN_REPEAT
    ;  int EODATA = EOF
 
-   ;  void (*ivpmerge)(void* ivp1, const void* ivp2)  =  mclpMergeAdd
-   ;  double (*fltvecbinary)(pval val1, pval val2)    =  fltAdd
-   ;  double (*fltmxbinary) (pval val1, pval val2)    =  fltAdd
+   ;  void (*ivpmerge)(void* ivp1, const void* ivp2)  =  mclpMergeMax
+   ;  double (*fltvecbinary)(pval val1, pval val2)    =  fltMax
+   ;  double (*fltmxbinary) (pval val1, pval val2)    =  fltMax
 
    ;  mcxstatus parseStatus = STATUS_OK
    ;  mcxOption* opts, *opt

@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mclblastline" 1 "29 Sep 2005" "mclblastline 1\&.005, 05-272" "USER COMMANDS "
+.TH "mclblastline" 1 "27 Oct 2005" "mclblastline 1\&.005, 05-300" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -41,14 +41,12 @@ indicated on http://micans\&.org/mcl/\&.
 
 \fBNOTE\fP
 .br
-With the default settings, mclblastline requires the presence
-of the \fBzoem\fP macro processor to produce pretty-printed output
-(refer to the \fBmclpipeline manual\fP and the
-\fBclmformat manual\fP for more information on zoem and
-its usage in the pipeline)\&.
-If the \fB--fmt-dump\fP option
-or the \fB--prepare-format\fP option is used,
-zoem will not be required\&.
+mclblastline used to require (given default parameters)
+the presence of the \fBzoem\fP macro processor to produce detailed output\&.
+This is no longer the case\&. By default mclblastline now creates
+a line-based tab-separated dump file\&.
+Zoem \fIwill\fP be invoked when the --fmt-fancy option is supplied\&.
+In that case, zoem obviously has to be installed\&.
 .SH DESCRIPTION
 \fBmclblastline\fP wraps around \fBmclpipeline\fP\&. It supplies the
 \fB--parser\fP=\fIapp\fP
@@ -137,7 +135,3 @@ Stijn van Dongen
 .SH SEE ALSO
 
 \fBmcxdeblast\fP, \fBmclpipeline\fP, \fBmcxassemble\fP\&.
-
-With default settings, \fBmclblastline\fP depends on the presence
-of \fBzoem\fP\&. It can be obtained from
-http://micans\&.org/zoem/ \&.

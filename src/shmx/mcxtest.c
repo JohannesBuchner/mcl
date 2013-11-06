@@ -59,6 +59,7 @@ int main
    ;  mclvFree(&vec2)
    ;  mclxFree(&mx)
    ;  mcxIOfree(&xf)
+   ;  return 0
 ;  }
 
 

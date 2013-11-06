@@ -439,7 +439,7 @@ void mclDumpMatrix
    ;  }
       else if (lines)
       {  mclxIOdumper dumper
-      ;  mclxIOdumpSet(&dumper, dump_modes, NULL, NULL)
+      ;  mclxIOdumpSet(&dumper, dump_modes, NULL, NULL, NULL)
       ;  dumper.threshold = 0.001
       ;  if (cat)
          fprintf(xfdump->fp, "(mcldump %s %d\n", affix, (int) n)

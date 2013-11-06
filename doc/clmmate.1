@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "clmmate" 1 "29 Sep 2005" "clmmate 1\&.005, 05-272" "USER COMMANDS "
+.TH "clmmate" 1 "27 Oct 2005" "clmmate 1\&.005, 05-300" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -31,16 +31,44 @@
 clmmate \- compute best matches between two clusterings
 .SH SYNOPSIS
 
-\fBclmmate\fP [-twins fname] <clfile1> <clfile2>
+\fBclmmate\fP [-l] [-o fname] <clfile1> <clfile2>
 .SH DESCRIPTION
 
-\fBclmmate\fP computes for each cluster \fCC1\fP in \fCclfile1\fP all clusters
-\fCC2\fP in \fCclfile2\fP that have non-empty intersection, and prints
-the number of shared nodes, the numbers of nodes in \fCC1\fP absent
-in \fCC2\fP, the number of nodes in \fCC2\fP absent in \fCC1\fP, and
-the total number of nodes in \fCC2\fP\&. The total number of nodes
-in \fCC1\fP is listed once for each sublisting, where the primary
-listing is over clusters in \fCclfile1\fP\&.
+\fBclmmate\fP computes for each cluster \fCX\fP in \fCclfile1\fP all clusters
+\fCY\fP in \fCclfile2\fP that have non-empty intersection and outputs
+a line with the data points listed below\&.
+
+.di ZV
+.in 0
+.nf \fC
+   overlap(X,Y)               # 2 * size(meet(X,Y)) / (size(X)+size(Y))
+   index(X)                   # name of cluster
+   index(Y)                   # name of cluster
+   size(meet(X,Y))
+   size(X-Y)                  # size of left difference
+   size(Y-X)                  # size of right difference
+   size(X)
+   size(Y)
+   projection(X, clfile2)     # see below
+   projection(Y, clfile1)     # see below
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
+Use the \fB-l\fP option to include a legend heading the output\&.
+
+The projected size of a cluster \fCX\fP relative to a clustering \fCK\fP is
+simply the sum of all the nodes shared between any cluster \fCY\fP in \fCK\fP
+and \fCX\fP, duplications allowed\&. For example, the projected size of
+\fC(0,1)\fP relative to \fC{(0,2,4), (1,4,9), (1,3,5)}\fP equals \fC3\fP\&.
+
+The overlap between \fCX\fP and \fCY\fP is exactly
+1\&.0 if the two clusters are identical, and for nearly identical
+clusterings the score will be close to 1\&.0\&.
 
 All of this information can also be obtained from the
 contingency matrix defined for two clusterings\&.
@@ -72,73 +100,9 @@ will create the contingency matrix in mcl matrix format
 in the file \fCting\fP, where columns range over the clusters
 in \fCclfile1\fP\&.
 
-\fBclmmate\fP has the advantage that information is presented
-in a more comprehensible fashion than available from
-the contingency matrix\&.
-Additionally, the \fB-twins\fP\ \fItwinfile\fP option is useful
-to inspect the list of best matching clusters from \fCclfile2\fP\&.
-This option will create a file \fCtwinfile\fP which contains
-cryptic (but useful) lines of the form
-
-.di ZV
-.in 0
-.nf \fC
-0\&.645           0,2         194    214      0
-0\&.004           0,3           1    407    128
-0\&.211           0,38         48    360      0
-0\&.203           0,40         46    362      0
-0\&.154           0,56         34    374      0
-0\&.145           0,63         32    376      0
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-The first line indicates that clusters\ 0 from \fCclfile1\fP
-and\ 2 from \fCclfile2\fP have 194\ nodes in their
-intersection; there are 214\ additional nodes in cluster\ 0,
-and 0\ additional nodes in cluster\ 2\&.
-Denote the size of the intersection (also called meet) by\ \fCm\fP,
-and the sizes of the two clusters as \fCs1\fP\ and\ \fCs2\fP respectively\&.
-The scores beginning each line are
-computed as \fC2*m/(s1+s2)\fP\&. Such a score equals
-exactly 1\&.0 if the two clusters are identical, and for nearly identical
-clusterings the score will be close to 1\&.0\&.
-
-The twin file can be put to good use by sorting it numerically on
+The output can be put to good use by sorting it numerically on
 that first score field\&. It is advisable to use a stable sort routine
 (use the \fB-s\fP option for UNIX sort)
-An example result is the following\&.
-
-.di ZV
-.in 0
-.nf \fC
-1\&.000           4,1         253      0      0
-1\&.000          17,7         119      0      0
-1\&.000          20,10         94      0      0
-1\&.000          26,17         71      0      0
-1\&.000          28,18         69      0      0
-1\&.000          30,20         66      0      0
-1\&.000          38,27         55      0      0
-1\&.000          41,29         53      0      0
-1\&.000          51,41         44      0      0
-1\&.000          64,51         35      0      0
-1\&.000          69,62         32      0      0
-1\&.000          71,61         32      0      0
-1\&.000          74,70         30      0      0
-1\&.000          76,73         28      0      0
-1\&.000          80,76         27      0      0
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
 From this information one can quickly extract the closest
 clusters between two clusterings\&.
 .SH AUTHOR

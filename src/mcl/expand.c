@@ -135,10 +135,10 @@ mclExpandParam* mclExpandParamNew
    ;  mxp->precision       =  0.000666
    ;  mxp->pct             =  0.95
 
-   ;  mxp->num_prune       =  1500
-   ;  mxp->num_select      =  500
-   ;  mxp->num_recover     =  600
-   ;  mxp->scheme          =  3
+   ;  mxp->num_prune       =  1444
+   ;  mxp->num_select      =  1444
+   ;  mxp->num_recover     =  1444
+   ;  mxp->scheme          =  6
    ;  mxp->my_scheme       =  -1
 
    ;  mxp->cutCof          =  4.0

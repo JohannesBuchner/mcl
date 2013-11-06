@@ -328,7 +328,11 @@ mcxstatus mclxReadDimensions
       ;  return STATUS_OK
    ;  }
 
+#if 0
       if (mcxFPisSeekable(xf->fp) && mcxIOtryCookie(xf, mclxCookie))
+#else
+      if (mcxIOtryCookie(xf, mclxCookie))
+#endif
       {  format = 'b'
       ;  fread(pn_cols, sizeof(long), 1, xf->fp)
       ;  fread(pn_rows, sizeof(long), 1, xf->fp)
@@ -801,17 +805,24 @@ mcxstatus mclxbWrite
 ,  mcxIO*            xf
 ,  mcxOnFail         ON_FAIL
 )
+#define  BREAK_IF(clause)   if (clause) { break; } else { acc++; }
    {  long      n_cols  =  N_COLS(mx)
    ;  long      n_rows  =  N_ROWS(mx)
    ;  long      flags   =  0
    ;  mclVector*vec     =  mx->cols
    ;  mcxstatus status  =  STATUS_FAIL
    ;  long      v_pos   =  0
+   ;  int       acc     =  0
+   ;  FILE*     fout    =  NULL
    ;  int       szl     =  sizeof(long)
-   ;  FILE*     fout    =  xf->fp
    ;  long      n_mod   =  MAX(1+(n_cols-1)/40, 1)
    ;  mcxbool progress  =     isatty(fileno(stderr))
                            && mclxIOgetQMode("MCLXIOVERBOSITY")
+
+#if 0
+   ;  mcxIOclose(xf)
+   ;  mcxIOrenew(xf, NULL, "wb")
+#endif
 
    ;  if (progress)
       fprintf(stderr, "[mclIO] writing <%s> ", xf->fn->str)
@@ -822,39 +833,40 @@ mcxstatus mclxbWrite
       flags |= 2
 
    ;  while (1)
-      {  if (xf->fp == NULL && (mcxIOopen(xf, ON_FAIL) != STATUS_OK))   break
-      ;  if (!mcxIOwriteCookie(xf, mclxCookie))                         break
-      ;  if (1 != fwrite(&n_cols, szl, 1, fout))                        break
-      ;  if (1 != fwrite(&n_rows, szl, 1, fout))                        break
-      ;  if (1 != fwrite(&flags, szl, 1, fout))                         break
-      ;  if (!(flags & 1) && STATUS_FAIL == mclvEmbedWrite(mx->dom_cols, xf))
-                                                                        break
-      ;  if (!(flags & 2) && STATUS_FAIL == mclvEmbedWrite(mx->dom_rows, xf))
-                                                                        break
+      {  BREAK_IF (xf->fp == NULL && (mcxIOopen(xf, ON_FAIL) != STATUS_OK))
+      ;  BREAK_IF (!mcxIOwriteCookie(xf, mclxCookie))
+
+      ;  fout = xf->fp
+      ;  BREAK_IF (1 != fwrite(&n_cols, szl, 1, fout))
+      ;  BREAK_IF (1 != fwrite(&n_rows, szl, 1, fout))
+      ;  BREAK_IF (1 != fwrite(&flags, szl, 1, fout))
+      ;  BREAK_IF (!(flags & 1) && STATUS_FAIL == mclvEmbedWrite(mx->dom_cols, xf))
+      ;  BREAK_IF (!(flags & 2) && STATUS_FAIL == mclvEmbedWrite(mx->dom_rows, xf))
 
             /* Write vector offsets (plus one for end of matrix body)
              * offsets are written relative to beginning.
             */
-      ;  if ((v_pos = ftell(fout)) < 0)                                 break
+      ;  BREAK_IF ((v_pos = ftell(fout)) < 0)
       ;  v_pos += (1 + n_cols) * szl
 
       ;  while (vec < mx->cols+n_cols)
-         {  if (1 != fwrite(&v_pos, szl, 1, fout))                      break
+         {  BREAK_IF (1 != fwrite(&v_pos, szl, 1, fout))
          ;  v_pos += 2 * szl + sizeof(double)+ vec->n_ivps * sizeof(mclIvp)
                                         /* -^- vid, n_ivps, val, ivps */
          ;  vec++
          ;  if (progress && (vec-mx->cols) % n_mod == 0)
             fputc('.', stderr)
       ;  }
-         if (vec != mx->cols+n_cols)                                    break
-      ;  if (1 != fwrite(&v_pos, sizeof(long), 1, fout))                break
+         BREAK_IF (vec != mx->cols+n_cols)
+      ;  BREAK_IF (1 != fwrite(&v_pos, sizeof(long), 1, fout))
                                        /* Write columns */   
       ;  n_cols      =  N_COLS(mx)
       ;  vec         =  mx->cols
 
       ;  while (vec < mx->cols+n_cols)
-         if (STATUS_FAIL == mclvEmbedWrite(vec++, xf))                  break
-      ;  if (vec != mx->cols+n_cols)                                    break
+         BREAK_IF (STATUS_FAIL == mclvEmbedWrite(vec++, xf))
+
+      ;  BREAK_IF (vec != mx->cols+n_cols)
 
       ;  status = STATUS_OK
       ;  break
@@ -866,9 +878,11 @@ mcxstatus mclxbWrite
       {  mcxErr
          (  "mclIO"
          ,  "failed to write native binary %ldx%ld matrix to stream <%s>"
+            " at level %d"
          ,  (long) N_ROWS(mx)
          ,  (long) N_COLS(mx)
          ,  xf->fn->str
+         ,  acc
          )
       ;  if (ON_FAIL == EXIT_ON_FAIL)
          mcxDie(1, "mclIO", "exiting")
@@ -2129,10 +2143,12 @@ void mclvaDump2
 void mclxIOdumpSet
 (  mclxIOdumper*  dump
 ,  mcxbits        modes
+,  const char*    sep_lead
 ,  const char*    sep_row
 ,  const char*    sep_val
 )
    {  dump->modes    =  modes
+   ;  dump->sep_lead =  sep_lead ? sep_lead: "\t"
    ;  dump->sep_row  =  sep_row  ? sep_row : "\t"
    ;  dump->sep_val  =  sep_val  ? sep_val : ":"
    ;  dump->threshold = 0.0
@@ -2220,7 +2236,12 @@ mcxstatus mclxIOdump
          ;  }
 
             for (j=0;j<vec->n_ivps;j++)
-            {  const char* sep = ((modes & MCX_DUMP_RLINES) && !busy) ? "" : dumper->sep_row
+            {  const char* sep
+               =     ((modes & MCX_DUMP_RLINES) && !busy)
+                  ?  ""
+                  :     (j && !(modes & MCX_DUMP_RLINES))
+                     ?  dumper->sep_row
+                     :  dumper->sep_lead
             ;  mclIvp* ivp = vec->ivps+j
             ;  if (ivp->val < dumper->threshold)
                continue

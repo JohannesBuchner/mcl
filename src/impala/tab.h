@@ -17,7 +17,7 @@
 typedef struct
 {  mclVector*     domain
 ;  char**         labels
-;  char*          na          /* not available */
+;  char*          na       /* not available, returned if element not found */
 ;
 }  mclTab       ;
 

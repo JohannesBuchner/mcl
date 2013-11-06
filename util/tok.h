@@ -1,9 +1,9 @@
 /*   Copyright (C) 2005 Stijn van Dongen
  *
- * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
- * (at your option) any later version.  You should have received a copy of the
- * GPL along with MCL, in the file COPYING.
+ * This file is part of tingea.  You can redistribute and/or modify tingea
+ * under the terms of the GNU General Public License; either version 2 of the
+ * License or (at your option) any later version.  You should have received a
+ * copy of the GPL along with tingea, in the file COPYING.
 */
 
 #ifndef util_tok
@@ -14,8 +14,6 @@
 #include "list.h"
 #include "ting.h"
 
-
-#define TOK_DEL_WS   1        /* only delimiting whitespace */
 
 
 /*  This is a first sketchy attempt at some parse/tokenize routines.
@@ -35,6 +33,8 @@
 #define MCX_TOK_MODE_QUOTED   2  /* Quotes delimit tokens, hide brackets */ 
 #define MCX_TOK_MODE_PLAIN    4
 #define MCX_TOK_MODE_SGML     8  /* &code; other? */
+
+#define MCX_TOK_DEL_WS        16 /* only delimiting whitespace */
 
 
 /*    Returns first character not matching fbool, NULL if none.

@@ -17,14 +17,34 @@
 
 
 /*
- * dst and src specifications must have identical range patterns,
- * unless there is no matching part in dst because dst is truncated.
+ * README
+ *    This interface is not at all POSIX compliant. It might evolve to
+ *    optionally be indeed.
+ *    However, given some of the braindeadliness of POSIX tr compliance,
+ *    I don't think the worlds needs another tr implementation.
+ *    My gripe is mainly about derailed syntax such as '[:alpha:0'.
+ *    It should go down in a ball of flames, not happily parse.
+ *    To be honest, I don't know for sure whether this is a POSIX
+ *    lack of requirement or an implementation choice.
  *
- * excepts concatenation of single characters or ranges.
- * ranges can be of the form
- *    a-z
- *    \040-\177
- *    \x20-\x80
+ *    I did choose to follow most of the POSIX syntax. It is probably
+ *    a sign of weakness.
+ *    This interface should be able to do everything a POSIX interface can,
+ *    possibly more.
+ *
+ * -  It allows separate specification of src, dst, del and squash sets.
+ * -  Provisionally we accept "^spec" to indicate complement,
+ *       for any of src dst del squash sets.
+ * -  It uses [*c*20] to denote repeats, rather than [c*20].
+ *       rationale: do not slam door shut on new syntax.
+ * -  It does not recognize '[a-z]' ranges, only 'a-z'.
+ *       rationale: none. If ever, notation will be [-a-z] or similar.
+ * -  The magic repeat operator [*c*] stops on boundaries
+ *       rationale: I like it.
+ *       A boundary is introduced by stop/start of ranges and classes.
+ * -  For now, the interface does 1) deletion, 2) translation, 3) squashing.
+ *       in the future it may provide a custom order of doing things.
+ * 
  *
  * Apart from the fact that you cannot have '\0' in C strings, everything
  * here should work for '\0' as well - specifically the mcxTrTable structure.
@@ -35,31 +55,44 @@
  *
 */
 
+extern const char* mcx_tr_err;
+extern mcxbool     mcx_tr_debug;
+
 
 typedef struct
-{  int      tbl[256]
+{  u32      tlt[256]
 ;  mcxbits  modes
 ;
 }  mcxTR    ;
 
 
-#define MCX_TR_DEFAULT 0
-#define MCX_TR_SQUASH 1
-#define MCX_TR_DELETE 2
-#define MCX_TR_COMPLEMENT 4
+#define MCX_TR_DEFAULT           0
+#define MCX_TR_TRANSLATE   1 <<  1
+#define MCX_TR_SQUASH      1 <<  2
+#define MCX_TR_DELETE      1 <<  3
+#define MCX_TR_SOURCE_C    1 <<  4
+#define MCX_TR_DEST_C      1 <<  5
+#define MCX_TR_DELETE_C    1 <<  6
+#define MCX_TR_SQUASH_C    1 <<  7
 
-mcxbool mcxTRLoadTable
-(  const char*    src
-,  const char*    dst
-,  mcxTR*         tr
-,  mcxbits        flags
+
+#define MCX_TR_COMPLEMENT  1 << 10
+
+
+mcxstatus mcxTRloadTable
+(  const char* src
+,  const char* dst
+,  const char* delete
+,  const char* squash
+,  mcxTR*      tr
+,  mcxbits     modes
 )  ;
 
 
   /*  returns new length of string.
    *  fixme: document map/squash semantics.
   */
-int mcxTRTranslate
+int mcxTRtranslate
 (  char*    src
 ,  mcxTR*   tr
 )  ;
@@ -74,8 +107,9 @@ int mcxTRTranslate
     * so that the result can be used as a valid specification.
     *
     * This interface is still subject to change.
+    * Currently, there is even no implementation.
    */
-mcxTing* mcxTRExpandSpec
+mcxTing* mcxTRexpandSpec
 (  const char* spec
 ,  mcxbits  bits
 )  ;
@@ -90,8 +124,11 @@ int mcxTingTr
 (  mcxTing*       txt
 ,  const char*    src
 ,  const char*    dst
+,  const char*    delete
+,  const char*    squash
 ,  mcxbits        flags
 )  ;
+
 
 
 #endif

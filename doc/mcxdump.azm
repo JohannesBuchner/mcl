@@ -23,15 +23,19 @@
    \synoptopt{-tabc}{<fname>}{column tab file}
    \synoptopt{-tabr}{<fname>}{row tab file}
    \synoptopt{--lazy-tab}{allow tab/domain mismatch}
+   \synoptopt{--transpose}{work with the transpose}
    \synoptopt{--no-values}{omit values}
    \synoptopt{--no-loops}{omit loops}
    \synoptopt{--force-loops}{force loops}
    \synoptopt{--dump-pairs}{emit pairs per line}
    \synoptopt{--dump-lines}{emit rows per line}
    \synoptopt{--dump-rlines}{omit leading column node}
+   \synoptopt{--dump-tabc}{dump tab file on column domain}
+   \synoptopt{--dump-tabr}{dump tab file on row domain}
    \synoptopt{-dump}{<fname>}{alias for -o}
    \synoptopt{-sep-value}{<str>}{node/value separator}
-   \synoptopt{-sep}{<str>}{field separator}
+   \synoptopt{-sep-field}{<str>}{field separator}
+   \synoptopt{-sep-lead}{<str>}{lead separator}
    \synoptopt{-h}{list help}
    \synoptopt{--apropos}{list synopsis of all options}
 
@@ -101,15 +105,32 @@
 \item{\defopt{--dump-rlines}{omit leading column node}}
    As the option above, except that the column identifier is not output.
 
+\item{\defopt{--dump-tabc}{dump tab file on column domain}}
+   This will only infer the domains from the input matrix. It assumes
+   the input tab file envelopes the matrix column domain, and it outputs
+   a new tab file restricted to that domain.
+
+\item{\defopt{--dump-tabr}{dump tab file on row domain}}
+   This will only infer the domains from the input matrix. It assumes
+   the input tab file envelopes the matrix row domain, and it outputs
+   a new tab file restricted to that domain.
+
 \item{\defopt{-sep-value}{<str>}{node/value separator}}
    Set the node/value separator for line based row ensemble output.
 
-\item{\defopt{-sep}{<str>}{field separator}}
-   Set the field separator.
+\item{\defopt{-sep-field}{<str>}{field separator}}
+   Set the field separator for different row indices in a given column.
+
+\item{\defopt{-sep-lead}{<str>}{lead separator}}
+   Set the lead separator. In the \genopt{--dump-lines} format it
+   separates the leading column index from the following ensembl of
+   row indices. It can be useful to make this different from the
+   field separator. One can for example grep for columns that have
+   more than one entry in a matrix mapping nodes to clusters. This
+   will find nodes in overlap.
 
 \item{\defopt{-h}{list help}}
-   Print help, this could possibly be the same output as
-   supplied with \genopt{--apropos}.
+   Print help, same as \genopt{--apropos}.
 
 \item{\defopt{--apropos}{list synopsis of all options}}
    List a one-line synopsis for all options.

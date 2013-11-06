@@ -27,6 +27,8 @@
 #define     TOKEN_ROLL               "roll"
 #define     TOKEN_CLEAR              "clear"
 
+#define     TOKEN_BLOCK              "blocks"
+
 #define     TOKEN_MUL                "mul"
 #define     TOKEN_ADD                "add"
 #define     TOKEN_ADDTP              "addtp"

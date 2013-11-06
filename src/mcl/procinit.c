@@ -507,7 +507,7 @@ mclv* convert_spec
    {  char*       z       =   NULL
    ;  mcxTokFunc  tf
 
-   ;  tf.opts = TOK_DEL_WS
+   ;  tf.opts = MCX_TOK_DEL_WS
 
    ;  if (mcxTokExpectFunc(&tf, spec->str, spec->len, &z, -1, -1, NULL))
       return NULL

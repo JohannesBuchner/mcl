@@ -6,9 +6,9 @@
  * GPL along with MCL, in the file COPYING.
 */
 
-/* FOCUS:
+/* FOCUS
  *  - Don't implement chains that can be achieved more elegantly
- *    by reusing the program.
+ *    by reusing the program or other mcl siblings.
  *  - Do implement functionality that would otherwise be very time-consuming
  *    or silly not to implement given that the matrix is held in memory.
  *  - Don't create a multitude of directives; try to achieve power by
@@ -17,7 +17,16 @@
  *       different dom specs rather than expanding iIdDpPjJ logic.
 */
 
+/* NOTE
+ *    for random selection you are required to do
+ *       mcxsubs -imx small.mci -rfac 0.5 'dom(cr, I()), out(-)'
+ *    which is a bit annoying.
+*/
+
 /* TODO
+ *    Some scripting language to get an abstraction layer rather
+ *    than all this junk.
+ *
  *    Optimize 1-submatrix addition, and perhaps 2- and 4- as well.
  *
  *    Move tag and tag-digits opts into specs.
@@ -41,6 +50,7 @@
 #include "impala/pval.h"
 #include "impala/io.h"
 #include "impala/app.h"
+#include "impala/tab.h"
 #include "mcl/interpret.h"
 
 #include "util/types.h"
@@ -59,6 +69,7 @@
 enum
 {  MY_OPT_IMX
 ,  MY_OPT_DOMAIN
+,  MY_OPT_TAB
 ,  MY_OPT_BLOCK
 ,  MY_OPT_BLOCK2
 ,  MY_OPT_BLOCKC
@@ -210,6 +221,12 @@ mcxOptAnchor options[] =
    ,  "<int>"
    ,  "digits to print for tagged write"
    }
+,  {  "-tab"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_TAB
+   ,  "<fname>"
+   ,  "tab file name"
+   }
 ,  {  "-imx"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_IMX
@@ -245,6 +262,10 @@ typedef struct
 ;  double      val_max
 ;  long        sz_min
 ;  long        sz_max
+;  long        ext_disc         /* TODO remove ext_disc */
+;  long        ext_cdisc
+;  long        ext_rdisc
+;  long        ext_ring
 ;  int         n_col_specs
 ;  int         n_row_specs
 ;  mcxbool     do_extend
@@ -264,6 +285,7 @@ typedef struct
 ;  mclv*       universe_rows
 ;  mclv*       randselect_cols
 ;  mclv*       randselect_rows
+;  mclTab*     tab
 ;  long        min
 ;  long        max
 ;  int         rand_mode
@@ -305,8 +327,8 @@ void thin_out
       ;  if (((double) r) / RANDOM_MAX > fac)
          universe->ivps[i].val = 0.0
    ;  }
-
       mclvUnary(universe, fltGtBar, &zero)
+;fprintf(stderr, "%d left\n", universe->n_ivps)
 ;  }
 
 
@@ -358,6 +380,11 @@ void spec_init
    ;  spec->sz_min         =  0
    ;  spec->sz_max         =  0
 
+   ;  spec->ext_disc       =  0
+   ;  spec->ext_cdisc      =  0
+   ;  spec->ext_rdisc      =  0
+   ;  spec->ext_ring       =  0
+
    ;  spec->sel_val_opts   =  0
    ;  spec->sel_sz_opts    =  0
    ;  spec->fin_map_opts   =  0
@@ -376,16 +403,18 @@ int main
 (  int                  argc
 ,  const char*          argv[]
 )  
-   {  mcxIO *xfcl = NULL, *xfmx = NULL
+   {  mcxIO *xfcl = NULL, *xfmx = NULL, *xftab = NULL
 
    ;  mclx *dom = NULL,*el2dom = NULL, *mx = NULL
    ;  mclv *universe_rows = NULL, *universe_cols = NULL
    ;  mclv *randselect_rows = NULL, *randselect_cols = NULL
    ;  context_mt  ctxt
-   ;  mcxTing* fnout     =  mcxTingNew("out.mcxsubs")
+   ;  mcxTing* fnout    =  mcxTingNew("out.mcxsubs")
 
-   ;  subspec_mt *specs   =  NULL
-   ;  int    n_spec  =  0
+   ;  mclTab* tab       =  NULL
+
+   ;  subspec_mt *specs =  NULL
+   ;  int    n_spec     =  0
    ;  mcxBuf spec_buf
 
    ;  int digits        =  MCLXIO_VALUE_GETENV
@@ -432,6 +461,12 @@ int main
             case MY_OPT_VERSION
          :  app_report_version(me)
          ;  return 0
+         ;
+
+            case MY_OPT_TAB
+         :  xftab = mcxIOnew(opt->val, "r")
+         ;  mcxIOopen(xftab, EXIT_ON_FAIL)
+         ;  break
          ;
 
             case MY_OPT_IMX
@@ -545,6 +580,8 @@ int main
 
       for (a=1+n_arg_read;a<argc;a++)
       {  subspec_mt* spec =   mcxBufExtend(&spec_buf, 1, EXIT_ON_FAIL)
+      ;  if ((unsigned char) argv[a][0] == '-')
+         mcxDie(1, me, "not an option, not a spec: <%s>", argv[a])
       ;  spec_init(spec, argv[a], spec_buf.n, do_extend)
    ;  }
 
@@ -580,6 +617,11 @@ int main
       ;  universe_cols =  mclvClone(mx->dom_cols)
    ;  }
 
+      if (xftab)
+      {  tab = mclTabRead(xftab, NULL, EXIT_ON_FAIL)
+      ;  mcxIOfree(&xftab)
+   ;  }
+
       if (dfac)
       {  randselect_cols = mclvClone(universe_cols)
       ;  thin_out(randselect_cols, dfac)
@@ -587,19 +629,19 @@ int main
          randselect_rows = mclvClone(randselect_cols)
       ;  else
             randselect_rows = mclvClone(universe_rows)
-         ,  thin_out(randselect_cols, dfac)
+         ,  thin_out(randselect_rows, dfac)
    ;  }
       else
       {  if (cfac)
             randselect_cols = mclvClone(universe_cols)
          ,  thin_out(randselect_cols, cfac)
       ;  else
-         randselect_cols = mclvInit(NULL)
+         randselect_cols = NULL
       ;  if (rfac)
             randselect_rows = mclvClone(universe_rows)
-         ,  thin_out(randselect_cols, rfac)
+         ,  thin_out(randselect_rows, rfac)
       ;  else
-         randselect_rows = mclvInit(NULL)
+         randselect_rows = NULL
    ;  }
 
       if (xfcl)
@@ -637,6 +679,7 @@ int main
    ;  if (bCltag)
       el2dom = mclxTranspose(dom)
 
+   ;  ctxt.tab             =  tab
    ;  ctxt.dom             =  dom
    ;  ctxt.mx              =  mx
    ;  ctxt.el2dom          =  el2dom
@@ -794,16 +837,24 @@ mcxstatus add_vec
 
    ;  mclv* invec2      =  NULL
 
-   ;  if (itype == 'i' || itype == 'I')
+   ;  if (itype == 'i' || itype == 'I')   /* fixme danger const cast */
       invec2 = (mclv*) invec              /* modify in 'd/D' case */
 
    ;  else if (itype == 'd' || itype == 'D')
       invec2 = mclxUnionv(ctxt->dom, invec, NULL)
 
-   ;  if (modec)
+   ;  else if (itype == 't' || itype == 'T')
+      {  if (!ctxt->tab)
+         {  mcxErr(me, "no tab file specified!")
+         ;  return STATUS_FAIL
+      ;  }
+         invec2 = ctxt->tab->domain
+   ;  }
+
+      if (modec)
       {  mclv* invec_c = mclvClone(invec2)
 
-      ;  if (itype == 'I')
+      ;  if (itype == 'I' || itype == 'T')
          mcldMinus(universe_cols, invec_c, invec_c)
       ;  else if (itype == 'D')
          mcldMinus(ctxt->dom->dom_rows, invec_c, invec_c)
@@ -831,7 +882,7 @@ mcxstatus add_vec
       if (moder)
       {  mclv* invec_r = mclvClone(invec2)
 
-      ;  if (itype == 'I')
+      ;  if (itype == 'I' || itype == 'T')
          mcldMinus(universe_rows, invec_r, invec_r)
       ;  else if (itype == 'D')
          mcldMinus(ctxt->dom->dom_rows, invec_r, invec_r)
@@ -923,7 +974,7 @@ mcxstatus parse_dom
       ;  mcxTing* id = lk->val
       ;  char* z
 
-      ;  tf.opts = TOK_DEL_WS
+      ;  tf.opts = MCX_TOK_DEL_WS
 
       ;  if
          (  STATUS_OK
@@ -934,7 +985,7 @@ mcxstatus parse_dom
          ;  unsigned char itype  =  str[0]
          ;  long twilch = 0
 
-         ;  if (itype != 'i' && itype != 'I' && itype != 'd' && itype != 'D')
+         ;  if (!strchr("iIdDtT", (int) itype))
             {  mcxErr(me, "unknown index type <%c>", (int) itype)
             ;  break
          ;  }
@@ -953,7 +1004,7 @@ mcxstatus parse_dom
                twilch = -2
          ;  }
 
-            if
+            if             /* fixme really redundant for tab spec */
             ( !(  vec 
                =  ilSpecToVec(tf.args->next, &twilch, NULL, RETURN_ON_FAIL)
                )
@@ -986,6 +1037,56 @@ mcxstatus parse_dom
 ;  }
 
 
+mcxstatus parse_ext
+(  mcxLink*    src
+,  int         n_args
+,  subspec_mt* spec
+,  context_mt* ctxt
+)
+   {  mcxLink* lk = src
+   
+   ;  while ((lk = lk->next))
+      {  mcxTokFunc tf
+      ;  mcxTing* extspec = lk->val
+      ;  char* z
+
+      ;  tf.opts = MCX_TOK_DEL_WS
+
+      ;  if
+         (  STATUS_OK
+         == mcxTokExpectFunc(&tf, extspec->str, extspec->len, &z, 1, 1, NULL)
+         )
+         {  const char* val = ((mcxTing*) tf.args->next->val)->str
+         ;  const char* key = tf.key->str
+         ;  char* onw = NULL        /* onwards */
+         ;  long l = strtol(val, &onw, 10)
+
+         ;  if (val == onw)
+            {  mcxErr(me, "failed to parse number <%s>", val)
+            ;  break
+         ;  }
+
+            if (!strcmp(key, "disc"))
+            spec->ext_disc = l
+         ;  else if (!strcmp(key, "ring"))
+            spec->ext_ring = l
+         ;  else if (!strcmp(key, "cdisc"))
+            spec->ext_cdisc = l
+         ;  else if (!strcmp(key, "rdisc"))
+            spec->ext_rdisc = l
+         ;  else
+            {  mcxErr(me, "unexpected <%s>", key)
+            ;  break
+         ;  }
+            mcxTell(me, "extending %s %ld", key, (long) l)
+      ;  }
+         else
+         break
+   ;  }
+      return lk ? STATUS_FAIL : STATUS_OK
+;  }
+
+
 mcxstatus parse_size
 (  mcxLink*    src
 ,  int         n_args
@@ -999,7 +1100,7 @@ mcxstatus parse_size
       ;  mcxTing* valspec = lk->val
       ;  char* z
 
-      ;  tf.opts = TOK_DEL_WS
+      ;  tf.opts = MCX_TOK_DEL_WS
 
       ;  if
          (  STATUS_OK
@@ -1053,7 +1154,7 @@ mcxstatus parse_val
       ;  mcxTing* valspec = lk->val
       ;  char* z
 
-      ;  tf.opts = TOK_DEL_WS
+      ;  tf.opts = MCX_TOK_DEL_WS
 
       ;  if
          (  STATUS_OK
@@ -1108,7 +1209,7 @@ mcxstatus dispatch
       ;  mcxstatus status = STATUS_FAIL
       ;  mcxTokFunc  tf
 
-      ;  tf.opts = TOK_DEL_WS
+      ;  tf.opts = MCX_TOK_DEL_WS
 
       ;  while (1)
          {  if (mcxTokExpectFunc(&tf, txt->str, txt->len,  &z, -1, -1, &n_args))
@@ -1123,6 +1224,11 @@ mcxstatus dispatch
 
             if (!strcmp(tf.key->str, "dom"))
             {  if (parse_dom(tf.args, n_args, spec, ctxt))
+               break
+         ;  }
+
+            else if (!strcmp(tf.key->str, "ext"))
+            {  if (parse_ext(tf.args, n_args, spec, ctxt))
                break
          ;  }
 
@@ -1162,6 +1268,28 @@ mcxstatus dispatch
 ;  }
 
 
+mcxstatus extend_disc
+(  mclv*       dom
+,  int         ext_disc
+,  context_mt* ctxt
+)
+   /* NOTE dom is alias for spec->cvec ёor spec->rvec */
+
+   {  mclx* mx = ctxt->mx
+   ;  mclv* wave = mclxUnionv(mx, dom, NULL)
+   ;  mclv* new  = mcldMinus(wave, dom, NULL)
+
+   ;  while (ext_disc-- && new->n_ivps)
+      {  mcldMerge(dom, new, dom)
+      ;  wave = mclxUnionv(mx, dom, wave)
+      ;  new  = mcldMinus(wave, dom, new)
+   ;  }
+      mclvFree(&wave)
+   ;  mclvFree(&new)
+   ;  return STATUS_OK
+;  }
+
+
 mcxstatus spec_parse
 (  subspec_mt* spec
 ,  context_mt* ctxt
@@ -1169,10 +1297,12 @@ mcxstatus spec_parse
    {  mcxTing* txt      =  spec->txt
    ;  mcxstatus status  =  STATUS_FAIL
    ;  int n_args        =  0
-   ;  mcxLink* args     =  mcxTokArgs(txt->str, txt->len, &n_args, TOK_DEL_WS)
+   ;  mcxLink* args     =  mcxTokArgs
+                           (txt->str, txt->len, &n_args, MCX_TOK_DEL_WS)
 
    ;  if (args)
-         mcxTell(me, "dispatching <%d> argument%s", n_args, n_args > 1 ? "s" : "")
+         mcxTell
+         (me, "dispatching <%d> argument%s", n_args, n_args > 1 ? "s" : "")
       ,  status = dispatch(args, spec, ctxt)
 
    ;  return status
@@ -1194,11 +1324,43 @@ void spec_exec
    ;  mcxIO *xf = mcxIOnew(spec->fname->str, "w")
 
    ;  if (!spec->n_row_specs)
-      mclvCopy(spec->rvec, ctxt->universe_rows)
+      mclvCopy
+      (  spec->rvec
+      ,     ctxt->randselect_rows
+         ?  ctxt->randselect_rows
+         :  ctxt->universe_rows
+      )
    ;  if (!spec->n_col_specs)
-      mclvCopy(spec->cvec, ctxt->universe_cols)
+      mclvCopy
+      (  spec->cvec
+      ,     ctxt->randselect_cols
+         ?  ctxt->randselect_cols
+         :  ctxt->universe_cols
+      )
 
-   ;  if (mcxIOopen(xf, RETURN_ON_FAIL) == STATUS_FAIL)
+   ;  if (spec->ext_disc)
+      {  long n = spec->cvec->n_ivps, nn
+      ;  extend_disc(spec->cvec, spec->ext_disc, ctxt)
+      ;  mclvCopy(spec->rvec, spec->cvec)
+      ;  nn = spec->cvec->n_ivps
+      ;  mcxTell(me, "disc-extend from %ld to %ld entries", n, nn)
+   ;  }
+      else
+      {  if (spec->ext_cdisc)
+         {  long n = spec->cvec->n_ivps, nn
+         ;  extend_disc(spec->cvec, spec->ext_cdisc, ctxt)
+         ;  nn = spec->cvec->n_ivps
+         ;  mcxTell(me, "cdisc-extend from %ld to %ld entries", n, nn)
+      ;  }
+         if (spec->ext_rdisc)
+         {  long n = spec->rvec->n_ivps, nn
+         ;  extend_disc(spec->rvec, spec->ext_rdisc, ctxt)
+         ;  nn = spec->rvec->n_ivps
+         ;  mcxTell(me, "rdisc-extend from %ld to %ld entries", n, nn)
+      ;  }
+      }
+
+      if (mcxIOopen(xf, RETURN_ON_FAIL) == STATUS_FAIL)
       {  mcxErr
          (me, "cannot open file <%s> for writing! Ignoring", xf->fn->str)
       ;  mcxIOfree(&xf)

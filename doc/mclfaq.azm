@@ -213,6 +213,100 @@ is it labeled 'Markov cluster' anyway?}
 \end{faqsec}
 
 \begin{faqsec}{
+   {ref}{ioformat}
+   {cap}{Input format}
+}
+
+\faq{}{How can I get my data into the MCL matrix format?}
+
+\ccar{NOTE}{The program \sib{mcxdeblast} referenced below is only
+available if mcl was configured with --enable-blast.
+}
+
+\par{
+   One of the easiest ways is if you have a list of label pairs with
+   similarities attached to the pairs.
+   Put this information into a file with each
+   pair of labels and the associated similarity on a single line
+   separated by whitespace. Example:}
+
+\verbatim{\:/
+apples    oranges    2.14
+oranges   pears      0.78
+oranges   apples     1.57
+pears     apples     1.01}
+
+
+\car{
+   Suppose the file is called \v{mydata}.
+   The following converts your data to MCL format.
+}
+
+\verbatim{\:/
+   mcxdeblast --abc mydata             # create mydata.hdr, mydata.raw
+   mcxassemble -b mydata -r max --map  # create mydata.sym}
+
+\car{
+   \sib{mcxdeblast} first converts your label input to numerical identifiers
+   and stores it in a so called \it{raw} format.
+   \sib{mcxassemble} then converts the raw format to MCL format, and it
+   makes sure that the result is symmetric. The result is stored
+   in the file \v{mydata.sym}. It should look like this:}
+
+\verbatim{\:/
+(mclheader
+mcltype matrix
+dimensions 3x3
+)
+(mclmatrix
+begin
+0 1:0.7800 2:2.1400 $
+1 0:0.7800 2:1.0100 $
+2 0:2.1400 1:1.0100 $
+)}
+
+\par{
+   The \useopt{-r}{max} option causes repeated entries (i.e. the same
+   label pair specified more than once) to be collapsed by taking
+   the maximum value. Another option is to add them by using
+   \useopt{-r}{add}.
+   The \useopt{--map} option tells \sib{mcxassemble}
+   to look for a file \v{mydata.map} that relates the tab file to
+   the raw format. This file is also created by \sib{mcxdeblast}.
+   \bf{Do not forget to use} \useopt{--map}!
+   Refer to \sib{mcxassemble} for more information on these and other
+   options.
+}
+
+\par{
+   By default \bf{mcxdeblast} creates a tab file ordered by occurrence
+   of labels in the input file (\v{mydata} in this cases).
+   This can be changed by supplying it with \useopt{--sort=a}
+   which triggers alphabetic sorting.
+}
+
+\:  hierverder: mention -r max, sort o|a , show sym.
+
+
+\faq{}{Can I get my graph into MCL format by directly streaming it?}
+\car{
+   For large graphs it becomes inconvenient to have to go via intermediate
+   formats, as it can take a substantial amount of time. The problem is
+   that currently MCL insists on knowing the domains of a matrix before
+   it will load the matrix itself, but often parsers or loaders
+   that stream from a file or database cannot supply this information
+   in time.
+   Directly streaming a matrix into MCL
+   requires an adaptive-loading mechanism. This is not yet implemented but it
+   is high on the TODO list. Adaptive loading will only be supported for
+   canonical domains (cf \sibmcxio).
+}
+
+\end{faqsec}
+
+
+
+\begin{faqsec}{
    {ref}{kind}
    {cap}{What kind of graphs}
 }

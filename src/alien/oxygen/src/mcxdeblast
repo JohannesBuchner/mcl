@@ -35,7 +35,7 @@
 
 use strict;
 
-$::mode_sort = 'a';     # a lphabetical
+$::mode_sort = 'o';     # a lphabetical
                         # o ccurrence
 
 $::mode_score = 'e';    # e value

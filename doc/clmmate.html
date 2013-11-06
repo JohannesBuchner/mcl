@@ -11,7 +11,6 @@ background: white;
 margin-left: 8%;
 margin-right: 8%;
 font-family: Helvetica, Univers, Verdana, sans-serif;
-text-align: justify;
 }
 p.default {
 font-family: Helvetica, Univers, Verdana, sans-serif;
@@ -69,9 +68,9 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-29 Sep 2005&nbsp;&nbsp;&nbsp;
+27 Oct 2005&nbsp;&nbsp;&nbsp;
 <a class="local" href="clmmate.ps"><b>clmmate</b></a>
-1.005, 05-272
+1.005, 05-300
 </p>
 <div style="margin-top:1em">
 <table
@@ -100,19 +99,37 @@ clmmate - compute best matches between two clusterings</p>
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
 <p class="default L50">
-<b>clmmate</b> [-twins fname] &lt;clfile1&gt; &lt;clfile2&gt;
+<b>clmmate</b> [-l] [-o fname] &lt;clfile1&gt; &lt;clfile2&gt;
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-<p class="default L50">
-<b>clmmate</b> computes for each cluster <tt>C1</tt> in <tt>clfile1</tt> all clusters
-<tt>C2</tt> in <tt>clfile2</tt> that have non-empty intersection, and prints
-the number of shared nodes, the numbers of nodes in <tt>C1</tt> absent
-in <tt>C2</tt>, the number of nodes in <tt>C2</tt> absent in <tt>C1</tt>, and
-the total number of nodes in <tt>C2</tt>. The total number of nodes
-in <tt>C1</tt> is listed once for each sublisting, where the primary
-listing is over clusters in <tt>clfile1</tt>.
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
+<b>clmmate</b> computes for each cluster <tt>X</tt> in <tt>clfile1</tt> all clusters
+<tt>Y</tt> in <tt>clfile2</tt> that have non-empty intersection and outputs
+a line with the data points listed below.</p>
+<pre>   overlap(X,Y)               # 2 * size(meet(X,Y)) / (size(X)+size(Y))
+   index(X)                   # name of cluster
+   index(Y)                   # name of cluster
+   size(meet(X,Y))
+   size(X-Y)                  # size of left difference
+   size(Y-X)                  # size of right difference
+   size(X)
+   size(Y)
+   projection(X, clfile2)     # see below
+   projection(Y, clfile1)     # see below
+</pre>
+<p class="default L50" style="margin-bottom:0">
+Use the <b>-l</b> option to include a legend heading the output.</p>
+<p class="default L50" style="margin-bottom:0">
+The projected size of a cluster <tt>X</tt> relative to a clustering <tt>K</tt> is
+simply the sum of all the nodes shared between any cluster <tt>Y</tt> in <tt>K</tt>
+and <tt>X</tt>, duplications allowed. For example, the projected size of
+<tt>(0,1)</tt> relative to <tt>{(0,2,4), (1,4,9), (1,3,5)}</tt> equals <tt>3</tt>.</p>
+<p class="default L50" style="margin-bottom:0">
+The overlap between <tt>X</tt> and <tt>Y</tt> is exactly
+1.0 if the two clusters are identical, and for nearly identical
+clusterings the score will be close to 1.0.</p>
+<p class="default L50" style="margin-bottom:0">
 All of this information can also be obtained from the
 contingency matrix defined for two clusterings.
 The <tt>[i,j]</tt> row-column entry in a contigency matrix between
@@ -124,61 +141,19 @@ for example can be obtained as the sum of entries in row&nbsp;<tt>i</tt>
 and column&nbsp;<tt>j</tt> respectively, and the difference counts
 can then be obtained by substracting the intersection count.
 The contingency matrix can easily be computed using <b>mcx</b>;
-e.g.
+e.g.</p>
 <pre>
 mcx /clfile2 lm /clfile1 lm tp mul /ting wm</pre>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 will create the contingency matrix in mcl matrix format
 in the file <tt>ting</tt>, where columns range over the clusters
-in <tt>clfile1</tt>.
-<p class="default L50">
-<b>clmmate</b> has the advantage that information is presented
-in a more comprehensible fashion than available from
-the contingency matrix.
-Additionally, the <b>-twins</b>&nbsp;<i>twinfile</i> option is useful
-to inspect the list of best matching clusters from <tt>clfile2</tt>.
-This option will create a file <tt>twinfile</tt> which contains
-cryptic (but useful) lines of the form
-<pre>0.645           0,2         194    214      0
-0.004           0,3           1    407    128
-0.211           0,38         48    360      0
-0.203           0,40         46    362      0
-0.154           0,56         34    374      0
-0.145           0,63         32    376      0</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
-The first line indicates that clusters&nbsp;0 from <tt>clfile1</tt>
-and&nbsp;2 from <tt>clfile2</tt> have 194&nbsp;nodes in their
-intersection; there are 214&nbsp;additional nodes in cluster&nbsp;0,
-and 0&nbsp;additional nodes in cluster&nbsp;2.
-Denote the size of the intersection (also called meet) by&nbsp;<tt>m</tt>,
-and the sizes of the two clusters as <tt>s1</tt>&nbsp;and&nbsp;<tt>s2</tt> respectively.
-The scores beginning each line are
-computed as <tt>2*m/(s1+s2)</tt>. Such a score equals
-exactly 1.0 if the two clusters are identical, and for nearly identical
-clusterings the score will be close to 1.0.
-<p class="default L50">
-The twin file can be put to good use by sorting it numerically on
+in <tt>clfile1</tt>.</p>
+<p class="default L50" style="margin-bottom:0">
+The output can be put to good use by sorting it numerically on
 that first score field. It is advisable to use a stable sort routine
 (use the <b>-s</b> option for UNIX sort)
-An example result is the following.
-<pre>1.000           4,1         253      0      0
-1.000          17,7         119      0      0
-1.000          20,10         94      0      0
-1.000          26,17         71      0      0
-1.000          28,18         69      0      0
-1.000          30,20         66      0      0
-1.000          38,27         55      0      0
-1.000          41,29         53      0      0
-1.000          51,41         44      0      0
-1.000          64,51         35      0      0
-1.000          69,62         32      0      0
-1.000          71,61         32      0      0
-1.000          74,70         30      0      0
-1.000          76,73         28      0      0
-1.000          80,76         27      0      0</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 From this information one can quickly extract the closest
-clusters between two clusterings.
+clusters between two clusterings.</p>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>

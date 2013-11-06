@@ -1,97 +1,10 @@
-dnl This is acinclude.m4 - to be read by aclocal, which builds aclocal.m4.
+dnl Available from the GNU Autoconf Macro Archive at:
+dnl http://www.gnu.org/software/ac-archive/htmldoc/acx_pthread.html
 dnl
-dnl This file was downloaded as acx_pthread.m4 from
-dnl http://www.gnu.org/software/ac-archive/Installed_Packages/acx_pthread.m4 .
-dnl It is in the GNU autoconf macro archive at
-dnl http://www.gnu.org/software/ac-archive/ .  This page reads:
-dnl
-dnl  Please note that every macro contained in this archive is copyrighted by its
-dnl  respective author, unless the macro source explicitely says otherwise.
-dnl  Permission has been granted, though, to use and distribute all macros under the
-dnl  following license, which is a modified version of the GNU General Public
-dnl  License version 2:
-dnl 
-dnl  Every Autoconf macro presented on this web site is free software; you can
-dnl  redistribute it and/or modify it under the terms of the GNU General Public
-dnl  License as published by the Free Software Foundation; either version 2, or (at
-dnl  your option) any later version.
-dnl 
-dnl  They are distributed in the hope that they will be useful, but WITHOUT ANY
-dnl  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-dnl  PARTICULAR PURPOSE. See the GNU General Public License for more details. (You
-dnl  should have received a copy of the GNU General Public License along with this
-dnl  program; if not, write to the Free Software Foundation, Inc., 59 Temple Place
-dnl  -- Suite 330, Boston, MA 02111-1307, USA.)
-dnl 
-dnl  As a special exception, the Free Software Foundation gives unlimited permission
-dnl  to copy, distribute and modify the configure scripts that are the output of
-dnl  Autoconf. You need not follow the terms of the GNU General Public License when
-dnl  using or distributing such scripts, even though portions of the text of
-dnl  Autoconf appear in them. The GNU General Public License (GPL) does govern all
-dnl  other use of the material that constitutes the Autoconf program.
-dnl 
-dnl  Certain portions of the Autoconf source text are designed to be copied (in
-dnl  certain cases, depending on the input) into the output of Autoconf. We call
-dnl  these the "data" portions. The rest of the Autoconf source text consists of
-dnl  comments plus executable code that decides which of the data portions to output
-dnl  in any given case. We call these comments and executable code the "non-data"
-dnl  portions. Autoconf never copies any of the non-data portions into its output.
-dnl 
-dnl  This special exception to the GPL applies to versions of Autoconf released by
-dnl  the Free Software Foundation. When you make and distribute a modified version
-dnl  of Autoconf, you may extend this special exception to the GPL to apply to your
-dnl  modified version as well, *unless* your modified version has the potential to
-dnl  copy into its output some of the text that was the non-data portion of the
-dnl  version that you started with. (In other words, unless your change moves or
-dnl  copies text from the non-data portions to the data portions.) If your
-dnl  modification has such potential, you must delete any notice of this special
-dnl  exception to the GPL from your modified version.
-dnl
-dnl
-dnl
-dnl @synopsis ACX_PTHREAD([ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
-dnl
-dnl This macro figures out how to build C programs using POSIX
-dnl threads.  It sets the PTHREAD_LIBS output variable to the threads
-dnl library and linker flags, and the PTHREAD_CFLAGS output variable
-dnl to any special C compiler flags that are needed.  (The user can also
-dnl force certain compiler flags/libs to be tested by setting these
-dnl environment variables.)
-dnl
-dnl Also sets PTHREAD_CC to any special C compiler that is needed for
-dnl multi-threaded programs (defaults to the value of CC otherwise).
-dnl (This is necessary on AIX to use the special cc_r compiler alias.)
-dnl
-dnl If you are only building threads programs, you may wish to
-dnl use these variables in your default LIBS, CFLAGS, and CC:
-dnl
-dnl        LIBS="$PTHREAD_LIBS $LIBS"
-dnl        CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
-dnl        CC="$PTHREAD_CC"
-dnl
-dnl In addition, if the PTHREAD_CREATE_JOINABLE thread-attribute
-dnl constant has a nonstandard name, defines PTHREAD_CREATE_JOINABLE
-dnl to that name (e.g. PTHREAD_CREATE_UNDETACHED on AIX).
-dnl
-dnl ACTION-IF-FOUND is a list of shell commands to run if a threads
-dnl library is found, and ACTION-IF-NOT-FOUND is a list of commands
-dnl to run it if it is not found.  If ACTION-IF-FOUND is not specified,
-dnl the default action will define HAVE_PTHREAD.
-dnl
-dnl Please let the authors know if this macro fails on any platform,
-dnl or if you have any other suggestions or comments.  This macro was
-dnl based on work by SGJ on autoconf scripts for FFTW (www.fftw.org)
-dnl (with help from M. Frigo), as well as ac_pthread and hb_pthread
-dnl macros posted by AFC to the autoconf macro repository.  We are also
-dnl grateful for the helpful feedback of numerous users.
-dnl
-dnl based upon
-dnl @version $ Id : acx_pthread.m4,v 1.5 2002/05/02 09:05:37 simons Exp $
-dnl
-dnl @author Steven G. Johnson <stevenj@alum.mit.edu> and Alejandro Forero Cuervo <bachue@bachue.com>
-
 AC_DEFUN([ACX_PTHREAD], [
 AC_REQUIRE([AC_CANONICAL_HOST])
+AC_LANG_SAVE
+AC_LANG_C
 acx_pthread_ok=no
 
 # We used to check for pthread.h first, but this fails if pthread.h
@@ -124,9 +37,10 @@ fi
 
 # Create a list of thread flags to try.  Items starting with a "-" are
 # C compiler flags, and other items are library names, except for "none"
-# which indicates that we try without any flags at all.
+# which indicates that we try without any flags at all, and "pthread-config"
+# which is a program returning the flags for the Pth emulation library.
 
-acx_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -mthreads pthread --thread-safe -mt"
+acx_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -mthreads pthread --thread-safe -mt pthread-config"
 
 # The ordering *is* (sometimes) important.  Some notes on the
 # individual items follow:
@@ -145,6 +59,7 @@ acx_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -m
 #      also defines -D_REENTRANT)
 # pthread: Linux, etcetera
 # --thread-safe: KAI C++
+# pthread-config: use pthread-config program (for GNU Pth library)
 
 case "${host_cpu}-${host_os}" in
         *solaris*)
@@ -173,6 +88,13 @@ for flag in $acx_pthread_flags; do
                 AC_MSG_CHECKING([whether pthreads work with $flag])
                 PTHREAD_CFLAGS="$flag"
                 ;;
+
+		pthread-config)
+		AC_CHECK_PROG(acx_pthread_config, pthread-config, yes, no)
+		if test x"$acx_pthread_config" = xno; then continue; fi
+		PTHREAD_CFLAGS="`pthread-config --cflags`"
+		PTHREAD_LIBS="`pthread-config --ldflags` `pthread-config --libs`"
+		;;
 
                 *)
                 AC_MSG_CHECKING([for the pthreads library -l$flag])
@@ -244,8 +166,8 @@ if test "x$acx_pthread_ok" = xyes; then
         AC_MSG_CHECKING([if more special flags are required for pthreads])
         flag=no
         case "${host_cpu}-${host_os}" in
-                *-aix* | *-freebsd*)     flag="-D_THREAD_SAFE";;
-                *solaris* | alpha*-osf*) flag="-D_REENTRANT";;
+                *-aix* | *-freebsd* | *-darwin*) flag="-D_THREAD_SAFE";;
+                *solaris* | *-osf* | *-hpux*) flag="-D_REENTRANT";;
         esac
         AC_MSG_RESULT(${flag})
         if test "x$flag" != xno; then
@@ -273,7 +195,5 @@ else
         acx_pthread_ok=no
         $2
 fi
-
+AC_LANG_RESTORE
 ])dnl ACX_PTHREAD
-
-dnl end of acinclude.m4

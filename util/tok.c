@@ -1,9 +1,9 @@
 /*  Copyright (C) 2005 Stijn van Dongen
  *
- * This file is part of MCL.  You can redistribute and/or modify MCL under the
- * terms of the GNU General Public License; either version 2 of the License or
- * (at your option) any later version.  You should have received a copy of the
- * GPL along with MCL, in the file COPYING.
+ * This file is part of tingea.  You can redistribute and/or modify tingea
+ * under the terms of the GNU General Public License; either version 2 of the
+ * License or (at your option) any later version.  You should have received a
+ * copy of the GPL along with tingea, in the file COPYING.
 */
 
 /* TODO allow empty args ()
@@ -290,7 +290,7 @@ mcxLink* mcxTokArgs
 
    ;  while ((status = mcxTokFind(x, ",", &y, 0, z-x)) == STATUS_OK || y)
       {  const char* l = x, *r = y
-      ;  if (opts & TOK_DEL_WS)
+      ;  if (opts & MCX_TOK_DEL_WS)
          {  l = mcxStrChrAint(x, isspace, y-x)
          ;  r = mcxStrRChrAint(x, isspace, y-x)
 

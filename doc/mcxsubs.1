@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcxsubs" 1 "29 Sep 2005" "mcxsubs 1\&.005, 05-272" "USER COMMANDS "
+.TH "mcxsubs" 1 "27 Oct 2005" "mcxsubs 1\&.005, 05-300" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -30,7 +30,7 @@
 .SH NAME
 mcxsubs \- extract submatrices (subgraphs) of a matrix (graph)\&.
 
-This can be used to
+\fBmcxsubs\fP can be used to
 inspect local cluster structure in a graph, for example by looking at the
 subgraph induced by a single cluster or a couple of clusterings, or the
 edge set where all tail nodes are from a set of domains and all head
@@ -67,6 +67,7 @@ and other miscellaneous operations\&.
 \fB[--blockc\fP (\fIuse complement of block matrix\fP)\fB]\fP
 \fB[--skin-read\fP (\fIread domain structure without entries\fP)\fB]\fP
 \fB[--extend\fP (\fIread extended submatrices\fP)\fB]\fP
+\fB[-tab\fP (\fIread tab file\fP)\fB]\fP
 \fB[--from-disk\fP (\fIspace/speed optimizer\fP)\fB]\fP
 \fB[-out\fP <fname> (\fIspecial purpose output file name\fP)\fB]\fP
 \fB[-efac\fP <num> (\fIrandom edge selection\fP)\fB]\fP
@@ -83,8 +84,8 @@ and other miscellaneous operations\&.
 
 If you are a frequent \fBmcxsubs\fP user with very large graphs, consider
 converting the input matrix into binary format using
-\fBmcxconvert\fP and then using the mcxsubs \fB--from-disk\fP
-option\&. This should give you a 400-fold speed gain\&.
+\fBmcxconvert\fP and then using the mcxsubs
+\fB--from-disk\fP option\&. This should give you a 400-fold speed gain\&.
 .SH DESCRIPTION
 
 \fBmcxsubs\fP lets you extract submatrices/subgraphs corresponding with index
@@ -149,6 +150,13 @@ is exactly the same\&.
 This reads a skeleton matrix by only considering its domain structure
 and not reading any entries, pertaining to the matrix
 specified by the \fB-imx\fP option\&.
+.in -3m
+
+.ZI 3m "\fB-tab\fP (\fIread tab file\fP)"
+\&
+.br
+Read a tab file\&. Its domain can be used by the \fCt\fP and \fCT\fP
+indicators\&.
 .in -3m
 
 .ZI 3m "\fB--extend\fP (\fIread extended submatrices\fP)"
@@ -310,12 +318,13 @@ be *very* much faster, to the extent of 400-fold speed gains\&.
 It does not matter whether more than one subgraph is specified\&.
 .in -3m
 .SH SUBMATRIX SPECIFICATIONS
+
 A submatrix or subgraph spec may contain a number of spec parts\&. Each part
 is specified in a function-style notation\&. Different parts are separated by
 commas\&. Parts may occur multiple times, but for most parts only the last one
 specified will be effective\&. The spec parts are the following: \fBdom\fP,
-\fBval\fP, \fBsize\fP, \fBfin\fP, and \fBout\fP\&. These are described below in
-the sections DOMAINS, VALUES, SIZE, FINALIZE and OUTPUT\&.
+\fBext\fP, \fBval\fP, \fBsize\fP, \fBfin\fP, and \fBout\fP\&. These are described
+below in the sections DOMAINS, EXTENSION, VALUES, SIZE, FINALIZE and OUTPUT\&.
 
 \fBDOMAINS\fP
 .br
@@ -331,11 +340,15 @@ Uppercase indicators indicate that the complement is being specified
 relative to the corresponding domain in the target matrix\&.
 
 \fIY\fP is the type indicator, it is exactly one of
-\fCi\fP, \fCI\fP, \fCd\fP, or \fCD\fP\&. The \fCi/I\fP indicators specify
+\fCi\fP, \fCI\fP, \fCd\fP, \fCD\fP, \fCt\fP, or \fCT\fP\&.
+The \fCi/I\fP indicators specify
 that \fIispec\fP contains a simple index specifation\&.
 The \fCd/D\fP specify that \fIispec\fP contains domain indices\&.
 \fIispec\fP must contain a comma-separated list of integers or
 integer ranges (e\&.g\&. 2, 5, 4-8)\&.
+\fCt\fP and \fCT\fP are restricted indicators that refer
+to the domain encoded in the tab file as specified by the
+\fB-tab\fP option\&. Their usage is described further below\&.
 
 For domain specifications (\fCd/D\fP) the columns indexed by
 these integers in the matrix specified in the \fB-dom\fP
@@ -412,6 +425,10 @@ There are two special domains \- use \fC-1\fP to obtain the row domain
 of the domain matrix, use \fC-2\fP to obtain its column domain\&.
 .in -3m
 
+The \fCt\fP and \fCT\fP indicators must be followed by a matching
+pair of matching parentheses\&. They specify to take the domain
+found in the tab file or its complement\&.
+
 As seen above, indices (either representing themselves or domains) are
 entered as comma-separated lists of single indices, ranges of indices
 (which may overlap), or staircases of indices (lists of indices with
@@ -425,6 +442,23 @@ result is passed to either \&'C\&' or \&'R\&', it is replaced by its complement\
 
 A range is specified e\&.g\&. as \fC10-14\fP and it is inclusive, denoting
 in this case the indices \fC{10,11,12,13,14}\fP\&.
+
+\fBEXTENSION\fP
+.br
+The extension part is specified as
+
+\fBext\fP( < \fBdisc\fP(\fIk\fP) | \fBcdisc\fP(\fIk\fP) | \fBrdisc\fP(\fIk\fP) >)
+
+This \fIassumes that the input matrix encodes a graph\fP, so the column
+and row domains must be equal\&.
+It will take the currently selected domain (column domain for
+\fBdisc\fP and \fBcdisc\fP, row domain for \fBrdisc\fP), and add
+all nodes to it that are reachable in \fIk\fP steps\&.
+The \fBdisc\fP variant replaces both column and row domains by
+the extended domain, the other variants just change a single domain\&.
+
+Setting \fIk\fP to \fC-1\fP results in adding \fIall\fP nodes that
+can be reached from the start domain\&.
 
 \fBVALUES\fP
 .br

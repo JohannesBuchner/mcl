@@ -337,6 +337,12 @@ mclx* mclxMax
 )  ;
 
 
+mclx* mclxMinus
+(  const mclx*  m1
+,  const mclx*  m2
+)  ;
+
+
 mclx* mclxAdd
 (  const mclx*  m1
 ,  const mclx*  m2

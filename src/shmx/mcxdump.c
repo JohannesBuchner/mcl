@@ -27,8 +27,9 @@
 #include "util/minmax.h"
 
 const char* me = "mcxdump";
-const char* sep_g = "\t";
-const char* sep_value_g = ":";
+const char* sep_lead_g = "\t";
+const char* sep_row_g = "\t";
+const char* sep_val_g = ":";
 
 const char* syntax = "Usage: mcxdump -imx <fname> [-dump <fname>] [options]";
 
@@ -47,8 +48,11 @@ enum
 ,  MY_OPT_DUMP_PAIRS
 ,  MY_OPT_DUMP_LINES
 ,  MY_OPT_DUMP_RLINES
-,  MY_OPT_SEP_VALUE
-,  MY_OPT_SEP
+,  MY_OPT_DUMP_TABC
+,  MY_OPT_DUMP_TABR
+,  MY_OPT_SEP_LEAD
+,  MY_OPT_SEP_FIELD
+,  MY_OPT_SEP_VAL
 ,  MY_OPT_HELP
 ,  MY_OPT_APROPOS
 ,  MY_OPT_VERSION
@@ -134,6 +138,18 @@ mcxOptAnchor options[] =
    ,  "<fname>"
    ,  "alias for -o"
    }
+,  {  "--dump-tabr"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_DUMP_TABR
+   ,  NULL
+   ,  "dump tab file on row domain"
+   }
+,  {  "--dump-tabc"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_DUMP_TABC
+   ,  NULL
+   ,  "dump tab file on column domain"
+   }
 ,  {  "--dump-pairs"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_DUMP_PAIRS
@@ -158,17 +174,23 @@ mcxOptAnchor options[] =
    ,  NULL
    ,  "as --dump-lines, do not emit the leading column identifier"
    }
+,  {  "-sep-lead"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_SEP_LEAD
+   ,  "<string>"
+   ,  "use <string> to separate col from row list (default tab)"
+   }
+,  {  "-sep-field"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_SEP_FIELD
+   ,  "<string>"
+   ,  "use <string> to separate row indices (default tab)"
+   }
 ,  {  "-sep-value"
    ,  MCX_OPT_HASARG
-   ,  MY_OPT_SEP_VALUE
+   ,  MY_OPT_SEP_VAL
    ,  "<string>"
-   ,  "use <string> as node/value separator"
-   }
-,  {  "-sep"
-   ,  MCX_OPT_HASARG
-   ,  MY_OPT_SEP
-   ,  "<string>"
-   ,  "use <string> as field separator"
+   ,  "use <string> as node/value separator (default colon)"
    }
 ,  {  NULL, 0, 0, NULL, NULL  }
 }  ;
@@ -188,6 +210,8 @@ int main
    ;  mclx* mx          =  NULL
    ;  mcxbool transpose =  FALSE
    ;  mcxbool lazy_tab  =  FALSE
+   ;  mcxbool dump_tabc =  FALSE
+   ;  mcxbool dump_tabr =  FALSE
    ;  mcxstatus parseStatus = STATUS_OK
 
    ;  mcxbits modes     =  MCX_DUMP_VALUES
@@ -239,13 +263,18 @@ int main
          ;  break
          ;
 
-            case MY_OPT_SEP
-         :  sep_g = opt->val
+            case MY_OPT_SEP_LEAD
+         :  sep_lead_g = opt->val
          ;  break
          ;
 
-            case MY_OPT_SEP_VALUE
-         :  sep_value_g = opt->val
+            case MY_OPT_SEP_FIELD
+         :  sep_row_g = opt->val
+         ;  break
+         ;
+
+            case MY_OPT_SEP_VAL
+         :  sep_val_g = opt->val
          ;  break
          ;
 
@@ -284,6 +313,16 @@ int main
          ;  break
          ;
 
+            case MY_OPT_DUMP_TABC
+         :  dump_tabc = TRUE
+         ;  break
+         ;
+
+            case MY_OPT_DUMP_TABR
+         :  dump_tabr = TRUE
+         ;  break
+         ;
+
             case MY_OPT_TRANSPOSE
          :  transpose = TRUE
          ;  break
@@ -298,6 +337,7 @@ int main
 
    ;  modes |= mode_loop | mode_dump
 
+
    ;  if (!xf_mx)
       mcxDie(1, me, "-imx argument required")
 
@@ -306,7 +346,38 @@ int main
 
    ;  mcxIOopen(xf_mx, EXIT_ON_FAIL)
 
-   ;  if (xf_tab && !lazy_tab)
+
+                        /* fixme: restructure code to include bit below */
+
+   ;  if (xf_tab && (dump_tabc || dump_tabr))
+      {  mclv* dom_cols = mclvInit(NULL)
+      ;  mclv* dom_rows = mclvInit(NULL)
+      ;  mclv* dom = dump_tabc ? dom_cols : dom_rows
+      ;  long label_o = -1, i
+      ;  long miss = 1
+
+      ;  if (!(tabc =  mclTabRead(xf_tab, NULL, RETURN_ON_FAIL)))
+         mcxDie(1, me, "error reading tab file")
+
+      ;  if (mclxReadDomains(xf_mx, dom_cols, dom_rows))
+         mcxDie(1, me, "error reading matrix file")
+      ;  mcxIOclose(xf_mx)
+
+      ;  for (i=0;i<dom->n_ivps;i++)
+         {  long idx = dom->ivps[i].idx
+         ;  const char* label = mclTabGet(tabc, idx, &label_o)
+         ;  if (label == tabc->na)
+               mcxErr(me, "warning index %ld not found", idx)
+            ,  fprintf(xf_dump->fp, "%ld\t%s%ld\n", idx, label, miss)
+         ;  else
+            fprintf(xf_dump->fp, "%ld\t%s\n", idx, label)
+      ;  }
+         mcxIOclose(xf_dump)
+      ;  return 0
+   ;  }
+
+
+      if (xf_tab && !lazy_tab)
       mx = mclxReadx(xf_mx, EXIT_ON_FAIL, MCL_READX_GRAPH)
    ;  else
       mx = mclxRead(xf_mx, EXIT_ON_FAIL)
@@ -359,7 +430,7 @@ int main
       ;  }
       }
 
-      mclxIOdumpSet(&dumper, modes, sep_g, sep_value_g)
+      mclxIOdumpSet(&dumper, modes, sep_lead_g, sep_row_g, sep_val_g)
 
    ;  if (mclxIOdump(mx, xf_dump, &dumper, tabc, tabr, RETURN_ON_FAIL))
       mcxDie(1, me, "something suboptimal")
