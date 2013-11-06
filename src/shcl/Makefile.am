@@ -18,14 +18,14 @@ clmformat_SOURCES = clmformat.c report.c
 clmframe_SOURCES = clmframe.c report.c
 clmdag_SOURCES = clmdag.c report.c
 
-clm_SOURCES = clm.c clminfo.c clmimac.c clmresidue.c clmclose.c clmmate.c \
+clm_SOURCES = clm.c clminfo.c clmimac.c clmadjust.c clmresidue.c clmclose.c clmmate.c \
 					clmmeet.c clmps.c clmdist.c clmorder.c report.c
 
 bin_SCRIPTS = mclpipeline
 noinst_SCRIPTS = mclgraga mclgrep
 
 EXTRA_DIST = clmorder.h clmdist.h clminfo.h clmclose.h clmmate.h clmmeet.h clm.h \
-					clmresidue.h clmimac.h clmps.h clmps.defs.h\
+					clmadjust.h clmresidue.h clmimac.h clmps.h clmps.defs.h\
 					report.h report.c \
 					$(bin_SCRIPTS) \
                mclgraga mclgrep clmformat.zmm clmformat.zmm.h \

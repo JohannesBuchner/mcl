@@ -1404,7 +1404,7 @@ mcxstatus mclvReplaceIdx
       ;  dst[-1] = piv
    ;  }
                      /*       a  b  c  d  _  f  g  h i
-                      * ei will go;
+                      * e will go;
                       * idx needs to be somewhere in the a-d range. If a
                       * needs to go then we have
                       *       _  b  c  d  e  f  g  h i
@@ -1443,7 +1443,7 @@ mclVector* mclvInsertIdx
    ;  else
       {  dim d = vec->n_ivps
       ;  mclvResize(vec, d+1)
-      ;  while (d && vec->ivps[d-1].idx > idx)     /* fixme: search and memmove */
+      ;  while (d && vec->ivps[d-1].idx > idx)
             vec->ivps[d] = vec->ivps[d-1]
          ,  d--
       ;  vec->ivps[d].val = val

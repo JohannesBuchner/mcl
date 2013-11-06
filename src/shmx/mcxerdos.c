@@ -384,7 +384,7 @@ mclx* handle_query
             ,     MCLXIO_STREAM_ABC
                |  MCLXIO_STREAM_MIRROR
                |  MCLXIO_STREAM_SYMMETRIC
-               |  MCLXIO_STREAM_GTAB_RESTRICT
+               |  MCLXIO_STREAM_GTAB_RESTRICT         /* docme/fixme need to check for tab_g ? */
             ,  NULL
             ,  mclpMergeMax
             ,  &streamer_g    /* has tab, if present */

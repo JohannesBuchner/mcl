@@ -160,8 +160,10 @@ static mcxstatus clcfMain
       ;  mx
       =  mclxIOstreamIn
          (  xfabc_g
-         ,     MCLXIO_STREAM_ABC       |  MCLXIO_STREAM_MIRROR
-            |  MCLXIO_STREAM_SYMMETRIC |  MCLXIO_STREAM_GTAB_RESTRICT
+         ,     MCLXIO_STREAM_ABC
+            |  MCLXIO_STREAM_MIRROR
+            |  MCLXIO_STREAM_SYMMETRIC
+            |  (tab_g ? MCLXIO_STREAM_GTAB_RESTRICT : 0)
          ,  NULL
          ,  mclpMergeMax
          ,  &streamer

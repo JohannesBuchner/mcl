@@ -94,8 +94,6 @@ typedef struct
 ;  mclx*                cl_result
 ;  mclx*                cl_assimilated
 ;  dim                  n_assimilated
-;  int                  lint_k
-;  int                  lint_l
 
 ;  int                  write_mode
 ;  int                  sort_mode

@@ -55,7 +55,6 @@ enum
 {  DIST_SPLITJOIN 
 ,  DIST_VARINF
 ,  DIST_MIRKIN
-,  DIST_SCATTER
 }  ;
 
 
@@ -71,25 +70,6 @@ typedef struct
 ;  mcxTing*    name
 ;
 }  clnode      ;
-
-
-enum
-{  D_SJA =  0
-,  D_SJB
-,  D_JQA
-,  D_JQB
-,  D_VIA
-,  D_VIB
-,  D_SCA
-,  D_SCB
-,  N_DIST
-}  ;
-
-
-typedef struct
-{  double  vals[N_DIST]
-;  
-}  dstnode     ;
 
 
 static const char* me = "clm dist";
@@ -136,7 +116,7 @@ static mcxOptAnchor distOptions[] =
    ,  MCX_OPT_HASARG
    ,  DIST_OPT_MODE
    ,  "<mode>"
-   ,  "one of sj|vi|mk|sc"
+   ,  "one of sj|vi|mk"
    }
 ,  {  "-digits"
    ,  MCX_OPT_HASARG
@@ -232,8 +212,6 @@ static mcxstatus distArgHandle
             mode_g = DIST_VARINF
          ;  else if (!strcmp(val, "ehd") || !strcmp(val, "mk"))
             mode_g = DIST_MIRKIN
-         ;  else if (!strcmp(val, "sc"))
-            mode_g = DIST_SCATTER
          ;  else
             mcxDie(1, me, "unknown mode <%s>", val)
       ;  break
@@ -257,7 +235,6 @@ static mcxstatus distMain
    ;  int a             =  0
    ;  int digits        =  2
    ;  mclx* nff_scores  =  NULL
-   ;  dim nff[5]        =  { 0, 0, 0, 0, 0 }
 
    ;  if (i_am_vol)
       me = "clm vol"
@@ -274,7 +251,7 @@ static mcxstatus distMain
       {  mcxIO *xfcl    =  mcxIOnew(argv[i], "r")
       ;  mclx*   cl     =  mclxRead(xfcl, EXIT_ON_FAIL)
       ;  dim o, m, e, err
-      ;  if ((err = clmEnstrict(cl, &o, &m, &e, 0)))
+      ;  if ((err = clmEnstrict(cl, &o, &m, &e, ENSTRICT_CUT_OVERLAP)))
          report_partition("clm dist/vol", cl, xfcl->fn, o, m, e)
       ;  if 
          (  n_clusterings
@@ -309,6 +286,7 @@ static mcxstatus distMain
          ;  double dist1d, dist2d
          ;  dim dist1i, dist2i
          ;  dim n_volatile = 0
+         ;  dim nff[5] = { 0, 0, 0, 0, 0 }
 
          ;  meet12 =  clmContingency(c1, c2)
          ;  meet21 =  mclxTranspose(meet12)
@@ -336,6 +314,8 @@ static mcxstatus distMain
                         ;  tivp->val += 1 / (double) meet->n_ivps
                      ;  }
                         n_volatile += meet->n_ivps
+                     ;  if (meet->n_ivps != meet_sz)
+                        mcxErr(me, "meet size difference")
                      ;  mclvFree(&meet)
                   ;  }
                      if
@@ -374,11 +354,13 @@ static mcxstatus distMain
                clmSJDistance(c1, c2, meet12, meet21, &dist1i, &dist2i)
             ,  fprintf
                (  xfout->fp
-               ,  "%lu\t%lu\t%lu\t%ld\t%ld\t%s\t%s\t[%ld,%ld,%ld,%ld,%ld]\n"
+               ,  "d=%lu\td1=%lu\td2=%lu\tnn=%ld\tc1=%ld\tc2=%ld\tv=%ld\tn1=%s\tn2=%s\tvol=[%ld,%ld,%ld,%ld,%ld]\n"
                ,  (ulong) (dist1i + dist2i)
                ,  (ulong) dist1i
                ,  (ulong) dist2i
                ,  (long) N_ROWS(c1)
+               ,  (long) N_COLS(c1)
+               ,  (long) N_COLS(c2)
                ,  (long) n_volatile
                ,  cls[i].name->str
                ,  cls[j].name->str
@@ -393,45 +375,33 @@ static mcxstatus distMain
                clmVIDistance(c1, c2, meet12, &dist1d, &dist2d)
             ,  fprintf
                (  xfout->fp
-               ,  "%.3f\t%.3f\t%.3f\t%ld\t%s\t%s\n"
+               ,  "d=%.3f\td1=%.3f\td2=%.3f\tnn=%ld\tc1=%ld\tc2=%ld\tn1=%s\tn2=%s\n"
                ,  dist1d + dist2d
                ,  dist1d
                ,  dist2d
                ,  (long) N_ROWS(c1)
+               ,  (long) N_COLS(c1)
+               ,  (long) N_COLS(c2)
                ,  cls[i].name->str
                ,  cls[j].name->str
                )
 
          ;  else if (mode_g == DIST_MIRKIN)
-               clmJQDistance(c1, c2, meet12, &dist1d, &dist2d)
+               clmMKDistance(c1, c2, meet12, &dist1i, &dist2i)
             ,  fprintf
                (  xfout->fp
-               ,  "%.3f\t%.3f\t%.3f\t%ld\t%s\t%s\n"
-               ,  dist1d + dist2d
-               ,  dist1d
-               ,  dist2d
+               ,  "d=%ld\td1=%ld\td2=%ld\tnn=%ld\tc1=%ld\tc2=%ld\tn1=%s\tn2=%s\n"
+               ,  dist1i + dist2i
+               ,  dist1i
+               ,  dist2i
                ,  (long) N_ROWS(c1)
+               ,  (long) N_COLS(c1)
+               ,  (long) N_COLS(c2)
                ,  cls[i].name->str
                ,  cls[j].name->str
                )
 
-         ;  else if (mode_g == DIST_SCATTER)
-            {  int n_meet = mclxNrofEntries(meet12)
-            ;  dist1i = n_meet-N_COLS(c1)
-            ;  dist2i = n_meet-N_COLS(c2)
-            ;  fprintf
-               (  xfout->fp
-               ,  "%lu\t%lu\t%lu\t%ld\t%s\t%s\n"
-               ,  (ulong) (dist1i + dist2i)
-               ,  (ulong) dist1i
-               ,  (ulong) dist2i
-               ,  (long) N_ROWS(c1)
-               ,  cls[i].name->str
-               ,  cls[j].name->str
-               )
-         ;  }
-
-            mclxFree(&meet12)
+         ;  mclxFree(&meet12)
          ;  mclxFree(&meet21)
       ;  }
       }

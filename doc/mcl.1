@@ -1,5 +1,5 @@
 .\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcl" 1 "29 May 2009" "mcl 1\&.008, 09-149" "USER COMMANDS "
+.TH "mcl" 1 "1 Jul 2009" "mcl 1\&.008, 09-182" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -234,8 +234,6 @@ for those who are interested, so it has many options\&.
 \fB[-l\fP n (\fIinitial iteration number\fP)\fB]\fP
 \fB[-L\fP n (\fImain iteration number\fP)\fB]\fP
 \fB[-i\fP f (\fIinitial inflation\fP)\fB]\fP
-\fB[-lint-k\fP <num> (\fIassimilate small clusters entirely\fP)\fB]\fP
-\fB[-lint-l\fP <num> (\fItry to pry nodes from small clusters\fP)\fB]\fP
 \fB[--adapt-local\fP (\fIlocalize inflation (experimental)\fP)\fB]\fP
 \fB[--shadow\fP mode (\fImodulation type\fP)\fB]\fP
 \fB[-shadow-s\fP f (\fIboost factor\fP)\fB]\fP
@@ -842,47 +840,6 @@ If your input graph is extremely dense, with an average node degree
 500, you may need to filter the input graph by removing edges,
 for example by using the
 \fB-ceil-nb\fP option\&.
-.in -2m
-
-.ZI 2m "\fB-lint-k\fP <numk> (\fIcluster size assimilation threshold\fP)"
-\&
-'in -2m
-.ZI 2m "\fB-lint-l\fP <numl> (\fIcluster size pry threshold\fP)"
-\&
-'in -2m
-'in +2m
-\&
-.br
-These options will result in postprocessing on the clustering, reallocating
-nodes that seems to have siphoned the wrong way\&. The input matrix will be
-reread for this\&.
-
-When applied to networks with inhomogenously distributed edge density
-characteristics the mcl process will sometimes cause smaller
-clusters/sparse areas to suck in border nodes which 1) have only few
-edges to that cluster/area and 2) seem to have been sucked out of a much
-denser cluster into which they would fit beautifully\&. This is fully in line
-with the flow characteristics of mcl but a largely unwanted phenomenon\&. The
-postprocessing step was added as a remedy for this problem should it
-manifest itself\&. It is based on the efficiency criterion described in
-[1] and [5] (there called \fIcoverage\fP)\&.
-
-With \fB-lint-l\fP a node is tentatively reallocated if this will improve
-its effiency, and if it is initially in a cluster of size at most \fInuml\fP\&.
-After all nodes that are candidate for reallocation have been
-identified the proposed new clustering is accepted if it increases the total
-edge weight captured\&. This procedure is iterated until no further
-reallocations are possible\&. The efficiency measure is a conservative
-criterion in that it does not unduly favour larger clusters over smaller
-clusters\&. For example, if a node has 4 neighbours in a cluster of size 8 and
-it has a further 8 neighbours in a cluster of size 100 the efficiency for
-the first cluster (relative to that node) will generally be higher than the
-efficiency for the second cluster\&.
-
-With \fB-lint-k\fP clusters up to the given size \fInumk\fP
-are assimilated by a larger cluster if a suitable candidate is found\&.
-This is based on the same criteria as described above, except
-that a cluster is absorbed in its entirety\&.
 .in -2m
 
 .ZI 2m "\fB--adapt-local\fP (\fIlocalize inflation (experimental)\fP)"

@@ -1,14 +1,24 @@
 
-   *  Analysis modes and lint modes would crash when combined with --abc.
-      Bug reported by David MacIver, now fixed.
 
-   *  The interpretation routines were rewritten to be more compact
-      and at a somewhat higher-level of expressiveness, and and should
-      accordingly be more understandable, maintanable, and extensible. They
-      might have new bugs too.
+Wed, 12 Jul 2009
 
-   *  mcl and 'mcx alter' and 'mcx erdos' have acquired an option
+   *  Lint modes have been removed from mcl. Linting can now be achieved
+      using 'clm adjust'.
+
+   *  Analysis modes (and lint modes, now removed) would crash when combined
+      with --abc.  Bug reported by David MacIver, now fixed.
+
+   *  The interpretation routines were rewritten to be more compact and at a
+      somewhat higher-level of expressiveness, and should accordingly be
+      more understandable, maintanable, and extensible. They might have new
+      bugs too.
+
+   *  mcl and 'mcx alter' and 'mcx erdos' have acquired the option -ceil-nb
       to remove edges of lowest weight from highly connected nodes.
+
+   *  volatility measures reported by 'clm dist' were wrong. Fixed.
+
+   *  changed clm dist output to key=value format.
 
    *  'mcx erdos' can now read label input with the -abc <fname> option.
 
@@ -25,16 +35,16 @@
       sticky nodes.
 
    *  The output format of 'mcx erdos' was streamlined to some extent.
-      It is now in a pseudo s-expression syntax.  mcx erdos can also read
-      label input with the customary -abc option.  In interactive mode it is
-      possible to transform a graph in various ways, and additionally, to
-      reread the graph from file.
+      It is now in a pseudo s-expression syntax.  mcx erdos can also read label
+      input with the customary -abc option.  In interactive mode it is possible
+      to transform a graph in various ways, and additionally, to reread the
+      graph from file.
 
    *  Option -pp <num> (simple pre-pruning mode) has been removed seeing
       that -ceil-nb should do a better job.
 
-   *  mcx has a new mode, 'alter'. Currently supports -ceil-nb similar
-      as above.
+   *  mcx has a new mode, 'alter'. Currently supports -ceil-nb similar as
+      above.
 
 Fri, 07 Nov 2008
 

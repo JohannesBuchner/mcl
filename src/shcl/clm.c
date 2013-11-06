@@ -28,6 +28,7 @@
 #include "clmdist.h"
 #include "clmimac.h"
 #include "clmresidue.h"
+#include "clmadjust.h"
 #include "clminfo.h"
 #include "clmps.h"
 
@@ -67,6 +68,7 @@ enum
 ,  ID_DAG
 ,  ID_FORMAT
 ,  ID_RESIDUE
+,  ID_ADJUST
 ,  ID_ENSTRICT
 ,  ID_PS
 ,  ID_UNUSED
@@ -87,6 +89,7 @@ mcxDispEntry clm_dir[] =
 ,  {  ID_ORDER,   mcxDispHookOrder }
 ,  {  ID_CLOSE,   mcxDispHookClose }
 ,  {  ID_RESIDUE, mcxDispHookResidue }
+,  {  ID_ADJUST,  mcxDispHookAdjust }
 ,  {  ID_ENSTRICT, mcxDispHookEnstrict }
 ,  {  ID_PS,      mcxDispHookPS    }
 ,  {  -1,         NULL         }

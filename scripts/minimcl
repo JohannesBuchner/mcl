@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl -w
 
-#  (C) Copyright 2006, 2007 Stijn van Dongen
+#  (C) Copyright 2006, 2007, 2008, 2009 Stijn van Dongen
  #
 #  This file is part of MCL.  You can redistribute and/or modify MCL under the
 #  terms of the GNU General Public License; either version 3 of the License or
@@ -167,6 +167,7 @@ sub matrix_make_stochastic {
 sub matrix_add_loops {
    my ($mx) = @_;
    for my $n (keys %$mx) {
+      $mx->{$n}{$n} = 0 if defined($mx->{$n}{$n});
       my $max        =  vector_max($mx->{$n});
       $mx->{$n}{$n}  =  $max ? $max : 1;
    }

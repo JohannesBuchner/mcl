@@ -194,8 +194,6 @@ label format and the addition of the \genoptref{--abc} option.}
    \synoptopt{-l}{n}{initial iteration number}
    \synoptopt{-L}{n}{main iteration number}
    \synoptopt{-i}{f}{initial inflation}
-   \synoptopt{-lint-k}{<num>}{assimilate small clusters entirely}
-   \synoptopt{-lint-l}{<num>}{try to pry nodes from small clusters}
    \synoptopt{--adapt-local}{localize inflation (experimental)}
    \synoptopt{--shadow}{mode}{modulation type}
    \synoptopt{-shadow-s}{f}{boost factor}
@@ -735,7 +733,8 @@ mcxdump -imx - --no-values --dump-rlines\\
    resulting clustering is bad} - but anyway, a low grade should be reason
    to try for a higher scheme. The grades are listed in the
    \secref{pruneoptions} section under the
-   \optref{-nj}{\genopt{-nj} option}.}
+   \optref{-nj}{\genopt{-nj} option}.
+   }
 
 \par{
    The \secref{pruneoptions} section contains an elaborate description
@@ -746,57 +745,17 @@ mcxdump -imx - --no-values --dump-rlines\\
    that you have to compare the clusterings resulting from different
    schemes (and otherwise identical parameters) using utilities
    such as \clm{dist}, \clm{info} on the one hand, and your
-   own sound judgment on the other hand.}
+   own sound judgment on the other hand.
+   }
 
 \par{
    If your input graph is extremely dense, with an average node degree
    (i.e. the number of neighbours per node) that is somewhere above 
    500, you may need to filter the input graph by removing edges,
    for example by using the
-   \optref{-ceil-nb}{\genopt{-ceil-nb} option}.}
-
-
-\items{
-   {\defopt{-lint-k}{<numk>}{cluster size assimilation threshold}}
-   {\defopt{-lint-l}{<numl>}{cluster size pry threshold}}
-}
-
-\car{
-   These options will result in postprocessing on the clustering, reallocating
-   nodes that seems to have siphoned the wrong way.  The input matrix will be
-   reread for this.
+   \optref{-ceil-nb}{\genopt{-ceil-nb} option}.
    }
 
-\par{
-   When applied to networks with inhomogenously distributed edge density
-   characteristics the mcl process will sometimes cause smaller
-   clusters/sparse areas to suck in border nodes which 1) have only few
-   edges to that cluster/area and 2) seem to have been sucked out of a much
-   denser cluster into which they would fit beautifully. This is fully in line
-   with the flow characteristics of mcl but a largely unwanted phenomenon.  The
-   postprocessing step was added as a remedy for this problem should it
-   manifest itself.  It is based on the efficiency criterion described in
-   \refer{gcbfs} and \refer{pcfgcmce} (there called \it{coverage}).}
-
-\par{
-   With \genopt{-lint-l} a node is tentatively reallocated if this will improve
-   its effiency, and if it is initially in a cluster of size at most \genarg{numl}.
-   After all nodes that are candidate for reallocation have been
-   identified the proposed new clustering is accepted if it increases the total
-   edge weight captured. This procedure is iterated until no further
-   reallocations are possible. The efficiency measure is a conservative
-   criterion in that it does not unduly favour larger clusters over smaller
-   clusters. For example, if a node has 4 neighbours in a cluster of size 8 and
-   it has a further 8 neighbours in a cluster of size 100 the efficiency for
-   the first cluster (relative to that node) will generally be higher than the
-   efficiency for the second cluster.}
-
-\par{
-   With \genopt{-lint-k} clusters up to the given size \genarg{numk}
-   are assimilated by a larger cluster if a suitable candidate is found.
-   This is based on the same criteria as described above, except
-   that a cluster is absorbed in its entirety.
-   }
 
 \item{\defopt{--adapt-local}{localize inflation (experimental)}}
 \ccar{Experimental}{

@@ -81,7 +81,7 @@
  *    Should min(1,2.0) be 1 rather than 1.0 ?  in that case, need special
  *    behaviour for twoary max and min just like now for oneary abs.
  *
- *    Make int overflow -> double promotion a trmInit option.
+ *    Make int to double overflow promotion a trmInit option.
  *
  *    on STATUS_FAIL for parse, write error message in telraam.
  * 

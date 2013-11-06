@@ -72,32 +72,32 @@ margin-left: 3em;
 </head>
 <body>
 <p style="text-align:right">
-29 May 2009&nbsp;&nbsp;&nbsp;
+1 Jul 2009&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxload.ps"><b>mcxload</b></a>
-1.008, 09-149
+1.008, 09-182
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
-<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">1.</div></div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
 <div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#name">NAME</a>
 </div>
-<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">2.</div></div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">2.</div></div>
 <div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
 </div>
-<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">3.</div></div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">3.</div></div>
 <div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#description">DESCRIPTION</a>
 </div>
-<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">4.</div></div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">4.</div></div>
 <div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#options">OPTIONS</a>
 </div>
-<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">5.</div></div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">5.</div></div>
 <div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#author">AUTHOR</a>
 </div>
-<div class=" item_compact "><div class=" item_rightalign nowrap" style="right:-3em">6.</div></div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">6.</div></div>
 <div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#seealso">SEE ALSO</a>
 </div>
@@ -256,26 +256,26 @@ should use the label options as described above and below.
 <p style="margin-bottom:0"><b>STAGES</b><br>
 Conceptually, input matrix creation consists of the following stages</p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
-<div class=" item_compact "><div class=" item_rightalign" style="right:-2em">i</div></div>
+<div class=" item_compact"><div class=" item_rightalign " style="right:-2em">i</div></div>
 <div class=" item_text " style="margin-left:4em">
 <p style="margin-top:0em; margin-bottom:0em">
 Read the input stream, apply <a class="intern" href="#opt-stream-tf"><b>-stream-tf</b></a> transformation
 specification, and optionally push reverse elements
 (<a class="intern" href="#opt--stream-mirror"><b>--stream-mirror</b></a>).</p>
 </div>
-<div class=" item_compact "><div class=" item_rightalign" style="right:-2em">ii</div></div>
+<div class=" item_compact"><div class=" item_rightalign " style="right:-2em">ii</div></div>
 <div class=" item_text " style="margin-left:4em">
 <p style="margin-top:0em; margin-bottom:0em">
 Deduplicate edges in the context of all edges/arcs originating from
 a given node according to the <a class="intern" href="#opt-re"><b>-re</b></a> option.</p>
 </div>
-<div class=" item_compact "><div class=" item_rightalign" style="right:-2em">iii</div></div>
+<div class=" item_compact"><div class=" item_rightalign " style="right:-2em">iii</div></div>
 <div class=" item_text " style="margin-left:4em">
 <p style="margin-top:0em; margin-bottom:0em">
 Apply transpose symmetrification according to the
 <a class="intern" href="#opt-ri"><b>-ri</b></a> option, if used.</p>
 </div>
-<div class=" item_compact "><div class=" item_rightalign" style="right:-2em">iv</div></div>
+<div class=" item_compact"><div class=" item_rightalign " style="right:-2em">iv</div></div>
 <div class=" item_text " style="margin-left:4em">
 <p style="margin-top:0em; margin-bottom:0em">
 Apply <a class="intern" href="#opt-tf"><b>-tf</b></a> transformation specification.</p>
@@ -285,7 +285,7 @@ Apply <a class="intern" href="#opt-tf"><b>-tf</b></a> transformation specificati
 <a name="options"></a>
 <h2>OPTIONS</h2>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
-<div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-abc"></a><b>-abc</b> &lt;fname&gt; (<i>label file</i>)</div></div>
+<div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-abc"></a><b>-abc</b> &lt;fname&gt; (<i>label file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 The file to read label data from. Labels are separated by white-space. The
@@ -297,7 +297,7 @@ Lines for which the first non-blank character is the octothorpe ('<tt>#</tt>')
 are skipped.
 </p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-123"></a><b>-123</b> &lt;fname&gt; (<i>identifier file</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-123"></a><b>-123</b> &lt;fname&gt; (<i>identifier file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 The file to read numerical data from. The format is the same as
@@ -305,11 +305,11 @@ for label data, but the identifiers are directly mapped onto mcl identifiers
 as described earlier.
 </p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-o"></a><b>-o</b> &lt;fname&gt; (<i>output file</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-o"></a><b>-o</b> &lt;fname&gt; (<i>output file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">The output file where the constructed matrix is written.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--stream-mirror"></a><b>--stream-mirror</b> (<i>symmetrify, same domain</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--stream-mirror"></a><b>--stream-mirror</b> (<i>symmetrify, same domain</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Whenever <i>label1</i> <i>label2</i> <i>value</i>
@@ -318,12 +318,12 @@ is encountered in the input, mcxload inserts
 stream as well. This option implies that both labels
 belong to the same domain.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--graph"></a><b>--graph</b> (<i>assume same domain</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--graph"></a><b>--graph</b> (<i>assume same domain</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 This tells mcxload that both labels belong to the same domain.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-re"></a><b>-re</b> &lt;max|add|mul|first|last&gt; (<i>deduplication mode</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-re"></a><b>-re</b> &lt;max|add|mul|first|last&gt; (<i>deduplication mode</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 This specifies how mcxload should collapse repeated entries, that is edges
@@ -334,103 +334,103 @@ duplicated entries if the input contains edge specifications in both ways.
 Also note that <b>first</b> and <b>last</b> might not result in
 symmetric input if only <b>--stream-mirror</b> is used.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-write-tab"></a><b>-write-tab</b> &lt;fname&gt; (<i>save domain tab</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-write-tab"></a><b>-write-tab</b> &lt;fname&gt; (<i>save domain tab</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Write the domain to file. It applies to both label types.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-write-tabc"></a><b>-write-tabc</b> &lt;fname&gt; (<i>save column tab</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-write-tabc"></a><b>-write-tabc</b> &lt;fname&gt; (<i>save column tab</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Write the column domain to file. It applies to the first label found
 on each input line.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-write-tabr"></a><b>-write-tabr</b> &lt;fname&gt; (<i>save row tab</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-write-tabr"></a><b>-write-tabr</b> &lt;fname&gt; (<i>save row tab</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Write the column domain to file. It applies to the second label found
 on each input line.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-strict-tab"></a><b>-strict-tab</b> &lt;fname&gt; (<i>tab universe</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-strict-tab"></a><b>-strict-tab</b> &lt;fname&gt; (<i>tab universe</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Read a dictionary from file and require each label to be present in the
 dictionary. mcxload will exit on absentees.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-strict-tabc"></a><b>-strict-tabc</b> &lt;fname&gt; (<i>tabc universe</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-strict-tabc"></a><b>-strict-tabc</b> &lt;fname&gt; (<i>tabc universe</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Read a dictionary from file and require the first label on each line
 to be present in the dictionary. mcxload will exit on absentees.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-strict-tabr"></a><b>-strict-tabr</b> &lt;fname&gt; (<i>tabr universe</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-strict-tabr"></a><b>-strict-tabr</b> &lt;fname&gt; (<i>tabr universe</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Read a dictionary from file and require the second label on each line
 to be present in the dictionary. mcxload will exit on absentees.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-restrict-tab"></a><b>-restrict-tab</b> &lt;fname&gt; (<i>tab world</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-restrict-tab"></a><b>-restrict-tab</b> &lt;fname&gt; (<i>tab world</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Read a dictionary from file and only accept input lines (edges)
 for which both labels are present in the dictionary.
 mcxload will ignore absentees.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-restrict-tabc"></a><b>-restrict-tabc</b> &lt;fname&gt; (<i>tabc world</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-restrict-tabc"></a><b>-restrict-tabc</b> &lt;fname&gt; (<i>tabc world</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Read a dictionary from file and ignore input lines
 for which the first label is absent from the dictionary.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-restrict-tabr"></a><b>-restrict-tabr</b> &lt;fname&gt; (<i>tabr world</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-restrict-tabr"></a><b>-restrict-tabr</b> &lt;fname&gt; (<i>tabr world</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Read a dictionary from file and ignore input lines
 for which the second label is absent from the dictionary.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-extend-tab"></a><b>-extend-tab</b> &lt;fname&gt; (<i>tab launch</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-extend-tab"></a><b>-extend-tab</b> &lt;fname&gt; (<i>tab launch</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Read a dictionary from file and extend it with any
 label from the input not yet present in the dictionary.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-extend-tabc"></a><b>-extend-tabc</b> &lt;fname&gt; (<i>tabc launch</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-extend-tabc"></a><b>-extend-tabc</b> &lt;fname&gt; (<i>tabc launch</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Read a dictionary from file and extend it with all
 first labels from the input not yet present in the dictionary.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-extend-tabr"></a><b>-extend-tabr</b> &lt;fname&gt; (<i>tabr launch</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-extend-tabr"></a><b>-extend-tabr</b> &lt;fname&gt; (<i>tabr launch</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Read a dictionary from file and extend it with all
 second labels from the input not yet present in the dictionary.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--stream-log"></a><b>--stream-log</b> (<i>log transform stream values</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--stream-log"></a><b>--stream-log</b> (<i>log transform stream values</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Replace each entry by its natural logarithm.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--stream-neg-log"></a><b>--stream-neg-log</b> (<i>minus log transform stream values</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--stream-neg-log"></a><b>--stream-neg-log</b> (<i>minus log transform stream values</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Replace each entry by the negative of its natural logarithm.
 This is most likely useful to convert scores that denote probabilities
 or p-values such as BLAST scores.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-stream-tf"></a><b>-stream-tf</b> (<i>transform stream values</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-stream-tf"></a><b>-stream-tf</b> (<i>transform stream values</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Transform the stream values as they are read in according
 to the syntax described in <a class="local" href="mcxio.html">mcxio</a>.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-tf"></a><b>-tf</b> &lt;tf-spec&gt; (<i>transform (not so) final matrix</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tf"></a><b>-tf</b> &lt;tf-spec&gt; (<i>transform (not so) final matrix</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Transform the matrix values after deduplication and symmetrification
 according to the syntax described in <a class="local" href="mcxio.html">mcxio</a>.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt-ri"></a><b>-ri</b> (<i>&lt;max|add|mul&gt;</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-ri"></a><b>-ri</b> (<i>&lt;max|add|mul&gt;</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 After the initial matrix has been assembled, it can be symmetrified by
@@ -439,7 +439,7 @@ entries of the transposed matrix and the original matrix. <b>mul</b>
 is special in that it treats missing entries (which are normally considered
 zero in mcl matrix operations) as one.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--transpose"></a><b>--transpose</b> (<i>transpose</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--transpose"></a><b>--transpose</b> (<i>transpose</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Write the transposed matrix to file. This is obviously not useful
@@ -462,13 +462,13 @@ The <b>-235</b> options are similar except that the input is not
 interpreted as labels but must consist of numbers that explicitly
 specify the matrix to be built.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--write-binary"></a><b>--write-binary</b> (<i>output binary format</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--write-binary"></a><b>--write-binary</b> (<i>output binary format</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 The output matrix is written in native binary format &mdash; refer to
 <a class="local" href="mcxio.html">mcxio</a>.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade "><div class=" item_leftalign nowrap" ><a name="opt--debug"></a><b>--debug</b> (<i>debug</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--debug"></a><b>--debug</b> (<i>debug</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Among other things, this turns on warnings when <b>restrict</b> tab

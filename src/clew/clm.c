@@ -265,24 +265,21 @@ mclx* clmMeet
 ;  }
 
 
-void clmJQDistance
-(  const mclx*  cla
-,  const mclx*  clb
-,  const mclx*  abmeet
-,  double*     abdist
-,  double*     badist
+void clmMKDistance
+(  const mclx*    cla
+,  const mclx*    clb
+,  const mclx*    abmeet
+,  dim*           abdist
+,  dim*           badist
 )
    {  dim d, e
    ;  double sosqa  = 0.0
    ;  double sosqb  = 0.0
    ;  double sosqm  = 0.0
 
-   ;  *abdist = 0
-   ;  *badist = 0       /* fixme; don't use these for intermediate results */
-
    ;  if (!mcldEquate(cla->dom_rows, clb->dom_rows, MCLD_EQT_EQUAL))
       {  mcxErr
-         (  "clmJQDistance PBD"
+         (  "clmMKDistance PBD"
          ,  "domains sized (%ld,%ld) differ"
          ,  (long) N_ROWS(cla)
          ,  (long) N_ROWS(clb)
@@ -298,12 +295,11 @@ void clmJQDistance
 
       for (d=0;d<N_COLS(cla);d++)
       sosqa +=  pow(cla->cols[d].n_ivps, 2)
-
    ;  for (d=0;d<N_COLS(clb);d++)
       sosqb +=  pow(clb->cols[d].n_ivps, 2)
 
-   ;  *abdist = sosqa - sosqm
-   ;  *badist = sosqb - sosqm
+   ;  *abdist = (dim) (sosqa - sosqm + 0.5)
+   ;  *badist = (dim) (sosqb - sosqm + 0.5)
 ;  }
 
 

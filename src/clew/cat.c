@@ -862,6 +862,7 @@ dim clmEnstrict
                            */
    ;  {  mclv* szs = mclxColSizes(cl, MCL_VECTOR_SPARSE)
       ;  n_empty = N_COLS(cl) - szs->n_ivps
+      ;  n_found = (dim) (mclvSum(szs) + 0.5)
       ;  if (empty)
          *empty = n_empty
       ;  mclvFree(&szs)    /* empty clusters are removed further below */
@@ -869,11 +870,11 @@ dim clmEnstrict
 
                            /* simply compute the join of all clusters
                             * to find out whether nodes are missing.
+                            * also compute overlap.
                            */
       {  mclv* nodes_found
       ;  mclgUnionvReset(cl)
       ;  nodes_found = mclgUnionv(cl, cl->dom_rows, NULL, SCRATCH_READY, NULL)
-      ;  n_found = nodes_found->n_ivps
       ;  n_missing = 0
       ;  if (nodes_found->n_ivps < N_ROWS(cl) && !(bits & ENSTRICT_REPORT_ONLY))
          {  mclv* truants = mcldMinus(cl->dom_rows, nodes_found, NULL)

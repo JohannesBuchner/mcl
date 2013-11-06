@@ -942,14 +942,14 @@ void mclxAddto
 ,  const mclx* m2
 )
    {  mclv *m1vec = m1->cols
-   ;  dim d, diff = 0
+   ;  dim d, rdiff = 0
 
    ;  mclv* join_col = NULL
    ;  mclv* join_row = NULL
 
-   ;  if (mcldCountParts(m1->dom_rows, m2->dom_rows, NULL, NULL, &diff))
+   ;  if (mcldCountParts(m1->dom_rows, m2->dom_rows, NULL, NULL, &rdiff))
       join_row = mcldMerge(m1->dom_rows, m2->dom_rows, NULL)
-   ;  if (mcldCountParts(m1->dom_rows, m2->dom_rows, NULL, NULL, &diff))
+   ;  if (mcldCountParts(m1->dom_rows, m2->dom_rows, NULL, NULL, &rdiff))
       join_col = mcldMerge(m1->dom_cols, m2->dom_cols, NULL)
 
    ;  mclxAccommodate(m1, join_col, join_row)
@@ -963,7 +963,7 @@ void mclxAddto
          )
          continue
 
-      ;  if (mcldCountParts(m1vec, m2vec, NULL, NULL, &diff))
+      ;  if (mcldCountParts(m1vec, m2vec, NULL, NULL, &rdiff))
          mclvAdd(m1vec, m2vec, m1vec)
       ;  else
          mclvUpdateMeet(m1vec, m2vec, fltAdd)

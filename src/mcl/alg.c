@@ -30,7 +30,6 @@
 
 #include "clew/clm.h"
 #include "clew/cat.h"
-#include "clew/claw.h"
 
 #include "impala/io.h"
 #include "impala/stream.h"
@@ -84,8 +83,6 @@ enum
 ,  ALG_OPT_APPEND_LOG
 ,  ALG_OPT_SHOW_LOG
 ,  ALG_OPT_CACHE_MX
-,  ALG_OPT_LINT_K
-,  ALG_OPT_LINT_L
 ,  ALG_OPT_ADAPTLOCAL
 ,  ALG_OPT_ADAPTTEST
 ,  ALG_OPT_ADAPTSMOOTH
@@ -231,7 +228,7 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "y/n"
    ,  "analyze clustering, make sure it induces cocos"
    }
-,  {  "-output-limit"
+,  {  "-write-limit"
    ,  MCX_OPT_HASARG
    ,  ALG_OPT_OUTPUT_LIMIT
    ,  "y/n"
@@ -260,18 +257,6 @@ mcxOptAnchor mclAlgOptions[] =
    ,  ALG_OPT_CACHE_MX
    ,  "y/n"
    ,  "keep input matrix in memory"
-   }
-,  {  "-lint-k"
-   ,  MCX_OPT_HASARG
-   ,  ALG_OPT_LINT_K
-   ,  "<num>"
-   ,  "try to assimilate clusters of size at most <num>"
-   }
-,  {  "-lint-l"
-   ,  MCX_OPT_HASARG
-   ,  ALG_OPT_LINT_L
-   ,  "<num>"
-   ,  "try to pry nodes out of clusters of size at most <num>"
    }
 ,  {  "--adapt-test"
    ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
@@ -660,8 +645,6 @@ void postprocess
             |  ALG_DO_SHADOW
             )
          )
-         || mlp->lint_k >= 0
-         || mlp->lint_l >= 0
 
    ;  if (reread)
       {  mcxLog(MCX_LOG_MODULE, "mcl", "re-reading matrix to do all kinds of stuff")
@@ -669,52 +652,6 @@ void postprocess
          mx = mlp->mx_start
 ;if (mlp->tab)
 fprintf(stderr, "postprocess read tab with %d entries: %p\n", (int) N_TAB(mlp->tab), (void*) mlp->tab)
-   ;  }
-
-                        /* _ NOTE this adds loops, makes stochastic */
-      if (mx && mlp->lint_l >= 0)
-      {  dim sjd_left, sjd_right, n_adjusted
-      ;  mclx* cladj
-      ;  mclv* lsadj
-
-;if (cl->dom_cols->ivps[0].idx != 0) fprintf(stderr, "miss (start lint)\n")
-
-      ;  mcxLog
-         (  MCX_LOG_FUNC
-         ,  "mcl"
-         ,  "(pre-adjust) have %ld clusters"
-         ,  (long) N_COLS(cl)
-         )
-
-                        /* linting i, node-wise */
-      ;  if
-         (  (  n_adjusted
-            =  clmAdjust
-               (mx, cl, mlp->lint_l, &cladj, &lsadj, &sjd_left, &sjd_right)
-            )
-         )
-         {  mcxLog
-            (  MCX_LOG_FUNC
-            ,  "mcl"
-            ,  "have rebalanced clustering at distance [%lu,%lu]"
-            ,  (ulong) sjd_left
-            ,  (ulong) sjd_right
-            )
-
-         ;  if (doio)
-            {  mcxTingPrint(fn2, "%s-orig", mlp->xfout->fn->str)
-            ;  mcxIOnewName(xf2, fn2->str)
-            ;  mclxaWrite(cl, xf2, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
-            ;  mclvWrite(xf2, mx->dom_cols, lsadj, RETURN_ON_FAIL)
-            ;  mcxIOclose(xf2)
-         ;  }
-
-            mclvFree(&lsadj)
-         ;  mclxFree(&cl)
-         ;  cl = cladj
-      ;  }
-         else
-         mcxLog(MCX_LOG_FUNC, me, "none reallocated")
    ;  }
 
       if (mx && (mlp->modes & ALG_DO_FORCE_CONNECTED))
@@ -741,38 +678,6 @@ fprintf(stderr, "postprocess read tab with %d entries: %p\n", (int) N_TAB(mlp->t
          else
             mcxLog(MCX_LOG_MODULE, me, "clustering induces connected components")
          ,  mclxFree(&cm)
-   ;  }
-
-
-                              /* linting ii, cluster-wise */
-      if (mx && mlp->lint_k >= 0)
-      {  mclx* cladj
-      ;  dim sjd_left, sjd_right, n_adjusted
-
-      ;  mcxLog
-         (  MCX_LOG_FUNC
-         ,  "mcl"
-         ,  "(pre-assimilate) have %ld clusters"
-         ,  (long) N_COLS(cl)
-         )
-
-      ;  if
-         (  (  n_adjusted
-            =  clmAssimilate
-               (mx, cl, mlp->lint_k, &cladj, &sjd_left, &sjd_right)
-            )
-         )
-         {  if (doio)
-            {  mcxTingPrint(fn2, "%s-%s", mlp->xfout->fn->str, "adj")
-            ;  mcxIOnewName(xf2, fn2->str)
-            ;  mclxaWrite(cl, xf2, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
-         ;  }
-            mclxFree(&cl)
-         ;  cl = cladj
-         ;  mcxLog(MCX_LOG_FUNC, me, "projected %lu nodes", (ulong) n_adjusted)
-      ;  }
-         else
-         mcxLog(MCX_LOG_FUNC, me, "nothing to project")
    ;  }
 
       mlp->cl_result = cl
@@ -821,26 +726,6 @@ fprintf(stderr, "postprocess read tab with %d entries: %p\n", (int) N_TAB(mlp->t
          ;  fputc('\n', mlp->xfout->fp)
          ;  mclxaWrite(cl, mlp->xfout, MCLXIO_VALUE_NONE, EXIT_ON_FAIL)
       ;  }
-
-/* why do we redo clmAssimilate here?
- * why is prune_sz (the third argument) zero?
-*/
-#if 0
-                              /* linting iii */
-      ;  if (mx && (mlp->modes & ALG_DO_LINT))
-         {  mclx* cladj = NULL
-         ;  dim n_adjusted
-            =  clmAssimilate
-               (mx, cl, 0, &cladj, NULL, NULL)
-         ;  if (n_adjusted)
-            {  mlp->cl_assimilated = cladj
-            ;  mlp->n_assimilated = n_adjusted
-            ;  if (doio)
-               mclxaWrite(cladj, mlp->xfout, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
-         ;  }
-         }
-#endif
-
       }
 
       if (doio && mlp->modes & ALG_DO_APPEND_LOG)
@@ -969,7 +854,7 @@ mcxstatus mclAlgorithm
             ,  mlp->modes & ALG_CACHE_EXPANDED ? &(mlp->mx_expanded) : NULL
             ,  &(mlp->mx_limit)
             )
-      ;  if (!(mlp->modes & ALG_CACHE_START))
+      ;  if (!(mlp->modes & ALG_CACHE_START) && !mpp->expansionVariant)
          mlp->mx_start = NULL   /* twas freed by mclProcess (fixme logic) */
    ;  }
 
@@ -1118,10 +1003,6 @@ void make_output_name
       mcxTingPrintAfter(suf, "pn%d", (int) mlp->pre_maxnum)
    ;  if (mlp->center)
       mcxTingPrintAfter(suf, "c%.1f", (double) mlp->center)
-   ;  if (mlp->lint_k >= 0)
-      mcxTingPrintAfter(suf, "LK%d", mlp->lint_k)
-   ;  if (mlp->lint_l >= 0)
-      mcxTingPrintAfter(suf, "LL%d", mlp->lint_l)
    ;  if (mlp->modes & ALG_DO_SHADOW)
       mcxTingAppend(suf, "SH")
 
@@ -1192,7 +1073,6 @@ mcxstatus mclAlgorithmInit
    ;  int mkbounce = 0
    ;  float f, f_0  =  0.0
    ;  int i_1     =  1
-   ;  int i_m1    =  -1
    ;  int i_10    =  10
    ;  int i
    ;  long l
@@ -1443,20 +1323,6 @@ mcxstatus mclAlgorithmInit
          ;  break
          ;
 
-            case ALG_OPT_LINT_L
-         :  i = atoi(opt->val)
-         ;  if ((vok = chb(anch->tag, 'i', &i, intGq, &i_m1, NULL, NULL)))
-            mlp->lint_l = i
-         ;  break
-         ;
-
-            case ALG_OPT_LINT_K
-         :  i = atoi(opt->val)
-         ;  if ((vok = chb(anch->tag, 'i', &i, intGq, &i_m1, NULL, NULL)))
-            mlp->lint_k = i
-         ;  break
-         ;
-
             case ALG_OPT_QUIET
          :  mcxLogLevelSetByString(opt->val)
          ;  break
@@ -1671,8 +1537,6 @@ static mclAlgParam* mclAlgParamNew
    ;  mlp->pre_maxnum      =     0
 
    ;  mlp->modes           =     ALG_DO_SHOW_PID | ALG_DO_SHOW_JURY | ALG_DO_DISCARDLOOPS
-   ;  mlp->lint_k          =     -1
-   ;  mlp->lint_l          =     -1
    ;  mlp->foundOverlap    =     FALSE
 
    ;  mlp->stream_modes    =     0
@@ -1984,7 +1848,7 @@ static int mclAlgorithmTransform
    ;  mclv* shadow_factors = NULL
 
          /* if we are rereading we do not want shadowing:
-          * we reread to do postprocessing, e.g. linting.
+          * we reread to do postprocessing.
          */
    ;  if (mlp->modes & ALG_DO_DISCARDLOOPS)
       mclxAdjustLoops(mx, mclxLoopCBremove, NULL)

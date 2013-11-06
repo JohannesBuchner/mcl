@@ -54,12 +54,12 @@ dim clmSJDistance     /* split join distance */
 )  ;
 
 
-void clmJQDistance     /* Jacquard index */
+void clmMKDistance     /* Mirkin distance */
 (  const mclMatrix*  cla
 ,  const mclMatrix*  clb
 ,  const mclMatrix*  abmeet
-,  double*     abdist
-,  double*     badist
+,  dim*     abdist
+,  dim*     badist
 )  ;
 
 
