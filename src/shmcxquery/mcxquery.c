@@ -30,9 +30,6 @@
 #include "impala/tab.h"
 #include "mcl/interpret.h"
 
-#include "taurus/parse.h"
-#include "taurus/la.h"
-
 
 int main
 (  int                  argc_unused      cpl__unused

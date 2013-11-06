@@ -1,6 +1,4 @@
 
-<control D> causes a segfault.
-
 'dims' (sibling to dim, cdim, rdim).
 need mcopy for symmetry with mdup.
 

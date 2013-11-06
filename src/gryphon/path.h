@@ -26,13 +26,15 @@ typedef struct
 {  ofs      src
 ;  ofs      dst
 ;  u8*      seen
-;  long*    aow      /* alternation of waves              */
-;  dim      aow_n    /* aow[0] .. aow[n-1] are meaningful */
-;  const    mclx* mx
+;  long*    aow         /* alternation of waves              */
+;  dim      aow_n       /* aow[0] .. aow[n-1] are meaningful */
+;  const    mclx* mx    /* forward arcs */
+;  const    mclx* mxtp  /* backward arcs; for undirected graphs use mx */
 ;  ofs      length
 ;  dim      n_considered
 ;  dim      n_involved
-;  mclx*    pathmx
+;  mclx*    pathmx      /* each column is next layer of nodes */
+;  mclx*    stepmx      /* submatrix of input matrix */
 ;
 }  SSPxy    ;
 
@@ -44,6 +46,7 @@ typedef struct
 
 SSPxy* mclgSSPxyNew
 (  const mclx* mx
+,  const mclx* mxtp
 )  ;
 
 
@@ -79,7 +82,7 @@ mclv* mclgSSPd
  * INTERFACE
  *    If has_loop != NULL it should encode those nodes in mx with loops.
  *    Obtain e.g. with mclxColNums(mx, mclvHasLoop, MCL_VECTOR_SPARSE) In that
- *    case only mclgCLCF will offset the presence of loops.  Otherwise mclgCLCF
+ *    case only mclnCLCF will offset the presence of loops.  Otherwise mclnCLCF
  *    will assume loops are absent. If has_loop is NULL and loops are present
  *    results will be incorrect.
  *
@@ -90,12 +93,17 @@ mclv* mclgSSPd
  *    mx encodes an undirected graph.
 */
 
-double mclgCLCF
+double mclnCLCF
 (  const mclx* mx
 ,  const mclv* vec
 ,  const mclv* has_loop
 )  ;
 
+
+mclv* mclgCLCFdispatch
+(  mclx* mx
+,  dim n_thread
+)  ;
 
 
    /* This one requires a clean mx->dom_rows */

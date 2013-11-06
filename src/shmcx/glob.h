@@ -34,45 +34,28 @@ typedef struct zgglob_t* zgglob_p;
  * The 'type' in the four routines below is the user interface type,
  * not the internal storage type.
 */
-zgglob_p zgNew
-(  int   type
-,  void* object
-)  ;
-int zgPush
-(  int         type
-,  void*       object
-)  ;
-void* zgGetOb
-(  zgglob_p glob,  int type
-)  ;
-int zgGetType
-(  zgglob_p glob
-)  ;
-const char* zgGetTypeName
-(  int utype
-)  ;
+zgglob_p zgNew(int type, void* object)  ;
+int zgPush(int type, void* object)  ;
+void* zgGetOb(zgglob_p glob,  int type)  ;
+int zgGetType(zgglob_p glob)  ;
+const char* zgGetTypeName(int utype)  ;
 
-
-int zgUser
-(  const char* token
-)  ;
-void zgFree
-(  zgglob_p* globpp
-)  ;
-zgglob_p zgRip
-(  zgglob_p glob
-)  ;
-zgglob_p zgCopyObject  /* copies objects from names */
-(  zgglob_p glob
-)  ;
-zgglob_p zgDupObject   /* copies names */
-(  zgglob_p glob
-)  ;
-int zgMDup
-(  int n
-)  ;
+int zgUser(const char* token)  ;
+void zgFree(zgglob_p* globpp)  ;
+zgglob_p zgRip(zgglob_p glob)  ;
+zgglob_p zgCopyObject(zgglob_p glob);     /* copies objects from names */
+zgglob_p zgDupObject(zgglob_p glob) ;     /* copies names */
+int zgMDup(int n)  ;
 
 zgglob_p zgAdd
+(  zgglob_p o1
+,  zgglob_p o2
+)  ;
+zgglob_p zgMin
+(  zgglob_p o1
+,  zgglob_p o2
+)  ;
+zgglob_p zgMax
 (  zgglob_p o1
 ,  zgglob_p o2
 )  ;

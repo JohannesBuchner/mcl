@@ -19,6 +19,7 @@
 #include "util/hash.h"
 #include "util/ting.h"
 #include "util/err.h"
+#include "util/minmax.h"
 
 #include "impala/matrix.h"
 #include "impala/compose.h"
@@ -39,7 +40,7 @@
  *    zgNewHandle does *not* correspond with glob/utype_NEWHDL.
  *    it creates a new handle object for something which is not a
  *    NEWHDL. The NEWHDL type is handled by zgNew.
- *    So this bit of naming sucks.
+ *    So this bit of naming shcks.
  *
  *    The glype/glass stuff should be pushed further into its own
  *    envelope. This should probably be done by making types just
@@ -547,13 +548,27 @@ zgglob_p zgMul
 ;  }
 
 
-zgglob_p zgAdd
+enum
+{  BINARY_ADD = 0
+,  BINARY_MIN
+,  BINARY_MAX
+}  ;
+
+
+static zgglob_p zgBinary
 (  zgglob_p o1
 ,  zgglob_p o2
+,  mcxmode mode
 )
    {  int glypex  = o1->glype
    ;  int glypey  = o2->glype
    ;  zgglob_p o3 = NULL
+   ;  const char* tok = TOKEN_ADD
+
+   ;  if (mode == BINARY_MAX)
+      tok = TOKEN_MAX
+   ;  else if (mode == BINARY_MIN)
+      tok = TOKEN_MIN
 
    ;  if (glypex & GLASS_NUM && glypey & GLASS_NUM)
       {  if (glypex & GLASS_DBL || glypey & GLASS_DBL)
@@ -561,21 +576,33 @@ zgglob_p zgAdd
          ;  x = zgGetOb(o1, UTYPE_DBL)
          ;  y = zgGetOb(o2, UTYPE_DBL)
          ;  if (!x || !y) return NULL
-         ;  z = *x + *y
-         ;  o3 = zgNew(UTYPE_DBL, &z)
+         ;  switch(mode)
+            {  case BINARY_ADD : z = *x + *y; break
+            ;  case BINARY_MIN : z = MCX_MIN(*x , *y); break
+            ;  case BINARY_MAX : z = MCX_MAX(*x , *y); break
+         ;  }
+            o3 = zgNew(UTYPE_DBL, &z)
       ;  }
          else
          {  int *x, *y, z
          ;  x = zgGetOb(o1, UTYPE_INT)
          ;  y = zgGetOb(o2, UTYPE_INT)
          ;  if (!x || !y) return NULL
-         ;  z = *x + *y
+         ;  switch(mode)
+            {  case BINARY_ADD : z = *x + *y; break
+            ;  case BINARY_MIN : z = MCX_MIN(*x , *y); break
+            ;  case BINARY_MAX : z = MCX_MAX(*x , *y); break
+         ;  }
          ;  o3 = zgNew(UTYPE_INT, &z)
       ;  }
-   ;  }
+      }
       else if (glypex & GLASS_STR && glypey & GLASS_STR)
       {  mcxTing *x, *y, *z
-      ;  x =  zgGetOb(o1, UTYPE_STR)
+      ;  if (mode != BINARY_ADD)
+         {  zmNotSupported2(tok, zgt(glypex), zgt(glypey))
+         ;  return NULL
+      ;  }
+         x =  zgGetOb(o1, UTYPE_STR)
       ;  y =  zgGetOb(o2, UTYPE_STR)
       ;  if (!x || !y) return NULL
       ;  z = mcxTingNew(x->str)
@@ -590,14 +617,42 @@ zgglob_p zgAdd
       ;  if (!x || !y)
          return NULL
 
-      ;  z = mclxAdd(x, y)
-      ;  o3 = zgNew(UTYPE_MX, z)
+      ;  switch(mode)
+         {  case BINARY_ADD : z = mclxAdd(x, y); break
+         ;  case BINARY_MIN : z = mclxBinary(x, y, fltMin); break
+         ;  case BINARY_MAX : z = mclxBinary(x, y, fltMax); break
+      ;  }
+         o3 = zgNew(UTYPE_MX, z)
    ;  }
       else
       {  zmNotSupported2(TOKEN_ADD, zgt(glypex), zgt(glypey))
       ;  return NULL
    ;  }
       return o3
+;  }
+
+
+zgglob_p zgAdd
+(  zgglob_p o1
+,  zgglob_p o2
+)
+   {  return zgBinary(o1, o2, BINARY_ADD)
+;  }
+
+
+zgglob_p zgMin
+(  zgglob_p o1
+,  zgglob_p o2
+)
+   {  return zgBinary(o1, o2, BINARY_MIN)
+;  }
+
+
+zgglob_p zgMax
+(  zgglob_p o1
+,  zgglob_p o2
+)
+   {  return zgBinary(o1, o2, BINARY_MAX)
 ;  }
 
 

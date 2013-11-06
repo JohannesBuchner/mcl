@@ -40,6 +40,7 @@ void mclgSSPxyFree
 
 SSPxy* mclgSSPxyNew
 (  const mclx* mx
+,  const mclx* mxtp
 )
    {  SSPxy* sspo =  mcxAlloc(sizeof sspo[0], EXIT_ON_FAIL)
 
@@ -60,7 +61,9 @@ SSPxy* mclgSSPxyNew
 
    ;  sspo->aow_n =  0
    ;  sspo->mx    =  mx
+   ;  sspo->mxtp  =  mxtp
    ;  sspo->pathmx=  NULL
+   ;  sspo->stepmx=  NULL
    ;  sspo->length = 0
    ;  sspo->n_considered = 0
    ;  sspo->n_involved = 0
@@ -81,10 +84,11 @@ void mclgSSPxyReset
    ;  sspo->src = -1
    ;  sspo->dst = -1
    ;  mclxFree(&(sspo->pathmx))
+   ;  mclxFree(&(sspo->stepmx))
 ;  }
 
 
-static void sspx_dump_aow_unused
+static void sspxy_dump_aow_unused
 (  u8* seen
 ,  long* aow
 ,  dim sz_aow
@@ -104,7 +108,7 @@ static void sspx_dump_aow_unused
 
 
 
-static mcxstatus sspxy_flood
+static void sspxy_flood
 (  SSPxy* sspo
 ,  long  x
 ,  long  y
@@ -119,11 +123,14 @@ static mcxstatus sspxy_flood
    ;  mcxbool seen_hit = FALSE
 
    ;  const mclx* mx =  sspo->mx
+   ;  const mclx* mxtp =  sspo->mxtp
    ;  u8*   seen     =  sspo->seen     /* size N_COLS */
    ;  long* aow      =  sspo->aow      /* size N_COLS */
    ;  dim*  aow_n    =  &(sspo->aow_n)
 
-   ;  mcxbits  wave_bit  =  1    /* start with x wave */
+   ;  const mclx* mxs[2]
+
+   ;  mcxbits wave_bit = 1    /* start with x wave */
 
    ;  aow[0]         =  x
    ;  aow[1]         =  y
@@ -133,19 +140,22 @@ static mcxstatus sspxy_flood
 
    ;  *aow_n         =  0
 
+   ;  mxs[0] = mx
+   ;  mxs[1] = mxtp
+
    ;  while (1)
       {  dim i
       ;  dim sz_aow_cache = sz_aow
 
       ;  for (i=aow_1ofs ; i<aow_1ofs+aow_1len; i++)
-         {  mclv* ls = mx->cols+aow[i]
+         {  mclv* ls = mxs[wave_bit-1]->cols+aow[i]
          ;  mclp* newivp = ls->ivps, *newivpmax = newivp + ls->n_ivps
 
          ;  while (newivp < newivpmax)
             {  u8* tst = seen+(newivp->idx)
             ;  int bits = *tst & 3
             ;  if (bits & wave_bit)
-               NOTHING        /* seen as current, skip */
+               NOTHING                          /* seen as current, skip */
             ;  else
                {  if (bits & (wave_bit ^ 3))    /* the other wave */
                   seen_hit = TRUE
@@ -183,23 +193,22 @@ dbg("sz_aow %d sz_aow_cache %d\n", (int) sz_aow, (int) sz_aow_cache)
       *aow_n = sz_aow
 
 #if 0
-      sspxy_dump_aow(seen, aow, sz_aow)
+   ;  sspxy_dump_aow_unused(seen, aow, sz_aow)
 #endif
 
    ;  sspo->length = seen_hit ? length : -1
-   ;  return sspo->length > 0 ? STATUS_OK : STATUS_FAIL
 ;  }
 
 
 static void sspx_make_vector
 (  u8*   seen
 ,  long* nums
-,  dim   sz
+,  dim   nums_sz
 ,  mclv* dst
 )
    {  dim d, o
-   ;  mclvResize(dst, sz)
-   ;  for (d=0, o=0;d<sz;d++)
+   ;  mclvResize(dst, nums_sz)
+   ;  for (d=0, o=0;d<nums_sz;d++)
       {  if (seen[nums[d]])
             dst->ivps[o].idx = nums[d]
          ,  dst->ivps[o].val = 1.0
@@ -213,13 +222,22 @@ static void sspx_make_vector
 static void sspxy_rm_dead_ends
 (  SSPxy* sspo
 )
-   {  const mclx* mx =  sspo->mx
-   ;  u8* seen       =  sspo->seen
+   {  u8* seen       =  sspo->seen
    ;  long* aow      =  sspo->aow
    ;  dim i          =  sspo->aow_n, n_rm = 0, end_run = 0
+   ;  const mclx* mxs[2]
    ;  mcxbits tag = 0
-      
-                                 /* prune dead ends from center wave */
+
+   ;  if (sspo->length < 0)
+      return
+
+   ;  mxs[0] = sspo->mx
+   ;  mxs[1] = sspo->mxtp
+
+/* 4 indicates center wave.
+ * only keep those that were seen from both sides (those with 3 equality)
+*/
+                                    /* prune dead ends from center wave */
    ;  while (seen[aow[i-1]] & 4)
       {  i--
       ;  if ((seen[aow[i]] & 3) != 3)
@@ -230,12 +248,21 @@ static void sspxy_rm_dead_ends
       end_run = i
    ;  tag = seen[aow[i-1]] & 3
 
-   ;  while (i-- > 0)
-      {  mclv* ls = mx->cols+aow[i]
-      ;  mclp* ivp, *ivpmax
+                                    /* decide whether aow[i] is part of DAG for
+                                     * this it needs to have a neighbour in the
+                                     * *NEXT* wave that is already part of the
+                                     * DAG. Hence the use of 8 bit for
+                                     * tentative annotation. We convert it to 4
+                                     * only once an entire wave has been
+                                     * processed.
 
-                                    /* pretty ugly code,
-                                     * with 0 special cased below loop.
+                                     *    1  x wave
+                                     *    2  y wave
+                                     *    4  center wave / keep
+                                    */
+   ;  while (i-- > 0)
+      {                             /* pretty ugly code, 0 special cased below loop.
+                                     * the condition indicates we found a new wave.
                                     */
       ;  if (tag != (seen[aow[i]] & 3))
          {  dim t
@@ -246,90 +273,102 @@ static void sspxy_rm_dead_ends
          ;  tag = seen[aow[i]] & 3
       ;  }
 
-         for (ivp=ls->ivps, ivpmax=ivp+ls->n_ivps; ivp < ivpmax; ivp++)
-         if (seen[ivp->idx] & 4)
-         break
+         {  mclp* ivp, *ivpmax
+         ;  mclv* ls = mxs[tag -1]->cols+aow[i]
+   ;if(!tag)fprintf(stderr, "INVESTIGATE %d %d\n", (int) i, (int) aow[i])
+         ;  for (ivp=ls->ivps, ivpmax=ivp+ls->n_ivps; ivp < ivpmax; ivp++)
+            if (seen[ivp->idx] & 4)
+            break
 
-      ;  if (ivp != ivpmax)
-         seen[aow[i]] |= 8          /* flag provisionally */
-      ;  else
-            seen[aow[i]] = 0
-         ,  n_rm++
-   ;  }
+         ;  if (ivp != ivpmax)
+            seen[aow[i]] |= 8      /* flag provisionally */
+         ;  else
+               seen[aow[i]] = 0
+            ,  n_rm++
+      ;  }
+      }
 
       seen[aow[0]] = 5
 
 #if 0
-      sspxy_dump_aow(seen, aow, sspo->aow_n)
+   ;  sspxy_dump_aow_unused(seen, aow, sspo->aow_n)
 #endif
 
    ;  sspo->n_involved = sspo->aow_n - n_rm
 ;  }
 
 
+         /* fixme underdocumented.
+         */
 static mcxstatus sspxy_make_pathmx
 (  SSPxy* sspo
 )
-   {  mclv* dom_cols = mclvInit(NULL)
+   {  mclv* dom_rows, *select
    ;  mclx* pathmx
 
    ;  mcxbits tag
-   ;  dim ofs = 0, i, px = 0, py
+   ;  dim os = 0, i, px = 0, py
 
-   ;  u8* seen =  sspo->seen
+   ;  u8* seen    =  sspo->seen
    ;  long* aow   =  sspo->aow
    ;  dim aow_n   =  sspo->aow_n
-   ;  dim length  =  sspo->length
+   ;  ofs length  =  sspo->length
+
+   ;  sspo->stepmx = mclxAllocClone(sspo->mx)
 
    ;  py = length
-   ;  tag = seen[aow[0]] & 7
-         
-   ;  sspx_make_vector(seen, aow+0, aow_n, dom_cols)
-   ;  pathmx = mclxAllocZero(mclvCanonical(NULL, length+1, 1.0), dom_cols)
+   ;  tag = seen[aow[0]] & 7     /* do this *BEFORE* cycle-recovery below */
 
-   ;  for (i=1; i< aow_n; i++)
-      {  mcxbits tag_next = seen[aow[i]] & 7
-      ;  if (tag_next && tag_next != tag)
-         {  if (tag == 5)
-            sspx_make_vector(seen, aow+ofs, i-ofs, pathmx->cols+px++)
-         ;  else if (tag == 6)
-            sspx_make_vector(seen, aow+ofs, i-ofs, pathmx->cols+py--)
-         ;  tag = tag_next
-         ;  ofs = i
+   ;  if (aow[0] == aow[1])      /* special case, where we search for a cycle */
+      seen[aow[1]] = 6           /* seen[aow[0]] overwrote seen[aow[1]]       */
+
+   ;  dom_rows = mclvInit(NULL)
+   ;  sspx_make_vector(seen, aow+0, aow_n, dom_rows)
+
+   ;  pathmx = mclxAllocZero(mclvCanonical(NULL, length+1, 1.0), dom_rows)
+
+   ;  if (length > 0)
+      {  for (i=1; i< aow_n; i++)
+         {  mcxbits tag_next = seen[aow[i]] & 7
+         ;  if (tag_next && tag_next != tag)       /* we have stepped beyond a wave */
+            {  if (tag == 5)                       /* wave 1, bit 4 set */
+               sspx_make_vector(seen, aow+os, i-os, pathmx->cols+px++)
+            ;  else if (tag == 6)                  /* wave 2, bit 4 set */
+               sspx_make_vector(seen, aow+os, i-os, pathmx->cols+py--)
+            ;  tag = tag_next
+            ;  os = i
+         ;  }
+            if (tag_next == 7)         /* center wave reached */
+            break
       ;  }
-         if (tag_next == 7)
-         break
-   ;  }
 
-      if (px != py)
-      {  mcxErr
+         if (px != py)
+         mcxErr
          (  "mclgSSPxyQuery"
          ,  "panic: px/py %d/%d do not play\n"
          ,  (int) px
          ,  (int) py
          )
-      ;  mclxFree(&pathmx)
-      ;  return STATUS_FAIL
+      ;  sspx_make_vector(seen, aow+os, aow_n-os, pathmx->cols+px)
+      ;  select = mclgUnionv(pathmx, NULL, NULL, SCRATCH_READY, NULL)
    ;  }
-
-      sspx_make_vector(seen, aow+ofs, aow_n-ofs, pathmx->cols+px)
-
-#if 0
-      {  mcxIO* x = mcxIOnew("-", "w")
-      ;  if (0)
-         for (i=0; i< N_COLS(pathmx); i++)
-         fprintf
-         (  stderr
-         ,  "pathmx: vec %d has num %d\n"
-         ,  i
-         ,  pathmx->cols[i].n_ivps
-         )
-      ;  mclxWrite(pathmx, x, 0, RETURN_ON_FAIL)
-      ;  mcxIOfree(&x)
-   ;  }
-#endif
+      else
+      select = mclvInit(NULL)
 
    ;  sspo->pathmx = pathmx
+   ;  sspo->stepmx = mclxSub(sspo->mx, select, select)
+
+   ;  for (i=0;i<N_COLS(pathmx);i++)
+      {  mclv* ls = pathmx->cols+i, *v = NULL
+      ;  dim j
+      ;  for (j=0;j<ls->n_ivps;j++)
+         {  long idx = ls->ivps[j].idx
+         ;  v = mclxGetVector(sspo->stepmx, idx, RETURN_ON_FAIL, v)
+         ;  mcldMinus(v, ls, v)
+      ;  }
+      }
+
+      mclvFree(&select)
    ;  return STATUS_OK
 ;  }
 
@@ -356,7 +395,7 @@ mcxstatus mclgSSPxyQuery
          ;  break
       ;  }
 
-         if (a == b || a < 0 || b < 0 || (dim) a >= N || (dim) b >= N)
+         if (a < 0 || b < 0 || (dim) a >= N || (dim) b >= N)
          {  msg = "start/end range error"
          ;  break
       ;  }
@@ -364,8 +403,7 @@ mcxstatus mclgSSPxyQuery
          sspo->src = a
       ;  sspo->dst = b
 
-      ;  if (sspxy_flood(sspo, a, b))
-         break
+      ;  sspxy_flood(sspo, a, b)    /* if length == -1, no path */
 
       ;  sspxy_rm_dead_ends(sspo)
 
@@ -387,7 +425,7 @@ mclv* mclgSSPd
 ,  const mclv* domain
 )
    {  mclv* punters = mclvClone(graph->dom_cols), *new = mclvInit(NULL)
-   ;  SSPxy* sspo = mclgSSPxyNew(graph)
+   ;  SSPxy* sspo = mclgSSPxyNew(graph, graph)
    ;  dim d
 
    ;  mclvMakeConstant(punters, 0.5)
@@ -423,7 +461,7 @@ mclv* mclgSSPd
 */
 
 
-double mclgCLCF
+double mclnCLCF
 (  const mclx* mx
 ,  const mclv* vec
 ,  const mclv* has_loop
@@ -441,7 +479,8 @@ double mclgCLCF
       ;  if (id == vec->vid)
          continue
       ;  vec2 = mclxGetVector(mx, id, RETURN_ON_FAIL, vec2)
-      ;  mcldCountParts(vec2, vec, NULL, &meet, NULL)
+      ;  if (vec2)
+         mcldCountParts(vec2, vec, NULL, &meet, NULL)
       ;  num += meet
    ;  }
 
@@ -449,8 +488,8 @@ double mclgCLCF
       {  dim m = 0
       ;  double delta
       ;  mcldCountParts(vec, has_loop, NULL, &m, NULL)
-      ;  delta =     m  -  (loopy ? 1.0 : 0.0)  /* /_\ with loopy neighbours */
-                  +  sz_eff * (loopy ? 1.0 : 0.0)   /* /_\ with loopy self   */
+      ;  delta =     m  -  (loopy ? 1.0 : 0.0)        /* /_\ with loopy neighbours */
+                  +  sz_eff * (loopy ? 1.0 : 0.0)     /* /_\ with loopy self   */
 
       ;  if (delta <= num+0.5)     /* finite precision precaution */
          num -= delta
@@ -459,6 +498,33 @@ double mclgCLCF
       if (sz_eff > 1)
       num /=  sz_eff * (sz_eff - 1)
    ;  return num
+;  }
+
+
+static void clcf_dispatch
+(  mclx* mx
+,  dim i
+,  void* data
+,  dim thread_id
+)
+   {  mclv* scratch = data
+   ;  scratch->ivps[i].val = mclnCLCF(mx, mx->cols+i, NULL)
+;  }
+
+
+mclv* mclgCLCFdispatch
+(  mclx* mx
+,  dim n_thread
+)
+   {  dim i
+
+   ;  mclv* res = mclvClone(mx->dom_cols)
+   ;  if (n_thread < 2)
+      for (i=0;i<N_COLS(mx);i++)
+      res->ivps[i].val = mclnCLCF(mx, mx->cols+i, NULL)
+   ;  else
+      mclxVectorDispatch(mx, res, n_thread, clcf_dispatch)
+   ;  return res
 ;  }
 
 

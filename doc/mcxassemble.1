@@ -1,5 +1,5 @@
-.\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcxassemble" 1 "4 Nov 2009" "mcxassemble 1\&.008, 09-308" "USER COMMANDS "
+.\" Copyright (c) 2010 Stijn van Dongen
+.TH "mcxassemble" 1 "28 May 2010" "mcxassemble 1\&.008, 10-148" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -266,6 +266,7 @@ and by index 4 in the matrix output by \fBmcxassemble\fP\&.
 Base name of files to be processed and output\&. Refer to \fBDESCRIPTION\fP
 above and the entries of other options below\&.
 .in -2m
+
 .ZI 2m "\fB-hdr\fP fname (\fIread header file\fP)"
 \&
 'in -2m
@@ -278,6 +279,7 @@ above and the entries of other options below\&.
 Explicitly specify the header file and the data file (rather
 than constructing the file names from a base name and suffixes)\&.
 .in -2m
+
 .ZI 2m "\fB--map\fP (\fIapply base\&.map\fP)"
 \&
 'in -2m
@@ -322,6 +324,7 @@ suffix\&.
 the \fB-b\fP\ \&option, and require that a tag be specified from
 which to construct the map file (by appending it to the base name)\&.
 .in -2m
+
 .ZI 2m "\fB-skw\fP fname (\fIwrite skew matrix\fP)"
 \&
 'in -2m
@@ -352,6 +355,7 @@ It can be written using one of the \fBskw\fP options\&.
 If for some reason the symmetrized result is not needed, its output
 can be prevented using the \fB-n\fP\ \&option\&.
 .in -2m
+
 .ZI 2m "\fB-xo\fP suf (\fIwrite base\&.suf\fP)"
 \&
 'in -2m
@@ -382,12 +386,14 @@ The \fB-i\fP option is special\&. It causes
 from the same file, where the syntax should be fully conforming
 to generic mcl matrix format\&.
 .in -2m
+
 .ZI 2m "\fB-s\fP (\fIcheck for symmetry\fP)"
 \&
 .br
 This will check whether the primary result matrix was symmetric\&.
 It reports the number of failing (or \fIskew\fP) edges\&.
 .in -2m
+
 .ZI 2m "\fB-raw-tf\fP <tf-spec> (\fIapply transform spec to input\fP)"
 \&
 'in -2m
@@ -407,6 +413,7 @@ step to the symmetrified matrix\&.
 Refer to \fBmcxio(5)\fP for documentation on the transformation
 spec syntax\&.
 .in -2m
+
 .ZI 2m "\fB-rv\fP add|max|min|mul|left|right (\fIaction for repeated vectors\fP)"
 \&
 'in -2m
@@ -529,6 +536,7 @@ of weight\ \&\fC50\fP\&. The resulting matrix will then have the \fC[0,3]\fP
 and the \fC[3,0]\fP entry both equal to either the maximum, the sum,
 or the product of the two quantities\ \&\fC50\fP and\ \&\fC20\fP\&.
 .in -2m
+
 .ZI 2m "\fB--quiet-re\fP (\fIquiet for repeated entries\fP)"
 \&
 'in -2m

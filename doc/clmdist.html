@@ -1,14 +1,14 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2009 Stijn van Dongen -->
+<!-- Copyright (c) 2010 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
 /* START aephea.base.css */
 body
 { text-align: justify;
-margin-left: 8%;
-margin-right: 8%;
+margin-left: 0%;
+margin-right: 0%;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -65,16 +65,23 @@ text-align: right;
 margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
+acronym.ucase { font-size: smaller; text-transform: uppercase }
+abbr.ucase { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
 body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
+body
+{ text-align: justify;
+margin-left: 8%;
+margin-right: 8%;
+}
 </style>
 <title>The clm dist manual</title>
 </head>
 <body>
 <p style="text-align:right">
-4 Nov 2009&nbsp;&nbsp;&nbsp;
+28 May 2010&nbsp;&nbsp;&nbsp;
 <a class="local" href="clmdist.ps"><b>clm dist</b></a>
-1.008, 09-308
+1.008, 10-148
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -140,6 +147,7 @@ in the <a class="local sibling" href="clm.html">clm</a> manual page.</p>
 <a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output file</i>)<b>]</b></a>
 <a class="intern" href="#opt--chain"><b>[--chain</b> (<i>only compare consecutive clusterings</i>)<b>]</b></a>
 <a class="intern" href="#opt--sort"><b>[--sort</b> (<i>sort clusterings based on coarseness</i>)<b>]</b></a>
+<a class="intern" href="#opt--index"><b>[--index</b> (<i>output Rand, adjusted Rand and Jaccard indices</i>)<b>]</b></a>
 <a class="intern" href="#opt-digits"><b>[-digits</b> k (<i>output decimals</i>)<b>]</b></a>
 <a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
 <a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print synopsis, exit</i>)<b>]</b></a>
@@ -202,6 +210,12 @@ from applying <b>mcl</b> with a range of inflation parameters.
 This option can be useful in conjunction with the <b>--chain</b>
 option, in case the list of clusterings supplied is not necessarily
 ordered by granularity.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--index"></a><b>--index</b> (<i>output Rand, adjusted Rand and Jaccard indices</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+As described.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-o"></a><b>-o</b> fname (<i>output file</i>)</div></div>
@@ -410,7 +424,7 @@ Stijn van Dongen. <i>Performance criteria for graph clustering and Markov
 cluster experiments</i>. Technical Report INS-R0012, National Research
 Institute for Mathematics and Computer Science in the Netherlands,
 Amsterdam, May 2000.<br>
-<a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z</a></p>
+<a class="extern" target="_parent" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z</a></p>
 <p style="margin-bottom:0" class="asd_par">
 Marina Meila. <i>Comparing Clusterings &mdash; An Axiomatic View</i>.
 In <i>Proceedings of the 22nd International Conference on Machine Learning</i>,
@@ -418,6 +432,6 @@ Bonn, Germany, 2005.</p>
 <p style="margin-bottom:0" class="asd_par">
 Marina Meila. <i>Comparing Clusterings</i>,
 UW Statistics Technical Report 418.<br>
-<a class="extern" href="http://www.stat.washington.edu/www/research/reports/2002/tr418.ps">http://www.stat.washington.edu/www/research/reports/2002/tr418.ps</a></p>
+<a class="extern" target="_parent" href="http://www.stat.washington.edu/www/research/reports/2002/tr418.ps">http://www.stat.washington.edu/www/research/reports/2002/tr418.ps</a></p>
 </body>
 </html>

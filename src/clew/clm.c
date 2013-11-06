@@ -629,20 +629,34 @@ mcxstatus clmPerformance
 ;  }
 
 
+mclx* clmComponents
+(  mclx* mxin
+,  const mclx* dom
+)
+   {  mclx* mx = mclxCopy(mxin), *cc
+   ;  mclxAddTranspose(mx, 0.0)
+   ;  cc = clmUGraphComponents(mx, dom)
+   ;  mclxFree(&mx)
+   ;  return cc
+;  }
 
 /* mq fewer mallocs still possible? */
 
-mclx* clmComponents
-(  mclx* mx
+mclx* clmUGraphComponents
+(  mclx* mxin
 ,  const mclx* dom
 )
    {  dim d, c, n_cls = 0
    ;  mcxbool project = dom ? TRUE : FALSE
    ;  mclv* wave1 = NULL
    ;  mclx* coco                                /* connected components */
+      ,  *mx
 
-   ;  if (!mx || !mclxIsGraph(mx))
+   ;  if (!mxin || !mclxIsGraph(mxin))
       return NULL
+
+   ;  mx = mclxCopy(mxin)
+   ;  mclxAddTranspose(mx, 0.0)
 
                         /* construct a single-column matrix */
    ;  if (!project)
@@ -681,7 +695,7 @@ mclx* clmComponents
          ;  while (wave1->n_ivps)
             {  wave2 = mclgUnionv(mx, wave1, domvec, SCRATCH_UPDATE, NULL)
             ;  mcldMerge(wave2, coco->cols+n_cls, coco->cols+n_cls)
-                     /* fixme; consider getting rid of merge */
+                                                /* fixme; consider getting rid of merge */
             ;  mclvFree(&wave1)
             ;  wave1 = wave2
          ;  }
@@ -700,6 +714,7 @@ mclx* clmComponents
    ;  mclvFree(&wave1)
 
    ;  mclgUnionvReset(mx)
+   ;  mclxFree(&mx)
 
    ;  return coco
 ;  }

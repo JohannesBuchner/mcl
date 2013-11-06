@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -27,6 +27,7 @@
 #include "expand.h"
 #include "procinit.h"
 #include "shadow.h"
+#include "transform.h"
 
 #include "clew/clm.h"
 #include "clew/cat.h"
@@ -119,8 +120,6 @@ enum
 ,  ALG_OPT_AUTOPREFIX
                         ,  ALG_OPT_AUTODIR
 ,  ALG_OPT_TRANSFORM    =  ALG_OPT_AUTODIR + 2
-,  ALG_OPT_CEILNB
-,  ALG_OPT_KNN
 ,  ALG_OPT_PREINFLATION
 ,  ALG_OPT_PREINFLATIONX
 ,  ALG_OPT_INFLATE_FIRST
@@ -527,18 +526,6 @@ mcxOptAnchor mclAlgOptions[] =
    ,  NULL
    ,  "use automatic naming and use input directory for output"
    }
-,  {  "-ceil-nb"
-   ,  MCX_OPT_HASARG
-   ,  ALG_OPT_CEILNB
-   ,  "<int>"
-   ,  "shrink all neighbourhoods to at most <int>, saving heigh weight edges"
-   }
-,  {  "-knn-mutual"
-   ,  MCX_OPT_HASARG
-   ,  ALG_OPT_KNN
-   ,  "<num>"
-   ,  "keep only edges that are in mutual <num>-nearest neighbours"
-   }
 ,  {  "-pi"
    ,  MCX_OPT_HASARG
    ,  ALG_OPT_PREINFLATION
@@ -642,7 +629,7 @@ fprintf(stderr, "postprocess read tab with %d entries: %p\n", (int) N_TAB(mlp->t
    ;  }
 
       if (mx && (mlp->modes & ALG_DO_FORCE_CONNECTED))
-      {  mclMatrix* cm  =  clmComponents(mx, cl)
+      {  mclMatrix* cm  =  clmUGraphComponents(mx, cl)
 
       ;  if (N_COLS(cl) != N_COLS(cm))
          {  mcxLog
@@ -706,7 +693,6 @@ fprintf(stderr, "postprocess read tab with %d entries: %p\n", (int) N_TAB(mlp->t
          ;  mcxIOnewName(mlp->xfout, "out.mcl")
          ;  mcxIOopen(mlp->xfout, EXIT_ON_FAIL)
       ;  }
-
          if (doio)
          {  fprintf(mlp->xfout->fp, "# cline: mcl %s ", mlp->fnin->str)
          ;  fputs(mlp->cline->str, mlp->xfout->fp)
@@ -725,6 +711,7 @@ fprintf(stderr, "postprocess read tab with %d entries: %p\n", (int) N_TAB(mlp->t
 
    ;  if (reread && !mx)
       mcxErr(me, "cannot re-read matrix")
+
    ;  else if (mlp->modes & ALG_DO_ANALYZE && doio)
       {  mcxTing* note = mcxTingEmpty(NULL, 60)
       ;  clmGranularityTable tbl
@@ -751,6 +738,7 @@ fprintf(stderr, "postprocess read tab with %d entries: %p\n", (int) N_TAB(mlp->t
 
       ;  mcxLog(MCX_LOG_APP, me, "included performance measures in cluster output")
       ;  mcxTingFree(&note)
+      ;  mcxIOclose(mlp->xfout)
    ;  }
 
       mcxLog(MCX_LOG_APP, "mcl", "%ld clusters found", (long) N_COLS(cl))
@@ -835,6 +823,7 @@ mcxstatus mclAlgorithm
                          * dependency.
                         */
    ;  {  themx = mlp->mx_start
+
       ;  thecluster
          =  mclProcess
             (  &themx
@@ -865,9 +854,6 @@ mcxstatus mclAlgorithm
 
       if (mlp->mx_limit != mlp->mx_expanded)
       mclxFree(&(mlp->mx_limit))
-
-   ;  if (mlp->modes & ALG_DO_SHOW_LOG)
-      fprintf(stdout, mpp->massLog->str)
 
    ;  clmEnstrict
       (  thecluster
@@ -906,8 +892,7 @@ mcxstatus mclAlgorithm
       {  mcxLog
          (  MCX_LOG_APP
          ,  me
-         ,  "jury pruning marks (worst %d cases): <%d,%d,%d>, out of 100"
-         ,  (int) mclDefaultWindowSizes[mpp->mxp->nj]
+         ,  "jury pruning marks: <%d,%d,%d>, out of 100"
          ,  (int) mpp->marks[0]
          ,  (int) mpp->marks[1]
          ,  (int) mpp->marks[2]
@@ -990,10 +975,6 @@ void make_output_name
       mcxTingPrintAfter(suf, "ph%.1f", (double) mlp->pre_inflationx)
    ;  if (mlp->pre_inflation >= 0.0)
       mcxTingPrintAfter(suf, "pi%.1f", (double) mlp->pre_inflation)
-   ;  if (mlp->pre_maxnum)
-      mcxTingPrintAfter(suf, "pn%d", (int) mlp->pre_maxnum)
-   ;  if (mlp->pre_knn)
-      mcxTingPrintAfter(suf, "nn%d", (int) mlp->pre_knn)
    ;  if (mlp->center)
       mcxTingPrintAfter(suf, "c%.1f", (double) mlp->center)
    ;  if (mlp->modes & ALG_DO_SHADOW)
@@ -1018,7 +999,7 @@ void make_output_name
       {  const char* slash = strrchr(mlp->fnin->str, '/')
       ;  if (slash)
          {  if (usegraphdir)
-            {  mcxTingPrint(name, mlp->fnin->str)
+            {  mcxTingPrint(name, "%s", mlp->fnin->str)
             ;  mcxTingSplice(name, "out.", slash - mlp->fnin->str + 1, 0, 4)
          ;  }
             else
@@ -1402,20 +1383,6 @@ mcxstatus mclAlgorithmInit
          ;  break
          ;
 
-            case ALG_OPT_KNN
-         :  i = atoi(opt->val)
-         ;  if ((vok = chb(anch->tag, 'i', &i, intGq, &i_1, NULL, NULL)))
-            mlp->pre_knn = i
-         ;  break
-         ;
-
-            case ALG_OPT_CEILNB
-         :  i = atoi(opt->val)
-         ;  if ((vok = chb(anch->tag, 'i', &i, intGq, &i_1, NULL, NULL)))
-            mlp->pre_maxnum = i
-         ;  break
-         ;
-
          }
 
          if (vok != TRUE)
@@ -1497,8 +1464,6 @@ static mclAlgParam* mclAlgParamNew
 
    ;  mlp->pre_inflation   =    -1.0
    ;  mlp->pre_inflationx  =    -1.0
-   ;  mlp->pre_maxnum      =     0
-   ;  mlp->pre_knn         =     0
 
    ;  mlp->modes           =     ALG_DO_SHOW_PID | ALG_DO_SHOW_JURY | ALG_DO_DISCARDLOOPS
    ;  mlp->foundOverlap    =     FALSE
@@ -1588,7 +1553,8 @@ void mclAlgParamFree
    ;  mcxTingFree(&(mlp->cline))
    ;  mcxTingFree(&(mlp->fnin))
    ;  mcxTingFree(&(mlp->fn_read_tab))
-   ;  mcxIOfree(&(mlp->xfout))
+   ;  if(1)
+      mcxIOfree(&(mlp->xfout))
 
    ;  mcxTingFree(&(mlp->fn_write_input))
    ;  mcxTingFree(&(mlp->fn_write_start))
@@ -1671,8 +1637,6 @@ void mclWriteLog
    ;  mclAlgPrintInfo(fp, mlp, cl)
    ;  fputc('\n', fp)
    ;  mclProcPrintInfo(fp, mlp->mpp)
-   ;  fputc('\n', fp)
-   ;  fprintf(mlp->xfout->fp, mlp->mpp->massLog->str)
    ;  fputs(")\n", fp)
 ;  }
 
@@ -1794,7 +1758,7 @@ fprintf(stderr, "reconstrict tab with %d entries: %p\n", (int) N_TAB(mlp->tab), 
       =  mclxIOstreamIn
          (  xfin
          ,  mlp->stream_modes | MCLXIO_STREAM_MIRROR | MCLXIO_STREAM_SYMMETRIC
-         ,  mlp->stream_transform
+         ,  mlp->stream_transform ? mclgTFgetEdgePar(mlp->stream_transform) : NULL
          ,  mclpMergeMax
          ,  &streamer
          ,  EXIT_ON_FAIL
@@ -1835,37 +1799,9 @@ static int mclAlgorithmTransform
    ;  if (mlp->modes & ALG_DO_DISCARDLOOPS)
       mclxAdjustLoops(mx, mclxLoopCBremove, NULL)
 
-   ;  if (mlp->pre_maxnum)
-      {  dim n_hub = 0, n_out = 0, n_in = 0
-      ;  mclv* sel = mclgCeilNB(mx, mlp->pre_maxnum, &n_hub, &n_in, &n_out)
-      ;  mcxLog
-         (  MCX_LOG_FUNC
-         ,  "mcl"
-         ,  "considered %lu nodes in prepruning step (%lu needed, %lu edges out, %lu edges in)"
-         ,  (ulong) sel->n_ivps
-         ,  (ulong) n_hub
-         ,  (ulong) n_out
-         ,  (ulong) n_in
-         )
-      ;  n_ops++
-      ;  mclvFree(&sel)
-   ;  }
-      else if (mlp->pre_knn)
-      {  dim ne = mclxNrofEntries(mx), ne2
-      ;  mclx* knn = mclxKNNmutual(mx, mlp->pre_knn)
-      ;  mclxTransplant(mx, &knn)
-      ;  ne2 = mclxNrofEntries(mx)
-      ;  mcxLog
-         (  MCX_LOG_FUNC
-         ,  "mcl"
-         ,  "mutual knn transformation removed %d edges"
-         ,  (int) (ne - ne2)
-         )
-   ;  }
-
-      if (mlp->transform)
+   ;  if (mlp->transform)
       {  dim eb = mclxNrofEntries(mx), ea
-      ;  mclxUnaryList(mx, mlp->transform)
+      ;  mclgTFexec(mx, mlp->transform)
       ;  ea = mclxNrofEntries(mx)
       ;  mcxLog
          (  MCX_LOG_APP
@@ -1876,7 +1812,6 @@ static int mclAlgorithmTransform
          )
       ;  n_ops++
    ;  }
-
 
       if (!reread && (mlp->shadow_mode & MCL_SHADOW_EARLY))
       shadow_factors
@@ -2021,7 +1956,7 @@ mcxstatus mclAlgorithmStart
 
       ;  if
          (  (mlp->transform_spec && !mlp->transform)
-         && !(mlp->transform = mclpTFparse(NULL, mlp->transform_spec))
+         && !(mlp->transform = mclgTFparse(NULL, mlp->transform_spec))     /* +memleak */
          )
          {  mcxErr("mcl", "errors in tf-spec")
          ;  break
@@ -2067,7 +2002,7 @@ mcxstatus mclAlgorithmStart
 
       ;  if
          (  (mlp->stream_transform_spec && !mlp->stream_transform)
-         && !(mlp->stream_transform = mclpTFparse(NULL, mlp->stream_transform_spec))
+         && !(mlp->stream_transform = mclgTFparse(NULL, mlp->stream_transform_spec))
          )
          {  mcxErr("mcl", "errors in stream tf-spec")
          ;  break
@@ -2152,7 +2087,7 @@ mcxstatus mclAlgInterface
 
    ;  if
       (  !argc2 && !mx_input && fn_input[0] == '-'
-      && mcxOptIsInfo(fn_input, mclAlgOptions)
+      && mcxOptIsInfo(fn_input, mclAlgOptions)        /* document this */
       )
          argv2 = (char**) &fn_input
       ,  argc2 = 1

@@ -107,16 +107,19 @@
 \car{
    Parse cooccurrence data from some external format.
    }
+
 \item
 \car{
    Transform cooccurrence data to raw mcl data as you parse.
    }
+
 \item
 \car{
    When done, write out required header and domain information
    to a separate file. The domain information can be built during
    the parsing stage.
    }
+
 \item
 \car{
    Use mcxassemble to construct a valid matrix from the raw data
@@ -267,7 +270,11 @@ begin
    }
 
 \sec{options}{OPTIONS}
-\begin{itemize}
+\begin{itemize}{
+   {flow}{cascade}
+   {interitem}{1}
+   \mcx_itemopts
+}
 
 \items{
    {\defopt{-b}{base}{base name}}

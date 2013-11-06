@@ -1,5 +1,5 @@
 /*   (C) Copyright 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008, 2009 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -60,6 +60,7 @@
 #include "impala/tab.h"
 
 #include "mcl/interpret.h"
+#include "mcl/transform.h"
 
 #include "gryphon/path.h"
 
@@ -72,9 +73,6 @@
 #include "util/array.h"
 #include "util/rand.h"
 #include "util/compile.h"
-
-#include "taurus/parse.h"
-#include "taurus/la.h"
 
 
 enum
@@ -291,7 +289,7 @@ typedef struct
 ;  int         n_col_specs
 ;  int         n_row_specs
 ;  mcxbool     do_extend
-;  mclpAR*     sel_val
+;  mclgTF*     sel_val
 ;  mcxbits     sel_sz_opts 
 ;  mcxbits     fin_map_opts
 ;  mcxbits     fin_misc_opts
@@ -392,8 +390,7 @@ void spec_init
 ,  mcxbool      do_extend
 )
    {  spec->txt            =  mcxTingNew(str)
-   ;  spec->fname          =  mcxTingPrint
-                              (NULL, "out-sub-%d", (int) ct)
+   ;  spec->fname          =  mcxTingNew("-")
 
    ;  spec->sz_min         =  0
    ;  spec->sz_max         =  0
@@ -707,10 +704,10 @@ int main
       ,  dom = mx
 
    ;  if (tfting)
-      {  mclpAR* tfar = mclpTFparse(NULL, tfting)
+      {  mclgTF* tfar = mclgTFparse(NULL, tfting)
       ;  if (!tfar)
          mcxDie(1, me, "errors in tf-spec")
-      ;  mclxUnaryList(mx, tfar)
+      ;  mclgTFexec(mx, tfar)
    ;  }
 
       if (bCltag)
@@ -952,6 +949,42 @@ mcxstatus add_vec
 ;  }
 
 
+mclv* vec_from_ilist
+(  const mcxLink* lk
+)
+   {  mclv* result = mclvInit(NULL), *range = NULL
+   ;  ulong x, y
+   ;  int n_parsed = 0
+
+   ;  while ((lk = lk->next))
+      {  mcxTing* atom = lk->val
+      ;  if (2 == sscanf(atom->str, "%lu-%lu%n", &x, &y, &n_parsed))
+         {  if (n_parsed != atom->len)
+            break
+         ;  if (x > y)
+            {  ulong z = x
+            ;  x = y
+            ;  y = z
+         ;  }
+            range = mclvCanonical(range, y-x+1, 1.0)
+         ;  mclvMap(range, 1, x, range)
+         ;  mcldMerge(result, range, result)
+      ;  }
+         else if (1 == sscanf(atom->str, "%lu%n", &x, &n_parsed))
+         {  if (n_parsed != atom->len)
+            break
+         ;  mclvInsertIdx(result, x, 1.0)
+      ;  }
+         else
+         break
+   ;  }
+
+      if (lk)
+      mclvFree(&result)
+   ;  return result
+;  }
+
+
 mcxstatus parse_dom
 (  mcxLink*    src
 ,  int         n_args_unused cpl__unused
@@ -1019,10 +1052,9 @@ mcxstatus parse_dom
          (  STATUS_OK
          == mcxTokExpectFunc(&tf, id->str, id->len, &z, -1, -1, NULL)
          )
-         {  mclVector* vec
+         {  mclVector* vec = NULL
          ;  const char* str      =  tf.key->str
          ;  unsigned char itype  =  str[0]
-         ;  long twilch = 0
 
          ;  if (!strchr("iIdDtTcCrR", (int) itype))
             {  mcxErr(me, "unknown index type <%c>", (int) itype)
@@ -1047,17 +1079,15 @@ mcxstatus parse_dom
          ;  else if (itype == 'c' || itype == 'C')
             vec = mclvClone(ctxt->dom->dom_cols)
 
-                           /* fixme this is redundant for tab spec
+                           /* This is redundant for tab spec
                             * unless we allow labels for tab
                            */
-         ;  else if
-            ( !(  vec 
-               =  ilSpecToVec(tf.args->next, &twilch, NULL, RETURN_ON_FAIL)
-               )
-            )
-            {  mcxErr(me, "error converting")
-            ;  break
-         ;  }
+         ;  else if (!strchr("tT", itype))
+            {  if (!(vec = vec_from_ilist(tf.args)))
+               {  mcxErr(me, "error converting")
+               ;  break
+            ;  }
+            }
             mcxTokFuncFree(&tf)
 
          ;  if (add_vec(dtype, itype, vec, spec, ctxt))
@@ -1277,7 +1307,15 @@ mcxstatus dispatch
          ;  }
 
             else if (!strcmp(tf.key->str, "val"))
-            {  if (!(spec->sel_val = mclpTFparse(tf.args, NULL)))
+            {  mcxLink* lk = tf.args->next
+            ;  mcxTing* a = mcxTingNew(((mcxTing*) lk->val)->str)
+
+            ;  while ((lk = lk->next))
+               mcxTingPrintAfter(a, ",%s", ((mcxTing*) lk->val)->str)
+
+            ;  spec->sel_val = mclgTFparse(NULL, a)
+            ;  mcxTingFree(&a)
+            ;  if (!spec->sel_val)
                break
          ;  }
 
@@ -1483,7 +1521,7 @@ void spec_exec
       sub = mclxSub(mx, spec->cvec, spec->rvec)
 
    ;  if (spec->sel_val)
-      mclxUnaryList(sub, spec->sel_val)
+      mclgTFexecx(sub, spec->sel_val, FALSE)
 
    ;  if (spec->sel_sz_opts & MCLX_EQT)
       {  mclv* sel =

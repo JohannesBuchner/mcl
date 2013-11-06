@@ -1,5 +1,5 @@
-.\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcl" 1 "4 Nov 2009" "mcl 1\&.008, 09-308" "USER COMMANDS "
+.\" Copyright (c) 2010 Stijn van Dongen
+.TH "mcl" 1 "28 May 2010" "mcl 1\&.008, 10-148" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -32,13 +32,12 @@ mcl \- The Markov Cluster Algorithm, aka the MCL algorithm\&.
 
 This program implements \fBmcl\fP, a cluster algorithm for graphs\&. A single
 parameter controls the granularity of the output clustering, namely the
-\fB-I\fP\ \&\fIinflation\fP option described further below\&. This option
-affects the granularity of the the resulting clustering\&. In standard usage
-of the program this parameter is the only one that may require changing\&. By
-default it is set to\ \&2\&.0 and this is a good way to start\&.
-If you want to explore cluster structure in graphs with MCL, vary
-this parameter to obtain clusterings at different levels of granularity\&.
-A good set of starting values is 1\&.4, 2, 4, and 6\&.
+\fB-I\fP\ \&\fIinflation\fP option described further below\&.
+In standard usage of the program this parameter is the only one that may
+require changing\&. By default it is set to\ \&2\&.0 and this is a good way to
+start\&. If you want to explore cluster structure in graphs with MCL, vary
+this parameter to obtain clusterings at different levels of granularity\&. A
+good set of starting values is 1\&.4, 2, 4, and 6\&.
 
 The program has a rather large set of options\&. Except for \fB-I\fP
 none affects the clustering method itself\&. The other options are for a
@@ -49,23 +48,24 @@ and placement, output formatting, setting of verbosity levels, and so on\&.
 
 Network construction and reduction techniques should not be considered as
 part of a clustering algorithm\&. Nevertheless particular techniques may
-benefit particular methods or applications\&. This program implements a few
-transformations that may be useful\&. The first is \fB-tf\fP, that can
-be used for general edge weight transformations and selection\&. It is for
-example possible to remove edges with weight below 0\&.7 by issuing
+benefit particular methods or applications\&. In mcl many transformations are
+accessible through the \fB-tf\fP option\&. It can be used for edge
+weight transformations and selection, as well as transformations that act on
+a graph as a whole\&.
+It is for example possible to remove edges with weight below 0\&.7 by issuing
 \fB-tf\fP\ \&\fB\&'gq(0\&.7)\&'\fP, where the quotes are necessary to prevent the shell
 from interpreting the parentheses\&. The option accepts more complicated
 sequences, such as \fB-tf\fP\ \&\fB\&'gq(0\&.7),add(-0\&.7)\&'\fP\&. This causes all
 remaining edge weights to be shifted to the range [0-0\&.3], assuming that the
-input contains correlations\&. The second is \fB-pi\fP, which can be
-used to increase the contrast in edge weights\&. This may be useful when
-clusterings are coarse and fine-grained clusterings are difficult to obtain\&.
-The third is \fB-knn-mutual\fP, which only keeps those edges that
-occur in the list of edges of highest weight in both of its incident nodes\&.
-It may be useful to reduce noise or spurious edges in dense networks, and
-has a parameter which is the size of the lists under consideration\&. The
-fourth is \fB-ceil-nb\fP, which removes edges from nodes of highest
-degree first, proceeding until all node degrees satisfy the given threshold\&.
+input contains correlations\&. Many more transformations are supported, as
+documented in \fBmcxio(5)\fP\&. Examples of graph-wide transformations are
+\fC#knn(<num>)\fP and \fC#ceilnb(<num>)\fP\&. The first only keeps those edges
+that occur in the list of top-\fC<num>\fP edges of highest weight in both of
+its incident nodes\&. The second removes edges from nodes of highest degree
+first, proceeding until all node degrees satisfy the given threshold\&.
+The \fB-pi\fP (pre-inflation) option can be used to increase the
+contrast in edge weights\&. This may be useful when clusterings are coarse and
+fine-grained clusterings are difficult to obtain\&.
 .SH GETTING STARTED
 There are two main modes of invocation\&. The most accessible is
 \fIlabel mode\fP
@@ -155,8 +155,6 @@ pruning options, and should be sufficient in most cases\&.
 \fB[-pi\fP <num> (\fIpre-inflation\fP)\fB]\fP
 \fB[-ph\fP <num> (\fIpre-inflation, max-bound\fP)\fB]\fP
 \fB[-if\fP <num> (\fIstart-inflation\fP)\fB]\fP
-\fB[-ceil-nb\fP n (\fIreduce neighbourhoods\fP)\fB]\fP
-\fB[-knn-mutual\fP n (\fIkeep mutually close neighbours\fP)\fB]\fP
 \fB[--discard-loops=\fP<y/n> (\fIdiscard y/n loops in input\fP)\fB]\fP
 \fB[--shadow\fP <mode> (\fImodulation type\fP)\fB]\fP
 \fB[-shadow-s\fP <num> (\fIboost factor\fP)\fB]\fP
@@ -606,8 +604,8 @@ own sound judgment on the other hand\&.
 If your input graph is extremely dense, with an average node degree
 (i\&.e\&. the number of neighbours per node) that is somewhere above
 500, you may need to filter the input graph by removing edges,
-for example by using one of \fB-ceil-nb\fP
-or \fB-knn-mutual\fP\&.
+for example by using one of \fB-tf\fP\ \&\fB\&'#ceilnb()\&'\fP
+or \fB-tf\fP\ \&\fB\&'#knn()\&'\fP\&.
 .in -2m
 
 .ZI 2m "\fB--show-schemes\fP (\fIshow preset resource schemes\fP)"
@@ -715,7 +713,7 @@ file name suffix\&.
 
 The suffix is constructed as follows\&. The \fB-I\fP\ \&\fIf\fP
 and \fB-scheme\fP parameter are always encoded\&.
-Other options, such as \fB-pi\fP\ \&\fIf\fP and \fB-knn-mutual\fP
+Other options, such as \fB-pi\fP\ \&\fIf\fP and \fB-knn\fP
 are only encoded if they are used\&. Any real argument \fIf\fP
 is encoded using \fIexactly one\fP trailing digit behind the decimal
 separator (which itself is not written)\&. The setting \fB-I\fP\ \&\fB3\&.14\fP
@@ -1057,25 +1055,6 @@ Off by default\&.
 .br
 Shows the log with process characteristics on STDOUT\&.
 By default, this mode is off\&.
-.in -2m
-
-.ZI 2m "\fB-ceil-nb\fP n (\fIreduce neighbourhoods\fP)"
-\&
-.br
-The nodes of the input graph are considered in descending order of the
-number of neighbours they posses\&. The first nodes has it neighbours of
-lowest edge weight removed until no more than \fBN\fP remain\&. The
-corresponding reciprocal edges from nodes further down the list are removed
-as well\&. Subsequent nodes are treated in the same way until all nodes in
-the graph have at most \fBN\fP neighbours\&. This may be considered a poor
-man\&'s hub removal\&.
-.in -2m
-
-.ZI 2m "\fB-knn-mutual\fP <num> (\fIkeep mutually close neighbours\fP)"
-\&
-.br
-This considers the \fI<num>\fP best neighbours for each node, then only keeps
-edges that occur in both best-neighbour lists for the two incident nodes\&.
 .in -2m
 
 .ZI 2m "\fB--jury-charter\fP (\fIexplains jury\fP)"

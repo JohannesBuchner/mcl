@@ -28,6 +28,7 @@
 #include "impala/iface.h"
 
 #include "mcl/interpret.h"
+#include "mcl/transform.h"
 
 #include "clew/scan.h"
 #include "clew/clm.h"
@@ -40,8 +41,6 @@
 #include "impala/ivp.h"
 #include "impala/app.h"
 #include "impala/stream.h"
-#include "taurus/ilist.h"
-#include "taurus/la.h"
 
 #include "clew/clm.h"
 
@@ -56,9 +55,12 @@ enum
 ,  MY_OPT_ABC
 ,  MY_OPT_DOMAIN
 ,  MY_OPT_OUTPUT
+,  MY_OPT_READASIS
 ,  MY_OPT_WRITECC
 ,  MY_OPT_WRITECOUNT
 ,  MY_OPT_WRITESIZES
+,  MY_OPT_WRITEGRAPH
+,  MY_OPT_WRITEGRAPHC
 ,  MY_OPT_CCBOUND
 ,  MY_OPT_TABIN
 ,  MY_OPT_MXOUT
@@ -89,6 +91,12 @@ mcxOptAnchor closeOptions[] =
    ,  "<fname>"
    ,  "specify input using label pairs"
    }
+,  {  "--is-undirected"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_READASIS
+   ,  NULL
+   ,  "use if graph is known to be symmetric (slightly faster)"
+   }
 ,  {  "--write-cc"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_WRITECC
@@ -106,6 +114,18 @@ mcxOptAnchor closeOptions[] =
    ,  MY_OPT_WRITECOUNT
    ,  NULL
    ,  "output number of components"
+   }
+,  {  "--write-block"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_WRITEGRAPH
+   ,  NULL
+   ,  "write graph restricted to -dom argument"
+   }
+,  {  "--write-blockc"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_WRITEGRAPHC
+   ,  NULL
+   ,  "write the complement of graph restricted to -dom argument"
    }
 ,  {  "-cc-bound"
    ,  MCX_OPT_HASARG
@@ -177,6 +197,7 @@ static mcxIO*  xfdom    =  (void*) -1;
 static mcxTing* tfting  =  (void*) -1;
 static dim     ccbound_num  =  -1;
 static mcxbool canonical=  -1;
+static mcxbool make_symmetric=  -1;
 static mcxmode write_mode = -1;
 
 
@@ -196,6 +217,7 @@ static mcxstatus closeInit
    ;  tfting   =  NULL
    ;  ccbound_num  =  0
    ;  canonical=  FALSE
+   ;  make_symmetric =  TRUE
    ;  return STATUS_OK
 ;  }
 
@@ -210,6 +232,11 @@ static mcxstatus closeArgHandle
       ;  break
       ;
 
+         case MY_OPT_READASIS
+      :  make_symmetric = FALSE
+      ;  break
+      ;
+
          case MY_OPT_ABC
       :  xfabc = mcxIOnew(val, "r")
       ;  break
@@ -217,6 +244,16 @@ static mcxstatus closeArgHandle
 
          case MY_OPT_OUTPUT
       :  mcxIOnewName(xfout, val)
+      ;  break
+      ;
+
+         case MY_OPT_WRITEGRAPHC
+      :  write_mode = MY_OPT_WRITEGRAPHC
+      ;  break
+      ;
+
+         case MY_OPT_WRITEGRAPH
+      :  write_mode = MY_OPT_WRITEGRAPH
       ;  break
       ;
 
@@ -339,7 +376,11 @@ static mcxstatus closeMain
             ?  mclxRead(xfdom, EXIT_ON_FAIL)
             :  NULL
 
-   ;  if (dom && !MCLD_EQUAL(dom->dom_rows, mx->dom_cols))
+   ;  if (write_mode == MY_OPT_WRITEGRAPH && !dom)
+      mcxDie(1, me, "--write-graph requires -dom option")
+   ;  else if (write_mode == MY_OPT_WRITEGRAPHC && !dom)
+      mcxDie(1, me, "--write-graphc requires -dom option")
+   ;  else if (dom && !MCLD_EQUAL(dom->dom_rows, mx->dom_cols))
       mcxDie(1, me, "domains not equal")
 
    ;  N_start = N_ROWS(mx)
@@ -354,13 +395,13 @@ static mcxstatus closeMain
    ;  }
 
       if (tfting)
-      {  mclpAR* tfar = mclpTFparse(NULL, tfting)
+      {  mclgTF* tfar = mclgTFparse(NULL, tfting)
       ;  if (!tfar)
          mcxDie(1, me, "errors in tf-spec")
-      ;  mclxUnaryList(mx, tfar)
+      ;  mclgTFexec(mx, tfar)
    ;  }
 
-      cc = clmComponents(mx, dom)
+      cc = make_symmetric ? clmComponents(mx, dom) : clmUGraphComponents(mx, dom)
 
                               /*
                                * thin out domain based on cc
@@ -441,6 +482,18 @@ static mcxstatus closeMain
          mcxDie(1, me, "cannot map cols")
    ;  }
 
+      if (write_mode == MY_OPT_WRITEGRAPH)
+      {  mclx* bl = mclxBlocks(mx, cc)
+      ;  mclxWrite(bl, xfout, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+      ;  mclxFree(&mx)
+      ;  mx = bl
+   ;  }
+      else if (write_mode == MY_OPT_WRITEGRAPHC)
+      {  mclx* bl = mclxBlocksC(mx, cc)
+      ;  mclxWrite(bl, xfout, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+      ;  mclxFree(&mx)
+      ;  mx = bl
+   ;  }
       if (write_mode == MY_OPT_WRITECC)
       {  if (streamer.tab_sym_out)
          {  mclxIOdumper dumper

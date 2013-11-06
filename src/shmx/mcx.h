@@ -10,7 +10,11 @@
 #define mcx_h
 
 #include "util/opt.h"
+#include "util/io.h"
 #include "util/types.h"
+
+#include "impala/matrix.h"
+#include "impala/tab.h"
 
 enum
 {  MCX_DISP_HELP = 0
@@ -27,9 +31,25 @@ enum
 ,  MCX_DISP_UNUSED = MCX_DISP_AMOIXA + 2
 }  ;
 
+
 extern mcxbits mcx_debug_g;
 extern unsigned mcx_progress_g;
 extern mcxbool mcx_test_g;
+
+
+mclx* mcx_get_network
+(  mcxIO*   xfmx
+,  mcxIO*   xfabc
+,  mcxIO*   xftab
+,  mclTab** tabpp
+)  ;
+
+mcxstatus mcx_dump_node
+(  FILE* fp
+,  const mclTab* tab
+,  long idx
+)  ;
+
 
 #endif
 

@@ -61,3 +61,24 @@ void mclx_app_init
 ;  }
 
 
+
+dim mclx_set_threads_or_die
+(  const char* caller
+,  dim n_thread_l
+,  dim i_group_G
+,  dim n_group_G
+)
+   {  dim n_thread_g = 0
+   ;  if (n_thread_l)
+      {  if (!n_group_G)
+         mcxDie(1, caller, "-t thread option requires reasonable -J and -j values")
+      ;  n_thread_g = n_thread_l * n_group_G
+   ;  }
+      if (i_group_G >= n_group_G)
+      mcxDie(1, caller, "-j argument must be smaller than -J argument")
+   ;  return n_thread_g
+;  }
+
+
+
+

@@ -20,13 +20,12 @@
 \par{
    This program implements \mcl, a cluster algorithm for graphs.  A single
    parameter controls the granularity of the output clustering, namely the
-   \genoptref{-I}{inflation} option described further below. This option
-   affects the granularity of the the resulting clustering.  In standard usage
-   of the program this parameter is the only one that may require changing. By
-   default it is set to\~2.0 and this is a good way to start.
-   If you want to explore cluster structure in graphs with MCL, vary
-   this parameter to obtain clusterings at different levels of granularity.
-   A good set of starting values is 1.4, 2, 4, and 6.
+   \genoptref{-I}{inflation} option described further below.
+   In standard usage of the program this parameter is the only one that may
+   require changing. By default it is set to\~2.0 and this is a good way to
+   start.  If you want to explore cluster structure in graphs with MCL, vary
+   this parameter to obtain clusterings at different levels of granularity.  A
+   good set of starting values is 1.4, 2, 4, and 6.
 
    }
 
@@ -44,23 +43,26 @@
 \par{
    Network construction and reduction techniques should not be considered as
    part of a clustering algorithm. Nevertheless particular techniques may
-   benefit particular methods or applications.  This program implements a few
-   transformations that may be useful.  The first is \genoptref{-tf}, that can
-   be used for general edge weight transformations and selection. It is for
-   example possible to remove edges with weight below 0.7 by issuing
+   benefit particular methods or applications.  In mcl many transformations are
+   accessible through the \genoptref{-tf} option. It can be used for edge
+   weight transformations and selection, as well as transformations that act on
+   a graph as a whole.
+   
+   It is for example possible to remove edges with weight below 0.7 by issuing
    \useopt{-tf}{'gq(0.7)'}, where the quotes are necessary to prevent the shell
    from interpreting the parentheses. The option accepts more complicated
    sequences, such as \useopt{-tf}{'gq(0.7),add(-0.7)'}. This causes all
    remaining edge weights to be shifted to the range [0-0.3], assuming that the
-   input contains correlations.  The second is \genoptref{-pi}, which can be
-   used to increase the contrast in edge weights. This may be useful when
-   clusterings are coarse and fine-grained clusterings are difficult to obtain.
-   The third is \genoptref{-knn-mutual}, which only keeps those edges that
-   occur in the list of edges of highest weight in both of its incident nodes.
-   It may be useful to reduce noise or spurious edges in dense networks, and
-   has a parameter which is the size of the lists under consideration.  The
-   fourth is \genoptref{-ceil-nb}, which removes edges from nodes of highest
-   degree first, proceeding until all node degrees satisfy the given threshold.
+   input contains correlations. Many more transformations are supported, as
+   documented in \mysib{mcxio}. Examples of graph-wide transformations are
+   \v{#knn(<num>)} and \v{#ceilnb(<num>)}. The first only keeps those edges
+   that occur in the list of top-\v{<num>} edges of highest weight in both of
+   its incident nodes. The second removes edges from nodes of highest degree
+   first, proceeding until all node degrees satisfy the given threshold.
+
+   The \genoptref{-pi} (pre-inflation) option can be used to increase the
+   contrast in edge weights. This may be useful when clusterings are coarse and
+   fine-grained clusterings are difficult to obtain.
 
    }
 
@@ -153,8 +155,6 @@ option.}
    \synoptopt{-pi}{<num>}{pre-inflation}
    \synoptopt{-ph}{<num>}{pre-inflation, max-bound}
    \synoptopt{-if}{<num>}{start-inflation}
-   \shared_synoptopt{-ceil-nb}
-   \shared_synoptopt{-knn-mutual}
    \synoptkvp{--discard-loops}{<y/n>}{discard y/n loops in input}
    \synoptopt{--shadow}{<mode>}{modulation type}
    \synoptopt{-shadow-s}{<num>}{boost factor}
@@ -608,8 +608,8 @@ option.}
    If your input graph is extremely dense, with an average node degree
    (i.e. the number of neighbours per node) that is somewhere above 
    500, you may need to filter the input graph by removing edges,
-   for example by using one of \genoptref{-ceil-nb}
-   or \genoptref{-knn-mutual}.
+   for example by using one of \useopt{-tf}{'#ceilnb()'}
+   or  \useopt{-tf}{'#knn()'}.
    }
 
 \item{\defopt{--show-schemes}{show preset resource schemes}}
@@ -706,7 +706,7 @@ option.}
 \par{
    The suffix is constructed as follows. The \genopt{-I}{f}
    and \genopt{-scheme} parameter are always encoded.
-   Other options, such as \genopt{-pi}{f} and \genopt{-knn-mutual}
+   Other options, such as \genopt{-pi}{f} and \genopt{-knn}
    are only encoded if they are used.  Any real argument \genarg{f}
    is encoded using \it{exactly one} trailing digit behind the decimal
    separator (which itself is not written).  The setting \useopt{-I}{3.14}
@@ -991,14 +991,6 @@ option.}
 \car{
    Shows the log with process characteristics on STDOUT.
    By default, this mode is off.}
-
-
-\shared_itemopt{-ceil-nb}
-\car{\shared_defopt{-ceil-nb}}
-
-
-\shared_itemopt{-knn-mutual}
-\car{\shared_defopt{-knn-mutual}}
 
 
 \item{\defopt{--jury-charter}{explains jury}}

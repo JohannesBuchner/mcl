@@ -101,8 +101,8 @@ in the \sibref{clm} manual page.}}
          {\synoptopt{-tf}{spec}{apply tf-spec to input matrix}}
       {-ceil-nb}
          {\synoptopt{-ceil-nb}{n}{reduce neighbourhoods}}
-      {-knn-mutual}
-         {\synoptopt{-knn-mutual}{n}{keep mutually close neighbours}}
+      {-knn}
+         {\synoptopt{-knn}{n}{keep mutually close neighbours}}
       {\inform{not supported for shared_synoptopt#1: \1}\exit}
    }
 }
@@ -113,8 +113,8 @@ in the \sibref{clm} manual page.}}
          {\item{\defopt{-tf}{<tf-spec>}{transform input matrix values}}}
       {-ceil-nb}
          {\item{\defopt{-ceil-nb}{n}{reduce neighbourhoods}}}
-      {-knn-mutual}
-         {\item{\defopt{-knn-mutual}{<num>}{keep mutually close neighbours}}}
+      {-knn}
+         {\item{\defopt{-knn}{<num>}{keep mutually close neighbours}}}
 
       {\inform{not supported for shared_itemopt#1: \1}\exit}
    }
@@ -136,7 +136,7 @@ as well.  Subsequent nodes are treated in the same way until all nodes in
 the graph have at most \genopt{N} neighbours.  This may be considered a poor
 man's hub removal.
       }
-      {-knn-mutual}{
+      {-knn}{
 This considers the \genarg{<num>} best neighbours for each node, then only keeps
 edges that occur in both best-neighbour lists for the two incident nodes.
       }

@@ -1,5 +1,5 @@
-.\" Copyright (c) 2009 Stijn van Dongen
-.TH "clmprotocols" 5 "4 Nov 2009" "clmprotocols 1\&.008, 09-308" "FILE FORMATS "
+.\" Copyright (c) 2010 Stijn van Dongen
+.TH "clmprotocols" 5 "28 May 2010" "clmprotocols 1\&.008, 10-148" "FILE FORMATS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -44,9 +44,12 @@ Clustering similarity graphs encoded in BLAST results
 Clustering expression data
 .in -4m
 .ZJ 3m 1m "6\&."
-SEE ALSO
+Reducing node degrees in the graph
 .in -4m
 .ZJ 3m 1m "7\&."
+SEE ALSO
+.in -4m
+.ZJ 3m 1m "8\&."
 AUTHOR
 .in -4m
 .SH NAME
@@ -157,7 +160,7 @@ file \fCseq\&.tab\fP\&.
 .di ZV
 .in 0
 .nf \fC
-   mcxload -abc seq\&.abc --stream-mirror --stream-neg-log10 -abc-tf \&'ceil(200)\&'
+   mcxload -abc seq\&.abc --stream-mirror --stream-neg-log10 -stream-tf \&'ceil(200)\&'
          -o seq\&.mci -write-tab seq\&.tab
 .fi \fR
 .in
@@ -194,10 +197,10 @@ separator removed\&.
    mcl seq\&.mci -I 4
    mcl seq\&.mci -I 6
 
-   mcxdump -icl out\&.seq\&.mci\&.I14 -tab seq\&.tab -o dump\&.seq\&.mci\&.I14
-   mcxdump -icl out\&.seq\&.mci\&.I20 -tab seq\&.tab -o dump\&.seq\&.mci\&.I20
-   mcxdump -icl out\&.seq\&.mci\&.I40 -tab seq\&.tab -o dump\&.seq\&.mci\&.I40
-   mcxdump -icl out\&.seq\&.mci\&.I60 -tab seq\&.tab -o dump\&.seq\&.mci\&.I60
+   mcxdump -icl out\&.seq\&.mci\&.I14 -tabr seq\&.tab -o dump\&.seq\&.mci\&.I14
+   mcxdump -icl out\&.seq\&.mci\&.I20 -tabr seq\&.tab -o dump\&.seq\&.mci\&.I20
+   mcxdump -icl out\&.seq\&.mci\&.I40 -tabr seq\&.tab -o dump\&.seq\&.mci\&.I40
+   mcxdump -icl out\&.seq\&.mci\&.I60 -tabr seq\&.tab -o dump\&.seq\&.mci\&.I60
 .fi \fR
 .in
 .di
@@ -247,8 +250,7 @@ experiments) and one column of row identifiers (e\&.g\&. probe or gene identifie
 .di ZV
 .in 0
 .nf \fC
-   mcxarray -data expr\&.data -skipr 1 -skipc 1 -o expr\&.mci -write-tab expr\&.tab
-      --pearson -co 0\&.7 -tf \&'abs(),add(-0\&.7)\&'
+   mcxarray -data expr\&.data -skipr 1 -skipc 1 -o expr\&.mci -write-tab expr\&.tab --pearson -co 0\&.7 -tf \&'abs(),add(-0\&.7)\&'
    
 .fi \fR
 .in
@@ -275,8 +277,7 @@ is analysed using \fBmcxquery\fP\&.
 .di ZV
 .in 0
 .nf \fC
-   mcxarray -data expr\&.data -skipr 1 -skipc 1 -o expr20\&.mcx --write-binary
-      --pearson -co 0\&.2 -tf \&'abs()\&'
+   mcxarray -data expr\&.data -skipr 1 -skipc 1 -o expr20\&.mcx --write-binary --pearson -co 0\&.2 -tf \&'abs()\&'
    mcx query -imx expr20\&.mcx --vary-correlation
    
 .fi \fR
@@ -296,6 +297,29 @@ and the median node degree\&. Both should preferably not be too high\&.
 For example the number of orphan nodes should be
 less than ten percent of the total number of nodes,
 and the median node degree should be at most one hundred neighbours\&.
+.SH Reducing node degrees in the graph
+A good way to lower node degrees in a network is to require that
+an edge is among the best \fIk\fP edges (those of highest weight) for
+\fIboth\fP nodes incident to the edge, for some value of \fIk\fP\&. This is
+achieved by using \fCknn(k)\fP in the argument to the \fB-tf\fP option to
+mcl or \fBmcx alter\fP\&.
+To give an example, a graph was formed on translations in Ensembl release 57 on 2\&.6M nodes\&.
+The similarities were obtained from BLAST scores,
+leading to a graph with a total edge count of 300M, with
+best-connected nodes of degree respectively
+11148, 9083, 9070, 9019 and 8988, and with mean node degree 233\&.
+These degrees are unreasonable\&.
+The graph was subjected to \fBmcx query\fP to investigate the effect of
+varying k-NN parameters\&. A good heuristic is to choose a value
+that does not significantly change the number of singletons in the input graph\&.
+In the example it meant that \fB-tf\fP\ \&\fB\&'knn(160)\&'\fP was feasible, leading
+to a mean node degree of 98\&.
+
+A second approach to reduce node degrees is to employ the \fB-ceil-nb\fP option\&.
+This ranks nodes by node degree, highest first\&. Nodes are considered
+in order of rank, and edges of low weight are removed from the graph until
+a node satisfies the node degree threshold specified by \fB-ceil-nb\fP\&.
+
 .SH SEE ALSO
 \fBmcxio(5)\fP\&.
 .SH AUTHOR

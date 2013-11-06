@@ -1,5 +1,5 @@
 /*   (C) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -10,15 +10,15 @@
 /* TODO
  *    rand index, randc (Hubert et ??)
 
-   (n/2) + 2 Sum{i=1->c1} Sum{j=1->c2} (n_ij/2) - [ Sum{i=1->c1} (n_i./2) + Sum{j=1->c2} (n_.j/2) ]
+   (n:2) + 2 Sum{i=1->c1} Sum{j=1->c2} (n_ij:2) - [ Sum{i=1->c1} (n_i+:2) + Sum{j=1->c2} (n_+j:2) ]
                                  -------------------------
-                                       n (n-1) / 2
-     a + b
+                                       n (n-1) : 2
+     a + d
    ---------
      (n/2)
 
    a: same in C1 and same in C2
-   b: different in C1 and different in C2.
+   d: different in C1 and different in C2.
 
 
             Sum{i=1->c1} Sum{j=1->c2} (n_ij/2) - [1/(n/2)] Sum{i=1->c1} (n_i/2) * Sum{j=1->c2} (n_j/2)
@@ -40,8 +40,7 @@
 #include "impala/iface.h"
 #include "impala/ivp.h"
 #include "impala/app.h"
-#include "taurus/ilist.h"
-#include "taurus/la.h"
+#include "impala/io.h"
 
 #include "clew/clm.h"
 #include "clew/cat.h"
@@ -51,10 +50,40 @@
 #include "util/opt.h"
 
 
+
+static double mclv_choose_sum
+(  const mclv* vec
+)  
+   {  mclIvp* vecivps = vec->ivps
+   ;  dim     vecsize = vec->n_ivps
+   ;  double  sum  = 0.0
+
+   ;  while (vecsize-- > 0)
+      {  double val = (vecivps++)->val
+      ;  double delta = val * (val - 1.0) * 0.5
+      ;  if (delta > 0)
+         sum += delta
+   ;  }
+      return sum
+;  }
+
+
+static double mclx_choose_sum
+(  const mclx* mx
+)
+   {  dim i
+   ;  double sum = 0.0
+   ;  for (i=0;i<N_COLS(mx);i++)
+      sum += mclv_choose_sum(mx->cols+i)
+   ;  return sum
+;  }
+
+
 enum
 {  DIST_SPLITJOIN 
 ,  DIST_VARINF
 ,  DIST_MIRKIN
+,  INDEX
 }  ;
 
 
@@ -70,6 +99,7 @@ static const char* me = "clm dist";
 enum
 {  DIST_OPT_OUTPUT = CLM_DISP_UNUSED
 ,  DIST_OPT_MODE
+,  DIST_OPT_INDEX
 ,  DIST_OPT_CONSECUTIVE
 ,  DIST_OPT_SORT
 ,  DIST_OPT_DIGITS
@@ -110,7 +140,13 @@ static mcxOptAnchor distOptions[] =
    ,  MCX_OPT_HASARG
    ,  DIST_OPT_MODE
    ,  "<mode>"
-   ,  "one of sj|vi|mk"
+   ,  "one of sj|vi|mirkin"
+   }
+,  {  "--index"
+   ,  MCX_OPT_DEFAULT
+   ,  DIST_OPT_INDEX
+   ,  NULL
+   ,  "output Rand, corrected Rand and Jaccard index"
    }
 ,  {  "-digits"
    ,  MCX_OPT_HASARG
@@ -230,10 +266,19 @@ static mcxstatus distArgHandle
             mode_g = DIST_SPLITJOIN
          ;  else if (!strcmp(val, "vi"))
             mode_g = DIST_VARINF
-         ;  else if (!strcmp(val, "ehd") || !strcmp(val, "mk"))
+         ;  else if
+            (  !strcmp(val, "ehd")
+            || !strcmp(val, "mk")
+            || !strcmp(val, "mirkin")
+            )
             mode_g = DIST_MIRKIN
          ;  else
             mcxDie(1, me, "unknown mode <%s>", val)
+      ;  break
+      ;
+
+         case DIST_OPT_INDEX
+      :  mode_g = INDEX
       ;  break
       ;
 
@@ -258,6 +303,9 @@ static mcxstatus distMain
 
    ;  mclxCat st
 
+   ;  mcxIO* xfdebug = mcxIOnew("-", "w")
+   ;  mcxIOopen(xfdebug, EXIT_ON_FAIL)
+
    ;  mclxCatInit(&st)
 
    ;  if (i_am_vol)
@@ -278,11 +326,15 @@ static mcxstatus distMain
       ;  mcxIOclose(xfin)
       ;  if (status)
          break
+;if (0)
+         mclxWrite(st.level[st.n_level-1].mx, xfdebug, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
       ;  a++
    ;  }
 
       if (!a || a != argc)
       mcxDie(1, me, "failed to read one or more cluster files")
+
+   ;  mcxIOfree(&xfdebug)
 
    ;  if (sort_g)
       mclxCatSortCoarseFirst(&st)
@@ -417,7 +469,23 @@ static mcxstatus distMain
                ,  st.level[j].fname->str
                )
 
-         ;  mclxFree(&meet12)
+         ;  else if (mode_g == INDEX)
+            {  mclv* sizes_a  =  mclxColSizes(c1, MCL_VECTOR_SPARSE)
+            ;  mclv* sizes_b  =  mclxColSizes(c2, MCL_VECTOR_SPARSE)
+            ;  double soba    =  mclv_choose_sum(sizes_a)   /* sum of binomial */
+            ;  double sobb    =  mclv_choose_sum(sizes_b)   /* sum of binomial */
+            ;  double sobm    =  mclx_choose_sum(meet12)
+            ;  double chsn_   =  (N_ROWS(c1) * 0.5 * (N_ROWS(c1) - 1.0))
+            ;  double chsn    =  chsn_ ? chsn_ : 0.001   /* crazy, yes */
+
+            ;  double rand    =  (chsn -  soba -  sobb +  2.0 * sobm) / chsn
+            ;  double jaccard =  sobm / (soba + sobb - sobm)
+            ;  double randc   =     (sobm - (soba * sobb) / chsn)
+                                 /  ( 0.5 * (soba + sobb) - (soba * sobb) / chsn)
+            ;  fprintf(xfout->fp, "rand=%.5f jaccard=%.5f arand=%.5f\n", rand, jaccard, randc)
+         ;  }
+
+            mclxFree(&meet12)
          ;  mclxFree(&meet21)
          ;  if (consecutive_g)
             break

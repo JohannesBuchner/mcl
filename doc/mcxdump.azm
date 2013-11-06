@@ -34,6 +34,7 @@
    \synoptopt{--lazy-tab}{allow tab/domain mismatch}
    \synoptopt{--transpose}{work with the transpose}
    \synoptopt{--no-values}{omit values}
+   \synoptopt{--omit-empty}{omit empty columns}
    \synoptopt{--no-loops}{omit loops}
    \synoptopt{--force-loops}{force loops}
    \synoptopt{--dump-pairs}{emit pairs per line}
@@ -144,6 +145,13 @@
 \item{\defopt{--no-values}{omit values}}
 \car{
    Do not emit values.}
+
+\item{\defopt{--omit-empty}{omit empty columns}}
+\car{
+   Do not output line data (with \genopt{--dump-table} or
+   \genopt{--dump-lines} or related options) for those columns
+   that are empty.
+   }
 
 \item{\defopt{--no-loops}{omit loops}}
 \car{

@@ -61,26 +61,26 @@ am_clm_OBJECTS = clm.$(OBJEXT) clminfo.$(OBJEXT) clmimac.$(OBJEXT) \
 clm_OBJECTS = $(am_clm_OBJECTS)
 clm_LDADD = $(LDADD)
 clm_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
-	../taurus/libtaurus.a ../gryphon/libgryphon.a \
-	../impala/libimpala.a ../../util/libutil.a
+	../gryphon/libgryphon.a ../impala/libimpala.a \
+	../../util/libutil.a
 am_clmdag_OBJECTS = clmdag.$(OBJEXT) report.$(OBJEXT)
 clmdag_OBJECTS = $(am_clmdag_OBJECTS)
 clmdag_LDADD = $(LDADD)
 clmdag_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
-	../taurus/libtaurus.a ../gryphon/libgryphon.a \
-	../impala/libimpala.a ../../util/libutil.a
+	../gryphon/libgryphon.a ../impala/libimpala.a \
+	../../util/libutil.a
 am_clmformat_OBJECTS = clmformat.$(OBJEXT) report.$(OBJEXT)
 clmformat_OBJECTS = $(am_clmformat_OBJECTS)
 clmformat_LDADD = $(LDADD)
 clmformat_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
-	../taurus/libtaurus.a ../gryphon/libgryphon.a \
-	../impala/libimpala.a ../../util/libutil.a
+	../gryphon/libgryphon.a ../impala/libimpala.a \
+	../../util/libutil.a
 am_clmframe_OBJECTS = clmframe.$(OBJEXT) report.$(OBJEXT)
 clmframe_OBJECTS = $(am_clmframe_OBJECTS)
 clmframe_LDADD = $(LDADD)
 clmframe_DEPENDENCIES = ../mcl/libmcl.a ../clew/libclew.a \
-	../taurus/libtaurus.a ../gryphon/libgryphon.a \
-	../impala/libimpala.a ../../util/libutil.a
+	../gryphon/libgryphon.a ../impala/libimpala.a \
+	../../util/libutil.a
 binSCRIPT_INSTALL = $(INSTALL_SCRIPT)
 SCRIPTS = $(bin_SCRIPTS) $(noinst_SCRIPTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
@@ -120,6 +120,7 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+GREP = @GREP@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -139,6 +140,7 @@ PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
 PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
+PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PTHREAD_CC = @PTHREAD_CC@
@@ -150,8 +152,6 @@ SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
 ac_ct_CC = @ac_ct_CC@
-ac_ct_RANLIB = @ac_ct_RANLIB@
-ac_ct_STRIP = @ac_ct_STRIP@
 acx_pthread_config = @acx_pthread_config@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
@@ -167,29 +167,36 @@ build_cpu = @build_cpu@
 build_os = @build_os@
 build_vendor = @build_vendor@
 datadir = @datadir@
+datarootdir = @datarootdir@
+docdir = @docdir@
+dvidir = @dvidir@
 exec_prefix = @exec_prefix@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
 host_os = @host_os@
 host_vendor = @host_vendor@
+htmldir = @htmldir@
 includedir = @includedir@
 infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
+localedir = @localedir@
 localstatedir = @localstatedir@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
+pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
+psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)
-LDADD = ../mcl/libmcl.a ../clew/libclew.a ../taurus/libtaurus.a ../gryphon/libgryphon.a ../impala/libimpala.a ../../util/libutil.a
+LDADD = ../mcl/libmcl.a ../clew/libclew.a  ../gryphon/libgryphon.a ../impala/libimpala.a ../../util/libutil.a
 clmformat_SOURCES = clmformat.c report.c
 clmframe_SOURCES = clmframe.c report.c
 clmdag_SOURCES = clmdag.c report.c

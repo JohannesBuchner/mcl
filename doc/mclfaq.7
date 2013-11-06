@@ -1,5 +1,5 @@
-.\" Copyright (c) 2009 Stijn van Dongen
-.TH "MCL\ \&FAQ" 7 "4 Nov 2009" "MCL\ \&FAQ 1\&.008, 09-308" "MISCELLANEOUS "
+.\" Copyright (c) 2010 Stijn van Dongen
+.TH "MCL\ \&FAQ" 7 "28 May 2010" "MCL\ \&FAQ 1\&.008, 10-148" "MISCELLANEOUS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -204,7 +204,10 @@ How do I tune cluster granularity?
 The effect of inflation on cluster granularity\&.
 .br
 .ZT 1m \fB7\&.3\fP
-The effect of similarity distribution homogeneity on cluster granularity\&.
+The effect of node degrees on cluster granularity\&.
+.br
+.ZT 1m \fB7\&.4\fP
+The effect of edge weight differentiation on cluster granularity\&.
 
 .ZT 0m \fB8\fP
 \s+1\fBImplementing the MCL algorithm\fP\s-1
@@ -363,8 +366,8 @@ The current setup, which I hope to continue, is this\&. All releases are
 identified by a date stamp\&. For example 02-095 denotes day 95 in the year
 2002\&. This date stamp agrees (as of April 2000) with the (differently
 presented) date stamp used in all manual pages shipped with that release\&.
-For example, the date stamp of the FAQ you are reading is \fB4 Nov 2009\fP,
-which corresponds with the MCL stamp \fB09-308\fP\&.
+For example, the date stamp of the FAQ you are reading is \fB28 May 2010\fP,
+which corresponds with the MCL stamp \fB10-148\fP\&.
 The Changelog file contains a list of what\&'s changed/added with each
 release\&. Currently, the date stamp is the primary way of identifying an \fBmcl\fP
 release\&. When asked for its version by using \fB--version\fP, mcl
@@ -1094,10 +1097,8 @@ inspection (use your judgment)\&.
 \s+1\fBHow do I tune cluster granularity?\fP\s-1
 
 There are several ways for influencing cluster granularity\&. These ways and
-their relative merits are successively discussed below\&. The
-\fBclmdist(1) manual\fP contains an example of doing multiple
-mcl runs for finding granularily different clusterings, using the
-most common approach, namely that of varying inflation\&.
+their relative merits are successively discussed below\&.
+Reading \fBclmprotocols(5)\fP is also a good idea\&.
 
 .ZB 1m \fB7\&.2\fP
 \s+1\fBThe effect of inflation on cluster granularity\&.\fP\s-1
@@ -1108,28 +1109,25 @@ you are mangling huge graphs it could be the only \fBmcl\fP option you ever need
 besides the output redirection option \fB-o\fP\&.
 
 Increasing the value of \fB-I\fP will increase cluster granularity\&.
-Conceivable values are from 1\&.1 to 5\&.0 or so, but the range of suitable
+Conceivable values are from 1\&.1 to 10\&.0 or so, but the range of suitable
 values will certainly depend on your input graph\&. For many graphs, 1\&.1 will
-be far too low, and for many other graphs, 5\&.0 will be far too high\&. You
+be far too low, and for many other graphs, 8\&.0 will be far too high\&. You
 will have to find the right value or range of values by experimenting, using
 your judgment, and using measurement tools such as \fBclm dist\fP and
-\fBclm info\fP\&. The default 2\&.0 is a good value to begin the experimental
-stage with\&.
-
-For experiments that are more subtle with respect to inflation,
-\fBmcl\fP provides the \fB-i\fP option in conjunction with the \fB-l\fP
-(small letter ell) option\&. Do this only if you have the intention of
-playing around with mcl in order to study the characteristics of the
-process that it computes, and \fImaybe\fP, just \fImaybe\fP, use it in a
-production environment if you find it useful\&. In the first vein, you may be
-interested to know that \fBmcxi(1)\fP is a stack language/interpreter in which
-the entire MCL algorithm can be written in three lines of code\&. It provides
-comprehensive access to the MCL graph and matrix libraries\&. However, the
-\fBmcxi\fP interface to the MCL pruning facilities is not yet satisfactory at this
-time\&.
+\fBclm info\fP\&. A good set of values to start with is 1\&.4, 2 and 6\&.
 
 .ZB 1m \fB7\&.3\fP
-\s+1\fBThe effect of similarity distribution homogeneity on cluster granularity\&.\fP\s-1
+\s+1\fBThe effect of node degrees on cluster granularity\&.\fP\s-1
+
+Preferably the network should not have nodes of very high degree,
+that is, with exorbitantly many neighbours\&. Such nodes tend to
+obscure cluster structure and contribute to coarse clusters\&.
+The ways to combat this using \fBmcl\fP and sibling programs are documented
+in \fBclmprotocols(5)\fP\&. Briefly, they are the \fBmcl\fP and \fBmcx alter\fP
+options \fB-knn\fP and \fB-ceil-nb\fP\&.
+
+.ZB 1m \fB7\&.4\fP
+\s+1\fBThe effect of edge weight differentiation on cluster granularity\&.\fP\s-1
 
 How similarities in the input graph were derived, constructed,
 adapted, filtered (et cetera) will affect cluster granularity\&.
@@ -1150,7 +1148,7 @@ Make a graph more homogeneous with respect to the weight
 function by using \fB-pi\fP with argument \fIf\fP somewhere
 in the interval [0,1] \- 0\&.5 can be considered a reasonable first try\&.
 Make it less homogeneous by setting \fIf\fP somewhere in the interval [1,10]\&.
-In this case 5 is a reasonable starting point\&.
+In this case 3 is a reasonable starting point\&.
 
 .ce
 \s+2\fBImplementing the MCL algorithm\fP\s-2
@@ -1273,17 +1271,17 @@ The second solution is to use the \fB-dump\fP\ \&\fBite\fP option
 (\fB-dumpi\fP and \fB-dumpstem\fP may be of use again)\&. This will
 cause \fBmcl\fP to write the intermediate iterands to file\&. After that, you can
 apply \fBclm imac\fP (interpret matrix as clustering) to those iterands\&. \fBclm imac\fP
-has a \fB-tight\fP parameter which affects the mapping of matrices to
-clusterings\&. It takes a value between 0 and 100 as argument\&. The default is
-100 and corresponds with the strict mapping\&. Lowering the \fB-tight\fP
-value will generally result in clusterings containing more overlap\&. This
+has a \fB-strict\fP parameter which affects the mapping of matrices to
+clusterings\&. It takes a value between 0\&.0 and 1\&.0 as argument\&. The default is
+0\&.001 and corresponds with promoting overlap\&. Increasing the \fB-strict\fP
+value will generally result in clusterings containing less overlap\&. This
 will have the largest effect for early iterands; its effect will diminish as
 the iterand index increases\&.
 
-When set to 0, the \fB-tight\fP parameter results in the clustering
+When set to 0, the \fB-strict\fP parameter results in the clustering
 associated with the DAG associated with an MCL iterand as described
 in [3]\&. This DAG is pruned (thus possibly resulting
-in less overlap in the clustering) by increasing the \fB-tight\fP
+in less overlap in the clustering) by increasing the \fB-strict\fP
 parameter\&. [add]
 
 .ce
@@ -1306,9 +1304,6 @@ matrix computations\&. Among other things, mcl\&'s data structures and primitive
 operations are now more suited to be employed in a distributed computing
 environment\&. However, much remains to be done before mcl can operate
 in such an environment\&.
-
-At some point in the future a second, xml-based, interchange input format
-may be introduced\&.
 
 If you feel that mcl should support some other standard matrix format,
 let us know\&.

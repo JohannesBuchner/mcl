@@ -136,12 +136,14 @@ void mclpMergeMul
 ,  const void*             ivp2
 )  ;
 
+#define MCLPAR_SORTED         1
+#define MCLPAR_UNIQUE         2
 
 typedef struct
 {  mclIvp*     ivps
 ;  dim         n_ivps
 ;  dim         n_alloc
-;  mcxbits     sorted      /* 1 = sorted 2 = no-duplicates */
+;  mcxbits     sorted
 ;
 }  mclpAR   ;
 

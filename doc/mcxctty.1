@@ -1,5 +1,5 @@
-.\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcx ctty" 1 "4 Nov 2009" "mcx ctty 1\&.008, 09-308" "USER COMMANDS "
+.\" Copyright (c) 2010 Stijn van Dongen
+.TH "mcx ctty" 1 "28 May 2010" "mcx ctty 1\&.008, 10-148" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -28,7 +28,7 @@
 .el .in 8m
 ..
 .SH NAME
-mcx ctty \- compute the clustering coefficient of a graph
+mcx ctty \- compute betweenness centrality for network nodes
 .SH SYNOPSIS
 
 \fBmcx ctty\fP [options] [matrix-file]
@@ -44,15 +44,18 @@ in the \fBmcx\fP manual page\&.
 \fBmcx ctty\fP
 \fB[-abc\fP <fname> (\fIspecify label input\fP)\fB]\fP
 \fB[-imx\fP <fname> (\fIspecify matrix input\fP)\fB]\fP
+\fB[-o\fP <fname> (\fIoutput file name\fP)\fB]\fP
 \fB[-tab\fP <fname> (\fIuse tab file\fP)\fB]\fP
-\fB[-t\fP (\fInumber of threads to use\fP)\fB]\fP
+\fB[-t\fP <int> (\fIuse <int> threads\fP)\fB]\fP
+\fB[-J\fP <intJ> (\fIa total of <intJ> jobs are used\fP)\fB]\fP
+\fB[-j\fP <intj> (\fIthis job has index <intj>\fP)\fB]\fP
 \fB[--list\fP (\fIlist clustering coefficient for all nodes\fP)\fB]\fP
 \fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
 \fB[--apropos\fP (\fIprint synopsis, exit\fP)\fB]\fP
 \fB[--version\fP (\fIprint version, exit\fP)\fB]\fP
 .SH DESCRIPTION
 
-\fBmcx ctty\fP computes centrality betweenness for all nodes in a graph, using
+\fBmcx ctty\fP computes betweenness centrality for all nodes in a graph, using
 the between centrality update algorithm from [1]\&.
 
 The input graph/matrix, if specified with the \fB-imx\fP option, has to
@@ -75,6 +78,12 @@ The file name for input that is in label format\&.
 The file name for input\&. STDIN is assumed if not specified\&.
 .in -2m
 
+.ZI 2m "\fB-o\fP <fname> (\fIoutput file name\fP)"
+\&
+.br
+The name of the file to write output to\&.
+.in -2m
+
 .ZI 2m "\fB-tab\fP <fname> (\fIuse tab file\fP)"
 \&
 .br
@@ -86,12 +95,49 @@ If this option is used in conjunction with \fB-imx\fP the
 tab domain and the matrix domain are required to be identical\&.
 .in -2m
 
-.ZI 2m "\fB-t\fP (\fInumber of threads to use\fP)"
+.ZI 2m "\fB-t\fP <int> (\fIuse <int> threads\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-J\fP <intJ> (\fIa total of <intJ> jobs are used\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-j\fP <intj> (\fIthis job has index <intj>\fP)"
+\&
+'in -2m
+'in +2m
 \&
 .br
 Computing centrality scores in a graph is time-intensive\&.
 If you have multiple CPUs available consider using
-as many threads\&.
+as many threads\&. Additionally it is possible to
+spread the computation over multiple jobs/machines\&.
+Conceptually, each job takes a number of threads from
+the total thread pool\&. If job control is used
+(the \fB-J\fP option is used) then the number of jobs should
+not exceed the number of threads\&. The total number of
+threads divided by the total number of jobs defines
+the number of threads that will be used by the current job\&.
+Additionally, the number of threads specified signifies
+the total added amount of all threads across all machines
+and \fImust\fP be the same for all jobs\&. This number is used
+by each job to infer its own set of tasks\&.
+The following set of options, if given to as many commands,
+defines three jobs, each running four threads\&.
+
+.di ZV
+.in 0
+.nf \fC
+-t 12 -G 3 -g 0
+-t 12 -G 3 -g 1
+-t 12 -G 3 -g 2
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
 .in -2m
 
 .ZI 2m "\fB--list\fP (\fIprint result for each node\fP)"

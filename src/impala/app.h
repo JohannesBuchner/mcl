@@ -9,6 +9,8 @@
 #ifndef impala_app_h__
 #define impala_app_h__
 
+#include "util/inttypes.h"
+
 void app_report_version
 (  const char* me
 )  ;
@@ -25,5 +27,11 @@ void mclx_app_init
 (  FILE* fp
 )  ;
 
+dim mclx_set_threads_or_die
+(  const char* caller
+,  dim n_thread_l
+,  dim i_group_G
+,  dim n_group_G
+)  ;
 
 #endif

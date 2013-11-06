@@ -25,8 +25,6 @@
 #include "impala/io.h"
 #include "impala/version.h"
 
-#include "taurus/parse.h"
-
 #include "util/ting.h"
 #include "util/equate.h"
 #include "util/io.h"
@@ -51,6 +49,9 @@ enum
 ,  PROC_OPT_SCHEME
 ,  PROC_OPT_RESOURCE
 ,  PROC_OPT_RPRUNE
+,  PROC_OPT_SPARSE
+,  PROC_OPT_PARTITION_SELECT
+,  PROC_OPT_PARTITION_P
 ,  PROC_OPT_SKID
                         ,  PROC_OPT_ETHREADS
 ,  PROC_OPT_SHOW        =  PROC_OPT_ETHREADS + 2
@@ -61,23 +62,15 @@ enum
 ,  PROC_OPT_RECOVER
 ,  PROC_OPT_SELECT
                         ,  PROC_OPT_PCT
-,  PROC_OPT_NJ          =  PROC_OPT_PCT + 2
-,  PROC_OPT_WARNFACTOR
+,  PROC_OPT_WARNFACTOR  =  PROC_OPT_PCT + 2
                         ,  PROC_OPT_WARNPCT
 ,  PROC_OPT_DUMPSTEM    =  PROC_OPT_WARNPCT + 2
 ,  PROC_OPT_DUMP
-,  PROC_OPT_DUMPSUBI
-,  PROC_OPT_DUMPSUBD
-,  PROC_OPT_DUMPDOM
 ,  PROC_OPT_DUMPINTERVAL
                         ,  PROC_OPT_DUMPMODULO
 ,  PROC_OPT_DEVEL       =  PROC_OPT_DUMPMODULO + 2
 ,  PROC_OPT_THREADS
 ,  PROC_OPT_ITHREADS
-,  PROC_OPT_NX
-,  PROC_OPT_NY
-,  PROC_OPT_NW
-,  PROC_OPT_NL
 ,  PROC_OPT_WEIGHT_MAXVAL
 ,  PROC_OPT_WEIGHT_SELFVAL
 
@@ -151,36 +144,6 @@ mcxOptAnchor mclProcOptions[] =
    ,  "<int>"
    ,  "\tM!\tDexpansion thread number, use with multiple CPUs"
    }
-,  {  "-nj"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
-   ,  PROC_OPT_NJ
-   ,  "<int>"
-   ,  "size of jury, bigger = friendlier"
-   }
-,  {  "-nx"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
-   ,  PROC_OPT_NX
-   ,  "<int>"
-   ,  "width of nx pruning monitoring window (cf -v pruning)"
-   }
-,  {  "-ny"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
-   ,  PROC_OPT_NY
-   ,  "<int>"
-   ,  "width of ny pruning monitoring window (cf -v pruning)"
-   }
-,  {  "-nw"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
-   ,  PROC_OPT_NW
-   ,  "<int>"
-   ,  "upper bound on pruning monitoring window count"
-   }
-,  {  "-nl"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
-   ,  PROC_OPT_NL
-   ,  "<int>"
-   ,  "upper bound on number of iterations pruning is logged"
-   }
 ,  {  "-p"
    ,  MCX_OPT_HASARG
    ,  PROC_OPT_PRUNE
@@ -223,6 +186,24 @@ mcxOptAnchor mclProcOptions[] =
    ,  "<int>"
    ,  "\tM!\tDallow <int> neighbours throughout computation"
    }
+,  {  "-sparse"
+   ,  MCX_OPT_HIDDEN | MCX_OPT_HASARG
+   ,  PROC_OPT_SPARSE
+   ,  "<num>"
+   ,  "use sparse matrix-vector product implementation only"
+   }
+,  {  "--partition-selection"
+   ,  MCX_OPT_HIDDEN
+   ,  PROC_OPT_PARTITION_SELECT
+   ,  NULL
+   ,  "use partition selection"
+   }
+,  {  "-partition-p"
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  PROC_OPT_PARTITION_P
+   ,  "<int>"
+   ,  "use expensive pivot search while N gq <int>"
+   }
 ,  {  "-Q"
    ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_RPRUNE
@@ -264,24 +245,6 @@ mcxOptAnchor mclProcOptions[] =
    ,  PROC_OPT_DUMP
    ,  "<mode>"
    ,  "<mode> in chr|ite|cls|dag (cf manual page)"
-   }
-,  {  "-dump-subi"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
-   ,  PROC_OPT_DUMPSUBI
-   ,  "<spec>"
-   ,  "dump the columns in <spec>"
-   }
-,  {  "-dump-subd"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
-   ,  PROC_OPT_DUMPSUBD
-   ,  "<spec>"
-   ,  "dump columns in <spec> domains"
-   }
-,  {  "-dump-dom"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
-   ,  PROC_OPT_DUMPDOM
-   ,  "<mx>"
-   ,  "domain matrix"
    }
 ,  {  "-dump-stem"
    ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
@@ -348,87 +311,14 @@ void  mclSetProgress
 )
    {  mclExpandParam *mxp = mpp->mxp
 
-   ;  if (mxp->vectorProgression)
-      {  if (mxp->vectorProgression > 0)
-         mxp->vectorProgression
-         =  MCX_MAX(1 + (n_nodes -1)/mxp->vectorProgression, 1)
+   ;  if (mxp->vector_progression)
+      {  if (mxp->vector_progression > 0)
+         mxp->vector_progression
+         =  MCX_MAX(1 + (n_nodes -1)/mxp->vector_progression, 1)
       ;  else
-         mxp->vectorProgression = -mxp->vectorProgression
+         mxp->vector_progression = -mxp->vector_progression
    ;  }
    }
-
-
-mclv* convert_spec
-(  mcxTing* spec
-,  long min
-)
-   {  char*       z       =   NULL
-   ;  mcxTokFunc  tf
-
-   ;  tf.opts = MCX_TOK_DEL_WS
-
-   ;  if (mcxTokExpectFunc(&tf, spec->str, spec->len, &z, -1, -1, NULL))
-      return NULL
-
-   ;  return ilSpecToVec(tf.args->next, &min, NULL, RETURN_ON_FAIL)
-;  }
-
-
-mcxstatus consider_spec
-(  mclProcParam* mpp
-,  mcxTing* speci
-,  mcxTing* specd
-,  mcxIO*   xfdom
-)
-   {  mclv *veci = NULL, *vecd = NULL, *vect = NULL
-   ;  mclx* dom = NULL
-   ;  mcxstatus status = STATUS_FAIL
-
-   ;  if (!speci && !specd && !xfdom)
-      return STATUS_OK
-   
-   ;  while (1)
-      {  if (specd)
-         {  if (!xfdom)
-            {  mcxErr(me, "-dump-subd <spec> needs -dump-dom <mx> option")
-            ;  break
-         ;  }
-            else if (!(dom = mclxRead(xfdom, RETURN_ON_FAIL)))
-            break
-
-         ;  if (!(vect = convert_spec(specd, -2)))
-            break
-
-         ;  if (!(vecd = mclgUnionv(dom, vect, NULL, SCRATCH_READY, NULL)))
-            break
-
-         ;  mcldMerge(mpp->dump_list, vecd, mpp->dump_list)
-      ;  }
-
-         if (speci)
-         {  if (!(veci = convert_spec(speci, 0)))
-            break
-         ;  mcldMerge(mpp->dump_list, veci, mpp->dump_list)
-      ;  }
-
-         status = STATUS_OK
-      ;  if (mpp->dump_list->n_ivps)
-         BIT_ON(mpp->dumping, MCPVB_SUB)
-      ;  break
-   ;  }
-
-      mcxTingFree(&speci)
-   ;  mcxTingFree(&specd)
-
-   ;  mclvFree(&veci)
-   ;  mclvFree(&vecd)
-   ;  mclvFree(&vect)
-
-   ;  mcxIOfree(&xfdom)
-   ;  mclxFree(&dom)
-
-   ;  return status
-;  }
 
 
 mcxstatus mclProcessInit
@@ -446,9 +336,6 @@ mcxstatus mclProcessInit
    ;  float             f_e1     =  1e-1
    ;  float             f_30     =  30.0
    ;  mclExpandParam    *mxp     =  mpp->mxp
-   ;  mcxTing*          speci    =  NULL
-   ;  mcxTing*          specd    =  NULL
-   ;  mcxIO*            xfdom    =  NULL
    ;  const mcxOption*  opt
 
    ;  mcxOptPrintDigits  =  1
@@ -468,13 +355,6 @@ mcxstatus mclProcessInit
          :  mpp->printMatrix  =  TRUE
          ;  break
          ;
-
-#if 0
-            case PROC_OPT_CACHE_XP
-         :  mpp->fname_expanded =  mcxTingNew(opt->val)
-         ;  break
-         ;
-#endif
 
             case PROC_OPT_INITINFLATION
          :  f = atof(opt->val)
@@ -497,8 +377,6 @@ mcxstatus mclProcessInit
 
          ;  if (strstr(arg, "pruning"))
             bit |= XPNVB_PRUNING
-         ;  if (strstr(arg, "explain"))
-            bit |= XPNVB_EXPLAIN
          ;  if (strstr(arg, "cls"))
             bit |= XPNVB_CLUSTERS
          ;  if (strstr(arg, "all"))
@@ -559,41 +437,6 @@ mcxstatus mclProcessInit
             break
          ;
 
-            case PROC_OPT_NJ
-         :  i = atoi(opt->val)
-         ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_1, NULL, NULL)
-         ;  if (vok) mxp->nj = i-1
-         ;  break
-         ;
-
-            case PROC_OPT_NX
-         :  i = atoi(opt->val)
-         ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_1, NULL, NULL)
-         ;  if (vok) mxp->nx = i-1
-         ;  break
-         ;
-
-            case PROC_OPT_NY
-         :  i = atoi(opt->val)
-         ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_1, NULL, NULL)
-         ;  if (vok) mxp->ny = i-1
-         ;  break
-         ;
-
-            case PROC_OPT_NL
-         :  i = atoi(opt->val)
-         ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_1, NULL, NULL)
-         ;  if (vok) mxp->nl = i
-         ;  break
-         ;
-
-            case PROC_OPT_NW
-         :  i = atoi(opt->val)
-         ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_0, NULL, NULL)
-         ;  if (vok) mxp->nw = i
-         ;  break
-         ;
-
             case PROC_OPT_PPRUNE
          :  i = atoi(opt->val)
          ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_0, NULL, NULL)
@@ -615,14 +458,14 @@ mcxstatus mclProcessInit
             case PROC_OPT_WARNFACTOR
          :  i = atoi(opt->val)
          ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_0, NULL, NULL)
-         ;  if (vok) mxp->warnFactor =  i
+         ;  if (vok) mxp->warn_factor =  i
          ;  break
          ;
 
             case PROC_OPT_WARNPCT
          :  i = atoi(opt->val)
          ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_0, intLt, &i_100)
-         ;  if (vok) mxp->warnPct  =  ((double) i) / 100.0
+         ;  if (vok) mxp->warn_pct  =  ((double) i) / 100.0
          ;  break
          ;
 
@@ -687,7 +530,7 @@ mcxstatus mclProcessInit
          ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_1, NULL, NULL)
          ;  if (vok)
                n_prune  = i
-            ,  mxp->do_rprune = i
+            ,  mxp->implementation |= MCL_USE_RPRUNE
             ,  user_scheme = 1
          ;  break
          ;
@@ -712,6 +555,25 @@ mcxstatus mclProcessInit
          ;  break
          ;
 
+            case PROC_OPT_SPARSE
+         :  mxp->sparse_trigger = atoi(opt->val)
+         ;  break
+         ;
+
+            case PROC_OPT_PARTITION_SELECT
+         :  mxp->implementation |= MCL_USE_PARTITION_SELECTION
+         ;  break
+         ;
+
+            case PROC_OPT_PARTITION_P
+         :  i = atoi(opt->val)
+         ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_7, NULL, NULL)
+         ;  if (vok)
+            mxp->partition_pivot_sort_n = i
+         ;  mxp->implementation |= MCL_USE_PARTITION_SELECTION
+         ;  break
+         ;
+
             case PROC_OPT_DEVEL
          :  mpp->devel = atoi(opt->val)
          ;  break
@@ -722,25 +584,8 @@ mcxstatus mclProcessInit
          ;  break
          ;
 
-            case PROC_OPT_DUMPSUBD
-         :  specd = mcxTingPrint(NULL, "d(%s)", opt->val)
-         ;  break
-         ;
-
-            case PROC_OPT_DUMPDOM
-         :  xfdom = mcxIOnew(opt->val, "r")
-         ;  break
-         ;
-
-            case PROC_OPT_DUMPSUBI
-         :  speci = mcxTingPrint(NULL, "i(%s)", opt->val)
-         ;  break
-         ;
-
             case PROC_OPT_DUMP
          :  arg = opt->val
-         ;  if (strstr(arg, "chr"))
-            BIT_ON(mpp->dumping, MCPVB_CHR)
          ;  if (strstr(arg, "ite"))
             BIT_ON(mpp->dumping, MCPVB_ITE)
          ;  if (strstr(arg, "cls"))
@@ -787,10 +632,6 @@ mcxstatus mclProcessInit
    * this does the scheme thing
   */
       makeSettings(mxp)
-
-   ;  if (consider_spec(mpp, speci, specd, xfdom))
-      /* this frees speci and specd and xfdom */
-      return STATUS_FAIL
 
    ;  return STATUS_OK
 ;  }
@@ -896,33 +737,9 @@ void mclShowSettings
       )
 
    ;  if (user) fprintf
-      (  fp ,  "%-40s%8lu%8s%s\n"
-            ,  "nx (x window index)"
-            ,  (ulong) (mxp->nx + 1)
-            ,  ""
-            ,  "[-nx n]"
-      )
-
-   ;  if (user) fprintf
-      (  fp ,  "%-40s%8lu%8s%s\n"
-            ,  "ny (y window index)"
-            ,  (ulong) (mxp->ny + 1)
-            ,   ""
-            ,  "[-ny n]"
-      )
-
-   ;  if (user) fprintf
-      (  fp ,  "%-40s%8lu%8s%s\n"
-            ,  "nj (jury window index)"
-            ,  (ulong) (mxp->nj + 1)
-            ,   ""
-            ,  "[-nj n]"
-      )
-
-   ;  if (user) fprintf
       (  fp ,  "%-40s%8d%8s%s\n"
             ,  "warn-pct"
-            ,  (int) ((100.0 * mxp->warnPct) + 0.5)
+            ,  (int) ((100.0 * mxp->warn_pct) + 0.5)
             ,  ""
             ,  "[-warn-pct k]"
       )
@@ -930,7 +747,7 @@ void mclShowSettings
    ;  if (user) fprintf
       (  fp ,  "%-40s%8d%8s%s\n"
             ,  "warn-factor"
-            ,  mxp->warnFactor
+            ,  mxp->warn_factor
             ,  ""
             ,  "[-warn-factor k]"
       )

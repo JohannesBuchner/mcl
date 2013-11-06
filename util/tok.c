@@ -42,6 +42,7 @@ char* mcxTokSkip
 /*
  *  Accounts for nesting.
  *  Will do '}', ')', ']', '>', assuming one of several conventions.
+ *  Does not handle string arguments with embedded delimiters, e.g. "foo) bar"
 */
 
 mcxstatus mcxTokMatch
@@ -185,10 +186,10 @@ mcxstatus mcxTokExpectFunc
 ,  int         n_max
 ,  int        *n_args
 )
-   {  const char *z     =  str + str_len
+   {  const char* me    =  "mcxTokExpectFunc"
+   ;  const char *z     =  str + str_len
    ;  char *x           =  mcxTokSkip(str, isspace, str_len) /* signed issue */
    ;  char *y
-   ;  const char* me    =  "mcxTokExpectFunc"
 
    ;  mcxTing* key      =  mcxTingEmpty(NULL, 20)
    ;  mcxTing* args     =  mcxTingEmpty(NULL, 40)
@@ -204,7 +205,7 @@ mcxstatus mcxTokExpectFunc
    ;  if (n_args)
       *n_args = 0
 
-   ;  while (1)
+   ;  do
       {  if (!x)
          {  mcxErr(me, "no identifier at EOS")
          ;  break
@@ -254,10 +255,10 @@ mcxstatus mcxTokExpectFunc
          *z_pp = y+1
 
       ;  status = STATUS_OK
-      ;  break
    ;  }
+      while (0)
 
-      mcxTingFree(&args)
+   ;  mcxTingFree(&args)
 
    ;  if (status)
       {  mcxTingFree(&key)

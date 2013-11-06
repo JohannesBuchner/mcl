@@ -89,19 +89,13 @@ mclMatrix* clmProject
 )  ;
 
 
-/* WHAT
- *    Compute all connected components in the subgraphs induced by dom.
- *    Just compute connected components in case dom == NULL.
- *
- * ASSUMES
- *    mx encodes an undirected graph.
- *
- * NOTE
- *    not coded in a very efficient way.
-*/
+mclMatrix*  clmUGraphComponents
+(  mclMatrix*  mx                /* mx->dom_rows is used as scratch area */
+,  const mclMatrix*  dom
+)  ;
 
 mclMatrix*  clmComponents
-(  mclMatrix*  mx                /* mx->dom_rows is used as scratch area */
+(  mclMatrix*  mx                /* will be symmetrified */
 ,  const mclMatrix*  dom
 )  ;
 

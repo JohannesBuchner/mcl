@@ -20,7 +20,7 @@
 mcxHeap* mcxHeapInit
 (  void* h
 )
-   {  mcxHeap* heap  =     (mcxHeap*) h
+   {  mcxHeap* heap  =     h
 
    ;  if (!heap && !(heap = mcxAlloc(sizeof(mcxHeap), RETURN_ON_FAIL)))
       return NULL

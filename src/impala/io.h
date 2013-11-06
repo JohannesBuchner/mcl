@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -21,7 +21,6 @@
 #include "util/io.h"
 #include "util/types.h"
 #include "util/ting.h"
-#include "util/list.h"     /* needed for mclpTFparse */
 
 
 /* TODO:
@@ -338,22 +337,20 @@ void mclvaDump
 #define MCLX_DUMP_PAIRS           1 <<  1
 #define MCLX_DUMP_LINES           1 <<  2
 #define MCLX_DUMP_NOLEAD          1 <<  3
-#define MCLX_DUMP_LEAD_VALUE      1 <<  15
-#define MCLX_DUMP_TABLE           1 <<  12
-#define MCLX_DUMP_KEYS            1 <<  13
 #define MCLX_DUMP_PART_UPPER      1 <<  4
 #define MCLX_DUMP_PART_LOWER      1 <<  5
 #define MCLX_DUMP_PART_UPPERI     1 <<  6
 #define MCLX_DUMP_PART_LOWERI     1 <<  7
-
-#define MCLX_DUMP_TABLE_HEADER    1 <<  14
-
-
 #define MCLX_DUMP_LOOP_ASIS       1 <<  8
 #define MCLX_DUMP_LOOP_NONE       1 <<  9
 #define MCLX_DUMP_LOOP_FORCE      1 << 10
-
 #define MCLX_DUMP_MATRIX          1 << 11
+#define MCLX_DUMP_TABLE           1 <<  12
+#define MCLX_DUMP_KEYS            1 <<  13
+#define MCLX_DUMP_TABLE_HEADER    1 <<  14
+#define MCLX_DUMP_LEAD_VALUE      1 <<  15
+#define MCLX_DUMP_OMIT_EMPTY      1 <<  16
+
 
 typedef struct
 {  mcxbits        modes
@@ -406,17 +403,6 @@ mclpAR *mclpaReadRaw
 (  mcxIO       *xf
 ,  mcxOnFail   ON_FAIL
 ,  int         fintok     /* e.g. EOF or '$' */
-)  ;
-
-
-/* supply either encoding_link OR encoding_ting.
-   ting e.g.: log(3), ceil(5), gq(2)
-   link e.g.: mcxTokArgs of the above.
-*/
-
-mclpAR* mclpTFparse
-(  mcxLink*    encoding_link
-,  mcxTing*    encoding_ting
 )  ;
 
 

@@ -24,7 +24,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <pthread.h>
 
 #include "impala/io.h"
 #include "impala/stream.h"
@@ -41,6 +40,8 @@
 #include "util/types.h"
 #include "util/opt.h"
 #include "util/hash.h"
+
+#include "mcl/transform.h"
 
 
 const char* me = "mcxload";
@@ -418,14 +419,14 @@ int main
    ;  mcxIO* xfusetabr     =  NULL
    ;  mcxIO* xferr         =  mcxIOnew("stderr", "w")
 
-   ;  mclpAR* stream_transform   =  NULL
+   ;  mclgTF* stream_transform   =  NULL
    ;  mcxTing* stream_transform_spec = NULL
 
    ;  mclTab *tab_map_col  =  NULL
    ;  mclTab *tab_map_row  =  NULL
    ;  mclTab *tab_map_sym  =  NULL
 
-   ;  mclpAR* transform          =  NULL
+   ;  mclgTF* transform          =  NULL
    ;  mcxTing* transform_spec    =  NULL
 
    ;  mcxbits bits_stream_input  =  MCLXIO_STREAM_ABC
@@ -446,6 +447,7 @@ int main
    ;  mcxbool transpose =  FALSE
    ;  mcxbool cleanup   =  FALSE
    ;  mcxbits scrub     =  0
+   ;  mcxbool write_binary = FALSE
 
 #define COL_ON 1
 #define ROW_ON 2
@@ -502,6 +504,11 @@ int main
             case MY_OPT_VERSION
          :  app_report_version(me)
          ;  return 0
+         ;
+
+            case MY_OPT_WB
+         :  write_binary = TRUE
+         ;  break
          ;
 
             case MY_OPT_OUT_MX
@@ -748,13 +755,13 @@ int main
 
    ;  if
       (  stream_transform_spec
-      && !(stream_transform = mclpTFparse(NULL, stream_transform_spec))
+      && !(stream_transform = mclgTFparse(NULL, stream_transform_spec))
       )
       mcxDie(1, me, "stream tf-spec does not parse")
 
    ;  if
       (  transform_spec
-      && !(transform = mclpTFparse(NULL, transform_spec))
+      && !(transform = mclgTFparse(NULL, transform_spec))
       )
       mcxDie(1, me, "matrix tf-spec does not parse")
 
@@ -775,7 +782,7 @@ int main
       mclxIOstreamIn
       (  xfin
       ,  bits_stream_input | bits_stream_other | bits_stream_tabx
-      ,  stream_transform
+      ,  stream_transform ? mclgTFgetEdgePar(stream_transform) : NULL
       ,  merge
       ,  &streamer
       ,  EXIT_ON_FAIL
@@ -803,7 +810,7 @@ int main
    ;  }
 
       if (transform)
-      mclxUnaryList(mx, transform)
+      mclgTFexec(mx, transform)
 
    ;  if (scrub)
       mclxScrub(mx, scrub)
@@ -872,7 +879,11 @@ int main
       ;  }
       }
 
-   ;  mclxWrite(mx, xfmx, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+      if (write_binary)
+      mclxbWrite(mx, xfmx, EXIT_ON_FAIL)
+   ;  else
+      mclxWrite(mx, xfmx, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+
    ;  mcxIOclose(xfmx)
 
                   /* fixme: the tab_map_sym check is ugly.  It would be neater
@@ -978,12 +989,14 @@ fprintf(stderr, "tab s=%p c=%p r=%p\n", (void*) tab_sym, (void*) tab_col, (void*
       ;  mclTabFree(&(streamer.tab_row_in))
       ;  mclTabFree(&(streamer.tab_row_out))
       ;  mcxTingFree(&stream_transform_spec)
-      ;  mclpARfree(&stream_transform)
+      ;  mclgTFfree(&stream_transform)
+      ;  mclgTFfree(&transform)
    ;  }
 
       mcxIOfree(&xfmx)
    ;  mcxIOfree(&xfcachetabc)
    ;  mcxIOfree(&xfcachetabr)
+   ;  mcxIOfree(&xfcachetabg)
    ;  mcxIOfree(&xfusetabc)
    ;  mcxIOfree(&xfusetabr)
    ;  mcxIOfree(&xferr)

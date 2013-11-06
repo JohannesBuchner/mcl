@@ -58,6 +58,7 @@ enum
 ,  MY_OPT_NO_VALUES
 ,  MY_OPT_PREFIXC
 ,  MY_OPT_NO_LOOPS
+,  MY_OPT_OMIT_EMPTY
 ,  MY_OPT_SORT
 ,  MY_OPT_FORCE_LOOPS
 ,  MY_OPT_CAT_LIMIT
@@ -179,6 +180,12 @@ mcxOptAnchor options[] =
    ,  MY_OPT_PREFIXC
    ,  "<string>"
    ,  "prefix column indices with <string>"
+   }
+,  {  "--omit-empty"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_OMIT_EMPTY
+   ,  NULL
+   ,  "skip columns with no entries"
    }
 ,  {  "--no-loops"
    ,  MCX_OPT_DEFAULT
@@ -516,6 +523,11 @@ int main
          ;  break
          ;
 
+            case MY_OPT_OMIT_EMPTY
+         :  BIT_ON(modes, MCLX_DUMP_OMIT_EMPTY)
+         ;  break
+         ;
+
             case MY_OPT_SORT
          :  sort_mode = opt->val
          ;  break
@@ -689,7 +701,7 @@ int main
       catmax = n_max ? n_max : 0
 
    ;  if ((write_tabc || write_tabr) && !xf_tab)
-      mcxDie(1, me, "need tab file with these options")
+      mcxDie(1, me, "need a single tab file (-tab option) with --write-tabc or --write-tabr")
 
    ;  if (xf_tab && mcxIOopen(xf_tab, RETURN_ON_FAIL))
       mcxDie(1, me, "no tab")
@@ -811,7 +823,7 @@ int main
             ;  }
             }
 
-            if ((modes & MCLX_DUMP_TABLE) && tabr)
+            if (mode_dump == MCLX_DUMP_TABLE)
             BIT_ON(modes, MCLX_DUMP_TABLE_HEADER)
 
          ;  mclxIOdumpSet(&dumper, modes, sep_lead_g, sep_row_g, sep_val_g)

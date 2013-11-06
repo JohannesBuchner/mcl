@@ -1,4 +1,4 @@
-/*   (C) Copyright 2007 Stijn van Dongen
+/*   (C) Copyright 2007, 2008, 2009, 2010 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -844,10 +844,10 @@ static void clm_split_overlap
          }
       }
                                  /* Need to make it symmetric in order for
-                                  * clmComponents to work.
+                                  * clmUGraphComponents to work.
                                  */
       mclxAddTranspose(clustergraph, 0.5)
-   ;  clustergraphcomponents = clmComponents(clustergraph, NULL)
+   ;  clustergraphcomponents = clmUGraphComponents(clustergraph, NULL)
    ;  mclvFree(&clus_overlap)
    ;  mclxTransplant(cl, &clustergraphcomponents)
                                  /* now no need to use mclgUnionvReset */
@@ -868,6 +868,9 @@ dim clmEnstrict
 ,  mcxbits  bits
 )
    {  dim n_overlap = 0, n_empty = 0, n_missing = 0, n_found = 0
+   ;  double one = 1.0
+
+   ;  mclxUnary(cl, fltxConst, &one)
 
                            /* compute how many are empty. do this at
                             * the start, as in some implementations

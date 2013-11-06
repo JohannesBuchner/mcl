@@ -45,6 +45,8 @@
 #include "pval.h"
 
 #include "util/types.h"
+#include "util/ting.h"
+#include "util/list.h"
 
 
 
@@ -62,7 +64,7 @@ typedef struct
  *    Remember the constraint on a vector: The idx members of the ivp array
  *    need to be nonnegative and ascending.  The val members are usually
  *    positive, but this is not mandated. A val member that is zero
- *    will cause removal of the ivp it is contained in when a vector
+ *    will cause removal of the ivp it is contained in a vector that
  *    is submitted to mclvUnary or mclvBinary. These routines are indirectly
  *    called by many of the routines in this interface.
  *
@@ -92,10 +94,10 @@ typedef struct
  *
  * NOTE
  *    All unary and binary operations remove resulting entries that are zero.
- *    E.g. mclxAdd, mclxHadamard (both binary).  Unary examples are currently
- *    perhaps not present.
+ *    E.g. mclxAdd, mclxHadamard (both binary).
+ *    To remove explictily encoded zeroes from a matrix use mclxUnary(mx, fltxCopy)
  *
- *    This means it is dangerous to use those operations on matrices
+ *    It is thus dangerous to use those operations on matrices
  *    representing value tables that contain zero-valued entries -
  *    one might want to combine two different such matrices on different
  *    domains simply by using mclxAdd, but the zero-valued entries will
@@ -166,13 +168,13 @@ mclx* mclxCartesian
 mclx* mclxCollectVectors
 (  mclv* domain       /* allowed to be NULL, otherwise ownership taken */
 ,  dim   vid          /* starting vid in new matrix */
-,  ...                /* pointers to vectors to be copied */
+,  ...                /* pointers to vectors to be copied (end with NULL) */
 )  ;
 
 
 void mclxAppendVectors
 (  mclx* mx
-,  ...                /* pointers to vectors to be copied */
+,  ...                /* pointers to vectors to be copied (end with NULL) */
 )  ;
 
 
@@ -200,18 +202,16 @@ mclx*  mclxSub
 ,  const mclv*     rowSelect
 )  ;
 
-/* TODO
- * create
 
-   mclx*  mclxMaskedMerge
-   (  const mclx*  mx
-   ,  const mclv*  col_select
-   ,  const mclv*  row_select
-   ,  double (*f)(pval, pval)
-   )  ;
-
- * which will use mclvTernary to avoid spurious mallocing.
+/*    Removes nodes not in selection, keeps matrix domains the same.
+ *    A NULL domain indicates no selection on that domain.
 */
+
+void mclxReduce
+(  mclx*  mx
+,  const mclv*  col_select
+,  const mclv*  row_select
+)  ;
 
 
 /*  gives back extended sub: all nodes to and from
@@ -305,9 +305,9 @@ double  mclxSelectValues
 (  mclx*  mx
 ,  double      *lft        /* NULL for turning of lft comparison        */
 ,  double      *rgt        /* NULL for turning of rgt comparison        */
-,  mcxbits     equate      /*  0,1, or 2 of { MCLX_EQT_GT, MCLX_EQT_LT } [1] */
+,  mcxbits     equate      /*  0,1, or 2 of { MCLX_EQT_GT, MCLX_EQT_LT }*/
 )  ;
-                           /*  [1] Default, LQ and/or GQ are assumed    */
+                           /*  By default, LQ and/or GQ are assumed     */
 
 
 mclx* mclxIdentity
@@ -353,32 +353,6 @@ void mclxMakeStochastic
 )  ;
 
 
-      /* Selects on column domain, but removes from row domain as well.
-       * Use this for undirected graphs.
-       * Returns the domain that was kept (note that domains of m
-       * are not touched)
-      */
-mclv* mclgUnlinkNodes
-(  mclMatrix* m
-,  dim        sel_gq
-,  dim        sel_lq
-)  ;
-
-      /* Prunes highly-connected nodes to take only the neighbours with
-       * highest weights, starting from most connected going to least
-       * connected.  The returned vector is the number of nodes considered; the
-       * value in node n is the number of discarded neighbours when n was
-       * considered.
-      */
-mclv* mclgCeilNB
-(  mclx* mx
-,  dim max_neighbours
-,  dim* n_hub
-,  dim* n_edges_in
-,  dim* n_edges_out
-)  ;
-
-
 mclx* mclxTranspose
 (  const mclx*    m
 )  ;
@@ -407,6 +381,11 @@ mclv* mclxColNums
 (  const mclx*    m
 ,  double        (*f_cb)(const mclv * vec)
 ,  mcxenum        mode
+)  ;
+
+mclv* mclxRowSizes
+(  const mclx* m
+,  mcxenum mode  
 )  ;
 
 
@@ -461,7 +440,7 @@ mclx* mclxHadamard
 
 void mclxInflate
 (  mclx*  mx
-,  double                power
+,  double power
 )  ;
 
 
@@ -489,6 +468,11 @@ void mclxMerge
 ,  double (*f_cb)(pval, pval)
 ) ;
 
+void mclxMergeTranspose
+(  mclx* mx
+,  double (*op)(pval arg1, pval arg2)
+,  double diagweight
+)  ;
 
 /* inline add; m1 is modified.
  * domains of m1 are changed if necessary
@@ -533,41 +517,38 @@ ofs mclxGetVectorOffset
 (  const mclx*    mx
 ,  long           vid
 ,  mcxOnFail      ON_FAIL
-,  ofs            offset
+,  ofs            offset      /* to indicate: "don't know" use -1 */
 )  ;
 
 
+         /* Does binary search from offset onwards */
 mclv* mclxGetVector
 (  const mclx*    mx
 ,  long           vid
 ,  mcxOnFail      ON_FAIL
-,  const mclv*    offset
+,  const mclv*    offset      /* allowed to be NULL */
 )  ;
 
 
+         /* Does linear search from offset onwards. Possibly useless. */
 mclv* mclxGetNextVector
 (  const mclx*    mx
 ,  long           vid
 ,  mcxOnFail      ON_FAIL
-,  const mclv*    offset
+,  const mclv*    offset      /* allowed to be NULL */
 )  ;
 
 
-/* vids-column association is disrupted! */
-
+         /* vids-column association is disrupted! */
 void  mclxColumnsRealign
 (  mclx*          m
 ,  int          (*cmp)(const void* vec1, const void* vec2)
 )  ;
 
 
-
-/* ************************************************************************* */
-
-/* Map (necessarily) preserves ordering
- * Use e.g. to canonify domains.
-*/
-
+         /* Map (necessarily) preserves ordering
+          * Use e.g. to canonify domains.
+         */
 mclx* mclxMakeMap
 (  mclv*  dom_cols
 ,  mclv*  new_dom_cols
@@ -583,12 +564,11 @@ mcxbool mclxMapTest
 
 #define mclxMapInvert(map) (mclxMapTest(map) ? mclxTranspose(map) : NULL)
 
-/* dom should be subset of map->dom_cols.
- *    if successful
- *    -  returns the image of dom under map as an ordered set.
- *    -  *ar_dompp contains the image of dom.
-*/
-
+         /* dom should be subset of map->dom_cols.
+          *    if successful
+          *    -  returns the image of dom under map as an ordered set.
+          *    -  *ar_dompp contains the image of dom.
+         */
 mclv* mclxMapVectorPermute
 (  mclv  *dom
 ,  mclx  *map
@@ -619,6 +599,27 @@ mcxstatus mclxMapCols
 
 /* ************************************************************************* */
 
+
+         /* In the callback function, dim thread_id
+          * /can/ be used if data is an array.
+          * The callback function then has to use array[thread_id]
+         */
+mcxstatus mclxVectorDispatch
+(  mclx* mx
+,  void* data
+,  dim n_thread
+,  void (*cb)(mclx* mx, dim i, void* data, dim thread_id)
+)  ;
+
+
+mcxstatus mclxVectorDispatchGroup
+(  mclx* mx
+,  void* data
+,  dim n_thread
+,  void (*cb)(mclx* mx, dim i, void* data, dim thread_id)
+,  dim n_group
+,  dim group_id
+)  ;
 
 
 /*************************************
@@ -719,6 +720,9 @@ enum
  *    will take over entirely (at the moment, mclgUnionv dispatches
  *    to mclgUnionv2).
  *
+ * Fixme:
+ *    improve documentation and/or interface.
+ *    When is mclgUnionvInitNode used?
 */
 
 #define MCLG_UNIONV_SENTINEL 1.5
@@ -739,7 +743,7 @@ mclv* mclgUnionv
 (  mclx* mx                   /*  mx->dom_rows used as scratch area     */
 ,  const mclv* dom_cols       /*  take union over these columns in mx   */
 ,  const mclv* restrict       /*  only consider row entries in restrict */
-,  mcxenum SCRATCH_STATUS     /*  if ready also returned ready          */
+,  mcxenum SCRATCH_STATUS     /*  if SCRATCH_READY also left SCRATCH_READY */
 ,  mclv* dst
 )  ;
 
@@ -766,10 +770,84 @@ mclv* mclgUnionv2             /*  This one has a const matrix argument, addition
 )  ;
 
 
-mclx* mclxKNNmutual
-(  const mclx* mx
+
+
+
+      /* Selects on column domain, but removes from row domain as well.
+       * Use this for undirected graphs.
+       * Returns the domain that was kept (note that domains of m
+       * are not touched)
+      */
+mclv* mclgUnlinkNodes
+(  mclMatrix* m
+,  dim        sel_gq
+,  dim        sel_lq
+)  ;
+
+      /* Prunes highly-connected nodes to take only the neighbours with
+       * highest weights, starting from most connected going to least
+       * connected.  The returned vector is the number of nodes considered; the
+       * value in node n is the number of discarded neighbours when n was
+       * considered.
+      */
+mclv* mclgCeilNB
+(  mclx* mx
+,  dim max_neighbours
+,  dim* n_hub
+,  dim* n_edges_in
+,  dim* n_edges_out
+)  ;
+
+
+void mclxKNNdispatch
+(  mclx* mx
+,  dim knn
+,  dim n_thread
+)  ;
+
+
+void mclxKNN
+(  mclx* mx
 ,  dim knn
 )  ;
+
+
+void mclxSymReduce
+(  mclx* mx
+)  ;
+
+
+void mclxSymReduceDispatch
+(  mclx* mx
+,  dim n_thread
+)  ;
+
+
+#define MCLX_PERTURB_RAND  1  <<  0
+#define MCLX_PERTURB_CORR  1  <<  1
+#define MCLX_PERTURB_SYMMETRIC  1  <<  2
+
+void  mclxPerturb
+(  mclx*    mx
+,  double   radius
+,  mcxbits  modes
+)  ;
+
+
+dim mclxQuantiles
+(  mclx* mx
+,  double q          /* should be between 0.0 and 1.0 */
+)  ;
+
+
+   /* Normalize column value by self weight.
+    * If no self value is found (no loop present for that node)
+    * the maximum value is used.
+   */
+void mclxNormSelf
+(  mclx* m
+)  ;
+
 
 #endif
 

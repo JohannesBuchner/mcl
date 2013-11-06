@@ -293,7 +293,6 @@ void mcxBufReset
 ;  }
 
 
-
    /* Return a larger or equal element; the smallest of these.
     * The result is the minimal element at least as big as pivot.
     * and a 'ceil' for pivot.
@@ -370,6 +369,38 @@ void* mcxBsearchFloor
       return (((char*) base) + bar * size)
 ;  }
 
+   /* TODO: compare with std::lower_bound implementation
+
+template<typename fwd_it, typename t>
+fwd_it
+lower_bound(fwd_it first, fwd_it last, const t & val)
+{
+    typedef typename iterator_traits<fwd_it>::difference_type distance;
+    
+    distance len = std::distance(first, last);
+    distance half;
+    fwd_it middle;
+    
+    while (len > 0)
+    {
+        half = len >> 1;
+        middle = first;
+        std::advance(middle, half);
+        if (*middle < val)
+        {
+            first = middle;
+            ++first;
+            len = len - half - 1;
+        }
+        else
+            len = half;
+    }
+    return first;
+}
+   */
+
+
+
 
 double mcxMedian
 (  void* base
@@ -415,5 +446,25 @@ double mcxMedian
       *iqr = quant
    ;  return median
 ;  }
+
+
+void mcxShuffle
+(  void* datap
+,  dim   nmem
+,  dim   mem_size
+,  char* mem_cell    /* should have mem_size size */
+)
+   {  dim n = nmem
+   ;  char* data = datap
+   ;  while (n > 0)
+      {  unsigned long r = (random() >> 3) % n             /* Fisher-Yates shuffle */
+      ;  if (r != n-1)
+         {  memcpy(mem_cell, data + (n-1) * mem_size, mem_size)
+         ;  memcpy(data + (n-1) * mem_size, data + r * mem_size, mem_size)
+         ;  memcpy(data + r * mem_size, mem_cell, mem_size)
+      ;  }
+         n--
+   ;  }
+   }
 
 

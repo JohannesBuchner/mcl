@@ -5,5 +5,5 @@
 
 INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)
 
-LDADD = ../mcl/libmcl.a ../clew/libclew.a ../taurus/libtaurus.a ../gryphon/libgryphon.a ../impala/libimpala.a ../../util/libutil.a
+LDADD = ../mcl/libmcl.a ../clew/libclew.a  ../gryphon/libgryphon.a ../impala/libimpala.a ../../util/libutil.a
 

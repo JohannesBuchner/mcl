@@ -1,14 +1,14 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2009 Stijn van Dongen -->
+<!-- Copyright (c) 2010 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
 /* START aephea.base.css */
 body
 { text-align: justify;
-margin-left: 8%;
-margin-right: 8%;
+margin-left: 0%;
+margin-right: 0%;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -65,16 +65,23 @@ text-align: right;
 margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
+acronym.ucase { font-size: smaller; text-transform: uppercase }
+abbr.ucase { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
 body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
+body
+{ text-align: justify;
+margin-left: 8%;
+margin-right: 8%;
+}
 </style>
 <title>The mcx q manual</title>
 </head>
 <body>
 <p style="text-align:right">
-4 Nov 2009&nbsp;&nbsp;&nbsp;
+28 May 2010&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxquery.ps"><b>mcx q</b></a>
-1.008, 09-308
+1.008, 10-148
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -117,11 +124,21 @@ in the <a class="local sibling" href="mcx.html">mcx</a> manual page.</p>
 <b>mcxquery</b>
 <a class="intern" href="#opt-imx"><b>[-imx</b> &lt;fname&gt; (<i>specify matrix input</i>)<b>]</b></a>
 <a class="intern" href="#opt-o"><b>[-o</b> &lt;fname&gt; (<i>output file name</i>)<b>]</b></a>
-<a class="intern" href="#opt-vary-threshold"><b>[-vary-threshold</b> &lt;start,end,step,scale&gt; (<i>analyze graphs at similarity cutoffs</i>)<b>]</b></a>
-<a class="intern" href="#opt--vary-correlation"><b>[--vary-correlation</b> (<i>analyze graphs at correlation cutoffs</i>)<b>]</b></a>
-<a class="intern" href="#opt-div"><b>[-div</b> &lt;num&gt; (<i>cluster size separating value</i>)<b>]</b></a>
+<a class="intern" href="#opt-tab"><b>[-tab</b> &lt;fname&gt; (<i>use tab file</i>)<b>]</b></a>
+<a class="intern" href="#opt--node-attr"><b>[--node-attr</b> (<i>output node degree and weight attributes</i>)<b>]</b></a>
+<a class="intern" href="#opt-vary-threshold"><b>[-vary-threshold</b> &lt;start,end,step,scale&gt; (<i>analyze graph at similarity cutoffs</i>)<b>]</b></a>
+<a class="intern" href="#opt-vary-knn"><b>[-vary-knn</b> &lt;start,end,step,scale&gt; (<i>analyze graph for varying k-NN</i>)<b>]</b></a>
 <a class="intern" href="#opt-report-scale"><b>[-report-scale</b> &lt;num&gt; (<i>edge weight/threshold scaling</i>)<b>]</b></a>
+<a class="intern" href="#opt--knn-reduce"><b>[--knn-reduce</b> (<i>use reduced matrix</i>)<b>]</b></a>
+<a class="intern" href="#opt--test-cycle"><b>[--test-cycle</b> (<i>test whether graph contains cycles</i>)<b>]</b></a>
+<a class="intern" href="#opt-test-cycle"><b>[-test-cycle</b> &lt;num&gt; (<i>test cycles, report cyclees</i>)<b>]</b></a>
+<a class="intern" href="#opt--vary-correlation"><b>[--vary-correlation</b> (<i>analyze graph at correlation cutoffs</i>)<b>]</b></a>
+<a class="intern" href="#opt--clcf"><b>[--clcf</b> (<i>include clustering coefficient analysis</i>)<b>]</b></a>
+<a class="intern" href="#opt-div"><b>[-div</b> &lt;num&gt; (<i>cluster size separating value</i>)<b>]</b></a>
 <a class="intern" href="#opt--dim"><b>[--dim</b> (<i>report native format and dimensions</i>)<b>]</b></a>
+<a class="intern" href="#opt-t"><b>[-t</b> &lt;num&gt; (<i>number of threads to use</i>)<b>]</b></a>
+<a class="intern" href="#opt-icl"><b>[-icl</b> &lt;fname&gt; (<i>input clustering</i>)<b>]</b></a>
+<a class="intern" href="#opt-tf"><b>[-tf</b> spec (<i>apply tf-spec to input matrix</i>)<b>]</b></a>
 <a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
 <a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>print synopsis, exit</i>)<b>]</b></a>
 <a class="intern" href="#opt--version"><b>[--version</b> (<i>print version, exit</i>)<b>]</b></a>
@@ -138,15 +155,8 @@ cutoff such as&nbsp;0.2 or&nbsp;0.3. Then <b>mcxquery</b> can be used to analyze
 the graph at increasingly stringent thresholds of&nbsp;0.25, 0.30,
 0.35&nbsp;..&nbsp;0.95.
 Attributes supplied across different thresholds are the number of connected
-components, statistics (median, average, iqr) on node degrees and edge
-weights, and a graph plotting the R^2 value of the relationship of log(k)
-versus the logarithm of the number of nodes of degree at least k (for the
-graph at a given threshold).
-Scale-free networks are defined by having a high R^2 value. It should
-be noted however that in many applications graphs will not be scale-free.
-Additionally, for the purpose of clustering scale-free networks are to be
-avoided or transformed, as the highly-connected nodes in scale-free networks
-obfuscate cluster structure.
+components, the number of singletons, adn statistics (median, average, iqr) on node degrees and edge
+weights.
 </p>
 
 <a name="options"></a>
@@ -162,6 +172,13 @@ The file name for input that is in mcl native matrix format.
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Set the name of the file where output should be written to.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tab"></a><b>-tab</b> &lt;fname&gt; (<i>use tab file</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+This option causes the output to be printed with the labels
+found in the tab file.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--dim"></a><b>--dim</b> (<i>report native format and dimensions</i>)</div></div>
@@ -185,12 +202,50 @@ scale</i>, and so on until a value larger than or equal to <i>end / scale</i> is
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 This instructs <b>mcxquery</b> to use a threshold list suitable for use with graphs
-in which the edge weight similarities are correlation.
-The list start at 0.2 and ends at 0.95, with increments of 0.05.
+in which the edge weight similarities are correlations.
+The list starts at 0.2 and ends at 0.95 using increments of 0.05.
 If a different start or increment is required it can
 be achieved by using the <b>-vary-threshold</b> option.
 For example, a start of&nbsp;0.10 and an increment of&nbsp;0.02 are obtained
-by issueing <b>-vary-threshold</b>&nbsp;<b>10,100,2,100</b>.
+by issuing <b>-vary-threshold</b>&nbsp;<b>10,100,2,100</b>.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--clcf"></a><b>--clcf</b> (<i>include clustering coefficient analysis</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+This option causes the global clustering coefficient to be computed
+for the analysis of thresholded graphs with <b>--vary-correlation</b>
+and <b>-vary-threshold</b>. For large graphs this may be time-consuming.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-vary-knn"></a><b>-vary-knn</b> &lt;start,end,step,scale&gt; (<i>analyze graphs for varying k-NN</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--knn-reduce"></a><b>--knn-reduce</b> (<i>use reduced matrix</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+This analyses a graph as it is subjected to varying <i>k</i>-NN (<i>k</i> mutual nearest
+neighbours) selection steps. The analyses starts at the <i>end</i> argument,
+and progresses towards the <i>start</i> argument using decrements of size <i>step</i>.
+By default the reduction is always computed relative to the start matrix,
+i.e. the input matrix after <b>-tf</b> transformations have optionally been
+applied. Specifying <b>--knn-reduce</b> causes this to change so that
+each new reduction is calculated relative to the reduction
+just computed.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+For graphs with ties among edge weights it may be useful to use
+<b>-tf</b>&nbsp;<b>'#tug()'</b>. This will add small perturbations to the
+edge weights and have the effect of breaking ties.
+By default perturbations are computed using the cosine between
+the vectors of neighbours of the two nodes incident to an edge.
+This can be changed to a random perturbation with
+<b>-tf</b>&nbsp;<b>'#rug()'</b>.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--test-cycle"></a><b>--test-cycle</b> (<i>test whether graph contains cycles</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-test-cycle"></a><b>-test-cycle</b> &lt;num&gt; (<i>test cycles, report cyclees</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+Test whether the input graph contains cycles. With the second option
+nodes that are part of a cycle are output, up to a maximum of <i>&lt;num&gt;</i>
+nodes. Use <i>&lt;num&gt;</i>=<b>-1</b> to output all such nodes.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-report-scale"></a><b>-report-scale</b> &lt;num&gt; (<i>edge weight / threshold scaling</i>)</div></div>
@@ -212,6 +267,34 @@ When analyzing graphs at different thresholds with one of the
 options above, <b>mcxquery</b> reports the percentage of nodes contained
 in clusters not exceeding a specified size, by default&nbsp;3.
 This number can be changed using the <b>-div</b> option.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tf"></a><b>-tf</b> &lt;tf-spec&gt; (<i>transform input matrix values</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+Transform the input matrix values according
+to the syntax described in <a class="local sibling" href="mcxio.html">mcxio</a>.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-t"></a><b>-t</b> &lt;num&gt; (<i>number of threads to use</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+This has an effect only when using the <b>-vary-knn</b> option,
+and is only useful on multi-CPU machines.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--node-attr"></a><b>--node-attr</b> (<i>output node degree and weight attributes</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+Output is in the form of a tab separated file.
+The option <b>-icl</b> can be used in conjuction.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-icl"></a><b>-icl</b> &lt;fname&gt; (<i>input clustering</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+Output for each node the size of the cluster it is in.
+This option can be used in conjunction with <b>--node-attr</b>.
 </p>
 </div>
 </div>

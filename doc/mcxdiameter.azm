@@ -27,8 +27,11 @@
    \mcx{diameter}
    \synoptopt{-abc}{<fname>}{specify label input}
    \synoptopt{-imx}{<fname>}{specify matrix input}
+   \synoptopt{-o}{<fname>}{output file name}
    \synoptopt{-tab}{<fname>}{use tab file}
-   \synoptopt{-t}{number of threads to use}
+   \synoptopt{-t}{<int>}{use <int> threads}
+   \synoptopt{-J}{<intJ>}{a total of <intJ> jobs are used}
+   \synoptopt{-j}{<intj>}{this job has index <intj>}
    \synoptopt{--summary}{output diameter and average shortest path length}
    \synoptopt{--list}{list eccentricity for all nodes}
    \stdsynopt
@@ -62,6 +65,11 @@
 \car{
    The file name for input that is in mcl native matrix format.}
 
+\item{\defopt{-o}{<fname>}{output file name}}
+\car{
+   The name of the file to write output to.
+   }
+
 \item{\defopt{-tab}{<fname>}{use tab file}}
 \car{
    This option causes the output to be printed with the labels
@@ -73,12 +81,33 @@
    }
 
 
-\item{\defopt{-t}{number of threads to use}}
+\items{
+   {\defopt{-t}{<int>}{use <int> threads}}
+   {\defopt{-J}{<intJ>}{a total of <intJ> jobs are used}}
+   {\defopt{-j}{<intj>}{this job has index <intj>}}
+}
 \car{
    Computing the diameter of a graph is time-intensive.
    If you have multiple CPUs available consider using
-   as many threads.
+   as many threads. Additionally it is possible to
+   spread the computation over multiple jobs/machines.
+   Conceptually, each job takes a number of threads from
+   the total thread pool. If job control is used
+   (the \genopt{-J} option is used) then the number of jobs should
+   not exceed the number of threads. The total number of
+   threads divided by the total number of jobs defines
+   the number of threads that will be used by the current job.
+   Additionally, the number of threads specified signifies
+   the total added amount of all threads across all machines
+   and \it{must} be the same for all jobs. This number is used
+   by each job to infer its own set of tasks.
+   The following set of options, if given to as many commands,
+   defines three jobs, each running four threads.
    }
+
+\verbatim{-t 12 -G 3 -g 0
+-t 12 -G 3 -g 1
+-t 12 -G 3 -g 2}
 
 \items{
    {\defopt{--list}{list eccentricity for all nodes}}

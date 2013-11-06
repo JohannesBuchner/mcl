@@ -15,13 +15,15 @@
 
 #ifdef VALUE_AS_DOUBLE
       typedef  double pval;
-#  define   PVAL_MAX    DBL_MAX
-#  define   PVAL_MIN    DBL_MIN
+#  define   PVAL_MAX       DBL_MAX
+#  define   PVAL_MIN       DBL_MIN
+#  define   PVAL_EPSILON   DBL_EPSILON
 #  define   IVP_VAL_TYPE "double"
 #else
       typedef float pval;
-#  define   PVAL_MAX    FLT_MAX
-#  define   PVAL_MIN    FLT_MIN
+#  define   PVAL_MAX       FLT_MAX
+#  define   PVAL_MIN       FLT_MIN
+#  define   PVAL_EPSILON   FLT_EPSILON
 #  define   IVP_VAL_TYPE "float"
 #endif
 

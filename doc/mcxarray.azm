@@ -25,28 +25,38 @@
 \par{
    \mcxarray
    \synoptopt{-data}{fname}{input data file}
-   \synoptopt{-skipr}{<num>}{skip <num> data rows}
-   \synoptopt{-skipc}{<num>}{skip <num> data columns}
-   \synoptopt{-write-tab}{<fname>}{write row labels to file}
-   \synoptopt{-l}{<num>}{take labels from column <num>}
    \synoptopt{-imx}{fname}{input matrix file}
-   \synoptopt{-n}{mode}{normalize input}
-   \synoptopt{-o}{fname}{output file fname}
-   \synoptopt{-digits}{<num>}{output precision}
-   \synoptopt{--write-binary}{write output in binary format}
-   \synoptopt{-co}{num}{cutoff for output values}
-   \synoptopt{-cutoff}{num}{cutoff for output values}
-   \synoptopt{-gq}{num}{ignore input smaller than}
-   \synoptopt{-lq}{num}{ignore input larger than}
-   \synoptopt{--transpose}{work with the transposed data matrix}
-   \synoptopt{--cosine}{use cosine}
+   \synoptopt{-co}{num}{cutoff for output values (required)}
    \synoptopt{--pearson}{use Pearson correlation (default)}
    \synoptopt{--spearman}{use Spearman rank correlation}
-   \synoptopt{-pi}{num}{inflate the result}}
-   \shared_synoptopt{-tf}
+   \synoptopt{-skipr}{<num>}{skip <num> data rows}
+   \synoptopt{-skipc}{<num>}{skip <num> data columns}
+   \synoptopt{-o}{fname}{output file fname}
+   \synoptopt{-write-tab}{<fname>}{write row labels to file}
+   \synoptopt{-l}{<num>}{take labels from column <num>}
+   \synoptopt{-digits}{<num>}{output precision}
+   \synoptopt{--write-binary}{write output in binary format}
+   \synoptopt{-t}{<int>}{use <int> threads}
+   \synoptopt{-J}{<intJ>}{a total of <intJ> jobs are used}
+   \synoptopt{-j}{<intj>}{this job has index <intj>}
+   \synoptopt{-start}{<int>}{start at column <int> inclusive}
+   \synoptopt{-end}{<int>}{end at column <int> EXclusive}
+   \:synoptopt{-gq}{num}{ignore input smaller than}
+   \:synoptopt{-lq}{num}{ignore input larger than}
+   \synoptopt{--transpose}{work with the transposed data matrix}
+   \synoptopt{-tf}{spec}{transform result network}
+   \synoptopt{-table-tf}{spec}{transform input table before processing}
+   \synoptopt{-n}{mode}{normalize input}
+   \synoptopt{--cosine}{use cosine}
+   \synoptopt{--zero-as-na}{treat zeroes as missing data}
+   \synoptopt{-write-data}{<fname>}{write data to file}
+   \synoptopt{-write-na}{<fname>}{write NA matrix to file}
+   \synoptopt{--job-info}{print index ranges for this job}
    \synoptopt{--help}{print this help}
    \synoptopt{-h}{print this help}
    \synoptopt{--version}{print version information}
+   }
+
 
 \sec{description}{DESCRIPTION}
 \par{
@@ -59,6 +69,15 @@
    \optref{--transpose}{\genopt{--transpose} option}.
    }
 
+\par{
+   The input data may contain missing data in the form of empty columns,
+   NA values (not available/applicable), or NaN values (not a number).
+   The program keeps track of these, and when computing the correlation
+   between two rows or columns ignores all positions where any one of
+   the two has missing data.
+   }
+
+
 \sec{options}{OPTIONS}
 
 \begin{itemize}{\mcx_itemopts}
@@ -67,6 +86,19 @@
 \car{
    Specify the data file containing the expression values.
    It should be tab-separated.
+   }
+
+\item{\defopt{-imx}{fname}{input matrix file}}
+\car{
+   The expression values are read from a file in mcl matrix format.
+   }
+
+\items{
+   {\defopt{--pearson}{use Pearson correlation (default)}}
+   {\defopt{--spearman}{use Spearman rank correlation}}
+}
+\car{
+   Use one of these to specify the correlation measure.
    }
 
 \item{\defopt{-skipr}{<num>}{skip <num> data rows}}
@@ -91,15 +123,46 @@
    the data column to take labels from with \genopt{-l}{l}.
    }
 
-\item{\defopt{-imx}{fname}{input matrix file}}
+\items{
+   {\defopt{-t}{<int>}{use <int> threads}}
+   {\defopt{-J}{<intJ>}{a total of <intJ> jobs are used}}
+   {\defopt{-j}{<intj>}{this job has index <intj>}}
+}
 \car{
-   The expression values are read from a file in mcl matrix format.
+   Computing all pairwise correlations is time-intensive for large input.
+   If you have multiple CPUs available consider using
+   as many threads. Additionally it is possible to
+   spread the computation over multiple jobs/machines.
+   Conceptually, each job takes a number of threads from
+   the total thread pool.
+   Additionally, the number of threads (as specified by \genopt{-t})
+   currently \it{must be the same for all jobs}, as it is used
+   by each job to infer its own set of tasks.
+   The following set of options, if given to as many commands,
+   defines three jobs, each running four threads.
    }
 
-\item{\defopt{-n}{mode}{normalization mode}}
+\verbatim{-t 4 -J 3 -j 0
+-t 4 -J 3 -j 1
+-t 4 -J 3 -j 2}
+
+\items{
+   {\defopt{--job-info}{print index ranges for this job}}
+   {\defopt{-start}{<int>}{start at column <int> inclusive}}
+   {\defopt{-end}{<int>}{end at column <int> EXclusive}}
+}
+
 \car{
-   If \genarg{mode} is set to \usearg{z} the data will be normalized
-   based on z-score. No other modes are currently supported.}
+   \genopt{--job-info} can be used to list the set of column
+   ranges to be processed by the job as a result of the command
+   line options \genopt{-t}, \genopt{-J}, and \genopt{-j}.
+   If a job has failed, this option can be used to manually
+   split those ranges into finer chunks, each to be processed
+   as a new sub-job specified with \genopt{-start} and \genopt{-end}.
+   With the latter two options, it is impossible to use
+   parallelization of any kind
+   (i.e. any of the \genopt{-t}, \genopt{-J}, and \genopt{-j} options).
+   }
 
 \item{\defopt{-o}{fname}{output file fname}}
 \car{
@@ -116,37 +179,70 @@
 
 \items{
    {\defopt{-co}{num}{cutoff for output values}}
-   {\defopt{-cutoff}{num}{alias for -co}}
 }
 \car{
    Output values smaller than \genarg{num} are removed (set to zero).}
 
+\""{
 \item{\defopt{-gq}{num}{ignore input smaller than}}
 \car{
    Input values smaller than \genarg{num} are ignored.}
-
 \item{\defopt{-lq}{num}{ignore input larger than}}
 \car{
    Input values larger than \genarg{num} are ignored.}
+}
 
 \item{\defopt{--transpose}{work with the transpose}}
 \car{
    Work with the transpose of the input data matrix.}
 
-\items{
-   {\defopt{--cosine}{use cosine}}
-   {\defopt{--pearson}{use Pearson correlation (default)}}
-   {\defopt{--spearman}{use Spearman rank correlation}}
-}
+\item{\defopt{-write-data}{<fname>}{write data to file}}
 \car{
-   Use one of these to specify the correlation measure.
+   This writes the data that was read in to file.
+   If \genopt{--spearman} is specified the data will
+   be rank-transformed.
    }
 
-\item{\defopt{-pi}{num}{inflate the result}}
-\car{
-   Apply inflation with parameter \genarg{num} to the output values.}
 
-\shared_defopt{-tf}
+\item{\defopt{-write-na}{<fname>}{write NA matrix to file}}
+\car{
+   This writes all positions for which no data was found
+   to file, in native mcl matrix format.
+   }
+
+
+\item{\defopt{--zero-as-na}{treat zeroes as missing data}}
+\car{
+   This option can be useful when reading data with the \genopt{-imx} option,
+   for example after it has been loaded from label input by \sibref{mcxload}.
+   An example case is the processing of a large number of probe rankings,
+   where not all rankings contain all probe names. The rankings can be loaded
+   using \sibref{mcxload} with a tab file containing all probe names.
+   Probes that are present in the ranking are given a positive ordinal
+   number reflecting the ranking, and probes that are absent are implicitly
+   given the value zero. With the present option mcxarray will handle
+   the correlation computation in a reasonable way.
+}
+
+\items{
+   {\defopt{--cosine}{use cosine}}
+}
+\car{
+   Use the cosine as correlation measure.
+   }
+
+\item{\defopt{-n}{mode}{normalization mode}}
+\car{
+   If \genarg{mode} is set to \usearg{z} the data will be normalized
+   based on z-score. No other modes are currently supported.}
+
+\items{
+   {\defopt{-tf}{spec}{transform result network}}
+   {\defopt{-table-tf}{spec}{transform input table before processing}}
+   }
+\car{
+   The transformation syntax is described in \mysib{mcxio}.
+   }
 
 \items{
    {\defopt{--help}{print help}}

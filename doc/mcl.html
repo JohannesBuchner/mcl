@@ -1,14 +1,14 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2009 Stijn van Dongen -->
+<!-- Copyright (c) 2010 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
 /* START aephea.base.css */
 body
 { text-align: justify;
-margin-left: 8%;
-margin-right: 8%;
+margin-left: 0%;
+margin-right: 0%;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -65,16 +65,23 @@ text-align: right;
 margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
+acronym.ucase { font-size: smaller; text-transform: uppercase }
+abbr.ucase { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
 body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
+body
+{ text-align: justify;
+margin-left: 8%;
+margin-right: 8%;
+}
 </style>
 <title>The mcl manual</title>
 </head>
 <body>
 <p style="text-align:right">
-4 Nov 2009&nbsp;&nbsp;&nbsp;
+28 May 2010&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcl.ps"><b>mcl</b></a>
-1.008, 09-308
+1.008, 10-148
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -154,13 +161,12 @@ mcl &mdash; The Markov Cluster Algorithm, aka the MCL algorithm.</p>
 <p style="margin-bottom:0" class="asd_par">
 This program implements <b>mcl</b>, a cluster algorithm for graphs. A single
 parameter controls the granularity of the output clustering, namely the
-<a class="intern" href="#opt-I"><b>-I</b>&nbsp;<i>inflation</i></a> option described further below. This option
-affects the granularity of the the resulting clustering. In standard usage
-of the program this parameter is the only one that may require changing. By
-default it is set to&nbsp;2.0 and this is a good way to start.
-If you want to explore cluster structure in graphs with MCL, vary
-this parameter to obtain clusterings at different levels of granularity.
-A good set of starting values is 1.4, 2, 4, and 6.
+<a class="intern" href="#opt-I"><b>-I</b>&nbsp;<i>inflation</i></a> option described further below.
+In standard usage of the program this parameter is the only one that may
+require changing. By default it is set to&nbsp;2.0 and this is a good way to
+start. If you want to explore cluster structure in graphs with MCL, vary
+this parameter to obtain clusterings at different levels of granularity. A
+good set of starting values is 1.4, 2, 4, and 6.
 </p>
 <p style="margin-bottom:0" class="asd_par">
 The program has a rather large set of options. Except for <a class="intern" href="#opt-I"><b>-I</b></a>
@@ -173,23 +179,24 @@ and placement, output formatting, setting of verbosity levels, and so on.
 <p style="margin-bottom:0" class="asd_par">
 Network construction and reduction techniques should not be considered as
 part of a clustering algorithm. Nevertheless particular techniques may
-benefit particular methods or applications. This program implements a few
-transformations that may be useful. The first is <a class="intern" href="#opt-tf"><b>-tf</b></a>, that can
-be used for general edge weight transformations and selection. It is for
-example possible to remove edges with weight below 0.7 by issuing
+benefit particular methods or applications. In mcl many transformations are
+accessible through the <a class="intern" href="#opt-tf"><b>-tf</b></a> option. It can be used for edge
+weight transformations and selection, as well as transformations that act on
+a graph as a whole.
+It is for example possible to remove edges with weight below 0.7 by issuing
 <b>-tf</b>&nbsp;<b>'gq(0.7)'</b>, where the quotes are necessary to prevent the shell
 from interpreting the parentheses. The option accepts more complicated
 sequences, such as <b>-tf</b>&nbsp;<b>'gq(0.7),add(-0.7)'</b>. This causes all
 remaining edge weights to be shifted to the range [0-0.3], assuming that the
-input contains correlations. The second is <a class="intern" href="#opt-pi"><b>-pi</b></a>, which can be
-used to increase the contrast in edge weights. This may be useful when
-clusterings are coarse and fine-grained clusterings are difficult to obtain.
-The third is <a class="intern" href="#opt-knn-mutual"><b>-knn-mutual</b></a>, which only keeps those edges that
-occur in the list of edges of highest weight in both of its incident nodes.
-It may be useful to reduce noise or spurious edges in dense networks, and
-has a parameter which is the size of the lists under consideration. The
-fourth is <a class="intern" href="#opt-ceil-nb"><b>-ceil-nb</b></a>, which removes edges from nodes of highest
-degree first, proceeding until all node degrees satisfy the given threshold.
+input contains correlations. Many more transformations are supported, as
+documented in <a class="local sibling" href="mcxio.html">mcxio</a>. Examples of graph-wide transformations are
+<tt>#knn(&lt;num&gt;)</tt> and <tt>#ceilnb(&lt;num&gt;)</tt>. The first only keeps those edges
+that occur in the list of top-<tt>&lt;num&gt;</tt> edges of highest weight in both of
+its incident nodes. The second removes edges from nodes of highest degree
+first, proceeding until all node degrees satisfy the given threshold.
+The <a class="intern" href="#opt-pi"><b>-pi</b></a> (pre-inflation) option can be used to increase the
+contrast in edge weights. This may be useful when clusterings are coarse and
+fine-grained clusterings are difficult to obtain.
 </p>
 
 <a name="started"></a>
@@ -270,8 +277,6 @@ pruning options, and should be sufficient in most cases.</p>
 <a class="intern" href="#opt-pi"><b>[-pi</b> &lt;num&gt; (<i>pre-inflation</i>)<b>]</b></a>
 <a class="intern" href="#opt-ph"><b>[-ph</b> &lt;num&gt; (<i>pre-inflation, max-bound</i>)<b>]</b></a>
 <a class="intern" href="#opt-if"><b>[-if</b> &lt;num&gt; (<i>start-inflation</i>)<b>]</b></a>
-<a class="intern" href="#opt-ceil-nb"><b>[-ceil-nb</b> n (<i>reduce neighbourhoods</i>)<b>]</b></a>
-<a class="intern" href="#opt-knn-mutual"><b>[-knn-mutual</b> n (<i>keep mutually close neighbours</i>)<b>]</b></a>
 <a class="intern" href="#opt--discard-loops"><b>[--discard-loops=</b>&lt;y/n&gt; (<i>discard y/n loops in input</i>)<b>]</b></a>
 <a class="intern" href="#opt--shadow"><b>[--shadow</b> &lt;mode&gt; (<i>modulation type</i>)<b>]</b></a>
 <a class="intern" href="#opt-shadow-s"><b>[-shadow-s</b> &lt;num&gt; (<i>boost factor</i>)<b>]</b></a>
@@ -665,8 +670,8 @@ own sound judgment on the other hand.
 If your input graph is extremely dense, with an average node degree
 (i.e. the number of neighbours per node) that is somewhere above
 500, you may need to filter the input graph by removing edges,
-for example by using one of <a class="intern" href="#opt-ceil-nb"><b>-ceil-nb</b></a>
-or <a class="intern" href="#opt-knn-mutual"><b>-knn-mutual</b></a>.
+for example by using one of <b>-tf</b>&nbsp;<b>'#ceilnb()'</b>
+or <b>-tf</b>&nbsp;<b>'#knn()'</b>.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--show-schemes"></a><b>--show-schemes</b> (<i>show preset resource schemes</i>)</div></div>
@@ -762,7 +767,7 @@ file name suffix.</p>
 <p style="margin-bottom:0" class="asd_par">
 The suffix is constructed as follows. The <b>-I</b>&nbsp;<i>f</i>
 and <b>-scheme</b> parameter are always encoded.
-Other options, such as <b>-pi</b>&nbsp;<i>f</i> and <b>-knn-mutual</b>
+Other options, such as <b>-pi</b>&nbsp;<i>f</i> and <b>-knn</b>
 are only encoded if they are used. Any real argument <i>f</i>
 is encoded using <i>exactly one</i> trailing digit behind the decimal
 separator (which itself is not written). The setting <b>-I</b>&nbsp;<b>3.14</b>
@@ -1032,25 +1037,6 @@ Off by default.</p>
 <p style="margin-top:0em; margin-bottom:0em">
 Shows the log with process characteristics on STDOUT.
 By default, this mode is off.</p>
-</div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-ceil-nb"></a><b>-ceil-nb</b> n (<i>reduce neighbourhoods</i>)</div></div>
-<div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
-The nodes of the input graph are considered in descending order of the
-number of neighbours they posses. The first nodes has it neighbours of
-lowest edge weight removed until no more than <b>N</b> remain. The
-corresponding reciprocal edges from nodes further down the list are removed
-as well. Subsequent nodes are treated in the same way until all nodes in
-the graph have at most <b>N</b> neighbours. This may be considered a poor
-man's hub removal.
-</p>
-</div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-knn-mutual"></a><b>-knn-mutual</b> &lt;num&gt; (<i>keep mutually close neighbours</i>)</div></div>
-<div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
-This considers the <i>&lt;num&gt;</i> best neighbours for each node, then only keeps
-edges that occur in both best-neighbour lists for the two incident nodes.
-</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--jury-charter"></a><b>--jury-charter</b> (<i>explains jury</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -1587,9 +1573,9 @@ and the utilities in the mcl family.</p>
 <p style="margin-bottom:0" class="asd_par">
 <b>minimcl</b> is a 200-line perl implementation of mcl. It is shipped
 in the mcl distribution and can be found online at
-<a class="extern" href="http://micans.org/mcl">http://micans.org/mcl</a>.</p>
+<a class="extern" target="_parent" href="http://micans.org/mcl">http://micans.org/mcl</a>.</p>
 <p style="margin-bottom:0" class="asd_par">
-mcl's home at <a class="extern" href="http://micans.org/mcl/">http://micans.org/mcl/</a>.</p>
+mcl's home at <a class="extern" target="_parent" href="http://micans.org/mcl/">http://micans.org/mcl/</a>.</p>
 
 <a name="references"></a>
 <h2>REFERENCES</h2>
@@ -1597,32 +1583,32 @@ mcl's home at <a class="extern" href="http://micans.org/mcl/">http://micans.org/
 <a name="gcbfs">[1]</a>
 Stijn van Dongen, <i>Graph Clustering by Flow Simulation</i>.
 PhD thesis, University of Utrecht, May 2000.<br>
-<a class="extern" href="http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm">http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm</a></p>
+<a class="extern" target="_parent" href="http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm">http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm</a></p>
 <p style="margin-bottom:0" class="asd_par">
 <a name="gcvdup">[2]</a>
 Stijn van Dongen, <i>Graph Clustering Via a Discrete Uncoupling Process</i>,
 SIAM Journal on Matrix Analysis and Applications, 30(1):121-141, 2008.
-<a class="extern" href="http://link.aip.org/link/?SJMAEL/30/121/1">http://link.aip.org/link/?SJMAEL/30/121/1</a>
+<a class="extern" target="_parent" href="http://link.aip.org/link/?SJMAEL/30/121/1">http://link.aip.org/link/?SJMAEL/30/121/1</a>
 </p>
 <p style="margin-bottom:0" class="asd_par">
 <a name="cafg">[3]</a>
 Stijn van Dongen. <i>A cluster algorithm for graphs</i>.
 Technical Report INS-R0010, National Research Institute for Mathematics and
 Computer Science in the Netherlands, Amsterdam, May 2000.<br>
-<a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z</a></p>
+<a class="extern" target="_parent" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z</a></p>
 <p style="margin-bottom:0" class="asd_par">
 <a name="supfg">[4]</a>
 Stijn van Dongen. <i>A stochastic uncoupling process for graphs</i>.
 Technical Report INS-R0011, National Research Institute for Mathematics and
 Computer Science in the Netherlands, Amsterdam, May 2000.<br>
-<a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z</a></p>
+<a class="extern" target="_parent" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z</a></p>
 <p style="margin-bottom:0" class="asd_par">
 <a name="pcfgcmce">[5]</a>
 Stijn van Dongen. <i>Performance criteria for graph clustering and Markov
 cluster experiments</i>. Technical Report INS-R0012, National Research
 Institute for Mathematics and Computer Science in the Netherlands,
 Amsterdam, May 2000.<br>
-<a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z</a></p>
+<a class="extern" target="_parent" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z</a></p>
 <p style="margin-bottom:0" class="asd_par">
 <a name="eaflsdopf">[6]</a>
 Enright A.J., Van Dongen S., Ouzounis C.A.
@@ -1633,7 +1619,7 @@ Nucleic Acids Research 30(7):1575-1584 (2002).</p>
 <h2>NOTES</h2>
 <p style="margin-bottom:0" class="asd_par">
 This page was generated from <b>ZOEM</b> manual macros,
-<a class="extern" href="http://micans.org/zoem">http://micans.org/zoem</a>. Both html and roff pages can be created
+<a class="extern" target="_parent" href="http://micans.org/zoem">http://micans.org/zoem</a>. Both html and roff pages can be created
 from the same source without having to bother with all the usual conversion
 problems, while keeping some level of sophistication in the typesetting.
 <a class="local" href="mcl.ps">This</a> is the PostScript derived from the zoem troff

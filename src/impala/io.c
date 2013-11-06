@@ -350,17 +350,22 @@ int get_interchange_digits
 (  int valdigits
 )
    {  const char* envp  =  getenv("MCLXIODIGITS")
+#ifdef VALUE_AS_DOUBLE
+   ;  int digits_df = 16
+#else
+   ;  int digits_df = 7
+#endif
 
    ;  if (valdigits == MCLXIO_VALUE_GETENV)
       {  if (envp)
          valdigits = strtol(envp, NULL, 10)
       ;  else
-         valdigits = 4
+         valdigits = digits_df
    ;  }
 
-      if (valdigits < -1)     /* 0 is valid and means: no digits please */
-      valdigits = 4
-   ;  else if (valdigits > 16)
+      if (valdigits < -1)        /* -1 is MCLXIO_VALUE_NONE */
+      valdigits = digits_df
+   ;  else if (valdigits > 16)   /* hard-coded safeguard. */
       valdigits = 16
 
    ;  return valdigits
@@ -747,6 +752,7 @@ static mclx* mclxb_read_body
    ;  FILE*    fplog    =  mcxLogGetFILE()
    ;  mcxbool  iovb     =  mclxIOgetQMode("MCLXIOVERBOSITY")
    ;  mcxbool  progress =  iovb && mcxLogGet(MCX_LOG_GAUGE | MCX_LOG_IO)
+   ;  mcxbool  seekok   =  mcxFPisSeekable(xf->fp)
 
    ;  if (!getenv("MCL_READ_SPARSE") && !colmask && !rowmask)
       return mclxb_read_body_all(xf, dom_cols, dom_rows, ON_FAIL)
@@ -806,8 +812,13 @@ static mclx* mclxb_read_body
 
             ;  BREAK_IF(v_pos < f_pos)       /* very defensive programming */
                
-            ;  BREAK_IF (v_pos-f_pos != mcxIOdiscard(xf, v_pos - f_pos))
-            
+            ;  if (seekok)
+               {  BREAK_IF (fseek(xf->fp, v_pos - f_pos, SEEK_CUR))
+               }
+               else
+               {  BREAK_IF (v_pos-f_pos != mcxIOdiscard(xf, v_pos - f_pos))
+               }
+
             ;  f_pos = v_pos
 
             ;  BREAK_IF(mclvEmbedRead(veck, xf, ON_FAIL))
@@ -1672,7 +1683,7 @@ static void report_vector_size
       ,  (long) vec->n_ivps
       ,  vec->n_ivps == 1 ? "" : "s"
       )
-   ;  mcxTell(NULL, report)
+   ;  mcxTell(NULL, "%s", report)
 ;  }
 
 
@@ -2285,13 +2296,18 @@ void mclxIOdumpSet
    ;  dump->sep_lead =  sep_lead ? sep_lead: "\t"
    ;  dump->sep_row  =  sep_row  ? sep_row : "\t"
    ;  dump->sep_val  =  sep_val  ? sep_val : ":"
-   ;  dump->threshold = -DBL_MAX
+   ;  dump->threshold = -PVAL_MAX
    ;  dump->table_nfields = 0
    ;  dump->table_nlines  = 0
    ;  dump->prefixc  =  ""
 ;  }
 
 
+      /* This one could do the tab lookup as well, but it is
+       * slightly awkward with respect to the offset tracking currently
+       * performed by caller. Would require more state in struct
+       * or pointer argument.
+      */
 static void dump_label
 (  mcxIO* xf
 ,  const mclTab* tab
@@ -2400,8 +2416,9 @@ mcxstatus mclxIOdump
       {  dim d, e
       ;  long labelc_o = -1
       ;  char* labelc = "", *labelr = ""
+      ;  mclv *vec_complete = mclvClone(mx->dom_rows)
 
-      ;  if (modes & MCLX_DUMP_TABLE_HEADER)
+      ;  if (modes & MCLX_DUMP_TABLE_HEADER && modes & MCLX_DUMP_TABLE)
          {  long labelr_o = -1
          ;  if (dump_lead)
             fprintf(xf_dump->fp, "dummy")
@@ -2430,7 +2447,7 @@ mcxstatus mclxIOdump
       ;  }
 
          for (d=0;d<N_COLS(mx);d++)
-         {  mclv* vec = mx->cols+d, *vec_complete = NULL
+         {  mclv* vec = mx->cols+d
          ;  long labelr_o = -1
 
          ;  if
@@ -2440,13 +2457,19 @@ mcxstatus mclxIOdump
             )
             break
 
-         ;  if (modes & MCLX_DUMP_TABLE)
-               vec_complete = mclvCanonicalEmbed(NULL, vec, N_ROWS(mx), 0.0)
-            ,  vec_complete->vid = vec->vid
-            ,  vec_complete->val = vec->val
-            ,  vec = vec_complete
+         ;  if (!vec->n_ivps && modes & MCLX_DUMP_OMIT_EMPTY)
+            continue
 
-         ;  if (tabc)
+         ;  if (modes & MCLX_DUMP_TABLE)
+            {  dim n_notfound = mclvEmbed(vec_complete, vec, 0.0)
+            ;  if (n_notfound)
+               mcxErr("table-dump", "unexpected %d missing entries", (int) n_notfound)
+            ;  vec_complete->vid = vec->vid
+            ;  vec_complete->val = vec->val
+            ;  vec = vec_complete
+         ;  }
+
+            if (tabc)
             labelc = mclTabGet(tabc, vec->vid, &labelc_o)
 
          ;  if (dump_lead)
@@ -2493,128 +2516,12 @@ mcxstatus mclxIOdump
                                                 */
             if ((modes & (MCLX_DUMP_LINES | MCLX_DUMP_TABLE)) || vec->n_ivps)
             fputc('\n', xf_dump->fp)
-         ;  if (vec_complete)
-            mclvFree(&vec_complete)
       ;  }
-      }
+         if (vec_complete)
+         mclvFree(&vec_complete)
+   ;  }
       return STATUS_OK
 ;  }
-
-
-
-   /* fixme: document encoding_link interface */
-mclpAR* mclpTFparse
-(  mcxLink*    encoding_link
-,  mcxTing*    encoding_ting
-)
-   {  mcxLink* lk = encoding_link
-   ;  mclpAR* par = mclpARensure(NULL, 10)
-   ;  int n_args
-   ;  const char* me = "mclpTFparse"
-
-   ;  if
-      (  encoding_ting
-      && !mcxStrChrAint(encoding_ting->str, isspace, encoding_ting->len)
-      )
-      return par
-
-   ;  if
-      (  !lk
-      &&!(  lk
-         =  mcxTokArgs
-            (  encoding_ting->str
-            ,  encoding_ting->len
-            ,  &n_args
-            ,  MCX_TOK_DEL_WS
-      )  )  )
-      return NULL
-
-   ;  if (!par)
-      return NULL
-
-   ;  while ((lk = lk->next))
-      {  mcxTokFunc tf
-      ;  mcxTing* valspec = lk->val
-      ;  char* z
-
-      ;  tf.opts = MCX_TOK_DEL_WS
-
-      ;  if
-         (  STATUS_OK
-         == mcxTokExpectFunc(&tf, valspec->str, valspec->len, &z, 1, 1, NULL)
-         )
-         {  const char* val = ((mcxTing*) tf.args->next->val)->str
-         ;  const char* key = tf.key->str
-         ;  char* onw = NULL
-         ;  double d = strtod(val, &onw)
-         ;  int mode = -1
-         ;  mcxbool nought = FALSE
-
-         ;  if (!val || !strlen(val))
-            nought = TRUE
-         ;  else if (val == onw)
-            {  mcxErr(me, "failed to parse number <%s>", val)
-            ;  break
-         ;  }
-
-            if (!strcmp(key, "gq"))
-            mode = MCLX_UNARY_GQ
-         ;  else if (!strcmp(key, "gt"))
-            mode = MCLX_UNARY_GT
-         ;  else if (!strcmp(key, "lt"))
-            mode = MCLX_UNARY_LT
-         ;  else if (!strcmp(key, "lq"))
-            mode = MCLX_UNARY_LQ
-         ;  else if (!strcmp(key, "rand"))
-            mode = MCLX_UNARY_RAND
-         ;  else if (!strcmp(key, "mul"))
-            mode = MCLX_UNARY_MUL
-         ;  else if (!strcmp(key, "scale"))
-            mode = MCLX_UNARY_SCALE
-         ;  else if (!strcmp(key, "add"))
-            mode = MCLX_UNARY_ADD
-         ;  else if (!strcmp(key, "abs"))
-            mode = MCLX_UNARY_ABS
-         ;  else if (!strcmp(key, "ceil"))
-            mode = MCLX_UNARY_CEIL
-         ;  else if (!strcmp(key, "floor"))
-            mode = MCLX_UNARY_FLOOR
-         ;  else if (!strcmp(key, "pow"))
-            mode = MCLX_UNARY_POW
-         ;  else if (!strcmp(key, "exp"))
-            mode = MCLX_UNARY_EXP
-         ;  else if (!strcmp(key, "log"))
-            mode = MCLX_UNARY_LOG
-         ;  else if (!strcmp(key, "neglog"))
-            mode = MCLX_UNARY_NEGLOG
-
-         ;  if (mode < 0)
-            {  mcxErr(me, "unknown value transform <%s>", key)
-            ;  break
-         ;  }
-
-            if (nought)
-            {  if (mode == MCLX_UNARY_LOG || mode == MCLX_UNARY_NEGLOG || mode == MCLX_UNARY_ABS)
-               d = 0.0
-            ;  else if (mode == MCLX_UNARY_EXP)
-               d = 0.0
-            ;  else
-               {  mcxErr(me, "transform <%s> needs value", key)
-               ;  break
-            ;  }
-         ;  }
-            mclpARextend(par, mode, d)
-      ;  }
-         else
-         break
-   ;  }
-
-      if (lk)
-      mclpARfree(&par)
-
-   ;  return par
-;  }
-
 
 
 void mclxDebug

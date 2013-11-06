@@ -23,5 +23,7 @@ dim nu_diff_sl   ;
 dim nu_diff_zip  ;
 double nu_magic  ;
 
+dim mclx_n_thread_g  ;
+
 #endif
 

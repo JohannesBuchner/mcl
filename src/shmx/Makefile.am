@@ -5,7 +5,7 @@ include $(top_srcdir)/include/include.am
 
 bin_PROGRAMS = mcx mcxsubs mcxmap mcxassemble mcxarray \
 						mcxdump mcxload mcxrand
-noinst_PROGRAMS = mcxtest mcxminusmeet
+noinst_PROGRAMS = mcxtest mcxminusmeet mcxmm
 
 EXTRA_DIST = fake mcx.h mcxconvert.h mcxminusmeet.c mcxquery.h mcxdiameter.h mcxclcf.h mcxerdos.h mcxcollect.h mcxtab.h mcxalter.h
 
@@ -17,6 +17,7 @@ mcxtest_SOURCES = mcxtest.c
 mcxarray_SOURCES = mcxarray.c
 mcxload_SOURCES = mcxload.c
 mcxrand_SOURCES = mcxrand.c
+mcxmm_SOURCES = mcxmm.c
 mcxminusmeet_SOURCES = mcxminusmeet.c
 
 mcx_SOURCES = mcx.c mcxconvert.c mcxquery.c mcxdiameter.c mcxclcf.c mcxerdos.c mcxcollect.c mcxtab.c mcxalter.c

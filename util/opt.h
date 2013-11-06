@@ -1,5 +1,5 @@
-/*   (C) Copyright 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008, 2009  Stijn van Dongen
+/*   (C) Copyright 2002, 2003, 2004, 2005, 2006  Stijn van Dongen
+ *   (C) Copyright 2007, 2008, 2009, 2010  Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
  * under the terms of the GNU General Public License; either version 3 of the
@@ -244,7 +244,7 @@ mcxbool mcxOptCheckBounds
 /* TODO
  * provide escape mechanisms for delim;
  * e.g. mcx tilde, UNIX backslash, or SGML percent sign based.
- * -> smarter space-based separation. \t ?
+ * -> smarter space-based separation. whitespace ?
  *
  * NOTE
  *    Separates on spaces, which are replaced with '\0'.
@@ -265,10 +265,18 @@ mcxTing* mcxOptArgLine
 )  ;
 
 
+
 /*
- *
- *
- *
+ * Severely undocumented stuff, but quite useful.
+ * This is used to write a program that
+ *    -  takes modes, e.g. 'clm dist'  'clm info'  'clm meet'
+ *    -  has a set of shared options
+ *    -  allows modes to have their own unique set of options
+ *    -  Program and mode options are not separated by the mode,
+ *       but all are specified after the mode.
+ * Look at htpp://micans.org/mcl/src/mcl-latest/src/shcl/clm.c
+ *         htpp://micans.org/mcl/src/mcl-latest/src/shmx/mcx.c
+ * for two fully functioning examples.
 */
 
 #define  MCX_DISP_DEFAULT  0

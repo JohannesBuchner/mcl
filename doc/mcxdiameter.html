@@ -1,14 +1,14 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2009 Stijn van Dongen -->
+<!-- Copyright (c) 2010 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
 /* START aephea.base.css */
 body
 { text-align: justify;
-margin-left: 8%;
-margin-right: 8%;
+margin-left: 0%;
+margin-right: 0%;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -65,16 +65,23 @@ text-align: right;
 margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
+acronym.ucase { font-size: smaller; text-transform: uppercase }
+abbr.ucase { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
 body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
+body
+{ text-align: justify;
+margin-left: 8%;
+margin-right: 8%;
+}
 </style>
 <title>The mcx diameter manual</title>
 </head>
 <body>
 <p style="text-align:right">
-4 Nov 2009&nbsp;&nbsp;&nbsp;
+28 May 2010&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxdiameter.ps"><b>mcx diameter</b></a>
-1.008, 09-308
+1.008, 10-148
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -119,8 +126,11 @@ in the <a class="local sibling" href="mcx.html">mcx</a> manual page.</p>
 <b>mcx diameter</b>
 <a class="intern" href="#opt-abc"><b>[-abc</b> &lt;fname&gt; (<i>specify label input</i>)<b>]</b></a>
 <a class="intern" href="#opt-imx"><b>[-imx</b> &lt;fname&gt; (<i>specify matrix input</i>)<b>]</b></a>
+<a class="intern" href="#opt-o"><b>[-o</b> &lt;fname&gt; (<i>output file name</i>)<b>]</b></a>
 <a class="intern" href="#opt-tab"><b>[-tab</b> &lt;fname&gt; (<i>use tab file</i>)<b>]</b></a>
-<a class="intern" href="#opt-t"><b>[-t</b> (<i>number of threads to use</i>)<b>]</b></a>
+<a class="intern" href="#opt-t"><b>[-t</b> &lt;int&gt; (<i>use &lt;int&gt; threads</i>)<b>]</b></a>
+<a class="intern" href="#opt-J"><b>[-J</b> &lt;intJ&gt; (<i>a total of &lt;intJ&gt; jobs are used</i>)<b>]</b></a>
+<a class="intern" href="#opt-j"><b>[-j</b> &lt;intj&gt; (<i>this job has index &lt;intj&gt;</i>)<b>]</b></a>
 <a class="intern" href="#opt--summary"><b>[--summary</b> (<i>output diameter and average shortest path length</i>)<b>]</b></a>
 <a class="intern" href="#opt--list"><b>[--list</b> (<i>list eccentricity for all nodes</i>)<b>]</b></a>
 <a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
@@ -156,6 +166,12 @@ The file name for input that is in label format.</p>
 <p style="margin-top:0em; margin-bottom:0em">
 The file name for input that is in mcl native matrix format.</p>
 </div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-o"></a><b>-o</b> &lt;fname&gt; (<i>output file name</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+The name of the file to write output to.
+</p>
+</div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-tab"></a><b>-tab</b> &lt;fname&gt; (<i>use tab file</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
@@ -167,13 +183,29 @@ If this option is used in conjunction with <b>-imx</b> the
 tab domain and the matrix domain are required to be identical.
 </p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-t"></a><b>-t</b> (<i>number of threads to use</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-t"></a><b>-t</b> &lt;int&gt; (<i>use &lt;int&gt; threads</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-J"></a><b>-J</b> &lt;intJ&gt; (<i>a total of &lt;intJ&gt; jobs are used</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-j"></a><b>-j</b> &lt;intj&gt; (<i>this job has index &lt;intj&gt;</i>)</div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Computing the diameter of a graph is time-intensive.
 If you have multiple CPUs available consider using
-as many threads.
+as many threads. Additionally it is possible to
+spread the computation over multiple jobs/machines.
+Conceptually, each job takes a number of threads from
+the total thread pool. If job control is used
+(the <b>-J</b> option is used) then the number of jobs should
+not exceed the number of threads. The total number of
+threads divided by the total number of jobs defines
+the number of threads that will be used by the current job.
+Additionally, the number of threads specified signifies
+the total added amount of all threads across all machines
+and <i>must</i> be the same for all jobs. This number is used
+by each job to infer its own set of tasks.
+The following set of options, if given to as many commands,
+defines three jobs, each running four threads.
 </p>
+<div class="verbatim">-t 12 -G 3 -g 0
+-t 12 -G 3 -g 1
+-t 12 -G 3 -g 2</div>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--list"></a><b>--list</b> (<i>list eccentricity for all nodes</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--summary"></a><b>--summary</b> (<i>output diameter and average eccentricity</i>)</div>
 <div class=" item_text " style="margin-left:2em">

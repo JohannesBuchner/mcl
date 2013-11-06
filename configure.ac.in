@@ -176,7 +176,6 @@ AC_OUTPUT([
     scripts/Makefile
     util/Makefile
     src/Makefile
-    src/taurus/Makefile
     src/clew/Makefile
     src/mcl/Makefile
     src/gryphon/Makefile

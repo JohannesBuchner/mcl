@@ -893,10 +893,9 @@ How can I trust the output clustering?}
 \faq{}{How do I tune cluster granularity?}
 \car{
    There are several ways for influencing cluster granularity.  These ways and
-   their relative merits are successively discussed below. The
-   \clmref{dist}{clmdist(1) manual} contains an example of doing multiple
-   mcl runs for finding granularily different clusterings, using the
-   most common approach, namely that of varying inflation.}
+   their relative merits are successively discussed below.
+   Reading \mysib{clmprotocols} is also a good idea.
+   }
 
 \faq{}{The effect of inflation on cluster granularity.}
 \car{
@@ -907,15 +906,15 @@ How can I trust the output clustering?}
 
 \par{
    Increasing the value of \genopt{-I} will increase cluster granularity.
-   Conceivable values are from 1.1 to 5.0 or so, but the range of suitable
+   Conceivable values are from 1.1 to 10.0 or so, but the range of suitable
    values will certainly depend on your input graph.  For many graphs, 1.1 will
-   be far too low, and for many other graphs, 5.0 will be far too high.  You
+   be far too low, and for many other graphs, 8.0 will be far too high.  You
    will have to find the right value or range of values by experimenting, using
    your judgment, and using measurement tools such as \clmref{dist} and
-   \clmref{info}. The default 2.0 is a good value to begin the experimental
-   stage with.}
+   \clmref{info}. A good set of values to start with is 1.4, 2 and 6.
+   }
 
-\par{
+\""{
    For experiments that are more subtle with respect to inflation,
    \mcl provides the \genopt{-i} option in conjunction with the \genopt{-l}
    (small letter ell) option. Do this only if you have the intention of
@@ -926,10 +925,20 @@ How can I trust the output clustering?}
    the entire MCL algorithm can be written in three lines of code. It provides
    comprehensive access to the MCL graph and matrix libraries.  However, the
    \mcxi interface to the MCL pruning facilities is not yet satisfactory at this
-   time. }
+   time.
+   }
 
+\faq{degree_granul}{The effect of node degrees on cluster granularity.}
+\car{
+   Preferably the network should not have nodes of very high degree,
+   that is, with exorbitantly many neighbours. Such nodes tend to
+   obscure cluster structure and contribute to coarse clusters.
+   The ways to combat this using \mcl and sibling programs are documented
+   in \mysib{clmprotocols}. Briefly, they are the \mcl and \mcx{alter}
+   options \genopt{-knn} and \genopt{-ceil-nb}.
+   }
 
-\faq{simil_granul}{The effect of similarity distribution homogeneity on cluster granularity.}
+\faq{simil_granul}{The effect of edge weight differentiation on cluster granularity.}
 \car{
    How similarities in the input graph were derived, constructed,
    adapted, filtered (et cetera) will affect cluster granularity.
@@ -952,7 +961,7 @@ How can I trust the output clustering?}
    function by using \genopt{-pi} with argument \genarg{f} somewhere
    in the interval [0,1] \- 0.5 can be considered a reasonable first try.
    Make it less homogeneous by setting \genarg{f} somewhere in the interval [1,10].
-   In this case 5 is a reasonable starting point.}
+   In this case 3 is a reasonable starting point.}
 
 \end{faqsec}
 
@@ -1099,18 +1108,18 @@ How can I trust the output clustering?}
    (\genopt{-dumpi} and \genopt{-dumpstem} may be of use again).  This will
    cause \mcl to write the intermediate iterands to file. After that, you can
    apply \clmref{imac} (interpret matrix as clustering) to those iterands. \clm{imac}
-   has a \genopt{-tight} parameter which affects the mapping of matrices to
-   clusterings. It takes a value between 0 and 100 as argument.  The default is
-   100 and corresponds with the strict mapping. Lowering the \genopt{-tight}
-   value will generally result in clusterings containing more overlap.  This
+   has a \genopt{-strict} parameter which affects the mapping of matrices to
+   clusterings. It takes a value between 0.0 and 1.0 as argument.  The default is
+   0.001 and corresponds with promoting overlap. Increasing the \genopt{-strict}
+   value will generally result in clusterings containing less overlap.  This
    will have the largest effect for early iterands; its effect will diminish as
    the iterand index increases.}
 
 \par{
-   When set to 0, the \genopt{-tight} parameter results in the clustering
+   When set to 0, the \genopt{-strict} parameter results in the clustering
    associated with the DAG associated with an MCL iterand as described
    in \refer{supfg}. This DAG is pruned (thus possibly resulting
-   in less overlap in the clustering) by increasing the \genopt{-tight}
+   in less overlap in the clustering) by increasing the \genopt{-strict}
    parameter. [add]}
 
 \end{faqsec}
@@ -1134,10 +1143,6 @@ How can I trust the output clustering?}
    operations are now more suited to be employed in a distributed computing
    environment. However, much remains to be done before mcl can operate
    in such an environment.}
-
-\par{
-   At some point in the future a second, xml-based, interchange input format
-   may be introduced.}
 
 \par{
    If you feel that mcl should support some other standard matrix format,

@@ -22,14 +22,14 @@
 #include "mcxtab.h"
 #include "mcxalter.h"
 
+#include "impala/stream.h"
 #include "impala/matrix.h"
+#include "impala/tab.h"
 #include "impala/io.h"
 #include "impala/iface.h"
 #include "impala/compose.h"
 #include "impala/ivp.h"
 #include "impala/app.h"
-#include "taurus/ilist.h"
-#include "taurus/la.h"
 
 #include "util/types.h"
 #include "util/err.h"
@@ -257,4 +257,61 @@ int main
    ;  return mcxDispatch(&bundle)
 ;  }
 
+
+mclx* mcx_get_network
+(  mcxIO*   xfmx
+,  mcxIO*   xfabc
+,  mcxIO*   xftab
+,  mclTab** tabpp
+)
+   {  mclTab* tab = tabpp[0]
+   ;  mclx* mx = NULL
+   ;  mclxIOstreamer streamer = { 0 }
+
+   ;  if (xfabc)
+      {  if (xftab)
+            tab = mclTabRead(xftab, NULL, EXIT_ON_FAIL)
+         ,  streamer.tab_sym_in = tab
+      ;  mx
+      =  mclxIOstreamIn
+         (  xfabc
+         ,     MCLXIO_STREAM_ABC
+            |  MCLXIO_STREAM_MIRROR
+            |  MCLXIO_STREAM_SYMMETRIC
+            |  (tab ? MCLXIO_STREAM_GTAB_RESTRICT : 0)
+         ,  NULL
+         ,  mclpMergeMax
+         ,  &streamer
+         ,  EXIT_ON_FAIL
+         )
+      ;  tab = streamer.tab_sym_out
+   ;  }
+      else
+      {  mx = mclxReadx(xfmx, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH)
+      ;  if (xftab)
+         tab = mclTabRead(xftab, mx->dom_cols, EXIT_ON_FAIL)
+   ;  }
+      tabpp[0] = tab
+   ;  return mx
+;  }
+
+
+mcxstatus mcx_dump_node
+(  FILE* fp
+,  const mclTab* tab
+,  long idx
+)
+   {  unsigned n_missed = 0
+   ;  if (tab)
+      {  const char* label = mclTabGet(tab, idx, NULL)
+      ;  if (label == tab->na->str)
+            fprintf(fp, "?_%ld", idx)
+         ,  n_missed = 1
+      ;  else
+         fputs(label, fp)
+   ;  }
+      else
+      fprintf(fp, "%ld", idx)
+   ;  return n_missed
+;  }
 

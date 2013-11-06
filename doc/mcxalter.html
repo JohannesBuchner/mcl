@@ -1,14 +1,14 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2009 Stijn van Dongen -->
+<!-- Copyright (c) 2010 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
 /* START aephea.base.css */
 body
 { text-align: justify;
-margin-left: 8%;
-margin-right: 8%;
+margin-left: 0%;
+margin-right: 0%;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -65,16 +65,23 @@ text-align: right;
 margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
+acronym.ucase { font-size: smaller; text-transform: uppercase }
+abbr.ucase { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
 body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
+body
+{ text-align: justify;
+margin-left: 8%;
+margin-right: 8%;
+}
 </style>
 <title>The mcxalter manual</title>
 </head>
 <body>
 <p style="text-align:right">
-4 Nov 2009&nbsp;&nbsp;&nbsp;
+28 May 2010&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxalter.ps"><b>mcxalter</b></a>
-1.008, 09-308
+1.008, 10-148
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -116,8 +123,6 @@ mcxalter &mdash; various network transformations</p>
 <a class="intern" href="#opt-abc"><b>[-abc</b> &lt;fname&gt; (<i>specify label input</i>)<b>]</b></a>
 <a class="intern" href="#opt-tab"><b>[-tab</b> &lt;fname&gt; (<i>use tab file</i>)<b>]</b></a>
 <a class="intern" href="#opt-o"><b>[-o</b> &lt;fname&gt; (<i>output</i>)<b>]</b></a>
-<a class="intern" href="#opt-ceil-nb"><b>[-ceil-nb</b> n (<i>reduce neighbourhoods</i>)<b>]</b></a>
-<a class="intern" href="#opt-knn-mutual"><b>[-knn-mutual</b> n (<i>keep mutually close neighbours</i>)<b>]</b></a>
 <a class="intern" href="#opt-tf"><b>[-tf</b> spec (<i>apply tf-spec to input matrix</i>)<b>]</b></a>
 </p>
 
@@ -156,25 +161,6 @@ tab domain and the matrix domain are required to be identical.
 <p style="margin-top:0em; margin-bottom:0em">
 Transform the input matrix values according
 to the syntax described in <a class="local sibling" href="mcxio.html">mcxio</a>.
-</p>
-</div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-ceil-nb"></a><b>-ceil-nb</b> n (<i>reduce neighbourhoods</i>)</div></div>
-<div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
-The nodes of the input graph are considered in descending order of the
-number of neighbours they posses. The first nodes has it neighbours of
-lowest edge weight removed until no more than <b>N</b> remain. The
-corresponding reciprocal edges from nodes further down the list are removed
-as well. Subsequent nodes are treated in the same way until all nodes in
-the graph have at most <b>N</b> neighbours. This may be considered a poor
-man's hub removal.
-</p>
-</div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-knn-mutual"></a><b>-knn-mutual</b> &lt;num&gt; (<i>keep mutually close neighbours</i>)</div></div>
-<div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
-This considers the <i>&lt;num&gt;</i> best neighbours for each node, then only keeps
-edges that occur in both best-neighbour lists for the two incident nodes.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-o"></a><b>-o</b> fname (<i>output file</i>)</div></div>

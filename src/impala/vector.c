@@ -132,21 +132,27 @@ mclVector* mclvInstantiate
 
    ;  old_n_ivps = dst_vec->n_ivps
 
-               /* fixme: delay initialization until after success */
-   ;  if
-      ( !(  dst_vec->ivps
-         =  mcxRealloc
-            (  dst_vec->ivps
-            ,  new_n_ivps * sizeof(mclIvp)
-            ,  ENQUIRE_ON_FAIL
-            )
-         )
+                                    /* I've had a suspicion that some reallocs might be too lazy
+                                     * to reuse shrunk array space.
+                                    */
+   ;  if (old_n_ivps / 2 > new_n_ivps)
+      {  new_ivps = mcxAlloc(new_n_ivps * sizeof new_ivps[0], ENQUIRE_ON_FAIL)
+      ;  if (new_ivps && !src_ivps)
+         memcpy(new_ivps, dst_vec->ivps, new_n_ivps * sizeof new_ivps[0])
+      ;  mcxFree(dst_vec->ivps)
+      ;  dst_vec->ivps = new_ivps
+   ;  }
+      else
+      dst_vec->ivps =  mcxRealloc(dst_vec->ivps, new_n_ivps * sizeof new_ivps[0], ENQUIRE_ON_FAIL)
+
+   ;  if 
+      (  !dst_vec->ivps
       && new_n_ivps
       )
       {  mcxMemDenied(stderr, "mclvInstantiate", "mclIvp", new_n_ivps)
-     /*  do not free; *dst_vec could be array element */
       ;  return NULL
    ;  }
+                                      /*  ^ do not free; *dst_vec could be array element */
 
       new_ivps = dst_vec->ivps
 
@@ -1068,6 +1074,36 @@ mclVector* mclvCanonicalExtend
 ;  }
 
 
+   /* returns number of elements in src not found in dst */
+dim mclvEmbed
+(  mclv*       dst
+,  const mclv* src
+,  double      val
+)  
+   {  mclIvp* ivp
+   ;  dim d =  0
+   ;  dim n_notfound = 0
+                           /* set everything to val */
+   ;  ivp = dst->ivps
+   ;  while (ivp < dst->ivps+dst->n_ivps)
+      (ivp++)->val =  val
+
+                           /* insert src values */
+                           /* fixme: use better implementation,
+                            * preferably with a callback
+                           */
+   ;  ivp = dst->ivps
+   ;  for (d=0;d<src->n_ivps;d++)
+      {  ivp = mclvGetIvp(dst, src->ivps[d].idx, ivp)
+      ;  if (ivp)
+         ivp->val = src->ivps[d].val
+      ;  else
+         n_notfound++
+   ;  }
+      return n_notfound
+;  }
+
+
 mclVector* mclvCanonicalEmbed
 (  mclv*       dst
 ,  const mclv* src
@@ -1557,7 +1593,27 @@ int mclvSumRevCmp
 ;  }
 
 
-void mclvSelectHighestQ
+void mclvSelectHighest
+(  mclVector*  vec
+,  dim         max_n_ivps
+)  
+   {  double f
+   ;  if (vec->n_ivps <= max_n_ivps)
+      return
+
+   ;  f =   vec->n_ivps >= 2 * max_n_ivps
+            ?  mclvKBar
+               (vec, max_n_ivps, PVAL_MAX, KBAR_SELECT_LARGE)
+            :  mclvKBar
+               (vec, vec->n_ivps - max_n_ivps + 1, -PVAL_MAX, KBAR_SELECT_SMALL)
+
+   ;  mclvSelectGqBar(vec, f)
+   ;  if (vec->n_ivps > max_n_ivps)
+      mclvSelectGqBar(vec, f * (1.0 + PVAL_EPSILON))
+;  }
+
+
+void mclvSelectHighestGQ
 (  mclVector*  vec
 ,  dim         max_n_ivps
 )  
@@ -1575,7 +1631,7 @@ void mclvSelectHighestQ
 ;  }
 
 
-void mclvSelectHighest
+void mclvSelectHighestGT
 (  mclVector*  vec
 ,  dim         max_n_ivps
 )  
@@ -1861,13 +1917,13 @@ mclv* mclvFromPAR
 ,  void     (*ivpmerge)(void* ivp1, const void* ivp2)
 ,  double   (*fltbinary)(pval val1, pval val2)
 )
-   {  mcxbool warn_re = warnbits & MCLV_WARN_REPEAT_ENTRIES
-   ;  mcxbool warn_rv = warnbits & MCLV_WARN_REPEAT_VECTORS
-   ;  mclp*      ivps      =  par->ivps
-   ;  dim        n_ivps    =  par->n_ivps
-   ;  mcxbits    sortbits  =  par->sorted
-   ;  dim n_old            =  dst ? dst->n_ivps : 0
-   ;  const char* me       =  "mclvFromPAR"
+   {  mcxbool  warn_re   =  warnbits & MCLV_WARN_REPEAT_ENTRIES
+   ;  mcxbool  warn_rv   =  warnbits & MCLV_WARN_REPEAT_VECTORS
+   ;  mclp*    ivps      =  par->ivps
+   ;  dim      n_ivps    =  par->n_ivps
+   ;  mcxbits  sortbits  =  par->sorted
+   ;  dim      n_old     =  dst ? dst->n_ivps : 0
+   ;  const char* me     =  "mclvFromPAR"
    ;  dim n_re = 0, n_rv = 0
    ;  if (!dst)
       dst = mclvInit(NULL)
@@ -1876,10 +1932,10 @@ mclv* mclvFromPAR
       {  if (dst->n_ivps && fltbinary)
          {  mclVector* tmpvec = mclvNew(ivps, n_ivps)
 
-         ;  if (!(sortbits & 1))
+         ;  if (!(sortbits & MCLPAR_SORTED))
             mclvSort(tmpvec, NULL)
 
-         ;  if (!(sortbits & 2))
+         ;  if (!(sortbits & MCLPAR_UNIQUE))
             n_re = mclvUniqIdx(tmpvec, ivpmerge)
 
          ;  n_rv += tmpvec->n_ivps
@@ -1895,10 +1951,10 @@ mclv* mclvFromPAR
 
          ;  mclvRenew(dst, ivps, n_ivps)
 
-         ;  if (!(sortbits & 1))
+         ;  if (!(sortbits & MCLPAR_SORTED))
             mclvSort(dst, NULL)
 
-         ;  if (!(sortbits & 2))
+         ;  if (!(sortbits & MCLPAR_UNIQUE))
             n_re += mclvUniqIdx(dst, ivpmerge)
       ;  }
       }
@@ -2053,7 +2109,7 @@ void mclvMean
 ;  }
 
 
-void mclvMove
+void mclvAffine
 (  mclv* vec
 ,  double mean
 ,  double std

@@ -24,6 +24,7 @@ doc_DATA_dep = mcl.html mcl.ps mcl.txt \
  mcxarray.html mcxarray.ps \
  mcxdump.html mcxdump.ps \
  mcxdiameter.html mcxdiameter.ps \
+ mcxerdos.html mcxerdos.ps \
  mcxalter.html mcxalter.ps \
  mcxclcf.html mcxclcf.ps \
  mcxctty.html mcxctty.ps \
@@ -56,7 +57,7 @@ man_MANS = mcl.1 mclcm.1 clm.1 mclindex.7 mclfamily.7 mclfaq.7 mcx.1 mcxi.1 mcxi
    clmresidue.1 clmclose.1 clmimac.1 clmmate.1 clmmeet.1 clmformat.1 \
    clmvol.1 clmdist.1 clminfo.1 clmorder.1 \
    mcxconvert.1 mcxassemble.1 mcxmap.1 mcxsubs.1 mcxload.1 mcxdump.1 mcxarray.1 mcxrand.1 \
-	mcxalter.1 mcxdiameter.1 mcxctty.1 mcxclcf.1 mcxquery.1 \
+	mcxalter.1 mcxerdos.1 mcxdiameter.1 mcxctty.1 mcxclcf.1 mcxquery.1 \
    mclpipeline.1 \
 	tingea.log.7
 
@@ -73,15 +74,30 @@ ALIENFILES = mcxdeblast.html mcxdeblast.ps mclblastline.html mclblastline.ps
 ## So this introduces the dependency that alien documentation must
 ## be processed and created first.
 
+
+##  sec_introduction.html \
+##  sec_license.html \
+##  sec_discovery.html \
+##  sec_description1.html \
+##  sec_description2.html \
+##  sec_characteristics.html \
+##  sec_community.html \
+##  sec_networktools.html \
+##  sec_other.html \
+##  sec_thesisetc.html \
+##  sec_news.html \
+##  sec_software.html \
+##  sec_questions.html \
+
 EXTRA_DIST = mclmcl.txt mcx.zmm\
  stamp.day stamp.month stamp.stamp stamp.tag stamp.year\
  clmformat.azm clmvol.azm clmdist.azm clmmate.azm clminfo.azm clmmeet.azm\
  clm.azm clmorder.azm mcl.azm mclcm.azm\
  mclfamily.azm mclfaq.azm mcxi.azm mcx.azm mcxquery.azm mclpipeline.azm\
  mcxdump.azm mcxconvert.azm clmprotocols.azm mcxio.azm clmresidue.azm clmclose.azm clmimac.azm mcxassemble.azm\
- mcxalter.azm mcxdiameter.azm mcxctty.azm mcxclcf.azm mcxrand.azm\
+ mcxalter.azm mcxerdos.azm mcxdiameter.azm mcxctty.azm mcxclcf.azm mcxrand.azm\
  mcxload.azm mcxmap.azm mcxarray.azm mcxsubs.azm index.in.azm index.html distindex.html\
- webindex.azm tingea.log.azm\
+ tingea.log.azm\
  $(ALIENFILES)\
  $(MAINTAINERCLEANFILES)
 
@@ -155,6 +171,7 @@ docme-test:
 	../scripts/docme --silent $(SHARE2) "../src/shcl/clm imac" clmimac.azm
 	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx convert" mcxconvert.azm
 	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx diameter" mcxdiameter.azm
+	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx erdos" mcxerdos.azm
 	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx alter" mcxalter.azm
 	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx clcf" mcxclcf.azm
 	../scripts/docme --silent $(SHARE2) "../src/shmx/mcx ctty" mcxctty.azm
@@ -198,6 +215,7 @@ mcxload:            mcxload.1        mcxload.html        mcxload.ps
 mcxconvert:      mcxconvert.1     mcxconvert.html     mcxconvert.ps
 
 mcxdiameter:    mcxdiameter.1    mcxdiameter.html    mcxdiameter.ps
+mcxerdos:          mcxerdos.1       mcxerdos.html       mcxerdos.ps
 mcxalter:          mcxalter.1       mcxalter.html       mcxalter.ps
 mcxclcf:            mcxclcf.1        mcxclcf.html        mcxclcf.ps
 mcxctty:            mcxctty.1        mcxctty.html        mcxctty.ps
@@ -220,20 +238,69 @@ index:             mclindex.7          index.html distindex.html
 minimcl:
 	cp ../scripts/minimcl .
 
-web: webindex.html
-lit: litindex.html
+sec_introduction.html: sec_introduction.azm
+	$(ZOEM)  -i sec_introduction.azm -o sec_introduction.html -d html
+	- $(TIDY) -e sec_introduction.html
 
-webindex.html: webindex.azm
-	$(ZOEM)  -i webindex.azm -o webindex.html -d html
-	- $(TIDY) -e webindex.html
+sec_description1.html: sec_description1.azm
+	$(ZOEM)  -i sec_description1.azm -o sec_description1.html -d html
+	- $(TIDY) -e sec_description1.html
+
+sec_description2.html: sec_description2.azm
+	$(ZOEM)  -i sec_description2.azm -o sec_description2.html -d html
+	- $(TIDY) -e sec_description2.html
+
+sec_license.html: sec_license.azm
+	$(ZOEM)  -i sec_license.azm -o sec_license.html -d html
+	- $(TIDY) -e sec_license.html
+
+sec_discovery.html: sec_discovery.azm
+	$(ZOEM)  -i sec_discovery.azm -o sec_discovery.html -d html
+	- $(TIDY) -e sec_discovery.html
+
+sec_characteristics.html: sec_characteristics.azm
+	$(ZOEM)  -i sec_characteristics.azm -o sec_characteristics.html -d html
+	- $(TIDY) -e sec_characteristics.html
+
+sec_networktools.html: sec_networktools.azm
+	$(ZOEM)  -i sec_networktools.azm -o sec_networktools.html -d html
+	- $(TIDY) -e sec_networktools.html
+
+sec_thesisetc.html: sec_thesisetc.azm
+	$(ZOEM)  -i sec_thesisetc.azm -o sec_thesisetc.html -d html
+	- $(TIDY) -e sec_thesisetc.html
+
+sec_other.html: sec_other.azm
+	$(ZOEM)  -i sec_other.azm -o sec_other.html -d html
+	- $(TIDY) -e sec_other.html
+
+sec_questions.html: sec_questions.azm
+	$(ZOEM)  -i sec_questions.azm -o sec_questions.html -d html
+	- $(TIDY) -e sec_questions.html
+
+sec_speedmemory.html: sec_speedmemory.azm
+	$(ZOEM)  -i sec_speedmemory.azm -o sec_speedmemory.html -d html
+	- $(TIDY) -e sec_speedmemory.html
+
+sec_software.html: sec_software.azm
+	$(ZOEM)  -i sec_software.azm -o sec_software.html -d html
+	- $(TIDY) -e sec_software.html
+
+sec_news.html: sec_news.azm
+	$(ZOEM)  -i sec_news.azm -o sec_news.html -d html
+	- $(TIDY) -e sec_news.html
+
+sec_community.html: sec_community.azm
+	$(ZOEM)  -i sec_community.azm -o sec_community.html -d html
+	- $(TIDY) -e sec_community.html
 
 intro.html: intro.azm
 	$(ZOEM)  -i intro.azm -d html
 	- $(TIDY) -e intro.html
 
-intro2.html: intro2.azm
-	$(ZOEM)  -i intro2.azm -d html
-	- $(TIDY) -e intro2.html
+description2.html: description2.azm
+	$(ZOEM)  -i description2.azm -d html
+	- $(TIDY) -e description2.html
 
 intro3.html: intro3.azm
 	$(ZOEM)  -i intro3.azm -d html

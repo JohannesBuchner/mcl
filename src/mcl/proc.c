@@ -24,6 +24,7 @@
 #include "impala/matrix.h"
 
 #include "util/ting.h"
+#include "util/equate.h"
 #include "util/err.h"
 #include "util/io.h"
 #include "util/types.h"
@@ -81,7 +82,6 @@ mclProcParam* mclProcParamNew
 
    ;  for (i=0;i<5;i++)
       mpp->marks[i]        =  100
-   ;  mpp->massLog         =  mcxTingEmpty(NULL, 200)
 
    ;  mpp->devel           =  0
 
@@ -90,7 +90,6 @@ mclProcParam* mclProcParamNew
    ;  mpp->dump_offset     =  0
    ;  mpp->dump_bound      =  5
    ;  mpp->dump_stem       =  mcxTingNew("")
-   ;  mpp->dump_list       =  mclvInit(NULL)
    ;  mpp->dump_tab        =  NULL
 
    ;  mpp->chaosLimit      =  0.0001
@@ -119,9 +118,7 @@ void mclProcParamFree
    {  mclProcParam* mpp = *ppp
    ;  mclExpandParamFree(&(mpp->mxp))
    ;  mclInterpretParamFree(&(mpp->ipp))
-   ;  mcxTingFree(&(mpp->massLog))
    ;  mcxTingFree(&(mpp->dump_stem))
-   ;  mclvFree(&(mpp->dump_list))
    ;  mcxFree(mpp)
    ;  *ppp = NULL
 ;  }
@@ -154,8 +151,6 @@ mclMatrix*  mclProcess
 
    ;  if (!mxp->stats)                 /* size dependent init stuff */
       mclExpandParamDim(mxp, mxEven)
-
-   ;  mclExpandInitLog(mpp->massLog, mxp)
 
    ;  if (mpp->printMatrix)
       mclFlowPrettyPrint
@@ -268,6 +263,7 @@ void mclInflate
 ;  }
 
 
+
 int doIteration
 (  const mclx*          mxstart
 ,  mclx**               mxin
@@ -290,21 +286,21 @@ int doIteration
    ;  mcxbool           log_stats      =  XPNVB(mxp, XPNVB_CLUSTERS)
    ;  double            homgAvg
    ;  mclv*             homgVec
+   ;  int               n_cols         =  N_COLS(*mxin)
 
    ;  mxp->inflation = inflation
 
    ;  if (mclVerbosityStart == 0)
       {  dim i
-      ;  int n_cols = N_COLS(*mxin)
-      ;  if (XPNVB(mxp,XPNVB_EXPLAIN))
-         mclExpandStatsHeader(fplog, stats, mxp)
+
       ;  if (log_gauge)
          {  fprintf(fplog, " ite ")
-         ;  for (i=0;i<n_cols/mxp->vectorProgression;i++)
+         ;  if (!mxp->n_ethreads)
+            for (i=0;i<n_cols/mxp->vector_progression;i++)
             fputc('-', fplog)
          ;  fputs("  chaos  time hom(avg,lo,hi)", fplog)
       ;  }
-         else if (log_stats)
+         if (log_stats)
          fputs("   E/V  dd    cls   olap avg", fplog)
 
       ;  fputc('\n', fplog)
@@ -320,18 +316,21 @@ int doIteration
    ;  homgVec = mxp->stats->homgVec
    ;  mxp->stats->homgVec = NULL       /* fixme ugly ownership */
 
-   ;  if (n_ite < 5)    /* fixme/document why just one? */
-      mpp->marks[n_ite] = (int)(100.001*mxp->stats->mass_final_low[mxp->nj])
+   ;  if (n_ite < 5)
+      {  dim z
+      ;  mcxHeap* h  =  mcxHeapNew(NULL, MCX_MIN(1000, n_cols), sizeof(float), fltCmp)
+      ;  float*   f  =  h->base
+      ;  double mean =  0.0
 
-   ;  if (n_ite < mxp->nl)
-      mclExpandAppendLog(mpp->massLog, mxp->stats, n_ite)
+      ;  for (z=0;z<n_cols;z++)
+         mcxHeapInsert(h, mxp->stats->bob_final+z)
 
-   ;  if (MCPVB(mpp, MCPVB_CHR))
-      {  mclMatrix* chr = mxp->stats->mx_chr
-      ;  dim k
+      ;  for (z=0;z<h->n_inserted;z++)
+         mean += f[z]
 
-      ;  for (k=0;k<N_COLS(chr);k++)
-         ((chr->cols+k)->ivps+0)->val = mclvIdxVal((*mxout)->cols+k, k, NULL)
+      ;  if (h->n_inserted)
+         mpp->marks[n_ite] = mean * 100.0001 / h->n_inserted
+      ;  mcxHeapFree(&h)
    ;  }
 
       if (log_gauge)
@@ -427,24 +426,7 @@ mclxWrite(*mxout, xfstdout, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
    ;  if (MCPVB(mpp, MCPVB_ITE))
       mclDumpMatrix(*mxout, mpp, "ite", "", n_ite+1, TRUE)
 
-   ;  if (MCPVB(mpp, MCPVB_SUB))
-      {  mclx* sub = mclxExtSub(*mxout, mpp->dump_list, mpp->dump_list)
-      ;  mclDumpMatrix(sub, mpp, "sub", "", n_ite+1, TRUE)
-      ;  mclxFree(&sub)
-   ;  }
-
-      if (MCPVB(mpp, MCPVB_CHR))
-      {  mclMatrix* chr = mxp->stats->mx_chr
-      ;  dim k
-
-      ;  for (k=0;k<N_COLS(chr);k++)
-         ((chr->cols+k)->ivps+1)->val
-         =  mclvIdxVal((*mxout)->cols+k, k, NULL)
-
-      ;  mclDumpMatrix(chr, mpp, "chr", "", n_ite+1, TRUE)
-   ;  }
-
-      if (stats->chaosMax < mpp->chaosLimit)
+   ;  if (stats->chaosMax < mpp->chaosLimit)
       return 1
    ;  else
       return 0

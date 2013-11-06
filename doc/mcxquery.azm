@@ -21,16 +21,28 @@
 
 \disclaim_mcx{q}
 
+
 \par{
    \mcxquery
       \synoptopt{-imx}{<fname>}{specify matrix input}
       \synoptopt{-o}{<fname>}{output file name}
-      \synoptopt{-vary-threshold}{<start,end,step,scale>}{analyze graphs at similarity cutoffs}
-      \synoptopt{--vary-correlation}{analyze graphs at correlation cutoffs}
-      \synoptopt{-div}{<num>}{cluster size separating value}
+      \synoptopt{-tab}{<fname>}{use tab file}
+      \synoptopt{--node-attr}{output node degree and weight attributes}
+      \synoptopt{-vary-threshold}{<start,end,step,scale>}{analyze graph at similarity cutoffs}
+      \synoptopt{-vary-knn}{<start,end,step,scale>}{analyze graph for varying k-NN}
       \synoptopt{-report-scale}{<num>}{edge weight/threshold scaling}
+      \synoptopt{--knn-reduce}{use reduced matrix}
+      \synoptopt{--test-cycle}{test whether graph contains cycles}
+      \synoptopt{-test-cycle}{<num>}{test cycles, report cyclees}
+      \synoptopt{--vary-correlation}{analyze graph at correlation cutoffs}
+      \synoptopt{--clcf}{include clustering coefficient analysis}
+      \synoptopt{-div}{<num>}{cluster size separating value}
       \: kynoptopt{-digits}{<num>}{width of fractional part}
       \synoptopt{--dim}{report native format and dimensions}
+      \synoptopt{-t}{<num>}{number of threads to use}
+      \synoptopt{-icl}{<fname>}{input clustering}
+
+      \shared_synoptopt{-tf}
       \stdsynopt
    }
 
@@ -45,8 +57,12 @@
    0.35\~..\~0.95.
 
    Attributes supplied across different thresholds are the number of connected
-   components, statistics (median, average, iqr) on node degrees and edge
-   weights, and a graph plotting the R^2 value of the relationship of log(k)
+   components, the number of singletons, adn statistics (median, average, iqr) on node degrees and edge
+   weights.
+}
+
+\""{
+   and a graph plotting the R^2 value of the relationship of log(k)
    versus the logarithm of the number of nodes of degree at least k (for the
    graph at a given threshold).
 
@@ -72,6 +88,17 @@
    Set the name of the file where output should be written to.
    }
 
+\item{\defopt{-tab}{<fname>}{use tab file}}
+\car{
+   This option causes the output to be printed with the labels
+   found in the tab file.
+   }
+\:  With \genopt{-abc} this option will, additionally, construct
+\:  a graph only on the labels found in the tab file.
+\:  If this option is used in conjunction with \genopt{-imx} the
+\:  tab domain and the matrix domain are required to be identical.
+
+
 \item{\defopt{--dim}{report native format and dimensions}}
 \car{
    This will report the matrix format (either interchange or binary)
@@ -90,14 +117,56 @@
 \item{\defopt{--vary-correlation}{analyze graphs at correlation cutoffs}}
 \car{
    This instructs \mcxquery to use a threshold list suitable for use with graphs
-   in which the edge weight similarities are correlation.
-   The list start at 0.2 and ends at 0.95, with increments of 0.05.
+   in which the edge weight similarities are correlations.
+   The list starts at 0.2 and ends at 0.95 using increments of 0.05.
    If a different start or increment is required it can
    be achieved by using the \genopt{-vary-threshold} option.
    For example, a start of\~0.10 and an increment of\~0.02 are obtained
-   by issueing \useopt{-vary-threshold}{10,100,2,100}.
-
+   by issuing \useopt{-vary-threshold}{10,100,2,100}.
    }
+
+\item{\defopt{--clcf}{include clustering coefficient analysis}}
+\car{
+   This option causes the global clustering coefficient to be computed
+   for the analysis of thresholded graphs with \genopt{--vary-correlation}
+   and \genopt{-vary-threshold}. For large graphs this may be time-consuming.
+   }
+
+\items{
+   {\defopt{-vary-knn}{<start,end,step,scale>}{analyze graphs for varying k-NN}}
+   {\defopt{--knn-reduce}{use reduced matrix}}
+}
+\car{
+   This analyses a graph as it is subjected to varying \it{k}-NN  (\it{k} mutual nearest
+   neighbours) selection steps. The analyses starts at the \it{end} argument,
+   and progresses towards the \it{start} argument using decrements of size \it{step}.
+   By default the reduction is always computed relative to the start matrix,
+   i.e. the input matrix after \genopt{-tf} transformations have optionally been
+   applied. Specifying \genopt{--knn-reduce} causes this to change so that
+   each new reduction is calculated relative to the reduction
+   just computed.
+   }
+
+\par{
+   For graphs with ties among edge weights it may be useful to use
+   \useopt{-tf}{'#tug()'}. This will add small perturbations to the
+   edge weights and have the effect of breaking ties.
+   By default perturbations are computed using the cosine between
+   the vectors of neighbours of the two nodes incident to an edge.
+   This can be changed to a random perturbation with
+   \useopt{-tf}{'#rug()'}.
+   }
+
+\items{
+   {\defopt{--test-cycle}{test whether graph contains cycles}}
+   {\defopt{-test-cycle}{<num>}{test cycles, report cyclees}}
+}
+\car{
+   Test whether the input graph contains cycles. With the second option
+   nodes that are part of a cycle are output, up to a maximum of \genarg{<num>}
+   nodes. Use \genarg{<num>}=\usearg{-1} to output all such nodes.
+   }
+
 
 \""{
 \item{\kefopt{-digits}{<num>}{width of fractional part}}
@@ -128,8 +197,33 @@
    options above, \mcxquery reports the percentage of nodes contained
    in clusters not exceeding a specified size, by default\~3.
    This number can be changed using the \genopt{-div} option.
-
    }
+
+
+\shared_itemopt{-tf}
+\car{\shared_defopt{-tf}}
+
+
+\item{\defopt{-t}{<num>}{number of threads to use}}
+\car{
+   This has an effect only when using the \genopt{-vary-knn} option,
+   and is only useful on multi-CPU machines.
+   }
+
+
+\item{\defopt{--node-attr}{output node degree and weight attributes}}
+\car{
+   Output is in the form of a tab separated file.
+   The option \genopt{-icl} can be used in conjuction.
+   }
+
+
+\item{\defopt{-icl}{<fname>}{input clustering}}
+\car{
+   Output for each node the size of the cluster it is in.
+   This option can be used in conjunction with \genopt{--node-attr}.
+   }
+
 
 \stddefopt
 

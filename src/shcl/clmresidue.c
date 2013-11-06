@@ -314,7 +314,7 @@ static mcxstatus enstrictMain
    ;  cl  =  mclxRead(xfcl, EXIT_ON_FAIL)
    ;  mcxIOfree(&xfcl)
 
-   ;  clmEnstrict(cl, &o, &m, &e, 0)
+   ;  clmEnstrict(cl, &o, &m, &e, ENSTRICT_PARTITION)
 
    ;  mclxWrite(cl, xfout, -1, EXIT_ON_FAIL)
    ;  mcxIOfree(&xfout)

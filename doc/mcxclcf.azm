@@ -29,7 +29,11 @@
       \synoptopt{-abc}{<fname>}{specify label input}
       \synoptopt{-imx}{<fname>}{specify matrix input}
       \synoptopt{-tab}{<fname>}{use tab file}
-      \synoptopt{--list}{list clustering coefficient for all nodes}
+      \synoptopt{-o}{<fname>}{write to this file}
+      \synoptopt{-t}{<int>}{use <int> threads}
+      \synoptopt{-J}{<intJ>}{a total of <intJ> jobs are used}
+      \synoptopt{-j}{<intj>}{this job has index <intj>}
+      \synoptopt{--summary}{return mean clustering coefficient}
       \stdsynopt
    }
 
@@ -57,6 +61,11 @@
 \car{
    The file name for input. STDIN is assumed if not specified.}
 
+\item{\defopt{-o}{<fname>}{output file}}
+\car{
+   The file name for output. STDOUT is the default output stream.
+   }
+
 \item{\defopt{-tab}{<fname>}{use tab file}}
 \car{
    This option causes the output to be printed with the labels
@@ -67,9 +76,37 @@
    tab domain and the matrix domain are required to be identical.
    }
 
-\item{\defopt{--list}{print result for each node}}
+\item{\defopt{--summary}{return mean clustering coefficient}}
 \car{
-   Print clustering coefficient for all nodes.}
+   By the default a 1-column table (with row names included) is output, one row
+   for each node.  This option causes the output of the average clustering
+   coefficient only.
+   }
+
+\items{
+   {\defopt{-t}{<int>}{use <int> threads}}
+   {\defopt{-J}{<intJ>}{a total of <intJ> jobs are used}}
+   {\defopt{-j}{<intj>}{this job has index <intj>}}
+}
+\car{
+   Computing clustering coefficients is time-intensive
+   for large graphs.  If you have multiple CPUs available consider using as
+   many threads. Additionally it is possible to spread the computation over
+   multiple jobs/machines.  Conceptually, each job takes a number of threads
+   from the total thread pool. If job control is used (the \genopt{-J} option
+   is used) then the number of jobs should not exceed the number of threads.
+   The total number of threads divided by the total number of jobs defines the
+   number of threads that will be used by the current job.  Additionally, the
+   number of threads specified signifies the total added amount of all threads
+   across all machines and \it{must} be the same for all jobs. This number is
+   used by each job to infer its own set of tasks.  The following set of
+   options, if given to as many commands, defines three jobs, each running four
+   threads.
+   }
+
+\verbatim{-t 12 -G 3 -g 0
+-t 12 -G 3 -g 1
+-t 12 -G 3 -g 2}
 
 \stddefopt
 

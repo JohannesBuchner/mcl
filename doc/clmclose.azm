@@ -30,6 +30,7 @@
    \synreqopt{-abc}{fname}{specify label input}
    \synreqopt{-dom}{fname}{input domain/cluster file}
    \synoptopt{-o}{fname}{output file}
+   \synoptopt{--is-undirected}{trust input graph to be undirected}
    \synoptopt{--write-count}{output component count}
    \synoptopt{--write-sizes}{output component sizes (default)}
    \synoptopt{--write-cc}{output components as clustering}
@@ -88,6 +89,14 @@
    the number of components with \genopt{--write-count} or to
    write the components as a clustering in mcl format with
    \genopt{-write-cc}.
+   }
+
+\item{\defopt{--is-undirected}{omit graph undirected check}}
+\car{
+   With this option the transformation to make sure
+   that the input is undirected is omitted. This will
+   be slightly faster. Using this option while the
+   input is directed may lead to erronenous results.
    }
 
 \item{\defopt{-cc-bound}{num}{select components with size at least num}}

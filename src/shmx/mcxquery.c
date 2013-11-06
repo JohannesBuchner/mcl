@@ -1,4 +1,4 @@
-/*   (C) Copyright 2006, 2007, 2008, 2009 Stijn van Dongen
+/*   (C) Copyright 2006, 2007, 2008, 2009, 2010 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -30,18 +30,24 @@
 #include "util/err.h"
 #include "util/opt.h"
 #include "util/array.h"
+#include "util/rand.h"
 #include "util/compile.h"
+#include "util/minmax.h"
 
 #include "impala/matrix.h"
+#include "impala/compose.h"
 #include "impala/io.h"
+
 #include "clew/clm.h"
+#include "gryphon/path.h"
+#include "mcl/transform.h"
 
 
 int valcmp
 (  const void*             i1
 ,  const void*             i2
 )
-   {  return *((pval*)i1) > *((pval*)i2) ? 1 : *((pval*)i1) < *((pval*)i2) ? -1 : 0
+   {  return *((pval*)i1) < *((pval*)i2) ? 1 : *((pval*)i1) > *((pval*)i2) ? -1 : 0
 ;  }
 
 
@@ -63,11 +69,22 @@ double pearson
 
 enum
 {  MY_OPT_IMX = MCX_DISP_UNUSED
+,  MY_OPT_ICL
+,  MY_OPT_TAB
 ,  MY_OPT_DIMENSION
+,  MY_OPT_NODE
 ,  MY_OPT_VARY_CORRELATION
 ,  MY_OPT_VARY_THRESHOLD
+,  MY_OPT_VARY_KNN
 ,  MY_OPT_DIVIDE
 ,  MY_OPT_WEIGHT_SCALE
+,  MY_OPT_MYTH
+,  MY_OPT_TESTCYCLE
+,  MY_OPT_TESTCYCLE_N
+,  MY_OPT_TRANSFORM
+,  MY_OPT_THREAD
+,  MY_OPT_CLCF
+,  MY_OPT_KNNREDUCE
 ,  MY_OPT_FOUT
 }  ;
 
@@ -79,11 +96,53 @@ mcxOptAnchor qOptions[] =
    ,  "<fname>"
    ,  "specify input matrix/graph"
    }
+,  {  "-tab"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_TAB
+   ,  "<fname>"
+   ,  "specify tab file to be used with matrix input"
+   }
+,  {  "-icl"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_ICL
+   ,  "<fname>"
+   ,  "specify input clustering"
+   }
+,  {  "--node-attr"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_NODE
+   ,  NULL
+   ,  "output for each node its weight statistics and degree"
+   }
+,  {  "-t"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_THREAD
+   ,  "<num>"
+   ,  "number of threads to use (with -knn)"
+   }
+,  {  "--knn-reduce"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_KNNREDUCE
+   ,  NULL
+   ,  "do not rebase to input graph, use last reduction"
+   }
 ,  {  "--dim"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_DIMENSION
    ,  NULL
    ,  "get matrix dimensions"
+   }
+,  {  "--test-cycle"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_TESTCYCLE
+   ,  NULL
+   ,  "test whether graph has cycles"
+   }
+,  {  "-test-cycle"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_TESTCYCLE_N
+   ,  "<num>"
+   ,  "output at most <num> nodes in cycles; 0 for all"
    }
 ,  {  "-o"
    ,  MCX_OPT_HASARG
@@ -100,14 +159,38 @@ mcxOptAnchor qOptions[] =
 ,  {  "-vary-threshold"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_VARY_THRESHOLD
-   ,  "<num a>,<num z>,<num s>,<num n>"
-   ,  "vary threshold from a/n to z/n using steps s/n"
+   ,  "a,z,s,n"
+   ,  "vary threshold from a/n to z/n in steps s/n"
+   }
+,  {  "-vary-knn"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_VARY_KNN
+   ,  "a,z,s,n"
+   ,  "vary knn from z to a in steps s, scale edge weights by n"
    }
 ,  {  "-div"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_DIVIDE
    ,  "<num>"
    ,  "divide in sets with property <= num and > num"
+   }
+,  {  "-tf"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_TRANSFORM
+   ,  "<func(arg)[, func(arg)]*>"
+   ,  "apply unary transformations to matrix values"
+   }
+,  {  "--clcf"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_CLCF
+   ,  NULL
+   ,  "compute clustering coefficient"
+   }
+,  {  "--scale-free?"
+   ,  MCX_OPT_HIDDEN
+   ,  MY_OPT_MYTH
+   ,  NULL
+   ,  "very simple scale-freeness test, correlation of log/log values"
    }
 ,  {  "-report-scale"
    ,  MCX_OPT_HASARG
@@ -119,12 +202,11 @@ mcxOptAnchor qOptions[] =
 }  ;
 
 
-static  mcxbool get_dim    =     -1;
-static  mcxbool get_stat   =     -1;
-static  mcxbool get_stat_list =  -1;
-static  mcxbool have_correlation = -1;
-static  mcxIO*  xfout      =     (void*) -1;
+static  const char* me     =  "mcx query";
+static  mcxIO*  xfout_g    =   (void*) -1;
 static  mcxIO* xfmx_g      =   (void*) -1;
+static  mcxIO* xfcl_g      =   (void*) -1;
+static  mcxIO* xftab_g     =   (void*) -1;
 
 static  unsigned int vary_a=  -1;
 static  unsigned int vary_z=  -1;
@@ -132,23 +214,119 @@ static  unsigned int vary_s=  -1;
 static  unsigned int vary_n=  -1;
 static  unsigned int divide_g=  -1;
 static  double weight_scale = -1;
+static  unsigned mode_vary = -1;
+static  unsigned mode_get  =     -1;
+static  unsigned n_limit = 0;
+static  mcxbool weefreemen = -1;
+static  mcxbool knnexact_g = -1;
+static  mcxbool doclcf_g = -1;
+static  mcxbool user_imx = -1;
+static  mcxbool transpose  = -1;
+static  dim n_thread_g = -1;
+static  mclgTF* transform  =   (void*) -1;
+static  mcxTing* transform_spec = (void*) -1;
+
+
+static struct level* levels;
+
+static mclv* matrix_vector
+(  const mclx* mx
+,  const mclv* vec
+)
+   {  mclv* res = mclvClone(mx->dom_rows)
+   ;  dim i, j
+   ;  mclvMakeConstant(res, 0.0)
+   ;  for (i=0;i<vec->n_ivps;i++)
+      {  mclv* c = mx->cols + vec->ivps[i].idx
+      ;  for (j=0;j<c->n_ivps;j++)
+         res->ivps[c->ivps[j].idx].val += 1.0
+   ;  }
+      mclvUnary(res, fltxCopy, NULL)
+   ;  return res
+;  }
+
+
+static mclv* run_through
+(  const mclx* mx
+)
+   {  mclv* starts = mclvClone(mx->dom_cols)
+   ;  dim n_starts_previous = starts->n_ivps + 1
+   ;  dim n_steps = 0
+
+   ;  while (n_starts_previous > starts->n_ivps)
+      {  mclv* new_starts = matrix_vector(mx, starts)
+      ;  mclvMakeCharacteristic(new_starts)
+      ;  n_starts_previous = starts->n_ivps
+      ;  mclvFree(&starts)
+      ;  starts = new_starts
+      ;  n_steps++
+      ;  fputc('.', stderr)
+   ;  }
+      if (n_steps)
+      fputc('\n', stderr)
+   ;  return starts
+;  }
+
+
+static int test_cycle
+(  const mclx* mx
+,  dim n_limit
+)
+   {  mclv* starts = run_through(mx), *starts2
+   ;  if (starts->n_ivps)
+      {  dim i
+      ;  if (n_limit)
+         {  mclx* mxt = mclxTranspose(mx)
+         ;  starts2 = run_through(mxt)
+         ;  mclxFree(&mxt)
+         ;  mclvBinary(starts, starts2, starts, fltMultiply)
+
+         ;  mcxErr
+            (me, "cycles detected (%u nodes)", (unsigned) starts->n_ivps)
+
+         ;  if (starts->n_ivps)
+            {  fprintf(stdout, "%lu", (ulong) starts->ivps[0].idx)
+            ;  for (i=1; i<MCX_MIN(starts->n_ivps, n_limit); i++)
+               fprintf(stdout, " %lu", (ulong) starts->ivps[i].idx)
+            ;  fputc('\n', stdout)
+         ;  }
+            else
+            mcxErr(me, "strange, no nodes selected")
+      ;  }
+         else
+         mcxErr(me, "cycles detected")
+      ;  return 1
+   ;  }
+
+      mcxTell(me, "no cycles detected")
+   ;  return 0
+;  }
 
 
 static mcxstatus qInit
 (  void
 )
-   {  get_dim  =  FALSE
-   ;  get_stat =  FALSE
-   ;  get_stat_list =  FALSE
-   ;  xfout    =  mcxIOnew("-", "w")
-   ;  xfmx_g   =  mcxIOnew("-", "r")
+   {  mode_get =  0
+   ;  n_limit  =  0
+   ;  xfout_g  =  mcxIOnew("-", "w")
+   ;  xftab_g  =  NULL
    ;  vary_z   =  0
    ;  divide_g =  3
    ;  vary_a   =  0
    ;  vary_s   =  0
-   ;  vary_n   =  0
+   ;  vary_n   =  1
+   ;  xfmx_g   =  mcxIOnew("-", "r")
+   ;  xfcl_g   =  NULL
+   ;  n_thread_g = 1
+   ;  mode_vary = 0
+   ;  transpose=  FALSE
+   ;  knnexact_g = TRUE
+   ;  doclcf_g = FALSE
+   ;  weefreemen = FALSE
+   ;  user_imx =  FALSE
    ;  weight_scale = 0.0
-   ;  have_correlation = FALSE
+   ;  transform      =  NULL
+   ;  transform_spec =  NULL
    ;  return STATUS_OK
 ;  }
 
@@ -161,21 +339,73 @@ static mcxstatus qArgHandle
    {  switch(optid)
       {  case MY_OPT_IMX
       :  mcxIOnewName(xfmx_g, val)
+      ;  user_imx = TRUE
+      ;  break
+      ;
+
+         case MY_OPT_TAB
+      :  xftab_g = mcxIOnew(val, "r")
+      ;  break
+      ;
+
+         case MY_OPT_ICL
+      :  xfcl_g =  mcxIOnew(val, "r")
+      ;  break
+      ;
+
+         case MY_OPT_TRANSFORM
+      :  transform_spec = mcxTingNew(val)
       ;  break
       ;
 
          case MY_OPT_DIMENSION
-      :  get_dim = TRUE
+      :  mode_get = 'd'
+      ;  break
+      ;
+
+         case MY_OPT_TESTCYCLE
+      :  mode_get = 'c'
+      ;  break
+      ;
+
+         case MY_OPT_TESTCYCLE_N
+      :  n_limit = atoi(val)
+      ;  mode_get = 'c'
+      ;  break
+      ;
+
+         case MY_OPT_CLCF
+      :  doclcf_g = TRUE
+      ;  break
+      ;
+
+         case MY_OPT_KNNREDUCE
+      :  knnexact_g = FALSE
+      ;  break
+      ;
+
+         case MY_OPT_THREAD
+      :  n_thread_g = atoi(val)
+      ;  break
+      ;
+
+         case MY_OPT_NODE
+      :  mode_get = 'n'
       ;  break
       ;
 
          case MY_OPT_FOUT
-      :  mcxIOnewName(xfout, val)
+      :  mcxIOnewName(xfout_g, val)
       ;  break
       ;
 
          case MY_OPT_WEIGHT_SCALE
       :  weight_scale = atof(val)
+      ;  break
+      ;
+
+         case MY_OPT_MYTH
+      :  weefreemen = TRUE
       ;  break
       ;
 
@@ -190,17 +420,21 @@ static mcxstatus qArgHandle
       ;  vary_s = 1
       ;  vary_n = 20
       ;  weight_scale = 100
-      ;  have_correlation = TRUE
+      ;  mode_vary = 'c'
+      ;  break
+      ;
+
+         case MY_OPT_VARY_KNN
+      :  if (4 != sscanf(val, "%u,%u,%u,%u", &vary_a, &vary_z, &vary_s, &vary_n))
+         mcxDie(1, me, "failed to parse argument as integers start,end,step,norm")
+      ;  mode_vary = 'k'
       ;  break
       ;
 
          case MY_OPT_VARY_THRESHOLD
       :  if (4 != sscanf(val, "%u,%u,%u,%u", &vary_a, &vary_z, &vary_s, &vary_n))
-         mcxDie(1, "mcx query", "failed to parse argument as integers start,end,step,norm")
-      ;  if (100 * vary_s < vary_z - vary_a)
-         mcxDie(1, "mcx query", "argument leads to more than one hundred steps")
-      ;  if (!vary_n)
-         mcxDie(1, "mcx query", "need nonzero scaling factor (last component)")
+         mcxDie(1, me, "failed to parse argument as integers start,end,step,norm")
+      ;  mode_vary = 't'
       ;  break
       ;
 
@@ -208,7 +442,14 @@ static mcxstatus qArgHandle
       :  mcxExit(1) 
       ;
    ;  }
-      return STATUS_OK
+
+      if (mode_vary && 1000 * vary_s < vary_z - vary_a)
+      mcxDie(1, me, "argument leads to more than one thousand steps")
+
+   ;  if (!vary_n)
+      mcxDie(1, me, "need nonzero scaling factor (last component)")
+
+   ;  return STATUS_OK
 ;  }
 
 
@@ -228,13 +469,13 @@ struct level
 
 ;  double   bigsize
 ;  double   cc_exp
+;  double   clcf
 ;  long     n_single
 ;  long     n_edge
 ;  long     n_lq
 ;
 }  ;
 
-struct level levels[100];
 
 static double pval_get_double
 (  const void* v
@@ -249,94 +490,177 @@ static double ivp_get_double
 ;  }
 
 
+dim get_n_sort_allvals
+(  const mclx* mx
+,  pval* allvals
+,  dim noe
+,  double* sum_vals
+)
+   {  dim n_allvals = 0
+   ;  double s = 0.0
+   ;  dim j
+   ;  for (j=0;j<N_COLS(mx);j++)
+      {  mclv* vec = mx->cols+j
+      ;  dim k
+      ;  if (n_allvals + vec->n_ivps > noe)
+         mcxDie(1, me, "panic/impossible: not enough memory")
+      ;  for (k=0;k<vec->n_ivps;k++)
+         allvals[n_allvals+k] = vec->ivps[k].val
+      ;  n_allvals += vec->n_ivps
+      ;  s += mclvSum(vec)
+   ;  }
+      qsort(allvals, n_allvals, sizeof(pval), valcmp)
+   ;  sum_vals[0] = s
+   ;  return n_allvals
+;  }
+
+
 static void vary_threshold
 (  mcxIO* xf
+,  FILE*  fp
 ,  dim vary_a
 ,  dim vary_z
 ,  dim vary_s
 ,  dim vary_n
+,  unsigned mode
 )
    {  dim cor_i = 0, j, step
-   ;  mcxIO* xftest = mcxIOnew("-", "w")
-   ;  mcxTing* fname = mcxTingEmpty(NULL, 20)
-   ;  FILE* fp = xfout->fp
 
    ;  mclx* mx
    ;  unsigned long noe
    ;  pval*  allvals
    ;  dim  n_allvals = 0
+   ;  double sum_vals = 0.0
 
-   ;  mx = mclxReadx(xf, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH)
-   ;  mclxAdjustLoops(mx, mclxLoopCBremove, NULL)
-   ;  noe = mclxNrofEntries(mx)
-   ;  allvals = mcxAlloc(noe * sizeof allvals[0], EXIT_ON_FAIL)
+   ;  mx = mclxRead(xf, EXIT_ON_FAIL)
+   ;  mcxIOclose(xf)
 
-   ;  if (!have_correlation && !weight_scale)
-      weight_scale = vary_n
-
-   ;  for (j=0;j<N_COLS(mx);j++)
-      {  mclv* vec = mx->cols+j
-      ;  dim k
-      ;  if (n_allvals + vec->n_ivps > noe)
-         mcxDie(1, "mcx query", "not enough memory")
-      ;  for (k=0;k<vec->n_ivps;k++)
-         allvals[n_allvals+k] = vec->ivps[k].val
-      ;  n_allvals += vec->n_ivps
+   ;  if (transform_spec)
+      { if (!(transform = mclgTFparse(NULL, transform_spec)))
+         mcxDie(1, me, "input -tf spec does not parse")
+      ;  mclgTFexec(mx, transform)
    ;  }
 
-      qsort(allvals, n_allvals, sizeof(pval), valcmp)
+      noe = mclxNrofEntries(mx)
+   ;  allvals = mcxAlloc(noe * sizeof allvals[0], EXIT_ON_FAIL)
 
-   ;  for (step = vary_a; step < vary_z; step += vary_s)
+   ;  if (!weight_scale)
+      {  if (mode == 'c')
+         weight_scale = 1.0
+      ;  else
+         weight_scale = vary_n
+   ;  }
+
+      n_allvals = get_n_sort_allvals(mx, allvals, noe, &sum_vals)
+
+   ;  if (mode == 'c')
+      {  double smallest = n_allvals ? allvals[n_allvals-1] : -DBL_MAX
+      ;  if (vary_a * 1.0 / vary_n < smallest)
+         {  while (vary_a * 1.0 / vary_n < smallest)
+            vary_a++
+         ;  vary_a--
+      ;  }
+         mcxTell
+         (  me
+         ,  "smallest correlation is %.2f, using starting point %.2f"
+         ,  smallest
+         ,  vary_a * 1.0 / vary_n
+         )
+   ;  }
+
+;fprintf(fp, "-------------------------------------------------------------------------------\n")
+;fprintf(fp, " L       Percentage of nodes in the largest component\n")
+;fprintf(fp, " D       Percentage of nodes in components of size at most %d [-div option]\n", (int) divide_g)
+;fprintf(fp, " R       Percentage of nodes not in L or D: 100 - L -D\n")
+;fprintf(fp, " S       Percentage of nodes that are singletons\n")
+;fprintf(fp, " cce     Expected size of component, nodewise [ sum(sz^2) / sum^2(sz) ]\n")
+;fprintf(fp, "*EW      Edge weight traits (mean, median and IQR, all scaled!)\n")
+;fprintf(fp, "            Scaling is used to avoid printing of fractional parts throughout.\n")
+;fprintf(fp, "            The scaling factor is %.2f [-report-scale option]\n", weight_scale)
+;fprintf(fp, " ND      Node degree traits [mean, median and IQR]\n")
+;fprintf(fp, " CCF     Clustering coefficient")
+;if (!doclcf_g)
+ fprintf(fp, " (not computed; use --clcf to include this)\n")
+;else
+ fputc('\n', fp)
+;if (mode == 'c')
+ fprintf(fp, "Cutoff   The threshold used.\n")
+;else if (mode == 't')
+ fprintf(fp, "*Cutoff  The threshold with scale factor %.2f and fractional parts removed\n", weight_scale)
+;else if (mode == 'k')
+ fprintf(fp, "k-NN     The knn parameter\n")
+;fprintf(fp, "Total number of nodes: %lu\n", (ulong) N_COLS(mx))
+;fprintf(fp, "-------------------------------------------------------------------------------\n")
+;fprintf(fp, "  L   D   R   S     cce *EWmean  *EWmed *EWiqr NDmean  NDmed  NDiqr CCF %s%6s \n", mode == 'c' ? " " : "*", mode == 'k' ? "k-NN" : "Cutoff")
+;fprintf(fp, "-------------------------------------------------------------------------------\n")
+
+   ;  for (step = vary_a; step <= vary_z; step += vary_s)
       {  double cutoff = step * 1.0 / vary_n
       ;  mclv* nnodes = mclvCanonical(NULL, N_COLS(mx), 0.0)
       ;  mclv* degree = mclvCanonical(NULL, N_COLS(mx), 0.0)
-      ;  dim i, n_sample = 0, i_new = 0
-      ;  double cor, y_prev, iqr = 0.0, sum_vals = 0.0
-      ;  mclx* cc
-      ;  mclv* sz, *ccsz
-      
-      ;  mclxSelectValues(mx, &cutoff, NULL, MCLX_EQT_GQ)
+      ;  dim i, n_sample = 0
+      ;  double cor, y_prev, iqr = 0.0
+      ;  mclx* cc = NULL, *res = NULL
+      ;  mclv* sz, *ccsz = NULL
+      ;  dim step2 = vary_z + vary_a - step
 
-      ;  if (0)
-         {  mcxTingPrint(fname, "tst.%03d", (int) (cutoff + 0.5))
-         ;  mcxIOrenew(xftest, fname->str, NULL)
-         ;  mclxWrite(mx, xftest, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
-         ;  mcxIOclose(xftest)
+      ;  sum_vals = 0.0
+      
+      ;  if (mode == 't' || mode == 'c')
+            mclxSelectValues(mx, &cutoff, NULL, MCLX_EQT_GQ)
+         ,  res = mx
+      ;  else if (mode == 'k')
+         {  res = knnexact_g ? mclxCopy(mx) : mx
+         ;  mclxKNNdispatch(res, step2, n_thread_g)
       ;  }
 
-         sz = mclxColSizes(mx, MCL_VECTOR_COMPLETE)
+         sz = mclxColSizes(res, MCL_VECTOR_COMPLETE)
       ;  mclvSortDescVal(sz)
 
-      ;  cc = clmComponents(mx, NULL)
-      ;  ccsz = mclxColSizes(cc, MCL_VECTOR_COMPLETE)
+      ;  cc = clmComponents(res, NULL)     /* fixme: user has to specify -tf '#max()' if graph is directed */
+      ;  if (cc)
+         ccsz = mclxColSizes(cc, MCL_VECTOR_COMPLETE)
 
-      ;  fprintf(stderr, "analysing cutoff %8.2f\n", cutoff)
-
-      ;  for (i=0;i<n_allvals;i++)
-         {  if (allvals[i] >= cutoff)
-               allvals[i_new++] = allvals[i]
-            ,  sum_vals += allvals[i]
+      ;  if (mode == 't' || mode == 'c')
+         {  for
+            (
+            ;  n_allvals > 0 && allvals[n_allvals-1] < cutoff
+            ;  n_allvals--
+            )
+         ;  sum_vals = 0.0
+         ;  for (i=0;i<n_allvals;i++)
+            sum_vals += allvals[i]
+      ;  }
+         else if (mode == 'k')
+         {  n_allvals = get_n_sort_allvals(res, allvals, noe, &sum_vals)
       ;  }
 
-         n_allvals = i_new
-
-      ;  levels[cor_i].sim_median=  mcxMedian(allvals, n_allvals, sizeof allvals[0], pval_get_double, &iqr)
+         levels[cor_i].sim_median=  mcxMedian(allvals, n_allvals, sizeof allvals[0], pval_get_double, &iqr)
       ;  levels[cor_i].sim_iqr   =  iqr
       ;  levels[cor_i].sim_mean  =  n_allvals ? sum_vals / n_allvals : 0.0
 
       ;  levels[cor_i].nb_median =  mcxMedian(sz->ivps, sz->n_ivps, sizeof sz->ivps[0], ivp_get_double, &iqr)
       ;  levels[cor_i].nb_iqr    =  iqr
-      ;  levels[cor_i].nb_mean   =  mclvSum(sz) / N_COLS(mx)
-      ;  levels[cor_i].cc_exp    =  mclvPowSum(ccsz, 2.0) / N_COLS(mx)
-      ;  levels[cor_i].nb_sum    =  mclxNrofEntries(mx)
+      ;  levels[cor_i].nb_mean   =  mclvSum(sz) / N_COLS(res)
+      ;  levels[cor_i].cc_exp    =  cc ? mclvPowSum(ccsz, 2.0) / N_COLS(res) : 0
+      ;  levels[cor_i].nb_sum    =  mclxNrofEntries(res)
 
-      ;  levels[cor_i].threshold =  cutoff
-      ;  levels[cor_i].bigsize   =  cc->cols[0].n_ivps
+      ;  if (doclcf_g)
+         {  mclv* clcf = mclgCLCFdispatch(res, n_thread_g)
+         ;  levels[cor_i].clcf      =  mclvSum(clcf) / N_COLS(mx)
+         ;  mclvFree(&clcf)
+      ;  }
+         else
+         levels[cor_i].clcf = 0.0
+
+      ;  levels[cor_i].threshold =  mode_vary == 'k' ? step2 : cutoff
+      ;  levels[cor_i].bigsize   =  cc ? cc->cols[0].n_ivps : 0
       ;  levels[cor_i].n_single  =  0
       ;  levels[cor_i].n_edge    =  n_allvals
       ;  levels[cor_i].n_lq      =  0
 
-      ;  for (i=0;i<N_COLS(cc);i++)
+      ;  if (cc)
+         for (i=0;i<N_COLS(cc);i++)
          {  dim n = cc->cols[N_COLS(cc)-1-i].n_ivps
          ;  if (n == 1)
             levels[cor_i].n_single++
@@ -349,29 +673,28 @@ static void vary_threshold
          if (levels[cor_i].bigsize <= divide_g)
          levels[cor_i].bigsize = 0
 
-;if(0)
-{  mcxTingPrint(fname, "uuu.%03d", (int) (1000 * (cutoff + 0.0001)))
-;  mcxIOrenew(xftest, fname->str, NULL)
-;  mcxIOopen(xftest, EXIT_ON_FAIL)
-;  fprintf(xftest->fp, "degree\tnnodes\tlogn\tlogd\n")
-;}
-
       ;  y_prev = sz->ivps[0].val
 
+                  /* wiki says:
+                     A scale-free network is a network whose degree distribution follows a power
+                     law, at least asymptotically. That is, the fraction P(k) of nodes in the
+                     network having k connections to other nodes goes for large values of k as P(k)
+                     ~ k^−g where g is a constant whose value is typically in the range 2<g<3,
+                     although occasionally it may lie outside these bounds.
+                 */
       ;  for (i=1;i<sz->n_ivps;i++)
          {  double y = sz->ivps[i].val
          ;  if (y > y_prev - 0.5)
             continue                                              /* same as node degree seen last */
-         ;  nnodes->ivps[n_sample].val = log( (i*1.0) / (1.0*N_COLS(mx)))   /* x = #nodes >= k        */
-         ;  degree->ivps[n_sample].val = log(y_prev ? y_prev : 1)            /* y = k = degree of node */
+         ;  nnodes->ivps[n_sample].val = log( (i*1.0) / (1.0*N_COLS(res)))    /* x = #nodes >= k, as fraction   */
+         ;  degree->ivps[n_sample].val = log(y_prev ? y_prev : 1)            /* y = k = degree of node         */
          ;  n_sample++
-;if(0)fprintf(xftest->fp, "%.0f\t%d\t%.3f\t%.3f\n", (double) y_prev, (int) i, (double) nnodes->ivps[n_sample-1].val, (double) degree->ivps[n_sample-1].val)
+;if(0)fprintf(stderr, "k=%.0f\tn=%d\t%.3f\t%.3f\n", (double) y_prev, (int) i, (double) nnodes->ivps[n_sample-1].val, (double) degree->ivps[n_sample-1].val)
          ;  y_prev = y
       ;  }
          nnodes->ivps[n_sample].val = 0
       ;  nnodes->ivps[n_sample++].val = log(y_prev ? y_prev : 1)
-;if(0){fprintf(xftest->fp, "%.0f\t%d\t%.3f\t%.3f\n", (double) sz->ivps[sz->n_ivps-1].val, (int) N_COLS(mx), (double) nnodes->ivps[n_sample-1].val, (double) degree->ivps[n_sample-1].val)
-;mcxIOclose(xftest)
+;if(0){fprintf(stderr, "k=%.0f\tn=%d\t%.3f\t%.3f\n", (double) sz->ivps[sz->n_ivps-1].val, (int) N_COLS(res), (double) nnodes->ivps[n_sample-1].val, (double) degree->ivps[n_sample-1].val)
 ;}
 
       ;  mclvResize(nnodes, n_sample)
@@ -387,12 +710,51 @@ static void vary_threshold
       ;  mclvFree(&ccsz)
       ;  mclxFree(&cc)
 
+;if(1){
+      ;  fprintf
+         (  fp
+         ,  "%3d %3d %3d %3d %7d "
+            "%7.0f %7.0f %6.0f"
+            "%6.1f %6.0f %6.0f"
+
+         ,  0 ? 1 : (int) (0.5 + (100.0 * levels[cor_i].bigsize) / N_COLS(mx))
+         ,  0 ? 1 : (int) (0.5 + (100.0 * levels[cor_i].n_lq) / N_COLS(mx))
+         ,  0 ? 1 : (int) (0.5 + (100.0 * (N_COLS(mx) - levels[cor_i].bigsize - levels[cor_i].n_lq)) / N_COLS(mx))
+         ,  0 ? 1 : (int) (0.5 + (100.0 * levels[cor_i].n_single) / N_COLS(mx))
+         ,  0 ? 1 : (int) (0.5 + levels[cor_i].cc_exp)
+
+         ,  0 ? 1.0 : (double) (levels[cor_i].sim_mean   * weight_scale)
+         ,  0 ? 1.0 : (double) (levels[cor_i].sim_median * weight_scale)
+         ,  0 ? 1.0 : (double) (levels[cor_i].sim_iqr    * weight_scale)
+
+         ,  0 ? 1.0 : (double) (levels[cor_i].nb_mean                 )
+         ,  0 ? 1.0 : (double) (levels[cor_i].nb_median + 0.5         )
+         ,  0 ? 1.0 : (double) (levels[cor_i].nb_iqr + 0.5            )
+         )
+
+      ;  if (doclcf_g)
+         fprintf(fp, " %3d", 0 ? 1 : (int) (0.5 + (100.0 * levels[cor_i].clcf)))
+      ;  else
+         fputs("   -", fp)
+
+      ;  if (mode == 'c')
+         fprintf(fp, "%8.2f\n", (double) levels[cor_i].threshold)
+      ;  else if (mode == 't')
+         fprintf(fp, "%8.0f\n", (double) levels[cor_i].threshold  * weight_scale)
+      ;  else if (mode == 'k')
+         fprintf(fp, "%8.0f\n", (double) levels[cor_i].threshold)
+;}
       ;  cor_i++
+      ;  if (res != mx)
+         mclxFree(&res)
    ;  }
+
+      if (weefreemen)
+      {
 fprintf(fp, "-------------------------------------------------------------------------------\n")
 ;fprintf(fp, "The graph below plots the R^2 squared value for the fit of a log-log plot of\n")
 ;fprintf(fp, "<node degree k> versus <#nodes with degree >= k>, for the network resulting\n")
-;fprintf(fp, "from applying a particular %s cutoff.\n", have_correlation ? "correlation" : "similarity")
+;fprintf(fp, "from applying a particular %s cutoff.\n", mode == 'c' ? "correlation" : "similarity")
 ;fprintf(fp, "-------------------------------------------------------------------------------\n")
    ;  for (j=0;j<cor_i;j++)
       {  dim jj
@@ -404,7 +766,7 @@ fprintf(fp, "-------------------------------------------------------------------
             c = '|'
          ;  fputc(c, fp)
       ;  }
-         if (have_correlation)
+         if (mode == 'c')
          fprintf(fp, "%8.2f\n", (double) levels[j].threshold)
       ;  else
          fprintf(fp, "%8.0f\n", (double) levels[j].threshold * weight_scale)
@@ -414,50 +776,13 @@ fprintf(fp, "-------------------------------------------------------------------
 ;fprintf(fp, "+----+----+----+----+----+---------+----+----+----+----+----+----+----+    /\\\\\n")
 ;fprintf(fp, "| 2 4 6 8   2 4 6 8 | 2 4 6 8 | 2 4 6 8 | 2 4 6 8 | 2 4 6 8 | 2 4 6 8 |   _\\_/\n")
 ;fprintf(fp, "+----+----|----+----|----+----|----+----|----+----|----+----|----+----+--------\n")
-;fprintf(fp, " L       Percentage of nodes in the largest component\n")
-;fprintf(fp, " D       Percentage of nodes in components of size at most %d [-div option]\n", (int) divide_g)
-;fprintf(fp, " R       Percentage of nodes not in L or D: 100 - L -D\n")
-;fprintf(fp, " S       Percentage of nodes that are singletons\n")
-;fprintf(fp, " cce     Expected size of component, nodewise [ sum(sz^2) / sum^2(sz) ]\n")
-;fprintf(fp, "*EW      Edge weight traits (mean, median and IQR, all scaled!)\n")
-;fprintf(fp, "            Scaling is used to avoid printing of fractional parts throughout.\n")
-;fprintf(fp, "            The scaling factor is %.2f [-report-scale option]\n", weight_scale)
-;fprintf(fp, " ND      Node degree traits [mean, median and IQR]\n")
-;if (have_correlation)
- fprintf(fp, "Cutoff   The threshold used.\n")
-;else
- fprintf(fp, "*Cutoff   The threshold with scale factor %.2f and fractional parts removed\n", weight_scale)
-;fprintf(fp, "Total number of nodes: %ld\n", (long) N_COLS(mx))
-;fprintf(fp, "-------------------------------------------------------------------------------\n")
-;fprintf(fp, "  L   D   R   S     cce *EWmean  *EWmed *EWiqr NDmean  NDmed  NDiqr     %sCutoff \n", have_correlation ? " " : "*")
-;fprintf(fp, "-------------------------------------------------------------------------------\n")
-;     for (j=0;j<cor_i;j++)
-      {  fprintf
-         (  fp
-         ,  "%3d %3d %3d %3d %7d %7.0f %7.0f %6.0f %6.1f %6.0f %6.0f    "
-         ,  (int) (0.5 + (100.0 * levels[j].bigsize) / N_COLS(mx))
-         ,  (int) (0.5 + (100.0 * levels[j].n_lq) / N_COLS(mx))
-         ,  (int) (0.5 + (100.0 * (N_COLS(mx) - levels[j].bigsize - levels[j].n_lq)) / N_COLS(mx))
-         ,  (int) (0.5 + (100.0 * levels[j].n_single) / N_COLS(mx))
-         ,  (int) (0.5 + levels[j].cc_exp)
-         ,  (double) levels[j].sim_mean   * weight_scale
-         ,  (double) levels[j].sim_median * weight_scale
-         ,  (double) levels[j].sim_iqr    * weight_scale
-         ,  (double) levels[j].nb_mean
-         ,  (double) levels[j].nb_median + 0.5
-         ,  (double) levels[j].nb_iqr + 0.5
-         )
-      ;  if (have_correlation)
-         fprintf(fp, "%8.2f\n", (double) levels[j].threshold)
-      ;  else
-         fprintf(fp, "%8.0f\n", (double) levels[j].threshold  * weight_scale)
+;     }
+      else
+      fprintf(fp, "-------------------------------------------------------------------------------\n")
 
-         /*
-         ,  (long) levels[j].n_edge          * this (n_allvals) bigger than *
-         ,  (double) levels[j].nb_sum        * that (mclxNrofEntries) *
-         */
-   ;  }
-   }
+   ;  mclxFree(&mx)
+   ;  mcxFree(allvals)
+;  }
 
 
 
@@ -471,47 +796,147 @@ _\\_/\n")
 */
 
 
-
-
 static mcxstatus qMain
 (  int          argc_unused      cpl__unused
 ,  const char*  argv_unused[]    cpl__unused
 )
-   {  if (get_dim + get_stat + get_stat_list + vary_s == 0)
-      get_stat = TRUE
+   {  mclx* cl = NULL
+   ;  mclv* clannot = NULL
+   ;  mclTab* tab = NULL
 
-   ;  mcxIOopen(xfout, EXIT_ON_FAIL)
+   ;  srandom(mcxSeed(135313531))
 
-   ;  if (vary_s)
-      {  vary_threshold
-         (  xfmx_g
-         ,  vary_a
-         ,  vary_z
-         ,  vary_s
-         ,  vary_n
-         )
-      ;  exit(0)
-   ;  }
+   ;  mcxIOopen(xfout_g, EXIT_ON_FAIL)
+   ;  levels = mcxAlloc(1001 * sizeof levels[0], EXIT_ON_FAIL)
 
-      else if (get_dim)
-      {  const char* fmt
-      ;  int format
-      ;  long n_cols, n_rows
+   ;  if (!mode_vary && !mode_get)
+      mode_get = 'n'
 
-      ;  if (mclxReadDimensions(xfmx_g, &n_cols, &n_rows))
-         mcxDie(1, "mcx query", "reading %s failed", xfmx_g->fn->str)
+   ;  if (xftab_g)
+      tab = mclTabRead(xftab_g, NULL, EXIT_ON_FAIL)
 
-      ;  format = mclxIOformat(xfmx_g)
-      ;  fmt = format == 'b' ? "binary" : format == 'a' ? "interchange" : "?"
-      ;  fprintf
-         (  xfout->fp
-         ,  "%s format,  row x col dimensions are %ld x %ld\n"
-         ,  fmt
-         ,  n_rows
-         ,  n_cols
-         )
-   ;  }
-      return 0
+   ;  if (xfcl_g)
+      {  dim i
+      ;  cl = mclxRead(xfcl_g, EXIT_ON_FAIL)
+      ;  clannot = cl->dom_rows
+      ;  for (i=0;i<N_COLS(cl);i++)
+         {  mclv* cls = cl->cols+i
+         ;  dim j
+         ;  for (j=0;j<cls->n_ivps;j++)
+            {  dim ndid  = cls->ivps[j].idx
+            ;  mclp* ivp = mclvGetIvp(clannot, ndid, NULL)
+            ;  if (!ivp)
+               mcxDie(1, "query", "peculiarly peculiar cannot find %lu", (ulong) ndid)
+            ;  ivp->val = cls->n_ivps
+         ;  }
+         }
+         mcxIOclose(xfcl_g)
+      ;  if (mode_get == 'n' && !user_imx)
+         {  fputs("node\tclsize\n", xfout_g->fp)
+         ;  for (i=0;i<clannot->n_ivps;i++)
+            {  const mclp* p = clannot->ivps+i
+            ;  mcx_dump_node(xfout_g->fp, tab, p->idx)
+            ;  fprintf(xfout_g->fp, "\t%lu\n", (ulong) (0.5 + p->val))
+         ;  }
+            return 0
+      ;  }
+      }
+
+   ;  if (mode_vary)
+      vary_threshold
+      (  xfmx_g
+      ,  xfout_g->fp
+      ,  vary_a
+      ,  vary_z
+      ,  vary_s
+      ,  vary_n
+      ,  mode_vary
+      )
+
+   ;  else if (mode_get)
+      {  if (mode_get == 'd')
+         {  const char* fmt
+         ;  unsigned int format
+         ;  long n_cols, n_rows
+
+         ;  if (mclxReadDimensions(xfmx_g, &n_cols, &n_rows))
+            mcxDie(1, me, "reading %s failed", xfmx_g->fn->str)
+         ;  format = mclxIOformat(xfmx_g)
+         ;  mcxIOclose(xfmx_g)
+
+         ;  fmt = format == 'b' ? "binary" : format == 'a' ? "interchange" : "?"
+         ;  fprintf
+            (  xfout_g->fp
+            ,  "%s format,  row x col dimensions are %ld x %ld\n"
+            ,  fmt
+            ,  n_rows
+            ,  n_cols
+            )
+      ;  }
+         else if (mode_get == 'n')
+         {  dim i
+         ;  mclx* mx = mclxRead(xfmx_g, EXIT_ON_FAIL)
+
+         ;  if (transform_spec)
+            { if (!(transform = mclgTFparse(NULL, transform_spec)))
+               mcxDie(1, me, "input -tf spec does not parse")
+            ;  mclgTFexec(mx, transform)
+         ;  }
+
+            if (cl && !MCLD_EQUAL(cl->dom_rows, mx->dom_cols))
+            mcxDie(1, "query", "cluster row domain and matrix column domains differ")
+
+         ;  fputs("node\tdegree\tmean\tmin\tmax\tmedian\tiqr", xfout_g->fp)
+         ;  if (cl)
+            fputs("\tclsize", xfout_g->fp)
+
+         ;  fputc('\n', xfout_g->fp)
+
+         ;  for (i=0;i<N_COLS(mx);i++)
+            {  mclv* v = mclvClone(mx->cols+i)
+            ;  double iqr = 0, med = 0, avg = 0, max = -DBL_MAX, min = DBL_MAX
+
+            ;  mclvSortAscVal(v)
+
+            ;  if (v->n_ivps)
+               {  med = mcxMedian(v->ivps, v->n_ivps, sizeof v->ivps[0], ivp_get_double, &iqr)
+               ;  avg = mclvSum(v) / v->n_ivps
+               ;  max = v->ivps[v->n_ivps-1].val
+               ;  min = v->ivps[0].val
+            ;  }
+
+               mcx_dump_node(xfout_g->fp, tab, mx->cols[i].vid)
+
+            ;  fprintf
+               (  xfout_g->fp
+               ,  "\t%lu\t%g\t%g\t%g\t%g\t%g"
+               ,  (ulong) v->n_ivps
+               ,  avg
+               ,  min
+               ,  max
+               ,  med
+               ,  iqr
+               )
+            ;  if (clannot)
+               fprintf(xfout_g->fp, "\t%lu", (ulong) (0.5 + clannot->ivps[i].val))
+
+            ;  fputc('\n', xfout_g->fp)
+            ;  mclvFree(&v)
+         ;  }
+            mclxFree(&mx)
+      ;  }
+         else if (mode_get == 'c')
+         {  mclx* mx = mclxReadx(xfmx_g, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH | MCLX_REQUIRE_CANONICAL)
+         ;  mclxAdjustLoops(mx, mclxLoopCBremove, NULL)
+         ;  return test_cycle(mx, n_limit)
+      ;  }
+      }
+
+      mcxIOclose(xfout_g)
+   ;  mcxIOfree(&xfout_g)
+   ;  mcxIOfree(&xfmx_g)
+   ;  mcxFree(levels)
+   ;  return 0
 ;  }
 
 
@@ -535,4 +960,13 @@ mcxDispHook* mcxDispHookquery
    ;  return &qEntry
 ;  }
 
+
+/*
+-------------------------------------------------------------------------------
+  L   D   R   S     cce *EWmean  *EWmed *EWiqr NDmean  NDmed  NDiqr      Cutoff 
+-------------------------------------------------------------------------------
+100   0   0   0   11142     140      69     11 1444.3   1034   2076        0.20
+100   0   0   0   11142     210      69     11 1444.3   1034   2076        0.25
+100   0   0   0   11142     280      69     11 1444.3   1034   2076        0.30
+*/
 

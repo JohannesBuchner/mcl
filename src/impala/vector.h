@@ -129,6 +129,9 @@ mclVector* mclvRenew
  * Inconsistent meaning: ivp with idx set to -1.
  *
  * vec argument can be NULL.
+
+ * If the vector is reduced in size, memory is not reclaimed.
+ * Conceivably a fixme.
 */
 
 mclVector* mclvResize
@@ -215,6 +218,16 @@ mclVector* mclvCanonical
 )  ;
 
 
+   /* returns number of elements in src not found in dst
+    * dst and src must be different.
+   */
+dim mclvEmbed
+(  mclv*       dst
+,  const mclv* src
+,  double      val
+)  ;  
+
+
    /* Initialize values to those in dst; if the index
     * is not present then set it to val
    */
@@ -275,13 +288,20 @@ void mclvSortUniq
 )  ;
 
 
-void mclvSelectHighestQ
+      /* this one uses GQ if possible, otherwise GQ threshold * (1+epsilon) */
+void mclvSelectHighest
 (  mclVector*     vec
 ,  dim            max_n_ivps
 )  ;
 
+      /* always uses GQ */
+void mclvSelectHighestGQ
+(  mclVector*     vec
+,  dim            max_n_ivps
+)  ;
 
-void mclvSelectHighest
+      /* always uses GT */
+void mclvSelectHighestGT
 (  mclVector*     vec
 ,  dim            max_n_ivps
 )  ;
@@ -342,6 +362,9 @@ double mclvSelectGtBar
 )  ;
 
 
+   /* If the vector is reduced in size, memory is not reclaimed.
+    * Conceivably a fixme.
+   */
 void mclvUnary
 (  mclVector*     vec
 ,  double        (*operation)(pval val, void* argument)
@@ -589,7 +612,7 @@ void mclvMean
 )  ;
 
 
-void mclvMove
+void mclvAffine
 (  mclv* vec
 ,  double mean
 ,  double stddev

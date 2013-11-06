@@ -80,13 +80,12 @@ int begets_stdio
 ,  const char* mode
 )
    {  if
-      (  (  strstr(mode, "r")
+      (  (  strchr(mode, 'r')
          && !strcmp(name, "-")
          )
-      || (  (strstr(mode, "w") || strstr(mode, "a"))
-         && !strcmp(name, "-")
+      || (  (strchr(mode, 'w') || strchr(mode, 'a'))
+         && (!strcmp(name, "-") || !strcmp(name, "stderr"))
          )
-      || (!strcmp(name, "stderr"))
       )
       return 1
    ;  return 0
@@ -109,6 +108,9 @@ mcxstatus mcxIOclose
 (  mcxIO*    xf
 )
    {  fflush(xf->fp)
+;if (!strcmp(xf->fn->str, "-") && !strcmp(xf->mode, "w") && !xf->stdio)
+ mcxDie(1, "tst", "should not happen")
+
    ;  if (xf->fp && !xf->stdio)
       {  fclose(xf->fp)
       ;  xf->fp = NULL
@@ -116,7 +118,8 @@ mcxstatus mcxIOclose
       else if (xf->fp && xf->stdio)
       {  int fe = ferror(xf->fp)    /* fixme why not in branch above? */
       ;  if (fe)
-         mcxErr("mcxIOclose", "error [%d] for [%s] stdio", fe, xf->mode)
+            mcxErr("mcxIOclose", "error [%d] for [%s] stdio", fe, xf->mode)
+         ,  perror("mcxIOclose")
       ;  if (xf->ateof || feof(xf->fp))
          clearerr(xf->fp)
    ;  }
@@ -182,7 +185,7 @@ mcxIO* mcxIOnew
 ;  }
 
 
-/* fixme: the code below is very muddy.
+/* fixme: the code below is mildly muddy.
  * The ->stdio decision (for new streams) might best be made
  * at open time?
 */
@@ -192,7 +195,7 @@ mcxIO* mcxIOrenew
 ,  const char*       name
 ,  const char*       mode
 )
-   {  mcxbool twas_stdio = xf && xf->stdio      /* It Was STDIN/OUT/ERR */
+   {  mcxbool twas_stdio = xf && xf->stdio      /* it was one of STD{IN,OUT,ERR} */
    ;  if
       (  mode
       && !strstr(mode, "w") && !strstr(mode, "r") && !strstr(mode, "a")
@@ -203,15 +206,14 @@ mcxIO* mcxIOrenew
 
       if
       (  getenv("TINGEA_PLUS_APPEND")
-      && name
-      && (uchar) name[0] == '+'
-      && strchr(mode, 'w')
+      && (  name && (uchar) name[0] == '+' )
+      && (  mode && strchr(mode, 'w') )
       )
-      {  name++
+      {  name++               /* user can specify -o +foo to append to foo */
       ;  mode = "a"
    ;  }
 
-      if (!xf)
+      if (!xf)                /* case 1)   create a new one */
       {  if (!name || !mode)
          {  mcxErr("mcxIOrenew PBD", "too few arguments")
          ;  return NULL
@@ -221,30 +223,26 @@ mcxIO* mcxIOrenew
          return NULL
 
       ;  if (!(xf->fn = mcxTingEmpty(NULL, 20)))
-         {  mcxFree(xf)
-         ;  return NULL
-      ;  }
+         return NULL
 
       ;  if (!(xf->buffer = mcxTingEmpty(NULL, getpagesize())))
-         {  mcxFree(xf)
-         ;  return NULL
-      ;  }
+         return NULL
 
-         xf->fp      =  NULL
+      ;  xf->fp      =  NULL
       ;  xf->mode    =  NULL
       ;  xf->usr     =  NULL
       ;  xf->usr_reset =  NULL
       ;  xf->buffer_consumed = 0
    ;  }
-      else if (xf->stdio)
+      else if (xf->stdio)     /* case 2)   have one, don't close */
       NOTHING
    ;  else if (mcxIOwarnOpenfp(xf, "mcxIOrenew"))
-      mcxIOclose(xf)
+      mcxIOclose(xf)          /* case 3)   have one, warn and close if open */
 
    ;  mcxIOreset(xf)
 
    ;  if (name && !mcxTingWrite(xf->fn, name))
-      return NULL    /* fixme; shd clean up */
+      return NULL
 
    ;  if (mode)
       {  if (xf->mode)
@@ -254,11 +252,17 @@ mcxIO* mcxIOrenew
 
       xf->stdio = begets_stdio(xf->fn->str, xf->mode)
 
-               /* fixme: no longer necessary? */
+                                       /* name changed, no longer stdio */
    ;  if (twas_stdio && !xf->stdio)
       xf->fp = NULL
 
-   ;  return xf
+   ;  if (xf->stdio && mode && strchr(mode, 'a'))     /* recently added */
+      {  if (xf->mode)
+         mcxFree(xf->mode)
+      ;  xf->mode = mcxStrDup("w")
+   ;  }
+
+      return xf
 ;  }
 
 
@@ -348,15 +352,23 @@ mcxstatus mcxIOappendName
 ;  }
 
 
+#if 0
 mcxstatus mcxIOnewName
 (  mcxIO*         xf
 ,  const char*    newname
 )
    {  if (!mcxTingEmpty(xf->fn, 0))
       return STATUS_FAIL
-
    ;  return mcxIOappendName(xf, newname)
 ;  }
+#else
+mcxstatus mcxIOnewName
+(  mcxIO*         xf
+,  const char*    newname
+)
+   {  return mcxIOrenew(xf, newname, NULL) ? STATUS_OK : STATUS_FAIL
+;  }
+#endif
 
 
 int mcxIOstepback

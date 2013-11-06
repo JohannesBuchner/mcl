@@ -43,6 +43,7 @@ enum
 ,  MCLX_UNARY_LOG
 ,  MCLX_UNARY_NEGLOG
 ,  MCLX_UNARY_ABS
+,  MCLX_UNARY_COPY
 ,  MCLX_UNARY_UNUSED
 }  ;
 
@@ -248,6 +249,12 @@ double fltLaNR
 
 
 double fltLaR
+(  pval     lft
+,  pval     rgt
+)  ;
+
+   /* keeps lft if both arcs are present and lft is larger */
+double fltArcMax
 (  pval     lft
 ,  pval     rgt
 )  ;

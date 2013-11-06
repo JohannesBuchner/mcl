@@ -1,5 +1,5 @@
-.\" Copyright (c) 2009 Stijn van Dongen
-.TH "clm close" 1 "4 Nov 2009" "clm close 1\&.008, 09-308" "USER COMMANDS "
+.\" Copyright (c) 2010 Stijn van Dongen
+.TH "clm close" 1 "28 May 2010" "clm close 1\&.008, 10-148" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -45,6 +45,7 @@ in the \fBclm\fP manual page\&.
 \fB-abc\fP fname (\fIspecify label input\fP)
 \fB-dom\fP fname (\fIinput domain/cluster file\fP)
 \fB[-o\fP fname (\fIoutput file\fP)\fB]\fP
+\fB[--is-undirected\fP (\fItrust input graph to be undirected\fP)\fB]\fP
 \fB[--write-count\fP (\fIoutput component count\fP)\fB]\fP
 \fB[--write-sizes\fP (\fIoutput component sizes (default)\fP)\fB]\fP
 \fB[--write-cc\fP (\fIoutput components as clustering\fP)\fB]\fP
@@ -107,6 +108,15 @@ connected components\&. It is also possible to simply output
 the number of components with \fB--write-count\fP or to
 write the components as a clustering in mcl format with
 \fB-write-cc\fP\&.
+.in -2m
+
+.ZI 2m "\fB--is-undirected\fP (\fIomit graph undirected check\fP)"
+\&
+.br
+With this option the transformation to make sure
+that the input is undirected is omitted\&. This will
+be slightly faster\&. Using this option while the
+input is directed may lead to erronenous results\&.
 .in -2m
 
 .ZI 2m "\fB-cc-bound\fP num (\fIselect components with size at least num\fP)"

@@ -1,6 +1,6 @@
 
 #  Example invocation:
-#  R --vanilla --slave --args --exporder2=dump.exp90.l1 --exporder=dump.exp90.l0 --data=../data/exprs.tab --tab=../data/gene.dict --cls=P2 --pdf=out2.pdf --clmin=3 --cl2min=15 < mcxplotlines.R
+#  R --vanilla --slave --args --exporder=R1 --exporder2=R2 --data=genes.tab --rowdict=genes.dict --coldict=region.dict --cls=G1 --pdf=out.pdf --clmin=5 --cl2min=15 < ~/mybin/mcxplotlines.R
 #
 #  cl2min is implicitly encoded in clustering, obtained by clm order.
 
@@ -11,6 +11,7 @@ args <- R.utils::commandArgs(asValues=TRUE)
 
 pdffile  <- "cls.pdf"
 nmax     <- 10
+fnexporder <- NULL
 fnexporder2 <- NULL
 randorder<- FALSE
 collect_medians <- TRUE
@@ -19,7 +20,7 @@ minsupsize <- 5
 
 rawfile  <- NULL
 clsfile  <- NULL
-tabfile  <- NULL
+fnrowdict  <- NULL
 nlabel_max <- 100
 
 if (!is.null(args[["nmax"]])) {
@@ -46,8 +47,11 @@ if (!is.null(args[["cls"]])) {
 if (!is.null(args[["randorder"]])) {
    randorder <- TRUE
 }
-if (!is.null(args[["tab"]])) {
-   tabfile <- args$tab
+if (!is.null(args[["rowdict"]])) {
+   fnrowdict <- args$rowdict
+}
+if (!is.null(args[["coldict"]])) {
+   fncoldict <- args$coldict
 }
 if (!is.null(args[["exporder"]])) {
    fnexporder <- args$exporder
@@ -57,8 +61,8 @@ if (!is.null(args[["exporder2"]])) {
 }
 
 
-if (is.null(rawfile) | is.null(clsfile) | is.null(tabfile)) {
-   stop("need --data=<rawfile> --cls=<clsfile>} --tab=<tabfile> options")
+if (is.null(rawfile) | is.null(clsfile) | is.null(fnrowdict)) {
+   stop("need --data=<rawfile> --cls=<clsfile>} --tab=<fnrowdict> options")
 }
 
 exporder <- NULL
@@ -66,17 +70,20 @@ exporder_sizes <- NULL
 exporder2_sizes <- NULL
 
 if (!is.null(fnexporder)) {
-   exporder <- scan(fnexporder, what="character")
-   exporder_tmp <- scan(fnexporder, what="character", sep="\n")
+   if (is.null(fncoldict)) {
+      stop("with exporder I need a (column) dictionary file")
+   }
+   exporder <- scan(pipe(paste("mcxdump -icl", fnexporder, "-tabr", fncoldict)), what="character")
+   exporder_tmp <- scan(pipe(paste("mcxdump -icl", fnexporder, "-tabr", fncoldict)), what="character", sep="\n")
    exporder_sizes <- unlist(lapply(exporder_tmp, function(x) { return(length(unlist(strsplit(x, "\t")))) }))
    if (!is.null(fnexporder2)) {
-      exporder_tmp <- scan(fnexporder2, what="character", sep="\n")
+      exporder_tmp <- scan(pipe(paste("mcxdump -icl", fnexporder2, "-tabr", fncoldict)), what="character", sep="\n")
       exporder2_sizes <- unlist(lapply(exporder_tmp, function(x) { return(length(unlist(strsplit(x, "\t")))) }))
    }
 }
 
 
-mytbl <- read.table(rawfile, header=TRUE, row.names=1)
+mytbl <- read.table(rawfile, header=TRUE, row.names=1, check.names=F)
 themin <- floor(min(mytbl))
 themax <- floor(max(mytbl))
 
@@ -93,7 +100,7 @@ if (!is.null(exporder)) {
 cat("read rawfile\n")
 
 command <- paste("mcxdump --no-values --transpose -imx",
-                     clsfile, "-tabr", tabfile, "| sort -nk 2")
+                     clsfile, "-tabr", fnrowdict, "| sort -nk 2")
 cat(paste("running", "[", command, "]\n"))
 fobj <- pipe(command, "r")
 

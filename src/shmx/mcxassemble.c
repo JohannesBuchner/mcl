@@ -19,7 +19,9 @@
 #include "impala/io.h"
 #include "impala/iface.h"
 #include "impala/app.h"
+
 #include "mcl/interpret.h"
+#include "mcl/transform.h"
 
 #include "util/io.h"
 #include "util/err.h"
@@ -323,7 +325,7 @@ int main
    ;  mclx *cmap = NULL, *rmap = NULL
    ;  mcxbits maptype = 0
    ;  mcxbool write_skw =  FALSE
-   ;  mcxbool noput_sym =  FALSE
+   ;  mcxbool put_sym   =  TRUE
    ;  mcxbool write_prm =  FALSE
    ;  mcxbool check_sym =  FALSE
    ;  mcxbool single_data_file = FALSE
@@ -335,13 +337,13 @@ int main
    ;  double (*fltvecbinary)(pval val1, pval val2)    =  fltMax
    ;  double (*fltmxbinary) (pval val1, pval val2)    =  fltMax
 
-   ;  mclpAR* rawtransform = NULL
+   ;  mclgTF* rawtransform = NULL
    ;  mcxTing* rawtransform_spec = NULL
 
-   ;  mclpAR* symtransform = NULL
+   ;  mclgTF* symtransform = NULL
    ;  mcxTing* symtransform_spec = NULL
 
-   ;  mclpAR* prmtransform = NULL
+   ;  mclgTF* prmtransform = NULL
    ;  mcxTing* prmtransform_spec = NULL
 
    ;  mcxstatus parseStatus = STATUS_OK
@@ -487,7 +489,7 @@ int main
          ;
 
             case MY_OPT_NO
-         :  noput_sym = TRUE
+         :  put_sym = FALSE
          ;  break
          ;
 
@@ -560,19 +562,19 @@ int main
 
    ;  if
       (  rawtransform_spec
-      && !(rawtransform = mclpTFparse(NULL, rawtransform_spec))
+      && !(rawtransform = mclgTFparse(NULL, rawtransform_spec))
       )
       mcxDie(1, me, "input tf-spec does not parse")
 
    ;  if
       (  symtransform_spec
-      && !(symtransform = mclpTFparse(NULL, symtransform_spec))
+      && !(symtransform = mclgTFparse(NULL, symtransform_spec))
       )
       mcxDie(1, me, "sym tf-spec does not parse")
 
    ;  if
       (  prmtransform_spec
-      && !(prmtransform = mclpTFparse(NULL, prmtransform_spec))
+      && !(prmtransform = mclgTFparse(NULL, prmtransform_spec))
       )
       mcxDie(1, me, "prm tf-spec does not parse")
 
@@ -619,7 +621,7 @@ int main
       ;  if (!xf_skew && write_skw)
             xf_skew = mcxIOnew(obase->str, "w")
          ,  mcxIOappendName(xf_skew, ".skw")
-      ;  if (!xf_sym && !noput_sym)
+      ;  if (!xf_sym && put_sym)
             xf_sym = mcxIOnew(obase->str, "w")
          ,  mcxIOappendName(xf_sym, ".")
          ,  mcxIOappendName(xf_sym, suf ? suf : "sym")
@@ -725,7 +727,7 @@ int main
          ,  EXIT_ON_FAIL
          ,  EODATA
          ,  warn_repeat
-         ,  rawtransform
+         ,  rawtransform ? mclgTFgetEdgePar(rawtransform) : NULL
          ,  ivpmerge
          ,  fltvecbinary
          )
@@ -737,18 +739,19 @@ int main
       mcxDie(1, me, "could not map rows")
 
    ;  if (prmtransform)
-      mclxUnaryList(mx, prmtransform)
+      mclgTFexec(mx, prmtransform)
 
    ;  if (xf_prm)
       mclxWrite(mx, xf_prm, digits, EXIT_ON_FAIL)
 
-   ;  if (!noput_sym)
+   ;  if (put_sym)
       {  tp = mclxTranspose(mx)
       ;  sym = mclxBinary(mx, tp, fltmxbinary)
       ;  if (symtransform)
-         mclxUnaryList(sym, symtransform)
+         mclgTFexec(sym, symtransform)
       ;  mclxWrite(sym, xf_sym, digits, EXIT_ON_FAIL)
       ;  mclxFree(&sym)
+               /* not using mclxMergeTranspose because mx is still used */
    ;  }
 
       if (write_skw || check_sym)
@@ -756,7 +759,7 @@ int main
       ;  long n
       ;  tp = tp ? tp : mclxTranspose(mx)
       ;  mclxUnary(tp, fltxMul, &minone)
-      ;  skew = mclxAdd(mx, tp)
+      ;  skew = mclxAdd(mx, tp)        /* could use mclxMergeTranspose(mx, fltSubtract, 1.0) */
       ;  if (write_skw)
          mclxWrite(skew, xf_skew, digits, EXIT_ON_FAIL)
       ;  n = mclxNrofEntries(skew)

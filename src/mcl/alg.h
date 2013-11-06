@@ -27,6 +27,7 @@
 #include "util/hash.h"
 
 #include "proc.h"
+#include "transform.h"
 #include "impala/tab.h"
 
 
@@ -42,8 +43,6 @@ typedef struct
 
 ;  int                  expandDigits
 
-;  int                  pre_maxnum
-;  int                  pre_knn
 ;  double               pre_inflation
 ;  double               pre_inflationx
 ;  mcxbool              foundOverlap
@@ -75,10 +74,10 @@ typedef struct
 ;  mcxTing*             fn_read_tab
 
 ;  mcxTing*             stream_transform_spec
-;  mclpAR*              stream_transform
+;  mclgTF*              stream_transform
 
 ;  mcxTing*             transform_spec
-;  mclpAR*              transform
+;  mclgTF*              transform
 ;  mcxbool              adjust_loops
 ;  mclv*                shadow_cache_domain   /* cache original domain when shadowing */
 ;  long                 shadow_mode

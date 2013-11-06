@@ -1097,24 +1097,22 @@ int opAdd
 int opMax
 (  void
 )
-   {  zgglob_p o1, o2, o3
-   ;  if (!zsHaveNargs(2)) 
+   {  int ok = zsHaveNargs(2) ? 1 : 0
+   ;  zgglob_p o1, o2, o3
+   
+   ;  if (!ok)
       return 0
-
+   
    ;  o1 = zsGetGlob(1)
    ;  o2 = zsGetGlob(0)
 
-   ;  if (!(o3 = zgLt(o1,o2)))
+   ;  if (!(o3 = zgMax(o1,o2)))
       return 0
 
-   ;  if (zgGetOb(o3, UTYPE_INT)) /* It is true that o1 <= o2 */
-      {  zsExch()
-      ;  zsPop()
-   ;  }
-      else
-      zsPop()
+   ;  zsPop()
+   ;  zsPop()
 
-   ;  zgFree(&o3)
+   ;  zsPush(o3)
    ;  return 1
 ;  }
 
@@ -1122,24 +1120,22 @@ int opMax
 int opMin
 (  void
 )
-   {  zgglob_p o1, o2, o3
-   ;  if (!zsHaveNargs(2)) 
+   {  int ok = zsHaveNargs(2) ? 1 : 0
+   ;  zgglob_p o1, o2, o3
+   
+   ;  if (!ok)
       return 0
-
+   
    ;  o1 = zsGetGlob(1)
    ;  o2 = zsGetGlob(0)
 
-   ;  if (!(o3 = zgLq(o1,o2)))
+   ;  if (!(o3 = zgMin(o1,o2)))
       return 0
 
-   ;  if (zgGetOb(o3, UTYPE_INT)) /* It is true that o1 < o2 */
-      zsPop()
+   ;  zsPop()
+   ;  zsPop()
 
-   ;  else
-      {  zsExch()
-      ;  zsPop()
-   ;  }
-      zgFree(&o3)
+   ;  zsPush(o3)
    ;  return 1
 ;  }
 
@@ -1501,7 +1497,7 @@ int opEq
 )
    {  int ok = zsHaveNargs(2) ? 1 : 0
    ;  zgglob_p o1, o2, o3
-   
+
    ;  if (!ok)
       return 0
    
@@ -1589,9 +1585,11 @@ int opRowDimension
 (  void
 )
    {  mclx* mx = zsGetOb(0, UTYPE_MX)
+   ;  int i
    ;  if (!mx) return 0
+   ;  i = N_ROWS(mx)
    ;  zsPop()
-   ;  return zgPush(UTYPE_INT, &(mx->dom_rows->n_ivps))
+   ;  return zgPush(UTYPE_INT, &i)
 ;  }
 
 
@@ -1599,9 +1597,11 @@ int opColDimension
 (  void
 )
    {  mclx* mx = zsGetOb(0, UTYPE_MX)
+   ;  int i
    ;  if (!mx) return 0
+   ;  i = N_COLS(mx)
    ;  zsPop()
-   ;  return zgPush(UTYPE_INT, &(mx->dom_cols->n_ivps))
+   ;  return zgPush(UTYPE_INT, &i)
 ;  }
 
 
@@ -1621,6 +1621,7 @@ int opDimension
 )
    {  mclx* mx = zsGetOb(0, UTYPE_MX)
    ;  long r, c
+   ;  int i
 
    ;  if (!mx) return 0
    ;  r = N_ROWS(mx)
@@ -1631,7 +1632,8 @@ int opDimension
       ;  return 0
    ;  }
 
-   ;  return zgPush(UTYPE_INT, &r)
+      i = r
+   ;  return zgPush(UTYPE_INT, &i)
 ;  }
 
 

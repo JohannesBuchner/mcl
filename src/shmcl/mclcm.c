@@ -9,7 +9,6 @@
 
 /*
  * TODO
- * fix fixmefixme near mclAlgInterface (freeing spec)
  *
  * Clean up, modularize.
  * Different modes are now messy:
@@ -470,7 +469,7 @@ static mcxstatus get_interface
    ;  mcxFree(argv1)
    ;  mcxTingFree(&spec)
                      /* fixfixfixmefixmefffixme: mclAlgInterface might use opt->val
-                      * which points to somewhere in spec->str
+                      * which points to somewhere in spec->str. Check.
                      */
 
    ;  if (!mlpp)
@@ -1026,7 +1025,7 @@ int main
          {  mx_coarse = get_coarse(mxbase, clprev, add_transpose)
 
          ;  if (n_ite == 1)
-            {  mclx* cc = clmComponents(mx_coarse, NULL)  
+            {  mclx* cc = clmUGraphComponents(mx_coarse, NULL)   /* fixme; mx_coarse garantueed UD ? */
             ;  n_components = N_COLS(cc)
             ;  mclxFree(&cc)
          ;  }
@@ -1097,7 +1096,7 @@ int main
          ;  mclxFree(&clnext)
 
          ;  mclxAddTranspose(mx_coarse, 1.0)
-         ;  cc = clmComponents(mx_coarse, NULL)  
+         ;  cc = clmUGraphComponents(mx_coarse, NULL)  
 
          ;  if (N_COLS(cc) < N_COLS(clprev))
             {  mclx* ccback = mclxCompose(clprev, cc, 0)

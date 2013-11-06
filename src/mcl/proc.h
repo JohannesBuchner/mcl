@@ -30,7 +30,6 @@ typedef struct
 ;  mclExpandParam       *mxp
 
 ;  int                  marks[5]
-;  mcxTing              *massLog    /* expand log, really */
 
 ;  int                  devel
 
@@ -50,7 +49,6 @@ typedef struct
 ;  int                  dump_offset
 ;  int                  dump_bound
 ;  mcxTing*             dump_stem
-;  mclv*                dump_list
 ;  const mclTab*        dump_tab
 
 ;  double               chaosLimit
@@ -61,7 +59,7 @@ typedef struct
 
 ;  double               mainInflation
 ;  int                  mainLoopLength
-                                                     
+
 ;  double               initInflation
 ;  int                  initLoopLength
                                                      

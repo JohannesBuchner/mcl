@@ -1,4 +1,4 @@
-/*   (C) Copyright 2006, 2007, 2008, 2009 Stijn van Dongen
+/*   (C) Copyright 2006, 2007, 2008, 2009, 2010 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -448,11 +448,11 @@ static dim do_add
 (  mclx* mx
 ,  dim N_add
 ,  dim N_edge
-,  double g_mean
-,  double g_radius
-,  double g_sdev
-,  double g_min
-,  double g_max
+,  double l_mean
+,  double l_radius
+,  double l_sdev
+,  double l_min
+,  double l_max
 ,  double skew
 ,  double e_min
 ,  double e_max
@@ -461,40 +461,46 @@ static dim do_add
    ;  while (n_add < N_add)
       {  unsigned long r = (unsigned long) random()
       ;  unsigned long s = (unsigned long) random()
+      ;  long x, y
       ;  double val
       ;  mclp* ivp
 
-      ;  dim xo = r % N_COLS(mx)
+      ;  dim xo = r % N_COLS(mx)       /* fixme, modulo is commonly recommended against */
       ;  dim yo = s % N_COLS(mx)
 
-      ;  long x = mx->dom_cols->ivps[xo].idx
-      ;  long y = mx->dom_cols->ivps[yo].idx
+      ;  if (xo > yo)
+         {  long zo = xo
+         ;  xo = yo
+         ;  yo = zo
+      ;  }
+         else if (xo == yo)            /* never add loops */
+         continue
+
+      ;  x = mx->dom_cols->ivps[xo].idx
+      ;  y = mx->dom_cols->ivps[yo].idx
 
       ;  if (N_edge >= N_COLS(mx) * (N_COLS(mx)-1) / 2)
          break
-
-      ;  if (x >= y)       /* never add loops */
-         continue
 
       ;  ivp = mclvGetIvp(mx->cols+xo, y, NULL)
 
       ;  if (ivp && ivp->val)
          continue
 
-      ;  if (g_mean)
+      ;  if (l_mean)
          {  do
-            {  val = mcxNormalCut(g_radius, g_sdev)
+            {  val = mcxNormalCut(l_radius, l_sdev)
             ;  if (skew)
-               {  val = (g_radius + val) / (2 * g_radius)
-                                 /* ^ map (g_radius + val) to lie within [0,1] */
+               {  val = (l_radius + val) / (2 * l_radius)
+                                 /* ^ map (l_radius + val) to lie within [0,1] */
                ;  val = pow(val, skew)
                                  /* skew it */
-               ;  val = (val * 2 * g_radius) - g_radius
+               ;  val = (val * 2 * l_radius) - l_radius
                                  /* map it back */
             ;  }
-               val += g_mean
+               val += l_mean
          ;  }
-            while (g_min < g_max && (val < g_min || val > g_max))
+            while (l_min < l_max && (val < l_min || val > l_max))
       ;  }
          else
          {  val = (((unsigned long) random()) * 1.0) / RAND_MAX
@@ -755,23 +761,20 @@ int main
       ;  if (radius)
          {  for (i=0;i<N_COLS(mx);i++)
             {  mclp* ivp = mx->cols[i].ivps, *ivpmax = ivp + mx->cols[i].n_ivps
-   ;if(DEBUG)fprintf(stderr, "here %d\n", (int) i)
+;if(DEBUG)fprintf(stderr, "here %d\n", (int) i)
             ;  while (ivp < ivpmax)
                {  double val = ivp->val
-               ;  if (val >= e_min && val <= e_max)
-                  {  double r = mcxNormalCut(n_range * n_sdev, n_sdev)
-                  ;  val += radius * (r / (n_range * n_sdev))
+               ;  double r = mcxNormalCut(n_range * n_sdev, n_sdev)
+               ;  double newval = val + radius * (r / (n_range * n_sdev))
 
-   ;if(DEBUG)fprintf(stderr, "mod [%d][%d] %.5f to %.5f (r = %.4f)\n", (int) mx->cols[i].vid, (int) ivp->idx, ivp->val, val, r)
-                  ;  if (e_min > e_max || (val >= e_min && val <= e_max))
-                     ivp->val = val
-               ;  }
-                  ivp++
+               ;  if (e_min < e_max && newval >= e_min && newval <= e_max)
+               ;  ivp->val = newval
+               ;  ivp++
             ;  }
             }
          }
 
-         mclxUnary(mx, fltxCopy, NULL)    /* remove zeroes, I think */
+         mclxUnary(mx, fltxCopy, NULL)    /* remove zeroes */
       ;  mclxAddTranspose(mx, 0.0)
       ;  mx_readd_diagonal(mx, mx_diag)
 

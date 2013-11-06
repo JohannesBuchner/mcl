@@ -38,6 +38,7 @@
 #include "clew/cat.h"
 
 #include "mcl/interpret.h"
+#include "mcl/transform.h"
 
 /*
  *    how about using key-val encoding: {{sz}{3}{nb}{2}{cv}{2-3}} ?
@@ -893,10 +894,10 @@ int main
       ;  mcxIOfree(&xf_mx)
 
       ;  if (tfting)
-         {  mclpAR* tfar = mclpTFparse(NULL, tfting)
+         {  mclgTF* tfar = mclgTFparse(NULL, tfting)
          ;  if (!tfar)
             mcxDie(1, me, "errors in tf-spec")
-         ;  mclxUnaryList(mx, tfar)
+         ;  mclgTFexec(mx, tfar)
       ;  }
 
          if (inflation)

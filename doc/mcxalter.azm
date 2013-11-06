@@ -24,8 +24,6 @@
    \synoptopt{-abc}{<fname>}{specify label input}
    \synoptopt{-tab}{<fname>}{use tab file}
    \synoptopt{-o}{<fname>}{output}
-   \shared_synoptopt{-ceil-nb}
-   \shared_synoptopt{-knn-mutual}
    \shared_synoptopt{-tf}
 
    }
@@ -62,12 +60,6 @@
 
 \shared_itemopt{-tf}
 \car{\shared_defopt{-tf}}
-
-\shared_itemopt{-ceil-nb}
-\car{\shared_defopt{-ceil-nb}}
-
-\shared_itemopt{-knn-mutual}
-\car{\shared_defopt{-knn-mutual}}
 
 \item{\defopt{-o}{fname}{output file}}
 \car{

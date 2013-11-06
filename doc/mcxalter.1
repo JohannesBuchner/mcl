@@ -1,5 +1,5 @@
-.\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcxalter" 1 "4 Nov 2009" "mcxalter 1\&.008, 09-308" "USER COMMANDS "
+.\" Copyright (c) 2010 Stijn van Dongen
+.TH "mcxalter" 1 "28 May 2010" "mcxalter 1\&.008, 10-148" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -36,8 +36,6 @@ mcxalter \- various network transformations
 \fB[-abc\fP <fname> (\fIspecify label input\fP)\fB]\fP
 \fB[-tab\fP <fname> (\fIuse tab file\fP)\fB]\fP
 \fB[-o\fP <fname> (\fIoutput\fP)\fB]\fP
-\fB[-ceil-nb\fP n (\fIreduce neighbourhoods\fP)\fB]\fP
-\fB[-knn-mutual\fP n (\fIkeep mutually close neighbours\fP)\fB]\fP
 \fB[-tf\fP spec (\fIapply tf-spec to input matrix\fP)\fB]\fP
 .SH DESCRIPTION
 
@@ -72,25 +70,6 @@ tab domain and the matrix domain are required to be identical\&.
 .br
 Transform the input matrix values according
 to the syntax described in \fBmcxio(5)\fP\&.
-.in -2m
-
-.ZI 2m "\fB-ceil-nb\fP n (\fIreduce neighbourhoods\fP)"
-\&
-.br
-The nodes of the input graph are considered in descending order of the
-number of neighbours they posses\&. The first nodes has it neighbours of
-lowest edge weight removed until no more than \fBN\fP remain\&. The
-corresponding reciprocal edges from nodes further down the list are removed
-as well\&. Subsequent nodes are treated in the same way until all nodes in
-the graph have at most \fBN\fP neighbours\&. This may be considered a poor
-man\&'s hub removal\&.
-.in -2m
-
-.ZI 2m "\fB-knn-mutual\fP <num> (\fIkeep mutually close neighbours\fP)"
-\&
-.br
-This considers the \fI<num>\fP best neighbours for each node, then only keeps
-edges that occur in both best-neighbour lists for the two incident nodes\&.
 .in -2m
 
 .ZI 2m "\fB-o\fP fname (\fIoutput file\fP)"

@@ -1023,9 +1023,9 @@ mclx* mclxIOstreamIn
       ;  if
          ( bits & (MCLXIO_STREAM_LOGTRANSFORM | MCLXIO_STREAM_NEGLOGTRANSFORM) )
          {  if (bits & MCLXIO_STREAM_LOGTRANSFORM)
-            value = value > 0 ? log(value) : -DBL_MAX
+            value = value > 0 ? log(value) : -PVAL_MAX
          ;  else if (bits & MCLXIO_STREAM_NEGLOGTRANSFORM)
-            value = value > 0 ? -log(value) : DBL_MAX
+            value = value > 0 ? -log(value) : PVAL_MAX
          ;  if (bits & MCLXIO_STREAM_LOG10)
             value /= log(10)
       ;  }

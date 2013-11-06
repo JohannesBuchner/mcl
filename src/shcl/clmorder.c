@@ -65,7 +65,7 @@ static mcxOptAnchor orderOptions[] =
    }
 ,  {  "-o"
    ,  MCX_OPT_HASARG
-   ,  STABLE_OPT_IDENTITY
+   ,  MY_OPT_OUTPUT
    ,  "<fname>"
    ,  "write cluster stack/tree to <fname>"
    }

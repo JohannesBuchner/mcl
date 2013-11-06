@@ -1,5 +1,5 @@
-/*   (C) Copyright 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008, 2009 Stijn van Dongen
+/*   (C) Copyright 2002, 2003, 2004, 2005, 2006  Stijn van Dongen
+ *   (C) Copyright 2007, 2008, 2009, 2010  Stijn van Dongen
  *
  * This file is part of tingea.  You can redistribute and/or modify tingea
  * under the terms of the GNU General Public License; either version 3 of the
@@ -783,7 +783,7 @@ int mcxDispatch
       ;  while (entry->id >= 0)
          {  hk = entry->get_hk()
          ;  if (!strcmp(hk->name, argv[2]))
-            {  mcxTingPrintAfter(minime, hk->name)
+            {  mcxTingPrintAfter(minime, "%s", hk->name)
             ;  execlp("man", "man", minime->str, NULL)
             ;  mcxErr(minime->str, "the 'man' program was not found")
             ;  mcxDie(1, me, "make sure PATH is set correctly")
@@ -871,7 +871,7 @@ int mcxDispatch
       ;  if (hk->n_at_most >= 0 && a + hk->n_at_most < argc)
          mcxTingPrintAfter(t, " (found %s)", argv[a])
 
-      ;  mcxDie(1, me, t->str)
+      ;  mcxDie(1, me, "%s", t->str)
    ;  }
 
       mcxOptFree(&opts)

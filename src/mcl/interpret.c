@@ -195,7 +195,7 @@ mclMatrix* mclInterpret
    ;  m_attr = mclxSub(dag, v_attr, v_attr)
    ;  mclxAddTranspose(m_attr, 1.0)
 
-   ;  m_cls = clmComponents(m_attr, NULL)       /* attractor systems as clusters */
+   ;  m_cls = clmUGraphComponents(m_attr, NULL) /* attractor systems as clusters */
    ;  mclvCopy(m_cls->dom_rows, dag->dom_cols)  /* add all nodes to this cluster matrix */
    ;  m_clst = mclxTranspose(m_cls)             /* nodes(columns) with zero neighbours need to be classified */
    ;  mclgUnionvReset(dag)                      /* make mx->dom-rows characteristic */

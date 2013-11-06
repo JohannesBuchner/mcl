@@ -55,7 +55,7 @@ libmcl_a_AR = $(AR) $(ARFLAGS)
 libmcl_a_LIBADD =
 am_libmcl_a_OBJECTS = shadow.$(OBJEXT) inflate.$(OBJEXT) alg.$(OBJEXT) \
 	expand.$(OBJEXT) dpsd.$(OBJEXT) interpret.$(OBJEXT) \
-	proc.$(OBJEXT) procinit.$(OBJEXT)
+	proc.$(OBJEXT) procinit.$(OBJEXT) transform.$(OBJEXT)
 libmcl_a_OBJECTS = $(am_libmcl_a_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/autofoo/depcomp
@@ -92,6 +92,7 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+GREP = @GREP@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -111,6 +112,7 @@ PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
 PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
+PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PTHREAD_CC = @PTHREAD_CC@
@@ -122,8 +124,6 @@ SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
 ac_ct_CC = @ac_ct_CC@
-ac_ct_RANLIB = @ac_ct_RANLIB@
-ac_ct_STRIP = @ac_ct_STRIP@
 acx_pthread_config = @acx_pthread_config@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
@@ -139,32 +139,39 @@ build_cpu = @build_cpu@
 build_os = @build_os@
 build_vendor = @build_vendor@
 datadir = @datadir@
+datarootdir = @datarootdir@
+docdir = @docdir@
+dvidir = @dvidir@
 exec_prefix = @exec_prefix@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
 host_os = @host_os@
 host_vendor = @host_vendor@
+htmldir = @htmldir@
 includedir = @includedir@
 infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
+localedir = @localedir@
 localstatedir = @localstatedir@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
+pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
+psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)
-LDADD = ../mcl/libmcl.a ../clew/libclew.a ../taurus/libtaurus.a ../gryphon/libgryphon.a ../impala/libimpala.a ../../util/libutil.a
+LDADD = ../mcl/libmcl.a ../clew/libclew.a  ../gryphon/libgryphon.a ../impala/libimpala.a ../../util/libutil.a
 noinst_LIBRARIES = libmcl.a
-libmcl_a_SOURCES = shadow.c inflate.c alg.c expand.c dpsd.c interpret.c proc.c procinit.c
-EXTRA_DIST = shadow.h inflate.h alg.h expand.h dpsd.h interpret.h proc.h \
+libmcl_a_SOURCES = shadow.c inflate.c alg.c expand.c dpsd.c interpret.c proc.c procinit.c transform.c
+EXTRA_DIST = shadow.h inflate.h alg.h expand.h dpsd.h interpret.h proc.h transform.h \
   procinit.h
 
 all: all-am
@@ -222,6 +229,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/proc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/procinit.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/shadow.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transform.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \

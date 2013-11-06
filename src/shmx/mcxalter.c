@@ -32,12 +32,16 @@
 #include "util/err.h"
 #include "util/opt.h"
 #include "util/compile.h"
+#include "util/rand.h"
 
 #include "impala/matrix.h"
 #include "impala/tab.h"
 #include "impala/io.h"
 #include "impala/stream.h"
 #include "impala/app.h"
+
+#include "clew/clm.h"
+#include "mcl/transform.h"
 
 static const char* me = "mcx alter";
 
@@ -46,8 +50,6 @@ enum
 ,  MY_OPT_IMX
 ,  MY_OPT_TAB
 ,  MY_OPT_O
-,  MY_OPT_CEILNB
-,  MY_OPT_KNN
 ,  MY_OPT_TRANSFORM
 ,  MY_OPT_CANONICAL
 }  ;
@@ -78,18 +80,6 @@ mcxOptAnchor alterOptions[] =
    ,  "<fname>"
    ,  "write to file fname"
    }
-,  {  "-ceil-nb"
-   ,  MCX_OPT_HASARG
-   ,  MY_OPT_CEILNB
-   ,  "<num>"
-   ,  "remove edges from nodes with more than <num> edges"
-   }
-,  {  "-knn-mutual"
-   ,  MCX_OPT_HASARG
-   ,  MY_OPT_KNN
-   ,  "<num>"
-   ,  "keep only edges that are in mutual <num>-nearest neighbours"
-   }
 ,  {  "-tf"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_TRANSFORM
@@ -111,10 +101,8 @@ static  mcxIO* xfabc_g     =   (void*) -1;
 static  mcxIO* xftab_g     =   (void*) -1;
 static  mcxIO* xfout_g     =   (void*) -1;
 static  mclTab* tab_g      =   (void*) -1;
-static  dim ceilnb_g       =   -1;
-static  dim knn_g          =   -1;
 static  dim canonical_g    =   -1;
-static  mclpAR* transform  =   (void*) -1;
+static  mclgTF* transform  =   (void*) -1;
 static  mcxTing* transform_spec = (void*) -1;
 
 
@@ -128,8 +116,6 @@ static mcxstatus alterInit
    ;  transform      =  NULL
    ;  transform_spec =  NULL
    ;  tab_g          =  NULL
-   ;  ceilnb_g       =  0
-   ;  knn_g          =  0
    ;  canonical_g    =  0
    ;  return STATUS_OK
 ;  }
@@ -170,16 +156,6 @@ static mcxstatus alterArgHandle
       ;  break
       ;
 
-         case MY_OPT_KNN
-      :  knn_g = atoi(val)
-      ;  break
-      ;
-
-         case MY_OPT_CEILNB
-      :  ceilnb_g = atoi(val)
-      ;  break
-      ;
-
          default
       :  mcxExit(1)
       ;
@@ -195,6 +171,8 @@ static mcxstatus alterMain
    {  mclx* mx                =  NULL
 
    ;  mclxIOstreamer streamer = { 0 }
+
+   ;  srandom(mcxSeed(11235813))
 
    ;  mcxLogLevel =
       MCX_LOG_AGGR | MCX_LOG_MODULE | MCX_LOG_IO | MCX_LOG_GAUGE | MCX_LOG_WARN
@@ -219,40 +197,17 @@ static mcxstatus alterMain
       ;  tab_g = streamer.tab_sym_out
    ;  }
       else
-      {  mx = mclxReadx(xfmx_g, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH)
+      {  mx = mclxRead(xfmx_g, EXIT_ON_FAIL)
       ;  if (xftab_g)
          tab_g = mclTabRead(xftab_g, mx->dom_cols, EXIT_ON_FAIL)
    ;  }
 
-      mclxAdjustLoops(mx, mclxLoopCBremove, NULL)
-
-   ;  mcxIOopen(xfout_g, EXIT_ON_FAIL)
+      mcxIOopen(xfout_g, EXIT_ON_FAIL)
 
    ;  if (transform_spec)
-      { if (!(transform = mclpTFparse(NULL, transform_spec)))
+      { if (!(transform = mclgTFparse(NULL, transform_spec)))
          mcxDie(1, me, "input -tf spec does not parse")
-      ;  mclxUnaryList(mx, transform)
-   ;  }
-
-
-      if (ceilnb_g)
-      {  dim n_hub, n_in, n_out
-      ;  mclv* sel = mclgCeilNB(mx, ceilnb_g, &n_hub, &n_in, &n_out)
-      ;  mcxLog
-         (  MCX_LOG_FUNC
-         ,  me
-         ,  "considered %lu nodes in prepruning step (%lu needed, %lu edges out, %lu edges in)"
-         ,  (ulong) sel->n_ivps
-         ,  (ulong) n_hub
-         ,  (ulong) n_out
-         ,  (ulong) n_in
-         )
-      ;  mclvFree(&sel)
-   ;  }
-      else if (knn_g)
-      {  mclx* knn = mclxKNNmutual(mx, knn_g)
-      ;  mclxFree(&mx)
-      ;  mx = knn
+      ;  mclgTFexec(mx, transform)
    ;  }
 
       if (canonical_g)

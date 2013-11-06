@@ -1,4 +1,4 @@
-/*   (C) Copyright 2006, 2007, 2008, 2009 Stijn van Dongen
+/*   (C) Copyright 2006, 2007, 2008, 2009, 2010 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -8,11 +8,7 @@
 
 /* TODO erdos:
  *    more matrix transformation options.
- *    -  enable random deletion of edges (to test whether directionality corrupts).
- *    -  enable look + distance
- *
  *    -  in non-interactive mode fail rather than resume.
- *    -  output edge info with mclgCeilNB
 */
 
 
@@ -51,22 +47,20 @@
 
 #include "clew/clm.h"
 #include "gryphon/path.h"
+#include "mcl/transform.h"
 
-
-/* fixme:  link together should not start with x or y.
- * be careful what happens when x <-> y
- * and x <-> y <-> z and even the four-node path ->
- * middle is adjacent to x or y.
- * [uh, wtf does that fixme even mean?]
-*/
 
 
 enum
 {  MY_OPT_ABC    =   MCX_DISP_UNUSED
 ,  MY_OPT_IMX
 ,  MY_OPT_TAB
+,  MY_OPT_ISDIRECTED
+,  MY_OPT_ISUNDIRECTED
 ,  MY_OPT_QUERY
-,  MY_OPT_CEILNB
+,  MY_OPT_OUT
+,  MY_OPT_PATH
+,  MY_OPT_STEP
 }  ;
 
 
@@ -90,17 +84,41 @@ mcxOptAnchor erdosOptions[] =
    ,  "<fname>"
    ,  "specify tab file"
    }
+,  {  "--is-directed"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_ISDIRECTED
+   ,  NULL
+   ,  "compute directed shortest paths"
+   }
+,  {  "--is-undirected"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_ISUNDIRECTED
+   ,  NULL
+   ,  "skip symmetrificiation step"
+   }
 ,  {  "-query"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_QUERY
    ,  "<fname>"
    ,  "get queries from stream <fname>"
    }
-,  {  "-ceil-nb"
+,  {  "-o"
    ,  MCX_OPT_HASARG
-   ,  MY_OPT_CEILNB
-   ,  "<num>"
-   ,  "shrink neighbourhoods to at most <int> heaviest edges"
+   ,  MY_OPT_OUT
+   ,  "<fname>"
+   ,  "write to file fname"
+   }
+,  {  "-write-path"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_PATH
+   ,  "<fname>"
+   ,  "write path matrix to file fname"
+   }
+,  {  "-write-step"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_STEP
+   ,  "<fname>"
+   ,  "write step matrix to file fname"
    }
 ,  {  NULL, 0, 0, NULL, NULL }
 }  ;
@@ -110,28 +128,34 @@ static mclxIOstreamer streamer_g = { 0 };
 
 static const char* me   =  "mcx erdos";
 static unsigned debug_g =  -1;
-static ulong    ceil_g  =  -1;
 
 static  mcxIO* xfabc_g  =  (void*) -1;
 static mcxIO* xfmx_g    =  (void*) -1;
 static mcxIO* xftab_g   =  (void*) -1;
 static mcxIO* xq_g      =  (void*) -1;
+static const char* out_g   =   (void*) -1;
+static const char* path_g  =   (void*) -1;
+static const char* step_g  =   (void*) -1;
 
 static mclTab* tab_g    =  (void*) -1;
 static mcxHash* hsh_g   =  (void*) -1;
+static unsigned char input_status =  -1;      /* x unknown; d directed;   u undirected */
 
 
 static mcxstatus allInit
 (  void
 )
-   {  xfmx_g         =  NULL
+   {  xfmx_g         =  mcxIOnew("-", "r")
    ;  xftab_g        =  NULL
    ;  tab_g          =  NULL
    ;  hsh_g          =  NULL
    ;  xq_g           =  mcxIOnew("-", "r")
    ;  xfabc_g        =  NULL
    ;  debug_g        =  0
-   ;  ceil_g         =  0
+   ;  out_g          =  "-"
+   ;  path_g         =  NULL
+   ;  step_g         =  NULL
+   ;  input_status   =  'x'
    ;  return STATUS_OK
 ;  }
 
@@ -146,19 +170,38 @@ static mcxstatus erdosArgHandle
       ;  break
       ;
 
+         case MY_OPT_PATH
+      :  path_g = val
+      ;  break
+      ;
+
+         case MY_OPT_STEP
+      :  step_g = val
+      ;  break
+      ;
+
+         case MY_OPT_OUT
+      :  out_g = val
+      ;  break
+      ;
+
          case MY_OPT_ABC
       :  xfabc_g = mcxIOnew(val, "r")
       ;  break
       ;
 
-         case MY_OPT_TAB
-      :  xftab_g = mcxIOnew(val, "r")
+         case MY_OPT_ISUNDIRECTED
+      :  input_status = 'u'
       ;  break
       ;
 
-         case MY_OPT_CEILNB
-      :  if (mcxStrToul(val, &ceil_g, NULL))
-         mcxDie(1, me, "failed to convert <%s> to a number", val)
+         case MY_OPT_ISDIRECTED
+      :  input_status = 'd'
+      ;  break
+      ;
+
+         case MY_OPT_TAB
+      :  xftab_g = mcxIOnew(val, "r")
       ;  break
       ;
 
@@ -178,7 +221,7 @@ static mcxstatus erdosArgHandle
 void label_not_found
 (  const mcxTing* t
 )
-   {  fprintf(stdout, "(error label-not-found (%s))\n", t->str)
+   {  fprintf(stderr, "(error label-not-found (%s))\n", t->str)
 ;  }
 
 
@@ -187,7 +230,7 @@ mcxstatus check_bounds
 ,  long idx
 )
    {  if (idx < 0 || (dim) idx >= N_COLS(mx))
-      {  fprintf(stdout, "(error argument-out-of-bounds (%ld))\n", idx)
+      {  fprintf(stderr, "(error argument-out-of-bounds (%ld))\n", idx)
       ;  return STATUS_FAIL
    ;  }
       return STATUS_OK
@@ -196,13 +239,14 @@ mcxstatus check_bounds
 
 
 static void erdos_link_together
-(  mclx* mx
+(  mcxIO* xfout
+,  mclx* mx
 ,  mclv* tails
 ,  mclv* heads
 )
    {  dim v = 0
    ;  mclv* relevant = mclvInit(NULL)
-   ;  fprintf(stdout, "(");
+   ;  fprintf(xfout->fp, "(");
    ;  for (v=0;v<tails->n_ivps;v++)
       {  long t = tails->ivps[v].idx
       ;  dim j
@@ -217,42 +261,30 @@ static void erdos_link_together
                sx = "NAx"
             ;  if (!sy)
                sy = "NAy"
-            ;  fprintf(stdout, " (%s %s)", sx, sy)
+            ;  fprintf(xfout->fp, " (%s %s)", sx, sy)
          ;  }
             else
-            fprintf(stdout, " (%ld %ld)", (long) t, (long) relevant->ivps[j].idx)
+            fprintf(xfout->fp, " (%ld %ld)", (long) t, (long) relevant->ivps[j].idx)
       ;  }
          if (!relevant->n_ivps)
          mcxErr(me, "odd, %d has no friends\n", (int) t)
    ;  }
-      fprintf(stdout, " )\n");
+      fprintf(xfout->fp, " )\n");
    ;  mclvFree(&relevant)
 ;  }
 
 
-
-void handle_ceil
+void handle_tf
 (  mclx*    mx
 ,  mcxTing* sa
 )
-   {  long ceil = 0
-   
-   ;  if (mcxStrTol(sa->str, &ceil, NULL) || ceil < 0)
-      fprintf(stdout,  "(error number-no-good)\n")
+   {  mclgTF* transform = mclgTFparse(NULL, sa)
+   ;  if (!transform)
+      mcxErr(me, "tf spec does not parse")
    ;  else
-      {  dim n_hub, n_in, n_out
-      ;  mclv* sel = mclgCeilNB(mx, ceil, &n_hub, &n_in, &n_out)
-      ;  fprintf
-         (  stdout
-         ,  "(ceil (nodes %lu) (edges %lu/%lu))\n"
-         ,  (ulong) n_hub
-         ,  (ulong) n_in
-         ,  (ulong) n_out
-         )
-      ;  mclvFree(&sel)
-   ;  }
-   }
-
+      mclgTFexec(mx, transform)
+   ;  mclgTFfree(&transform)
+;  }
 
 
 void handle_clcf
@@ -275,8 +307,8 @@ void handle_clcf
    ;  if (status || check_bounds(mx, idx))
       return
 
-   ;  {  double clcf = mclgCLCF(mx, mx->cols+idx, NULL)
-      ;  fprintf(stdout, "%.3f\n", clcf)
+   ;  {  double clcf = mclnCLCF(mx, mx->cols+idx, NULL)
+      ;  fprintf(stderr, "%.3f\n", clcf)
    ;  }
    }
 
@@ -305,9 +337,9 @@ void handle_list
       ;  for (t=0;t<vec->n_ivps;t++)
          {  const char* s = tab_g ? mclTabGet(tab_g, (long) vec->ivps[t].idx, NULL) : NULL
          ;  if (s)
-            fprintf(stdout, "   %s\n", s)
+            fprintf(stderr, "   %s\n", s)
          ;  else
-            fprintf(stdout, "%12ld\n", (long) vec->ivps[t].idx)
+            fprintf(stderr, "%12ld\n", (long) vec->ivps[t].idx)
       ;  }
       }
    }
@@ -322,7 +354,7 @@ void handle_top
    ;  mcxHeap* hp 
 
    ;  if (mcxStrTol(sa->str, &num, NULL) || num < 0)
-      {  fprintf(stdout,  "(error number-no-good)\n")
+      {  fprintf(stderr,  "(error number-no-good)\n")
       ;  return
    ;  }
 
@@ -351,9 +383,9 @@ void handle_top
       ;  mclp* ivp = (void*) p
       ;  const char* s = tab_g ? mclTabGet(tab_g, (long) ivp->idx, NULL) : NULL
       ;  if (s)
-         fprintf(stdout, "%20s : %6.0f\n", s, (double) ivp->val)
+         fprintf(stderr, "%20s : %6.0f\n", s, (double) ivp->val)
       ;  else
-         fprintf(stdout, "%20ld : %6.0f\n", (long) ivp->idx, (double) ivp->val)
+         fprintf(stderr, "%20ld : %6.0f\n", (long) ivp->idx, (double) ivp->val)
    ;  }
 
       mcxHeapFree(&hp)
@@ -370,8 +402,6 @@ mclx* handle_query
       handle_top(mx, sb)
    ;  else if (!strcmp(sa->str, ":list"))
       handle_list(mx, sb)
-   ;  else if (!strcmp(sa->str, ":ceil"))
-      handle_ceil(mx, sb)
    ;  else if (!strcmp(sa->str, ":reread"))
       {  mclxFree(&mx)
       ;  if (xfabc_g)
@@ -381,7 +411,7 @@ mclx* handle_query
          =  mclxIOstreamIn
             (  xfabc_g
             ,     MCLXIO_STREAM_ABC
-               |  MCLXIO_STREAM_MIRROR
+               |  (input_status != 'd' ? MCLXIO_STREAM_MIRROR : 0)
                |  MCLXIO_STREAM_SYMMETRIC
                |  MCLXIO_STREAM_GTAB_RESTRICT         /* docme/fixme need to check for tab_g ? */
             ,  NULL
@@ -401,22 +431,30 @@ mclx* handle_query
    ;  }
       else if (!strcmp(sa->str, ":clcf"))
       handle_clcf(mx, sb)
-   ;  else
-      fprintf(stdout, "(error unknown-query (:ceil#1 :clcf#1 :list#1 :reread :top#1))\n")
+   ;  else if (!strcmp(sa->str, ":tf"))
+      {  handle_tf(mx, sb)
+      ;  mcxTell(me, "graph now has %lu arcs", (ulong) mclxNrofEntries(mx))
+   ;  }
+      else
+      fprintf(stderr, "(error unknown-query (:clcf#1 :list#1 :reread :top#1))\n")
    ;  return mx
 ;  }
 
 
-mclx* process_queries
+static mclx* process_queries
 (  mcxIO* xq
 ,  mclx* mx
+,  mclx* mxtp
 ,  mcxIO* xfmx
 ,  mclTab* tab
+,  mcxIO* xfout
+,  mcxIO* xfpath
+,  mcxIO* xfstep
 )
    {  mcxTing* line = mcxTingEmpty(NULL, 100)
    ;  mcxTing* sa = mcxTingEmpty(NULL, 100)
    ;  mcxTing* sb = mcxTingEmpty(NULL, 100)
-   ;  SSPxy* sspo = mclgSSPxyNew(mx)     /* fixme: use that mx is a member of sspo */
+   ;  SSPxy* sspo = mclgSSPxyNew(mx, mxtp)
 
    ;  mcxIOopen(xq, EXIT_ON_FAIL)
 
@@ -438,13 +476,13 @@ mclx* process_queries
       ;  query = (u8) line->str[0] == ':'
 
       ;  if (query && (line->len == 1 || isspace((unsigned char) line->str[1])))
-         {  fprintf(stdout, "-->\n")
-         ;  fprintf(stdout, ":ceil <num>\n")
-         ;  fprintf(stdout, ":top <num>\n")
-         ;  fprintf(stdout, ":list <node>\n")
-         ;  fprintf(stdout, ":clcf <node>\n")
-         ;  fprintf(stdout, ":reread>\n")
-         ;  fprintf(stdout, "<--\n")
+         {  fprintf(xfout->fp, "-->\n")
+         ;  fprintf(xfout->fp, ":tf <tf-spec>\n")
+         ;  fprintf(xfout->fp, ":top <num>\n")
+         ;  fprintf(xfout->fp, ":list <node>\n")
+         ;  fprintf(xfout->fp, ":clcf <node>\n")
+         ;  fprintf(xfout->fp, ":reread>\n")
+         ;  fprintf(xfout->fp, "<--\n")
          ;  continue
       ;  }
 
@@ -462,14 +500,15 @@ mclx* process_queries
 
       ;  if (!query && ns != 2)
          {  if (line->len)
-            fprintf(stdout, "(error expect two nodes or : directive)\n")
+            fprintf(stderr, "(error expect two nodes or : directive)\n")
          ;  continue
       ;  }
 
          if (query)
          {  mx = handle_query(mx, xfmx, sa, sb)
-         ;  sspo->mx = mx
-         ;  fprintf(stdout, "%s\n\n", line->str)
+         ;  sspo->mx = mx                 /* fixme improve ownership handling */
+         ;  sspo->mxtp = mx
+         ;  fprintf(xfout->fp, "%s\n\n", line->str)
          ;  continue                      /* fixme improve flow */
       ;  }
          else if (tab)
@@ -490,7 +529,7 @@ mclx* process_queries
          ;  }
          }
          else if (mcxStrTol(sa->str, &a, NULL) || mcxStrTol(sb->str, &b, NULL))
-         {  fprintf(stdout,  "(error failed-reading-number)\n")
+         {  fprintf(stderr,  "(error failed-reading-number)\n")
          ;  continue
       ;  }
 
@@ -500,16 +539,16 @@ mclx* process_queries
          continue
 
       ;  fprintf
-         (  stdout
+         (  xfout->fp
          ,  "\n(lattice\n"
             "   (anchors %s %s)\n"
          ,  sa->str
          ,  sb->str
          )
 
-      ;  if (a == b)
+      ;  if (0 && a == b)
          {  fprintf
-            (  stdout
+            (  xfout->fp
             ,  "  (path-length 0)\n"
                "(data\n"
             )
@@ -519,12 +558,12 @@ mclx* process_queries
          ;  dim t
 
          ;  if (thestat)
-            fprintf(stdout,  "   (path-length -2)\n(data\n")
+            fprintf(xfout->fp,  "   (path-length -2)\n(data\n")
          ;  else if (sspo->length < 0)       /* not in same component */
-            fprintf(stdout,  "   (path-length -1)\n(data\n")
+            fprintf(xfout->fp,  "   (path-length -1)\n(data\n")
          ;  else
             {  fprintf
-               (  stdout
+               (  xfout->fp
                ,  "   (path-length %d)\n"
                   "(data\n"
                ,  (int) sspo->length
@@ -532,23 +571,29 @@ mclx* process_queries
 
             ;  if (sspo->length == 1)
                {  if (tab)
-                  fprintf(stdout, "((%s %s))\n", sa->str, sb->str)
+                  fprintf(xfout->fp, "((%s %s))\n", sa->str, sb->str)
                ;  else
-                  fprintf(stdout, "((%ld %ld))\n", (long) a, (long) b)
+                  fprintf(xfout->fp, "((%ld %ld))\n", (long) a, (long) b)
             ;  }
                else
                for (t=0; t< N_COLS(sspo->pathmx)-1; t++)
-               erdos_link_together(mx, sspo->pathmx->cols+t, sspo->pathmx->cols+t+1)
+               erdos_link_together(xfout, mx, sspo->pathmx->cols+t, sspo->pathmx->cols+t+1)
 
-            ;  fputs(")\n", stdout)
-            ;  fprintf(stdout, "   (anchors %s %s)\n", sa->str, sb->str)
-            ;  fprintf(stdout, "   (considered %d)\n", (int) sspo->n_considered)
-            ;  fprintf(stdout, "   (participants %d)\n", (int) sspo->n_involved)
-            ;  fprintf(stdout, "   (path-length %d)\n", (int) sspo->length)
+            ;  fputs(")\n", xfout->fp)
+            ;  fprintf(xfout->fp, "   (anchors %s %s)\n", sa->str, sb->str)
+            ;  fprintf(xfout->fp, "   (considered %d)\n", (int) sspo->n_considered)
+            ;  fprintf(xfout->fp, "   (participants %d)\n", (int) sspo->n_involved)
+            ;  fprintf(xfout->fp, "   (path-length %d)\n", (int) sspo->length)
          ;  }
          }
 
-         fprintf(stdout, ")\n\n")
+         fprintf(xfout->fp, ")\n\n")
+
+      ;  if (xfpath)
+         mclxWrite(sspo->pathmx, xfpath, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
+      ;  if (xfstep)
+         mclxWrite(sspo->stepmx, xfstep, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+
       ;  mclgSSPxyReset(sspo)
    ;  }
       mcxTingFree(&sa)
@@ -563,10 +608,14 @@ static mcxstatus erdosMain
 (  int          argc_unused      cpl__unused
 ,  const char*  argv_unused[]    cpl__unused
 )  
-   {  mclx* mx
-   ;  dim n_hub, n_in, n_out
-   ;  mclv* sel
+   {  mclx* mx, *mxtp = NULL
 
+
+   ;  mcxIO* xfout = mcxIOnew(out_g, "w")
+   ;  mcxIO* xfpath = path_g ? mcxIOnew(path_g, "w") : NULL
+   ;  mcxIO* xfstep = step_g ? mcxIOnew(step_g, "w") : NULL
+
+   ;  mcxIOopen(xfout, EXIT_ON_FAIL)
    ;  debug_g  =  mcx_debug_g
 
    ;  mcxLogLevel =
@@ -581,7 +630,7 @@ static mcxstatus erdosMain
       =  mclxIOstreamIn
          (  xfabc_g
          ,     MCLXIO_STREAM_ABC
-            |  MCLXIO_STREAM_MIRROR
+            |  (input_status != 'd' ? MCLXIO_STREAM_MIRROR : 0)
             |  MCLXIO_STREAM_SYMMETRIC
             |  (tab_g ? MCLXIO_STREAM_GTAB_RESTRICT : 0)
          ,  NULL
@@ -609,19 +658,30 @@ static mcxstatus erdosMain
    ;  hsh_g = tab_g ? mclTabHash(tab_g) : NULL
    ;  mclxAdjustLoops(mx, mclxLoopCBremove, NULL)
 
-   ;  if (ceil_g)
-      {  sel = mclgCeilNB(mx, ceil_g, &n_hub, &n_in, &n_out)
-      ;  mclvFree(&sel)
+   ;  if (input_status == 'x')
+      {  if (xfmx_g)
+         mclxAddTranspose(mx, 0.0)
+      ;  mxtp = mx
    ;  }
-      
-      if (xq_g)
-      mx = process_queries(xq_g, mx, xfmx_g, tab_g)
+      else if (input_status == 'u')
+      mxtp = mx
+   ;  else if (input_status == 'd')
+      mxtp = mclxTranspose(mx)
+
+   ;  if (xq_g)
+      mx = process_queries(xq_g, mx, mxtp, xfmx_g, tab_g, xfout, xfpath, xfstep)
 
    ;  mcxIOfree(&xftab_g)
    ;  mcxIOfree(&xfmx_g)
    ;  mcxIOfree(&xq_g)
+   ;  mcxIOfree(&xfpath)
+   ;  mcxIOfree(&xfstep)
+   ;  mcxIOfree(&xfout)
+
    ;  if (N_COLS(mx) < 1<<17)
       {  mclxFree(&mx)
+      ;  if (input_status == 'd')
+         mclxFree(&mxtp)
       ;  mclTabFree(&tab_g)
       ;  mcxHashFree(&hsh_g, NULL, NULL)
    ;  }

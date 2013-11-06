@@ -49,7 +49,7 @@ mclpAR* mclpARinit
    ;  mclpar->ivps      =  NULL
    ;  mclpar->n_ivps    =  0
    ;  mclpar->n_alloc   =  0
-   ;  mclpar->sorted    =  3
+   ;  mclpar->sorted    =  MCLPAR_SORTED | MCLPAR_UNIQUE
 
    ;  return mclpar
 ;  }
@@ -59,7 +59,7 @@ void mclpARreset
 (  mclpAR* mclpar
 )
    {  mclpar->n_ivps    =  0
-   ;  mclpar->sorted    =  3
+   ;  mclpar->sorted    =  MCLPAR_SORTED | MCLPAR_UNIQUE
 ;  }
 
 
@@ -150,9 +150,9 @@ mcxstatus mclpARextend
 
    ;  if (ar->n_ivps && ivp[-1].idx >= idx)
       {  if (ivp[-1].idx > idx)
-         BIT_OFF(ar->sorted, 3)
+         BIT_OFF(ar->sorted, MCLPAR_SORTED | MCLPAR_UNIQUE)
       ;  else
-         BIT_OFF(ar->sorted, 2)
+         BIT_OFF(ar->sorted, MCLPAR_UNIQUE)
    ;  }
 
       ar->n_ivps++
@@ -323,10 +323,12 @@ enum
 ,  MCLX_UNARY_EXP
 ,  MCLX_UNARY_LOG
 ,  MCLX_UNARY_NEGLOG
-,  MCLX_UNARY_UNUSED
 ,  MCLX_UNARY_ABS
+,  MCLX_UNARY_COPY
+,  MCLX_UNARY_UNUSED
 }  ;
 #endif
+
 
 double (*mclp_unary_tab[])(pval, void*)
 =
@@ -345,6 +347,7 @@ double (*mclp_unary_tab[])(pval, void*)
 ,  fltxLog
 ,  fltxNeglog
 ,  fltxAbs
+,  fltxCopy
 ,  NULL           /* (double (f*)(pval* flt, void*arg)) NULL */
 }  ;
 
@@ -358,13 +361,15 @@ double mclpUnary
    ;  for (i=0;i<ar->n_ivps;i++)
       {  int mode = ar->ivps[i].idx
       ;  double arg = ar->ivps[i].val
-      ;  if (mode < 0 || mode >= MCLX_UNARY_UNUSED)
+      ;  if (mode == MCLX_UNARY_UNUSED)   /* sentinel used by callers to implement #knn(5) etc */
+         continue
+      ;  else if (mode < 0 || mode > MCLX_UNARY_UNUSED)
          {  mcxErr("mclpUnary", "not a mode: %d", mode)
          ;  break
       ;  }
          val = mclp_unary_tab[mode](val, &arg)
       ;  if (!val)
-         switch(mode)            /* docme what's going on here? */
+         switch(mode)            /* edges have disappeared, do not process further */
          {  case MCLX_UNARY_LT
          :  case MCLX_UNARY_LQ
          :  case MCLX_UNARY_GQ

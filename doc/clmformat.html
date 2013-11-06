@@ -1,14 +1,14 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2009 Stijn van Dongen -->
+<!-- Copyright (c) 2010 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
 /* START aephea.base.css */
 body
 { text-align: justify;
-margin-left: 8%;
-margin-right: 8%;
+margin-left: 0%;
+margin-right: 0%;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -65,16 +65,23 @@ text-align: right;
 margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
+acronym.ucase { font-size: smaller; text-transform: uppercase }
+abbr.ucase { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
 body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
+body
+{ text-align: justify;
+margin-left: 8%;
+margin-right: 8%;
+}
 </style>
 <title>The clmformat manual</title>
 </head>
 <body>
 <p style="text-align:right">
-4 Nov 2009&nbsp;&nbsp;&nbsp;
+28 May 2010&nbsp;&nbsp;&nbsp;
 <a class="local" href="clmformat.ps"><b>clmformat</b></a>
-1.008, 09-308
+1.008, 10-148
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">2.</div></div>
@@ -136,7 +143,7 @@ generates a large arrary of performance measures related to nodes and
 clusters in both interlinked html output and plain text files. The files
 will be contained in an output directory that is newly created if not yet
 existing. In fancy mode the <b>-imx</b> option is required and the macro
-processor <b>zoem</b> must be available (<a class="extern" href="http://micans.org/zoem">http://micans.org/zoem</a>).
+processor <b>zoem</b> must be available (<a class="extern" target="_parent" href="http://micans.org/zoem">http://micans.org/zoem</a>).
 </p>
 <p style="margin-bottom:0" class="asd_par">
 If <i>dump</i> is specified (see below how to do this) <b>clm format</b> just
@@ -252,7 +259,7 @@ commands from within the directory where the file is located.
 <p style="margin-top:0em; margin-bottom:0em">
 The first will result in HTML formatted output, the second in
 plain text format. Obviously, you need to have installed zoem
-(e.g. from <a class="extern" href="http://micans.org/zoem/src/">http://micans.org/zoem/src/</a>) for this to work.
+(e.g. from <a class="extern" target="_parent" href="http://micans.org/zoem/src/">http://micans.org/zoem/src/</a>) for this to work.
 </p>
 <p style="margin-bottom:0" class="asd_par">
 For each cluster a paragraph is output. First comes a listing of other
@@ -656,7 +663,7 @@ Stijn van Dongen. <i>Performance criteria for graph clustering and Markov
 cluster experiments</i>. Technical Report INS-R0012, National Research
 Institute for Mathematics and Computer Science in the Netherlands,
 Amsterdam, May 2000.<br>
-<a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z</a>
+<a class="extern" target="_parent" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z</a>
 </p>
 
 <a name="seealso"></a>

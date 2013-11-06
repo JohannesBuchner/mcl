@@ -176,13 +176,14 @@ void pairwise_setops
 
    ;  fprintf
       (  stdout
-      ,  "%d successful tests in %s%s %s mode\n"
+      ,  "%d successful tests in %s%s %s mode (checked: %s)\n"
       ,  (int) n_tst
       ,  overwrite ? "overwrite" : "create"
       ,  overwrite ? ( modes & MMM_RIGHT ? "-right" : "-left" ) : ""
       ,     modes & MMM_BINARY
          ?  "generic"
          :  "update"
+      ,  (modes & MMM_CHECK ? "yes" : "no")
       )
   ;   fprintf
       (  stdout

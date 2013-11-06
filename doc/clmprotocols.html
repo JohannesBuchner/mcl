@@ -1,14 +1,14 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2009 Stijn van Dongen -->
+<!-- Copyright (c) 2010 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
 /* START aephea.base.css */
 body
 { text-align: justify;
-margin-left: 8%;
-margin-right: 8%;
+margin-left: 0%;
+margin-right: 0%;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -65,16 +65,23 @@ text-align: right;
 margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
+acronym.ucase { font-size: smaller; text-transform: uppercase }
+abbr.ucase { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
 body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
+body
+{ text-align: justify;
+margin-left: 8%;
+margin-right: 8%;
+}
 </style>
 <title>Work flows and protocols for mcl and friends</title>
 </head>
 <body>
 <p style="text-align:right">
-4 Nov 2009&nbsp;&nbsp;&nbsp;
+28 May 2010&nbsp;&nbsp;&nbsp;
 <a class="local" href="clmprotocols.ps"><b>clmprotocols</b></a>
-1.008, 09-308
+1.008, 10-148
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -99,9 +106,13 @@ body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">6.</div></div>
 <div class=" item_text " style="margin-left:4em">
-<a class="intern" href="#seealso">SEE ALSO</a>
+<a class="intern" href="#degree">Reducing node degrees in the graph</a>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">7.</div></div>
+<div class=" item_text " style="margin-left:4em">
+<a class="intern" href="#seealso">SEE ALSO</a>
+</div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">8.</div></div>
 <div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#author">AUTHOR</a>
 </div>
@@ -195,7 +206,7 @@ The newly created <tt>seq.abc</tt> file is loaded by <a class="local sibling" hr
 which writes both a network file <tt>seq.mci</tt> and a dictionary
 file <tt>seq.tab</tt>.
 </p>
-<div class="verbatim">   mcxload -abc seq.abc --stream-mirror --stream-neg-log10 -abc-tf 'ceil(200)'
+<div class="verbatim">   mcxload -abc seq.abc --stream-mirror --stream-neg-log10 -stream-tf 'ceil(200)'
          -o seq.mci -write-tab seq.tab</div>
 <p style="margin-top:0em; margin-bottom:0em">
 The <tt>--stream-mirror</tt> option ensures that the resulting network will be
@@ -223,10 +234,10 @@ separator removed.
    mcl seq.mci -I 4
    mcl seq.mci -I 6
 
-   mcxdump -icl out.seq.mci.I14 -tab seq.tab -o dump.seq.mci.I14
-   mcxdump -icl out.seq.mci.I20 -tab seq.tab -o dump.seq.mci.I20
-   mcxdump -icl out.seq.mci.I40 -tab seq.tab -o dump.seq.mci.I40
-   mcxdump -icl out.seq.mci.I60 -tab seq.tab -o dump.seq.mci.I60</div>
+   mcxdump -icl out.seq.mci.I14 -tabr seq.tab -o dump.seq.mci.I14
+   mcxdump -icl out.seq.mci.I20 -tabr seq.tab -o dump.seq.mci.I20
+   mcxdump -icl out.seq.mci.I40 -tabr seq.tab -o dump.seq.mci.I40
+   mcxdump -icl out.seq.mci.I60 -tabr seq.tab -o dump.seq.mci.I60</div>
 <p style="margin-top:0em; margin-bottom:0em">
 Now the file <tt>out.seq.tab.I14</tt> and its associates can be used for example
 to compute the distances between the encoded clusterings with
@@ -257,8 +268,7 @@ dictionary file. In the example below, the file <tt>expr.data</tt> is
 in tabular format with one row of column headers (e.g. tags for
 experiments) and one column of row identifiers (e.g. probe or gene identifiers).
 </p>
-<div class="verbatim">   mcxarray -data expr.data -skipr 1 -skipc 1 -o expr.mci -write-tab expr.tab
-      --pearson -co 0.7 -tf 'abs(),add(-0.7)'
+<div class="verbatim">   mcxarray -data expr.data -skipr 1 -skipc 1 -o expr.mci -write-tab expr.tab --pearson -co 0.7 -tf 'abs(),add(-0.7)'
    </div>
 <p style="margin-top:0em; margin-bottom:0em">
 This uses the Pearson correlation, ignoring values below 0.7.
@@ -276,8 +286,7 @@ It is possible to investigate the effect of the correlation cutoff as follows.
 First a network is generated at a very low threshold, and this network
 is analysed using <b>mcxquery</b>.
 </p>
-<div class="verbatim">   mcxarray -data expr.data -skipr 1 -skipc 1 -o expr20.mcx --write-binary
-      --pearson -co 0.2 -tf 'abs()'
+<div class="verbatim">   mcxarray -data expr.data -skipr 1 -skipc 1 -o expr20.mcx --write-binary --pearson -co 0.2 -tf 'abs()'
    mcx query -imx expr20.mcx --vary-correlation
    </div>
 <p style="margin-top:0em; margin-bottom:0em">
@@ -290,6 +299,35 @@ and the median node degree. Both should preferably not be too high.
 For example the number of orphan nodes should be
 less than ten percent of the total number of nodes,
 and the median node degree should be at most one hundred neighbours.
+</p>
+
+<a name="degree"></a>
+<h2>Reducing node degrees in the graph</h2>
+<p style="margin-top:0em; margin-bottom:0em">
+A good way to lower node degrees in a network is to require that
+an edge is among the best <i>k</i> edges (those of highest weight) for
+<i>both</i> nodes incident to the edge, for some value of <i>k</i>. This is
+achieved by using <tt>knn(k)</tt> in the argument to the <b>-tf</b> option to
+mcl or <b>mcx alter</b>.
+To give an example, a graph was formed on translations in Ensembl release 57 on 2.6M nodes.
+The similarities were obtained from BLAST scores,
+leading to a graph with a total edge count of 300M, with
+best-connected nodes of degree respectively
+11148, 9083, 9070, 9019 and 8988, and with mean node degree 233.
+These degrees are unreasonable.
+The graph was subjected to <b>mcx query</b> to investigate the effect of
+varying k-NN parameters. A good heuristic is to choose a value
+that does not significantly change the number of singletons in the input graph.
+In the example it meant that <b>-tf</b>&nbsp;<b>'knn(160)'</b> was feasible, leading
+to a mean node degree of 98.
+</p>
+<p style="margin-bottom:0" class="asd_par">
+A second approach to reduce node degrees is to employ the <b>-ceil-nb</b> option.
+This ranks nodes by node degree, highest first. Nodes are considered
+in order of rank, and edges of low weight are removed from the graph until
+a node satisfies the node degree threshold specified by <b>-ceil-nb</b>.
+</p>
+<p style="margin-bottom:0" class="asd_par">
 </p>
 
 <a name="seealso"></a>

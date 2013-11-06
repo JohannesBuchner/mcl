@@ -1,5 +1,5 @@
-.\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcxdump" 1 "4 Nov 2009" "mcxdump 1\&.008, 09-308" "USER COMMANDS "
+.\" Copyright (c) 2010 Stijn van Dongen
+.TH "mcxdump" 1 "28 May 2010" "mcxdump 1\&.008, 10-148" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -45,6 +45,7 @@ mcxdump \- dump matrices, optionally map indices to labels
 \fB[--lazy-tab\fP (\fIallow tab/domain mismatch\fP)\fB]\fP
 \fB[--transpose\fP (\fIwork with the transpose\fP)\fB]\fP
 \fB[--no-values\fP (\fIomit values\fP)\fB]\fP
+\fB[--omit-empty\fP (\fIomit empty columns\fP)\fB]\fP
 \fB[--no-loops\fP (\fIomit loops\fP)\fB]\fP
 \fB[--force-loops\fP (\fIforce loops\fP)\fB]\fP
 \fB[--dump-pairs\fP (\fIemit pairs per line\fP)\fB]\fP
@@ -165,6 +166,14 @@ the tab files will be replaced by a question mark\&.
 \&
 .br
 Do not emit values\&.
+.in -2m
+
+.ZI 2m "\fB--omit-empty\fP (\fIomit empty columns\fP)"
+\&
+.br
+Do not output line data (with \fB--dump-table\fP or
+\fB--dump-lines\fP or related options) for those columns
+that are empty\&.
 .in -2m
 
 .ZI 2m "\fB--no-loops\fP (\fIomit loops\fP)"

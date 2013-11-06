@@ -89,6 +89,21 @@ double mcxMedian
 )  ;
 
 
+/* Fisher Yates shuffle */
+
+void mcxShuffle
+(  void* datap
+,  dim   nmem
+,  dim   mem_size
+,  char* mem_cell    /* should have mem_size size */
+)  ;
+
+
+
+
+
+
+
 typedef struct
 {  void*       mempptr
 ;  dim         size

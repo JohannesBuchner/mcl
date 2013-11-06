@@ -17,7 +17,6 @@
 #include "util/heap.h"
 #include "util/types.h"
 
-#include "taurus/ilist.h"
 #include "impala/matrix.h"
 
 #define  MCL_PRUNING_RIGID   1
@@ -39,33 +38,10 @@ typedef struct
 ;  mclv*             homgVec
 ;  double            lap
 
-;  int               n_selects
-;  int               n_recoveries
-;  int               n_below_pct
-;  int               n_cols         /* nr of cols computed */
+;  int               n_cols
 
-;  mclMatrix*        mx_chr
-
-;  mcxTing*          levels_expand
-;  mcxTing*          levels_prune
-
-;  mcxIL*            il_levels_expand
-;  mcxIL*            il_levels_prune
-
-;  double*           mass_prune_low
-;  double*           mass_final_low
-;  double            mass_prune_all
-;  double            mass_final_all
-
-;  dim               n_windows
-;  int*              window_sizes
-;  mcxHeap*          windowPrune
-;  mcxHeap*          windowFinal
-
-;  int               ny
-;  int               nx
-
-;  pthread_mutex_t   mutex
+;  float*            bob_low        /* initial pruning */
+;  float*            bob_final      /* final result    */
 ;
 }  mclExpandStats    ;
 
@@ -73,11 +49,6 @@ typedef struct
 typedef struct
 {  mclExpandStats*   stats
 ;  int               n_ethreads
-;  mcxbool           cloneMatrices
-;  mcxbool           cloneBarrier
-
-;  int               modePruning
-;  int               modeExpand
 
 ;  double            precision
 ;  double            pct
@@ -85,8 +56,13 @@ typedef struct
 ;  dim               num_prune
 ;  dim               num_select
 ;  dim               num_recover
+;  dim               partition_pivot_sort_n
 ;  int               scheme
-;  mcxbool           do_rprune
+
+#define MCL_USE_PARTITION_SELECTION 1 << 0
+#define MCL_USE_RPRUNE              1 << 1
+
+;  mcxbits           implementation
 
 #define  XPNVB(mxp, bit)   (mxp->verbosity & bit)
 
@@ -95,18 +71,11 @@ typedef struct
 #define  XPNVB_CLUSTERS    1 << 2
 
 ;  mcxbits           verbosity
-;  int               vectorProgression
+;  int               vector_progression
 
-;  int               warnFactor
-;  double            warnPct
-
-;  dim               nl             /* number of iterations to log   */
-;  dim               nw             /* number of windows to log      */
-;  dim               nx             /* window index (monitored)      */
-;  dim               ny             /* window index (monitored)      */
-;  dim               nj             /* window index of jury          */
-;  mcxIL             *windowSizes
-;  dim               n_windows
+;  int               warn_factor
+;  double            warn_pct
+;  dim               sparse_trigger
 
 ;  int               dimension
 ;  double            inflation      /* for computing homg vector     */
@@ -123,11 +92,7 @@ mclMatrix* mclExpand
 
 
 mclExpandStats* mclExpandStatsNew
-(  dim   n_windows
-,  int*  window_sizes
-,  int   nx          /* one of the heaps */
-,  int   ny          /* one of the heaps */
-,  const mclVector* dom_cols
+(  dim   n_cols
 )  ;  
 
 

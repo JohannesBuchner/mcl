@@ -30,6 +30,8 @@
 #include "mcl/interpret.h"
 
 #include "clew/claw.h"
+#include "clew/clm.h"
+#include "clew/cat.h"
 
 
 enum
@@ -38,6 +40,7 @@ enum
 ,  MY_OPT_OUTPUT
 ,  MY_OPT_LINT_K
 ,  MY_OPT_LINT_L
+,  MY_OPT_FORCE_CONNECTED
 }  ;
 
 
@@ -72,6 +75,12 @@ static mcxOptAnchor adjustOptions[] =
    ,  "<num>"
    ,  "try to rebalance  clusters of size up to <num>"
    }
+,  {  "--force-connected"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_FORCE_CONNECTED
+   ,  NULL
+   ,  "ensure that clusters induce connected subgraphs"
+   }
 ,  {  NULL ,  0 ,  0 ,  NULL, NULL}
 }  ;
 
@@ -81,6 +90,7 @@ static mcxIO*  xfcl     =  (void*) -1;
 static mcxIO*  xfmx     =  (void*) -1;
 static dim     lintl    =  -1;
 static dim     lintk    =  -1;
+static mcxbool fc       =  -1;
 
 
 static mcxstatus adjustInit
@@ -91,6 +101,7 @@ static mcxstatus adjustInit
    ;  xfmx  =  NULL
    ;  lintl =  0
    ;  lintk =  0
+   ;  fc    =  FALSE
    ;  return STATUS_OK
 ;  }
 
@@ -117,6 +128,11 @@ static mcxstatus adjustArgHandle
 
          case MY_OPT_LINT_L
       :  lintl = atoi(val)
+      ;  break
+      ;
+
+         case MY_OPT_FORCE_CONNECTED
+      :  fc = TRUE
       ;  break
       ;
 
@@ -149,7 +165,26 @@ static mcxstatus adjustMain
    ;  cl =  mclxRead(xfcl, EXIT_ON_FAIL)
    ;  mx =  mclxReadx(xfmx, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH)
 
-   ;  if (lintl > 0)
+   ;  if (fc)
+      {  mclMatrix* cm = clmUGraphComponents(mx, cl)
+      ;  if (N_COLS(cl) != N_COLS(cm))
+         {  mclx* ct  = clmContingency(cl, cm)
+         ;  dim i
+         ;  for (i=0;i<N_COLS(ct);i++)
+            {  if (ct->cols[i].n_ivps > 1)
+               {  dim j
+               ;  fprintf(stderr, "cluster %d split as clusters", (int) ct->cols[i].vid)
+               ;  for (j=0;j<ct->cols[i].n_ivps;j++)
+                  fprintf(stderr, " %d", (int) ct->cols[i].ivps[j].idx)
+               ;  fputc('\n', stderr)
+            ;  }
+            }
+         }
+         mclxWrite(cm, xfout, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
+      ;  return 0
+   ;  }
+
+      if (lintl > 0)
       {  dim sjd_left, sjd_right, n_adjusted
       ;  mclx* cladj
       ;  mclv* lsadj

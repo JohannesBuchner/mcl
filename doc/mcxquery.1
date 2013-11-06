@@ -1,5 +1,5 @@
-.\" Copyright (c) 2009 Stijn van Dongen
-.TH "mcx q" 1 "4 Nov 2009" "mcx q 1\&.008, 09-308" "USER COMMANDS "
+.\" Copyright (c) 2010 Stijn van Dongen
+.TH "mcx q" 1 "28 May 2010" "mcx q 1\&.008, 10-148" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -42,11 +42,21 @@ in the \fBmcx\fP manual page\&.
 \fBmcxquery\fP
 \fB[-imx\fP <fname> (\fIspecify matrix input\fP)\fB]\fP
 \fB[-o\fP <fname> (\fIoutput file name\fP)\fB]\fP
-\fB[-vary-threshold\fP <start,end,step,scale> (\fIanalyze graphs at similarity cutoffs\fP)\fB]\fP
-\fB[--vary-correlation\fP (\fIanalyze graphs at correlation cutoffs\fP)\fB]\fP
-\fB[-div\fP <num> (\fIcluster size separating value\fP)\fB]\fP
+\fB[-tab\fP <fname> (\fIuse tab file\fP)\fB]\fP
+\fB[--node-attr\fP (\fIoutput node degree and weight attributes\fP)\fB]\fP
+\fB[-vary-threshold\fP <start,end,step,scale> (\fIanalyze graph at similarity cutoffs\fP)\fB]\fP
+\fB[-vary-knn\fP <start,end,step,scale> (\fIanalyze graph for varying k-NN\fP)\fB]\fP
 \fB[-report-scale\fP <num> (\fIedge weight/threshold scaling\fP)\fB]\fP
+\fB[--knn-reduce\fP (\fIuse reduced matrix\fP)\fB]\fP
+\fB[--test-cycle\fP (\fItest whether graph contains cycles\fP)\fB]\fP
+\fB[-test-cycle\fP <num> (\fItest cycles, report cyclees\fP)\fB]\fP
+\fB[--vary-correlation\fP (\fIanalyze graph at correlation cutoffs\fP)\fB]\fP
+\fB[--clcf\fP (\fIinclude clustering coefficient analysis\fP)\fB]\fP
+\fB[-div\fP <num> (\fIcluster size separating value\fP)\fB]\fP
 \fB[--dim\fP (\fIreport native format and dimensions\fP)\fB]\fP
+\fB[-t\fP <num> (\fInumber of threads to use\fP)\fB]\fP
+\fB[-icl\fP <fname> (\fIinput clustering\fP)\fB]\fP
+\fB[-tf\fP spec (\fIapply tf-spec to input matrix\fP)\fB]\fP
 \fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
 \fB[--apropos\fP (\fIprint synopsis, exit\fP)\fB]\fP
 \fB[--version\fP (\fIprint version, exit\fP)\fB]\fP
@@ -60,15 +70,8 @@ cutoff such as\ \&0\&.2 or\ \&0\&.3\&. Then \fBmcxquery\fP can be used to analyz
 the graph at increasingly stringent thresholds of\ \&0\&.25, 0\&.30,
 0\&.35\ \&\&.\&.\ \&0\&.95\&.
 Attributes supplied across different thresholds are the number of connected
-components, statistics (median, average, iqr) on node degrees and edge
-weights, and a graph plotting the R^2 value of the relationship of log(k)
-versus the logarithm of the number of nodes of degree at least k (for the
-graph at a given threshold)\&.
-Scale-free networks are defined by having a high R^2 value\&. It should
-be noted however that in many applications graphs will not be scale-free\&.
-Additionally, for the purpose of clustering scale-free networks are to be
-avoided or transformed, as the highly-connected nodes in scale-free networks
-obfuscate cluster structure\&.
+components, the number of singletons, adn statistics (median, average, iqr) on node degrees and edge
+weights\&.
 .SH OPTIONS
 
 .ZI 2m "\fB-imx\fP <fname> (\fIinput matrix\fP)"
@@ -81,6 +84,13 @@ The file name for input that is in mcl native matrix format\&.
 \&
 .br
 Set the name of the file where output should be written to\&.
+.in -2m
+
+.ZI 2m "\fB-tab\fP <fname> (\fIuse tab file\fP)"
+\&
+.br
+This option causes the output to be printed with the labels
+found in the tab file\&.
 .in -2m
 
 .ZI 2m "\fB--dim\fP (\fIreport native format and dimensions\fP)"
@@ -104,12 +114,61 @@ scale\fP, and so on until a value larger than or equal to \fIend / scale\fP is r
 \&
 .br
 This instructs \fBmcxquery\fP to use a threshold list suitable for use with graphs
-in which the edge weight similarities are correlation\&.
-The list start at 0\&.2 and ends at 0\&.95, with increments of 0\&.05\&.
+in which the edge weight similarities are correlations\&.
+The list starts at 0\&.2 and ends at 0\&.95 using increments of 0\&.05\&.
 If a different start or increment is required it can
 be achieved by using the \fB-vary-threshold\fP option\&.
 For example, a start of\ \&0\&.10 and an increment of\ \&0\&.02 are obtained
-by issueing \fB-vary-threshold\fP\ \&\fB10,100,2,100\fP\&.
+by issuing \fB-vary-threshold\fP\ \&\fB10,100,2,100\fP\&.
+.in -2m
+
+.ZI 2m "\fB--clcf\fP (\fIinclude clustering coefficient analysis\fP)"
+\&
+.br
+This option causes the global clustering coefficient to be computed
+for the analysis of thresholded graphs with \fB--vary-correlation\fP
+and \fB-vary-threshold\fP\&. For large graphs this may be time-consuming\&.
+.in -2m
+
+.ZI 2m "\fB-vary-knn\fP <start,end,step,scale> (\fIanalyze graphs for varying k-NN\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--knn-reduce\fP (\fIuse reduced matrix\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+This analyses a graph as it is subjected to varying \fIk\fP-NN (\fIk\fP mutual nearest
+neighbours) selection steps\&. The analyses starts at the \fIend\fP argument,
+and progresses towards the \fIstart\fP argument using decrements of size \fIstep\fP\&.
+By default the reduction is always computed relative to the start matrix,
+i\&.e\&. the input matrix after \fB-tf\fP transformations have optionally been
+applied\&. Specifying \fB--knn-reduce\fP causes this to change so that
+each new reduction is calculated relative to the reduction
+just computed\&.
+
+For graphs with ties among edge weights it may be useful to use
+\fB-tf\fP\ \&\fB\&'#tug()\&'\fP\&. This will add small perturbations to the
+edge weights and have the effect of breaking ties\&.
+By default perturbations are computed using the cosine between
+the vectors of neighbours of the two nodes incident to an edge\&.
+This can be changed to a random perturbation with
+\fB-tf\fP\ \&\fB\&'#rug()\&'\fP\&.
+.in -2m
+
+.ZI 2m "\fB--test-cycle\fP (\fItest whether graph contains cycles\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-test-cycle\fP <num> (\fItest cycles, report cyclees\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+Test whether the input graph contains cycles\&. With the second option
+nodes that are part of a cycle are output, up to a maximum of \fI<num>\fP
+nodes\&. Use \fI<num>\fP=\fB-1\fP to output all such nodes\&.
 .in -2m
 
 .ZI 2m "\fB-report-scale\fP <num> (\fIedge weight / threshold scaling\fP)"
@@ -131,6 +190,34 @@ When analyzing graphs at different thresholds with one of the
 options above, \fBmcxquery\fP reports the percentage of nodes contained
 in clusters not exceeding a specified size, by default\ \&3\&.
 This number can be changed using the \fB-div\fP option\&.
+.in -2m
+
+.ZI 2m "\fB-tf\fP <tf-spec> (\fItransform input matrix values\fP)"
+\&
+.br
+Transform the input matrix values according
+to the syntax described in \fBmcxio(5)\fP\&.
+.in -2m
+
+.ZI 2m "\fB-t\fP <num> (\fInumber of threads to use\fP)"
+\&
+.br
+This has an effect only when using the \fB-vary-knn\fP option,
+and is only useful on multi-CPU machines\&.
+.in -2m
+
+.ZI 2m "\fB--node-attr\fP (\fIoutput node degree and weight attributes\fP)"
+\&
+.br
+Output is in the form of a tab separated file\&.
+The option \fB-icl\fP can be used in conjuction\&.
+.in -2m
+
+.ZI 2m "\fB-icl\fP <fname> (\fIinput clustering\fP)"
+\&
+.br
+Output for each node the size of the cluster it is in\&.
+This option can be used in conjunction with \fB--node-attr\fP\&.
 .in -2m
 .SH SEE ALSO
 

@@ -31,8 +31,6 @@
 #include "impala/compose.h"
 #include "impala/ivp.h"
 #include "impala/app.h"
-#include "taurus/ilist.h"
-#include "taurus/la.h"
 
 #include "clew/clm.h"
 

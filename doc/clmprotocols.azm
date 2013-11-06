@@ -16,6 +16,9 @@
 \"pud::man::maketoc"
 \:${html}{\"pud::man::maketoc"}
 
+\${html}{\def{cont}{\@e{nbsp}\@e{crarr}}}
+\${roff}{\def{cont}{}}
+
 
 \sec{}{name}{NAME}
 \NAME{clmprotocols}{Work flows and protocols for mcl and friends}
@@ -128,7 +131,7 @@
    }
 
 \verbatim{\:/
-   mcxload -abc seq.abc --stream-mirror --stream-neg-log10 -abc-tf 'ceil(200)'
+   mcxload -abc seq.abc --stream-mirror --stream-neg-log10 -stream-tf 'ceil(200)'
          -o seq.mci -write-tab seq.tab}
 
 \car{
@@ -162,10 +165,10 @@
    mcl seq.mci -I 4
    mcl seq.mci -I 6
 
-   mcxdump -icl out.seq.mci.I14 -tab seq.tab -o dump.seq.mci.I14
-   mcxdump -icl out.seq.mci.I20 -tab seq.tab -o dump.seq.mci.I20
-   mcxdump -icl out.seq.mci.I40 -tab seq.tab -o dump.seq.mci.I40
-   mcxdump -icl out.seq.mci.I60 -tab seq.tab -o dump.seq.mci.I60}
+   mcxdump -icl out.seq.mci.I14 -tabr seq.tab -o dump.seq.mci.I14
+   mcxdump -icl out.seq.mci.I20 -tabr seq.tab -o dump.seq.mci.I20
+   mcxdump -icl out.seq.mci.I40 -tabr seq.tab -o dump.seq.mci.I40
+   mcxdump -icl out.seq.mci.I60 -tabr seq.tab -o dump.seq.mci.I60}
 
 \car{
    Now the file \v{out.seq.tab.I14} and its associates can be used for example
@@ -205,8 +208,7 @@
    }
 
 \verbatim{\:/
-   mcxarray -data expr.data -skipr 1 -skipc 1 -o expr.mci -write-tab expr.tab
-      --pearson -co 0.7 -tf 'abs(),add(-0.7)'
+   mcxarray -data expr.data -skipr 1 -skipc 1 -o expr.mci -write-tab expr.tab --pearson -co 0.7 -tf 'abs(),add(-0.7)'
    }
 
 \car{
@@ -229,8 +231,7 @@
 
 
 \verbatim{\:/
-   mcxarray -data expr.data -skipr 1 -skipc 1 -o expr20.mcx --write-binary
-      --pearson -co 0.2 -tf 'abs()'
+   mcxarray -data expr.data -skipr 1 -skipc 1 -o expr20.mcx --write-binary --pearson -co 0.2 -tf 'abs()'
    mcx query -imx expr20.mcx --vary-correlation
    }
 
@@ -258,6 +259,38 @@
    For more information on label mode and native mode refer to examples in this
    manual and \mysib{mcxio}.}
 
+
+\sec{degree}{Reducing node degrees in the graph}
+\car{
+   A good way to lower node degrees in a network is to require that
+   an edge is among the best \it{k} edges (those of highest weight) for
+   \it{both} nodes incident to the edge, for some value of \it{k}.  This is
+   achieved by using \v{knn(k)} in the argument to the \genopt{-tf} option to
+   mcl or \mcx{alter}.
+
+   To give an example, a graph was formed on translations in Ensembl release 57 on 2.6M nodes.
+   The similarities were obtained from BLAST scores,
+   leading to a graph with a total edge count of 300M, with
+   best-connected nodes of degree respectively
+   11148, 9083, 9070, 9019 and 8988, and with mean node degree 233.
+   These degrees are unreasonable.
+
+   The graph was subjected to \mcx{query} to investigate the effect of
+   varying k-NN parameters. A good heuristic is to choose a value
+   that does not significantly change the number of singletons in the input graph.
+   In the example it meant that \useopt{-tf}{'knn(160)'} was feasible, leading
+   to a mean node degree of 98.
+   }
+
+\par{
+   A second approach to reduce node degrees is to employ the \genopt{-ceil-nb} option.
+   This ranks nodes by node degree, highest first. Nodes are considered
+   in order of rank, and edges of low weight are removed from the graph until
+   a node satisfies the node degree threshold specified by \genopt{-ceil-nb}.
+   }
+
+\par{
+   }
 
 \sec{seealso}{SEE ALSO}
 \car{

@@ -43,6 +43,7 @@
       \synoptopt{-o}{fname}{output file}
       \synoptopt{--chain}{only compare consecutive clusterings}
       \synoptopt{--sort}{sort clusterings based on coarseness}
+      \synoptopt{--index}{output Rand, adjusted Rand and Jaccard indices}
       \synoptopt{-digits}{k}{output decimals}
       \stdsynopt
       <file name> <file name>+}
@@ -111,6 +112,10 @@ d  d1  d2  N  v  name1  name2  [v50,v75,v90,v95,v99]}
    ordered by granularity.
 }
 
+\item{\defopt{--index}{output Rand, adjusted Rand and Jaccard indices}}
+\car{
+   As described.
+   }
 
 \item{\defopt{-o}{fname}{output file}}
 

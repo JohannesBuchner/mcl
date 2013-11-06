@@ -1,5 +1,5 @@
 /*   (C) Copyright 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008, 2009  Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -17,10 +17,14 @@
 
 
 #include <string.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <math.h>
 #include <ctype.h>
 #include <float.h>
+#include <limits.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "impala/compose.h"
 #include "impala/matrix.h"
@@ -31,6 +35,7 @@
 #include "impala/app.h"
 
 #include "clew/clm.h"
+#include "mcl/transform.h"
 
 #include "util/io.h"
 #include "util/ting.h"
@@ -39,35 +44,31 @@
 #include "util/minmax.h"
 #include "util/opt.h"
 #include "util/types.h"
+#include "util/array.h"
 
 const char* me = "mcxarray";
 
 const char* syntax = "Usage: mcxarray <-data <data-file> | -imx <mcl-file> [options]";
 
-enum
-{  MY_OPT_DATA
-,  MY_OPT_TABLE
-,  MY_OPT_TAB
-,  MY_OPT_L
-,  MY_OPT_NORMALIZE
-,  MY_OPT_RSKIP
-,  MY_OPT_CSKIP
-,  MY_OPT_PEARSON
-,  MY_OPT_RANK
-,  MY_OPT_COSINE
-,  MY_OPT_TP
-,  MY_OPT_CUTOFF
-,  MY_OPT_VERSION
-,  MY_OPT_LQ
-,  MY_OPT_GQ
-,  MY_OPT_O
-,  MY_OPT_WRITEBINARY
-,  MY_OPT_PI
-,  MY_OPT_TRANSFORM
-,  MY_OPT_DIGITS
-,  MY_OPT_WRITE_TABLE
-,  MY_OPT_HELP
-}  ;
+
+#define ARRAY_PEARSON      1 <<  0
+#define ARRAY_COSINE       1 <<  1
+#define ARRAY_TRANSPOSE    1 <<  2
+#define ARRAY_SPEARMAN     1 <<  3
+#define ARRAY_ZEROASNA     1 <<  4
+#define ARRAY_COSINESKEW   1 <<  5
+#define ARRAY_SUBSET_MEET  1 <<  6
+#define ARRAY_SUBSET_DIFF  1 <<  7
+#define ARRAY_CONTENT      1 <<  8
+#define ARRAY_JOBINFO      1 <<  9
+
+#define CONTENT_AVERAGE    1 <<  0
+#define CONTENT_COSINE     1 <<  1
+#define CONTENT_EUCLID     1 <<  2
+#define CONTENT_INTERSECT  1 <<  3
+#define CONTENT_MEDIAN     1 <<  4
+
+#define CONTENT_DEFAULT    (CONTENT_MEDIAN | CONTENT_COSINE | CONTENT_EUCLID | CONTENT_INTERSECT)
 
 
   /* Pearson correlation coefficient:
@@ -80,6 +81,128 @@ enum
    * \  /  /     \   2     \       \     /     \   2     \       \ 
    *  \/   \   n /_ x   -  /_ x    /  *  \   n /_ y   -  /_ y    / 
   */
+
+
+static dim n_thread_g = 0;
+static dim n_thread_l = 0;
+
+static dim start_g = 0;
+static dim end_g = 0;
+
+
+                           /* first mini job is c=0, d=0..N-1 AND c=N-1, d=N-1 (N+2 tasklets)
+                            * second is c=1, d=1..N-1 AND c=N-2, d=N-2..N-1    (N+2 tasklets)
+                            * so that mini-jobs are the same size.
+                            * Each thread computes a batch of mini-jobs.
+                            */
+struct jobinfo
+{  const mclx* tbl  
+;  dim n_thread
+;  dim n_group
+;  dim i_group
+;  int by_set_size
+
+;  dim dvd_jobsize         /* derived jobsize */
+;  dim dvd_joblo1
+;  dim dvd_joblo2
+;  dim dvd_jobhi1
+;  dim dvd_jobhi2
+;  dim dvd_work_size           /* either N_COLS() or SUM(set_size) */
+
+;  dim work_size_seen
+;
+}  ;
+
+
+static void ji_init
+(  struct jobinfo* ji
+,  const mclx* tbl
+,  dim n_thread
+,  dim n_group
+,  dim i_group
+,  int by_set_size
+)
+   {  ji->n_thread   =  n_thread
+   ;  ji->n_group    =  n_group
+   ;  ji->i_group    =  i_group
+   ;  ji->by_set_size=  by_set_size
+   ;  ji->work_size_seen = 0
+   ;  ji->tbl        =  tbl
+
+   ;  if (by_set_size)
+      {  dim i
+      ;  ji->dvd_work_size = 0
+      ;  for (i=0;i<N_COLS(tbl);i++)
+         ji->dvd_work_size += tbl->cols[i].n_ivps
+   ;  }
+      else
+      ji->dvd_work_size = N_COLS(tbl)
+
+   ;  ji->dvd_jobsize=  (ji->dvd_work_size + 2 * n_thread - 1) / (2 * n_thread)
+;fprintf(stderr, "---->work size %d job size %d\n", (int) ji->dvd_work_size, (int) ji->dvd_jobsize)
+
+   ;  ji->dvd_joblo1 =  0
+   ;  ji->dvd_joblo2 =  0
+   ;  ji->dvd_jobhi1 =  N_COLS(tbl)
+   ;  ji->dvd_jobhi2 =  N_COLS(tbl)
+;  }
+
+
+static int ji_step
+(  struct jobinfo* ji
+,  dim t
+,  dim this_group
+)
+   {  int bootstrap = ji->dvd_joblo1 == ji->dvd_joblo2
+   ;  int accept = t % ji->n_group == ji->i_group
+                           /* pick only t that are in i_group */
+
+   ;  if (!bootstrap)
+         ji->dvd_joblo1 = ji->dvd_joblo2
+      ,  ji->dvd_jobhi2 = ji->dvd_jobhi1
+
+   ;  if (ji->by_set_size)
+      {  dim work_size_toreach = (t+1) * 2 * ji->dvd_jobsize
+      ;  dim i = 0
+      ;  while
+         (  ji->work_size_seen < work_size_toreach
+         && ji->dvd_joblo2 < ji->dvd_jobhi1
+         )
+         {  if (!(i & 1))
+            ji->work_size_seen += ji->tbl->cols[(ji->dvd_joblo2)++].n_ivps
+         ;  else
+            ji->work_size_seen += ji->tbl->cols[--(ji->dvd_jobhi1)].n_ivps
+         ;  i++
+      ;  }
+;if(0)fprintf(stdout, "%c %d %d %d\n", accept ? (int) ('0' + this_group) : '-', (int) ji->work_size_seen, (int) ji->dvd_joblo1, (int) ji->dvd_joblo2)
+;if(0)fprintf(stdout, "%c %d %d %d\n", accept ? (int) ('0' + this_group) : '-', (int) ji->work_size_seen, (int) ji->dvd_jobhi1, (int) ji->dvd_jobhi2)
+   ;  }
+      else
+      {  ji->dvd_joblo2 += ji->dvd_jobsize
+
+      ;  if (ji->dvd_jobhi1 >= ji->dvd_jobsize)
+         ji->dvd_jobhi1 -= ji->dvd_jobsize
+   ;  }
+
+      return accept ?  1 :  0
+;  }
+
+
+static double mclv_inner
+(  const mclv* a
+,  const mclv* b
+,  dim N
+)
+   {  dim j
+   ;  double ip = 0.0
+
+   ;  if (a->n_ivps < N || b->n_ivps < N)
+      return mclvIn(a, b)
+
+   ;  for (j=0;j<a->n_ivps;j++)
+      ip += a->ivps[j].val * b->ivps[j].val
+   ;  return ip
+;  }
 
 
 double pearson
@@ -137,6 +260,52 @@ int rank_unit_cmp_value
 ;  }
 
 
+enum
+{  MY_OPT_DATA
+,  MY_OPT_TABLE
+,  MY_OPT_CUTOFF
+,  MY_OPT_O
+,  MY_OPT_WRITEBINARY
+               ,  MY_OPT_TAB
+
+,  MY_OPT_RSKIP = MY_OPT_TAB + 2
+,  MY_OPT_CSKIP
+               ,  MY_OPT_L
+
+,  MY_OPT_PEARSON = MY_OPT_L + 2
+,  MY_OPT_SPEARMAN
+,  MY_OPT_COSINE
+,  MY_OPT_SUBSET_MEET
+,  MY_OPT_SUBSET_DIFF
+,  MY_OPT_CONTENT
+,  MY_OPT_CONTENTX
+               ,  MY_OPT_COSINE_SKEW
+
+,  MY_OPT_T    =  MY_OPT_COSINE_SKEW + 2
+,  MY_OPT_NJOBS
+,  MY_OPT_JOBID
+,  MY_OPT_JI
+,  MY_OPT_START
+,  MY_OPT_END
+
+,  MY_OPT_TP   =  MY_OPT_END + 2
+,  MY_OPT_TRANSFORM
+,  MY_OPT_TABLETRANSFORM
+,  MY_OPT_DIGITS
+,  MY_OPT_SEQL
+,  MY_OPT_SEQR
+,  MY_OPT_ZEROASNA
+,  MY_OPT_WRITE_TABLE
+,  MY_OPT_WRITE_NA
+,  MY_OPT_LIMIT_ROWS
+,  MY_OPT_NORMALIZE
+,  MY_OPT_NOPROGRESS
+,  MY_OPT_HELP
+,  MY_OPT_VERSION
+,  MY_OPT_AMOIXA
+}  ;
+
+
 mcxOptAnchor options[]
 =
 {
@@ -158,6 +327,48 @@ mcxOptAnchor options[]
    ,  NULL
    ,  "print version information"
    }
+,  {  "--amoixa"
+   ,  MCX_OPT_INFO | MCX_OPT_HIDDEN
+   ,  MY_OPT_AMOIXA
+   ,  NULL
+   ,  ">o<"
+   }
+,  {  "-t"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_T
+   ,  "<int>"
+   ,  "number of threads to use"
+   }
+,  {  "-J"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_NJOBS
+   ,  "<int>"
+   ,  "number of compute jobs overall"
+   }
+,  {  "-j"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_JOBID
+   ,  "<int>"
+   ,  "index of this compute job"
+   }
+,  {  "--job-info"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_JI
+   ,  NULL
+   ,  "print node ids and exit"
+   }
+,  {  "-start"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_START
+   ,  "<int>"
+   ,  "start index"
+   }
+,  {  "-end"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_END
+   ,  "<int>"
+   ,  "end index"
+   }
 ,  {  "--transpose"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_TP
@@ -169,6 +380,24 @@ mcxOptAnchor options[]
    ,  MY_OPT_CSKIP
    ,  "<num>"
    ,  "skip this many columns"
+   }
+,  {  "-seql"
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MY_OPT_SEQL
+   ,  "<fname>"
+   ,  "file with start positions"
+   }
+,  {  "-seqr"
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MY_OPT_SEQR
+   ,  "<fname>"
+   ,  "file with end positions"
+   }
+,  {  "-V"
+   ,   MCX_OPT_HIDDEN
+   ,  MY_OPT_NOPROGRESS
+   ,  NULL
+   ,  "omit progress bar"
    }
 ,  {  "-skipr"
    ,  MCX_OPT_HASARG
@@ -186,19 +415,55 @@ mcxOptAnchor options[]
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_PEARSON
    ,  NULL
-   ,  "work with Pearson correlation score (default)"
+   ,  "compute edge weight as Pearson correlation score (default)"
    }
 ,  {  "--spearman"
    ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_RANK
+   ,  MY_OPT_SPEARMAN
    ,  NULL
-   ,  "work with Spearman rank correlation score"
+   ,  "compute edge weight as Spearman rank correlation score"
+   }
+,  {  "--zero-as-na"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_ZEROASNA
+   ,  NULL
+   ,  "compute correlation only where both values are not zero"
    }
 ,  {  "--cosine"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_COSINE
    ,  NULL
-   ,  "work with the cosine"
+   ,  "compute edge weight as cosine"
+   }
+,  {  "--cosine-skew"
+   ,  MCX_OPT_HIDDEN
+   ,  MY_OPT_COSINE_SKEW
+   ,  NULL
+   ,  "compute arc weight SQRT(<self * other>) / || self ||"
+   }
+,  {  "--content"
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
+   ,  MY_OPT_CONTENT
+   ,  NULL
+   ,  "compute fantastic mr formula"
+   }
+,  {  "-content"
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MY_OPT_CONTENTX
+   ,  "(a)verage (c)osine (e)uclid (i)ntersect (m)edian"
+   ,  "compute fantastic mr formula with parts specified"
+   }
+,  {  "--subset"
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
+   ,  MY_OPT_SUBSET_MEET
+   ,  NULL
+   ,  "compute arc weight |self /\\ other>| / |self|"
+   }
+,  {  "--subset-diff"
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
+   ,  MY_OPT_SUBSET_DIFF
+   ,  NULL
+   ,  "compute arc weight |self \\ other>| / |self|"
    }
 ,  {  "--write-binary"
    ,  MCX_OPT_DEFAULT
@@ -224,11 +489,23 @@ mcxOptAnchor options[]
    ,  "<int>"
    ,  "column (or row, with --transpose) containing labels (default 1)"
    }
-,  {  "-write-table"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+,  {  "-write-data"
+   ,  MCX_OPT_HASARG
    ,  MY_OPT_WRITE_TABLE
    ,  "<fname>"
-   ,  "write table file to file (debug option)"
+   ,  "write table matrix to file"
+   }
+,  {  "-write-na"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_WRITE_NA
+   ,  "<fname>"
+   ,  "write na matrix to file"
+   }
+,  {  "-test-rows"
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MY_OPT_LIMIT_ROWS
+   ,  "<num>"
+   ,  "only do this many data rows"
    }
 ,  {  "-imx"
    ,  MCX_OPT_HASARG
@@ -236,29 +513,11 @@ mcxOptAnchor options[]
    ,  "<fname>"
    ,  "matrix file name"
    }
-,  {  "-cutoff"
-   ,  MCX_OPT_HASARG
-   ,  MY_OPT_CUTOFF
-   ,  "<num>"
-   ,  "remove inproduct (output) values smaller than num"
-   }
 ,  {  "-co"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_CUTOFF
    ,  "<num>"
    ,  "alias for -cutof"
-   }
-,  {  "-lq"
-   ,  MCX_OPT_HASARG
-   ,  MY_OPT_LQ
-   ,  NULL
-   ,  "ignore data (input) values larger than num"
-   }
-,  {  "-gq"
-   ,  MCX_OPT_HASARG
-   ,  MY_OPT_GQ
-   ,  NULL
-   ,  "ignore data (input) values smaller than num"
    }
 ,  {  "-o"
    ,  MCX_OPT_HASARG
@@ -266,17 +525,17 @@ mcxOptAnchor options[]
    ,  "<fname>"
    ,  "write to file fname"
    }
-,  {  "-pi"
+,  {  "-table-tf"
    ,  MCX_OPT_HASARG
-   ,  MY_OPT_PI
-   ,  "<num>"
-   ,  "inflate the result"
+   ,  MY_OPT_TABLETRANSFORM
+   ,  "<func(arg)[, func(arg)]*>"
+   ,  "apply unary transformations to table values"
    }
 ,  {  "-tf"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_TRANSFORM
    ,  "<func(arg)[, func(arg)]*>"
-   ,  "apply unary transformations to matrix values"
+   ,  "apply unary transformations to result matrix values"
    }
 ,  {  "-digits"
    ,  MCX_OPT_HASARG
@@ -289,46 +548,58 @@ mcxOptAnchor options[]
 
 
 static mclTab* tab_g = NULL;
+static mcxbool sym_g = TRUE;
+static mcxbits contentx_g = 0;
+static mcxbool progress_g = TRUE;
 
-      /* user rows will be columns. naming below is extremely confusing.
-       * user rows/cols are mcl cols/rows.
+static const char* retry_g = "out.mcxarray";
+
+
+      /* user rows will be columns in mcl native layout.
+       * naming below is confusing;  clean up naming sometime (soon).
       */
 static mclx* read_data
 (  mcxIO* xfin
 ,  mcxIO* xftab
+,  dim nrows_max
 ,  unsigned skipr
 ,  unsigned skipc
 ,  unsigned labelidx
-,  mcxbool  transpose
+,  mcxbits  bits
+,  mclx**   mxnapp
 )
    {  mcxTing* line = mcxTingEmpty(NULL, 1000)
    ;  dim  N_cols =  0
    ;  int  n_rows =  0
    ;  int  N_rows =  100
+
    ;  mclv* cols  =  mcxNAlloc(N_rows, sizeof(mclVector), mclvInit_v, EXIT_ON_FAIL)
+   ;  mclv* colsna=  mcxNAlloc(N_rows, sizeof(mclVector), mclvInit_v, EXIT_ON_FAIL)
+
    ;  mclv* scratch = mclvCanonical(NULL, 100, 1.0)
+   ;  mclv* scratchna = mclvCanonical(NULL, 100, 1.0)
+
    ;  mclx* mx    =  mcxAlloc(sizeof mx[0], EXIT_ON_FAIL)
+   ;  mclx* mxna  =  mcxAlloc(sizeof mxna[0], EXIT_ON_FAIL)
+
    ;  mcxHash* index = xftab ? mcxHashNew(100, mcxStrHash, mcxStrCmp) : NULL       /* user rows */
    ;  long linect = 0
    ;  unsigned skiprr = skipr
-   ;  mcxbool seetab_labels = FALSE
 
    ;  while (STATUS_OK == mcxIOreadLine(xfin, line, MCX_READLINE_CHOMP))
       {  const char* p = line->str
       ;  const char* z = p + line->len
-      ;  int n_read = 0
-      ;  dim  n_cols =  0
+      ;  dim n_cols = 0, n_na = 0
       ;  double val = 0.0
       ;  unsigned skipcc = skipc
 
       ;  linect++
 
       ;  if (skiprr > 0)
-         {  if (transpose && skipr+1 - skiprr == labelidx)        /* this is the line with labels */
-            {  seetab_labels = strchr(p, '\t') ? TRUE : FALSE
-            ;  while (p < z)
+         {  if ((bits & ARRAY_TRANSPOSE) && skipr+1 - skiprr == labelidx)        /* this is the line with labels */
+            {  while (p < z)
                {  const char* o = p
-               ;  p = seetab_labels ? strchr(p, '\t') : mcxStrChrIs(p, isspace, -1)
+               ;  p = strchr(p, '\t')
 
                ;  if (!p)
                   p = z
@@ -345,62 +616,107 @@ static mclx* read_data
                   }
                   else
                   skipcc--
-               ;  p = seetab_labels ? p + 1 : mcxStrChrAint(p, isspace, -1)
+               ;  p++
             ;  }
             }
             skiprr--
          ;  continue
       ;  }
 
-         while (p < z)
-         {  mcxbool seetab = strchr(p, '\t') ? TRUE : FALSE
-         ;  if ((seetab_labels && !seetab) || (!seetab_labels && !seetab))
-            mcxDie(1, "mcxarray", "Confused: spaces or tabs as separator? at line %d", (int) linect)
-         ;  while (p < z && skipcc > 0)
-            {  const char* o = p
-            ;  p = seetab ? strchr(p, '\t') : mcxStrChrIs(p, isspace, -1)
-            ;  if (!p)
-               break
-            ;  if (!transpose && xftab && (skipc+1-skipcc) == labelidx)
-               {  char* label = mcxStrNDup(o, (dim) (p-o))
-               ;  mcxKV* kv = mcxHashSearch(label, index, MCX_DATUM_INSERT)
-               ;  if (kv->key != label)
-                  mcxDie(1, me, "row label <%s> occurs more than once", label)
-               ;  fprintf(xftab->fp, "%d\t%s\n", n_rows, label)
-            ;  }
-               p = seetab ? p + 1 : mcxStrChrAint(p, isspace, -1)
-            ;  skipcc--
-         ;  }
+         {  mcxbool just_after_tab = TRUE   /*  first time around fake it */  
+         ;  while (just_after_tab)
+            {  mcxbool have_na = TRUE
+            ;  const char* o = p
+            ;  char* t = strchr(p, '\t')
+            ;  just_after_tab = t ? TRUE : FALSE      /* this is for the next iteration */
 
-            if (skipcc || p >= z)
-            break
-            
-         ;  if (1 != sscanf(p, "%lf%n", &val, &n_read))
-            break                /* fixme err? */
-         ;  p += n_read
-         ;  if (n_cols >= scratch->n_ivps)
-            mclvCanonicalExtend(scratch, scratch->n_ivps * 1.44, 0.0)
-         ;  scratch->ivps[n_cols].val = val
-         ;  n_cols++
-      ;  }
+            ;  p = t ? t : z
+
+            ;  if (skipcc > 0)
+               {  if (!(bits & ARRAY_TRANSPOSE) && xftab && (skipc+1-skipcc) == labelidx)
+                  {  char* label = mcxStrNDup(o, (dim) (p-o))
+                  ;  mcxKV* kv = mcxHashSearch(label, index, MCX_DATUM_INSERT)
+                  ;  if (kv->key != label)
+                     mcxDie(1, me, "row label <%s> occurs more than once", label)
+                  ;  fprintf(xftab->fp, "%d\t%s\n", n_rows, label)
+               ;  }
+                  skipcc--
+               ;  p++
+               ;  continue
+            ;  }
+
+               if (p - o == 0)
+               val = 0.0
+            ;  else if (p - o == 3 && (!strncasecmp(o, "NaN", 3) || !strncasecmp(o, "inf", 3)))
+               val = 0.0
+            ;  else if (p - o == 2 && !strncasecmp(o, "NA", 2))
+               val = 0.0
+            ;  else if (1 == sscanf(o, "%lf", &val))
+               have_na = FALSE
+            ;  else
+               {  mcxDie
+                  (  1
+                  ,  me
+                  ,  "failed to parse column %lu at line %lu offset %lu (---->%.8s<----)"
+                  ,  (ulong) (n_cols+1+skipr)
+                  ,  (ulong) linect
+                  ,  (ulong) (o - line->str + 1)
+                  ,  o
+                  )
+               ;  n_cols = 0
+            ;  }
+
+               if (n_cols >= scratch->n_ivps)
+               mclvCanonicalExtend(scratch, scratch->n_ivps * 1.44, 0.0)
+            ;  scratch->ivps[n_cols].val = val
+
+            ;  if (have_na)
+               {  if (n_na >= scratchna->n_ivps)
+                  mclvResize(scratchna, n_na * 1.44)
+               ;  scratchna->ivps[n_na].val = 1.0
+               ;  scratchna->ivps[n_na].idx = n_cols
+;if(0)fprintf(stderr, "missing value column %d\n", (int) n_cols)
+               ;  n_na++
+            ;  }
+
+               n_cols++
+            ;  p++
+         ;  }
+         }
 
          if (!n_cols && !N_cols)
-         mcxDie(1, "mcxarray", "nothing read at line %ld", linect)
+         mcxDie(1, "mcxarray", "nothing read at line %lu", (ulong) linect)
       ;  else if (!N_cols)
          N_cols = n_cols
       ;  else if (n_cols != N_cols)
-         mcxDie(1, "mcxarray", "different column counts: %lu vs %lu", (ulong) N_cols, (ulong) n_cols)
+         mcxDie
+         (  1
+         ,  "mcxarray"
+         ,  "different column count at line %lu: %lu (expecting %lu)"
+         ,  (ulong) linect
+         ,  (ulong) N_cols
+         ,  (ulong) n_cols
+         )
 
       ;  if (n_rows == N_rows)
          {  N_rows *= 1.44
          ;  cols
             =  mcxNRealloc
                (cols, N_rows, n_rows, sizeof(mclVector), mclvInit_v, EXIT_ON_FAIL)
+         ;  colsna
+            =  mcxNRealloc
+               (colsna, N_rows, n_rows, sizeof(mclVector), mclvInit_v, EXIT_ON_FAIL)
       ;  }
 
          mclvFromIvps(cols+n_rows, scratch->ivps, n_cols)
       ;  cols[n_rows].vid = n_rows
+
+      ;  mclvFromIvps(colsna+n_rows, scratchna->ivps, n_na)
+      ;  colsna[n_rows].vid = n_rows
+
       ;  n_rows++
+      ;  if (nrows_max && n_rows >= nrows_max)
+         break
    ;  }
 
       if (!n_rows)
@@ -422,15 +738,493 @@ static mclx* read_data
    ;  mx->dom_rows = mclvCanonical(NULL, N_cols, 1.0)
    ;  mx->cols
       =  mcxNRealloc(cols, n_rows, N_rows, sizeof(mclVector), NULL, EXIT_ON_FAIL)
+
+   ;  mxna->dom_cols = mclvCanonical(NULL, n_rows, 1.0)
+   ;  mxna->dom_rows = mclvCanonical(NULL, N_cols, 1.0)
+   ;  mxna->cols
+      =  mcxNRealloc(colsna, n_rows, N_rows, sizeof(mclVector), NULL, EXIT_ON_FAIL)
+
    ;  mcxTingFree(&line)
    ;  mclvFree(&scratch)
+   ;  mclvFree(&scratchna)
 
-   ;  if (transpose)
-      {  mclx* mxtp = mclxTranspose(mx)
-      ;  mclxFree(&mx)
-      ;  mx = mxtp
+   ;  *mxnapp = mxna
+   ;  return mx
+;  }
+
+
+double mydiv
+(  pval a
+,  pval b
+)
+   {  return b ? a / b : 0.0
+;  }
+
+
+
+static mclx* mxseql = NULL;
+static mclx* mxseqr = NULL;
+
+
+
+static double ivp_get_double
+(  const void* v
+)
+   {  return ((mclp*) v)->val
+;  }
+
+
+static double get_array_content_score
+(  const mclx* tbl
+,  dim c
+,  dim d
+,  mclv* meet_c
+)
+   {  mclv* vecc, *vecd, *meet_d
+   ;  double euclid = 1.0, meet_fraction = 1.0, score , sum_meet_c, sum_meet_d
+   ;  double iqrc, iqrd
+   ;  double reduction_c = 1.0, reduction_d = 1.0
+   ;  double median = 1.0, medianc = 1.0, mediand = 1.0
+   ;  double ip = 1.0, cd = 1.0, csn = 1.0
+   ;  double mean = 1.0, meanc = 1.0, meand = 1.0
+
+   ;  vecc = mclvClone(tbl->cols+c)
+   ;  vecd = mclvClone(tbl->cols+d)
+   ;  meet_d = mcldMeet(vecd, meet_c, NULL)
+
+            /* the only purpose is here is to reweight the scores in meet_c */
+   ;  sum_meet_c = mclvSum(meet_c)
+   ;  sum_meet_d = mclvSum(meet_d)
+
+   ;  if (!sum_meet_c || !sum_meet_d)
+      return 0.0
+
+   ;  if (mxseql && mxseqr)
+      {  const mclv* c_start = mxseql->cols+c
+      ;  const mclv* c_end   = mxseqr->cols+c
+      ;  const mclv* d_start = mxseql->cols+d
+      ;  const mclv* d_end   = mxseqr->cols+d
+
+      ;  mclv* width_c =  mclvBinary(c_end, c_start, NULL, fltSubtract)
+      ;  mclv* width_d =  mclvBinary(d_end, d_start, NULL, fltSubtract)
+
+      ;  mclv* rmin   = mclvBinary(c_end, d_end, NULL, fltMin)
+      ;  mclv* lmax   = mclvBinary(c_start, d_start, NULL, fltMax)
+      ;  mclv* delta  = mclvBinary(rmin, lmax, NULL, fltSubtract)
+      ;  mclv* weight_c, *weight_d
+
+      ;  mclvSelectGqBar(delta, 0.0)
+      ;  weight_c = mclvBinary(delta, width_c, NULL, mydiv)
+      ;  weight_d = mclvBinary(delta, width_d, NULL, mydiv)
+
+      ;  mclvBinary(meet_c, weight_c, meet_c, fltMultiply)
+      ;  mclvBinary(meet_d, weight_d, meet_d, fltMultiply)
+
+;if(0&&c!=d)
+mclvaDump(width_c,stdout,5,"\n",0),mclvaDump(width_d,stdout,5,"\n",0)
+
+      ;  mclvFree(&width_c)
+      ;  mclvFree(&width_d)
+      ;  mclvFree(&rmin)
+      ;  mclvFree(&lmax)
+      ;  mclvFree(&delta)
+      ;  mclvFree(&weight_c)
+      ;  mclvFree(&weight_d)
+
+      ;  reduction_c = mclvSum(meet_c) / sum_meet_c
+      ;  reduction_d = mclvSum(meet_d) / sum_meet_d
    ;  }
-      return mx
+
+      score = 1.0
+
+   ;  if (contentx_g & CONTENT_MEDIAN)
+      {  mclvSortDescVal(vecc)
+      ;  mclvSortDescVal(vecd)
+      ;  medianc = mcxMedian(vecc->ivps, vecc->n_ivps, sizeof vecc->ivps[0], ivp_get_double, &iqrc)
+      ;  mediand = mcxMedian(vecd->ivps, vecd->n_ivps, sizeof vecd->ivps[0], ivp_get_double, &iqrd)
+      ;  median = MCX_MIN(medianc, mediand)
+      ;  score *= median
+   ;  }
+      else if (contentx_g & CONTENT_AVERAGE)
+      {  meanc = meet_c->n_ivps ? mclvSum(meet_c) / meet_c->n_ivps : 0.0
+      ;  meand = meet_d->n_ivps ? mclvSum(meet_d) / meet_d->n_ivps : 0.0
+      ;  mean  = MCX_MIN(meanc, meand)
+      ;  score *= mean
+   ;  }
+
+      if (contentx_g & CONTENT_COSINE)
+      {  ip = mclvIn(meet_c, meet_d)
+      ;  cd = sqrt(mclvPowSum(meet_c, 2.0) * mclvPowSum(meet_d, 2.0))
+      ;  csn = cd ? ip / cd : 0.0
+      ;  score *= csn
+   ;  }
+
+      if (contentx_g & CONTENT_EUCLID)
+      {  euclid = reduction_c ? sqrt(mclvPowSum(meet_c, 2.0) / mclvPowSum(vecc, 2.0)) : 0.0
+      ;  score *= euclid
+   ;  }
+
+      if (contentx_g & CONTENT_INTERSECT)
+      {  meet_fraction = meet_c->n_ivps * 1.0 / vecc->n_ivps
+      ;  score *= meet_fraction
+   ;  }
+
+      if (0)
+      fprintf
+      (  stdout
+      ,  "%10d%10d%10d%10d%10d%10g%10g%10g%10g%10g%10g%10g%15g\n"
+      ,  (int) c
+      ,  (int) d
+      ,  (int) (vecc->n_ivps - meet_c->n_ivps)
+      ,  (int) (vecd->n_ivps - meet_d->n_ivps)
+      ,  (int) meet_c->n_ivps
+      ,  score
+      ,  mean
+      ,  csn
+      ,  euclid
+      ,  meet_fraction
+      ,  reduction_c
+      ,  reduction_d
+      ,  median
+      )
+
+
+   ;  mclvFree(&meet_d)
+   ;  mclvFree(&vecc)
+   ;  mclvFree(&vecd)
+
+   ;  return score
+;  }
+
+
+
+
+#if 0
+         {  mclv* meet_d = mcldMeet2(vecd, meet_c, NULL)
+         ;  double ip   =  mclvIn(meet_c, meet_d)
+         ;  double cd   =  sqrt(mclvPowSum(meet_c, 2.0) * mclvPowSum(meet_d, 2.0))
+         ;  double csn  =  cd ? ip / cd : 0.0
+         ;  double meanc = mclvSum(meet_c) / meet_c->n_ivps
+         ;  double meand = mclvSum(meet_d) / meet_d->n_ivps
+         ;  double mean =  MCX_MIN(meanc, meand)
+
+         ;  double euclid =   0
+                           ?  1.0
+                           :  (  mean
+                              ?  sqrt(mclvPowSum(meet_c, 2.0) / mclvPowSum(vecc, 2.0))
+                              :  0.0
+                              )
+         ;  score       =  mean * csn * euclid  * (meet_c->n_ivps * 1.0 / vecc->n_ivps)
+
+   ;if (0 && score)
+   fprintf(stdout, "c=%lu d=%lu meet=%d mean=%5g csn=%5g euclid=%5g score=%5g\n", (ulong) c, (ulong) d, (int) meet_c->n_ivps, mean, csn, euclid, score)
+         ;  nom = 1                    /* nonsensical; document */
+         ;  if (!vecd->n_ivps)
+            offending = d              /* nonsensical; document */
+         ;  mclvFree(&meet_d)
+      ;  }
+#endif
+
+
+     /* Pearson correlation coefficient:
+      *                     __          __   __ 
+      *                     \           \    \  
+      *                  n  /_ x y   -  /_ x /_ y
+      *   -----------------------------------------------------------
+      *      ___________________________________________________________
+      *     /       __        __ 2                __        __ 2       |
+      * \  /  /     \   2     \       \     /     \   2     \       \ 
+      *  \/   \   n /_ x   -  /_ x    /  *  \   n /_ y   -  /_ y    / 
+     */
+
+static dim get_correlation
+(  const mclx* tbl
+,  const mclx* mxna
+,  dim c
+,  dim d
+,  mclv* Nssqs
+,  mclv* sums
+,  double* scorep
+,  double* nomp
+,  dim* offendingp
+,  mcxbits bits
+)
+   {  double N  = MCX_MAX(N_ROWS(tbl), 1)      /* fixme; bit odd */
+   ;  double nom = 1.0, score = 0
+   ;  dim offending = c
+   ;  dim n_reduced = 0
+   ;  mclv* vecc = tbl->cols+c
+   ;  mclv* vecd = tbl->cols+d
+
+   ;  if (bits & ARRAY_COSINE)
+      {  double ip   =  mclv_inner(vecc, vecd, N)
+      ;  double nomleft = Nssqs->ivps[c].val
+      ;  nom         =  sqrt(Nssqs->ivps[c].val  * Nssqs->ivps[d].val) / N
+      ;  score       =  nom ? ip / nom : 0.0
+      ;  offending   =  nomleft ? d : c
+   ;  }
+
+      else if (bits & ARRAY_COSINESKEW)
+      {  double ip   =  mclv_inner(vecc, vecd, N)
+      ;  nom         =  sqrt(Nssqs->ivps[c].val / N)
+      ;  score       =  nom ? sqrt(ip > 0 ? ip : 0) / nom : 0.0
+      ;  offending   =  c
+   ;  }
+
+      else if (bits & ARRAY_CONTENT)
+      {  mclv* meet_c = mcldMeet2(vecc, vecd, NULL)
+      ;  if
+         (  3 * meet_c->n_ivps >= vecc->n_ivps
+         || 3 * meet_c->n_ivps >= vecd->n_ivps
+         )
+         score = get_array_content_score(tbl, c, d, meet_c)
+      ;  nom = 1
+      ;  mclvFree(&meet_c)
+   ;  }
+
+      else if (bits & (ARRAY_SUBSET_MEET | ARRAY_SUBSET_DIFF))
+      {  dim n_meet = 0, n_ldiff = 0
+      ;  double num  =  0.0
+      ;  mcldCountParts(vecc, vecd, &n_ldiff, &n_meet, NULL)
+      ;  if (n_meet)
+         num = (bits & ARRAY_SUBSET_MEET) ? n_meet : n_ldiff
+      ;  nom         =  vecc->n_ivps
+      ;  score       =  nom ? num * 1.0 / nom : 0.0
+      ;  offending   =  c
+   ;  }
+
+      else if (bits & (ARRAY_PEARSON | ARRAY_SPEARMAN))
+      {  mcxbool reduced = mxna->cols[c].n_ivps > 0 || mxna->cols[d].n_ivps > 0
+      ;  double s1      =  sums->ivps[c].val
+      ;  double Nsq1    =  Nssqs->ivps[c].val
+      ;  double nomleft =  sqrt(Nsq1 - s1 * s1)
+      ;  double ip      =  mclv_inner(vecc, vecd, N)
+      ;  double nomleftx
+
+      ;  if (reduced)
+         {  mclv* merge = mcldMerge(mxna->cols+c, mxna->cols+d, NULL)
+         ;  mclv* veccx = mcldMinus(vecc, merge, NULL)
+         ;  mclv* vecdx = mcldMinus(vecd, merge, NULL)
+
+         ;  double s1x  =  mclvSum(veccx)
+         ;  double Nsq1x=  N * mclvPowSum(veccx, 2.0)       /* fixme: still use this N ? */
+
+         ;  double s2x  = mclvSum(vecdx)
+         ;  double Nsq2x= N * mclvPowSum(vecdx, 2.0)
+
+         ;  n_reduced++
+
+         ;  nomleftx =  sqrt(Nsq1x - s1x * s1x)
+         ;  nom      =  nomleftx * sqrt(Nsq2x - s2x*s2x)
+         ;  score    =  nom ? ((N*ip - s1x*s2x) / nom) : 0.0
+         ;  offending=  nomleftx ? d : c              /* prepare in case !nom */
+
+;if(0)fprintf(stderr, "vec %d have %d vec %d have %d nom %.2f", (int) c, (int) veccx->n_ivps,  (int) d, (int) vecdx->n_ivps, nom)
+;if(0)fprintf(stderr, " sum1 %.2f sum2 %.2f Nip %.2f N=%d ip=%.2f score %g\n", s1x, s2x, (double) N * ip, (int) N, ip, score)
+         ;  mclvFree(&merge)
+         ;  mclvFree(&veccx)
+         ;  mclvFree(&vecdx)
+      ;  }
+         else
+         {  double s2   =  sums->ivps[d].val
+         ;  nom  =  nomleft * sqrt(Nssqs->ivps[d].val - s2*s2)
+         ;  score=  nom ? ((N*ip - s1*s2) / nom) : 0.0
+;if(0)fprintf(stderr, "score %g\n", score)
+         ;  offending = nomleft ? d : c        /* prepare in case !nom */
+      ;  }
+      }
+
+      *offendingp = offending
+   ;  *nomp = nom
+   ;  *scorep = score
+   ;  return n_reduced
+;  }
+
+
+dim do_range_do
+(  const mclx* tbl
+,  mclx* res
+,  mclx* mxna
+,  double cutoff
+,  dim start
+,  dim end
+,  mclv* Nssqs
+,  mclv* sums
+,  mcxbits bits
+,  mcxbool lower_diagonal
+,  dim thread_id
+)
+   {  dim c, p = 0
+   ;  int n_mod =  MCX_MAX(1+ (MCX_MAX(1, n_thread_l) * 2 * (end - start -1))/40, 1)
+   ;  mclv* scratch  =  mclvCopy(NULL, tbl->dom_cols)
+   ;  dim n_reduced = 0
+
+   ;  for (c=start;c<end;c++)
+      {  ofs s = 0
+      ;  dim d_start = c, d_end = N_COLS(tbl)
+      ;  dim d
+
+      ;  if (!lower_diagonal)
+            d_start = 0
+         ,  d_end = c
+
+      ;  for (d=d_start;d<d_end;d++)
+         {  double score, absscore, nom
+         ;  dim offending
+
+;if(0)fprintf(stderr, "%d\t%d\n", (int) c, (int) d)
+         ;  n_reduced += get_correlation(tbl, mxna, c, d, Nssqs, sums, &score, &nom, &offending, bits)
+
+         ;  if (!nom && tbl->dom_cols->ivps[offending].val < 1.5)
+            {  char* label = tab_g ? mclTabGet(tab_g, offending, NULL) : NULL
+            ;  if (label)
+               mcxErr(me, "constant data for label <%s> - no pearson", label)
+            ;  else
+               mcxErr
+               (  me
+               ,  "constant data for %s %ld (mcl identifier %ld) - no pearson"
+               ,  ((bits & ARRAY_TRANSPOSE) ? "column" : "row")
+               ,  (long) (offending+1)
+               ,  (long) offending
+               )
+            ;  tbl->dom_cols->ivps[offending].val = 2
+         ;  }
+
+            absscore = score
+         ;  if (absscore < 0)
+            absscore *= -1
+
+         ;  if (score && absscore >= cutoff)
+               scratch->ivps[s].val = score
+            ,  scratch->ivps[s].idx = tbl->cols[d].vid
+            ,  s++
+      ;  }
+
+         {  dim n = scratch->n_ivps
+         ;  scratch->n_ivps = s
+         ;  mclvAdd(res->cols+c, scratch, res->cols+c)
+         ;  res->cols[c].val = tbl->cols[c].n_ivps
+         ;  scratch->n_ivps = n
+      ;  }
+
+         if (progress_g && (p+1) % n_mod == 0)
+         fputc(thread_id < 10 ? '0' + thread_id : '.', stderr)
+      ;  p++
+   ;  }
+      mclvFree(&scratch)
+   ;  return n_reduced
+;  }
+
+
+dim do_range
+(  const mclx* tbl
+,  mclx* res
+,  mclx* mxna
+,  double cutoff
+,  dim start
+,  dim end
+,  mclv* Nssqs
+,  mclv* sums
+,  mcxbits bits
+,  dim thread_id
+)
+   {  dim n_reduced = 0, i
+
+   ;  if (!end || end > N_COLS(tbl))
+      end = N_COLS(tbl)
+   
+   ;  for (i=start;i<end;i++)
+      {  if (res->dom_cols->ivps[i].val > 1.5)
+         {  mcxErr(me, "overlap in range %u-%u", (unsigned) start, (unsigned) end)
+         ;  break
+      ;  }
+         res->dom_cols->ivps[i].val = 2.0
+   ;  }
+
+      if (1 && (bits & ARRAY_JOBINFO))
+      {  fprintf(stdout, "%u\t%u\n", (unsigned) start, (unsigned) end)
+      ;  return 0
+   ;  }
+
+      n_reduced
+      =  do_range_do
+         (  tbl
+         ,  res
+         ,  mxna
+         ,  cutoff
+         ,  start
+         ,  end
+         ,  Nssqs
+         ,  sums
+         ,  bits
+         ,  TRUE
+         ,  thread_id
+         )
+   ;  if (!sym_g)          /* result is not symmetric, so compute upper diagonal separately */
+      n_reduced
+      += do_range_do
+         (  tbl
+         ,  res
+         ,  mxna
+         ,  cutoff
+         ,  start
+         ,  end
+         ,  Nssqs
+         ,  sums
+         ,  bits
+         ,  FALSE
+         ,  thread_id
+         )
+   ;  return n_reduced
+;  }
+
+
+typedef struct
+{  const mclx* tbl
+;  mclx*    res
+;  mclx*    mxna
+;  double   cutoff
+;  dim      job_lo1
+;  dim      job_lo2
+;  dim      job_hi1
+;  dim      job_hi2
+;  dim      job_size
+;  mclv*    Nssqs
+;  mclv*    sums
+;  dim      n_reduced
+;  mcxbits  bits
+;  dim      thread_id
+;
+}  array_data   ;
+
+
+static void* array_thread
+(  void* arg
+)
+   {  array_data* d = arg
+
+   ;  if (d->job_lo2 > d->job_hi1)
+      {  d->n_reduced
+         =  do_range(d->tbl, d->res, d->mxna, d->cutoff, d->job_lo1, d->job_hi2, d->Nssqs, d->sums, d->bits, d->thread_id)
+;if (0) fprintf(stderr, "thread %d %d-%d\n", (int) d->thread_id, (int) d->job_lo1, (int) d->job_hi2)
+   ;  }
+      else
+      {  d->n_reduced
+         += do_range(d->tbl, d->res, d->mxna, d->cutoff, d->job_lo1, d->job_lo2, d->Nssqs, d->sums, d->bits, d->thread_id)
+      ;  d->n_reduced
+         += do_range(d->tbl, d->res, d->mxna, d->cutoff, d->job_hi1, d->job_hi2, d->Nssqs, d->sums, d->bits, d->thread_id)
+;if (0)
+fprintf
+(  stderr
+,  "thread %d %d-%d and %d-%d\n"
+,  (int) d->thread_id
+,  (int) d->job_lo1
+,  (int) d->job_lo2
+,  (int) d->job_hi1
+,  (int) d->job_hi2
+)
+   ;  }
+      return NULL
 ;  }
 
 
@@ -439,24 +1233,24 @@ int main
 ,  const char*          argv[]
 )
    {  int digits = MCLXIO_VALUE_GETENV
-   ;  double cutoff = -1.0001, pi = 0.0
-   ;  double lq = DBL_MAX, gq = -DBL_MAX
+   ;  double cutoff = -1.0001
    ;  mclx* res
-   ;  mcxIO* xfin = mcxIOnew("-", "r"), *xfout = NULL, *xftab = NULL, *xftbl = NULL
-   ;  mclv* Nssqs, *sums, *scratch
-   ;  mcxbool transpose = FALSE
+   ;  mcxIO* xfin = mcxIOnew("-", "r"), *xftab = NULL, *xftbl = NULL, *xfna = NULL
+   ;  mclv* Nssqs, *sums
    ;  mcxbool read_table = FALSE, z_score = FALSE
    ;  mcxbool cutoff_specified = FALSE
    ;  mcxbool write_binary = FALSE
-   ;  const char* out = "-"
-   ;  mcxbool mode = 'p'
-   ;  mcxstatus parseStatus = STATUS_OK
-   ;  int n_mod
+   ;  const char* fnout = "-", *fnseql = NULL, *fnseqr = NULL
+   ;  dim n_group_G = 1
+   ;  dim i_group = 0
    ;  unsigned rskip = 0, cskip = 0, labelidx = 0
    ;  double N = 1.0
-   ;  mclpAR* transform  =   NULL
-   ;  mcxTing* transform_spec = NULL
+   ;  mclgTF* tf_result  =   NULL, *tf_table = NULL
+   ;  mcxTing* tf_result_spec = NULL, * tf_table_spec = NULL
+   ;  mcxbits bits = 0
+   ;  dim nrows_max = 0
 
+   ;  mcxstatus parseStatus = STATUS_OK
    ;  mcxOption* opts, *opt
    ;  mcxOptAnchorSortById(options, sizeof(options)/sizeof(mcxOptAnchor) -1)
    
@@ -474,13 +1268,43 @@ int main
 
       ;  switch(anch->id)
          {  case MY_OPT_HELP
-         :  mcxOptApropos(stdout, me, syntax, 0, 0, options)
+         :  mcxOptApropos(stdout, me, syntax, 0, MCX_OPT_DISPLAY_SKIP, options)
 
          ;  return 0
          ;
 
+            case MY_OPT_T
+         :  n_thread_l =  atoi(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_JOBID
+         :  i_group =  atoi(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_NJOBS
+         :  n_group_G =  atoi(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_START
+         :  start_g = atoi(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_END
+         :  end_g = atoi(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_JI
+         :  bits |= ARRAY_JOBINFO
+         ;  break
+         ;
+
             case MY_OPT_TP
-         :  transpose = TRUE
+         :  bits |= ARRAY_TRANSPOSE
          ;  break
          ;
 
@@ -495,6 +1319,21 @@ int main
          ;  break
          ;
 
+            case MY_OPT_ZEROASNA
+         :  bits |= ARRAY_ZEROASNA
+         ;  break
+         ;
+
+            case MY_OPT_WRITE_NA
+         :  xfna = mcxIOnew(opt->val, "w")
+         ;  break
+         ;
+
+            case MY_OPT_LIMIT_ROWS
+         :  nrows_max = atoi(opt->val)
+         ;  break
+         ;
+
             case MY_OPT_WRITE_TABLE
          :  xftbl = mcxIOnew(opt->val, "w")
          ;  break
@@ -505,13 +1344,33 @@ int main
          ;  break
          ;
 
+            case MY_OPT_TABLETRANSFORM
+         :  tf_table_spec = mcxTingNew(opt->val)
+         ;  break
+         ;
+
             case MY_OPT_TRANSFORM
-         :  transform_spec = mcxTingNew(opt->val)
+         :  tf_result_spec = mcxTingNew(opt->val)
          ;  break
          ;
 
             case MY_OPT_DATA
          :  mcxIOnewName(xfin, opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_NOPROGRESS
+         :  progress_g = FALSE
+         ;  break
+         ;
+
+            case MY_OPT_SEQR
+         :  fnseqr = opt->val
+         ;  break
+         ;
+
+            case MY_OPT_SEQL
+         :  fnseql = opt->val
          ;  break
          ;
 
@@ -531,23 +1390,76 @@ int main
          ;
 
             case MY_OPT_PEARSON
-         :  mode = 'p'
+         :  bits |= ARRAY_PEARSON
          ;  break
          ;
 
-            case MY_OPT_RANK
-         :  mode = 'r'
+            case MY_OPT_SPEARMAN
+         :  bits |= ARRAY_SPEARMAN
+         ;  break
+         ;
+
+            case MY_OPT_SUBSET_DIFF
+         :  bits |= ARRAY_SUBSET_DIFF
+         ;  sym_g = FALSE
+         ;  break
+         ;
+
+            case MY_OPT_CONTENTX
+         :  bits |= ARRAY_CONTENT
+         ;  sym_g = FALSE
+         ;  {  const char* c = opt->val
+            ;  for(;c[0];c++)
+               switch(c[0])
+               {  case  'a' : contentx_g |= CONTENT_AVERAGE ;  break
+               ;  case  'c' : contentx_g |= CONTENT_COSINE  ;  break
+               ;  case  'e' : contentx_g |= CONTENT_EUCLID  ;  break
+               ;  case  'i' : contentx_g |= CONTENT_INTERSECT; break
+               ;  case  'm' : contentx_g |= CONTENT_MEDIAN  ;  break
+               ;  default: mcxDie(1, me, "unsupported mode -content mode [%c]", (int) (unsigned char) c[0])
+            ;  }
+            }
+            break
+         ;
+
+            case MY_OPT_CONTENT
+         :  bits |= ARRAY_CONTENT
+         ;  sym_g = FALSE
+         ;  break
+         ;
+
+            case MY_OPT_SUBSET_MEET
+         :  bits |= ARRAY_SUBSET_MEET
+         ;  sym_g = FALSE
+         ;  break
+         ;
+
+            case MY_OPT_COSINE_SKEW
+         :  bits |= ARRAY_COSINESKEW
+         ;  sym_g = FALSE
          ;  break
          ;
 
             case MY_OPT_COSINE
-         :  mode = 'c'
+         :  bits |= ARRAY_COSINE
          ;  break
          ;
 
             case MY_OPT_WRITEBINARY
          :  write_binary = TRUE
          ;  break
+         ;
+
+            case MY_OPT_AMOIXA
+         :  mcxOptApropos
+            (  stdout
+            ,  me
+            ,  NULL
+            ,  15
+            ,  MCX_OPT_DISPLAY_SKIP | MCX_OPT_DISPLAY_HIDDEN
+            ,  options
+            )
+         ;  return 0
          ;
 
             case MY_OPT_VERSION
@@ -561,23 +1473,8 @@ int main
          ;  break
          ;
 
-            case MY_OPT_GQ
-         :  gq = atof(opt->val)
-         ;  break
-         ;
-
-            case MY_OPT_LQ
-         :  lq = atof(opt->val)
-         ;  break
-         ;
-
             case MY_OPT_O
-         :  out = opt->val
-         ;  break
-         ;
-
-            case MY_OPT_PI
-         :  pi = atof(opt->val)
+         :  fnout = opt->val
          ;  break
          ;
 
@@ -589,74 +1486,121 @@ int main
 
    ;  mcxOptFree(&opts)
 
+   ;  if ((bits & ARRAY_CONTENT) && !contentx_g)
+      contentx_g = CONTENT_DEFAULT
+
+   ;  if (n_group_G > 1)
+      {  if (!n_thread_l)
+         n_thread_l = 1
+      ;  n_thread_g = mclx_set_threads_or_die(me, n_thread_l, i_group, n_group_G)
+   ;  }
+      if (n_thread_g && (start_g || end_g))
+      mcxDie(1, me, "-start and -end do not mix with -t -J or -j")
+
+   ;  if (!(bits & (ARRAY_PEARSON | ARRAY_SPEARMAN | ARRAY_COSINE | ARRAY_COSINESKEW)))
+      bits |= ARRAY_PEARSON
+
    ;  if (!cutoff_specified)
       mcxDie(1, me, "-co <cutoff> option is required")
-   ;  if (labelidx && ((transpose && labelidx > rskip) || (!transpose && labelidx > cskip)))
+   ;  if
+      (  labelidx &&
+         (  ((bits & ARRAY_TRANSPOSE) && labelidx > rskip)
+         || (!(bits & ARRAY_TRANSPOSE) && labelidx > cskip)
+         )
+      )
       mcxDie(1, me, "-l value requires larger or equally large skipc/skipr argument")
-   ;  else if (transpose && xftab && !labelidx && rskip == 1)
+   ;  else if ((bits & ARRAY_TRANSPOSE) && xftab && !labelidx && rskip == 1)
       labelidx = 1
-   ;  else if (!transpose && xftab && !labelidx && cskip == 1)
+   ;  else if (!(bits & ARRAY_TRANSPOSE) && xftab && !labelidx && cskip == 1)
       labelidx = 1
    ;  else if (xftab && !labelidx)
       mcxDie(1, me, "which column or row gives the label? Use -l")
 
-   ;  xfout = mcxIOnew(out, "w")
+   ;  if (tf_table_spec && !(tf_table = mclgTFparse(NULL, tf_table_spec)))
+      mcxDie(1, me, "input -tf-table spec does not parse")
+   ;  if (tf_result_spec && !(tf_result = mclgTFparse(NULL, tf_result_spec)))
+      mcxDie(1, me, "input -tf spec does not parse")
+
    ;  mcxIOopen(xfin, EXIT_ON_FAIL)
-   ;  mcxIOopen(xfout, EXIT_ON_FAIL)
+
    ;  if (xftab)
       mcxIOopen(xftab, EXIT_ON_FAIL)
-   ;
 
-      {  mclx* tbl =    read_table
-               ?  mclxRead(xfin, EXIT_ON_FAIL)
-               :  read_data(xfin, xftab, rskip, cskip, labelidx, transpose)
+   ;  if (fnseql && fnseqr)
+      {  mcxIO* xf = mcxIOnew(fnseql, "r")
+      ;  mxseql = mclxRead(xf, EXIT_ON_FAIL)
+      ;  mcxIOclose(xf)
+      ;  mcxIOrenew(xf, fnseqr, NULL)
+      ;  mxseqr = mclxRead(xf, EXIT_ON_FAIL)
+      ;  mcxIOfree(&xf)
+   ;  }
 
-      ;  if (read_table && transpose)
+      {  mclx* mxna  =  NULL
+      ;  mclx* tbl   =
+               read_table
+               ?  (  (bits & ARRAY_JOBINFO && !(bits & ARRAY_CONTENT))
+                  ?  mclxReadSkeleton(xfin, 0, FALSE)
+                  :  mclxRead(xfin, EXIT_ON_FAIL)
+                  )
+               :  read_data(xfin, xftab, nrows_max, rskip, cskip, labelidx, bits, &mxna)
+
+                        /* fixme docme: do we ever assume that table is not sparsely encoded ? */
+      ;  dim N_na = 0
+      ;  mcxIOfree(&xfin)
+
+      ;  if (!tbl)
+         mcxDie(1, me, "no table")
+
+      ;  if (read_table)
+         mxna = mclxAllocClone(tbl)
+      ;  else
+         N_na = mclxNrofEntries(mxna)
+
+      ;  if (N_na)
+         mcxTell(me, "found a total of %lu NA/NaN entries", (ulong) N_na)
+
+      ;  if (tf_table)
+         mclgTFexec(tbl, tf_table)
+
+      ;  if (N_na && (bits & ARRAY_ZEROASNA))
+            mcxErr(me, "--zero-as-na ignored, real NAs found in data")
+         ,  bits ^= ARRAY_ZEROASNA
+
+      ;  if (bits & ARRAY_TRANSPOSE)
          {  mclx* tp = mclxTranspose(tbl)
+         ;  mclx* tpna = mclxTranspose(mxna)
          ;  mclxFree(&tbl)
          ;  tbl = tp
+         ;  mclxFree(&mxna)
+         ;  mxna = tpna
       ;  }
 
-         if (xftbl)
-         {  if (write_binary)
-            mclxbWrite(tbl, xftbl, EXIT_ON_FAIL)
-         ;  else
-            mclxWrite(tbl, xftbl, digits, EXIT_ON_FAIL)
-         ;  mcxIOfree(&xftbl)
-      ;  }
-
-         if (lq < DBL_MAX)
-         {  double mass = mclxMass(tbl)
-         ;  double kept = mclxSelectValues(tbl, NULL, &lq, MCLX_EQT_LQ)
-         ;  fprintf(stderr, "orig %.2f kept %.2f\n", mass, kept)
-      ;  }
-
-         if (gq > -DBL_MAX)
-         {  double mass = mclxMass(tbl)
-         ;  double kept = mclxSelectValues(tbl, &gq, NULL, MCLX_EQT_GQ)
-         ;  fprintf(stderr, "orig %.2f kept %.2f\n", mass, kept)
+         if (xfna && mxna)
+         {  mclxWrite(mxna, xfna, digits, EXIT_ON_FAIL)
+         ;  mcxIOfree(&xfna)
       ;  }
 
          if (z_score)
          {  mclx* tblt = mclxTranspose(tbl)
-   #if 0
-   ;mcxIO* xftest = mcxIOnew("tttt", "w")
-   #endif
+#if 0
+;mcxIO* xftest = mcxIOnew("tttt", "w")
+#endif
          ;  double std, mean
          ;  dim c
          ;  for (c=0;c<N_COLS(tblt);c++)
             {  mclvMean(tblt->cols+c, N_ROWS(tblt), &mean, &std)
-            ;  mclvMove(tblt->cols+c, mean, std)
+            ;  mclvAffine(tblt->cols+c, mean, std)
          ;  }
             mclxFree(&tbl)
          ;  tbl = mclxTranspose(tblt)
-   #if 0
-   ;mclxWrite(tbl, xftest, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
-   #endif
+#if 0
+;mclxWrite(tbl, xftest, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+#endif
          ;  mclxFree(&tblt)
       ;  }
 
-         if (mode == 'r')
+                                             /* fixme funcify */
+         if (bits & ARRAY_SPEARMAN)
          {  dim d
          ;  rank_unit* ru
             =  mcxNAlloc
@@ -675,7 +1619,7 @@ int main
                ;  ru[i].ord = -14
             ;  }
                qsort(ru, v->n_ivps, sizeof ru[0], rank_unit_cmp_value)
-            ;  ru[v->n_ivps].value = ru[v->n_ivps-1].value + 1    /* sentinel out-of-bounds value */
+            ;  ru[v->n_ivps].value = ru[v->n_ivps-1].value * 1.1    /* sentinel out-of-bounds value */
             ;  for (i=0;i<v->n_ivps;i++)
                {  if (ru[i].value != ru[i+1].value)    /* input current stretch */
                   {  dim j
@@ -689,13 +1633,42 @@ int main
                qsort(ru, v->n_ivps, sizeof ru[0], rank_unit_cmp_index)
             ;  for (i=0;i<v->n_ivps;i++)
                v->ivps[i].val = ru[i].ord
-   /* fprintf(stderr, "vid %d id %d value from %.4g to %.1f\n", (int) v->vid, (int) v->ivps[i].idx, (double) ru[i].value, (double) ru[i].ord) */
+;if(0)fprintf(stderr, "vid %d id %d value from %.4g to %.1f\n", (int) v->vid, (int) v->ivps[i].idx, (double) ru[i].value, (double) ru[i].ord)
          ;  }
          }
 
-         Nssqs = mclvCopy(NULL, tbl->dom_cols)
-      ;  sums = mclvCopy(NULL, tbl->dom_cols)
-      ;  scratch = mclvCopy(NULL, tbl->dom_cols)
+         if (bits & ARRAY_ZEROASNA)
+         {  dim i
+         ;  if (bits & (ARRAY_COSINE | ARRAY_COSINESKEW | ARRAY_SUBSET_MEET | ARRAY_SUBSET_DIFF | ARRAY_CONTENT))
+            mcxDie(1, me, "--zero-as-na only supported with --spearman or --pearson")
+         ;  if (!(bits & (ARRAY_SPEARMAN | ARRAY_PEARSON)))
+            mcxDie(1, me, "--zero-as-na only supported with --spearman or --pearson")
+         ;  for (i=0;i<N_COLS(tbl);i++)
+            mcldMinus(tbl->dom_rows, tbl->cols+i, mxna->cols+i)
+         ;  mclxUnary(tbl, fltxCopy, NULL)    /* this removes zeroes from the matrix */
+      ;  }
+         else
+         {  if (bits & (ARRAY_SUBSET_DIFF | ARRAY_SUBSET_MEET | ARRAY_CONTENT))
+            mclxUnary(tbl, fltxCopy, NULL)    /* this removes zeroes from the matrix */
+         ;  else
+            {  dim i
+            ;  for (i=0;i<N_COLS(tbl);i++)
+               {  if (tbl->cols[i].n_ivps != N_ROWS(tbl))
+                  mclvCanonicalEmbed(tbl->cols+i, tbl->cols+i, N_ROWS(tbl), 0.0)
+            ;  }
+            }
+         }
+
+         if (xftbl)
+         {  if (write_binary)
+            mclxbWrite(tbl, xftbl, RETURN_ON_FAIL)
+         ;  else
+            mclxWrite(tbl, xftbl, digits, RETURN_ON_FAIL)
+         ;  mcxIOfree(&xftbl)
+      ;  }
+
+         Nssqs    =  mclvCopy(NULL, tbl->dom_cols)
+      ;  sums     =  mclvCopy(NULL, tbl->dom_cols)
 
       ;  N  = MCX_MAX(N_ROWS(tbl), 1)      /* fixme; bit odd */
 
@@ -714,114 +1687,153 @@ int main
          ,  mclvCopy(NULL, tbl->dom_cols)
          )
 
-      ;  n_mod =  MCX_MAX(1+(N_COLS(tbl)-1)/40, 1)
+      ;  {  dim n_reduced =0
+      
+         ;  if (!n_thread_g)
+            n_reduced = do_range(tbl, res, mxna, cutoff, start_g, end_g, Nssqs, sums, bits, 0)
 
-      ;  {  dim c
-         ;  for (c=0;c<N_COLS(tbl);c++)
-            {  ofs s = 0
-            ;  double s1   =  sums->ivps[c].val
-            ;  double s1sq =  s1 * s1
-            ;  double Nsq1 =  Nssqs->ivps[c].val
-            ;  double nomleft = sqrt(Nsq1 - s1sq)
-            ;  dim d
+         ;  else
+            {  struct jobinfo ji
+            ;  dim t_this_group = 0, t_max = 0, t = 0
 
-            ;  if (mode == 'c')
-               {  for (d=c;d<N_COLS(tbl);d++)
-                  {  double ip = mclvIn(tbl->cols+c, tbl->cols+d)
-                  ;  double nom = sqrt(Nssqs->ivps[c].val  * Nssqs->ivps[d].val) / N
-                  ;  double score = nom ? ip / nom : 0.0, absscore = score
+                           /* If we have n_group_G (which requires large-ish n_thread_g)
+                            * then below is possibly overallocing quite a bit.
+                            * If we assume at most a few thousands threads for the overall
+                            * division of work, with each job selecting say just four or
+                            * eight threads, it should not be an issue.
+                            * A straight computation of the group of threads for a job
+                            * is somewhat complicated by our mini-job balancing as
+                            * described above.
+                           */
+            ;  pthread_t *threads_array
+               =  mcxAlloc(n_thread_g * sizeof threads_array[0], EXIT_ON_FAIL)
+            ;  array_data* data = mcxAlloc(n_thread_g * sizeof data[0], EXIT_ON_FAIL)
 
-                  ;  if (absscore < 0)
-                     absscore *= -1
-                     
-                  ;  if (absscore >= cutoff)
-                        scratch->ivps[s].val = score
-                     ,  scratch->ivps[s].idx = d
-                     ,  s++
-               ;  }
-               }
+            ;  pthread_attr_t  t_attr
+            ;  pthread_attr_init(&t_attr)
 
-     /* Pearson correlation coefficient:
-      *                     __          __   __ 
-      *                     \           \    \  
-      *                  n  /_ x y   -  /_ x /_ y
-      *   -----------------------------------------------------------
-      *      ___________________________________________________________
-      *     /       __        __ 2                __        __ 2       |
-      * \  /  /     \   2     \       \     /     \   2     \       \ 
-      *  \/   \   n /_ x   -  /_ x    /  *  \   n /_ y   -  /_ y    / 
-     */
+            ;  ji_init
+               (  &ji
+               ,  tbl
+               ,  n_thread_g
+               ,  n_group_G
+               ,  i_group
+               ,  bits & (ARRAY_CONTENT | ARRAY_SUBSET_MEET | ARRAY_SUBSET_DIFF)
+               )
 
-               else if (mode == 'p' || mode == 'r')
-               {  for (d=c;d<N_COLS(tbl);d++)
-                  {  double ip   =  mclvIn(tbl->cols+c, tbl->cols+d)
-                  ;  double s2   =  sums->ivps[d].val
-                  ;  double nom  =  nomleft * sqrt(Nssqs->ivps[d].val - s2*s2)
-                  ;  double score=  nom ? ((N*ip - s1*s2) / nom) : -1.0
-                  ;  double absscore = score
-                  ;  ofs offending = nomleft ? d : c        /* prepare in case !nom */
+            ;  while (ji.dvd_joblo2 < ji.dvd_jobhi1)
+               {  array_data* d =  data+t_this_group
 
-                  ;  if (!nom && tbl->dom_cols->ivps[offending].val < 1.5)
-                     {  char* label = tab_g ? mclTabGet(tab_g, offending, NULL) : NULL
-                     ;  if (label)
-                        mcxErr(me, "constant data for label <%s> - no pearson", label)
-                     ;  else
-                        mcxErr
-                        (  me
-                        ,  "constant data for %s %ld (mcl identifier %ld) - no pearson"
-                        ,  (transpose ? "column" : "row")
-                        ,  (long) (offending+1)
-                        ,  (long) offending
-                        )
-                     ;  tbl->dom_cols->ivps[offending].val = 2
-                  ;  }
+               ;  if (!ji_step(&ji, t++, t_this_group))
+                  continue
 
-                     if (absscore < 0)
-                     absscore *= -1
-                     
-                  ;  if (absscore >= cutoff)
-                        scratch->ivps[s].val = score
-                     ,  scratch->ivps[s].idx = d
-                     ,  s++
-               ;  }
-               }
+               ;  d->tbl      =  tbl
+               ;  d->res      =  res
+               ;  d->mxna     =  mxna
+               ;  d->cutoff   =  cutoff
+               ;  d->job_lo1  =  ji.dvd_joblo1
+               ;  d->job_lo2  =  ji.dvd_joblo2
+               ;  d->job_hi1  =  ji.dvd_jobhi1
+               ;  d->job_hi2  =  ji.dvd_jobhi2
+               ;  d->job_size =  ji.dvd_jobsize
+               ;  d->Nssqs    =  Nssqs
+               ;  d->sums     =  sums
+               ;  d->bits     =  bits
+               ;  d->n_reduced=  0
+               ;  d->thread_id=  t_this_group
 
-               mclvFromIvps(res->cols+c, scratch->ivps, s)
-
-            ;  if ((c+1) % n_mod == 0)
-                  fputc('.', stderr)
-               ,  fflush(NULL)
+               ;  if (pthread_create(threads_array+t_this_group, &t_attr, array_thread, d))
+                  mcxDie(1, me, "error creating thread %d", (int) t_this_group)
+               ;  t_this_group++
+               ;  if (t_this_group > n_thread_g)
+                  mcxDie(1, me, "thread worker distribution off colour")
+            ;  }
+               t_max = t_this_group                      /* fixme or document */
+            ;  for (t=0; t < t_max; t++)
+               pthread_join(threads_array[t], NULL)
+            ;  for (t=0; t < t_max; t++)
+               n_reduced += data[t].n_reduced
+            ;  mcxFree(threads_array)
+            ;  mcxFree(data)
          ;  }
-            if (c % n_mod)
-            fputc('\n', stderr)
-      ;  }
 
+            if (bits & ARRAY_JOBINFO)
+            return 0
+
+         ;  if (progress_g)
+            fputc('\n', stderr)
+         ;  if (N_na)
+            {  dim i,  n_row_with_na = 0
+            ;  for (i=0;i<N_COLS(mxna);i++)
+               if (mxna->cols[i].n_ivps)
+               n_row_with_na++
+            ;  mcxTell     /* white lie, we pretend here full cartesian product was computed */
+               (  me
+               ,  "fraction of computations involving NA: %.2f"
+               ,  (double) ((2.0 * n_reduced - n_row_with_na) / (N_COLS(tbl) * N_COLS(tbl)))
+               )
+            ,  mcxTell
+               (  me
+               ,  "number of rows with NA: %d"
+               ,  (int) n_row_with_na
+               )
+         ;  }
+
+            else if ((bits & ARRAY_ZEROASNA))
+            {  dim i,  n_row_with_na = 0
+            ;  for (i=0;i<N_COLS(tbl);i++)
+               if (tbl->cols[i].n_ivps != N_ROWS(tbl))
+               {  n_row_with_na++
+            ;  }
+               mcxTell
+               (  me
+               ,  "fraction of computations involving zero-as-NA: %.2f"
+               ,  (double) ((2.0 * n_reduced - n_row_with_na) / (N_COLS(tbl) * N_COLS(tbl)))
+               )
+            ,  mcxTell
+               (  me
+               ,  "number of rows with zero-as-NA: %d"
+               ,  (int) n_row_with_na
+               )
+         ;  }
+         }
+
+         if (sym_g)
          mclxAddTranspose(res, 0.5)
       ;  mclxFree(&tbl)
+      ;  mclxFree(&mxna)
    ;  }
 
-      if (transform_spec)
-      { if (!(transform = mclpTFparse(NULL, transform_spec)))
-         mcxDie(1, me, "input -tf spec does not parse")
-      ;  mclxUnaryList(res, transform)
-   ;  }
-
-   ;  if (pi)
-      mclxInflate(res, pi)
+      if (tf_result)
+      mclgTFexec(res, tf_result)
 
    ;  mclvFree(&Nssqs)
    ;  mclvFree(&sums)
-   ;  mclvFree(&scratch)
+   ;
 
-   ;  if (write_binary)
-      mclxbWrite(res, xfout, EXIT_ON_FAIL)
-   ;  else
-      mclxWrite(res, xfout, digits, EXIT_ON_FAIL)
+      {  mcxstatus s
+      ;  mcxIO* xfout = mcxIOnew(fnout, "w")
+      ;  s  =     write_binary
+               ?  mclxbWrite(res, xfout, RETURN_ON_FAIL)
+               :  mclxWrite(res, xfout, digits, RETURN_ON_FAIL)
+      ;  if (s)
+         {  mcxTing* tg =  mcxTingPrint(NULL, "/tmp/%s.%ld", retry_g, (long) getpid())
+         ;  mcxIOclose(xfout)
+         ;  mcxIOrenew(xfout, tg->str, NULL)
+         ;  mcxErr(me, "write to [%s] failed, now trying [%s]", fnout, tg->str)
+         ;  if (write_binary)
+            mclxbWrite(res, xfout, RETURN_ON_FAIL)
+         ;  else
+            mclxWrite(res, xfout, digits, RETURN_ON_FAIL)
+         ;  mcxTingFree(&tg)
+      ;  }
+         mcxIOfree(&xfout)
+   ;  }
 
-   ;  mclxFree(&res)
-
-   ;  mcxIOfree(&xfin)
-   ;  mcxIOfree(&xfout)
+      mclxFree(&res)
+   ;  mclxFree(&mxseqr)
+   ;  mclxFree(&mxseql)
    ;  return 0
 ;  }
+
 

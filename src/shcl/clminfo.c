@@ -42,6 +42,7 @@
 #include "clew/cat.h"
 
 #include "mcl/interpret.h"
+#include "mcl/transform.h"
 
 #include "util/io.h"
 #include "util/err.h"
@@ -60,7 +61,6 @@ enum
 ,  MY_OPT_ADAPT
 ,  MY_OPT_PI
 ,  MY_OPT_TF
-,  MY_OPT_CEILNB
 ,  MY_OPT_NOODLE
 ,  MY_OPT_CABOODLE
 }  ;
@@ -97,12 +97,6 @@ static mcxOptAnchor infoOptions[] =
    ,  "<tf-spec>"
    ,  "first apply tf-spec to matrix"
    }
-,  {  "-ceil-nb"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN     /* rather unify -tf -ceil-nb -knn-mutual */
-   ,  MY_OPT_CEILNB
-   ,  "<num>"
-   ,  "remove edges from nodes with more than <num> edges"
-   }
 ,  {  "-cl-tree"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_CLTREE
@@ -132,12 +126,10 @@ static mclx *mx             =  (void*) -1;
 static dim     clceil       =  -1;
 static dim     n_cl_max     =  -1;
 static double inflation     =  -1;
-static int preprune         =  -1;
 static mcxbool caboodle     =  -1;
 static mcxbool noodle       =  -1;
 static mcxbool cone         =  -1;
 static mcxTing* tfting      = (void*) -1;
-static  dim ceilnb_g        =  -1;
 
 
 static mcxstatus infoInit
@@ -150,10 +142,8 @@ static mcxstatus infoInit
    ;  clceil         =  0
    ;  n_cl_max       =  0
    ;  inflation      =  0.0
-   ;  preprune       =  0
    ;  tfting         =  NULL
    ;  caboodle       =  FALSE
-   ;  ceilnb_g       =  0
    ;  noodle         =  FALSE
    ;  cone           =  FALSE
    ;  return STATUS_OK
@@ -187,11 +177,6 @@ static mcxstatus infoArgHandle
 
          case MY_OPT_CABOODLE
       :  caboodle = TRUE
-      ;  break
-      ;
-
-         case MY_OPT_CEILNB
-      :  ceilnb_g = atoi(val)
       ;  break
       ;
 
@@ -286,38 +271,16 @@ static mcxstatus infoMain
    ;  xfmx  =  mcxIOnew(argv[a++], "r")
    ;  mx    =  mclxReadx(xfmx, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH)
 
-   ;  if (ceilnb_g)
-      {  dim n_hub, n_in, n_out
-      ;  mclv* sel = mclgCeilNB(mx, ceilnb_g, &n_hub, &n_in, &n_out)
-      ;  mcxLog
-         (  MCX_LOG_FUNC
-         ,  me
-         ,  "considered %lu nodes in prepruning step (%lu needed, %lu edges out, %lu edges in)"
-         ,  (ulong) sel->n_ivps
-         ,  (ulong) n_hub
-         ,  (ulong) n_out
-         ,  (ulong) n_in
-         )
-      ;  mclvFree(&sel)
-   ;  }
-
-      if (tfting)
-      {  mclpAR* tfar = mclpTFparse(NULL, tfting)
+   ;  if (tfting)
+      {  mclgTF* tfar = mclgTFparse(NULL, tfting)
       ;  if (!tfar)
          mcxDie(1, me, "errors in tf-spec")
-      ;  mclxUnaryList(mx, tfar)
+      ;  mclgTFexec(mx, tfar)
    ;  }
 
       if (inflation)
       {  mclxInflate(mx, inflation)
       ;  mcxTingPrintAfter(ginfo, "inflation=%.2f\n", (double) inflation)
-   ;  }
-
-               /* fixme: should be some general transform option */
-      if (preprune)
-      {  mclv* sel = mclgUnlinkNodes(mx, 0, preprune)
-      ;  mclvFree(&sel)
-      ;  mcxTingPrintAfter(ginfo, "preprune=%df\n", (int) preprune)
    ;  }
 
       mclxAdjustLoops(mx, mclxLoopCBmax, NULL)

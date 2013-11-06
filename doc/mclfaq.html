@@ -1,14 +1,14 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2009 Stijn van Dongen -->
+<!-- Copyright (c) 2010 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
 /* START aephea.base.css */
 body
 { text-align: justify;
-margin-left: 8%;
-margin-right: 8%;
+margin-left: 0%;
+margin-right: 0%;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -65,16 +65,23 @@ text-align: right;
 margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
+acronym.ucase { font-size: smaller; text-transform: uppercase }
+abbr.ucase { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
 body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
+body
+{ text-align: justify;
+margin-left: 8%;
+margin-right: 8%;
+}
 </style>
 <title>The MCL FAQ</title>
 </head>
 <body>
 <p style="text-align:right">
-4 Nov 2009&nbsp;&nbsp;&nbsp;
+28 May 2010&nbsp;&nbsp;&nbsp;
 <a class="local" href="mclfaq.ps"><b>MCL&nbsp;FAQ</b></a>
-1.008, 09-308
+1.008, 10-148
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -155,6 +162,7 @@ mathematics behind the MCL algorithm.</p>
 <div class=" item_compact"><div class=" item_leftalign nowrap " ><a name="toc-general"></a><a class="quiet" href="#general"><b>1</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
 <a class="quiet" href="#general"><b>General questions</b></a>
+<div style="margin-top:0em">&nbsp;</div>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-1em"><a name="toc-faq1.1"></a> <a class="intern" href="#faq1.1"><b>1.1</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -191,6 +199,7 @@ is it labeled 'Markov cluster' anyway?</b></a>
 <div class=" item_compact"><div class=" item_leftalign nowrap " ><a name="toc-ioformat"></a><a class="quiet" href="#ioformat"><b>2</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
 <a class="quiet" href="#ioformat"><b>Input format</b></a>
+<div style="margin-top:0em">&nbsp;</div>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-1em"><a name="toc-faq2.1"></a> <a class="intern" href="#faq2.1"><b>2.1</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -202,6 +211,7 @@ is it labeled 'Markov cluster' anyway?</b></a>
 <div class=" item_compact"><div class=" item_leftalign nowrap " ><a name="toc-kind"></a><a class="quiet" href="#kind"><b>3</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
 <a class="quiet" href="#kind"><b>What kind of graphs</b></a>
+<div style="margin-top:0em">&nbsp;</div>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-1em"><a name="toc-faq3.1"></a> <a class="intern" href="#faq3.1"><b>3.1</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -256,6 +266,7 @@ dislike uni-directed graphs so much?</b></a>
 <div class=" item_compact"><div class=" item_leftalign nowrap " ><a name="toc-speed"></a><a class="quiet" href="#speed"><b>4</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
 <a class="quiet" href="#speed"><b>Speed and complexity</b></a>
+<div style="margin-top:0em">&nbsp;</div>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-1em"><a name="toc-howfast"></a> <a class="intern" href="#howfast"><b>4.1</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -279,6 +290,7 @@ dislike uni-directed graphs so much?</b></a>
 <div class=" item_compact"><div class=" item_leftalign nowrap " ><a name="toc-comparison"></a><a class="quiet" href="#comparison"><b>5</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
 <a class="quiet" href="#comparison"><b>Comparison with other algorithms</b></a>
+<div style="margin-top:0em">&nbsp;</div>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-1em"><a name="toc-xyzbetter"></a> <a class="intern" href="#xyzbetter"><b>5.1</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -294,6 +306,7 @@ dislike uni-directed graphs so much?</b></a>
 <div class=" item_compact"><div class=" item_leftalign nowrap " ><a name="toc-resource"></a><a class="quiet" href="#resource"><b>6</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
 <a class="quiet" href="#resource"><b>Resource tuning / accuracy</b></a>
+<div style="margin-top:0em">&nbsp;</div>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-1em"><a name="toc-wdymbrt"></a> <a class="intern" href="#wdymbrt"><b>6.1</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -331,6 +344,7 @@ How can I trust the output clustering?</b></a>
 <div class=" item_compact"><div class=" item_leftalign nowrap " ><a name="toc-granularity"></a><a class="quiet" href="#granularity"><b>7</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
 <a class="quiet" href="#granularity"><b>Tuning cluster granularity</b></a>
+<div style="margin-top:0em">&nbsp;</div>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-1em"><a name="toc-faq7.1"></a> <a class="intern" href="#faq7.1"><b>7.1</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -340,9 +354,13 @@ How can I trust the output clustering?</b></a>
 <div class=" item_text " style="margin-left:2em">
 <a class="intern" href="#faq7.2"><b>The effect of inflation on cluster granularity.</b></a>
 </div>
-<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-1em"><a name="toc-simil_granul"></a> <a class="intern" href="#simil_granul"><b>7.3</b></a></div></div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-1em"><a name="toc-degree_granul"></a> <a class="intern" href="#degree_granul"><b>7.3</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
-<a class="intern" href="#simil_granul"><b>The effect of similarity distribution homogeneity on cluster granularity.</b></a>
+<a class="intern" href="#degree_granul"><b>The effect of node degrees on cluster granularity.</b></a>
+</div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-1em"><a name="toc-simil_granul"></a> <a class="intern" href="#simil_granul"><b>7.4</b></a></div></div>
+<div class=" item_text " style="margin-left:2em">
+<a class="intern" href="#simil_granul"><b>The effect of edge weight differentiation on cluster granularity.</b></a>
 </div>
 </div>
 <hr>
@@ -350,6 +368,7 @@ How can I trust the output clustering?</b></a>
 <div class=" item_compact"><div class=" item_leftalign nowrap " ><a name="toc-implement"></a><a class="quiet" href="#implement"><b>8</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
 <a class="quiet" href="#implement"><b>Implementing the MCL algorithm</b></a>
+<div style="margin-top:0em">&nbsp;</div>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-1em"><a name="toc-faq8.1"></a> <a class="intern" href="#faq8.1"><b>8.1</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -361,6 +380,7 @@ How can I trust the output clustering?</b></a>
 <div class=" item_compact"><div class=" item_leftalign nowrap " ><a name="toc-overlap"></a><a class="quiet" href="#overlap"><b>9</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
 <a class="quiet" href="#overlap"><b>Cluster overlap / MCL iterand cluster interpretation</b></a>
+<div style="margin-top:0em">&nbsp;</div>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-1em"><a name="toc-olapintro"></a> <a class="intern" href="#olapintro"><b>9.1</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -380,6 +400,7 @@ How can I trust the output clustering?</b></a>
 <div class=" item_compact"><div class=" item_leftalign nowrap " ><a name="toc-misc"></a><a class="quiet" href="#misc"><b>10</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
 <a class="quiet" href="#misc"><b>Miscellaneous</b></a>
+<div style="margin-top:0em">&nbsp;</div>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-1em"><a name="toc-defaults"></a> <a class="intern" href="#defaults"><b>10.1</b></a></div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -486,7 +507,7 @@ might have kept me from going astray.</p>
 Indeed, <i>MCL</i> is used as a tag for <i>Macintosh Common Lisp</i>,
 <i>Mission Critical Linux</i>, <i>Monte Carlo Localization</i>, <i>MUD Client
 for Linux</i>, <i>Movement for Canadian Literacy</i>, and a gazillion other
-things &mdash; refer to the file <a class="extern" href="mclmcl.txt">mclmcl.txt</a>. Confusing. It seems that
+things &mdash; refer to the file <a class="extern" target="_parent" href="mclmcl.txt">mclmcl.txt</a>. Confusing. It seems that
 the three characters <tt>MCL</tt> possess otherworldly magical powers making
 them an ever so strange and strong attractor in the space of TLAs. It
 probably helps that Em-See-Ell (Em-Say-Ell in Dutch) has some rhythm
@@ -534,8 +555,8 @@ The current setup, which I hope to continue, is this. All releases are
 identified by a date stamp. For example 02-095 denotes day 95 in the year
 2002. This date stamp agrees (as of April 2000) with the (differently
 presented) date stamp used in all manual pages shipped with that release.
-For example, the date stamp of the FAQ you are reading is <b>4 Nov 2009</b>,
-which corresponds with the MCL stamp <b>09-308</b>.
+For example, the date stamp of the FAQ you are reading is <b>28 May 2010</b>,
+which corresponds with the MCL stamp <b>10-148</b>.
 The Changelog file contains a list of what's changed/added with each
 release. Currently, the date stamp is the primary way of identifying an <b>mcl</b>
 release. When asked for its version by using <b>--version</b>, mcl
@@ -1187,10 +1208,9 @@ inspection (use your judgment).</p>
 <b>How do I tune cluster granularity?</b>
 <p style="margin-top:0em; margin-bottom:0em">
 There are several ways for influencing cluster granularity. These ways and
-their relative merits are successively discussed below. The
-<a class="local sibling" href="clmdist.html">clmdist(1) manual</a> contains an example of doing multiple
-mcl runs for finding granularily different clusterings, using the
-most common approach, namely that of varying inflation.</p>
+their relative merits are successively discussed below.
+Reading <a class="local sibling" href="clmprotocols.html">clmprotocols</a> is also a good idea.
+</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_compact"><div class=" item_leftalign nowrap " ><a name="faq7.2"></a> <a class="quiet" href="#toc-granularity">7.2</a></div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -1202,29 +1222,29 @@ you are mangling huge graphs it could be the only <b>mcl</b> option you ever nee
 besides the output redirection option <b>-o</b>.</p>
 <p style="margin-bottom:0" class="asd_par">
 Increasing the value of <b>-I</b> will increase cluster granularity.
-Conceivable values are from 1.1 to 5.0 or so, but the range of suitable
+Conceivable values are from 1.1 to 10.0 or so, but the range of suitable
 values will certainly depend on your input graph. For many graphs, 1.1 will
-be far too low, and for many other graphs, 5.0 will be far too high. You
+be far too low, and for many other graphs, 8.0 will be far too high. You
 will have to find the right value or range of values by experimenting, using
 your judgment, and using measurement tools such as <a class="local sibling" href="clmdist.html">clm dist</a> and
-<a class="local sibling" href="clminfo.html">clm info</a>. The default 2.0 is a good value to begin the experimental
-stage with.</p>
-<p style="margin-bottom:0" class="asd_par">
-For experiments that are more subtle with respect to inflation,
-<b>mcl</b> provides the <b>-i</b> option in conjunction with the <b>-l</b>
-(small letter ell) option. Do this only if you have the intention of
-playing around with mcl in order to study the characteristics of the
-process that it computes, and <i>maybe</i>, just <i>maybe</i>, use it in a
-production environment if you find it useful. In the first vein, you may be
-interested to know that <a class="local sibling" href="mcxi.html">mcxi</a> is a stack language/interpreter in which
-the entire MCL algorithm can be written in three lines of code. It provides
-comprehensive access to the MCL graph and matrix libraries. However, the
-<b>mcxi</b> interface to the MCL pruning facilities is not yet satisfactory at this
-time. </p>
+<a class="local sibling" href="clminfo.html">clm info</a>. A good set of values to start with is 1.4, 2 and 6.
+</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_compact"><div class=" item_leftalign nowrap " ><a name="simil_granul"></a> <a class="quiet" href="#toc-granularity">7.3</a></div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_compact"><div class=" item_leftalign nowrap " ><a name="degree_granul"></a> <a class="quiet" href="#toc-granularity">7.3</a></div></div>
 <div class=" item_text " style="margin-left:2em">
-<b>The effect of similarity distribution homogeneity on cluster granularity.</b>
+<b>The effect of node degrees on cluster granularity.</b>
+<p style="margin-top:0em; margin-bottom:0em">
+Preferably the network should not have nodes of very high degree,
+that is, with exorbitantly many neighbours. Such nodes tend to
+obscure cluster structure and contribute to coarse clusters.
+The ways to combat this using <b>mcl</b> and sibling programs are documented
+in <a class="local sibling" href="clmprotocols.html">clmprotocols</a>. Briefly, they are the <b>mcl</b> and <b>mcx alter</b>
+options <b>-knn</b> and <b>-ceil-nb</b>.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_compact"><div class=" item_leftalign nowrap " ><a name="simil_granul"></a> <a class="quiet" href="#toc-granularity">7.4</a></div></div>
+<div class=" item_text " style="margin-left:2em">
+<b>The effect of edge weight differentiation on cluster granularity.</b>
 <p style="margin-top:0em; margin-bottom:0em">
 How similarities in the input graph were derived, constructed,
 adapted, filtered (et cetera) will affect cluster granularity.
@@ -1245,7 +1265,7 @@ Make a graph more homogeneous with respect to the weight
 function by using <b>-pi</b> with argument <i>f</i> somewhere
 in the interval [0,1] &mdash; 0.5 can be considered a reasonable first try.
 Make it less homogeneous by setting <i>f</i> somewhere in the interval [1,10].
-In this case 5 is a reasonable starting point.</p>
+In this case 3 is a reasonable starting point.</p>
 </div>
 </div>
 
@@ -1391,17 +1411,17 @@ The second solution is to use the <b>-dump</b>&nbsp;<b>ite</b> option
 (<b>-dumpi</b> and <b>-dumpstem</b> may be of use again). This will
 cause <b>mcl</b> to write the intermediate iterands to file. After that, you can
 apply <a class="local sibling" href="clmimac.html">clm imac</a> (interpret matrix as clustering) to those iterands. <b>clm imac</b>
-has a <b>-tight</b> parameter which affects the mapping of matrices to
-clusterings. It takes a value between 0 and 100 as argument. The default is
-100 and corresponds with the strict mapping. Lowering the <b>-tight</b>
-value will generally result in clusterings containing more overlap. This
+has a <b>-strict</b> parameter which affects the mapping of matrices to
+clusterings. It takes a value between 0.0 and 1.0 as argument. The default is
+0.001 and corresponds with promoting overlap. Increasing the <b>-strict</b>
+value will generally result in clusterings containing less overlap. This
 will have the largest effect for early iterands; its effect will diminish as
 the iterand index increases.</p>
 <p style="margin-bottom:0" class="asd_par">
-When set to 0, the <b>-tight</b> parameter results in the clustering
+When set to 0, the <b>-strict</b> parameter results in the clustering
 associated with the DAG associated with an MCL iterand as described
 in <a class="intern" href="#supfg">[3]</a>. This DAG is pruned (thus possibly resulting
-in less overlap in the clustering) by increasing the <b>-tight</b>
+in less overlap in the clustering) by increasing the <b>-strict</b>
 parameter. [add]</p>
 </div>
 </div>
@@ -1432,9 +1452,6 @@ operations are now more suited to be employed in a distributed computing
 environment. However, much remains to be done before mcl can operate
 in such an environment.</p>
 <p style="margin-bottom:0" class="asd_par">
-At some point in the future a second, xml-based, interchange input format
-may be introduced.</p>
-<p style="margin-bottom:0" class="asd_par">
 If you feel that mcl should support some other standard matrix format,
 let us know.</p>
 </div>
@@ -1464,7 +1481,7 @@ Stijn van Dongen.</p>
 <a class="local sibling" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.</p>
 <p style="margin-bottom:0" class="asd_par">
-mcl's home at <a class="extern" href="http://micans.org/mcl/">http://micans.org/mcl/</a>.</p>
+mcl's home at <a class="extern" target="_parent" href="http://micans.org/mcl/">http://micans.org/mcl/</a>.</p>
 
 <a name="references"></a>
 <h2>REFERENCES</h2>
@@ -1472,26 +1489,26 @@ mcl's home at <a class="extern" href="http://micans.org/mcl/">http://micans.org/
 <a name="gcbfs">[1]</a>
 Stijn van Dongen. <i>Graph Clustering by Flow Simulation</i>.
 PhD thesis, University of Utrecht, May 2000.<br>
-<a class="extern" href="http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm">http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm</a></p>
+<a class="extern" target="_parent" href="http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm">http://www.library.uu.nl/digiarchief/dip/diss/1895620/inhoud.htm</a></p>
 <p style="margin-bottom:0" class="asd_par">
 <a name="cafg">[2]</a>
 Stijn van Dongen. <i>A cluster algorithm for graphs</i>.
 Technical Report INS-R0010, National Research Institute for Mathematics and
 Computer Science in the Netherlands, Amsterdam, May 2000.<br>
-<a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z</a></p>
+<a class="extern" target="_parent" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0010.ps.Z</a></p>
 <p style="margin-bottom:0" class="asd_par">
 <a name="supfg">[3]</a>
 Stijn van Dongen. <i>A stochastic uncoupling process for graphs</i>.
 Technical Report INS-R0011, National Research Institute for Mathematics and
 Computer Science in the Netherlands, Amsterdam, May 2000.<br>
-<a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z</a></p>
+<a class="extern" target="_parent" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0011.ps.Z</a></p>
 <p style="margin-bottom:0" class="asd_par">
 <a name="pcfgcmce">[4]</a>
 Stijn van Dongen. <i>Performance criteria for graph clustering and Markov
 cluster experiments</i>. Technical Report INS-R0012, National Research
 Institute for Mathematics and Computer Science in the Netherlands,
 Amsterdam, May 2000.<br>
-<a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z</a></p>
+<a class="extern" target="_parent" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z</a></p>
 <p style="margin-bottom:0" class="asd_par">
 <a name="eaflsdopf">[5]</a>
 Enright A.J., Van Dongen S., Ouzounis C.A.
@@ -1502,7 +1519,7 @@ Nucleic Acids Research 30(7):1575-1584 (2002). </p>
 <h2>NOTES</h2>
 <p style="margin-bottom:0" class="asd_par">
 This page was generated from <b>ZOEM</b> manual macros,
-<a class="extern" href="http://micans.org/zoem">http://micans.org/zoem</a>. Both html and roff pages can be created
+<a class="extern" target="_parent" href="http://micans.org/zoem">http://micans.org/zoem</a>. Both html and roff pages can be created
 from the same source without having to bother with all the usual conversion
 problems, while keeping some level of sophistication in the typesetting.
 <a class="local" href="mclfaq.ps">This</a> is the PostScript derived from the zoem

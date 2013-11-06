@@ -1,14 +1,14 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<!-- Copyright (c) 2009 Stijn van Dongen -->
+<!-- Copyright (c) 2010 Stijn van Dongen -->
 <head>
 <meta name="keywords" content="manual">
 <style type="text/css">
 /* START aephea.base.css */
 body
 { text-align: justify;
-margin-left: 8%;
-margin-right: 8%;
+margin-left: 0%;
+margin-right: 0%;
 }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
@@ -65,16 +65,23 @@ text-align: right;
 margin-left: 3em;
 }
 .smallcaps { font-size: smaller; text-transform: uppercase }
+acronym.ucase { font-size: smaller; text-transform: uppercase }
+abbr.ucase { font-size: smaller; text-transform: uppercase }
 /* END aephea.base.css */
 body { font-family: "Garamond", "Gill Sans", "Verdana", sans-serif; }
+body
+{ text-align: justify;
+margin-left: 8%;
+margin-right: 8%;
+}
 </style>
 <title>The mcxassemble manual</title>
 </head>
 <body>
 <p style="text-align:right">
-4 Nov 2009&nbsp;&nbsp;&nbsp;
+28 May 2010&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxassemble.ps"><b>mcxassemble</b></a>
-1.008, 09-308
+1.008, 10-148
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -354,14 +361,14 @@ Base name of files to be processed and output. Refer to <a class="intern" href="
 above and the entries of other options below.
 </p>
 </div>
-<div class=" item_cascade item_leftalign nowrap" ><a name="opt-hdr"></a><b>-hdr</b> fname (<i>read header file</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-raw"></a><b>-raw</b> fname (<i>read raw file</i>)</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-hdr"></a><b>-hdr</b> fname (<i>read header file</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-raw"></a><b>-raw</b> fname (<i>read raw file</i>)</div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Explicitly specify the header file and the data file (rather
 than constructing the file names from a base name and suffixes).
 </p>
 </div>
-<div class=" item_cascade item_leftalign nowrap" ><a name="opt--map"></a><b>--map</b> (<i>apply base.map</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--cmap"></a><b>--cmap</b> (<i>apply base.cmap</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--rmap"></a><b>--rmap</b> (<i>apply base.rmap</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-map"></a><b>-map</b> fname (<i>apply fname</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-rmap"></a><b>-rmap</b> fname (<i>apply fname</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-cmap"></a><b>-cmap</b> fname (<i>apply fname</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-tag"></a><b>-tag</b> tag (<i>apply base.tag</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-rtag"></a><b>-rtag</b> tag (<i>apply base.tag</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-ctag"></a><b>-ctag</b> tag (<i>apply base.tag</i>)</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--map"></a><b>--map</b> (<i>apply base.map</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--cmap"></a><b>--cmap</b> (<i>apply base.cmap</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--rmap"></a><b>--rmap</b> (<i>apply base.rmap</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-map"></a><b>-map</b> fname (<i>apply fname</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-rmap"></a><b>-rmap</b> fname (<i>apply fname</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-cmap"></a><b>-cmap</b> fname (<i>apply fname</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-tag"></a><b>-tag</b> tag (<i>apply base.tag</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-rtag"></a><b>-rtag</b> tag (<i>apply base.tag</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-ctag"></a><b>-ctag</b> tag (<i>apply base.tag</i>)</div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Map options. <b>--cmap</b> combines with the <b>-b</b>&nbsp;option,
@@ -380,7 +387,7 @@ the <b>-b</b>&nbsp;option, and require that a tag be specified from
 which to construct the map file (by appending it to the base name).
 </p>
 </div>
-<div class=" item_cascade item_leftalign nowrap" ><a name="opt-skw"></a><b>-skw</b> fname (<i>write skew matrix</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-prm"></a><b>-prm</b> fname (<i>write primary result matrix</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--prm"></a><b>--prm</b> (<i>write base.prm</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--skw"></a><b>--skw</b> (<i>write base.skw</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-n"></a><b>-n</b> (<i>do not write default symmetrized result</i>)</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-skw"></a><b>-skw</b> fname (<i>write skew matrix</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-prm"></a><b>-prm</b> fname (<i>write primary result matrix</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--prm"></a><b>--prm</b> (<i>write base.prm</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--skw"></a><b>--skw</b> (<i>write base.skw</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-n"></a><b>-n</b> (<i>do not write default symmetrized result</i>)</div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Options for writing matrices other than the default symmetrized result.
@@ -397,7 +404,7 @@ If for some reason the symmetrized result is not needed, its output
 can be prevented using the <b>-n</b>&nbsp;option.
 </p>
 </div>
-<div class=" item_cascade item_leftalign nowrap" ><a name="opt-xo"></a><b>-xo</b> suf (<i>write base.suf</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-o"></a><b>-o</b> fname (<i>write to file fname</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-i"></a><b>-i</b> (<i>read from single data file</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-digits"></a><b>-digits</b> int (<i>digits width</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-binary"></a><b>--write-binary</b> (<i>write output in binary format</i>)</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-xo"></a><b>-xo</b> suf (<i>write base.suf</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-o"></a><b>-o</b> fname (<i>write to file fname</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-i"></a><b>-i</b> (<i>read from single data file</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-digits"></a><b>-digits</b> int (<i>digits width</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-binary"></a><b>--write-binary</b> (<i>write output in binary format</i>)</div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 The <b>-xo</b>&nbsp;option is used in conjunction with the <b>-b</b>&nbsp;option
@@ -414,14 +421,14 @@ from the same file, where the syntax should be fully conforming
 to generic mcl matrix format.
 </p>
 </div>
-<div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-s"></a><b>-s</b> (<i>check for symmetry</i>)</div></div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-s"></a><b>-s</b> (<i>check for symmetry</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 This will check whether the primary result matrix was symmetric.
 It reports the number of failing (or <i>skew</i>) edges.
 </p>
 </div>
-<div class=" item_cascade item_leftalign nowrap" ><a name="opt-raw-tf"></a><b>-raw-tf</b> &lt;tf-spec&gt; (<i>apply transform spec to input</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-prm-tf"></a><b>-prm-tf</b> (<i>apply transform spec to primary matrix</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-sym-tf"></a><b>-sym-tf</b> (<i>apply transform spec to symmetrified matrix</i>)</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-raw-tf"></a><b>-raw-tf</b> &lt;tf-spec&gt; (<i>apply transform spec to input</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-prm-tf"></a><b>-prm-tf</b> (<i>apply transform spec to primary matrix</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-sym-tf"></a><b>-sym-tf</b> (<i>apply transform spec to symmetrified matrix</i>)</div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 The first applies its transformation spec to the values
@@ -431,7 +438,7 @@ step to the symmetrified matrix.
 Refer to <a class="local sibling" href="mcxio.html">mcxio</a> for documentation on the transformation
 spec syntax.</p>
 </div>
-<div class=" item_cascade item_leftalign nowrap" ><a name="opt-rv"></a><b>-rv</b> add|max|min|mul|left|right (<i>action for repeated vectors</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-re"></a><b>-re</b> add|max|min|mul|left|right (<i>action for repeated entries</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-ri"></a><b>-ri</b> add|max|min|mul (<i>adding mirror image</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-r"></a><b>-r</b> add|max|min|mul|left|right (<i>same for entries and vectors</i>)</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-rv"></a><b>-rv</b> add|max|min|mul|left|right (<i>action for repeated vectors</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-re"></a><b>-re</b> add|max|min|mul|left|right (<i>action for repeated entries</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-ri"></a><b>-ri</b> add|max|min|mul (<i>adding mirror image</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-r"></a><b>-r</b> add|max|min|mul|left|right (<i>same for entries and vectors</i>)</div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Merge options, dictating the behaviour when repeated entries are
@@ -493,7 +500,7 @@ and the <tt>[3,0]</tt> entry both equal to either the maximum, the sum,
 or the product of the two quantities&nbsp;<tt>50</tt> and&nbsp;<tt>20</tt>.
 </p>
 </div>
-<div class=" item_cascade item_leftalign nowrap" ><a name="opt--quiet-re"></a><b>--quiet-re</b> (<i>quiet for repeated entries</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--quiet-rv"></a><b>--quiet-rv</b> (<i>quiet for repeated vectors</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-q"></a><b>-q</b> (<i>the two above combined</i>)</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--quiet-re"></a><b>--quiet-re</b> (<i>quiet for repeated entries</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--quiet-rv"></a><b>--quiet-rv</b> (<i>quiet for repeated vectors</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-q"></a><b>-q</b> (<i>the two above combined</i>)</div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 Warning options. Turn these on if you expect the raw data to be free

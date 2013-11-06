@@ -78,7 +78,11 @@ mcxstatus mcxTokFind
 )  ;
 
 
-
+                              /* fixme.
+                                 -  document;
+                                 -  add free routine.
+                                 -  then perhaps optify.
+                              */
 mcxLink* mcxTokArgs
 (  const char* str
 ,  long        str_len

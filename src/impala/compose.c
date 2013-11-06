@@ -84,7 +84,6 @@ mclVector* mclxVectorCompose
    ;  mclIOV*  iovs        =  ch->iovs
    ;  int      cleanup     =  0
    ;  mcxbool  canonical   =  mclxColCanonical(mx)
-   ;  mcxbool  denseVector =  0  && vecs->n_ivps * vecs->n_ivps > N_ROWS(mx)
    ;  mclVector* vecprev   =  NULL
    ;  int n_cols           =  N_COLS(mx)
 
@@ -103,19 +102,12 @@ mclVector* mclxVectorCompose
                   ?  mx->cols+(facivp->idx)
                   :  NULL
                )
-            :  denseVector
-               ?  mclxGetNextVector
-                  (  mx
-                  ,  facivp->idx
-                  ,  RETURN_ON_FAIL
-                  ,  vecprev
-                  )
-               :  mclxGetVector
-                  (  mx
-                  ,  facivp->idx
-                  ,  RETURN_ON_FAIL
-                  ,  vecprev
-                  )
+            :  mclxGetVector
+               (  mx
+               ,  facivp->idx
+               ,  RETURN_ON_FAIL
+               ,  vecprev
+               )
       ;  int      i_iov    =  0
       ;  mclIvp*  colivp   =  mxvec ? mxvec->ivps + mxvec->n_ivps : NULL
       ;  double   facval   =  facivp->val
@@ -191,7 +183,7 @@ mclMatrix* mclxCompose
             ,  ch
             )
          ;  if (maxDensity)
-            mclvSelectHighest
+            mclvSelectHighestGT
             (  pr->cols + n_m2_cols
             ,  maxDensity
             )

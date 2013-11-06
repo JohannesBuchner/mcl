@@ -25,4 +25,6 @@ dim nu_diff_sl   = 0;
 dim nu_diff_zip  = 0;
 double nu_magic  = 1.414;
 
+dim mclx_n_thread_g = 1;
+
 

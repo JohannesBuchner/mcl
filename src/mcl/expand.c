@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -7,10 +7,20 @@
  * GPL along with MCL, in the file COPYING.
 */
 
+
+/* TODO
+ *    In 2009 December this file was decluttered and cleaned-up to a large
+ *    extent (removed somewhat overengineered logging structure),
+ *    but some minor remnants may still exist.
+
+ *    improve naming. rg prefix stands for register, but that's outdated now.
+*/
+
+#define DEBUG_SELECTION 0
+
 #include <math.h>
 #include <limits.h>
 #include <float.h>
-#include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -28,65 +38,94 @@
 #include "impala/vector.h"
 #include "impala/iface.h"
 
-#include "taurus/ilist.h"
+
+typedef struct
+{  double*  bval
+;  long*    bidx
+;
+}  vecbuffer   ;
 
 
-static const char* tags    =  "0123456789@??";
+static vecbuffer* vecbuffer_init
+(  dim N
+)
+   {  dim i
+   ;  vecbuffer* vb = mcxAlloc(sizeof vb[0], EXIT_ON_FAIL)
+   ;  vb->bval = mcxAlloc(N * sizeof vb->bval[0], EXIT_ON_FAIL)
+   ;  vb->bidx = mcxAlloc(N * sizeof vb->bidx[0], EXIT_ON_FAIL)
 
-int mclDefaultWindowSizes[] =
-{     1,       2,       5,
-     10,      20,      50,
-    100,     200,     500,
-   1000,    2000,    5000,
-  10000,   20000,   50000,
-} ;
-/*
- 100000,  200000,  500000,
-1000000, 2000000, 5000000,
+   ;  for (i=0;i<N;i++)
+         vb->bval[i] = 0.0
+      ,  vb->bidx[i] = i
+   ;  return vb
+;  }
+
+
+static void vecbuffer_free
+(  vecbuffer* vb
+)
+   {  mcxFree(vb->bval)
+   ;  mcxFree(vb->bidx)
+   ;  mcxFree(vb)
+;  }
+
+
+static void matrix_vector_array
+(  const mclx* mx
+,  const mclv* src
+,  mclv* dst
+,  vecbuffer* vecbuf          /* values must be zero; dependent on mclExpandVector */
+)
+   {  dim i, j, n_copied = 0
+   ;  double * d = vecbuf->bval
+   ;  long * x = vecbuf->bidx
+
+#if 0
+;  for(i=0;i<N_ROWS(mx);i++)
+   if (d[i])
+   mcxDie(1, "test", "nonzero entry %g\n", d[i])
+#endif
+
+
+/* compute linear combination of columns in mx. We do not worry about loss
+   of precision -- Kahan summation is not needed.
+ */
+   ;  for (i=0;i<src->n_ivps;i++)
+      {  mclv* c = mx->cols + src->ivps[i].idx
+      ;  for (j=0;j<c->n_ivps;j++)
+         d[c->ivps[j].idx] += c->ivps[j].val * src->ivps[i].val
+   ;  }
+
+/* shift nonzero probabilities to front. Set old value to zero if shifting.
 */
+   ;  for (i=0;i<N_ROWS(mx);i++)
+      {  if (d[i] != 0.0)
+         {  x[n_copied] = i
+         ;  d[n_copied] = d[i]
+         ;  if (n_copied < i)
+            d[i] = 0.0
+         ;  n_copied++
+      ;  }
+      }
 
-dim mcl_n_windows   =      sizeof mclDefaultWindowSizes
-                        /  sizeof mclDefaultWindowSizes[0];
-
-static int   levels[]
-=
-   {  80000
-   ,  50000
-   ,  30000
-   ,  20000
-   ,  12500
-
-   ,  8000
-
-   ,  5000
-   ,  3000
-   ,  2000
-   ,  1250
-
-   ,  800
-   ,  500
-   ,  300
-   ,  200
-   ,  125
-
-   ,  -1
-   }  ;
+/* copy to vector, set to zero
+*/
+      mclvResize(dst, n_copied)
+   ;  for (i=0;i<n_copied;i++)
+      {  dst->ivps[i].idx = x[i]
+      ;  dst->ivps[i].val = d[i]
+      ;  d[i] = 0.0
+   ;  }
+   }
 
 
-int n_levels   =  sizeof(levels)/sizeof(int) ;
 
-
-static void levelAccount
-(  mcxIL* il
-,  int   size
-)  ;
-
-
-double mclExpandVector
+static double mclExpandVector
 (  const mclMatrix*  mx
 ,  const mclVector*  srvec       /* src                         */
 ,  mclVector*        dstvec      /* dst                         */
 ,  mclpAR*           ivpbuf      /* backup storage for recovery */
+,  vecbuffer*        vecbuf
 ,  mclxComposeHelper*ch
 ,  long              col
 ,  mclExpandParam*   mxp
@@ -106,35 +145,26 @@ static double get_homg
 ,  const mclv* dst
 ,  double inflation
 )
-   {  if (getenv("MCL_AUTO_COSINE"))
-      {  double ip = mclvIn(src, dst)
-      ;  double nom = sqrt(mclvPowSum(src, 2.0) * mclvPowSum(dst, 2.0))
-      ;  double invcosine = ip ? nom / ip : 1.0
-      ;  return invcosine
-   ;  }
-      else
-      {  double homg_num   =  mclvPowSum(src, 2.0) * pow(mclvPowSum(dst, inflation), 2.0)
-      ;  double homg_nom   =  mclvPowSum(dst, 2.0 * inflation)
-;if(0)fprintf(stdout, "-> %ld\t%.4f\t%.4f\n", (long) src->vid, homg_nom, homg_num)
-      ;  return   homg_nom
-               ?  homg_num / homg_nom
-               :  1.0
-   ;  }
-   }
+   {  double homg_num   =  mclvPowSum(src, 2.0) * pow(mclvPowSum(dst, inflation), 2.0)
+   ;  double homg_nom   =  mclvPowSum(dst, 2.0 * inflation)
+   ;  return   homg_nom
+            ?  homg_num / homg_nom
+            :  1.0
+;  }
 
 
 typedef struct
 {  long              id
-;  long              start
-;  long              end
-;  long              n_mod
 ;  mclExpandParam*   mxp
 ;  mclExpandStats*   stats
-;  const mclx*       mxsrc
 ;  const mclx*       mxright
+;  double            lap
 ;  mclx*             mxdst
 ;  mclv*             chaosVec
 ;  mclv*             homgVec
+;  mclpAR*           ivpbuf
+;  vecbuffer*        vecbuf
+;  mclxComposeHelper*helper
 ;
 }  mclExpandVectorLine_arg ;
 
@@ -157,10 +187,6 @@ mclExpandParam* mclExpandParamNew
    ;  mxp->stats           =  NULL
 
    ;  mxp->n_ethreads      =  0
-
-   ;  mxp->modePruning     =  MCL_PRUNING_RIGID
-   ;  mxp->modeExpand      =  MCL_EXPAND_SPARSE
-
    ;  mxp->precision       =  0.000666
    ;  mxp->pct             =  0.95
 
@@ -168,24 +194,20 @@ mclExpandParam* mclExpandParamNew
    ;  mxp->num_select      =  1444u /* should be overridden by scheme or user */
    ;  mxp->num_recover     =  1444u /* should be overridden by scheme or user */
    ;  mxp->scheme          =  6
-   ;  mxp->do_rprune       =  0
+   ;  mxp->implementation  =  0
 
-   ;  mxp->vectorProgression     =  20
+   ;  mxp->partition_pivot_sort_n = 72
 
-   ;  mxp->warnFactor      =  50
-   ;  mxp->warnPct         =  0.3
+   ;  mxp->vector_progression     =  20
 
-   ;  mxp->nx              =  3
-   ;  mxp->ny              =  6
-   ;  mxp->nj              =  6
-   ;  mxp->nw              =  0
-   ;  mxp->nl              =  10
-   ;  mxp->windowSizes     =  NULL
+   ;  mxp->warn_factor     =  50
+   ;  mxp->warn_pct        =  0.3
 
    ;  mxp->verbosity       =  0
    ;  mxp->dimension       =  -1
 
    ;  mxp->inflation       =  -1.0
+   ;  mxp->sparse_trigger   =  100
 
    ;  return mxp
 ;  }
@@ -197,72 +219,86 @@ void mclExpandParamFree
    {  mclExpandParam *mxp = *epp
    ;  if (mxp->stats)
       mclExpandStatsFree(&(mxp->stats))
-   ;  if (mxp->windowSizes)
-      ilFree(&(mxp->windowSizes))
    ;  mcxFree(*epp)
    ;  *epp =  NULL
 ;  }
 
 
-void* mclExpandVectorLine
-(  void* arg
+void compose_dispatch
+(  mclx* mxsrc
+,  dim colidx
+,  void* data
+,  dim thread_id
 )
-   {  mclExpandVectorLine_arg *a =  arg
-   ;  const mclx*    mxsrc    =  a->mxsrc
+   {  mclExpandVectorLine_arg *a =  ((mclExpandVectorLine_arg*) data) + thread_id
    ;  const mclx*    mxright  =  a->mxright
    ;  mclx*          mxdst    =  a->mxdst
    ;  mclv*          chaosVec =  a->chaosVec
    ;  mclv*          homgVec  =  a->homgVec
-   ;  long           colidx   =  a->start
    ;  mclExpandParam*  mxp    =  a->mxp
    ;  mclExpandStats* stats   =  a->stats
-   ;  double homg_factor =  getenv("HOMG_USE_INFLATION") ? mxp->inflation : 2.0
    ;  clock_t        t1       =  clock(), t2
 
-   ;  mclpAR* ivpbuf =  mclpARensure(NULL, N_ROWS(mxsrc))  
-   ;  mclxComposeHelper*ch =  mclxComposePrepare(mxsrc, NULL)
+   ;  mclpAR* ivpbuf          =  a->ivpbuf
+   ;  vecbuffer* vecbuf       =  a->vecbuf
+   ;  mclxComposeHelper*helper=  a->helper
 
-   ;  for (colidx = a->start; colidx < a->end; colidx+=a->n_mod)
-      {  double colInhomogeneity
-         =  mclExpandVector
-            (  mxsrc
-            ,  mxright->cols + colidx
-            ,  mxdst->cols + colidx
-            ,  ivpbuf      /* backup storage for recovery */
-            ,  ch
-            ,  colidx
-            ,  mxp
-            ,  stats
-            )
+   ;  double colInhomogeneity
+      =  mclExpandVector
+         (  mxsrc
+         ,  mxright->cols + colidx
+         ,  mxdst->cols + colidx
+         ,  ivpbuf      /* backup storage for recovery */
+         ,  vecbuf
+         ,  helper
+         ,  colidx
+         ,  mxp
+         ,  stats       /* important that threads write do different memory locations */
+         )
 
-      ;  (homgVec->ivps+colidx)->val
-         =  get_homg
-            (  mxsrc->cols+colidx
-            ,  mxdst->cols+colidx
-            ,  homg_factor
-            )
-      ;  (chaosVec->ivps+colidx)->val = colInhomogeneity
+   ;  (homgVec->ivps+colidx)->val
+      =  get_homg
+         (  mxsrc->cols+colidx
+         ,  mxdst->cols+colidx
+         ,  2.0
+         )
+   ;  (chaosVec->ivps+colidx)->val = colInhomogeneity
 
-      ;  if (!a->id)
-         {  t2 = clock()
-         ;  stats->lap += ((double) (t2 - t1)) / CLOCKS_PER_SEC
-         ;  t1 = t2
-      ;  }
-      }
-
-      mclpARfree(&ivpbuf)
-   ;  mclxComposeRelease(&ch)
-
-   ;  free(a)
-   ;  return NULL
+   ;  t2 = clock()
+   ;  a->lap += ((double) (t2 - t1)) / CLOCKS_PER_SEC
 ;  }
 
 
-double mclExpandVector
+static void warn_pruning
+(  long col
+,  double maxval
+,  long n_ivps
+,  long rg_n_current
+,  double rg_mass_current
+,  long num_select
+)
+   {  fprintf
+      (  stderr,
+      "\n"
+      "___> Vector with idx [%ld], maxval [%.6f] and [%ld] entries\n"
+      " ->  initially reduced to [%ld] entries with combined mass [%.6f].\n"
+      " ->  Consider increasing the -P value and %s the -S value.\n"
+      ,  (long) col
+      ,  (double) maxval
+      ,  (long) n_ivps
+      ,  (long) rg_n_current
+      ,  (double) rg_mass_current
+      ,  num_select ? "increasing" : "using"
+      )
+;  }
+
+
+static double mclExpandVector1
 (  const mclMatrix*  mx
 ,  const mclVector*  srcvec
 ,  mclVector*        dstvec
 ,  mclpAR*           ivpbuf
+,  vecbuffer*        vecbuf
 ,  mclxComposeHelper*ch
 ,  long              col
 ,  mclExpandParam*   mxp
@@ -270,12 +306,13 @@ double mclExpandVector
 )
    {  dim            rg_n_expand    =  0
    ;  dim            rg_n_prune     =  0
+   ;  dim            v_offset       =  srcvec - mx->cols
 
    ;  mcxbool        rg_b_recover   =  FALSE
    ;  mcxbool        rg_b_select    =  FALSE
 
-   ;  float          rg_mass_prune  =  0.0   /* used for heap, must be float */
-   ;  float          rg_mass_final  =  1.0   /* same */
+   ;  double         rg_mass_prune  =  0.0   /* used for heap, must be float */
+   ;  double         rg_mass_final  =  1.0   /* same */
 
    ;  double         rg_sbar        =  -1.0     /*    select bar           */
    ;  double         rg_rbar        =  -1.0     /*    recovery bar         */
@@ -288,24 +325,31 @@ double mclExpandVector
    ;  double         colInhomogeneity =  0.0
 
    ;  mcxbool        progress       =  mcxLogGet(MCX_LOG_GAUGE)
+   ;  mcxbool        have_canonical =  MCLV_IS_CANONICAL(mx->dom_rows)
+   ;  dim            n_entries      =  0, i
 
-   ;  mclxVectorCompose
-      (  mx
-      ,  srcvec
-      ,  dstvec
-      ,  ch
+   ;  if (have_canonical)
+      for (i=0;i<srcvec->n_ivps;i++)
+      n_entries += mx->cols[srcvec->ivps[i].idx].n_ivps
+
+   ;  if
+      (  have_canonical
+      && mxp->sparse_trigger
+      && n_entries > srcvec->n_ivps * mxp->sparse_trigger
       )
+      matrix_vector_array(mx, srcvec, dstvec, vecbuf)
+   ;  else
+      mclxVectorCompose(mx, srcvec, dstvec, ch)
 
-   ;  rg_n_expand          =  dstvec->n_ivps ? dstvec->n_ivps : 1
+   ;  rg_n_expand = dstvec->n_ivps ? dstvec->n_ivps : 1
 
    ;  if (mxp->num_recover)
       {  memcpy(ivpbuf->ivps, dstvec->ivps, dstvec->n_ivps * sizeof(mclIvp))
       ;  ivpbuf->n_ivps = dstvec->n_ivps
    ;  }
 
-      if (mxp->modePruning == MCL_PRUNING_RIGID)
       {  vecMeasure(dstvec, &maxval, &center)
-      ;  if (mxp->do_rprune)
+      ;  if (mxp->implementation & MCL_USE_RPRUNE)
          {  cut            =  maxval / mxp->num_prune
          ;  rg_mass_prune  =  mclvSelectGqBar (dstvec, cut)
       ;  }
@@ -318,41 +362,26 @@ double mclExpandVector
 
       ;  rg_n_prune        =  dstvec->n_ivps
       ;  rg_mass_final     =  rg_mass_prune
-   ;  }
-      else
-      {  /* fixme; should above branch be exhaustive? enables dense mode? */
+;if(DEBUG_SELECTION)fprintf(stdout, "%d pru %d ", (int) dstvec->vid, (int) dstvec->n_ivps)
    ;  }
 
-   ;  if
-      (  mxp->warnFactor
-      && (     mxp->warnFactor * MCX_MAX(dstvec->n_ivps,mxp->num_select)
+      if
+      (  mxp->warn_factor
+      && (     mxp->warn_factor * MCX_MAX(dstvec->n_ivps,mxp->num_select)
             <  rg_n_expand
-         && rg_mass_prune < mxp->warnPct
+         && rg_mass_prune < mxp->warn_pct
          )
       )
-      {  mesg = TRUE
-      ;  fprintf
-         (  stderr,
-         "\n"
-         "___> Vector with idx [%ld], maxval [%.6f] and [%ld] entries\n"
-         " ->  initially reduced to [%ld] entries with combined mass [%.6f].\n"
-         " ->  Consider increasing the -P value and %s the -S value.\n"
-         ,  (long) col
-         ,  (double) maxval
-         ,  (long) rg_n_expand
-         ,  (long) dstvec->n_ivps
-         ,  (double) rg_mass_prune
-         ,  mxp->num_select ? "increasing" : "using"
-         )
-   ;  }
+         mesg = TRUE
+      ,  warn_pruning(col, maxval, rg_n_expand, dstvec->n_ivps, rg_mass_prune, mxp->num_select)
 
-      if (!mxp->num_recover && !dstvec->n_ivps)
+   ;  if (!mxp->num_recover && !dstvec->n_ivps)
       {  mclvResize(dstvec, 1)
       ;  (dstvec->ivps+0)->idx = col
       ;  (dstvec->ivps+0)->val = 1.0
       ;  rg_mass_prune  =  1.0
       ;  rg_n_prune     =  1
-      ;  if (mxp->warnFactor)
+      ;  if (mxp->warn_factor)
          fprintf(stderr, " ->  Emergency measure: added loop to node\n")
    ;  }
 
@@ -377,6 +406,7 @@ double mclExpandVector
          rg_rbar = 0.0
 
       ;  rg_mass_final     =  mclvSelectGqBar(dstvec, rg_rbar)
+;if(DEBUG_SELECTION)fprintf(stdout, "rec1 %d ", (int) dstvec->n_ivps)
    ;  }
 
       else if (mxp->num_select && dstvec->n_ivps > mxp->num_select)
@@ -384,7 +414,7 @@ double mclExpandVector
       ;  int n_select
       ;  rg_b_select       =  TRUE
 
-      ;  if (mxp->num_recover)         /* recovers to post prune vector */
+      ;  if (mxp->num_recover)                  /* recovers to post prune vector */
          {  memcpy(ivpbuf->ivps, dstvec->ivps, dstvec->n_ivps * sizeof(mclIvp))
          ;  ivpbuf->n_ivps = dstvec->n_ivps
       ;  }
@@ -402,11 +432,12 @@ double mclExpandVector
          =  mclvKBar
             (  dstvec
             ,  dstvec->n_ivps - mxp->num_select + 1
-            ,  -FLT_MAX          /* values < cut are already removed */
+            ,  -FLT_MAX                         /* values < cut are already removed */
             ,  KBAR_SELECT_SMALL
             )
 
       ;  mass_select       =  mclvSelectGqBar(dstvec, rg_sbar)
+;if(DEBUG_SELECTION)fprintf(stdout, "sel %d [%.16f %.9f] ", (int) dstvec->n_ivps, rg_sbar, mass_select)
       ;  rg_mass_final     =  mass_select
       ;  n_select          =  dstvec->n_ivps
 
@@ -431,6 +462,7 @@ double mclExpandVector
             rg_rbar = 0.0
 
          ;  rg_mass_final  =  mclvSelectGqBar(dstvec, rg_rbar)
+;if(DEBUG_SELECTION)fprintf(stdout, "rec2 %d ", (int) dstvec->n_ivps)
       ;  }
       }
 
@@ -461,51 +493,15 @@ double mclExpandVector
       *  in the block below and nowhere else.
      */
 
-     /*
-      *  always fill the stuff, we need it for the jury marks
-     */
-      {  dim z
-      ;  mclMatrix *chr = stats->mx_chr
+      {  stats->bob_low[v_offset]   =  rg_mass_prune
+      ;  stats->bob_final[v_offset] =  rg_mass_final
 
-      ;  if (mxp->n_ethreads)
-         pthread_mutex_lock(&(stats->mutex))
-
-      ;  levelAccount(stats->il_levels_expand, rg_n_expand)
-      ;  levelAccount(stats->il_levels_prune, rg_n_prune)
-
-      ;  ((chr->cols+col)->ivps+0)->val  =   -1.0  /* self is expensive */
-      ;  ((chr->cols+col)->ivps+1)->val  =   -1.0  /* self is expensive */
-      ;  ((chr->cols+col)->ivps+2)->val  =   center
-      ;  ((chr->cols+col)->ivps+3)->val  =   maxval
-      ;  ((chr->cols+col)->ivps+4)->val  =   rg_mass_final
-
-      ;  for (z=0;z<stats->n_windows;z++)
-         {  mcxHeapInsert((stats->windowPrune)+z, &rg_mass_prune)
-         ;  mcxHeapInsert((stats->windowFinal)+z, &rg_mass_final)
-      ;  }
-
-         stats->mass_prune_all += rg_mass_prune
-      ;  stats->mass_final_all += rg_mass_final
-
-      ;  if (rg_b_select)
-         stats->n_selects++
-
-      ;  if (rg_b_recover)
-         stats->n_recoveries++
-
-      ;  if (rg_mass_final < mxp->pct)
-         stats->n_below_pct++
-
-      ;  if (progress)
+      ;  if (progress && !mxp->n_ethreads)         /* fixme: change to thread-specific data. */
          {  stats->n_cols++
-         ;  if (stats->n_cols % mxp->vectorProgression == 0)
+         ;  if (stats->n_cols % mxp->vector_progression == 0)
             fwrite(".", sizeof(char), 1, stderr)
-         ,  fflush(stderr)
       ;  }
-
-         if (mxp->n_ethreads)
-         pthread_mutex_unlock(&(stats->mutex))
-   ;  }
+      }
 
       return colInhomogeneity
 ;  }
@@ -522,9 +518,8 @@ mclMatrix* mclExpand
    ;  mclExpandStats*   stats    =  mxp->stats
    ;  clock_t           t1       =  clock(), t2
    ;  long              n_cols   =  N_COLS(mx)
-   ;  double      homg_factor = getenv("HOMG_USE_INFLATION") ? mxp->inflation : 2.0
 
-   ;  if (mxp->dimension < 0 || !stats || !mxp->windowSizes)
+   ;  if (mxp->dimension < 0 || !stats)
          mcxErr("mclExpand", "pbd: not correctly initialized")
          /* mclExpandParamDim probably not called */
       ,  mcxExit(1)
@@ -543,48 +538,41 @@ mclMatrix* mclExpand
    ;  mclExpandStatsReset(stats)
 
    ;  if (mxp->n_ethreads)
-      {  pthread_t *threads_expand  
-         =  mcxAlloc(mxp->n_ethreads*sizeof(pthread_t), EXIT_ON_FAIL)
-      ;  pthread_attr_t  pthread_custom_attr
-      ;  int i
-
-      ;  pthread_mutex_init(&(stats->mutex), NULL)
-      ;  pthread_attr_init(&pthread_custom_attr)
+      {  int i
+      ;  mclExpandVectorLine_arg *data = mcxAlloc(mxp->n_ethreads * sizeof data[0], EXIT_ON_FAIL)
 
       ;  for (i=0;i<mxp->n_ethreads;i++)
-         {  mclExpandVectorLine_arg *a = malloc(sizeof(mclExpandVectorLine_arg))
+         {  mclExpandVectorLine_arg* a = data+i
+
          ;  a->id          =  i
-
-         ;  a->start       =  i
-         ;  a->end         =  N_COLS(mx)
-         ;  a->n_mod       =  mxp->n_ethreads
-
-         ;  a->mxdst         =  sq
+         ;  a->mxdst       =  sq
+         ;  a->lap         =  0.0
          ;  a->mxp         =  mxp
          ;  a->stats       =  stats
          ;  a->chaosVec    =  chaosVec
          ;  a->homgVec     =  homgVec
 
-         ;  a->mxsrc       =  mx
          ;  a->mxright     =  mxright
-
-                           /* TODO: non-overflow accounting of lap times */
-         ;  pthread_create
-            (  threads_expand+i
-            ,  &pthread_custom_attr
-            ,  mclExpandVectorLine
-            ,  a
-            )
+         ;  a->ivpbuf      =  mclpARensure(NULL, N_ROWS(mx))  
+         ;  a->vecbuf      =  vecbuffer_init(N_ROWS(mx))
+         ;  a->helper      =  mclxComposePrepare(mx, NULL)
       ;  }
 
-         for (i = 0; i < mxp->n_ethreads; i++)
-         {  pthread_join(threads_expand[i], NULL)
+         mclxVectorDispatch((mclx*) mx, data, mxp->n_ethreads, compose_dispatch)
+
+      ;  for (i=0;i<mxp->n_ethreads;i++)
+         {  mclExpandVectorLine_arg* a = data+i
+         ;  mclpARfree(&(a->ivpbuf))
+         ;  mclxComposeRelease(&(a->helper))
+         ;  vecbuffer_free(a->vecbuf)
+         ;  stats->lap = MCX_MAX(stats->lap, data[i].lap)
       ;  }
-         mcxFree(threads_expand)
-   ;  }      /* glob a is destroyed by mclExpandVectorLine */
+         mcxFree(data)
+   ;  }
 
       else
-      {  mclpAR* ivpbuf = mclpARensure(NULL, N_ROWS(mx))  
+      {  mclpAR* ivpbuf    =  mclpARensure(NULL, N_ROWS(mx))  
+      ;  vecbuffer* vecbuf =  vecbuffer_init(N_ROWS(mx))
       ;  mclxComposeHelper *ch = mclxComposePrepare(mx, NULL)
 
       ;  for (col=0;col<n_cols;col++)
@@ -594,6 +582,7 @@ mclMatrix* mclExpand
                ,  mxright->cols+col
                ,  sq->cols+col
                ,  ivpbuf
+               ,  vecbuf
                ,  ch
                ,  col
                ,  mxp
@@ -604,7 +593,7 @@ mclMatrix* mclExpand
             =  get_homg
                (  mx->cols+col
                ,  sq->cols+col
-               ,  homg_factor
+               ,  2.0
                )
 
          ;  if (!((col+1) % 10))
@@ -616,6 +605,7 @@ mclMatrix* mclExpand
 
          mclpARfree(&ivpbuf)
       ;  mclxComposeRelease(&ch)
+      ;  vecbuffer_free(vecbuf)
    ;  }
 
       if (chaosVec->n_ivps)
@@ -626,98 +616,6 @@ mclMatrix* mclExpand
       ;  stats->homgMin  =  mclvMinValue(homgVec)
    ;  }
 
-      if (getenv("MCL_SPEW"))    /* lisp homg: lame TODO fixfixmefixme : remove */
-      {  dim i
-      ;  for (i=0;i<N_COLS(mx);i++)
-         {  mclv* nblist = mx->cols+i
-         ;  long nb = -1
-         ;  double homg = 0.0
-         ;  dim j
-         ;  for (j=0;j<nblist->n_ivps;j++)
-            {  long ofs = mclvGetIvpOffset(homgVec, nblist->ivps[j].idx, nb)
-            ;  if (ofs >=0)
-               homg += nblist->ivps[j].val * homgVec->ivps[ofs].val
-         ;  }
-            fprintf(stdout, "%4ld -> avg %.2f, val %.2f\n", nblist->vid, homg, homgVec->ivps[i].val)
-      ;  }
-         fputs("===\n", stdout)
-   ;  }
-
-     /*
-      *  All but the level accounting part of the registry.
-      *  Transferral of information from registry to stats.
-     */
-
-      {  dim x, z
-
-      ;  for (z=0;z<stats->n_windows;z++)
-         {  mcxHeap* floatHeap = (stats->windowPrune)+z
-
-         ;  if (floatHeap->n_inserted)
-            {  float* flp = (float *) floatHeap->base  
-
-            ;  for (x=0;x<floatHeap->n_inserted;x++)
-               stats->mass_prune_low[z] += *(flp+x)
-
-            ;  stats->mass_prune_low[z] /=  floatHeap->n_inserted
-         ;  }
-
-            floatHeap = (stats->windowFinal)+z
-
-         ;  if (floatHeap->n_inserted)
-            {  float* flp = (float *) floatHeap->base  
-
-            ;  for (x=0;x<floatHeap->n_inserted;x++)
-               stats->mass_final_low[z] += *(flp+x)
-
-            ;  stats->mass_final_low[z] /=  floatHeap->n_inserted
-         ;  }
-         }
-
-         if (n_cols)
-            stats->mass_final_all  /=  n_cols
-         ,  stats->mass_prune_all  /=  n_cols
-   ;  }
-
-
-     /*
-      *  The level accounting part of the registry.
-      *  Transferral of information from registry to stats.
-     */
-
-      {  int   x
-      ;  mcxIL* ilx           =  stats->il_levels_expand
-      ;  mcxIL* ilp           =  stats->il_levels_prune
-
-      ;  int   n_levels_p     =  ilp->n
-      ;  int   n_levels_x     =  ilx->n
-
-      ;  char *xbuf           =  mcxAlloc(n_levels_x+1, EXIT_ON_FAIL)
-      ;  char *pbuf           =  mcxAlloc(n_levels_p+1, EXIT_ON_FAIL)
-      
-      ;  pbuf[n_levels_p-1]   =  '\0'
-      ;  xbuf[n_levels_x-1]   =  '\0'
-
-      ;  ilAccumulate(ilp)
-      ;  ilAccumulate(ilx)
-
-      ;  for (x=0;x<n_levels_x-1;x++)
-         {  int n   =   *(ilx->L+x)
-         ;  int t   =   n_cols ? ((1000*n / n_cols)+50) / 100 : 0
-         ;  xbuf[x] =   n == 0 ?  '_' :  tags[t]
-      ;  }
-         for (x=0;x<n_levels_p-1;x++)
-         {  int  n  =   *(ilp->L+x)
-         ;  int t   =   n_cols ? ((1000*n / n_cols)+50) / 100 : 0
-         ;  pbuf[x] =   n == 0 ?  '_' : tags[t]
-      ;  }
-
-         stats->levels_expand =  mcxTingNew(xbuf) /* mq freed by whom? */
-      ;  stats->levels_prune  =  mcxTingNew(pbuf) /* mq freed by whom? */
-      ;  mcxFree(xbuf)
-      ;  mcxFree(pbuf)
-   ;  }
-
       mclvFree(&chaosVec)
    ;  stats->homgVec = homgVec
    ;  return sq
@@ -725,58 +623,16 @@ mclMatrix* mclExpand
 
 
 mclExpandStats* mclExpandStatsNew
-(  dim   n_windows
-,  int*  window_sizes
-,  int   nx          /* one of the heaps */
-,  int   ny          /* one of the heaps */
-,  const mclVector* dom_cols
+(  dim   n_cols
 )  
    {  mclExpandStats* stats  =  (mclExpandStats*) mcxAlloc
                                 (  sizeof(mclExpandStats)
                                 ,  EXIT_ON_FAIL
                                 )
-   ;  dim z
-   ;  stats->mx_chr        =  mclxCartesian
-                              (  mclvCopy(NULL, dom_cols)
-                              ,  mclvCanonical(NULL, 5, 1.0)
-                              ,  0.0
-                              )
-   ;  stats->mass_final_low=  mcxAlloc(n_windows*sizeof(double), EXIT_ON_FAIL)
-   ;  stats->mass_prune_low=  mcxAlloc(n_windows*sizeof(double), EXIT_ON_FAIL)
+   ;  stats->bob_low         =   mcxAlloc(n_cols * sizeof stats->bob_low[0], EXIT_ON_FAIL)
+   ;  stats->bob_final       =   mcxAlloc(n_cols * sizeof stats->bob_final[0], EXIT_ON_FAIL)
 
-   ;  stats->n_windows     =  n_windows
-   ;  stats->window_sizes  =  mcxAlloc(sizeof(int) * n_windows, EXIT_ON_FAIL)
-   ;  memcpy(stats->window_sizes, window_sizes, n_windows * sizeof(int))
-
-   ;  stats->windowPrune   =  mcxAlloc(n_windows*sizeof(mcxHeap), EXIT_ON_FAIL)
-   ;  stats->windowFinal   =  mcxAlloc(n_windows*sizeof(mcxHeap), EXIT_ON_FAIL)
-
-   ;  stats->homgVec       =  NULL
-
-   ;  for(z=0;z<stats->n_windows;z++)
-      {  mcxHeapNew
-         (  (stats->windowPrune)+z
-         ,  window_sizes[z]
-         ,  sizeof(float)
-         ,  fltCmp
-         )
-      ;  mcxHeapNew
-         (  (stats->windowFinal)+z
-         ,  window_sizes[z]
-         ,  sizeof(float)
-         ,  fltCmp
-         )
-   ;  }
-
-      stats->nx   =  nx
-   ;  stats->ny   =  ny
-
-   ;  stats->levels_expand    =  NULL
-   ;  stats->levels_prune     =  NULL
-   ;  stats->il_levels_expand =  NULL
-   ;  stats->il_levels_prune  =  NULL
-
-   ;  stats->lap  =  0.0
+   ;  stats->homgVec          =  NULL
 
    ;  mclExpandStatsReset(stats)       /* this initializes several members */
    ;  return stats
@@ -786,35 +642,13 @@ mclExpandStats* mclExpandStatsNew
 void mclExpandStatsReset
 (  mclExpandStats* stats
 )  
-   {  dim z
-   ;  stats->chaosMax         =  0.0
+   {  stats->chaosMax         =  0.0
    ;  stats->chaosAvg         =  0.0
    ;  stats->homgMax          =  0.0
    ;  stats->homgMin          =  PVAL_MAX
    ;  stats->homgAvg          =  0.0
-   ;  stats->n_selects        =  0
-   ;  stats->n_recoveries     =  0
-   ;  stats->n_below_pct      =  0
    ;  stats->n_cols           =  0
    ;  stats->lap              =  0.0
-
-   ;  for (z=0;z<stats->n_windows;z++)
-      {  stats->mass_final_low[z] =  0.0
-      ;  stats->mass_prune_low[z] =  0.0
-      ;  mcxHeapClean((stats->windowPrune)+z)
-      ;  mcxHeapClean((stats->windowFinal)+z)
-   ;  }
-
-      stats->mass_final_all   =  0.0
-   ;  stats->mass_prune_all   =  0.0
-
-   ;  stats->il_levels_expand =  ilInstantiate
-                                 (stats->il_levels_expand, n_levels, NULL)
-   ;  stats->il_levels_prune  =  ilInstantiate
-                                 (stats->il_levels_prune,n_levels, NULL)
-
-   ;  mcxTingFree(&(stats->levels_expand))
-   ;  mcxTingFree(&(stats->levels_prune))
 
    ;  mclvFree(&(stats->homgVec))
 ;  }
@@ -825,33 +659,12 @@ void mclExpandStatsFree
 )  
    {  mclExpandStats* stats = *statspp
 
-   ;  mcxTingFree(&(stats->levels_expand))
-   ;  mcxTingFree(&(stats->levels_prune))
+   ;  mcxFree(stats->bob_low)
+   ;  mcxFree(stats->bob_final)
 
-   ;  ilFree(&(stats->il_levels_expand))
-   ;  ilFree(&(stats->il_levels_prune))
-
-   ;  mcxFree(stats->mass_prune_low)
-   ;  mcxFree(stats->mass_final_low)
-
-   ;  mclxFree(&(stats->mx_chr))
-
-   ;  mcxFree(stats->window_sizes)
    ;  mclvFree(&(stats->homgVec))
-
-   ;  mcxNFree
-      (  stats->windowPrune
-      ,  stats->n_windows
-      ,  sizeof(mcxHeap)
-      ,  mcxHeapRelease
-      )
-   ;  mcxNFree
-      (  stats->windowFinal
-      ,  stats->n_windows
-      ,  sizeof(mcxHeap)
-      ,  mcxHeapRelease
-      )
    ;  mcxFree(stats)
+
    ;  *statspp = NULL
 ;  }
 
@@ -860,32 +673,7 @@ void mclExpandStatsPrint
 (  mclExpandStats*  stats
 ,  FILE*             fp
 )
-   {  fprintf
-      (  fp
-      ,  "#|%3d%3d%3d %3d%3d%3d %s %s %-7d %-7d %-7d"
-      ,  (int) (100.0*stats->mass_prune_all)
-      ,  (int) (100.0*stats->mass_prune_low[stats->ny])
-      ,  (int) (100.0*stats->mass_prune_low[stats->nx])
-      ,  (int) (100.0*stats->mass_final_all)
-      ,  (int) (100.0*stats->mass_final_low[stats->ny])
-      ,  (int) (100.0*stats->mass_final_low[stats->nx])
-      ,  stats->levels_expand->str
-      ,  stats->levels_prune->str
-      ,  (int) stats->n_recoveries
-      ,  (int) stats->n_selects
-      ,  (int) stats->n_below_pct
-      )
-;  }
-
-
-static void levelAccount
-(  mcxIL*   il
-,  int      size
-)
-   {  int   i  =  0
-   ;  while (size < levels[i] && i<n_levels)
-      i++
-   ;  (*(il->L+i))++
+   {  fprintf(fp, " NA")
 ;  }
 
 
@@ -917,230 +705,363 @@ void mclExpandParamDim
 (  mclExpandParam*  mxp
 ,  const mclMatrix *mx
 )
-   {  dim n_windows     =  mcl_n_windows
-   ;  dim n_nodes       =  N_COLS(mx)
-   ;  int* window_sizes =  mclDefaultWindowSizes
-
-   ;  if (mxp->nw)
-      n_windows = MCX_MIN(n_windows, mxp->nw)
-
-   ;  while ((dim) window_sizes[n_windows-1] >= n_nodes && n_windows > 1)
-      n_windows--
-
-   ;  mxp->windowSizes = ilInstantiate(mxp->windowSizes, n_windows, window_sizes)
-   ;  mxp->dimension   = n_nodes
-
-   ;  if (mxp->nx >= n_windows)
-      {  if (0) mcxTell("mcl-proc", "setting nx to <%d>", (int) n_windows)
-      ;  mxp->nx = n_windows -1
-   ;  }
-      if (mxp->ny >= n_windows)
-      {  if (0) mcxTell("mcl-proc", "setting ny to <%d>", (int) n_windows)
-      ;  mxp->ny = n_windows -1
-   ;  }
-      if (mxp->nj >= n_windows)
-      {  if (0) mcxTell("mcl-proc", "setting nj to <%d>", (int) n_windows)
-      ;  mxp->nj = n_windows -1
-   ;  }
-
-      mxp->stats  =  mclExpandStatsNew
-                     (  mxp->windowSizes->n
-                     ,  mxp->windowSizes->L
-                     ,  mxp->nx
-                     ,  mxp->ny
-                     ,  mx->dom_cols
-                     )
+   {  mxp->stats  =  mclExpandStatsNew(N_COLS(mx))
+   ;  mxp->dimension = N_COLS(mx)
 ;  }
 
 
-/* 
- *   for each extra set of (1,2,5 * 10^k), we need to add the
- *       '_ek_____.'   part, the
- *       ' 1  2  5|'   part, and the 
- *       '--------^'   part, the
- *       '         '   part (in the 'mass window' line).
- *   Also, the number that is now '63' and used in the shrink statements,
- *   increases by 9.
-*/
-
-void mclExpandInitLog
-(  mcxTing* Log
-,  mclExpandParam* mxp  
+#if 0
+static int cmp_pval
+(  void* p1
+,  void* p2
 )
-   {  mcxTing* line  =  mcxTingEmpty(NULL, 80)
-
-   ;  if (!mxp->windowSizes)
-         mcxErr("mclExpandInitLog PBD", "not correctly initialized")
-         /* mclExpandParamDim probably not called */
-      ,  mcxExit(1)
-
-   ;  mcxTingWrite(line, "mcl pruning statistics\n")
-   ;  if (0)  mcxTingKAppend(line, "-", 3*mxp->windowSizes->n+63)
-   ;  mcxTingAppend
-      (  line
-      ,  "mass windows                                                    "
-      )
-   ;  mcxTingShrink(line, 3*mxp->windowSizes->n-63)
-   ;  mcxTingAppend(line, "   footprint expand/prune\n")
-   ;  mcxTingAppend
-      (  line
-      ,  "._e0_____._e1_____._e2_____._e3_____._e4_____._e5_____._e6_____."
-      )
-   ;  mcxTingShrink(line, 3*mxp->windowSizes->n-63)
-   ;  mcxTingAppend(line, "    e4___e3___e2___.e4___e3___e2___ ..... #R\n")
-   ;  mcxTingWrite(Log, line->str)
-
-   ;  mcxTingWrite
-      (  line
-      ,  "| 1  2  5| 1  2  5| 1  2  5| 1  2  5| 1  2  5|"
-          " 1  2  5| 1  2  5|"
-      )
-   ;  mcxTingShrink(line, 3*mxp->windowSizes->n-63)
-   ;  *(line->str+(line->len-1)) = '|'
-   ;  mcxTingAppend(line, "all 8532c8532c8532c 8532c8532c8532c ..... #S\n")
-   ;  mcxTingAppend(Log, line->str)
-
-   ;  mcxTingWrite
-      (  line
-      ,  "^--------^--------^--------^--------^--------^--------^--------^"
-      )
-   ;  mcxTingShrink(line, 3*mxp->windowSizes->n-63)
-   ;  *(line->str+(line->len-1)) = '^'
-   ;  mcxTingAppend
-      (line, "--- ---------------^--------------- ----- #%\n")
-
-   ;  mcxTingAppend(Log, line->str)
-   ;  mcxTingFree(&line)
+   {  return *((pval*) p1) < *((pval*) p2) ? -1 : *((pval*) p1) > *((pval*) p2) ? 1 : 0
 ;  }
+#endif
 
 
-void mclExpandAppendLog
-(  mcxTing* Log
-,  mclExpandStats *s
-,  int n_ite
+pval partition_select
+(  pval* d
+,  dim  N
+,  dim  K
+,  double* mass
+,  dim* nd
+,  dim* ns
+,  mclExpandParam* mxp
 )
-   {  dim z
-   ;  mcxTing* buf = mcxTingEmpty(NULL, 60)
+#define SWAP(a,b)  e = d[a], d[a] = d[b], d[b] = e
+   {  dim left = 0, right = N -1
+   ;  dim i
+   ;  dim n_delta = 0, n_swap = 0
+   ;  mclv* sample = mclvCanonical(NULL, 7, 1.0)
+   ;  pval e
 
-   ;  for (z=0;z<s->n_windows;z++)
-      mcxTingPrintAfter(buf, "%3d", (int) (100.0*s->mass_prune_low[z]))
-   ;  mcxTingPrintAfter(buf, " %3d", (int)(100.0*s->mass_prune_all))
+   ;  if (!N || !K)
+      return 0.0
 
-   ;  mcxTingAppend(Log, buf->str)
+   ;  while (left < right)
+      {  dim delta = right - left, storeid = left
+      ;  ofs pid = -1
+      ;  pval piv = -1.0
+      ;  if (delta > mxp->partition_pivot_sort_n)
+         {  dim fac = (delta - (delta % mxp->partition_pivot_sort_n)) / mxp->partition_pivot_sort_n
+         ;  for (i=0;i<7;i++)
+            {  sample->ivps[i].val = d[left + 1 + 2*i*fac]
+            ;  sample->ivps[i].idx = left + 1 + 2*i*fac
+         ;  }
+            mclvSortAscVal(sample)
+         ;  pid =  sample->ivps[(6 * (right - (K-1))) / delta].idx     /* if right-K large, pick a large pivot */
+         ;  piv =  sample->ivps[(6 * (right - (K-1))) / delta].val
+      ;  }
+         else
+            pid = left + (delta >> 1)
+        ,   piv = d[pid]
 
-   ;  mcxTingAppend(Log, "                                ")
-   ;  mcxTingPrint(buf, " %8d\n", (int) s->n_recoveries)
+      ;  n_delta += delta
 
-   ;  for (z=1;buf->str[z+1]==' ';z++)
-      buf->str[z] = '.'
+      ;  SWAP(right, pid)
 
-   ;  mcxTingAppend(Log, buf->str)
+      ;  for (i=left;i<right;i++)
+         {  if (d[i] >= piv)
+            {  SWAP(storeid, i)
+            ;  n_swap++
+            ;  storeid++
+         ;  }
+         }
 
-   ;  mcxTingEmpty(buf, 0)
-   ;  for (z=0;z<s->n_windows;z++)
-      mcxTingPrintAfter(buf, "%3d", (int) (100.0*s->mass_final_low[z]))
-   ;  mcxTingPrintAfter(buf, " %3d ", (int)(100.0*s->mass_final_all))
+         SWAP(right, storeid)
+      ;  if (storeid > K-1)
+         right = storeid - 1
+      ;  else if (storeid <= K-1)
+         left = storeid + 1
+   ;  }
 
-   ;  mcxTingAppend(Log, buf->str)
+      if (ns) ns[0] = n_swap
+   ;  if (nd) nd[0] = n_delta
 
-   ;  mcxTingPrintAfter
-      (  Log
-      ,  "%s %s"
-      ,  s->levels_expand->str
-      ,  s->levels_prune->str
-      )
+   ;  if (mass)
+      {  double m = 0.0
+      ;  for (i=0;i<K;i++)
+         m += d[i]
+      ;  mass[0] = m
+   ;  }
 
-   ;  mcxTingPrint(buf, " %8d\n", (int) s->n_selects)
-
-   ;  for (z=1;buf->str[z+1]==' ';z++)
-      buf->str[z] = '.'
-
-   ;  mcxTingAppend(Log, buf->str)
-   ;  mcxTingKAppend(Log, "-", 3* s->n_windows + 4)
-   ;  mcxTingAppend(Log, " --------------- ---------------")
-
-   ;  mcxTingPrint(buf, " %8d\n", (int) s->n_below_pct)
-
-   ;  for (z=1;buf->str[z+1]==' ';z++)
-      buf->str[z] = '-'
-
-   ;  mcxTingAppend(Log, buf->str)
-
-   ;  mcxTingPrint
-      (  buf
-      ,  "ite %d time %.2f chaos %.2f/%.2f homg %.2f/%.2f/%.2f\n"
-      ,  (int) n_ite
-      ,  (double) s->lap
-      ,  (double) s->chaosMax
-      ,  (double) s->chaosAvg
-      ,  (double) s->homgMax
-      ,  (double) s->homgMin
-      ,  (double) s->homgAvg
-      )
-
-   ;  mcxTingAppend(Log, buf->str)
-
-   ;  mcxTingKAppend(Log, "-", 3* s->n_windows + 45)
-   ;  mcxTingAppend(Log, "\n")
-   ;  mcxTingFree(&buf)
+      mclvFree(&sample)
+   ;  return d[K-1]
 ;  }
 
 
-void mclExpandStatsHeader
-(  FILE* vbfp
-,  mclExpandStats* stats
-,  mclExpandParam*  mxp
-)  
-   {
-fprintf
-(  vbfp
-,  "The threshold value equals [%f] (-p <f> or -P <i>)).\n"
-,  (double) mxp->precision
-)  ;
+   /* See the note at mclvExpandVector2 below for the fine details
+    * of MCL_USE_PARTITION_TIES.
+   */
 
-if (mxp->num_select)
-fprintf
-(  vbfp
-,  "Exact selection prunes to at most %d positive entries (-S).\n"
-,  (int) mxp->num_select
-)  ;
+pval selectk
+(  pval* d
+,  dim  N
+,  dim  K
+,  dim  *K_adjusted     /* to account for ties */
+,  double* mass
+,  dim* nd
+,  dim* ns
+,  mclExpandParam *mxp
+)
+   {  dim i = 0, k = K
+   ;  pval bar = partition_select(d, N, K, mass, nd, ns, mxp)
 
-if (mxp->num_recover)
-fprintf
-(  vbfp
-,  "If thresholding leaves less than %2.0f%% mass (-pct) and less than\n"
-   "%d entries, as much mass as possible is recovered (-R).\n"
-,  (double) 100 * mxp->pct
-,  (int) mxp->num_recover
-)  ;
+   ;  if (1)
+      {  while (k < N && d[k] >= bar)
+            mass[0] += d[k]
+         ,  k++
+   ;  }
+      else                    /* test from scratch */
+      {  double m = 0.0
+      ;  k = 0
+      ;  for (i=0;i<N;i++)
+         {  if (d[i] >= bar)
+               k++
+            ,  m += d[i]
+      ;  }
+         mass[0] = m
+   ;  }
 
-fprintf
-(  vbfp
-,  "\nLegend\n"
-   "all: average over all cols\n"
-   "ny:  window %d (-ny <i>), average over the worst %d cases.\n"
-   "nx:  window %d (-nx <i>), average over the worst %d cases.\n"
-   "<>:  recovery is %sactivated. (-R, -pct)\n"
-   "[]:  selection is %sactivated. (-S)\n"
-   "8532c: 'man mcl' explains.\n"
-,  (int) stats->ny+1
-,  (int) stats->window_sizes[stats->ny]
-,  (int) stats->nx+1
-,  (int) stats->window_sizes[stats->nx]
-,  (mxp->num_recover) ? "" : "NOT "
-,  (mxp->num_select) ? "" : "NOT "
-)  ;
+      K_adjusted[0] = k
+   ;  return bar
+;  }
 
-fprintf
-(  vbfp
-,  "\n"
-"#|---------------------------------------------------------------------------\n"
-"#| mass percentages  | distr of vec footprints       |#recover cases <>      \n"
-"#|         |         |____ expand ___.____ prune ____||    #select cases []  \n"
-"#|  prune  | final   |e4   e3   e2   |e4   e3   e2   ||       |    #below pct\n"
-"#|all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|V       V       V      \n"
-"#|---------.---------.---------------.---------.-----.--------.-------.------"
-)  ;
 
-   }
+   /* fixme. variables + naming to keep track of #entries
+    * and their combined mass is kludgy.
+   */
+
+static double mclExpandVector2
+(  const mclMatrix*  mx
+,  const mclVector*  srcvec
+,  mclVector*        dstvec
+,  mclpAR*           ivpbuf
+,  vecbuffer*        vecbuf
+,  mclxComposeHelper*ch
+,  long              col
+,  mclExpandParam*   mxp
+,  mclExpandStats*   stats
+)
+   {  dim            v_offset       =  srcvec - mx->cols
+
+   ;  double         rg_mass_current=  0.0
+   ;  double         rg_mass_prune  =  0.0
+   ;  double         rg_mass_precision  =  0.0
+   ;  dim            rg_n_current   =  0
+   ;  dim            rg_n_prune     =  0
+   ;  double         rg_rbar        =  -1.0     /*    recovery bar         */
+
+   ;  mcxbool        mesg           =  FALSE
+                     
+   ;  double         maxval         =  0.0
+   ;  double         center         =  0.0
+   ;  double         colInhomogeneity =  0.0
+
+   ;  mcxbool        progress       =  mcxLogGet(MCX_LOG_GAUGE)
+
+   ;  pval*          values         =  NULL
+   ;  dim            i, n_values    =  0
+   ;  dim            n_delta, n_swap, n_obtained
+   ;  mcxbool        have_canonical =  MCLV_IS_CANONICAL(mx->dom_rows)
+   ;  dim            n_entries      =  0
+
+   ;  if (have_canonical)
+      for (i=0;i<srcvec->n_ivps;i++)
+      n_entries += mx->cols[srcvec->ivps[i].idx].n_ivps
+
+   ;  if
+      (  have_canonical
+      && mxp->sparse_trigger
+      && n_entries >= srcvec->n_ivps * mxp->sparse_trigger
+      )
+      matrix_vector_array(mx, srcvec, dstvec, vecbuf)
+   ;  else
+      mclxVectorCompose(mx, srcvec, dstvec, ch)
+
+   ;  if (mxp->implementation & MCL_USE_RPRUNE)
+         maxval   =  mclvMaxValue(dstvec)
+      ,  rg_rbar  =  maxval / mxp->num_prune
+   ;  else if (mxp->precision)
+      rg_rbar = mxp->precision
+   ;  else
+      rg_rbar = 0.0
+
+   ;  n_values =  dstvec->n_ivps
+   ;  values   =  mcxAlloc(n_values * sizeof values[0], EXIT_ON_FAIL)
+
+                     /* fill values, elements >= rg_rbar on left, < rg_rbar on right */
+   ;  if (n_values)
+      {  dim i_left = 0, i_right = n_values -1
+      ;  for (i=0;i<dstvec->n_ivps;i++)
+         {  pval pv = dstvec->ivps[i].val
+         ;  if (pv >= rg_rbar)
+               values[i_left++] = pv
+            ,  rg_mass_current += pv
+         ;  else
+            values[i_right--] = pv
+      ;  }
+         if (i_left != i_right + 1)
+         mcxDie(1, "mclExpandVector2", "copying error")
+      ;  rg_n_prune = rg_n_current = i_left
+      ;  rg_mass_precision = rg_mass_prune = rg_mass_current
+;if(DEBUG_SELECTION)fprintf(stdout, "%d pru %d ", (int) dstvec->vid, (int) rg_n_current)
+   ;  }
+
+      if
+      (  mxp->warn_factor
+      && (     mxp->warn_factor * MCX_MAX(dstvec->n_ivps,mxp->num_select)
+            <  dstvec->n_ivps
+         && rg_mass_current < mxp->warn_pct
+         )
+      )
+         mesg = TRUE
+      ,  warn_pruning(col, maxval, dstvec->n_ivps, rg_n_current, rg_mass_current, mxp->num_select)
+
+   ;  if (!mxp->num_recover && !dstvec->n_ivps)
+      {  mclvResize(dstvec, 1)
+      ;  (dstvec->ivps+0)->idx = col
+      ;  (dstvec->ivps+0)->val = 1.0
+      ;  rg_mass_current   =  1.0
+      ;  rg_n_current      =  1
+      ;  if (mxp->warn_factor)
+         fprintf(stderr, " ->  Emergency measure: added loop to node\n")
+   ;  }
+
+                                    /* Case: overdid it, threshold too small */
+      else if
+      (  mxp->num_recover
+      && (  rg_n_current      <  mxp->num_recover)
+      && (  rg_mass_current   <  mxp->pct)
+      )
+      {  double mass_recover = 0.0
+      ;  dim n_request = mxp->num_recover - rg_n_current
+
+      ;  if (n_request > n_values - rg_n_current)
+         n_request = n_values - rg_n_current
+
+      ;  rg_rbar
+         =  selectk                 /* recover to mxp->num_recover entries;   */
+            (  values + rg_n_current 
+            ,  n_values - rg_n_current
+            ,  n_request
+            ,  &n_obtained
+            ,  &mass_recover
+            ,  &n_delta
+            ,  &n_swap
+            ,  mxp
+            )
+      ;  rg_mass_current += mass_recover
+      ;  rg_n_current += n_obtained
+;if(DEBUG_SELECTION)fprintf(stdout, "rec1 %d ", (int) rg_n_current)
+   ;  }
+
+                                    /* Case: threshold too large, reduce further */
+      else if (mxp->num_select && rg_n_current > mxp->num_select)
+      {  rg_rbar
+         =  selectk
+            (  values
+            ,  rg_n_current
+            ,  mxp->num_select  
+            ,  &n_obtained
+            ,  &rg_mass_current
+            ,  &n_delta
+            ,  &n_swap
+            ,  mxp
+            )
+
+      ;  rg_mass_prune = rg_mass_current
+      ;  rg_n_current  = n_obtained
+;if(DEBUG_SELECTION)fprintf(stdout, "sel %d [%.16f %.9f] ", (int) rg_n_current, (double) rg_rbar, rg_mass_current)
+
+      ;  if
+         (  mxp->num_recover
+         && ( rg_n_current     < mxp->num_recover)
+         && ( rg_mass_current  <  mxp->pct)
+         )
+         {  dim n_request  =  mxp->num_recover - rg_n_current, n_obtained = 0
+         ;  double mass_recover = 0.0
+         ;  if (n_request > n_values - rg_n_current)
+            n_request = n_values - rg_n_current
+
+         ;  if (mxp->num_recover < rg_n_prune)
+            {  rg_rbar
+               =  selectk
+                  (  values + rg_n_current
+                  ,  n_values - rg_n_current
+                  ,  n_request
+                  ,  &n_obtained
+                  ,  &mass_recover
+                  ,  &n_delta
+                  ,  &n_swap
+                  ,  mxp
+                  )
+               ;  rg_mass_current += mass_recover
+               ;  rg_n_current += n_obtained 
+         ;  }
+            else
+            {  rg_rbar = mxp->precision
+            ;  rg_n_current = rg_n_prune
+            ;  rg_mass_current = rg_mass_precision
+         ;  }
+
+;if(DEBUG_SELECTION)fprintf(stdout, "rec2 %d ", (int) rg_n_current)
+      ;  }
+      }
+
+      if (mesg)
+      fprintf
+      (  stderr
+      ,  " ->  (before rescaling) Finished with [%ld] entries and [%f] mass.\n"
+      ,  (long) rg_n_current
+      ,  (double) rg_mass_current
+      )
+
+   ;  mclvSelectGqBar(dstvec, rg_rbar)
+   ;  mclvNormalize(dstvec)
+   ;  vecMeasure(dstvec, &maxval, &center)
+   ;  colInhomogeneity  =  (maxval-center) * dstvec->n_ivps
+   ;
+
+     /*
+      *  expansion threads only have read & write access to stats
+      *  in the block below and nowhere else.
+     */
+
+      {  stats->bob_low[v_offset]   =  rg_mass_prune
+      ;  stats->bob_final[v_offset] =  rg_mass_current
+
+      ;  if (progress && !mxp->n_ethreads)         /* fixme: change to thread-specific data. */
+         {  stats->n_cols++
+         ;  if (stats->n_cols % mxp->vector_progression == 0)
+            fwrite(".", sizeof(char), 1, stderr)
+      ;  }
+      }
+
+      mcxFree(values)
+   ;  return colInhomogeneity
+;  }
+
+
+
+static double mclExpandVector
+(  const mclMatrix*  mx
+,  const mclVector*  srcvec      /* src                         */
+,  mclVector*        dstvec      /* dst                         */
+,  mclpAR*           ivpbuf      /* backup storage for recovery */
+,  vecbuffer*        vecbuf      /* storage for full mx/vec computation */
+,  mclxComposeHelper*ch
+,  long              col
+,  mclExpandParam*   mxp
+,  mclExpandStats*   stats
+)
+   {  double val =
+         (mxp->implementation & MCL_USE_PARTITION_SELECTION)
+      ?  mclExpandVector2(mx, srcvec, dstvec, ivpbuf, vecbuf, ch, col, mxp, stats)
+      :  mclExpandVector1(mx, srcvec, dstvec, ivpbuf, vecbuf, ch, col, mxp, stats)
+;if(DEBUG_SELECTION)fputc('\n', stdout)
+   ;  return val
+;  }
+
 
