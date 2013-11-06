@@ -1,0 +1,189 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<!-- Copyright (c) 2005 Stijn van Dongen -->
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<style type="text/css">
+body
+{ text-align: justify;
+color: #001111;
+background: white;
+margin-left: 8%;
+margin-right: 8%;
+}
+h3 { margin-top:1em; }
+h2 { margin-top:2em; }
+a:link { text-decoration: none; }
+a:active { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:link { color: #1111aa; }
+a:active { color: #1111aa; }
+a:visited { color: #111166; }
+a.local:link { color: #11aa11; }
+a.local:active { color: #11aa11; }
+a.local:visited { color: #116611; }
+a.intern:link { color: #1111aa; }
+a.intern:active { color: #1111aa; }
+a.intern:visited { color: #111166; }
+a.extern:link { color: #aa1111; }
+a.extern:active { color: #aa1111; }
+a.extern:visited { color: #661111; }
+a.quiet:link { color: black; }
+a.quiet:active { color: black; }
+a.quiet:visited { color: black; }
+div.copy
+{ font-size: 12pt;
+font-family: monospace;
+text-align: left;
+white-space: pre;
+margin-left: 2em;
+margin-top: 1em;
+margin-bottom: 1em;
+}
+div.indent
+{margin-left: 8%;
+margin-right: 0%;
+}
+</style>
+<title>
+The mclblastline manual
+</title>
+</head>
+<body>
+
+<p style="text-align:right">
+17 Mar 2005&nbsp;&nbsp;&nbsp;
+<a class="local" href="mclblastline.ps"><b>mclblastline</b></a>
+1.004, 05-076
+</p>
+
+<a name="name"></a>
+<h2>NAME</h2>
+
+<p style="text-align:justify">
+mclblastline - a pipeline for clustering from BLAST files.
+
+<a name="synopsis"></a>
+<h2>SYNOPSIS</h2>
+<b>mclblastline</b> file-name
+
+<p style="text-align:justify">
+<b>mclblastline</b> [deblast options] [pipeline options] file-name
+
+<p style="text-align:justify">
+This program is a relatively new addition to the MCL suite.
+If it does not work as expected, please file a bug report
+with the developer and/or subscribe to mcl-devel as
+indicated on <a class="extern" href="http://micans.org/mcl/">http://micans.org/mcl/</a>.
+<p style="text-align:justify; margin-bottom:0">
+<b>NOTE</b><br>With the default settings, mclblastline requires the presence
+of the <b>zoem</b> macro processor to produce pretty-printed output
+(refer to the <a class="local" href="mclpipeline.html">mclpipeline manual</a> and the
+<a class="local" href="clmformat.html">clmformat manual</a> for more information on zoem and
+its usage in the pipeline).
+If the <b>--fmt-dump</b> option
+or the <b>--prepare-format</b> option is used,
+zoem will not be required.
+</p>
+
+<a name="description"></a>
+<h2>DESCRIPTION</h2>
+<b>mclblastline</b> wraps around <b>mclpipeline</b>. It supplies the
+<b>--parser</b>=<i>app</i>
+and <b>--parser-tag</b>=<i>str</i> options, setting them respectively
+to <i>mcxdeblast</i> and <i>blast</i>. This tells
+<a class="local" href="mclpipeline.html">mclpipeline</a> to use
+<a class="local" href="mcxdeblast.html">mcxdeblast</a> as the parse script in its pipeline.
+The significance of
+the <i>blast</i> tag is that any mcxdeblast option can be passed through
+mclblastline and mclpipeline by inserting this tag into the option.
+For example, mcxdeblast accepts the <b>--score</b>=<i>x</i> option.
+When using mclblastline, you specify it as <b>--blast-score</b>=<i>x</i>.
+There are two exceptions to this rule, namely the
+<b>--xi-dat</b>=<i>str</i> and <b>--xo-dat</b>=<i>str</i> options. Refer to
+the <a class="local" href="mclpipeline.html">mclpipeline</a> manual for more information.
+
+<p style="text-align:justify">
+Additionally, all mclpipeline options are acceptable to
+<a class="local" href="mcxdeblast.html">mcxdeblast</a> as well.
+The <b>--whatif</b> is useful for getting a feel for the pipeline. The
+<b>--mcl-I</b>=<i>f</i> inflation option and <b>--mcl-scheme</b>=<i>i</i> scheme index
+options are your basic means for respectively manipulating cluster
+granularity and allocating resources. Read the <a class="local" href="mcl.html">mcl</a> manual entries
+for a description of the corresponding <b>-I</b> and <b>-scheme</b> mcl
+options.
+
+<p style="text-align:justify">
+The best advice is to glance over the
+<a class="local" href="mcxdeblast.html">mcxdeblast</a> and <a class="local" href="mclpipeline.html">mclpipeline</a> options
+in order to get a feeling for which of those may come in handy for you.
+Then start experimenting. Use the <b>--whatif</b> option, it will tell you
+what would happen without actually doing it.
+
+<a name="options"></a>
+<h2>OPTIONS</h2>
+
+<p style="text-align:justify">
+All <a class="local" href="mcxdeblast.html">mcxdeblast</a> and <a class="local" href="mclpipeline.html">mclpipeline</a> options.
+mcxdeblast options must be passed using the mechanism described above.
+
+<a name="examples"></a>
+<h2>EXAMPLES</h2>
+<pre>
+   mclblastline --blast-score=b
+      --blast-sort=a --blast-bcut=5 --mcl-I=2.5 myblastfile</pre>
+
+<p style="text-align:justify">
+This will use bit scores, sort cluster indices such that the corresponding
+labels are ordered alphabetically, ignore bit scores not exceeding
+5, and use inflation value 2.5. In this case, the output clustering
+will be in the file named <tt>myblastfile.I25s2</tt> (I25 identifying
+the inflation value and s2 identifying the resource scheme) and the
+formatted output will be in the file <tt>myblastfile.I25s2.fmt</tt>.
+<pre>   mclblastline --prepare-mcl myblastfile
+   mclblastline --start-mcl --mcl-I=1.2 myblastfile
+   mclblastline --start-mcl --mcl-I=1.6 myblastfile
+   mclblastline --start-mcl --mcl-I=2.0 myblastfile
+   mclblastline --start-mcl --mcl-I=2.4 myblastfile
+   mclblastline --start-mcl --mcl-I=2.8 myblastfile
+   etc ..</pre>
+
+<p style="text-align:justify">
+The first run prepares an input matrix to be read by <b>mcl</b>.
+In this case its file will be named <tt>myblastfile.sym</tt>.
+The subsequent runs use this matrix.
+<b>CAVEAT</b> there are some options that you need to repeat
+when executing such a resumed run. They are clearly marked
+in the <a class="local" href="mclpipeline.html">mclpipeline</a> manual - namely those options
+that affect names of (intermediate) files. Most importantly,
+this concerns the mclpipeline options that have prefix
+<b>--xo</b> or <b>--xi</b>. For example,
+<pre>   mclblastline --prepare-mcl --blast-score=b --xo-dat=b myblastfile
+   mclblastline --start-mcl --xo-dat=b --mcl-I=1.2 myblastfile
+   mclblastline --start-mcl --xo-dat=b --mcl-I=1.6 myblastfile
+   mclblastline --start-mcl --xo-dat=b --mcl-I=2.0 myblastfile
+   mclblastline --start-mcl --xo-dat=b --mcl-I=2.4 myblastfile
+   mclblastline --start-mcl --xo-dat=b --mcl-I=2.8 myblastfile
+   etc ..</pre>
+
+<p style="text-align:justify">
+In this case, the matrix file will be named <tt>myblastfile.b.sym</tt>,
+and the <b>--xo-dat</b> options must be repeated in all runs
+so that the pipeline reconstructs the correct file name(s).
+
+<a name="author"></a>
+<h2>AUTHOR</h2>
+
+<p style="text-align:justify">
+Stijn van Dongen
+
+<a name="sealso"></a>
+<h2>SEE ALSO</h2>
+
+<p style="text-align:justify">
+<a class="local" href="mcxdeblast.html">mcxdeblast</a>, <a class="local" href="mclpipeline.html">mclpipeline</a>, <a class="local" href="mcxassemble.html">mcxassemble</a>.
+
+<p style="text-align:justify">
+With default settings, <b>mclblastline</b> depends on the presence
+of <b>zoem</b>. It can be obtained from
+<a class="extern" href="http://micans.org/zoem/">http://micans.org/zoem/</a> .

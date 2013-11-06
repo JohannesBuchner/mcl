@@ -1,0 +1,133 @@
+.\" Copyright (c) 2005 Stijn van Dongen
+.TH "clminfo" 1 "31 Mar 2005" "clminfo 1\&.004, 05-090" "USER COMMANDS"
+.po 2m
+.de ZI
+.\" Zoem Indent/Itemize macro I.
+.br
+'in +\\$1
+.nr xa 0
+.nr xa -\\$1
+.nr xb \\$1
+.nr xb -\\w'\\$2'
+\h'|\\n(xau'\\$2\h'\\n(xbu'\\
+..
+.de ZJ
+.br
+.\" Zoem Indent/Itemize macro II.
+'in +\\$1
+'in +\\$2
+.nr xa 0
+.nr xa -\\$2
+.nr xa -\\w'\\$3'
+.nr xb \\$2
+\h'|\\n(xau'\\$3\h'\\n(xbu'\\
+..
+.if n .ll -2m
+.am SH
+.ie n .in 4m
+.el .in 8m
+..
+.SH NAME
+clminfo \- Compute performance measures for graphs and clusterings\&.
+.SH SYNOPSIS
+
+\fBclminfo\fP [options] <graph file> <cluster file> <cluster file>*
+
+\fBclminfo\fP
+\fB[--adapt\fP (\fIallow domain mismatch\fP)\fB]\fP
+\fB[-pi\fP f (\fIapply inflation beforehand\fP)\fB]\fP
+\fB[--append-pf\fP (\fIappend performance measures\fP)\fB]\fP
+\fB[--append-gr\fP (\fIappend granularity measures\fP)\fB]\fP
+\fB[-tag\fP <str> (\fIwrite tag=<str> in performance section\fP)\fB]\fP
+<graph file> <cluster file> <cluster file>*
+.SH DESCRIPTION
+
+\fBclminfo\fP computes several numbers indicative for the efficiency with
+with a clustering captures the edge mass of a given graph\&.
+Use it in conjunction with \fBclmdist\fP to determine which clusterings
+you accept\&. See the EXAMPLES section in \fBclmdist\fP
+for an example of \fBclmdist\fP and \fBclminfo\fP (and \fBclmmeet\fP) usage\&.
+Output can be generated for multiple clusterings at the same time\&.
+
+The first number is called the \fBefficiency\fP and is described in [1] (see
+the \fBREFERENCES\fP section)\&. It tries to balance the dual aims of
+capturing a lot of edges or edge weights and keeping the cluster footprint
+or area fraction small\&. The efficiency number has several appealing
+mathematical properties, cf\&. [1]\&. It is related to, but not derivable from,
+the second and third numbers, the \fImass fraction\fP and the
+\fIarea fraction\fP\&.
+
+The second number is the mass fraction, which is defined as follows\&.
+Let \fBe\fP be an edge of the graph\&. The clustering \fIcaptures\fP \fBe\fP
+if the two nodes associated with \fBe\fP are in the same cluster\&.
+Now the mass fraction is the joint weight of all captured edges divided
+by the joint weight of all edges in the input graph\&.
+
+The third number is the area fraction, which is roughly the sum of the
+squares of all cluster sizes for all clusters in the clustering, divided by
+the square of the number of nodes in the graph\&. It says \fIroughly\fP,
+because the actual formula uses the quantity \fBN\fP*(\fBN-1\fP) wherever it
+says square (of \fBN\fP) above\&. A low/high area fraction indicates a
+fine-grained/coarse clustering\&.
+
+The fourth number is the cluster link weight, which is the average
+edge weight over all edges captured by the clustering\&.
+
+The fifth number is the graph link weight, which is the average weight
+over all edges in the graph\&.
+.SH OPTIONS
+
+.ZI 3m "\fB--adapt\fP (\fIallow domain mismatch\fP)"
+\&
+.br
+The \fB--adapt\fP option allows the graph domain and cluster domain
+not to match\&. \fBclmdist\fP will take the appropriate subclustering and
+subgraph as it goes along\&.
+.in -3m
+
+.ZI 3m "\fB-pi\fP f (\fIapply inflation beforehand\fP)"
+\&
+.br
+Apply inflation to the graph matrix and compute the performance
+measures for the result\&.
+.in -3m
+
+.ZI 3m "\fB--append-pf\fP (\fIappend performance measures\fP)"
+\&
+.br
+\fBclminfo\fP will reread each cluster file and append the computed
+performance measures to it\&.
+.in -3m
+
+.ZI 3m "\fB--append-gr\fP (\fIappend granularity measures\fP)"
+\&
+.br
+\fBclminfo\fP will reread each cluster file and append the computed
+granularity measures to it\&.
+.in -3m
+
+.ZI 3m "\fB-tag\fP <str> (\fIwrite tag=<str> in performance section\fP)"
+\&
+.br
+When appending, \fBclminfo\fP will include tag=<str> in the
+performance section\&. This can be useful e\&.g\&. to indicate
+the pre-inflation value corresponding with the section\&.
+.in -3m
+.SH AUTHOR
+
+Stijn van Dongen\&.
+.SH SEE ALSO
+
+\fBclmdist\fP,
+\fBclmmeet\fP,
+\fBclmmate\fP,
+and \fBmclfamily(7)\fP for an overview of all the documentation
+and the utilities in the mcl family\&.
+.SH REFERENCES
+
+[1] Stijn van Dongen\&. \fIPerformance criteria for graph clustering and Markov
+cluster experiments\fP\&. Technical Report INS-R0012, National Research
+Institute for Mathematics and Computer Science in the Netherlands,
+Amsterdam, May 2000\&.
+.br
+http://www\&.cwi\&.nl/ftp/CWIreports/INS/INS-R0012\&.ps\&.Z

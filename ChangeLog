@@ -1,0 +1,805 @@
+
+Thu, 31 Mar 2005
+
+   *  mcl-05-090 released.
+
+   *  Added options to MCL for dumping submatrices during
+      iteration. Submatrices are, for now, extended principals, that
+      is, all matrix entries for which either the row or the column
+      index hits the specified domain.
+
+         -dump-subi <spec>    Specify simple index list
+         -dump-subd <spec>    Specify index list via union of domains
+         -dump-dom <mx>       Domain matrix file
+
+   *  Added --abc option to mcxdeblast for per-line ID1 ID2 SCORE format.
+
+   *  Significant clean-up of the matrix IO library.
+
+   *  Large rewrite of mcxsubs. It now takes a sane(r) and more
+      extendible language for submatrix specifications. Its implementation
+      is far less hideous than it used to be.
+
+   *  mcxsubs has --block and --blockc options for taking respectively
+      a block diagonal matrix or its complement.  Also, --skin for doing
+      manipulations on domains only, and --extend for computing extended
+      submatrices.
+
+   *  Added -ax option to MCL, which prints the suffix MCL uses to construct
+      the output file name.  This is useful in scripts that depend
+      on MCL to create unique (and convenient) filenames. Such as clxcoarse.
+
+   *  Added util scripts clxcoarse and clxdo.
+      clxcoarse will currently do 2-level and 3-level clusterings.  clxdo is
+      meant to automate simple tasks.  It currently is able to
+      - give a granularity count of (presumably) a cluster file.
+      - test whether a graph/matrix is undirected/symmetric.
+      Both accept the -h option.
+         Not yet installed, copy them if needed.
+
+   *  Replaced setenv in src/impala/io.c by putenv. The latter is POSIX,
+      the former is not. This caused compilation errors on (some)
+      Solaris systems.
+
+   *  Added clmorder which, given a set of input clusterings, computes
+      an ordering that tries to put nodes that share many clusters over the
+      different clusters nearby, and puts nodes in larger clusters earlier in
+      the ordering. It is presumed that the clusterings are successive
+      subclusterings, but it need not be strictly the case - clmorder will
+      convert the input clusterings to a strictly nested sequence.
+
+         Not yet installed, copy them if needed.
+         Not yet documented.
+
+   *  mcxmap has new
+
+         --invert
+         --invertc
+         --invertr
+
+      options to facilitate use of inverted maps.
+
+   *  Added -my-scheme option to mcl for subtly better default output
+      naming capacities. Read the manual for what that means.
+
+   *  Added --lazy-tab to clmformat.
+
+Tue, 9 Nov 2004
+
+   *  mcl-04-314 released, minor fixes.
+
+   *  Some documentation fixes for blast scripts.
+
+   *  Added automatic naming of dumped files.
+
+   *  In automatic output naming, scheme value was not correctly incorporated
+      (off by one error).
+
+Mon, 6 Sep 2004
+
+   *  stopgap release: mcl-04-250
+
+   *  mclpipeline/mclblastine used stale mcl options (-do log). Fixed.
+
+   *  Moved doc directory one level higher.
+
+   *  Removed shtest directory.
+
+   *  Moved graph directory one level higher.
+
+   *  Rewrote mcx option parsing, GNU-style now accepted.
+
+Tue, 17 Aug 2004
+
+   *  mcl-04-230 released.
+
+   *  Fixed bug in the interpretation function. In rare cases (where
+      an attractor systems had cardinality exceeding one) it would split
+      a cluster.
+
+   *  Fixed some very dumb and slack code in the library.
+      100-fold speed increase in mcxsubs block extraction - the slack-bugs
+      (slugs?) where *that* slack.
+
+      Sped up applications doing much vector calculus by replacing cute
+      initializer-callback-equipped mcxNAlloc invocations with plain mcxAlloc.
+
+   *  Fixed mcxdeblast bug surfacing in the combination of --m9 and
+      --tab=<tab-file> options.
+
+   *  64-bit compatibility testing and auditing. Not exhaustive.
+
+   *  Moved doc directory one level higher.
+
+   *  Signal mcl!
+
+      Premature exit of the main iteration (and mcl) can be enforced by
+      sending mcl the ALRM signal. It will interpret the last iterand as a
+      clustering. This can be useful in the extremely rare case where
+      an input graph contains the 3x3 flip-flop state as a subgraph
+      (after centering, notably). I recently encountered this when
+      clustering a very sparse homology graph (to arrive at orthology)
+      using -c 4.
+
+   *  Tentative addition to option parsing. GNU-style equivalence
+      of --I=3 and -I 3. Horrors!
+
+         mcl foo.mci --I=3 --scheme=6 --te=8
+
+      thus works. On trial.
+
+   *  Immediately after it has finished a run, mcl can optionally reread
+      the input graph, and generate performance characteristics for
+      the graph/clustering pair. It can also check whether all clusters
+      correspond to connected components in the input graph.
+
+   *  Removed the ugly -do and -dont options.
+      Use
+         Option                     Default     Previous
+         --force-connected=X        0           (new)
+         --check-connected=X        0           (new)
+         --keep-overlap=X           0           -do keep-overlap
+         --append-log=X             1           -do write-log
+         --show-log=X               0           -do show-log
+         --analyze=X                0           -do clm
+      Where X can be any string in 1/y/Y/0/n/N/1.
+
+   *  Added clmclose, for retrieving connected components from a graph,
+      and for testing whether the domains in a cluster file or domain file
+      correspond to connected components in a given graph.
+
+   *  --apropos output looks better.
+
+Wed, 7 Jul 2004
+
+   *  mcl-04-189 released.
+
+   *  Tim Hughes found a bug in mcxassemble, arising from an embarassing
+      typo in the underlying library code - fixed.
+
+   *  Joost van Baal pointed out some issues with the LICENSE.
+      It has been reworded to nicely ask scientists to behave properly.
+
+Sat, 3 Jul 2004
+
+   *  mcl-04-185 released.
+      Mainly fixes for small glitches and documentation updates, and the new
+      general purpose application mcxdump for dumping matrix/tab file
+      combinations.  Nothing breathtaking.
+
+   *  Added mcxdump, to do a wider range of dump chores (than clmformat
+      already does).
+
+   *  mcl --apropos now dumps one-line descriptions of *all* options,
+      even the very obscure and never-use-them options.
+      This option will propagate to all siblings in the near future,
+      as a result of a rewrite of the option-parsing module.
+
+   *  Updated THANKS; Enter Andreas Kahari (OpenBSD port, compile warnings),
+      Jason Stajich (mcxdeblast work), and Tim Hughes (bug reports).
+
+   *  Applied mcxdeblast patchlet by Jason Stajich to support parsing
+      WU-BLAST format.
+
+   *  Fixed a bug in the zoem macro definition file output by clmformat,
+      reported by Tim Hughes.
+
+   *  The mcxdeblast --m9 option now actually works with the ncbi blast -m 9
+      option (i.e. skip comments lines).
+
+   *  Fixed several documentation glitches spotted by Joost van Baal.
+
+   *  Added (somewhat terse and makeshift) remarks on the role of zoem in
+      mclpipeline/mclblastline manuals, after Joost pointed out that the
+      mclblastline/mclpipeline zoem dependency (via clmformat) was not well
+      documented.
+
+Tue, 22 Jun 2004
+
+   *  mcl-04-174 released.
+
+   *  Integrated Jason Stajich's tabular blast format parser.
+      Restructured mcxdeblast to a great extent.
+      Use --m9 to expect tabular BLAST format.
+      With mclblastline, use --blast-m9.
+
+   *  mcxdeblast had its default settings changed to resemble those of
+      tribemcl.
+
+   *  mclblastline explicitly uses the mcxassemble '-r max' option; it can be 
+      be overruled e.g. by issuing --ass-r=add.
+
+   *  clmformat.zmm: Get rid of spurious braces, update special rules to
+      pass evaluation.
+
+   *  NOTE
+      mclpipeline was streamlined. All mcl-related options now start with
+      --mcl, e.g. --mcl-I=3.0, --mcl-scheme=6, etc. Consult the manual pages if
+      needed. All format-related options start with --fmt, all assembly related
+      options start with --ass. Any of the --mcl, --ass, --fmt options not
+      recognized by mclpipeline will simply be stripped of the prefix and
+      passed on to the corresponding program.  To use the clmformat
+      --dump-pairs option (which is not in the mclpipeline/mclblastline manual)
+      with mclpipeline, use --fmt--dump-pairs.
+
+   *  clmformat acquired the --dump-pairs option, for dumping one cluster/node
+      pair per single line.
+
+   *  mcxsubs syntax accepts 3%5 syntax, implying the list 3,8,13,18 and so on.
+      The syntax can be repeated, e.g. 3%5,6%13 . Use this for quickly thinning
+      out a matrix.  mcxsubs also acquired the options
+
+      -dfac <num>
+      -cfac <num>
+      -rfac <num>
+
+      --rand-discard
+      --rand-merge
+      --rand-intersect
+      --rand-exclusive
+
+      for randomizing subdomain selection, and
+
+      --spec-cols
+      --spec-rows
+      --spec-doms
+
+      for omitting the final restriction to subdomains of the input matrix. 
+      Refer to the manual page for more information.
+
+      Then, the --reread option was renamed --from-disk.
+
+   *  More jury grades!
+
+Wed, 14 Apr 2004
+
+   *  mcl-04-105 released.
+
+   *  Bumped the gratuitous version tag to 1.004. It has been a long time
+      since the previous release and much work has been done.
+
+       - clmformat has gotten a pretty zoem face
+       - native binary format was revived and integrated into mcxsubs
+            (making it orders of magnitudes faster if binary format is used)
+       - the MCL IO library has seen a lot of work
+       - the underlying utility libraries have seen much work as well
+       - a bug in the loop weight assignment spotted by Abel Ureta-Vidal
+            was fixed
+       - the mcl '-v clusters' verbosity option is new
+       - so is the '-dump dag' option
+       - mcxsubs now supports simultaneous extraction of
+            (possibly overlapping) blocks
+       - the environment variables MCLXASCIIDIGITS,  MCLXIOVERBOSITY,
+            MCLXIOFORMAT, and MCLXASCIIFLAGS have arrived
+       - mcxarray documentation finally got written
+       - and various other fixes for glitches went in, thanks to Joost
+            van Baal for some of those
+
+   *  Revived binary format.  Reading matrices is roughly 30 times faster
+      in binary format.  For an average MCL run, this may result in a 10% gain
+      in speed or more.
+      Treat with care; binary format is not portable across some subcollection
+      of processors/compilers/filesystems.
+
+      Both binary and ascii input now support reading subgraphs directly
+      from disk, which is foremost important for mcxsubs.
+
+   *  mcxsubs is now *much* faster if applied to binary format
+      and the --reread option is used. The speed gain may be 400-fold.
+
+   *  Big rewrite of clmformat. All the formatting code was taken out,
+      and clmformat now outputs logical formatting statements.
+      These are in the zoem language, so for using clmformat one
+      needs to install the zoem package, obtainable from
+
+         http://micans.org/zoem/src/zoem-latest.tar.gz
+
+      The good thing is that lay-out can now be changed by editing
+      a single zoem macro definition file.
+
+   *  The default of assigning loop weights has changed.
+      It is now set to equal the maximum weight found in the list of
+      neighbours. The old behaviour can be regained by specifying -cma 100.
+
+      NOTE
+         The new default will, with identical inflation value and
+      compared with the old default, result in slightly more granular
+      (more fine-grained) clusterings. This can optionally
+      be compensated for by increasing the inflation value a little.
+
+   *  The new -cma <num> option accepts a number inbetween 0 and 100.
+      Think of it as a fraction f expressed as a percentage.  It sets the loop
+      value to the weighted average
+      
+         f * ctr + (1-f) * max
+
+      where ctr is the 'center' of a list of entries (the sum of entries
+      squared divided by the squared sum of entries) and max is the maximum
+      of that list.
+
+      The loop value thus obtained is multiplied by the value given
+      to the -c option (which stands default at 1.0).
+
+   *  Improved interpretation interfaces for overlapping clusterings;
+      Added mcl '-dump dag' option, and some changes to clmimac.  Use clmimac
+      to interpret matrices obtained either with '-dump ite' or '-dump dag' as
+      clusterings. For early mcl iterands, such clusterings may possibly
+      contain overlap.
+
+   *  Added mcxarray documentation, it is now installed.
+
+   *  Added clmps utility, which is by default not yet installed and
+      has no manpage yet. It outputs the body of a PostScript file.
+
+   *  Added '-v clusters' for reporting on intermediate clusters.
+      However, if you are *really* interested in intermediate clusterings,
+      you should use '-dump ite' and the clmimac application.
+
+   *  All mcl applications (should) respect the environment variable
+      MCLXASCIIDIGITS, setting the number of digits after the decimal point
+      that should be written for native ascii format. The special value -1
+      indicates that no value should be written at all (upon further reads the
+      default value 1.0 will be used). This is relevant only for ascii format.
+
+   *  All mcl applications (should) respect the environment variable
+      MCLXIOFORMAT, which regulates whether matrices are written in binary
+      or ascii format. Consult the mcl manual page for how it works.
+
+   *  All mcl applications (should) respect the environment variable
+      MCLXIOVERBOSITY, which regulates whether a progress bar is printed
+      during matrix I/O. Consult the mcl manual page for how it works.
+
+   *  Added 'b:' tag to mcxsubs syntax for retrieving block diagonal matrix
+      (where blocks can optionally overlap). Some groundwork in the library
+      for enabling this.
+
+   *  Added two more pruning schemes; set the default scheme index
+      to four rather than two.
+
+   *  Added mcl -in-gq <val> option, for removing any edges in the
+      input graph whose weight is below <val>.
+
+   *  Fixed bug in clminfo (spotted by Abel Ureta-Vidal), causing the
+      singleton count to be wrong sometimes.
+
+Fri, 03 Oct 2003
+
+   *  mcl-03-276 released.
+
+   *  added clmmate manual page. Use it to find best pairs of
+      clusters between two clusterings (use the -twins option).
+
+   *  fixed mcxmap functional bug.
+
+   *  mcxassemble and mcxdeblast were improved, including fixes and
+      suggestions from (at different stages) Abel Ureta-Vidal and
+      Dinakarpandian Deendayal.
+
+   *  The documentation now uses the zoem manual NAME macro (recently added),
+      so that the troff output is apropos (whatis, man -k) compatible.
+
+   *  fixed trivial bug in mclpipeline.
+
+Tue, 02 Sep 2003
+
+   *  mcl-03-245 released (mainly a maintenance release).
+
+   *  Fixed bug which caused mcl and siblings to crash or go haywire (exit
+      for the wrong reaon) when presented with non-conforming input.  The bug
+      was introduced during the previous IO module rewrite that brought raw
+      matrix format and mcxassemble.  So versions >= 03-154 probably feature
+      this bug.
+
+   *  Added mcxarray for creating cosine or pearson matrix from microarray
+      data.  Not yet installable, no manpage, -h gives manual.
+
+   *  Added speed/complexity section to mclfaq.
+
+   *  Fixed clmmeet, which appeared to be broken since 03-010.
+
+   *  Added mclgraga, a simple script for granularity gauging. Use as in
+      clmformat -icl cluster-fu -dump - | mclgraga --range=0,10,2000 (and in
+      other ways as well).  It's not installable though and has no manpage.
+      One has to copy it from the source distribution
+
+   *  Changed mclgrep to be not installable; one has to copy it from
+      the source distribution. It has no manpage either.
+
+   *  clmformat has -dump <stream>, -pi <infl>, -dump-node-sep <sep> options.
+
+   *  clminfo has -pi <infl>, -ap (append performance measures),
+      -ag (append granularity measurs), -do/dont <header|rule>  options.
+
+Fri, 04 Jul 2003
+
+   *  mcl-03-185 released (maintenance release).
+
+   *  Added mclgrep, which can grep sections from an mcl file.
+      e.g. 'mclgrep clm foo' will display 'clm' section(s) in the file foo,
+      if present. Handy for comparing granularity and performance
+      characteristics.
+
+   *  Behold the mcl '-do clm' option; it will include performance criteria
+      and granularity characteristics in the cluster output file.
+
+   *  Fixed embarassing clminfo bug (introduced in mcl-03-178).
+
+   *  Fixed mcx broken interactive mode (introduced in mcl-03-178).
+
+Fri, 27 Jun 2003
+
+   *  mcl-03-178 released (maintenance release).
+
+   *  Fixed a bug causing the jury marks, the jury synopsis, and the
+      pruning percentages to be wrong.
+
+   *  Added several new features, yet to be documented here
+      (documented in the manual pages though).
+      Look for the mcl -do and -dont options.
+
+Tue, 03 Jun 2003
+
+   *  mcl-03-154 released.
+
+   *  Encouraged the version number up to 1.003.
+
+   *  Added mcxassemble, clmformat, mclpipeline, mclblastline, mcxdeblast.
+      Removed clmconf, its functionality was assimilated by clmformat.
+
+   *  Added -pi <pre-inflation> option to mcl for skewing input weights.
+
+   *  Added automatic output naming facilities to mcl.  By default (if the
+      -o option is not used) it will write to out.fname.suf, where fname is the
+      name of the input file, and suf is automatically constructed. The -ap and
+      -aa options allow further customization.
+
+      For example:
+         mcl small.mci -I 3 -c 2.5 -pi 0.8 -scheme 5
+
+      will result in a file named
+         out.small.mci.I30s5c25pi08
+
+      It is possible to obtain the file name corresponding with a given run
+      by using the -az option.
+
+   *  Removed longtime deprecated -a option.
+
+   *  mclpipeline implements a generic pipeline implementing the
+      stages from data file (application-specific input) until
+      formatted output (clusters represented in terms of
+      application-specific labels).
+
+   *  mclblastline implements a particular mcl pipeline tailored
+      to BLAST files.
+
+   *  mcxdeblast added, for parsing BLAST files (beta version).
+
+   *  display results in readable form using clmformat.
+
+   *  Added mcxassemble, which takes as input simple raw cooccurrence
+      data in a very free format, and turns it into mcl matrix format.
+      Options for adding, maxing, multiplying, and discarding repeated
+      entries as well as repeated vectors.
+
+      Nodes can be relabeled by specifying a map file.  This makes it
+      easy and fast e.g. to do a one-pass Blast file parse, write the
+      cooccurrence data and a prefered node labeling, and then construct
+      the final matrix.  The setup for transforming application-specific
+      data into raw data is this:
+
+      -  Parse cooccurrence data from some external format.
+      -  Transform cooccurrence data to raw mcl data as you parse.
+      -  When done, write out required header and domain information
+            to a separate file. The domain information can be built during
+            the parsing stage.
+      -  Use mcxassemble to construct a valid matrix from the raw data
+            and the header information.
+      -  Nodes can be relabeled as needed using a separate map file,
+            which takes the form of a very thin matrix file.
+
+   *  mcxmap uses the new permutation/relabeling mechanism; permutations
+      are now fully supported.
+
+   *  IO internals underwent major rewrite in order to support mcxassemble
+      raw data munging and mapping functionality (in mcxmap and mcxassemble)
+
+   *  Vector part of impala library was made somewhat safer;
+      new mclpAR* type for dealing with multisets of ivps.
+
+   *  # now acts as a comment within the (mclmatrix ... ) section,
+      onwards from the begin keyword.
+
+   *  MCL should be straigthforward to compile under Wintel using Cygwin,
+      as now verified by SvD (small fix was needed; log2 seems defined
+      as macro under cygwin).
+
+   *  clean-ups in underlying util and impala libraries.
+
+   *  implemented
+         -DVALUE_AS_DOUBLE and
+         -DINDEX_AS_LONG compiler options.
+      The first for matrix entries cq edge weights, the second
+      for matrix indices cq node identifiers.
+
+   *  revamped
+      -DRUNTIME_INTEGRITY compiler option.
+
+   *  clm apps now have --version option.
+
+Fri, 10 Jan 2003
+
+   *  mcl-03-010 released.
+
+      This is a MAJOR overhaul, with increased power in the MCL libraries and
+      utilities. The mcl family can now deal with a much more general
+      representation of matrices/graphs. This is detailed in several benefits
+      listed below. There is a drawback: mcl itself is now approximately 15-20
+      percent slower than before (measured on not so large graphs).  Some of
+      this loss can perhaps be recouped by forthcoming changes; regardless,
+      the benefits were deemed to far outweigh this minor performance loss.
+
+   *  Increased version number to 1.002. The difference between versions
+      1.001 and 1.002 is much larger than that between versions 1.001 and
+      1.002 - the version numbering scheme is very minimalistic.
+
+   *  mcl's input format was extended (existing graphs are still acceptable).
+      See mcx(5) / mcxformat.html.
+
+   *  mcl's internals were rewritten to allow fully sparse matrix/graph
+      representation. Formely, the nodes of a graph had to be indexed
+      sequentially, starting at zero. This is no longer the case.
+
+      mcl can now internally deal with sparsely indexed graphs.
+         Example:
+       | (mclheader
+       | mcltype matrix
+       | dimensions 12x12
+       | )
+       | (mcldoms
+       | 11 22 33 44 55 66 77 88 99 123 456 789 $
+       | )
+       | (mclmatrix
+       | begin
+       | 11    22  66  77  123 $
+       | 22    11  33  55 $
+       | 33    22  44  55 $
+       | 44    33  88  99 456 $
+       | 55    22  33  77  88 $
+       | 66    11  123 $
+       | 77    11  55  123 $
+       | 88    44  55  99 456 $
+       | 99    44  88 456 789 $
+       | 123   11  66  77 $
+       | 456   44  88  99 789 $
+       | 789   99 456 $
+       | )
+
+      Besides being useful from a user-point of view, this new setup is a
+      first step in enabling mcl for grid or cluster computing. 
+
+      Look at the mcx(5) / mcxformat.html page for more information.
+      
+   *  mcl sibling programs are able to handle clusterings in which the
+      clusters have nonconsecutive identifiers.
+
+   *  The low level API is now totally permissive of all kinds of domain
+      combinations. It is up to higher levels to enforce domain identity or
+      subsumption etc. Also,
+
+      The low level API leaves it up to the caller whether a node is not
+      represented because it is not part of the domain or whether it is not
+      represented because it has no neighbours.  It is up to the higher levels
+      to decide.
+
+      The low level API (and most of the higher level API) allows 0x0, Kx0,
+      and 0xK matrices.  mcl will happily cluster a 0x0 graph.
+
+   *  renamed the src/nonema directory to src/impala (permanently).
+      renamed src/intalg to src/taurus (tentatively).
+
+   *  renamed mcximac to clmimac.
+
+   *  added mcxmap
+
+   *  added clmresidue
+
+   *  clmdist can now also compute the Jacquard index and the variance of
+      information measure (the -mode option). Its output looks nicer and can be
+      changed using the -parts, -digits, -width, --nolegend, and --noindex
+      options.
+
+   *  The underlying library code for clminfo was thoroughly cleansed.
+      An untraced FPEfault was reported for earlier versions; hopefully
+      that is now gone.
+
+   *  mcl now accepts
+         -sort revsize (default, large clusters first)
+         -sort size  (small clusters first)
+         -sort lex   (lexicographical ordering)
+         -sort none  (clusters as found by interpretation routine)
+
+   *  mcxsubs now
+         -  acts on rectangular matrices as well.
+         -  can select on value (being >=/> low and/or <=/< high).
+         -  can remap the domain of a selected matrix to range 0-N-1,
+            for only columns, only rows, or both columns and rows.
+         -  can make the selected matrix characteristic.
+         -  can transpose the final result.
+         -  has fairly horrid looking specification strings.
+
+      It can be used for removing tough nodes from a graph, where toughness is
+      measured according to output resulting from running mcl with '-dump
+      chr'.
+
+   *  fixed problem with documentation in mcl-02-277.
+      verbatim env in html looked rotten under IE.
+
+Fri, 4 Oct 2002
+
+   *  mcl-02-277 released.
+      Mostly a maintenance release. Perhaps the extra FAQ entry is most
+      noteworthy. Read e.g. http://micans.org/mcl/doc/mclfaq.html#checksymmetry
+      A new release featuring support for removal/projection of tough nodes is
+      in the pipeline. That release will be more interesting.
+
+   *  Added faq {How do I check that my graph/matrix is symmetric/undirected?}
+      Please do check this people!
+
+   *  Several additions and fixes in the util library, nothing much affecting
+      mcl.
+
+   *  Added field to '-dump chr' output (loop value before rescaling).
+
+   *  Removed unnecessary 'thou shalt not have values < 0' commandment.
+
+   *  Some small doc additions.
+
+Fri, 21 Jun 2002
+
+   *  mcl-02-172 released.
+
+   *  Fixed --log output format error.
+
+   *  Some autotools fixes, and some changes in documentation generation
+      (immaterial for mcl users).
+
+   *  [Joost] configure.ac.in: added AM_MAINTAINER_MODE: by default,
+      don't rebuild e.g. Makefile.in from Makefile.am.  Default users are
+      not maintainers.
+
+Thu, 30 May 2002
+
+   *  mcl-02-150 released.
+
+   *  Applied valgrind to mcl, and fixed all memory leaks thus found.
+      Standard computation paths are clean (if no errors).  Inserted several
+      clean-up routines.
+
+   *  Retrofitted this file to include version 02-095.
+
+   *  [Joost] Added acinclude.m4, including acx_pthread.m4 by Steven G.
+      Johnson and Alejandro Forero Cuervo, so that we'll build out-of-the-box
+      on systems like Tru64Unix/OSF1 which need special compiler flags when
+      dealing with pthread stuff.  Thanks to Martin Mokrejs for reporting the
+      bug.
+
+   *  Fixed bug present in version 02-095 and 02-116, caused by
+      the computation of the average of inhomogeneity over all vectors
+      and a very buggy mclVectorMaxValue -- it removes all zero entries from
+      vectors. Bug, reported by Martin Mokrejs, manifested itself when
+      inhomogeneity was exactly zero for all vectors,
+
+   *  Compiled mcl with checkergcc, and tested a few computation paths.
+      No errors found.
+
+   *  [Anton] Updated tribe software after bug report by Maring Mokrejs.
+
+   *  [Joost] Separated Zoem from mcl, modularized util and separated it
+      as well. It is still tacked on in the distribution though.
+
+   *  [Joost] Enabled --enable-tribe, the tribe module written by Anton
+      Enright.
+
+   *  [Anton] Inserted tribe software.
+
+   *  Removed -dump att option, added more general -dump chr option.
+
+Fri, 26 Apr 2002
+
+   *  mcl-02-116 released, bumped version number to 1.001.
+
+   *  Added mcximac utility for interpreting MCL iterands as clusterings.
+
+   *  Automated versioning; documents and --version sensitive apps
+      now generate consistent date and version tags.
+
+Fri, 05 Apr 2002
+
+   *  mcl-02-095 released.
+
+   *  Added mclfaq document (supported in html, roff, ps).
+
+   *  Added --log option to mcl, appends a log section to
+      the clustering output. MUST-DO for large graphs. It is not a default
+      because I don't want to scare new users.  This option works with
+      --expand-only as well. Logging includes information on kept mass, vector
+      footprints, recoveries, selections, and time taken by expansion.
+
+   *  -nw, -nl, -nj, --log, --show-log, -how-much-ram, --jury-charter are new.
+
+   *  Added extensive window monitoring of mass averages for the worst k
+      instances, k=1,2,5,10,20,50 .. 20000, 50000.
+
+   *  The mcl -h output is now less frightening, or so I hope.
+
+   *  Added 'jury synopsis' remark classifying the pruning quality.
+      It is meant as indication only. Pruning quality is now measured
+      in the following flavours:
+         perfect exceptional superior excellent good acceptable mediocre poor
+      bad lousy miserable awful wretched atrocious
+
+   *  Streamlined command line parsing a lot, using new util/opt.[ch].
+      Separated parsing from validation; the framework should be usable for
+      setting parameters when calling mcl parts from code.
+
+   *  Modularized the mcl code a lot. It is now close to being
+      usable as shared object code with all the command-line functionality
+      still accessible.
+         moved the lion's part of shmcl/mcl.c to mcl/alg.c. Created
+      mcl/alg.[ch], mcl/proc.[ch], mcl/procinit.[ch] mcl/inflate.[ch],
+      mcl/expand.[ch], removed mcl/params.[ch] mcl/mcl.[ch].
+      shmcl/mcl.c looks acceptable again.
+
+   *  Added util/opt.[ch] util/err.[ch] mcl/init.[ch],
+      added mcxHashMerge to util/hash.[ch], streamlined error messages in
+      terms of mcxErr, mcxWarn, mcxTell.
+
+   *  Rewrote the mcl manual page so that all pruning-related options
+      are now in a separate section.
+
+   *  Documented existing --dense and --thick flags (unlikely
+      you need them though).
+
+   *  Cleaned up html documentation a lot. It should now look good in
+      most browsers. Moved from <dl> to <table>
+
+   *  Began first ever so slight reworking of taurus. renamed Ilist to mcxIL
+      and its 'list' member to 'L'. Terse!
+
+   *  Compiled zoem util mcl shmcl shcl shmcx shmx nonema
+      with gcc -pedantic -Wall -ansi, and fixed all the nitty gritty stuff
+      thus found, including an erroneous pthread_create argument cast and two
+      functions whose declaration was hidden (not in the header file).
+
+Mon, 04 Mar 2002
+
+   *  mcl-02-063 released.
+
+   *  Fixed the missing '#include <string.h>' in taurus/ilist.c,
+      and fixed the bug caused by #defining TRUE and FALSE without
+      checking whether they were previously defined.
+
+Wed, 27 Feb 2002
+   
+   *  mcl-02-058 released.
+
+   *  Mcl-related changes are all updates in the documentation,
+      plus small changes in the underlying 'util' library.  No functional
+      changes.
+
+   *  Zoem has changed significantly since the previous release.
+      It needs to be separated from mcl.  (zoem is the tool with which mcl
+      documentation is generated).
+
+Fri, 15 Feb 2002
+
+   *  mcl-02-047 released.
+
+Tue,  5 Feb 2002
+
+   *  mcl-02-035 released.
+
+Wed, 12 Dec 2001
+
+   *  mcl-20011211 released.
+

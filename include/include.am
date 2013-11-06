@@ -1,0 +1,9 @@
+## $Id: include.am,v 1.5 2002/12/10 15:38:02 flux Exp $
+## vim:syntax=automake
+##
+## Makefile.am snippet, included in all Makefile.am's in src/
+
+INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)
+
+LDADD = ../mcl/libmcl.a ../taurus/libtaurus.a ../impala/libimpala.a ../../util/libutil.a
+

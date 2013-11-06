@@ -1,0 +1,488 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<!-- Copyright (c) 2005 Stijn van Dongen -->
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<style type="text/css">
+body
+{ text-align: justify;
+color: #001111;
+background: white;
+margin-left: 8%;
+margin-right: 8%;
+}
+h3 { margin-top:1em; }
+h2 { margin-top:2em; }
+a:link { text-decoration: none; }
+a:active { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:link { color: #1111aa; }
+a:active { color: #1111aa; }
+a:visited { color: #111166; }
+a.local:link { color: #11aa11; }
+a.local:active { color: #11aa11; }
+a.local:visited { color: #116611; }
+a.intern:link { color: #1111aa; }
+a.intern:active { color: #1111aa; }
+a.intern:visited { color: #111166; }
+a.extern:link { color: #aa1111; }
+a.extern:active { color: #aa1111; }
+a.extern:visited { color: #661111; }
+a.quiet:link { color: black; }
+a.quiet:active { color: black; }
+a.quiet:visited { color: black; }
+div.copy
+{ font-size: 12pt;
+font-family: monospace;
+text-align: left;
+white-space: pre;
+margin-left: 2em;
+margin-top: 1em;
+margin-bottom: 1em;
+}
+div.indent
+{margin-left: 8%;
+margin-right: 0%;
+}
+</style>
+<title>
+The mcl matrix format specification
+</title>
+</head>
+<body>
+
+<p style="text-align:right">
+31 Mar 2005&nbsp;&nbsp;&nbsp;
+<a class="local" href="mcxio.ps"><b>mcxio</b></a>
+1.004, 05-090
+</p>
+
+<a name="name"></a>
+<h2>NAME</h2>
+
+<p style="text-align:justify">
+mcxio - the format specification for matrix input and output in the mcl family.
+
+<a name="description"></a>
+<h2>DESCRIPTION</h2>
+This document describes the <i>generic matrix format</i>
+used in the mcl libaries. It also describes the <i>raw intermediate
+format</i> used by <a class="local" href="mcxassemble.html">mcxassemble</a>.
+The two formats (generic and raw) are in fact
+identical at the vector level; they are distinguished by the error reporting
+implied by the generic format.
+
+<p style="text-align:justify">
+A remark on the sloppy naming conventions used for <b>mcl</b> and its sibling
+utilities may be in order here. The prefix <b>mcx</b> is used for generic
+matrix functionality, the prefix <b>clm</b> is used for generic cluster
+functionaliy. The <i>utility</i> <b>mcx</b> is a general purpose interpreter for
+manipulating matrices (and grahps, sets, and clusterings). The set of all
+<b>mcl</b> siblings (cf. <a class="local" href="mclfamily.html">mclfamily</a>) is loosely refered to as the mcl
+family, which makes use of the mcl libraries (rather than the mcx
+libraries). The full truth is even more horrible, as the mcl/mcx prefix
+conventions used in the C source code follow still other rules.
+
+<p style="text-align:justify">
+In this document, 'MCL' means 'the mcl setting' or 'the mcl family'. An MCL
+program is one of the programs in the mcl family. The remainder of this
+document contains the following sections.
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr>
+<td width=48 valign="top" align="left">
+3.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#internal">Internal representation of matrices in MCL</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+4.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#mspec">Specifying matrices</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+5.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#gspec">Specifying graphs</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+6.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#notes">Additional notes</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+7.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#raw">Raw format</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+8.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#seealso">SEE ALSO</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+9.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#author">AUTHOR</a>
+</div></td>
+</tr>
+</table>
+
+</div>
+
+<a name="internal"></a>
+<h2>Internal representation of matrices in MCL</h2>
+
+<p style="text-align:justify">
+There are several aspects to the way in which MCL represents matrices.
+Internally, indices never act as an ofset in an array, and neither do they
+participate in ofset computations. This means that they purely act as
+identifiers. The upshot is that matrices can be handled in which the index
+domains are <i>non-sequential</i> (more below). Thus one can work with
+different graphs and matrices all using subsets of the same set of
+indices/identifiers. This aids in combining data sets in different ways and
+easily comparing the respective results when experimenting. Secondly, only
+<i>nonzero values</i> (and their corresponding indices) are stored. Thirdly,
+MCL stores a matrix as a listing of columns. Iterating over a column is
+trivial; iterating over a row requires a costly transposition computation.
+The last two points should matter little to the user of MCL programs.
+
+<p style="text-align:justify">
+In textbook expositions and in many matrix manipulation implementations,
+matrices are represented with sequentially indexed rows and columns, with
+the indices usually starting at either zero or one. In the MCL setting, the
+requirement of sequentiality is dropped, and it follows naturally that no
+requirement is posed on the first index. The only requirement MCL poses on
+the indices is that they be nonnegative, and can be represented by the
+integer type used by MCL. On many machines, the largest allowable integer
+will be 2147483647.
+
+<p style="text-align:justify">
+MCL associates two domains with a matrix&nbsp;<tt>M</tt>, the row domain and column
+domain. The matrix&nbsp;<tt>M</tt> can only have entries&nbsp;<tt>M[i,j]</tt> where&nbsp;<tt>i</tt> is
+in the row domain and&nbsp;<tt>j</tt> is in the column domain. This is vital when
+specifying a matrix: it is illegal to specify an entry&nbsp;<tt>M[i,j]</tt> violating
+this condition. However, it is not necessary to specify <i>all</i>
+entries&nbsp;<tt>M[i,j]</tt> for all possible combinations of&nbsp;<tt>i</tt> and&nbsp;<tt>j</tt>. One
+needs only specify those entries for which the value is nonzero, and only
+nonzero values will be stored internally. In the MCL matrix format, the
+matrix domains must be specified explicitly if they are not canonical (more
+below).
+
+<p style="text-align:justify">
+<b>Strictly as an aside</b>, the domains primarily exist to ensure data integrity.
+When combining matrices with addition or multiplication (e.g. using the <b>mcx</b>
+utility), MCL will happily combine matrices for which the domains do not
+match, although it will usually issue a warning. Conceptually, matrices
+auto-expand to the dimensions required for the operation.
+Alternatively, a matrix can be viewed as an infinite
+quadrant, with the domains delimiting the parts in which nonzero entries may
+exist. In the future, facilities could be added to MCL (c.q. <b>mcx</b>) to
+allow for placing strict domain requirements on matrices when submitted to
+binary operations such as addition and multiplication.
+
+<a name="mspec"></a>
+<h2>Specifying matrices</h2>
+
+<p style="text-align:justify">
+From here on, all statements about matrices and graphs are really statements
+about matrices and graphs <i>in the MCL setting</i>. The <i>specification</i>
+of a matrix quite closely matches the internal representation.
+
+<p style="text-align:justify">
+A matrix M has two domains: the column domain and the row domain. Both
+simply take the form of a set (represented as an ordered list) of indices. A
+<i>canonical domain</i> is a domain of some size <tt>K</tt> where the indices are
+simply the first <tt>K</tt> nonnegative integers <tt>0,1..,K-1</tt>. The domains
+dictate which nonzero entries are allowed to occur in a matrix; only entries
+M[i,j] are allowed where i is in the row domain and j is in the column
+domain.
+
+<p style="text-align:justify">
+The matrix M is specified in three parts, for which the second is optional.
+The parts are:
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr>
+<td colspan=3>
+Header specification
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+
+<p style="text-align:justify">
+This specifies the dimensions K and L of the matrix, where K is the
+size of the row domain, and L is the size of the column domain.
+It looks as follows:
+<pre>
+(mclheader
+mcltype matrix
+dimensions 9x14
+)</pre>
+This dictates that a matrix will be specified for which the row
+domain has dimension 9 and the column domain has dimension 14.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+Domain specification
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+
+<p style="text-align:justify">
+The domain specification can have various forms: if nothing is specified,
+the matrix will have canonical domains and a canonical representation,
+similar to the representation encountered in textbooks. Alternatively, the
+row and column domains can each be specified separately, and it is also
+possible to specify only one of them; the other will simply be a canonical
+domain again. Finally, it is possible to declare the two domains identical
+and specify them simultaneously. It is perfectly legal in each case to
+explicitly specify a canonical domain. It is <i>required</i> in each case
+that the number of indices listed in a domain corresponds with the dimension
+given in the header.
+
+<p style="text-align:justify">
+An example where both a row domain and a column domain are specified:
+<pre>
+(mclrows
+ 100 200 300 400 500 600 700 800 900 $
+)
+(mclcols
+ 30 32 34 36 38 40 42 44 46 48 50 52 56 58 $
+)</pre>
+This example combines with the header given above, as the dimensions fit.
+Had the row domain specification been omitted, the row domain would
+automatically be set to the integers <tt>0,1,..8</tt>. Had the column specification
+been omitted, it would be set to <tt>0,1,..13</tt>.
+
+<p style="text-align:justify">
+Suppose now that the header did specify the dimensions 10x10.
+Because the dimensions are identical, this raises the possibility
+that the domains be identical.
+A valid way to specify the row domain and column domain in one go is this.
+<pre>
+(mcldoms
+ 11 22 33 44 55 66 77 88 99 100 $
+)</pre>
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+Matrix specification
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+
+<p style="text-align:justify">
+The matrix specification starts with the sequence
+<pre>
+(mclmatrix
+begin</pre>
+The 'begin' keyword in the '(mclmatrix' part is followed by a list of listings,
+where the primary list ranges over all column indices in M (i.e. indices
+in the column domain), and where each
+secondary lists encodes all positive entries in the corresponding
+column. A secondary list (or matrix column) starts with the index c
+of the column, and then contains a listing of all row entries in c
+(these are matrix entries M[r,c] for varying r). The entry M[r,c] is
+specified either as 'r' or as 'r:f', where f is a float. In the first
+case, the entry M[r,c] defaults to 1.0, in the second case, it is set
+to f. The secondary list is closed with the `$' character.
+A full fledged examples thus looks as follows:
+<pre>
+(mclheader
+mcltype matrix
+dimensions 12x3
+)
+(mclrows
+ 11 22 33 44 55 66 77 88 99 123 456 2147483647 $
+)
+(mclcols
+  0  1  2 $
+)
+(mclmatrix
+begin
+0    44 88 99 456 2147483647 $
+1    11 66 77 123 $
+2    22 33 55 $
+)</pre>
+Note that the column domain is canonical; its specifiation could have been
+omitted. In this example, no values were specified. See below for more.
+</div></td>
+</tr>
+</table>
+
+</div>
+
+<a name="gspec"></a>
+<h2>Specifying graphs</h2>
+
+<p style="text-align:justify">
+A graph is simply a matrix where the row domain is the same as the column
+domain. Graphs should have positive entries only. Example:
+<pre>
+(mclheader
+mcltype matrix
+dimensions 12x12
+)
+(mcldoms
+11 22 33 44 55 66 77 88 99 123 456 2147483647 $
+)
+(mclmatrix
+begin
+11    22:2  66:3.4  77:3  123:8 $
+22    11:2  33:3.8  55:8.1 $
+33    22:3.8  44:7  55:6.2 $
+44    33:7  88:5.7  99:7.0 456:3 $
+55    22:8.1  33:6.2  77:2.9  88:3.0 $
+66    11:3.4  123:5.1 $
+77    11:3  55:2.9  123:1.5 $
+88    44:5.7  55:3.0  99:3.0 456:4.2 $
+99    44:7.0  88:3.0 456:1.8 2147483647:3.9 $
+123   11:8  66:5.1  77:1.5 $
+456   44:3  88:4.2  99:1.8 2147483647:6.3 $
+2147483647   99:3.9 456:6.3 $
+)</pre>
+Incidentally, clustering this graph with mcl, using default parameters,
+yields a cluster that is represented by the 12x3 matrix shown earlier.
+
+<p style="text-align:justify">
+The following example shows the same graph, now represented on a
+canonical domain, and with all values implicitly set to 1.0:
+<pre>
+(mclheader
+mcltype matrix
+dimensions 12x12
+)
+(mclmatrix
+begin
+0    1  5  6  9 $
+1    0  2  4 $
+2    1  3  4 $
+3    2  7  8 10 $
+4    1  2  6  7 $
+5    0  9 $
+6    0  4  9 $
+7    3  4  8 10 $
+8    3  7 10 11 $
+9    0  5  6 $
+10   3  7  8 11 $
+11   8 10 $
+)</pre>
+
+<a name="notes"></a>
+<h2>Additional notes</h2>
+
+<p style="text-align:justify">
+There are few restrictions on the format that one might actually expect.
+Vectors and entries may occur in any order and need not be sorted.
+Repeated entries and repeated vectors are allowed but are always
+discarded while an error message is emitted.
+
+<p style="text-align:justify">
+If you want <i>functionally interesting behaviour</i> in combining
+repeated vectors and repeated entries, have a look at the next section
+and at <a class="local" href="mcxassemble.html">mcxassemble</a>.
+
+<p style="text-align:justify">
+Within the vector listing, the '#' is a token that introduces
+a comment until the end of line.
+
+<a name="raw"></a>
+<h2>Raw format</h2>
+
+<p style="text-align:justify">
+A file in <i>raw format</i> is simply a listing of vectors without any
+sectioning structure. No header specification, no domain specification, and
+no matrix introduction syntax is used - these are supplied to the processing
+application by other means. The end-of-vector token '$' must still be used,
+and the comment token '#' is still valid. <a class="local" href="mcxassemble.html">mcxassemble</a>
+imports a file in raw
+format, creates a generic matrix from the data therein, and writes the
+matrix to (a different) file. It allows customizable behaviour in how to
+combine repeated entries and repeated vectors. This is typically used in the
+following procedure. A) Do a one-pass-parse on some external cooccurrence
+file/format, generate raw data during the parse and write it to file
+(without needing to build a huge data structure in memory). B) mcxassemble
+takes the raw data and assembles it according to instruction into a generic
+mcl matrix.
+
+<a name="seealso"></a>
+<h2>SEE ALSO</h2>
+<a class="local" href="mcxassemble.html">mcxassemble</a>,
+and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+and the utilities in the mcl family.
+
+<a name="author"></a>
+<h2>AUTHOR</h2>
+
+<p style="text-align:justify">
+Stijn van Dongen.
+
+</body>
+</html>

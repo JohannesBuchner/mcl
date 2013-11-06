@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# make function to require argument count (e.g. sym)
+
+mode=$1
+
+    case "$mode" in
+    gr)
+shift 1
+for mx in $@; do
+     mcxdump -imx $mx --no-values --dump-rlines -o - \
+   | perl -ne '$x = s/(\w+)//g; print $x, "\n";' \
+   | sort -n | tr '\n' ' '
+done
+      echo
+      ;;
+    sym)
+mx=$2
+check=$3
+mcx /$mx lm tp -1 mul add /$check wm
+      ;;
+    h)
+      cat <<EOU
+Usage:
+clxdo gr  <cluster-file>            #  show size distribution.
+clxdo sym <mx-file> <check-file>    #  check symmetry.
+EOU
+      exit
+      ;;
+   esac
+

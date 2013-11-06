@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<!-- Copyright (c) 2005 Stijn van Dongen -->
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<style type="text/css">
+body
+{ text-align: justify;
+color: #001111;
+background: white;
+margin-left: 8%;
+margin-right: 8%;
+}
+h3 { margin-top:1em; }
+h2 { margin-top:2em; }
+a:link { text-decoration: none; }
+a:active { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:link { color: #1111aa; }
+a:active { color: #1111aa; }
+a:visited { color: #111166; }
+a.local:link { color: #11aa11; }
+a.local:active { color: #11aa11; }
+a.local:visited { color: #116611; }
+a.intern:link { color: #1111aa; }
+a.intern:active { color: #1111aa; }
+a.intern:visited { color: #111166; }
+a.extern:link { color: #aa1111; }
+a.extern:active { color: #aa1111; }
+a.extern:visited { color: #661111; }
+a.quiet:link { color: black; }
+a.quiet:active { color: black; }
+a.quiet:visited { color: black; }
+div.copy
+{ font-size: 12pt;
+font-family: monospace;
+text-align: left;
+white-space: pre;
+margin-left: 2em;
+margin-top: 1em;
+margin-bottom: 1em;
+}
+div.indent
+{margin-left: 8%;
+margin-right: 0%;
+}
+</style>
+<title>
+The clmclose manual
+</title>
+</head>
+<body>
+
+<p style="text-align:right">
+31 Mar 2005&nbsp;&nbsp;&nbsp;
+<a class="local" href="clmclose.ps"><b>clmclose</b></a>
+1.004, 05-090
+</p>
+
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr>
+<td width=48 valign="top" align="left">
+1.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#name">NAME</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+2.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#synopsis">SYNOPSIS</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+3.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#description">DESCRIPTION</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+4.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#author">AUTHOR</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+5.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#seealso">SEE ALSO</a>
+</div></td>
+</tr>
+</table>
+
+</div>
+
+<a name="name"></a>
+<h2>NAME</h2>
+
+<p style="text-align:justify">
+clmclose - Fetch connected components from graphs or subgraphs
+
+<a name="synopsis"></a>
+<h2>SYNOPSIS</h2>
+
+<p style="text-align:justify">
+<b>clmclose</b> -imx &lt;fname&gt; [options]
+
+<p style="text-align:justify">
+<b>clmclose</b>
+<a class="intern" href="#opt-imx"><b>-imx</b> fname (<i>input file</i>)</a>
+<a class="intern" href="#opt-dom"><b>-dom</b> fname (<i>input domain/cluster file</i>)</a>
+<a class="intern" href="#opt-o"><b>[-o</b> fname (<i>output file</i>)<b>]</b></a>
+<a class="intern" href="#opt-cc"><b>[-cc</b> (<i>output connected components</i>)<b>]</b></a>
+<a class="intern" href="#opt-h"><b>[-h</b> (<i>list help</i>)<b>]</b></a>
+<a class="intern" href="#opt--apropos"><b>[--apropos</b> (<i>list synopsis of all options</i>)<b>]</b></a>
+
+<a name="description"></a>
+<h2>DESCRIPTION</h2>
+
+<p style="text-align:justify">
+Currently, <b>-cc</b> is the only mode provided, implying
+its use is required.
+
+<p style="text-align:justify">
+Use <b>clmclose</b> to fetch the connected components from a graph.
+They will be returned as a clustering file. Use this file
+in conjunction with <b>mcxsubs</b> and the graph file itself to
+retrieve individual subgraphs corresponding to connected components.
+
+<p style="text-align:justify">
+If the <b>-dom</b>&nbsp;<i>fname</i> option is used, clmclose will
+for each of the domains in file&nbsp;<i>fname</i> retrieve
+the associated subgraph from the input graph, decompose it into
+its connected components, and write each connected components
+as a separate domain/cluster in the output file.
+
+<a name="author"></a>
+<h2>AUTHOR</h2>
+
+<p style="text-align:justify">
+Stijn van Dongen.
+
+<a name="seealso"></a>
+<h2>SEE ALSO</h2>
+<a class="local" href="mcl.html">mcl</a>,
+<a class="local" href="mclfaq.html">mclfaq</a>,
+and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+and the utilities in the mcl family.
+
+</body>
+</html>

@@ -1,0 +1,64 @@
+.\" Copyright (c) 2005 Stijn van Dongen
+.TH "mcxconvert" 1 "31 Mar 2005" "mcxconvert 1\&.004, 05-090" "USER COMMANDS"
+.po 2m
+.de ZI
+.\" Zoem Indent/Itemize macro I.
+.br
+'in +\\$1
+.nr xa 0
+.nr xa -\\$1
+.nr xb \\$1
+.nr xb -\\w'\\$2'
+\h'|\\n(xau'\\$2\h'\\n(xbu'\\
+..
+.de ZJ
+.br
+.\" Zoem Indent/Itemize macro II.
+'in +\\$1
+'in +\\$2
+.nr xa 0
+.nr xa -\\$2
+.nr xa -\\w'\\$3'
+.nr xb \\$2
+\h'|\\n(xau'\\$3\h'\\n(xbu'\\
+..
+.if n .ll -2m
+.am SH
+.ie n .in 4m
+.el .in 8m
+..
+.SH NAME
+mcxconvert \- convert between mcx storage types\&.
+.SH SYNOPSIS
+
+\fBmcxconvert\fP <input file name> <output file name>
+
+\fBmcxconvert\fP <input file to test>
+
+In the two-argument invocation, \fBmcxconvert\fP converts from the format
+found in the first file to the other format\&.
+In the one-argument invocation, mcxconvert will simply output
+one of the strings \fCascii\fR or \fCbinary\fR depending on the format found\&.
+.SH DESCRIPTION
+
+The \fBmcl\fP libraries make extensive use of matrices\&. Matrices
+are used to encode graphs, matrices and clusterings\&.
+They can be stored either in ascii or in binary format\&. The latter is
+somewhat more efficient in storage and much faster in both reading and
+writing, but the default is ascii format\&.
+
+The \fBmcl\fP input routines recognize the type of storage they are dealing
+with\&. If you want to convert a matrix to the other storage type,
+simply specify the file name of the matrix you want to convert\&.
+\fBmcxconvert\fP will recognize its type, and write the other type
+to the file specified as the second argument\&.
+
+In the future \fBmcxconvert\fP will probably be generalized towards
+other objects such as vectors\&.
+.SH AUTHOR
+
+Stijn van Dongen\&.
+.SH SEE ALSO
+\fBmcxio(5)\fP,
+and \fBmclfamily(7)\fP for an overview of all the documentation
+and the utilities in the mcl family\&.

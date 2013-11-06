@@ -1,0 +1,360 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<!-- Copyright (c) 2005 Stijn van Dongen -->
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<style type="text/css">
+body
+{ text-align: justify;
+color: #001111;
+background: white;
+margin-left: 8%;
+margin-right: 8%;
+}
+h3 { margin-top:1em; }
+h2 { margin-top:2em; }
+a:link { text-decoration: none; }
+a:active { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:link { color: #1111aa; }
+a:active { color: #1111aa; }
+a:visited { color: #111166; }
+a.local:link { color: #11aa11; }
+a.local:active { color: #11aa11; }
+a.local:visited { color: #116611; }
+a.intern:link { color: #1111aa; }
+a.intern:active { color: #1111aa; }
+a.intern:visited { color: #111166; }
+a.extern:link { color: #aa1111; }
+a.extern:active { color: #aa1111; }
+a.extern:visited { color: #661111; }
+a.quiet:link { color: black; }
+a.quiet:active { color: black; }
+a.quiet:visited { color: black; }
+div.copy
+{ font-size: 12pt;
+font-family: monospace;
+text-align: left;
+white-space: pre;
+margin-left: 2em;
+margin-top: 1em;
+margin-bottom: 1em;
+}
+div.indent
+{margin-left: 8%;
+margin-right: 0%;
+}
+</style>
+<title>
+The mcxdeblast manual
+</title>
+</head>
+<body>
+
+<p style="text-align:right">
+17 Mar 2005&nbsp;&nbsp;&nbsp;
+<a class="local" href="mcxdeblast.ps"><b>mcxdeblast</b></a>
+1.004, 05-076
+</p>
+
+<a name="name"></a>
+<h2>NAME</h2>
+
+<p style="text-align:justify">
+mcxdeblast - parse BLAST files and write mcxassemble input.
+
+<p style="text-align:justify">
+mcxassemble will in turn create input suitable for mcl.
+
+<a name="synopsis"></a>
+<h2>SYNOPSIS</h2>
+<b>mcxdeblast</b> file-name
+
+<p style="text-align:justify">
+<b>mcxdeblast</b>
+<a class="intern" href="#opt--score"><b>[--score=</b>&lt;b|e|r&gt; (<i>bit scores|e-values|normalize bit score</i>)<b>]</b></a>
+<a class="intern" href="#opt--sort"><b>[--sort=</b>&lt;a|o&gt; (<i>alphabetic|occurrence sorting</i>)<b>]</b></a>
+<a class="intern" href="#opt--m9"><b>[--m9</b> (<i>expect BLAST column format</i>)<b>]</b></a>
+<a class="intern" href="#opt--abc"><b>[--abc</b> (<i>expect ID1 ID2 score format</i>)<b>]</b></a>
+<a class="intern" href="#opt--xi-dat"><b>[--xi-dat=</b>&lt;suf&gt; (<i>strip &lt;suf&gt; from file-name</i>)<b>]</b></a>
+<a class="intern" href="#opt--xo-dat"><b>[--xo-dat=</b>&lt;suf&gt; (<i>add &lt;suf&gt; to base name</i>)<b>]</b></a>
+<a class="intern" href="#opt--bcut"><b>[--bcut=</b>&lt;val&gt; (<i>bit score cutoff</i>)<b>]</b></a>
+<a class="intern" href="#opt--ecut"><b>[--ecut=</b>&lt;val&gt; (<i>E-value cutoff</i>)<b>]</b></a>
+<a class="intern" href="#opt--tab"><b>[--tab=</b>&lt;fname&gt; (<i>tab file</i>)<b>]</b></a>
+&lt;file-name&gt;
+
+<a name="description"></a>
+<h2>DESCRIPTION</h2>
+<b>mcxdeblast</b> parses BLAST files and writes results suitable for
+input in mcxassemble (which will in turn create input suitable for mcl).
+It is used by the pipeline script <a class="local" href="mclblastline.html">mclblastline</a>.
+
+<p style="text-align:justify">
+If the input file is named <tt>iput</tt>, mcxdeblast will by
+default create files <tt>iput.hdr</tt>, <tt>iput.raw</tt>, <tt>iput.tab</tt>,
+<tt>iput.map</tt>, and <tt>iput.err</tt>. The <tt>hdr</tt> file contains
+information about the number of nodes found. It will be read
+by <a class="local" href="mcxassemble.html">mcxassemble</a>. The <tt>raw</tt> file contains the co-occurrence
+scores between different nodes (peptides), also to be
+read by mcxassemble. The co-occurrence scores are in
+terms of mcl indentiers, which are subjected to rearranging
+by mcxassemble in order to correctly align them with the tab file.
+The <tt>tab</tt> file contains bindings between mcl identifiers
+(after rearranging as specified in the map file) and the BLAST labels
+(peptide identifiers). Refer to the manual of <a class="local" href="mcxassemble.html">mcxassemble</a>
+for the syntax of a tab file.
+The <tt>err</tt> file contains a list of any errors encountered.
+
+<p style="text-align:justify">
+If the <b>--tab</b>=<b>fname</b> option is used mcxdeblast changes
+its behaviour. It will read the file <b>fname</b>, and use
+the bindings found therein. It will no longer output any
+of the <tt>hdr</tt>, <tt>map</tt>, or <tt>tab</tt> files. The <tt>hdr</tt>
+file should be provided by the same application that generated
+the specified tab file, and the <tt>map</tt> file should no longer be
+necessary (it might be convenient though and perhaps the
+future will bring a new <b>--map</b> option).
+
+<p style="text-align:justify">
+The <b>--tab</b>=<b>fname</b> option can be convenient e.g. if
+you split a BLAST job over multiple machines and want
+to apply mcxdeblast to each of the subresults. You do
+this by generating a single central tab file in advance.
+Then provide each instance of mcxdeblast with this tab file.
+Each instance will generate a <tt>raw</tt> file. The respective
+<tt>raw</tt> files can simply be concatenated and fed to mcxassemble
+using its <b>-raw</b> option. Additionally, a <tt>hdr</tt> file
+has to be specified for mcxassemble using its <b>-hdr</b>
+option. The syntax of <tt>hdr</tt> files is described in
+the <a class="local" href="mcxassemble.html">mcxassemble</a> manual.
+Currently there is usually only one variable
+in the <tt>hdr</tt> file, which is the number of bindings
+listed in the tab file. This number, in turn, should equal
+the total number of different peptides encountered in the BLAST input.
+
+<a name="options"></a>
+<h2>OPTIONS</h2>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr>
+<td colspan=3>
+<a name="opt--tab"></a><b>--tab</b>=&lt;fname&gt; (<i>tab file</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Specify a tab file to use, rather than automatically generating one.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--score"></a><b>--score</b>=&lt;b|e&gt; (<i>bit scores|e-values</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Specify whether to use bit scores, E-values, or bit scores
+normalized by length of the HSP.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--sort"></a><b>--sort</b>=&lt;a|o&gt; (<i>alphabetic|occurrence sorting</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Specify how to sort labels.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--m9"></a><b>--m9</b> (<i>expect BLAST column format</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Use this option to parse BLAST output formatted with the -m 9 option.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--abc"></a><b>--abc</b> (<i>expect ID1 ID2 SCORE format</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Use if each input line has the format ID1 ID2 SCORE.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--xi-dat"></a><b>--xi-dat</b>=&lt;suf&gt; (<i>strip &lt;suf&gt; from &lt;file-name&gt;</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+If set, the suffix &lt;suf&gt; is stripped from file-name in order
+to obtain the base name for output. If &lt;file-name&gt; does not
+end with suffix, it is assumed to be the base name, and &lt;suf&gt; is
+added in order to obtain the (real) file-name.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--xo-dat"></a><b>--xo-dat</b>=&lt;suf&gt; (<i>add &lt;suf&gt; to base name</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Attaches the suffix to the base name. Use this to distinguish
+between different parses. One might for example
+use <b>--score</b>=<i>b</i> <b>--bcut</b>=<i>5</i> <b>--xo-dat</b>=<i>b</i>.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--bcut"></a><b>--bcut</b>=&lt;val&gt; (<i>bit score cutoff</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Scores below the cutoff value are ignored.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--ecut"></a><b>--ecut</b>=&lt;val&gt; (<i>E-value cutoff</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Scores below the cutoff value are ignored.
+</div></td>
+</tr>
+</table>
+
+</div>
+
+<a name="author"></a>
+<h2>AUTHOR</h2>
+Stijn van Dongen.
+Jason Stajich implemented the <b>--m9</b> option.
+Abel Ureta-Vidal and Dinakarpandian Deendayal contributed helpful comments
+and fixes.
+
+<a name="sealso"></a>
+<h2>SEE ALSO</h2>
+<a class="local" href="mclblastline.html">mclblastline</a>, <a class="local" href="mcxassemble.html">mcxassemble</a>, <a class="local" href="mcl.html">mcl</a>,
+<a class="local" href="clmformat.html">clmformat</a>.

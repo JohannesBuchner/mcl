@@ -1,0 +1,71 @@
+#!/usr/bin/env perl
+
+#          Copyright (C) 2002, EMBL-EBI, author Anton Enright.                #
+#                                                                             #
+# This file is part of MCL.  You can redistribute and/or modify MCL under the #
+# terms of the GNU General Public License; either version 2 of the License or #
+# (at your option) any later version.  You should have received a copy of the #
+# GPL along with MCL, in the file COPYING.                                    #
+
+#
+# $Id: tribe-parse,v 1.1 2003/04/16 08:43:57 flux Exp $
+#
+# parse-mcl 	-> A script for parsing sequence similarities and E-values from
+#		   BLASTp 2.0 results files for MCL analysis
+# Anton Enright - EMBL-EBI 2002
+
+$weight=200;
+
+if (!$ARGV[0] || $ARGV[0] eq '-h' || $ARGV[0] eq '-help')
+	{
+	print "\n";
+	print "tribe-parse\n";
+	print "-----------\n";
+	print "A utility to convert raw NCBI BLAST output\nfor Markov Matrix construction and TribeMCL\nclustering\n";
+	print "\nUsage:\n";
+	print "tribe-parse blastresults.out > blastresults.mclparsed\n";
+	print "\n";
+	print "Options:\n-weight\tVALUE";
+	print "\n\n\tChange the default weight for BLAST hits\n\twith E(0.0) to VALUE (default=200 (i.e. 1x10-200))\n\n";
+	exit(0);
+	}
+
+for ($i=0;$i<$#ARGV+1;$i++)
+	{
+	if (($ARGV[$i] eq '-weight') && ($ARGV[$i+1] > 0))
+		{
+		$weight=$ARGV[$i+1];
+		}
+
+	}
+
+open (FILE,$ARGV[0]) or die "Error Cannot Open BLAST Output file\n";
+while (<FILE>)
+	{
+
+	if (/Query= (\S+)/)
+		{
+		$query=$1;
+		}
+
+	if (/^>(\S+)/)
+		{
+		$reference=$1;
+		}
+
+	if (/Expect = (\S+)/)
+		{
+		print "$query\t$reference\t";
+		$raw=$1;
+		$raw=~s/^e-/1e-/g;
+		$expect=sprintf("%e",$raw);
+		if ($expect==0)
+			{
+			$expect=sprintf("%e","1e-$weight");	
+			}
+		$first=(split("e-",$expect))[0];
+                $second=(split("e-",$expect))[1];
+		printf("%d\t%d\n",$first,$second);
+		}
+
+	}

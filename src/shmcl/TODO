@@ -1,0 +1,375 @@
+
+   This file is large. Many a thought here has come to a quiet rest.
+   Please do not disrupt the peace.
+
+ =============================================================================
+
+mcl loop.mci -L 10 -c 0
+results in perceived convergence, after which cluster interpretation
+fails miserably, so much so that it tries to alloc a
+3x0 matrix, which crashes.
+
+
+add extra 8532c levels (given Thomas'es experiences)?
+
+add
+(mclclusterinfo
+..
+)
+to output clusterings.
+
+
+http://www.wkap.nl/journalhome.htm/0167-8019
+
+
+
+How do to do assertions.  just use them?
+
+======================================================================
+
+::mcl::util::lib
+
+   o  double/real
+   o  collapse the duplicate recovery cod3? there are pros and cons.
+         con is that current setup seems easier for keeping track of things.
+   o  make simple distribution, with one script moving makefiles etc.
+   o  sparse matrix storage (using col and row characteristic vector).
+   o  go from general representation to canonical representation (0-N-1, 0-M-1),
+         return permutations needed.
+   o  make poolWalk routine.
+   o  mclMatrixBinary probably refuses to write negative numbers. Remove.
+   o  mcx interface to  pruning routines. right now I have .. trim primitive.
+   ?  with -fkeep-inlines, can I use function pointers (gnu specific anyway)?
+   o  impala io should consider ON_FAIL directive.
+   o  make fibonacci like pool growth algorithm.
+   o  mcx-ize taurus (renaming), cleaning  up a lot in taurus.
+   o  streamOpen contains raw exits but should consider ON_FAIL directive.
+   o  Current hash interface is absent/dangerous.
+         (load is ok when touched (except when negative!!), others not).
+   o  do something options string like (??) -- all the sprintf stuff
+         is very irky, so perhaps think of something else.
+   o  search for memory leaks in impala,mcl libs.
+   o  registering streams like verbose, track, log etc.
+   o  check header files includes.
+   o  make arguments const where appropriate.
+   o  make functions static where appropriate.
+   o  wrap hard mallocs and reallocs.
+   o  insert mcxiostreamopenfailure calls where appropriate.
+   o  propagate hard exit's in mcxIOstream library where appropriate.
+   o  audit vector.[ch] on NULL consistency (should be ok).
+   ?  enable precise memory allocation in txt.
+   ?  replace mcxTingAlert by mcxTingExit vararg function.
+
+===============================================================================
+
+la.c:genclustering speaks of gargabe cluster vector. Ughh.
+
+(?) IOReadInteger should return bool I think, it could have failed.
+(?) IO stuff -> mclReadInteger.
+(?) remove exits from ilist.c (e.g. ilinvert -> return NULL for fail).
+
+mcxIO section.  streamOpen contains raw exits  but should consider
+ON_FAIL directive.  Different modes  of failure  seem to  be present.
+Introduce them in file.h?
+
+
+mcxVectorWriteAscii
+mcxVectorDump
+not yet ported to mcxIOstream and ACTION_ON_FAIL.
+dump interface is ugly as a nightmare in hell (or would that
+be dreaming of heaven?). Remedy?
+
+mempool growing scheme:
+1  1  2  3  5  8  13 21 34 55 89
+1  2  4  7  12 20 33 54 88 143
+
+8  4  6  9  14 20 30
+8  12 18 27 41 61 90
+
+all the statics in shmcl/mcl.c
+
+at various places, if I use maxval, must consider using maxabsval
+instead (if e.g. used for printing).
+
+readFile can do a system call to find out about the size of the
+file. (if its not stdin). mmm.
+
+is it ok to make only release and init routines take void arg?
+can make void free routines as inlines around true free routines.
+
+option strings parsing. return values probably mcxTing.
+or other solution. Perhaps sth with hashes, you know.
+
+
+insert mcxIOstreamOpenFailure(stderr, "mcxMatrixMaskedRead", xfIn)
+etc in the right places.
+;  if (!xfIn->fp && mcxIOstreamOpen(xfIn, ON_FAIL) != STATUS_OK)
+   {  mcxIOstreamOpenFailure(stderr, "mcxMatrixMaskedRead", xfIn)
+   ;  return NULL
+;  }
+Cool idiom (consider ON_FAIL is EXIT_ON_FAIL).
+Check all ON_FAIL instances, see whether idiom can be shortened.
+
+mcx-ize taurus library. Dust on this section, inspection severly
+needed.  consistency list==NULL, n=0.  permutation functionality.
+general audit.
+
+ilStore very strange functionality.  ilResize funnily
+implemented. Resize should probably not try to be smart and look at
+sizes. It's not like mcxTingShrink & Ensure, it's like vectorResize.
+
+ilCon should be ilAppend should wrap mcxSplice, and so should ilInsert
+etcetera.
+
+check whether ascii input column is not sorted or contains duplicates.
+Only in those cases sort and merge.
+
+behaviour of kbarselect when requested nr is larger than vec size.
+it currently returns a bar of -1.0.
+
+being able to read in a tagged matrix.  requires probably just a
+branch in mcxmatrixreadascii (or whatever it is called).
+
+implement mcxVectorFromIlist and mcxIlistFromVector?
+I do not want mutual dependencies in the archives I believe.
+Should both go in a separate archive, which must always be listed
+before the other two?
+Right now I will just put them in taurus/la.[ch]
+
+mcxIOstreamRewind suggests something it does not (it only resets
+counters to initial state).  perhaps add wrappers around fseek and
+ftell that preserve mcxIOstream counter state.
+
+(?) AllocZero(N_cols, N_rows) interface (change arguments)
+Submatrix
+MatrixComplete
+MatrixPermute?
+
+mcxMatrixDiag should take vector as argument.
+
+Did remove ugly 0,0,0,0 (defining window) from mcxMatrixNrofEntries,
+because we now have mcxSubMatrixNrofEntries.
+Ugly windows are still present in mcxMatrixList and mcxVectorList
+
+taurus/la.c idxShare. Strange location.
+
+define mcxTingAppend in terms of mcxTingNAppend (really?)
+
+mcxMatrixWriteTable
+Default ivp indices will not be printed, vector indices problably will
+indeed.  No EOV character. Column separator optionally yes.
+mcltype table?
+Intention: create something that is easily parseable for unknown purposes.
+
+how big can inhomogeneity get?  If it is N times some maximum then it could
+get very big if there is a column (0.3,0.7). (-> 0.7  -0.58 = 0.12)
+
+If vector I/O is ever seriously re-implemented,
+consider making them matrices. (or do I want to be implicit about range?)
+
+......................................................................
+;;thoughts;;
+
+vectorBinary and other vector routines, confusion over src en dst argument.
+There seems to be a split between create routines and input/output
+routines, which is perhaps fine.
+
+implement mcxbool's where used. tiresome.
+
+(DONE) util/types.h, not iface.h
+Should I also prefix my files?  There are other unprefixed types out
+there I believe.  Should I prefix EXIT_ON_FAIl etcetera like mcxFALSE
+and mcxTRUE?  the mcxTRUE looks stupid, I do this because of potential
+crosslinking difficulties. Dumb?
+
+What about doing setMerge, setMinus, setMeet also for integer lists.
+Does this mean I should do it in general?
+If there are two ordered lists of the same type which have
+a mapping property like mcxVector this can be useful.
+Requires comparison test on the mapping domain.
+and a binary function on the mapping range.
+There is a reason why this is overkill. Thought of it the other day.
+
+using an ivp pool for matrices. (means cols can no longer be
+alloc'ed). Difficult: mclMatrixVectorCompose writes directly
+in destination vector, and reallocs its ivps (vectorInstantiate).
+
+changing member name 'list' of ilist to 'ints'
+ilRange(left, right), ilInterval(left, right) {non-inclusive}
+
+Some standard notation for
+*addresses of variables containing pointers to memory on the heap*
+The variables themselves are usually structure members.
+mempptr currently.  memptraddr would be ugly
+
+readascii contains/contained check on return value of instantiate.
+Sigh, errorchecking, how and why.
+I tend to do checking wheneverafter interaction with the environment,
+mainly IO, not malloc.
+
+xfStdout
+xfStderr
+xfStdin
+xfVerbose
+xfTrack
+in util/iface.[ch]
+pooling, registering, managing, whatever. Think of something clueful.
+
+rethink structure mcl section. dpsd, interpret, clm.  some legacy
+routines in there.
+
+Which routines take the name of their caller as argument?
+
+Right now it is difficult to work with induced submatrices; these can
+only exist as the full thing, this is a pity of memory and results
+in things like a lot of singleton clusters if you start clustering
+the induced subgraph.
+   It may be an idea to include two maps (ilist permutations) in the
+definition of a matrix, resulting in the idea of a mapped matrix. This
+requires also members mapped_N_rows en mapped_N_cols.
+   Which routines suffer from complexity? Compose routines for sure ..
+Add routines also. Vector compose routine.
+Idx inquiry, but this is simple.
+
+mcxIOstream: wrap bc,lc,lo in struct. introduce data/text dichotomy.
+
+VectorCountCmpBar should use bsearch with idxcmp argument.
+This option is currently nowhere used.  Needs idx sorted cols then.
+
+......................................................................
+;;audit;;
+
+Check vector.[ch] on the condition n_ivps==0 and ivps==NULL.
+Check ilist.[ch] idem.
+Check code voor malloc(0) (if semantics ok change to rqRealloc(0)).
+What happens when vectorresize(0)?
+Allow this everywhere.
+Sum of a vector with ivps==NULL is simply 0.0, this is consistent
+with the MCL sparse matrix/vector paradigm.
+At some places a condition like while(ivp<ivpmax).
+Translates to while(0<0) according to the standard.
+so I guess this is ok. Still scrutinize for trying to access
+ivps->0
+mcxVectorCreate(0) induces rqRealloc(0) call, and that is ok.
+
+Redundant and missing includes in header files and source files.
+What about these .a libraries, it seems you can't have mututal
+dependencies (remember having this problem once).
+
+return values and interaction of routines in impala/io.c, parse.c.
+
+
+==============================================================================
+=done
+
+
+ noted
+
+   mcxIOstream now only accepts `-' as token for both stdin and stdout.
+   Name of stream is changed appropriately only after a call to Open,
+   meaning that Open sort of has a delayed side effect relative to New.
+   If a file name is inquired inbetween these two calls, the result
+   is inconsistent. Inquirers for file names do have to think of the
+   `std stream' possibility though, so maybe this is not entirely an
+   issue.
+
+   Of course, inquiry should be a method in this case, and callers
+   should in critical cases not poll the streamname directly.
+
+
+ considered
+
+   mcxTingEnsure returns new mcxTing struct if given a null mcxTing.
+   Possibility that callers forget to use return value when passing
+   text argument that equals NULL is quite real.
+
+   Solution: define wrapper for functionality "gimme a new txt with that
+   capacity". Name?  mcxTingNewCapacity
+
+   Did this, then removed it. Confusing that NewCapacity also takes
+   a txt as argument. Had something to do with EmptyString I believe,
+   which now uses mcxTingEnsure, which is a lousy name also by the way.
+
+
+ considered
+
+   giving mcxBuf structure a pointer to the number of elements
+   currently in use. This should always be possible, as caller
+   must keep track of this.
+
+   Did not do this because .. the advantages are not clear.
+   What if people accidentally fiddle with it?
+   Right now finalization yields the final count.
+
+ @
+   vectorGetNrofEntries
+      overlappende functionaliteit met vectorCountCmpBar,
+      behalve dat de laatste alleen halfopen bereiken
+      accepteert.
+
+      Misschien moet vectorSelectCmpBar een vectorSelectCmpBars
+      worden, met een cmp die drie argumenten neemt.
+      Mogelijkheid om een `window' uit te snijden.
+
+      Alleen, hoe vermijd je dat het een wildgroei aan cmps wordt?
+
+
+==============================================================================
+=totodo (old todo's not yet checked and converted to new format)
+
+
+ warning_guts
+   _E_GutsShouldNotHappen
+
+    een warning in de low level routines
+    die eigenlijk al eerder afgevangen had moeten worden.
+    NULL argumenten vallen hier in principe niet onder?
+
+WARNING_NEWCODE
+   _E_NewCodeShouldNotHappen
+
+   (safety checks voor nieuwe code die nog onder veel
+    berekeningspaden getest moet worden)
+
+WARNING_IFACE_VIOLATION
+   _E_NullArgument
+   _E_ArgumentOutOfDomain
+   _E_ArgumentsConflict
+
+
+ @
+   inhomogeneity is nu hardwired 0.001e
+   haak.
+
+ @
+   -C 1:1 analoog aan -A 1:1
+   Vergt dat mclCenterMatrix een mxDiag als argument neemt.
+   -A en -C vlaggen zijn overigens onhandig, want dit wil je niet
+   grootschalig op de cline doen.  Hier zou eigenlijk een input vector
+   als argument moeten fungeren.
+
+   -a 1 -A 3:10 zou ik de rechter waarde willen laten prevaleren.
+   Is niet helemaal logisch te definieren, aangezien functie van waarde 0.0
+   onduidelijk is: Wat betekent -A 0:0 en hoe te onderscheiden van
+   *niet* gespecificeerde -A x:? waardes.
+
+ @
+   mclCluster verwijderd input matrix uit geheugen.
+   In toekomstige scenario's niet ok.
+
+ @
+   Dan: -dump cls losweken van de mclVerbose vlag.
+   (?)
+
+ @
+   ascii interface voor permutaties?
+
+   (mclheader
+    mcltype permutation
+   )
+
+   (mclpermutation
+    0 1 2 3 4 5
+   )
+
+======================================================================

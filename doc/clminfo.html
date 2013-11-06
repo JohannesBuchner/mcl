@@ -1,0 +1,346 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<!-- Copyright (c) 2005 Stijn van Dongen -->
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<style type="text/css">
+body
+{ text-align: justify;
+color: #001111;
+background: white;
+margin-left: 8%;
+margin-right: 8%;
+}
+h3 { margin-top:1em; }
+h2 { margin-top:2em; }
+a:link { text-decoration: none; }
+a:active { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:link { color: #1111aa; }
+a:active { color: #1111aa; }
+a:visited { color: #111166; }
+a.local:link { color: #11aa11; }
+a.local:active { color: #11aa11; }
+a.local:visited { color: #116611; }
+a.intern:link { color: #1111aa; }
+a.intern:active { color: #1111aa; }
+a.intern:visited { color: #111166; }
+a.extern:link { color: #aa1111; }
+a.extern:active { color: #aa1111; }
+a.extern:visited { color: #661111; }
+a.quiet:link { color: black; }
+a.quiet:active { color: black; }
+a.quiet:visited { color: black; }
+div.copy
+{ font-size: 12pt;
+font-family: monospace;
+text-align: left;
+white-space: pre;
+margin-left: 2em;
+margin-top: 1em;
+margin-bottom: 1em;
+}
+div.indent
+{margin-left: 8%;
+margin-right: 0%;
+}
+</style>
+<title>
+The clminfo manual
+</title>
+</head>
+<body>
+
+<p style="text-align:right">
+31 Mar 2005&nbsp;&nbsp;&nbsp;
+<a class="local" href="clminfo.ps"><b>clminfo</b></a>
+1.004, 05-090
+</p>
+
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr>
+<td width=48 valign="top" align="left">
+1.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#name">NAME</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+2.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#synopsis">SYNOPSIS</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+3.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#description">DESCRIPTION</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+4.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#_section_4">OPTIONS</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+5.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#author">AUTHOR</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+6.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#seealso">SEE ALSO</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+7.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#references">REFERENCES</a>
+</div></td>
+</tr>
+</table>
+
+</div>
+
+<a name="name"></a>
+<h2>NAME</h2>
+
+<p style="text-align:justify">
+clminfo - Compute performance measures for graphs and clusterings.
+
+<a name="synopsis"></a>
+<h2>SYNOPSIS</h2>
+
+<p style="text-align:justify">
+<b>clminfo</b> [options] &lt;graph file&gt; &lt;cluster file&gt; &lt;cluster file&gt;*
+
+<p style="text-align:justify">
+<b>clminfo</b>
+<a class="intern" href="#opt--adapt"><b>[--adapt</b> (<i>allow domain mismatch</i>)<b>]</b></a>
+<a class="intern" href="#opt-pi"><b>[-pi</b> f (<i>apply inflation beforehand</i>)<b>]</b></a>
+<a class="intern" href="#opt--append-pf"><b>[--append-pf</b> (<i>append performance measures</i>)<b>]</b></a>
+<a class="intern" href="#opt--append-gr"><b>[--append-gr</b> (<i>append granularity measures</i>)<b>]</b></a>
+<a class="intern" href="#opt-tag"><b>[-tag</b> &lt;str&gt; (<i>write tag=&lt;str&gt; in performance section</i>)<b>]</b></a>
+&lt;graph file&gt; &lt;cluster file&gt; &lt;cluster file&gt;*
+
+<a name="description"></a>
+<h2>DESCRIPTION</h2>
+
+<p style="text-align:justify">
+<b>clminfo</b> computes several numbers indicative for the efficiency with
+with a clustering captures the edge mass of a given graph.
+Use it in conjunction with <b>clmdist</b> to determine which clusterings
+you accept. See the EXAMPLES section in <a class="local" href="clmdist.html">clmdist</a>
+for an example of <b>clmdist</b> and <b>clminfo</b> (and <b>clmmeet</b>) usage.
+Output can be generated for multiple clusterings at the same time.
+
+<p style="text-align:justify">
+The first number is called the <b>efficiency</b> and is described in [1] (see
+the <a class="intern" href="#references">REFERENCES</a> section). It tries to balance the dual aims of
+capturing a lot of edges or edge weights and keeping the cluster footprint
+or area fraction small. The efficiency number has several appealing
+mathematical properties, cf. [1]. It is related to, but not derivable from,
+the second and third numbers, the <i>mass fraction</i> and the
+<i>area fraction</i>.
+
+<p style="text-align:justify">
+The second number is the mass fraction, which is defined as follows.
+Let <b>e</b> be an edge of the graph. The clustering <i>captures</i> <b>e</b>
+if the two nodes associated with <b>e</b> are in the same cluster.
+Now the mass fraction is the joint weight of all captured edges divided
+by the joint weight of all edges in the input graph.
+
+<p style="text-align:justify">
+The third number is the area fraction, which is roughly the sum of the
+squares of all cluster sizes for all clusters in the clustering, divided by
+the square of the number of nodes in the graph. It says <i>roughly</i>,
+because the actual formula uses the quantity <b>N</b>*(<b>N-1</b>) wherever it
+says square (of <b>N</b>) above. A low/high area fraction indicates a
+fine-grained/coarse clustering.
+
+<p style="text-align:justify">
+The fourth number is the cluster link weight, which is the average
+edge weight over all edges captured by the clustering.
+
+<p style="text-align:justify">
+The fifth number is the graph link weight, which is the average weight
+over all edges in the graph.
+
+<a name="_section_4"></a>
+<h2>OPTIONS</h2>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr>
+<td colspan=3>
+<a name="opt--adapt"></a><b>--adapt</b> (<i>allow domain mismatch</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+The <b>--adapt</b> option allows the graph domain and cluster domain
+not to match. <b>clmdist</b> will take the appropriate subclustering and
+subgraph as it goes along.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt-pi"></a><b>-pi</b> f (<i>apply inflation beforehand</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Apply inflation to the graph matrix and compute the performance
+measures for the result.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--append-pf"></a><b>--append-pf</b> (<i>append performance measures</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+<b>clminfo</b> will reread each cluster file and append the computed
+performance measures to it.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--append-gr"></a><b>--append-gr</b> (<i>append granularity measures</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+<b>clminfo</b> will reread each cluster file and append the computed
+granularity measures to it.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt-tag"></a><b>-tag</b> &lt;str&gt; (<i>write tag=&lt;str&gt; in performance section</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+When appending, <b>clminfo</b> will include tag=&lt;str&gt; in the
+performance section. This can be useful e.g. to indicate
+the pre-inflation value corresponding with the section.
+</div></td>
+</tr>
+</table>
+
+</div>
+
+<a name="author"></a>
+<h2>AUTHOR</h2>
+
+<p style="text-align:justify">
+Stijn van Dongen.
+
+<a name="seealso"></a>
+<h2>SEE ALSO</h2>
+
+<p style="text-align:justify">
+<a class="local" href="clmdist.html">clmdist</a>,
+<a class="local" href="clmmeet.html">clmmeet</a>,
+<a class="local" href="clmmate.html">clmmate</a>,
+and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+and the utilities in the mcl family.
+
+<a name="references"></a>
+<h2>REFERENCES</h2>
+
+<p style="text-align:justify">
+[1] Stijn van Dongen. <i>Performance criteria for graph clustering and Markov
+cluster experiments</i>. Technical Report INS-R0012, National Research
+Institute for Mathematics and Computer Science in the Netherlands,
+Amsterdam, May 2000.<br>
+<a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z</a>
+
+</body>
+</html>

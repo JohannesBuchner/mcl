@@ -1,0 +1,122 @@
+\def{"man::synstyle"}{long}
+\def{"man::defstyle"}{long}
+\import{mcx.zmm}
+
+\set{"man::name"}{clmimac}
+\set{"man::html-title"}{The clmimac manual}
+\set{"man::author"}{Stijn van Dongen}
+\set{"man::section"}{1}
+
+\"man::preamble"
+\${html}{\"man::maketoc"}
+
+\sec{name}{NAME}
+\NAME{clmimac}{Interpret Matrices (c.q. MCL iterands output by \mcl)\
+ As Clusterings.}
+
+\sec{synopsis}{SYNOPSIS}
+   \par
+   \clmimac -imx <fname> [options]
+
+   \par
+   \clmimac
+   \synreqopt{-imx}{fname}{input file}
+   \synoptopt{-o}{fname}{name/stem for output}
+   \synoptopt{-dag}{fname}{output DAG}
+   \synoptopt{-t}{num}{tightness parameter}
+   \synoptopt{-tstep}{num}{tightness step increment}
+   \synoptopt{-tbound}{num}{tightness ceiling}
+   \synoptopt{--enstrict}{remove overlap}
+   \synoptopt{--center}{use center in defining tightness}
+   \synoptopt{-sort}{str}{size|revsize|lex|none}
+   \synoptopt{-h}{list help}
+   \synoptopt{--apropos}{list synopsis of all options}
+
+\sec{description}{DESCRIPTION}
+
+\par
+   Use \clmimac to interpret matrices (as clusterings) output by \mcl using
+   \mcl's \useopt{-dump}{ite} option.
+
+\par
+   Use \clmimac only if you have a special reason; the normal usage
+   of \mcl is to do multiple runs for varying \genopt{-I} parameters
+   and use the clusterings output by \mcl itself.
+   One reason is if you are interested in clusterings with overlap;
+   early MCL iterands generally induce clusterings possessing overlap.
+   Another reason is to investigate how the cluster structure
+   associated with the MCL process evolves over time.
+
+\sec{options}{OPTIONS}
+
+\begin{itemize}
+
+\item{\defopt{-imx}{fname}{input file}}
+   The input file is presumably an MCL iterand resulting
+   from the mcl option \useopt{-dump}{ite}.
+
+\item{\defopt{-t}{num}{tightness parameter}}
+   \genarg{num} should be a number in the range [0.0, 100.0].
+   The highter \genarg{num}, the less overlap will result.
+   Its default value is 0.  Multiple tightness parameters
+   can be specified by using the \genopt{-tstep}\~option.
+
+\item{\defopt{-tstep}{num}{tightness step increment}}
+   Repeat interpretation for tightness parameters that
+   increaes with stepsize \genarg{num}, starting with the value
+   given by the \genopt{-t}\~option. By default, interpretation
+   is not repeated.
+
+\item{\defopt{-tbound}{num}{tightness step increment}}
+   Ceiling for the tightness parameter as resulting
+   from the \genopt{-t}\~and \genopt{-tstep}\~options.
+
+\item{\defopt{--center}{use center in defining tightness}}
+   This option will generally result in more stringent clusterings
+   (containing fewer overlap), and tries to retain the most significant
+   entries.
+   Use this option \it{only} on matrices resulting from the MCL
+   \useopt{-dump}{dag} option, and do not use it on matrices resulting
+   from the \useopt{-dump}{ite} option.
+
+\item{\defopt{-o}{fname}{file name/stem}}
+   Write to file named \genarg{fname}. In case multiple tightness parameters
+   are specified, use \genarg{fname} as stem for the output file names.
+
+\item{\defopt{-dag}{fname}{output DAG}}
+   Write the DAG (directed acyclic graph) constructed from the input to
+   file. This DAG is constructed according to the structure associated
+   with diagonally positive semi-definite matrices as described
+   in the PhD thesis \it{Graph clustering by flow simulation}.
+   Consult \sibmclfaq for references.
+
+\item{\defopt{-sort}{str}{size|revsize|lex|none}}
+   Sort the clusters either by increasing size, decreasing size,
+   lexicographically by the indices they contain, or use the clustering
+   exactly as obtained from the interpretation routine.
+
+\item{\defopt{--enstrict}{remove overlap}}
+   Remove overlap should it be found, by allocating the nodes
+   in overlap to the first cluster in which they were found.
+
+\item{\defopt{-h}{list help}}
+   Print help, this could possibly be the same output as
+   supplied with \genopt{--apropos}.
+
+\item{\defopt{--apropos}{list synopsis of all options}}
+   List a one-line synopsis for all options.
+
+\end{itemize}
+
+\sec{author}{AUTHOR}
+\par
+   Stijn van Dongen.
+
+\sec{seealso}{SEE ALSO}
+
+   \sib{mcl},
+   \sib{mclfaq},
+   and \sibmclfamily for an overview of all the documentation
+   and the utilities in the mcl family.
+
+\"man::postamble"

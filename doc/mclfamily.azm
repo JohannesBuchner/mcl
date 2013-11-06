@@ -1,0 +1,251 @@
+\import{mcx.zmm}
+
+\set{"man::name"}{The\~MCL\~family}
+\set{"man::html-title"}{The MCL family}
+\set{"man::author"}{Stijn van Dongen}
+\set{"man::section"}{7}
+
+\"man::preamble"
+
+\${html}{\"man::maketoc"}
+
+\${html}{\sec{name}{NAME}}
+\${roff}{\sec{*}{name}{NAME}}
+\NAME{mclfamily}{a description of the mcl family of cluster applications.}
+
+\par
+   \mcl is the Amsterdam implementation of the Markov Cluster Algorithm.
+   It is described in the \sibref{mcl}{mcl manual}.
+   Several other utilities are part of the MCL distribution. This manual pages
+   gives an overview.
+\: A short overview is found in
+\: \sibidx\${html}{, with links to their manual page}. This manual page
+\: provides somewhat longer descriptions and points out various ways
+\: of gaining insight, evaluating results, and implementing sanity checks,
+\: using these utilities.
+
+\par
+\begin{itemize}{{compact}{1}{contiguous}{1}{w1}{15}}
+\apply{_#2\!{{
+      \switch{\1}{
+         {skip}{\itemskip}
+         {intermezzo}{\intermezzo{\2}}
+         {\item{\1} \2}
+      }
+   }
+}}{
+   {\sib{mcl}}{the cluster algorithm}
+   {\sibmclfaq}{MCL Frequently Asked Questions}
+   {\sibmcxio}{the graph/matrix input/output format}
+   {\sib{mcxassemble}}{create matrices from raw data}
+   {\sib{mcxdump}}{dump a matrix optionally with label substitions}
+   {\sib{mcxarray}}{transform array data to MCL matrices}
+{skip}{}
+   {\sib{mcx}}{general matrix operations}
+   {\sib{mcxsubs}}{extracting submatrices in various ways}
+   {\sib{mcxmap}}{relabel indices in a graph/matrix}
+{skip}{}
+   {\sib{clmformat}}{display clusters as html or txt files}
+   {\sib{clmdist}}{compute split/join distance between clusterings}
+   {\sib{clmmate}}{find best matching clusters between clusterings}
+   {\sib{clminfo}}{compute performance measure for clusterings}
+   {\sib{clmmeet}}{compute intersection of clusterings}
+   {\sib{clmimac}}{interpret MCL iterand/matrix as clustering}
+   {\sib{clmresidue}}{extend subgraph clustering}
+{skip}{}
+   {\sib{mclpipeline}}{parsing/assembly/clustering/display}
+   {\sib{mclblastline} \v{*}}{BLAST pipeline}
+   {\sib{mcxdeblast} \v{*}}{parse BLAST files}
+}
+\end{itemize}
+
+\par
+   Entries marked \v{*} are not available if only a default
+   install is done.
+
+\sec{description}{DESCRIPTION}
+
+\par
+   \sibmclfaq - Frequently Asked Questions.
+
+\par
+   \sibmcxio - a description of the mcl matrix format.
+
+\par
+   \sib{mcxassemble} - assemble a matrix/graph from partial edge
+   weight scores. Useful intermediate format to be used when transforming
+   application specific data into an mcl input matrix.
+
+\par
+   \sib{mcxdump} - dump matrices in a line-based format, optionally map
+   indices to labels.  Either a node pair (matrix entry) or a node list
+   (matrix row) is output per line.
+
+\par
+   \sib{mcxarray} - transform array data to MCL matrices. The data
+   may be of rectangular \v{M\~x\~N} type. Either an \v{M\~x\~M}
+   or an \v{N\~x\~N} dimensional matrix can be made, by computing
+   correlation scores between the vectors in one of the to domains.
+   The Pearson correlation coefficient and the cosine are supported,
+   and further tearing and pruning options can be applied.
+
+
+\par
+   \sib{mcx} - an interpreter for a stack language that enables
+   interaction with the \mcl matrix libraries.  It can be used both from the
+   command line and interactively, and supports a rich set of operations such
+   as transposition, scaling, column scaling, multiplication, Hadamard powers
+   and products, et cetera. The general aim is to provide handles for simple
+   number and matrix arithmetic,
+   and for graph, set, and clustering operations.  The following is
+   a very simple example of implementing and using \mcl in this language.
+
+\verbatim{\
+ 2.0 .i def                    # define inflation value.
+ /small lm                     # load matrix in file 'small'.
+ dim id add                    # add identity matrix.
+ st .x def                     # make stochastic, bind to x.
+ { xpn .i infl vm } .mcl def   # define one mcl iteration.
+ 20 .x .mcl repeat             # iterate  20 times
+ imac                          # interpret matrix as clustering.
+ vm                            # view matrix (clustering).}
+
+\car
+   One of the more interesting things that can be done is doing mcl runs
+   with more complicated inflation profiles than the two-constant approach used
+   in \mcl itself.
+
+\par
+   \sib{mcxsubs} - compute a submatrix of a given matrix, where row
+   and column index sets can be specified as lists of indices combined
+   with list of clusters in a given clustering. Useful for inspecting
+   local cluster structure.
+
+\par
+   \sib{mcxmap} - relabel indices in a graph.
+
+\par
+   \sib{clmformat} - display clusters suitable for scrutinizing.
+
+\par
+   \sib{clmdist} - compute the split/join distance between two 
+   partitions. The split/join distance is better suited for measuring partition
+   similarity than the long-known equivalence mismatch coefficient. The former
+   measures the number of node moves required to transform one partition into
+   the other, the latter measures differences between volumes of edges of
+   unions of complete graphs associated with partitions.
+
+\par
+   \sib{clmmate} - find best matching clusters between two different
+   clusterings.
+
+\par
+   \sib{clminfo} - compute a performance measure saying how well
+   a clustering captures the edge weights of the input graph. Useful
+   for comparing different clusterings on the same graph, best used in
+   conjunction with \clmdist - because comparing clusterings at
+   different levels of granularity should somewhat change the performance
+   interpretation. The latter issue is discussed in the \sib{clmdist}
+   entry.
+
+\par
+   \sib{clmmeet} - compute the intersection of a set of clusterings,
+   i.e. the largest clustering that is a subclustering of all. Useful
+   for measuring the consistency of a set of different clusterings
+   at supposedly different levels of granularity (in conjunction with
+   \clmdist).
+
+\par
+   \sib{clmimac} - interpret MCL iterands as clusterings. The clusterings
+   associated with early iterands may contain overlap, should you be
+   interested therein.
+
+\par
+   \sib{clmresidue} - extend a clustering of a subgraph onto a clustering
+   of the larger graph.
+
+\par
+   \sib{mclpipeline} - set up a pipeline from data parsing stage
+   unto clustering format/display stage.
+
+\par
+   \sib{mcxdeblast} - BLAST parser. Can be used in conjunction
+   with mcxassemble (for fully controlling how to generate MCL input
+   matrices) or one can use mclblastline with which it is integrated.
+
+\par
+   \sib{mclblastline} - BLAST specific pipeline.
+
+\""{
+\par
+   \sib{mcxconvert} - convert matrices from ascii mcl format to
+   binary mcl format or vice versa.}
+
+\"man::postamble"
+
+\done
+
+
+\sec{description}{DESCRIPTION}
+\par
+   The first set of utilities implements various
+   kinds of general purpose manipulation of matrices in MCL format
+   (most notably for multiplying, transposing, pruning, and normalizing).
+   Currently this set contains \bf{mcx}, \bf{mcxsubs}, and \bf{mcxmap}.
+
+   The first, \bf{mcx}, is an interpreter for a stack language
+   that provides comprehensive access to the mcl librarires.
+   The mcl algorithm itself is easily implemented in two or three
+   lines of code in this language.
+   The second utility, \bf{mcxsubs}, is an all-round extractor
+   of submatrices induced by unions and complements of clusters and/or
+   simple indices.  Useful for all kinds of things, like studying results you
+   find surprising - \it{why did this index not go into this cluster?}
+   - \it{why did these clusters (not) merge together?} or just gaining
+   insight - \it{what edges exist between these two sets of nodes?}
+   et cetera.  Indices in mcxsub output can be tagged with the index
+   of the cluster that they are in. The subpart specification strings,
+   which are supplied as command line arguments, are quite powerful.
+   \bf{mcxmap} is for relabeling graph nodes or matrix indices.
+
+\par
+   The third set is for analyzing clustering output.  The
+   utilities herein are also very useful;
+  - \bf{clminfo} for measuring the efficiency and other characteristics
+   of a clustering (e.g. how much edge mass does the clustering capture, how
+   large is the cluster footprint).
+  - \bf{clmdist} for measuring
+   the similarity between two different clusterings and for measuring whether
+   one clustering is almost a subclustering of the other.
+  - \bf{clmmeet} for computing
+   the meet or intersection of an arbitrary number
+   of clusterings. The intersection is the largest clustering that is a
+   subclustering of all the given clusterings, and it can be used to identify
+   areas of the graph that are the most active under parameter shifts.
+  - \bf{clmformat} for displaying cluster results in terms
+   of descriptive labels (rather than the indices MCL works with)
+   and measuring how well nodes fit in the cluster
+   they are in, what other clusters are relevant for that node,
+   and how cohesive the clusters of a given clustering are.
+  - \bf{clmimac} for interpreting matrices as clusterings. The MCL iterands
+   allow a generic interpretation as clusterings. This is one of the
+   theoretical results that strongly link the MCL process to cluster structure
+   in graphs.
+  - \bf{clmresidue} for extending a clustering of a subgraph onto a
+   clustering of the larger encompassing graph (by a simple majority vote rule).
+
+
+\sec{mods}{MODULES}
+
+\cpar{BLAST}
+   As of the 03-154 release the blast module offers an alternative for the
+   TribeMCL module. It is the first of what should become a collection of
+   pluggable modules, for bioinformatics as well as for other application
+   fields.  It is basically a very small wrapper (\bf{mclblastline}) in which a
+   dedicated parser (\bf{mcxdeblast}) is integrated with several core mcl
+   (sibling) applications.  The module is enabled by adding \bf{--enable-blast}
+   to the configure options, and manual pages for mclblastline, mcxdeblast, and
+   mclpipeline (implementing the generic mcl pipeline) are shipped with the
+   distribution.
+
+

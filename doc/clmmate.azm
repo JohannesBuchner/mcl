@@ -1,0 +1,125 @@
+\def{"man::synstyle"}{long}
+\def{"man::defstyle"}{long}
+\import{mcx.zmm}
+
+\set{"man::name"}{clmmate}
+\set{"man::html-title"}{The clmmate manual}
+\set{"man::author"}{Stijn van Dongen}
+\set{"man::section"}{1}
+
+\"man::preamble"
+\${html}{\"man::maketoc"}
+
+\sec{name}{NAME}
+\NAME{clmmate}{compute best matches between two clusterings}
+
+\sec{synopsis}{SYNOPSIS}
+   \par
+   \clmmate [-twins fname] <clfile1> <clfile2>
+
+\sec{description}{DESCRIPTION}
+
+\par
+   \clmmate computes for each cluster \m{C1} in \v{clfile1} all clusters
+   \m{C2} in \v{clfile2} that have non-empty intersection, and prints
+   the number of shared nodes, the numbers of nodes in \m{C1} absent
+   in \m{C2}, the number of nodes in \m{C2} absent in \m{C1}, and
+   the total number of nodes in \m{C2}. The total number of nodes
+   in \m{C1} is listed once for each sublisting, where the primary
+   listing is over clusters in \v{clfile1}.
+
+\par
+   All of this information can also be obtained from the
+   contingency matrix defined for two clusterings.
+   The \m{[i,j]} row-column entry in a contigency matrix between
+   to clusterings gives the number of entries in the intersection
+   between cluster\~\m{i} and cluster\~\m{j} from the respective
+   clusterings. The other information is implicitly present;
+   the total number of nodes in clusters\~\m{i} and\~\m{j}
+   for example can be obtained as the sum of entries in row\~\m{i}
+   and column\~\m{j} respectively, and the difference counts
+   can then be obtained by substracting the intersection count.
+   The contingency matrix can easily be computed using \mcx;
+   e.g.
+
+\verbatim{
+mcx /clfile2 lm /clfile1 lm tp mul /ting wm}
+
+\car
+   will create the contingency matrix in mcl matrix format
+   in the file \v{ting}, where columns range over the clusters
+   in \v{clfile1}.
+
+\par
+   \clmmate has the advantage that information is presented
+   in a more comprehensible fashion than available from
+   the contingency matrix.
+   Additionally, the \genopt{-twins}{twinfile} option is useful
+   to inspect the list of best matching clusters from \v{clfile2}.
+   This option will create a file \v{twinfile} which contains
+   cryptic (but useful) lines of the form
+
+\verbatim{\
+0.645           0,2         194    214      0
+0.004           0,3           1    407    128
+0.211           0,38         48    360      0
+0.203           0,40         46    362      0
+0.154           0,56         34    374      0
+0.145           0,63         32    376      0}
+
+\car
+   The first line indicates that clusters\~0 from \v{clfile1}
+   and\~2 from \v{clfile2} have 194\~nodes in their
+   intersection; there are 214\~additional nodes in cluster\~0,
+   and 0\~additional nodes in cluster\~2.
+   Denote the size of the intersection (also called meet) by\~\m{m},
+   and the sizes of the two clusters as \m{s1}\~and\~\m{s2} respectively.
+   The scores beginning each line are
+   computed as \m{2*m/(s1+s2)}. Such a score equals
+   exactly 1.0 if the two clusters are identical, and for nearly identical
+   clusterings the score will be close to 1.0.
+
+\par
+   The twin file can be put to good use by sorting it numerically on
+   that first score field. It is advisable to use a stable sort routine
+   (use the \usearg{-s} option for UNIX sort)
+   An example result is the following.
+
+\verbatim{\
+1.000           4,1         253      0      0
+1.000          17,7         119      0      0
+1.000          20,10         94      0      0
+1.000          26,17         71      0      0
+1.000          28,18         69      0      0
+1.000          30,20         66      0      0
+1.000          38,27         55      0      0
+1.000          41,29         53      0      0
+1.000          51,41         44      0      0
+1.000          64,51         35      0      0
+1.000          69,62         32      0      0
+1.000          71,61         32      0      0
+1.000          74,70         30      0      0
+1.000          76,73         28      0      0
+1.000          80,76         27      0      0}
+
+\car
+   From this information one can quickly extract the closest
+   clusters between two clusterings.
+
+
+\sec{author}{AUTHOR}
+\par
+   Stijn van Dongen.
+
+
+\sec{seealso}{SEE ALSO}
+
+\par
+   \sib{clmdist},
+   \sib{clmmeet},
+   \sib{clminfo},
+   and \sibmclfamily for an overview of all the documentation
+   and the utilities in the mcl family.
+
+\"man::postamble"
+

@@ -1,0 +1,65 @@
+.\" Copyright (c) 2005 Stijn van Dongen
+.TH "clmclose" 1 "31 Mar 2005" "clmclose 1\&.004, 05-090" "USER COMMANDS"
+.po 2m
+.de ZI
+.\" Zoem Indent/Itemize macro I.
+.br
+'in +\\$1
+.nr xa 0
+.nr xa -\\$1
+.nr xb \\$1
+.nr xb -\\w'\\$2'
+\h'|\\n(xau'\\$2\h'\\n(xbu'\\
+..
+.de ZJ
+.br
+.\" Zoem Indent/Itemize macro II.
+'in +\\$1
+'in +\\$2
+.nr xa 0
+.nr xa -\\$2
+.nr xa -\\w'\\$3'
+.nr xb \\$2
+\h'|\\n(xau'\\$3\h'\\n(xbu'\\
+..
+.if n .ll -2m
+.am SH
+.ie n .in 4m
+.el .in 8m
+..
+.SH NAME
+clmclose \- Fetch connected components from graphs or subgraphs
+.SH SYNOPSIS
+
+\fBclmclose\fP -imx <fname> [options]
+
+\fBclmclose\fP
+\fB-imx\fP fname (\fIinput file\fP)
+\fB-dom\fP fname (\fIinput domain/cluster file\fP)
+\fB[-o\fP fname (\fIoutput file\fP)\fB]\fP
+\fB[-cc\fP (\fIoutput connected components\fP)\fB]\fP
+\fB[-h\fP (\fIlist help\fP)\fB]\fP
+\fB[--apropos\fP (\fIlist synopsis of all options\fP)\fB]\fP
+.SH DESCRIPTION
+
+Currently, \fB-cc\fP is the only mode provided, implying
+its use is required\&.
+
+Use \fBclmclose\fP to fetch the connected components from a graph\&.
+They will be returned as a clustering file\&. Use this file
+in conjunction with \fBmcxsubs\fP and the graph file itself to
+retrieve individual subgraphs corresponding to connected components\&.
+
+If the \fB-dom\fP\ \fIfname\fP option is used, clmclose will
+for each of the domains in file\ \fIfname\fP retrieve
+the associated subgraph from the input graph, decompose it into
+its connected components, and write each connected components
+as a separate domain/cluster in the output file\&.
+.SH AUTHOR
+
+Stijn van Dongen\&.
+.SH SEE ALSO
+\fBmcl\fP,
+\fBmclfaq\fP,
+and \fBmclfamily(7)\fP for an overview of all the documentation
+and the utilities in the mcl family\&.

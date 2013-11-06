@@ -1,0 +1,80 @@
+
+This readme is getting stale.
+mcxio(5) or mcxio.html and the header files may be better places to look.
+
+ * 0  Directory structure and prefix usage.
+
+
+ * 1  The impala directory.
+   
+   It *might* stand for sIMPle scALable spArse, but it does not.  The code in
+   impala implements vector and matrix functionality, with basic support for
+   sparse
+
+   o  linear arithmetic on matrices and vectors
+   o  graph operations
+   o  set operations
+   o  clustering operations
+
+   o  value tables (secondary use; tread with care).
+
+
+   The three basic data structures are in ivp.[ch], vector.[ch] and matrix.[ch]
+
+
+ * 1.1   Index Value Pair
+
+   An index value pair (ivp.[ch]) is the very basic building block.  It is a
+   struct consisting of an integer number (the index) and a real number (the
+   value).  These are by default implemented as int/float. By using the
+   -DVALUE_AS_DOUBLE compiler option the real number can be implemented as a
+   double, by using -DINDEX_AS_LONG the integer can be implemented as a long
+   integer.
+
+
+ * 1.2   Vector
+
+   A vector is an array of ivps. The index members must be nonnegative
+   and strictly ascending. The value part is preferably positive.
+   Many operations may silently remove zero-valued entries, and a very
+   limited number of operations may choke on negative values, e.g.
+   the Hadamard power.
+
+   A vector has an index itself, the 'vid' member (vector id).
+   It serves to denote the index of the vector in a matrix.
+
+   The 'index entries' or 'indices' of a vector are the index
+   members of the ivp array member of the vector.
+
+
+ * 1.3   Matrix
+
+   A matrix is an array of vectors (in the cols member). The vid-s of those
+   vectors must be nonnegative and ascending, and must correspond exactly with
+   the index entries of the dom_cols vector member of the matrix.  Thus the
+   number of vectors (c.q. columns) in the matrix is found as the number of
+   entries in the dom_cols vector.  The macro N_COLS(mx) computes this number.
+
+   The index entries of the vectors in the cols member must be present as an
+   ivp index in the dom_rows vector member of the matrix.  The macro N_ROWS(mx)
+   computes the number of rows in a matrix.
+
+   The matrix structure is also used for so-called *value tables* .
+   These are simply matrices in which every value is explicitly represented -
+   also if it is zero. This is a secondary use and one should tread carefully,
+   because many vector and matrix operations remove zero-valued entries.
+   An example of this use is the mcl 'chr' matrix (characteristics matrix)
+   that can optionally be output for every iteration of the mcl process.
+
+   A TODO item is to enable the IO routines to output matrices as value tables,
+   i.e. by explicitly specifying all entries, also those for which the value is
+   zero.
+
+
+ * 1.4   Sets and Clusterings
+
+   A set is stored as a vector.
+
+   A clustering is stored as a matrix.
+
+

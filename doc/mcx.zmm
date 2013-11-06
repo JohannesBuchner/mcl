@@ -1,0 +1,58 @@
+
+\set{reqver}{2003-285}
+\if{\cmp{gq}{\__version__}{\reqver}}{}{
+\write{stderr}{txt}{Requires zoem version >= \reqver\|}\exit}
+
+\: \setx{__searchpath__}{\__searchpath__\!{}{../../../zoem/mac}}
+\: Used this when using relative path through the micans tree.
+\: Nowadays I oblige myself to use the zoem installed on my system. 
+
+\input{man.zmm}
+
+\setx{"man::year"}{\zinsert{stamp.year}}
+\setx{"man::month"}{\zinsert{stamp.month}}
+\setx{"man::day"}{\zinsert{stamp.day}}
+\setx{"mcx::tag"}{\zinsert{stamp.tag}}
+\setx{"mcx::stamp"}{\zinsert{stamp.stamp}}
+
+\setx{"man::year"}{\tr{}{\012}{}{\"man::year"}}
+\setx{"man::month"}{\tr{}{\012}{}{\"man::month"}}
+\setx{"man::day"}{\tr{}{\012}{}{\"man::day"}}
+\setx{"mcx::tag"}{\tr{}{\012}{}{\"mcx::tag"}}
+\setx{"mcx::stamp"}{\tr{}{\012}{}{\"mcx::stamp"}}
+
+\setx{"man::tag"}{\"mcx::tag", \"mcx::stamp"}
+\setx{"mcx::date"}{\"man::day" \"man::month" \"man::year"}
+
+\def{mcl}{\bf{mcl}}
+\def{mcx}{\bf{mcx}}
+\def{clmdist}{\bf{clmdist}}
+\def{clminfo}{\bf{clminfo}}
+\def{clmmeet}{\bf{clmmeet}}
+\def{clmclose}{\bf{clmclose}}
+\def{clmformat}{\bf{clmformat}}
+\def{clmimac}{\bf{clmimac}}
+\def{clmmate}{\bf{clmmate}}
+\def{clmresidue}{\bf{clmresidue}}
+\def{mcxconvert}{\bf{mcxconvert}}
+\def{mcxarray}{\bf{mcxarray}}
+\def{mcxdump}{\bf{mcxdump}}
+\def{mcxdeblast}{\bf{mcxdeblast}}
+\def{mclblastline}{\bf{mclblastline}}
+\def{mclpipeline}{\bf{mclpipeline}}
+\def{zoem}{\bf{zoem}}
+\def{mcxsubs}{\bf{mcxsubs}}
+\def{mcxmap}{\bf{mcxmap}}
+\def{mcxassemble}{\bf{mcxassemble}}
+
+\def{mcx_itemopts}{{w1}{2}{w2}{1}}
+
+\: different conventions for html and roff.
+\: in roff I use 'section 5' of the manual pages.
+
+\def{sib#1}{\sibref{\1}{\1}}
+
+\def{sibmclfaq}{\sibref{mclfaq}{mclfaq\${roff}{(7)}}}
+\def{sibmcxio}{\sibref{mcxio}{mcxio\${roff}{(5)}}}
+\def{sibmclfamily}{\sibref{mclfamily}{mclfamily\${roff}{(7)}}}
+

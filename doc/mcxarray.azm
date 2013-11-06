@@ -1,0 +1,106 @@
+\def{"man::synstyle"}{long}
+\def{"man::defstyle"}{long}
+\import{mcx.zmm}
+
+\set{"man::name"}{mcxarray}
+\set{"man::html-title"}{The mcxarray manual}
+\set{"man::author"}{Stijn van Dongen}
+\set{"man::section"}{1}
+
+\"man::preamble"
+\${html}{\"man::maketoc"}
+
+\sec{name}{NAME}
+\NAME{mcxarray}{Transform array data to MCL matrices}
+
+
+\sec{synopsis}{SYNOPSIS}
+   \par
+   \mcxarray [options] <array data matrix>
+
+   \par
+   \mcxarray
+   \synoptopt{-o}{fname}{output file fname}
+   \synoptopt{-co}{num}{cutoff for output values}
+   \synoptopt{-gq}{num}{ignore input smaller than}
+   \synoptopt{-lq}{num}{ignore input larger than}
+   \synoptopt{-t}{work with the transpose}
+   \synoptopt{-ctr}{num}{add center (for graph-type input)}
+   \synoptopt{--ctr}{add center with default value (for graph-type input)}
+   \synoptopt{--01}{remap output to [0,1] interval}
+   \synoptopt{--cosine}{use cosine}
+   \synoptopt{--pearson}{use Pearson correlation (default)}
+   \synoptopt{-tear}{num}{inflate input columns}
+   \synoptopt{-teartp}{num}{inflate tranposed columns}
+   \synoptopt{-pi}{num}{inflate the result}
+   <fname> (\it{array data matrix})
+
+\sec{description}{DESCRIPTION}
+
+   \mcxarray reads a data file satisfying the mcl input format
+   (refer to \sibmcxio). By default it will work with the
+   columns as the data vectors (note that mcl matrices are
+   presented as a listing of columns). This can be changed using
+   the \optref{-t}{\genopt{-t} option}.
+
+\sec{options}{OPTIONS}
+
+\begin{itemize}
+
+\item{\defopt{-o}{fname}{output file fname}}
+      Indeed.
+
+\item{\defopt{-co}{num}{cutoff for output values}}
+      Output values smaller than \genarg{num} are removed (set to zero).
+
+\item{\defopt{-gq}{num}{ignore input smaller than}}
+      Input values smaller than \genarg{num} are ignored.
+
+\item{\defopt{-lq}{num}{ignore input larger than}}
+      Input values larger than \genarg{num} are ignored.
+
+\item{\defopt{-t}{work with the transpose}}
+      Work with the transpose of the input data matrix.
+
+\item{\defopt{-ctr}{num}{add center (for graph-type input)}}
+      Add diagonal values to the output according to a (so called)
+      \it{center} formula.
+
+\item{\defopt{--ctr}{add center with default value (for graph-type input)}}
+      Same as \useopt{-ctr}{1.0}.
+
+\item{\defopt{--01}{remap output to [0,1] interval}}
+      Rescale output values so that they are within the [0,1] interval.
+
+\item{\defopt{--cosine}{use cosine}}
+      Use the cosine as correlation measure.
+
+\item{\defopt{--pearson}{use Pearson correlation (default)}}
+      Compute the Pearson correleation coefficient as the
+      similarity between the data columns.
+
+\item{\defopt{-tear}{num}{inflate input columns}}
+      Apply (column-wise) inflation with parameter \genarg{num} to the input
+      values before further processing.
+
+\item{\defopt{-teartp}{num}{inflate tranposed columns}}
+      Apply (column-wise) inflation with parameter \genarg{num} to the input
+      values in the transposed matrix before further processing.
+
+\item{\defopt{-pi}{num}{inflate the result}}
+      Apply inflation with parameter \genarg{num} to the output values.
+
+\end{itemize}
+
+\sec{author}{AUTHOR}
+\par
+   Stijn van Dongen.
+
+\sec{seealso}{SEE ALSO}
+
+   \sib{mcl},
+   \sib{mclfaq},
+   and \sibmclfamily for an overview of all the documentation
+   and the utilities in the mcl family.
+
+\"man::postamble"

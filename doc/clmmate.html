@@ -1,0 +1,227 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<!-- Copyright (c) 2005 Stijn van Dongen -->
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<style type="text/css">
+body
+{ text-align: justify;
+color: #001111;
+background: white;
+margin-left: 8%;
+margin-right: 8%;
+}
+h3 { margin-top:1em; }
+h2 { margin-top:2em; }
+a:link { text-decoration: none; }
+a:active { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:link { color: #1111aa; }
+a:active { color: #1111aa; }
+a:visited { color: #111166; }
+a.local:link { color: #11aa11; }
+a.local:active { color: #11aa11; }
+a.local:visited { color: #116611; }
+a.intern:link { color: #1111aa; }
+a.intern:active { color: #1111aa; }
+a.intern:visited { color: #111166; }
+a.extern:link { color: #aa1111; }
+a.extern:active { color: #aa1111; }
+a.extern:visited { color: #661111; }
+a.quiet:link { color: black; }
+a.quiet:active { color: black; }
+a.quiet:visited { color: black; }
+div.copy
+{ font-size: 12pt;
+font-family: monospace;
+text-align: left;
+white-space: pre;
+margin-left: 2em;
+margin-top: 1em;
+margin-bottom: 1em;
+}
+div.indent
+{margin-left: 8%;
+margin-right: 0%;
+}
+</style>
+<title>
+The clmmate manual
+</title>
+</head>
+<body>
+
+<p style="text-align:right">
+31 Mar 2005&nbsp;&nbsp;&nbsp;
+<a class="local" href="clmmate.ps"><b>clmmate</b></a>
+1.004, 05-090
+</p>
+
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr>
+<td width=48 valign="top" align="left">
+1.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#name">NAME</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+2.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#synopsis">SYNOPSIS</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+3.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#description">DESCRIPTION</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+4.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#author">AUTHOR</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+5.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#seealso">SEE ALSO</a>
+</div></td>
+</tr>
+</table>
+
+</div>
+
+<a name="name"></a>
+<h2>NAME</h2>
+
+<p style="text-align:justify">
+clmmate - compute best matches between two clusterings
+
+<a name="synopsis"></a>
+<h2>SYNOPSIS</h2>
+
+<p style="text-align:justify">
+<b>clmmate</b> [-twins fname] &lt;clfile1&gt; &lt;clfile2&gt;
+
+<a name="description"></a>
+<h2>DESCRIPTION</h2>
+
+<p style="text-align:justify">
+<b>clmmate</b> computes for each cluster <tt>C1</tt> in <tt>clfile1</tt> all clusters
+<tt>C2</tt> in <tt>clfile2</tt> that have non-empty intersection, and prints
+the number of shared nodes, the numbers of nodes in <tt>C1</tt> absent
+in <tt>C2</tt>, the number of nodes in <tt>C2</tt> absent in <tt>C1</tt>, and
+the total number of nodes in <tt>C2</tt>. The total number of nodes
+in <tt>C1</tt> is listed once for each sublisting, where the primary
+listing is over clusters in <tt>clfile1</tt>.
+
+<p style="text-align:justify">
+All of this information can also be obtained from the
+contingency matrix defined for two clusterings.
+The <tt>[i,j]</tt> row-column entry in a contigency matrix between
+to clusterings gives the number of entries in the intersection
+between cluster&nbsp;<tt>i</tt> and cluster&nbsp;<tt>j</tt> from the respective
+clusterings. The other information is implicitly present;
+the total number of nodes in clusters&nbsp;<tt>i</tt> and&nbsp;<tt>j</tt>
+for example can be obtained as the sum of entries in row&nbsp;<tt>i</tt>
+and column&nbsp;<tt>j</tt> respectively, and the difference counts
+can then be obtained by substracting the intersection count.
+The contingency matrix can easily be computed using <b>mcx</b>;
+e.g.
+<pre>
+mcx /clfile2 lm /clfile1 lm tp mul /ting wm</pre>
+
+<p style="text-align:justify; margin-top:0em">
+will create the contingency matrix in mcl matrix format
+in the file <tt>ting</tt>, where columns range over the clusters
+in <tt>clfile1</tt>.
+
+<p style="text-align:justify">
+<b>clmmate</b> has the advantage that information is presented
+in a more comprehensible fashion than available from
+the contingency matrix.
+Additionally, the <b>-twins</b>&nbsp;<i>twinfile</i> option is useful
+to inspect the list of best matching clusters from <tt>clfile2</tt>.
+This option will create a file <tt>twinfile</tt> which contains
+cryptic (but useful) lines of the form
+<pre>0.645           0,2         194    214      0
+0.004           0,3           1    407    128
+0.211           0,38         48    360      0
+0.203           0,40         46    362      0
+0.154           0,56         34    374      0
+0.145           0,63         32    376      0</pre>
+
+<p style="text-align:justify; margin-top:0em">
+The first line indicates that clusters&nbsp;0 from <tt>clfile1</tt>
+and&nbsp;2 from <tt>clfile2</tt> have 194&nbsp;nodes in their
+intersection; there are 214&nbsp;additional nodes in cluster&nbsp;0,
+and 0&nbsp;additional nodes in cluster&nbsp;2.
+Denote the size of the intersection (also called meet) by&nbsp;<tt>m</tt>,
+and the sizes of the two clusters as <tt>s1</tt>&nbsp;and&nbsp;<tt>s2</tt> respectively.
+The scores beginning each line are
+computed as <tt>2*m/(s1+s2)</tt>. Such a score equals
+exactly 1.0 if the two clusters are identical, and for nearly identical
+clusterings the score will be close to 1.0.
+
+<p style="text-align:justify">
+The twin file can be put to good use by sorting it numerically on
+that first score field. It is advisable to use a stable sort routine
+(use the <b>-s</b> option for UNIX sort)
+An example result is the following.
+<pre>1.000           4,1         253      0      0
+1.000          17,7         119      0      0
+1.000          20,10         94      0      0
+1.000          26,17         71      0      0
+1.000          28,18         69      0      0
+1.000          30,20         66      0      0
+1.000          38,27         55      0      0
+1.000          41,29         53      0      0
+1.000          51,41         44      0      0
+1.000          64,51         35      0      0
+1.000          69,62         32      0      0
+1.000          71,61         32      0      0
+1.000          74,70         30      0      0
+1.000          76,73         28      0      0
+1.000          80,76         27      0      0</pre>
+
+<p style="text-align:justify; margin-top:0em">
+From this information one can quickly extract the closest
+clusters between two clusterings.
+
+<a name="author"></a>
+<h2>AUTHOR</h2>
+
+<p style="text-align:justify">
+Stijn van Dongen.
+
+<a name="seealso"></a>
+<h2>SEE ALSO</h2>
+
+<p style="text-align:justify">
+<a class="local" href="clmdist.html">clmdist</a>,
+<a class="local" href="clmmeet.html">clmmeet</a>,
+<a class="local" href="clminfo.html">clminfo</a>,
+and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+and the utilities in the mcl family.
+
+</body>
+</html>

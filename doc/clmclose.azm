@@ -1,0 +1,75 @@
+\def{"man::synstyle"}{long}
+\def{"man::defstyle"}{long}
+\import{mcx.zmm}
+
+\set{"man::name"}{clmclose}
+\set{"man::html-title"}{The clmclose manual}
+\set{"man::author"}{Stijn van Dongen}
+\set{"man::section"}{1}
+
+\"man::preamble"
+\${html}{\"man::maketoc"}
+
+\sec{name}{NAME}
+\NAME{clmclose}{Fetch connected components from graphs or subgraphs}
+
+\sec{synopsis}{SYNOPSIS}
+   \par
+   \clmclose -imx <fname> [options]
+
+   \par
+   \clmclose
+   \synreqopt{-imx}{fname}{input file}
+   \synreqopt{-dom}{fname}{input domain/cluster file}
+   \synoptopt{-o}{fname}{output file}
+   \synoptopt{-cc}{output connected components}
+   \synoptopt{-h}{list help}
+   \synoptopt{--apropos}{list synopsis of all options}
+
+\sec{description}{DESCRIPTION}
+
+\par
+   Currently, \genopt{-cc} is the only mode provided, implying
+   its use is required.
+
+\par
+   Use \clmclose to fetch the connected components from a graph.
+   They will be returned as a clustering file. Use this file
+   in conjunction with \mcxsubs and the graph file itself to
+   retrieve individual subgraphs corresponding to connected components. 
+
+\par
+   If the \genopt{-dom}{fname} option is used, clmclose will
+   for each of the domains in file\~\genarg{fname} retrieve
+   the associated subgraph from the input graph, decompose it into
+   its connected components, and write each connected components
+   as a separate domain/cluster in the output file.
+
+
+\""{
+   \sec{options}{OPTIONS}
+
+   \begin{itemize}
+
+   \item{\defopt{-imx}{fname}{input file}}
+   \item{\defopt{-dom}{fname}{input domain/cluster file}}
+   \item{\defopt{-o}{fname}{output file}}
+   \item{\defopt{-cc}{output connected components}}
+   \item{\defopt{-h}{list help}}
+   \item{\defopt{--apropos}{list synopsis of all options}}
+
+   \end{itemize}
+}
+
+\sec{author}{AUTHOR}
+\par
+   Stijn van Dongen.
+
+\sec{seealso}{SEE ALSO}
+
+   \sib{mcl},
+   \sib{mclfaq},
+   and \sibmclfamily for an overview of all the documentation
+   and the utilities in the mcl family.
+
+\"man::postamble"

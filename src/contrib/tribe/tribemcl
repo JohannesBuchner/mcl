@@ -1,0 +1,120 @@
+#!/usr/bin/env perl
+
+#          Copyright (C) 2002, EMBL-EBI, author Anton Enright.                #
+#                                                                             #
+# This file is part of MCL.  You can redistribute and/or modify MCL under the #
+# terms of the GNU General Public License; either version 2 of the License or #
+# (at your option) any later version.  You should have received a copy of the #
+# GPL along with MCL, in the file COPYING.                                    #
+
+#
+# $Id: tribemcl,v 1.6 2003/05/25 20:29:13 flux Exp $
+#
+# tribemcl	 -> A Wrapper Script for performing a TRIBEMCL clustering
+#		 for a set of BLASTp 2.0 protein sequence similarity results
+#
+# Anton Enright - EMBL-EBI 2002
+
+$starttime=time();
+
+@directory=split("/",$0);
+splice(@directory,-1,1);
+$directory=join("/",@directory);
+
+if (!$directory)
+	{
+	$directory=`pwd`;
+	chop($directory);	
+	}
+
+$|=1;
+$Inflation=3.0;
+		system("clear");
+		print " ###################################################################### \n";
+		print "#                                TRIBE-MCL                             #\n";
+		print "#                                                                      #\n";
+		print "# An efficient algorithm for large-scale detection of protein families #\n";
+		print " ######################################################################\n";
+		print "Please Cite:\n";
+		print "------------\n";
+		print "Enright A.J., Van Dongen S., Ouzounis C.A;\n";
+		print "Nucleic Acids Res. 30(7):1575-1584 (2002)\n\n";
+		print "Please Cite:\n";
+		print "------------\n";
+      print "Stijn van Dongen, Graph Clustering by Flow Simulation,\n";
+      print "PhD thesis, University of Utrecht, May 2000.\n";
+      print "-- OR ------\n";
+      print "Stijn van Dongen, A cluster algorithm for graphs. Technical\n";
+      print "Report INS-R0010, National Research Institute for Mathematics\n";
+      print "and Computer Science in the Netherlands, Amsterdam, May 2000.\n\n";
+
+for ($i=0;$i<$#ARGV+1;$i++)
+	{
+		if ($ARGV[$i] eq '-h')	
+		{
+		print "This wrapper script is for starting an MCL clustering analysis\non protein sequence similarity data obtained with BLAST\n";
+		print "\n";
+		print "Prerequisites:\n";
+		print "--------------\n";
+		print "A standard NCBI BLASTp v2.0 output file from an all\n";
+		print "against all comparison of a set of protein sequences\n";
+
+		print "\n";
+		print "Usage:\n";
+		print "------\n";
+		print "tribemcl someblastresults.out\n"; 
+		print "\n";
+		print "Options:\n";
+		print "--------\n";
+		print "-h	-> Print this help message\n";
+		print "-I X	-> Where X is an inflation value greater than 1.0 \n";
+		print "		   (Default X=3.0)\n";
+		print "\n\n";
+		exit(1);
+		}
+
+	if (($ARGV[$i] eq '-I') && ($ARGV[$i+1]>0))
+		{
+		print "Changing Inflation Parameter to $ARGV[$i+1]\n";
+		$Inflation=$ARGV[$i+1];
+		}
+	}
+
+if (!$ARGV[0])
+	{
+	print "Error: Please specify a filename to cluster\n";
+	exit(0);
+	}
+
+$filename=(split("/",$ARGV[0]))[-1];
+print "\nParsing BLAST similarities: ";
+if(system ("$directory/tribe-parse $ARGV[0] > $filename.mclparsed"))
+	{
+	print "TRIBE-MCL Fatal Error (parsing)\n";
+	exit(1);
+	}
+
+print "done\n\nGenerating Markov Matrix: ";
+if(system("$directory/tribe-matrix $filename.mclparsed -ind $filename.index -out $filename.mci > /dev/null"))
+	{
+	print "TRIBE-MCL Fatal Error (matrix construction)\n";
+	exit(1);
+	}
+
+print "done\n\nCalling MCL Cluster Algorithm: ";
+if(system("$directory/mcl $filename.mci -I $Inflation -progress 100 -o $filename.mclout"))
+	{
+	print "TRIBE-MCL Fatal Error (markov clustering)\n";
+        exit(1);
+	}
+
+print "done\n\nCollating Results: ";
+if(system("$directory/tribe-families $filename.mclout $filename.index> $filename.mclclusters"))
+	{
+	print "TRIBE-MCL Fatal Error (result parsing)\n";
+        exit(1);
+	}
+
+print "done\n\nCreated Clusters File $filename.mclclusters\n";
+print "\n----------------------------------------------------------------------------\n";
+print "Run Completed in ",time()-$starttime," seconds\n";

@@ -1,0 +1,123 @@
+\def{"man::synstyle"}{long}
+\def{"man::defstyle"}{long}
+\import{mcx.zmm}
+
+\set{"man::name"}{clminfo}
+\set{"man::html-title"}{The clminfo manual}
+\set{"man::author"}{Stijn van Dongen}
+\set{"man::section"}{1}
+
+\"man::preamble"
+\${html}{\"man::maketoc"}
+
+\sec{name}{NAME}
+\NAME{clminfo}{Compute performance measures for graphs and clusterings.}
+
+\sec{synopsis}{SYNOPSIS}
+\par
+   \clminfo [options] <graph file> <cluster file> <cluster file>*
+
+\par
+   \clminfo
+      \synoptopt{--adapt}{allow domain mismatch}
+      \synoptopt{-pi}{f}{apply inflation beforehand}
+      \synoptopt{--append-pf}{append performance measures}
+      \synoptopt{--append-gr}{append granularity measures}
+      \synoptopt{-tag}{<str>}{write tag=<str> in performance section}
+      <graph file> <cluster file> <cluster file>*
+
+\sec{description}{DESCRIPTION}
+
+\par
+   \clminfo computes several numbers indicative for the efficiency with
+   with a clustering captures the edge mass of a given graph.
+   Use it in conjunction with \clmdist to determine which clusterings
+   you accept. See the EXAMPLES section in \sib{clmdist}
+   for an example of \clmdist and \clminfo (and \clmmeet) usage.
+   Output can be generated for multiple clusterings at the same time.
+
+\par
+   The first number is called the \bf{efficiency} and is described in [1] (see
+   the \secref{references} section).  It tries to balance the dual aims of
+   capturing a lot of edges or edge weights and keeping the cluster footprint
+   or area fraction small.  The efficiency number has several appealing
+   mathematical properties, cf. [1]. It is related to, but not derivable from,
+   the second and third numbers, the \it{mass fraction} and the
+   \it{area fraction}.
+
+\par
+   The second number is the mass fraction, which is defined as follows.
+   Let \bf{e} be an edge of the graph. The clustering \it{captures} \bf{e} 
+   if the two nodes associated with \bf{e} are in the same cluster.
+   Now the mass fraction is the joint weight of all captured edges divided
+   by the joint weight of all edges in the input graph.
+
+\par
+   The third number is the area fraction, which is roughly the sum of the
+   squares of all cluster sizes for all clusters in the clustering, divided by
+   the square of the number of nodes in the graph.  It says \it{roughly},
+   because the actual formula uses the quantity \bf{N}*(\bf{N-1}) wherever it
+   says square (of \bf{N}) above.  A low/high area fraction indicates a
+   fine-grained/coarse clustering.
+
+\par
+   The fourth number is the cluster link weight, which is the average
+   edge weight over all edges captured by the clustering.
+
+\par
+   The fifth number is the graph link weight, which is the average weight
+   over all edges in the graph.
+
+\sec{}{OPTIONS}
+\begin{itemize}
+
+\item{\defopt{--adapt}{allow domain mismatch}}
+   The \useopt{--adapt} option allows the graph domain and cluster domain
+   not to match. \clmdist will take the appropriate subclustering and
+   subgraph as it goes along.
+
+\item{\defopt{-pi}{f}{apply inflation beforehand}}
+   Apply inflation to the graph matrix and compute the performance
+   measures for the result.
+
+\item{\defopt{--append-pf}{append performance measures}}
+   \clminfo will reread each cluster file and append the computed
+   performance measures to it.
+
+\item{\defopt{--append-gr}{append granularity measures}}
+   \clminfo will reread each cluster file and append the computed
+   granularity measures to it.
+
+\item{\defopt{-tag}{<str>}{write tag=<str> in performance section}}
+   When appending, \clminfo will include tag=<str> in the
+   performance section. This can be useful e.g. to indicate
+   the pre-inflation value corresponding with the section.
+
+\end{itemize}
+
+
+
+\sec{author}{AUTHOR}
+\par
+   Stijn van Dongen.
+
+\sec{seealso}{SEE ALSO}
+
+\par
+   \sib{clmdist},
+   \sib{clmmeet},
+   \sib{clmmate},
+   and \sibmclfamily for an overview of all the documentation
+   and the utilities in the mcl family.
+
+\sec{references}{REFERENCES}
+
+\par
+   [1] Stijn van Dongen. \it{Performance criteria for graph clustering and Markov
+   cluster experiments}.  Technical Report INS-R0012, National Research
+   Institute for Mathematics and Computer Science in the Netherlands,
+   Amsterdam, May 2000.\|
+   \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z}
+
+\"man::postamble"
+

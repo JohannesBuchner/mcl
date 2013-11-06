@@ -1,0 +1,80 @@
+\def{"man::synstyle"}{long}
+\def{"man::defstyle"}{long}
+\import{mcx.zmm}
+
+\set{"man::name"}{clmresidue}
+\set{"man::html-title"}{The clmresidue manual}
+\set{"man::author"}{Stijn van Dongen}
+\set{"man::section"}{1}
+
+\"man::preamble"
+\${html}{\"man::maketoc"}
+
+\sec{name}{NAME}
+\NAME{clmresidue}{extend clustering of subgraph to clustering of graph.}
+
+\sec{synopsis}{SYNOPSIS}
+\par
+   \clmresidue
+   \synreqopt{-icl}{fname}{input clustering}
+   \synreqopt{-imx}{fname}{input graph}
+   \synoptopt{-rpm}{fname}{residue projection matrix}
+   \synoptopt{--adapt}{allow domain mismatch}
+   \synoptopt{-mvp}{fname}{majority vote projection (clustering)}
+
+\sec{description}{DESCRIPTION}
+
+\par
+   The cluster file presumably contains a clustering of a subgraph of the
+   graph\~\v{G} contained by the matrix file, implying that the row domain of
+   that clustering is a subset of the node domain of the graph. clmresidue will
+   compute a simple upwards projection of that clustering, resulting in a
+   clustering of\~\v{G}. 
+
+\sec{options}{OPTIONS}
+
+\begin{itemize}
+
+\item{\defopt{-rpm}{fname}{residue projection matrix}}
+   The name for the file in which the residue projection matrix is stored.
+   It contains for each node and for each cluster in the input clustering
+   the combined weight of the (edges to the) neighbours of that node
+   in that cluster.
+
+\par
+   The default output file name is \v{out.rpm}.
+
+\item{\defopt{-mvp}{fname}{majority vote projection (clustering)}}
+   The name for the file in which the majority vote projection clustering
+   is stored. Aka the majority vote projection clustering storage file name.
+
+\par
+   This embodies a very crude approach to distributing the missing nodes in the
+   input clustering onto that same cluster.  For each node, the cluster is
+   taken for which the residue projection is the largest (see above). The
+   residue (i.e. the set of missing nodes) is initially viewed as a cluster;
+   the set of nodes for which the projection is largest for the residue itself
+   will form a new cluster, if it is not empty.
+
+\par
+   The default output file name is \v{out.mvp}.
+
+\item{\defopt{--adapt}{allow domain mismatch}}
+   Allow the clustering domain to contain nodes not present in the graph
+   domain. \clmresidue will take the appropriate subclustering.
+
+\end{itemize}
+
+\sec{author}{AUTHOR}
+\par
+   Stijn van Dongen.
+
+\sec{seealso}{SEE ALSO}
+
+   \sib{clmimac},
+   \sibmclfaq,
+   \sib{mcxsubs},
+   and \sibmclfamily for an overview of all the documentation
+   and the utilities in the mcl family.
+
+\"man::postamble"

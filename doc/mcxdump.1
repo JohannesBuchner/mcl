@@ -1,0 +1,162 @@
+.\" Copyright (c) 2005 Stijn van Dongen
+.TH "mcxdump" 1 "31 Mar 2005" "mcxdump 1\&.004, 05-090" "USER COMMANDS"
+.po 2m
+.de ZI
+.\" Zoem Indent/Itemize macro I.
+.br
+'in +\\$1
+.nr xa 0
+.nr xa -\\$1
+.nr xb \\$1
+.nr xb -\\w'\\$2'
+\h'|\\n(xau'\\$2\h'\\n(xbu'\\
+..
+.de ZJ
+.br
+.\" Zoem Indent/Itemize macro II.
+'in +\\$1
+'in +\\$2
+.nr xa 0
+.nr xa -\\$2
+.nr xa -\\w'\\$3'
+.nr xb \\$2
+\h'|\\n(xau'\\$3\h'\\n(xbu'\\
+..
+.if n .ll -2m
+.am SH
+.ie n .in 4m
+.el .in 8m
+..
+.SH NAME
+mcxdump \- dump matrices, optionally map indices to labels
+.SH SYNOPSIS
+
+\fBmcxdump\fP
+\fB-imx\fP <fname> (\fImatrix file\fP)
+\fB[-o\fP <fname> (\fIdumpf file (\&'-\&' for stdout)\fP)\fB]\fP
+\fB[-tab\fP <fname> (\fIrow/column tab (label) file\fP)\fB]\fP
+\fB[-tabc\fP <fname> (\fIcolumn tab file\fP)\fB]\fP
+\fB[-tabr\fP <fname> (\fIrow tab file\fP)\fB]\fP
+\fB[--lazy-tab\fP (\fIallow tab/domain mismatch\fP)\fB]\fP
+\fB[--no-values\fP (\fIomit values\fP)\fB]\fP
+\fB[--dump-pairs\fP (\fIemit pairs per line\fP)\fB]\fP
+\fB[--dump-lines\fP (\fIemit rows per line\fP)\fB]\fP
+\fB[--dump-rlines\fP (\fIomit leading column node\fP)\fB]\fP
+\fB[-dump\fP <fname> (\fIalias for -o\fP)\fB]\fP
+\fB[-sep-value\fP <str> (\fInode/value separator\fP)\fB]\fP
+\fB[-sep\fP <str> (\fIfield separator\fP)\fB]\fP
+\fB[-h\fP (\fIlist help\fP)\fB]\fP
+\fB[--apropos\fP (\fIlist synopsis of all options\fP)\fB]\fP
+.SH DESCRIPTION
+\fBmcxdump\fP reads a data file satisfying the mcl input format
+(refer to \fBmcxio(5)\fP)\&. It outputs a line-based format\&. The
+\fB--dump-pairs\fP option yields a single matrix entry per line,
+identified by the respective column and row identifiers (either index or
+label) separated by the field separator\&.
+The \fB--dump-lines\fP and \fB--dump-rlines\fP result in the
+joining of all row entries on a single line, separated by the field
+separator\&. For both formats, the matrix value corresponding with
+a particular entry is by default output as well\&.
+.SH OPTIONS
+
+.ZI 3m "\fB-imx\fP <fname> (\fImatrix file\fP)"
+\&
+.br
+Input matrix\&.
+.in -3m
+
+.ZI 3m "\fB-dump\fP <fname> (\fIdumpf file (\&'-\&' for stdout)\fP)"
+\&
+.br
+Output stream\&.
+.in -3m
+
+.ZI 3m "\fB-tab\fP <fname> (\fIrow/column tab (label) file\fP)"
+\&
+.br
+Substitute column indices and row indices by labels from the tab file\&.
+Since the same tab file is used for both, this implies that the matrix
+domains are identical\&.
+.in -3m
+
+.ZI 3m "\fB-tabc\fP <fname> (\fIcolumn tab file\fP)"
+\&
+.br
+Substitute column indices by labels from the tab file\&.
+.in -3m
+
+.ZI 3m "\fB-tabr\fP <fname> (\fIrow tab file\fP)"
+\&
+.br
+Substitute row indices by labels from the tab file\&.
+.in -3m
+
+.ZI 3m "\fB--lazy-tab\fP (\fIallow tab/domain mismatch\fP)"
+\&
+.br
+If used, the tab file domain(s) do not necessarily need to match
+the corresponding domain in the input matrix\&. Entries missing in
+the tab files will be replaced by a question mark\&.
+.in -3m
+
+.ZI 3m "\fB--no-values\fP (\fIomit values\fP)"
+\&
+.br
+Do not emit values\&.
+.in -3m
+
+.ZI 3m "\fB--dump-pairs\fP (\fIemit pairs per line\fP)"
+\&
+.br
+Output a single pair of column-identifier and row-identifier per line,
+optionally followed by the value of the corresponding matrix entry\&.
+All fields are separated by the field separator\&.
+.in -3m
+
+.ZI 3m "\fB--dump-lines\fP (\fIemit rows per line\fP)"
+\&
+.br
+For each matrix column, the corresponding row is output on a
+single line, with row identifiers separated by the field separator
+and values attached to the row identifier by the node/value separator\&.
+In this format, the column identifier is output as the leading field\&.
+.in -3m
+
+.ZI 3m "\fB--dump-rlines\fP (\fIomit leading column node\fP)"
+\&
+.br
+As the option above, except that the column identifier is not output\&.
+.in -3m
+
+.ZI 3m "\fB-sep-value\fP <str> (\fInode/value separator\fP)"
+\&
+.br
+Set the node/value separator for line based row ensemble output\&.
+.in -3m
+
+.ZI 3m "\fB-sep\fP <str> (\fIfield separator\fP)"
+\&
+.br
+Set the field separator\&.
+.in -3m
+
+.ZI 3m "\fB-h\fP (\fIlist help\fP)"
+\&
+.br
+Print help, this could possibly be the same output as
+supplied with \fB--apropos\fP\&.
+.in -3m
+
+.ZI 3m "\fB--apropos\fP (\fIlist synopsis of all options\fP)"
+\&
+.br
+List a one-line synopsis for all options\&.
+.in -3m
+.SH AUTHOR
+
+Stijn van Dongen\&.
+.SH SEE ALSO
+\fBmcl\fP,
+\fBmclfaq\fP,
+and \fBmclfamily(7)\fP for an overview of all the documentation
+and the utilities in the mcl family\&.

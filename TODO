@@ -1,0 +1,1483 @@
+regularia projectia diligentia
+
+taking submatrix with same domains, is that slow?
+
+-  kernighan-lin-style exchanges across cluster periphery according
+   to clmformat.
+
+-  over n entries: reduce to n or 0 ?
+
+-  support for single link clustering / MST, tree operations.
+
+!  scripting language; conditionals, data types, etc.
+   iterate over matrix elements.
+   how to do datastructures? hook up to python.
+      One goal: enable filtering of a matrix before it enters mcl.
+      with some mcx/mcxsubs capacities.
+      Tie this together with making mcl accessible as a library routine,
+      initially with file based IO.
+      __setitem__, __getitem__.
+
+!  mclxMakeMap does/must work with idx-sorted vectors (because it uses them as
+   domains).  no use for general reordering.  relevant if clmorder result is
+   used to remap using mcxmap, (which would likely imply need for tab file
+   remapping).
+
+!  make mcxmap work on tab files as well.
+   ( but how about subselection ......... )
+
+-  ilInstantiate can not act as resize; reset everything.
+   should change this.
+
+-  -dump-subd:
+      should construct spec first, then do mclxSubRead.
+
+!  embedding / extending libs in Python.
+
+-  implement mcxsubs --extend as spec option.
+
+-  mclvaDump2: implement n_per_line argument.
+
+-  clmps:
+   show intra cluster edges in X, inter cluster edges in Y;
+   accept dom option or multiple dom options.
+
+-  audit printf <%c> conversion spec, takes int arg
+
+-  reinstate perl scripts for grids etc.
+
+!  the rewrite of mclxSub may lead the way to a more general setup,
+   with a callback mechanism similar to mclxMerge.  what happens if mcldmeet is
+   explicitly parameterized as fltLaR ?  (and one takes fltLoR etc etc).
+   meet_the_joneses would take that additional parameter.  This would enable
+   adding in a submatrix without actually creating the submatrix. So it is
+   mclxMaskedMerge. And we would indeed need mclvTernary, as we need first to
+   select the row-sub-domain, then apply our callback.
+!>
+   implement blockc as subroutine. There is a lot of shared code
+   with meet_the_joneses. It uses fltLoR, rather than fltLaR.
+->
+  implement mclvTernary ?
+   x y z, f, g
+      if g(y, z) apply f(x,y)
+   This will help streamline mclxBlocks, for one thing.
+   Would one want to iterate over columns also based on some ternary criterion,
+   rather than simple meet?
+
+
+!  force-connected=y fails with directed graphs.
+
+!  multi-level:
+   singleton clusters might pull together big clusters that are
+   otherwise not very much related.
+   Think about remedies.
+
+!  investigate siphoning (using visualization)
+
+!  check/further debug mcl tiny-nil.mci on alpha.
+#0  0x120011734 in mclExpand (mx=0x140037900, mxp=0x140011540) at expand.c:622
+#1  0x12000a504 in doIteration (mxin=0x11fff9ec0, mxout=0x11fff9eb8, mpp=0x140030a00, type=2) at proc.c:281
+#2  0x12000a25c in mclProcess (mx0=0x11fff9f28, mpp=0x140030a00) at proc.c:222
+#3  0x12000d65c in mclAlgorithm (themx=0x140037900, mlp=0x140031080) at alg.c:618
+#4  0x120009bcc in main (argc=2, argv=0x11fffa018) at mcl.c:172
+
+!  look at all cmp functions returning a difference. overflows with long.
+-  test all utils for long compatability.
+
+-  sth to compute the set of nodes in the set of shortest paths 
+   between two nodes, radius neighbourhood ...
+
+-  sth to compute clustering coefficient, or samples of shortest path
+   lengths, capacities?
+
+   option indicating that it should extend the
+   selected domain with all neighbours.
+   Perhaps j and e tags.  The first number indicates the level.
+
+   option to specify all the nodes in all shortest paths for
+   a set of nodes.
+   p8,20-30
+
+   smart complement of blocks requires different mclxSub coding
+   -  Simply using a callback generalizing mcldMeet is difficult because domain
+      operation is now tied to row domain of target matrix.
+   -  There are also problems with complementing overlapping blocks.
+   -  For singletons it is a costly operation to build the complementary
+      domain, so for mclxBlockx-complemented might need sth smarter than simply
+      use mclxSub-complemented.
+   -  Allow column complementation in the interface, or should the
+      caller take care of that?
+
+   so sth else is needed.
+   Perhaps mclxSub, mclxBlocks, mclxMerge need reconsidering.
+
+mcxfetch? for format, dimensions, domains, ....
+   format
+   n_cols
+   n_rows
+   n_cols, n_rows
+   cols
+   rows
+   cols, rows
+   n_entries
+
+INCORPORATE MCXSUBS INTO MCX.
+
+?  add env variable for verbosity on non-matching domains
+
+
+make better binary format,
+   - backwards compatåbility enabled by mechanism for section+length structure.
+   - 
+
+LEGEND                     changes all the time.
+   -  todo
+   ?  todo?
+   !  definitely do
+   () observation/aside
+   #  done (for good vibrations)
+   #? done?
+   /  mostly done, needs continuation/finishing/testing
+   ~  move to _pending_, or move to _after_release_ ?
+   bd build environment
+   a  audit.
+   d  design (library level, data structures, core interfaces).
+   f  framework, integration issues
+   g  generalize [design].
+   h  API / library / header file grouping
+   i  iota, scribble, vaguely related.
+   s  support for new functionality.
+   q  faq
+   t  test target.
+   u  user interface stuff.
+   w  documentation.
+   z  far future finking.
+
+-  mcl speedup (little): shift rather than sort in centering.
+
+-  saner structured output format for clminfo.
+
+?  make mcxmap less strict with domains? e.g. allow take
+   restriction, fill gap with identity matrix?
+   (this does not work, as identity map may be occupied by
+   part that does map).
+
+-  mcx should pbb have more efficient stack code.
+   also, depth/type checking should be done by dispatcher mostly.
+
+-  mcxsubs:
+      unify dfac and efac logic (direction),
+      move dfac into inner loop.
+
+?  is mcxsubs efficient if new domains include the old domains?
+!  mcxsubs reading domains from
+   domain matrix should also be supported from disk.
+-  blocks from disk not yet supported.
+
+!  If zoem is not present, pipelines should exit more gracefully.
+
+?  does mcl check for negative numbers?
+
+d  mcxdeblast --abc option covers a very generic format.
+
+! OVERLAP
+ / clminfo.
+ /    mclxcoverage
+ /    massfrac
+ -    principles of practice/theory?
+ ! clmformat
+
+!  how much would ascii input benefit from buffered io ?
+   (some issue with integer and float reads there).
+   Read block, make it end on a line.
+   test with read first.
+
+!! Think hard about clever handling of mismatched domains.
+   in which cases should it be supported in the libary,
+   in which cases in the application,
+   in which cases not at all.
+
+   mcxdump --lazy-tab approach is one way (exception string)
+   clminfo etc another (when strictness is required, modify)
+
+-  dump format: combined index/label can be handy.
+   would be nice to have format-string for that (rather
+   than arguments for left-middle-right).
+
+!  profile reading of huge (but very thin, e.g. cluster) matrices.
+   takes very long. strace yields that brk is called umpteen times,
+   each time with a 4096 byte increment. Is this some rotten
+   lib just on my system, or what?
+
+   For clmclose, its observed lack of speed also occurred when
+   constructing such a thin matrix.
+
+   memory fragmentation problem?
+
+() make better binary format, with sections that have identifiers
+   and length description. use this to facilitate bc and optional info.
+   put the version number in, cell contents.
+   optional information e.g. nrof entries
+
+-  make more generic ascii format, basically mcltype=matrix
+   get rid of line-based parsing.
+   sanitize ascii parsing all-together, try to delegate it to library routines.
+
+SECTIONS                   change all the time.
+   _regular_, _new_release_
+   _projects_, _long_term_stuff_
+   _networked_
+   _test_
+   _bug_
+   _coding_guidelines_, _coding_standards_
+   _audit_
+   _after_release_, _after_, _ar_
+   _pending_ (this release or postpone?)
+   _tail_ (same as _after_ really).
+   _design_
+
+   _mcx_
+   _clmformat_
+   _clmdist_
+
+===============================================================================
+_REGULAR_, _NEW_RELEASE_
+regularia
+
+?  AC_COPYRIGHT
+
+?  remove dumpstem option, do everything relative to base name ?
+
+?  conditional iterand dumping: only do it while per node >= X neighbours.
+
+-  clmclose:
+   define what it does for directed graphs?
+   [it won't e.g. work now as mcl iterand interpreter; perhaps it should]
+--> move stuff from clmimac to clmcose or vice versa?
+
+-  mclblastline --blast-tab=<foobar>
+   does not seem to work :(
+      hdr file has to be specified
+      map file has to be omitted
+         do not use mcxassemble -b option 
+
+remove autoprefix?
+
+clmformat:
+   -  allow overlap.
+      need separate section for those  nodes.
+      'self value' no longer defined -> duplicated.
+      alien selection may need to enforce all explicit clusters.
+      mclvScore no longer well defined (the array, print_el_scores).
+      -  interesting if nodes have neighbours in overlap?
+
+   !  chunked indexes.
+   ?  make refs back to index
+   -  create node stickiness matrix from mclvScore array.
+   -  add more info at cluster header (cov max min etc)
+   -  write hash of indices -> fname, so that it can be changed in zoem space.
+   ?  enable index sorted on label [but sorting begets intricacy] (?)
+
+
+
+EFFICIENCY
+-  In the mcxsubs/clmclose vein, reanalyze
+   clminfo, clmformat, all programs that operate in non-trivial manners.
+
+-  zoem leaks.
+
+-  keep bits of information about a matrix with it
+   memory:
+      ?  canonical domains
+      ?  identical domains
+   disk (binary):
+      double/float
+      long/int
+
+-  cut-overlap
+   + cluster/cluster allocation matrix
+   mclxInsertIdx(cidx, ridx, val)
+
+-  when reading in matrix, try to spot overflow
+   seems hard with fscanf.
+
+
+OPTION PARSING CONVERSION (+ done, x not needed, - todo)
+   +  mcxassemble mcxdump mcxarray mcxsubs
+   x  mcxconvert  mcxtest
+   -  mcxmap
+
+   +  clmimac clmclean clminfo
+   -  clmorder clmdist clmmeet clmresidue clmformat clmmate clmdag
+   ?  clmps
+
+-  move shade1 and leader to webindex.azm; remove style.css dependency.
+   Improve css classes etc.
+   instead of <style="text-align:justify"> use <p class="j"> etcetc.
+
+-  optify strict input reading.
+
+-  let mcxdeblast figure out by itself what kind of input it gets.
+
+!  on the web, link to mclfamily for overview; mclfamily not in distindex??
+   remove descriptions from webindex.azm to mclfamily.azm, if necessary.
+
+-  how about binary raw format. ?.
+
+?  do proc_opt_digits and alg_proc_digits actually work together ?
+   (seems improbable)
+
+d  -imx really required by clmformat?
+
+-  --fmt-dump option, does it exist? [then create unique file name]
+
+-  reading in the tab file perhaps best done in a single go,
+   if the memory is available.
+
+-  perhaps mclvInstantiate should also remove zero elements.
+
+
+-  set scheme parameter at run time depending on graph size (unless
+   users explicitly specifies it).
+
+w  cma option
+
+performance; exclude self-hit. caution: singleton clusters.
+add self weight to vscore.
+
+sum_i - self
+cluster size - 1
+neighbour count - 1 (if self is neighbour)
+
+?  move mcl to shcl, split {clm,interpret}.[ch] off of mcl/ directory.
+
+?  MAXID_MX --> MCLX_MAXID
+   (humho, N_COLS also out of band).
+
+-  remove temporary warning code in mclcEnstrict
+   permanent solution?
+
+-  [?no! get rid of mclvTop]
+   mclvTop actually inspires different implementations ->
+   *require* at least 90 percent. Doing so efficiently is a different
+   matter, both concrete (how to get at that x percentage without
+   sorting twice (some iterated heap scheme?)) and practical (what
+   about hub nodes).
+
+-  perhaps copy clmformat -dump to mcxconvert, allow values as well?
+ 
+-  MCLXASCIIFLAGS make option to specify all-entries-on-a-line vectors.
+   get in higher up, pass it to mclvaDump
+
+-  why not mclxSubWrite (demand first)
+   and mclxSubCompose, mclxSubBinary ..... (same)
+   Ouch, brain hurt danger sign.
+
+d! option to pass domains to input routine at mclxRead level;
+   it checks immediately
+   for identity, so domain errors cascade quickly.
+   then read cluster files first (clminfo, clmformat)
+   mclxReadChecked(xf, {0,1,2}, dom_cols, dom_rows)
+      equal
+      sub
+      super
+      disjoint
+      trisphere
+
+   mclxRead
+   mclxaRead
+   mclxbRead
+   mclxSubRead
+   mclxaSubRead
+   mclxbSubRead
+      all need Checked counterpart? no big deal;
+      only asubrawreadchecked and bsubreadchecked will do verification.
+
+-  mclpipeline: don't be smart with -I, use --mcl-I as well.
+
+#  implemented more binary read integrity checking.
+-  tell that - can always be used to specify stdout.
+-  mclpipeline: use mcl auto-naming.
+-  mcl overlap: make mode where union is taken.
+?  runinfo tables can be stored as matrices .. for what it's worth.
+?  make environment variables for leadwidth / overflow length.
+
+/  mclxaSubReadRaw recognizes vec->val; other places?  (guess not)
+
+-  mcxarray: make '\n' endtoken for vector read, adjust whitespace
+   handling so that line-based stuff can be done.
+
+() mclxMakeStochastic; saves column sums in vec->val
+   unless forbidden to do so by ...?
+   humgrr, would like to keep the thing thread-safe (no globals)
+   and don't want to do this by argument passing.
+
+() make set/get vector routines for vec->val member (e.g. for diagonal
+   values, column sums, max)
+
+w  ascii format stricter line based format.
+
+?  fix up mclvGetIvp with ON_FAIL arg.
+   humho, perhaps FAILURE is quite usual and caller most often
+   wants to deal with it ..
+
+?  unified approach to output format specification.
+   --wb --wa MCLIOFORMAT
+   (we now have MCLIOFORMAT)
+
+-  binary format depends on
+   which of OS, processor, endiannes, compiler .. ?
+
+-  test+valgrind ascii io, mcl, and mcxsubs.
+   mcxassemble as well; no problem with header files (no next line?)
+
+?  is binary stuff over STDIN possible in principle (no)?
+
+?  can ascii io be put in callback framework?
+   (e.g. for reading graph into another data structure)
+
+-  integrate the web READMEs into the source.
+
+/  test util/io; error reporting for strange files (empty etc).
+
+?  mclblastline; how about emitting a Makefile ?
+
+test tab related stuff, mcl (new mcxIOreadLine semantics).
+
+[gershwin hobo src/shmx > ./mcxconvert small.mx small.mci
+___ [mcxRealloc PBD] negative amount <-67108864> requested
+[mcxRealloc] Memory shortage: could not alloc [-67108864] instances of [byte]
+[mclvInstantiate] Memory shortage: could not alloc [1065353216] instances of [mclIvp]
+___ [mclvEmbedRead] failed to read vector
+why different numbers?
+
+write the d**n GeneMCL paper.
+
+generalize matrix multiplication with (centered/uncentered)
+pearson coefficient, cosine, etc.
+
+-  make sections in 3party.
+
+-  --adapt, overlapping clusterings; make mode where all
+   the intersections are taken.
+
+-  mclInterpretParamNew etc; overdoing stuff, do it from stack?
+
+-  at high preinflation values, it gets a bit unstable.
+   how about moderated, topped, or conditional inflation?
+
+-  mcxarray: -  centered Pearson.
+   test more (after mclxAddTranspose rewrite).
+
+!/ remove exit's from matrix library.
+!  check every thing that might fail mem-wise (that's a loooottttt).
+!  could copy util ON_ALLOC_FAILURE compile option.
+
+-  design for doing diagonal-related stuff.
+   perhaps generalize this; doing selection-related stuff.
+-  diag naming conventions now suck.
+   added some small functions, including linear mappings of coefficients
+   (this is more table like functionality)
+   hum, linear mapping is tricky with zeroes.
+   mclxUnary
+   mclxUnary2(mx,a,b) (a*mx+b)
+
+-  consider freeing the input matrix within doIteration
+   (cheaper to have it around only as long as needed).
+
+!  warning; with domain stuff it is crucial the values are nonzero.
+   (because of meet etc).
+[information like this should go into code/library documentation]
+
+wf cascading 2-level approach with block diagonals.
+
+-  make sth to retrieve overlapping nodes.  
+   (relate this to retrieving nodes for distance?)
+
+-  clminfo: allow comma-delimited range of pi values,
+   compute them all at once.
+
+-  clmimac; tweak dag pruning implementation and interface.
+   note how center­ofset is much more stringent.
+   enable boolean junction of conditions? (partialsum <-> [self/center-maxval])
+      the mclInterpretParam interface is clumsy wrt w_partialsums.
+   internally, dealing with the partialsum bar is also somewhat clumsy
+   (e.g. the delta correction; why not GivenValGq?).
+
+-  clmmate: best match: what set distance is used for twins file?
+   given two candidates with equal meet size, does it take the smallest?
+
+#  cvs-ify website; - what about various READMEs ?
+-  internalize style.css  (shade1 etc bit ugly) ?
+
+
+-  make warning mode for mcxassemble mirror image step.
+
+-  mclfamily, mclfaq, mclindex:
+   central place to tell that - can always be used to specify stdout.
+
+-  rename mclvSelectLqBar as mclvSelectLq, or mclvSelectValLq.
+
+-  mclvCopy should act same as mclvCanonical; ability to specify val.
+   mclvCopyDom
+
+-  perhaps add option regarding diagonal to mclxAddTranspose.
+
+-  how about having dedicated 'symmetric' multiply ?
+   (saves half-time).
+   cq, computing A * A^T
+   
+   hum. for microarray stuff, also need cutoff.
+   mclxComposeX(mx, mx, nb, cutoff, flags | symmetric)
+   unwieldy?
+
+-  get mclgrep, mclgraga into some shape.
+
+u  mcxassemble IO interface is too funny.
+
+   previous remarks:
+   [  mcxassemble hm -xo does not work in conjunction with -n, --prm or -prm.
+      can I make mcxassemble semantics such that there is a ''default''
+      output type (which is by 'default' symmetric), so that the xo suffix
+      option would pertain to that type, and not necessarily the symmetric
+      matrix.
+
+      so, howabout option --default <prm|skw> etc.
+      the prm option would primarily be interesting.
+   ]
+
+-  does compose work ok with neg values?
+   other/all operations?
+
+-  make args const where appropriate.
+   make subs static where appropriate.
+   fix dst/src argument order.
+
+-  document which routines take ownership of their arguments.
+   +  mclxAllocZero does
+   -  mclxSub does not
+
+u  threshold option(s) for mcxassemble ?
+   -  e.g. absolute value threshold.
+   -  relative (center based threshold)
+   -  absolute count threshold.
+   or perhaps better in separate utility, or with an interface
+   shared by multiple programs.
+
+!   make stress test.
+
+q  mention -pi in granularity section.
+
+-  how to find the efficiency on a subrange of nodes/clusters?
+
+-  clmformat; it'd be nice if it could work on multiple
+   clusterings in the same run.
+
+-  mclgrep --delete (for cleaning up):
+   use some tmpfile module, do safe housekeeping.
+   support quaxp parsing; define quaxp syntax first :)
+
+-  mclgraga: default output is simply range==0,1,max output
+   where zero entries are not output. try to unify.
+   also, 0,3,0 syntax does not work ..
+
+-  for quaxp syntax
+      learn about attribute syntax for xml.
+      think of way to have flow text.
+
+-  sort option for clmmeet.
+
+#  changed mclvCopy to *not* copy vid (for a good reason, e.g.
+   consider mclxCartesian).
+   does that change other behaviour?
+
+?? put (long) cast in N_COLS, N_ROWS defs?
+## no; if one day I want to support long long or unsigned long
+   then all  printf statements have to be scrutinized, making
+   the transition painful.
+
+-  clmformat: -imx no longer required, so perhaps it should be called
+   mcxformat again. -dump can dump arbitrary matrices ...
+
+-  tool for quickly laying out cluster size histogram.
+
+-  currently -o [yes use] vs no -o use implies -do/dont {clm,log} -v/V "some"
+   difference.  not so nice.
+
+/  can clminfo check whether info already present? nah, pbb better not.
+
+-  subroutine for creating window ascii histogram (like pruning hist)
+   subroutine for replacing '=' with string.
+
+!  automated stress test suite.
+   better checking whether docs were processed ok.
+
+i  make algParam parameter const where appropriate.
+
+w/ make mclfamily.azm, copy/extend description from web page.
+
+i  11:11:49 james (src/shmcl) mcl -az
+   out.-az.I20s2
+
+s  sth to support line-graph creation, possibly with help of assemble?
+s  sth to support Pearson/Cosine computed from vector input.
+
+w  check all sibfam and sibidx uses, try for better setup.
+
+w  add summaries to index listing.
+   add link to mcl-all.ps in index.html
+
+bd $(mcl_all_ps) does not work in dependency listing in src/doc/Makefile.am
+
+w  features section in mclfaq ? esp for sparse representation.
+-  NEWS etc on website.
+-  (auto)make template in mcl/src/doc possible ?
+   sth with SUFFIXES or so.
+
+?  include configure options in built-in build information.
+
+?  mclpipeline: make both plain text file and html file with clmformat.
+-  -pi: it uses -c center value; might it be too large?
+!  set good default values for bcut and ecut thresholds.
+
+!~ make extra header or matrix keywords, such that validation
+   e.g. for map matrices can be done at IO time.
+
+!~ refactor pruning
+   split logging/stats code off of expand.[ch].
+   see _networked_
+
+-  how about writing a matrix without keeping it entirely in memory ??
+   possible e.g. with mcxarray
+
+-  testing huge.mci with clmformat gives a node 1940
+   for which 0.88 of its mass is in a single *alien* cluster.
+   is it because of the remaining 0.12 some weights are very high ?
+   note that huge.mci is *not* symmetric though.
+
+d!
+f  make clmformat, mcxsubs et al index-file aware.  tagged matrices,
+   s-expressions and other non xml stuff :)
+
+   could even make pseudo option to simply replace indices by labels.
+   (i.e. result will no longer be acceptable as mcl input).
+
+   putIvp, putVid callback mechanisms, that return length written.
+
+h  group mcl/interpret/mclxCoverage under impala/scan ?
+   perhaps extend interface ?
+
+h  matrix sequence multiplication etc.
+   perhaps easiest to support only postfix format. allthough
+   it is hard to read with a vararg that only parses left-to right.
+   mclxSeq( "4#Tpxs") (four arguments T
+   T transpose
+   m mul
+   s stochastic
+   x exchange
+   p pop
+   d duplicate
+   c (shallow) copy.
+
+   but how to govern freeing ?
+   intermediate results are freed; final result is returned.
+   is that easy to implement?
+
+bd make mcx.zmm depend on stamp.*, *.azm depend on mcx.zmm.
+
+s  -v cls option that prints clustering characteristics, also
+   the distance between consecutive clses.
+
+u? make bcut and ecut combine.
+
+h  how to generally do conditional stuff on two vectors?
+h  how to compute characteristics of some result vector without actually
+   computing it? (e.g. the size of the meet).  Counting, summing. not only by
+   restriction of domain, but e.g.  also by using bounds on value. Perhaps the
+   latter is not useful, and the former is covered (scan.[ch]).
+
+w  doc: mcx_itemopts used everywhere [no] ?
+
+f  deduplicate mcl suffix work done both in mclpipeline and mcl
+
+f  in light of the pipeline transport options: make toggle and override
+   facilitities for e.g. '-v all' and -q.
+
+w  mclterminology ?
+
+~  perhaps fix table problem by implementing 'full' write; additional flag.
+
+/  find out which blast version I am supporting with mcxdeblast.
+   ncbi blast it seems. to what extent?
+
+~w add 'declaration of goals': *fast* dedicated simple 
+   matrix/graph functionality on index type that can be represented as C
+   integer type.  simple: addition, multiplication, Hadamard multiplication,
+   transposition, min/max etc etc.
+
+w  mclfaq
+      tab file (clmformat)
+      map file (mcxassemble)
+      raw format
+
+us mclpipeline: --skip-assemble option, fixed mci suffix.
+   (for parsers that immediately create mci files).
+
+#  mclvKBar allocs every time; add buffer arg?
+   (pbb looked into this before; and found that overhead is negligible).
+
+#  perhaps all those mcxassemble map, tag options are overdoing it.
+   (well, tags are useful if you have multiple maps).
+
+z  s expessions (for extendible input format)
+z  string representations: how ? {}, "" (" ") delimiters ?
+
+~  ncm and ccm formats are ugly (size as double). phase out.
+
+d! think about similarity between mcxTing and mclpAR* types;
+   how to do this more generically without going C++ ?
+
+d! think of a way to repeat a sorting operation on one array onto
+   another array.
+
+#  mclxMap{Cols,Row} don't return status and never fail.
+   do now. never fail though; leave matrix in same state.
+   (or on extreme errors, they panic and exit).
+
+i  perhaps add some advocacy for the underlying util and impala libs.
+
+u? remove clone options
+
+i  identifiers have type 'pnum' currently.
+   the count of entries in a vector has type 'int' currently.
+
+i  the two-level approach writes clusterings with values attached.
+   ?  with output, check for '1:00' values, omit them if so.
+   -  better, make mcx hook: create global '__digits__' variable.
+   that's too much typing.
+
+u  think of better way to do 2level thing.
+
+u  two-level approach; not a symmetric matrix!
+   to what extent not symmetric?  can be symmetrized in mcx.
+   Is this fixed in the faq? believe so.
+
+d? how about matrix callback that overwrites first argument?
+   e.g. for mclxAddTo.
+
+~  partition error msg reports the number of clusters that *would* be emptied.
+   not the number that is empty. Add extra arithmetic to compensate?
+
+w? prune/reduce/project. example in clmresidue manpage ?
+
+~  in what shape is the prune/reduce/project trajectory now?
+
+   for submatrix selection according to mclchr scores, create script.
+   projecting will be relatively easy using clmresidue;
+   e.g. clmreduce should do the preparatory job.
+
+   clmreduce -imx <xx.mci> -chr <mclchr:0.8> -chr <mclchr2:0.7> -omx <sub.mci>
+   mcl sub.mci -o sub.mco
+   clmresidue -imx xx.mci -icl sub.mco -mvc projected.mco -rpm residue.mco
+
+   mcxsubs -mtx mclchr1 r:i4_v:gq0.95_m:tp,cc##domain
+
+w~ define 'cluster domain' and 'graph domain' somewhere.
+   use 'graph' rather than matrix in manuals: grep for matrix.
+
+w~ make and/or document clear way to create enstricted matrix. clmenstrict.
+   equivalent with
+      clmmeet --adapt -o new <foo>.
+   fork to clmmeet, with additional -iam clmenstrict option ??
+   the overhead and checking required cancel out unification gain.
+
+~  freeze and document the scan interface.
+   the MCL_SCAN_{MEET,CMPL} interface feels somewhat clumsy.  There is the
+   issue of domains that are not subdomains; is that a feature or a nuisance?
+   if it's a feature, how do I account the nr of columns for which the coverage
+   holds? should i add n_cols member to mclxScore?
+
+?  mapping: keeping track of associated strings external thing?
+d? parsing files with a 'trigger' token, e.g. a newline.
+   - inspired by ugly '0 # <tag> <data>' map files)
+   - this does not generalize very far, does it?
+
+d  make parsing more strict; use ^(mcl and ^) as delimiters, allow
+   nesting, make section searcher that is able to skip nested scopes.
+   make line stages and char stages more explicit.
+
+~  which mcx apps do not [need to] support -digits option?
+
+?  equip mclvReadAsciiRaw with expect_vid (and mclvReaDaVec?)
+
+g  SIGH how to unify -digits option for all the clm and mcx apps?
+
+i  transposition can be generalized by specifying row mask. hum ho,
+   would there be any use?
+
+~  rethink cline options, esp -imx, -i stuff.
+
+_REGULAR_, _NEW_RELEASE_
+===============================================================================
+_NETWORKED_
+
+   refactor pruning, verbosity information management. make it more modular,
+   to prepare for networked computing.
+
+   assemble all verbosity information in chr matrix or similar structure,
+   using callback function with callback argument.
+
+   after multiplication is completed, log stats can be created from the
+   chr matrix.
+
+   chr matrix can be created in parts (networked variant) and assembled
+   from the parts.
+
+   the one thing remaining is: how does the callback get to fill chr?
+   Well, there are a number of parameters and measures evidently present,
+   and the compose routine could also present the callback with the
+   vector being composed, even at various stages.
+
+   mclMatrixCompose will be changed to act on *two* matrices, and neither
+   needs be square/graph-type. It will be silently assumed they are
+   stochastic.
+
+   move to separate file, estats.[ch]
+   track mclExpandStats, sketch call-graph.
+
+   *  one node is master and keeps track which network nodes own which
+      graph nodes.
+      this node assembles the DAG matrix and computes intermediate
+      clusterings. It uses these to achieve better load balancing.
+
+   *  initially it is assumed that each node can compute its load
+      in one go - so each node needs assemble its matrix only once.
+      in a smarter scheme, a node might need to assemble several times.
+
+      NO, we need the smarter scheme immediately, as the straightforward
+      scheme is simply too error-prone.
+
+      perhaps, conceptually, view the nodes just as a pool.
+      so a single node-network should work too.
+      the estimated memory size should be a parameter too, so that
+      a node knows when to quit assembling a matrix and start doing
+      the multiplication.
+
+   *  a node assembles a matrix by asking the master node which network
+      nodes it needs to query for its matrix columns.
+      it gets a characteristic vector from the master node representing
+      the columns it needs to compute.
+      In order to compute a set of columns, it first obtains them.
+      It then merges all of them; that vector represents the indices
+      of the matrix columns that must be obtained.
+
+   *  implement fault-tolerance; a partial multiplication has succeeded
+      only when the results are written to disk (in master node and/or
+      in slave node?)
+
+   *  intermediate results are save to file.
+
+_NETWORKED_
+===============================================================================
+_TEST_
+
+/  -DVALUE_AS_DOUBLE, -DINDEX_AS_LONG settings.
+
+_TEST_
+===============================================================================
+_BUG_
+
+-  there is code such as
+      while (ipv<ivpmax)
+   where ivp and ivpmax are both NULL, e.g. possibly (void*) 0.
+   This is pbb illegal C, pitifully (because ivpmax is defined as ivp+0).
+
+-  mclvCreate/mclvInstantiate leave vec in inconsistent state.
+
+-  let.c:52: warning: implicit declaration of function `log10'
+
+_BUG_
+===============================================================================
+_PENDING_
+
+?  should not clmresidue be part of clmformat?
+
+-  routine that sorts matrix vectors e.g. according to value.
+   make attribute that says matrix is in non-canonical form;
+   then routines can inspect that attribute and decide what to do.
+   [application: sort contingency matrix to find best matching clusters]
+
+-  all aps should use mcxUsage for built-in help.
+
+?  split off mcxarithmetic from mcxformat.
+
+-  how to compute a clustering projected onto subdomain ?
+   with e.g. mcxsubs, s:-1
+    make -ihd <mx file> option that only reads in the header and sets
+   header vectors -- -imx option will also set those.
+/
+-  mclxFilePeek should be able to read vectors, optionally.
+
+-  document mcx/mcl prefixes.
+   mcx: everything in util.
+         everything in shmx, shmcx, taurus.
+   mcl: the rest.
+      mclp
+      mclv
+      mclx
+
+-  do sth about mclx[Sub]NrofEntries
+
+===============================================================================
+_AFTER_RELEASE_, _AR_
+
+i  MCLV_CHECK is not used consistently.
+
+#? fix all alloczero null,null invocations.
+!  can matrices be created other than by allocZero?
+
+-  split --adapt into --adapt-domain, --adapt-partition.
+
+-  add -digits option to mcxconvert.
+
+() mcxsubs (what does it require wrt domains?)
+      it does not adapt domains currently. Overly large domains
+      will just remain overly large.
+
+() note mcxconvert fixed suffix arg convention. more of those:
+      mcl
+      clminfo
+      mcxconvert
+
+-  make --expand-only work with -dump.
+
+-  some way to easily generate funny clusterings (e.g. top, bot, rgt, lft).
+
+bd need to do exhaustive testing; e.g. the clustering manipulation
+   code; garbage clusters, missing nodes, 0xK matrices.
+   Create stress test suite which uses valgrind.
+
+-  explicit mention of report.h in shcl/Makefile.am: necessary?
+
+DOC
+   HTML Tidy for Linux/x86 (vers 1st March 2002; built on Mar  8 2002, at 11:02:47)
+   Parsing "mcl.html"
+   line 728 column 5 - Warning: <a> Anchor "opt-V" already defined
+   line 1115 column 5 - Warning: <a> Anchor "opt-L" already defined
+   line 1147 column 5 - Warning: <a> Anchor "opt-i" already defined
+   line 1825 column 5 - Warning: <a> Anchor "opt-P" already defined
+   [case sensitive anchors not allowed !?]
+
+-  mclReaDaVec will remove duplicates; is this behaviour wanted
+   for domain vectors ? -- we really need to warn instead.
+
+???
+   create unified stress-setting for all apps. e.g. as env variable,
+   or as --stress cline option.
+   Also, apps should then return meaningful bit patterns.
+
+-  do we need vectorCopy that sets to value?
+
+-  make mclcTop, mclcBottom
+
+-  abel reported negative timings. somewhere convert to float?
+
+-  fix the impala/iface crud.
+
+-  remove clone threshold ?
+   pbb YES.
+
+-  mclvSelectGqBar(cl->cols+c, 0.0)
+   better make this along the following lines:
+   mclvSelectRltBar(cl->cols+c, 0.0, fltCmp, MCX_RELATE_GQ)
+   i.e. having an extra argument removes the need for
+   gt, gq, lt, lq, eq, ne routines [in the old rlt setup, now removed].
+
+-  mcl/clm.c: diverse ON_FAIL arg presence/absence (e.g. mclcmeet takes
+   on_fail arg), diverse testing
+   for strict clusterings. Unify.
+   should the low level API be permissive, or should it not?
+   no it should not, as there is a diversity of what might be wrong.
+
+-  perhaps mclxcoverage should be able to take subdomain as option.
+   e.g. useful in clminfo. However, it'd make the code pbb quite ugly.
+
+-  clminfo; use other criterions.
+
+-  clmmeet could be made a vararg routine, with options for error messages,
+   strictness etc.
+
+-  CAVEAT with ofset vector and ivps; use upward loop, not downward!
+
+/  when resorting matrix vectors, vids have to be renumbered!
+
+!  N_cols, N_rows now redundant; must always match dom_cols->n_ivps.
+?  delete them? -> or make them a macro :)
+
+-  document colprops in interpret.c (it no longer represents nodes;
+   it represents ofsets of nodes).
+
+?  be stricter with prefixes in
+   ENSTRICT_LEAVE_MISSING etc -- also in the mcx library.
+
+?  implement matrix check, and e.g. RUNTIME_MATRIX_CHECK
+
+-  some design were matrix-well-formedness checks can be optionally
+   turned on at well-chosen places.
+
+-  selectGqBar etc is a jungle; can also do it via unary paradigm.  but how to
+   combine criteria then?  think on.
+
+-  grep for '==.*TRUE|FALSE|_FAIL|OK'
+
+-  implement checks (in  input, and mclvShift)
+   for INT_MAX.
+
+-  vectordump index width; log computation no longer necessarily ok.
+   (because of what again?)
+
+-  audit usage and return statements of routines returning mcxbool:
+   tested for/returning TRUE, FALSE?
+
+-  make all static functions static.
+
+
+_AFTER_RELEASE_, _AFTER_, _AR_
+===============================================================================
+_AUDIT_
+
+-  There are places where mclvCopy etc are called as arguments to
+   functions. So those functions should check for mem errors,
+   allthough, of couse, it can be done for  any function accepting
+   mclv*. Perhaps it is a contract thing.
+   mclvInstantiate should set errno if nomem.
+
+clm* code
+   for elem2clus matrix; the clus idx should not be  used as
+   ofset in clustering matrix.
+
+-  impala/io.c:
+      audit checks for negative values, overflow.
+      check errno.
+      audit long parsing, silent conversion to int.
+      similarly for float.
+
+
+##
+##
+   ivp.c cmp uses '-' op that may overflow.
+   unless idx is restricted to be nonneg.
+   interesting.
+
+
+##
+##    The idiom 'while (--vecsize)'
+      fails when vecsize is zero -- it should be while '(--vecsize >= 0)'
+
+##
+##    In this idiom:
+      ;  mclIvp* ivp    = vec->ivps
+      ;  mclIvp* ivpmax = ivp + vec->n_ivps
+      if vec->ivps == NULL and NULL === (void*) 0, is the second line
+      in effect illegal C?
+      ;  ivpmax = (void*) 0 + 0
+
+-  audit closing of file pointers.
+
+?? why is the new clminfo often slower than the old one?
+   I'd expect it to be faster given the lower mem overhead. strange.
+   humho, clmdist also seems to be substantially slower.
+   perhaps the mclvGetIvp and mclxGetVector routines are to blame?
+
+-  make arguments const where appropriate,
+   make routines static where appropriate.
+
+-  make src/dst order consistent.
+
+-  the pruning error messages need to use vid.
+   check all printf's on \<c\> \<cidx\> etc -- simply check all printfs.
+
+-  remove malloc casts.
+
+_AUDIT_
+===============================================================================
+_LONG_TERM_STUFF_, _PROJECTS_, projectia
+
+-  make mcx valgrind clean.
+
+-  make io.c memclean under failures.
+
+-  syntax is now getting to a point where I should perhaps
+   use sth xml or s-expression like.
+   perhaps make my own breed anyway: quaxp! qua(si-s-e)xpressions.
+   xml is cumbersome, what I have is quite usable, diversity is good.
+   need some nice way to denote attribute-value pairs though.
+   can values then be s-expressions?
+
+-  implement mcl for grids / distributed computing. should be fun -
+   mcl is self-tuning as intermediate clusterings can be used
+   to group vectors.
+
+-  refactor mclAlgorithm etc to enable Java Jini interface.
+
+-  hook up with some visualization tool. I'd like to be able
+   to see graph in cluster context - 'striped' so to say.
+
+-? extend clm distance for overlapping clusterings.
+   perhaps by identifying such a clustering with its own meet, rather
+   than the dumb first-see-first-grinds algorithm.
+
+-? make RUNTIME_INTEGRITY a bit union to toggle individual options.
+
+-  make all apps memclean.
+   mcl is memclean, and one or two of the mcx/clm family too.
+
+-  remove globals (e.g. interfaces)
+   can I do sth like pid hashing to associate state with callers?
+
+-  (64 bit?) compiler errors reported by ? on mcl-devel.
+
+-  make mclxTaggedWrite wrap around a callback -> callback provides stuff to be
+   written inside (balanced) parentheses.
+
+-  taurus is becoming a wasteland, I did not apply the err.h clean-up
+   there, and a lot of other make-overs have passed by it as well.
+   someday, I need to move a lot of crap out of there, and do a total rewrite.
+   Should the integer list be based on an index index pair ? pbb so.
+   typedef struct mcxII
+   {  int   ia
+   ;  int   ib
+   }  mcxII ;
+
+   perhaps throw in an extra void*.
+   ilList contains ints, not longs. bummer. (used in clm.c, pbb mclInterpret).
+
+-  specify identity matrix with header only.
+   other such facilities for special matrices, e.g. constant matrices.
+   what would be clean syntax, given or not given that I am willing to break
+   current syntax ?
+
+(mclheader
+mcltype=matrix
+dimensions=10x10
+)
+(mclmatrix
+begin
+  ( template
+    type=identity
+    value=3.0
+  )
+)
+   how about implementing cascade type definitions?
+   how about providing looping constructs?
+(mclmatrix
+  (  mcx /code ...
+  )
+)
+   this is also depending on syntax decision (s-expression?)
+
+-  fix col/row argument order, both for API and for cl interfaces.
+   note mclxcompose order.
+   note -1 row domain -2 col domain in mcxsubs.
+   note mcxmap a b c d col/row meaning.
+   note how el2clus means column-to-row in the source :(
+
+-  distributed mcl: based on decomposed matrix multiplication + inflation.
+   results are tagged with identifier and written to disk, including
+   metadata such as pruning information.
+   progress interface ? perhaps interrupt-based.
+
+   the distributer is either centralized or decerntralized -- node ordering
+   should be smart and according to cluster structure found.
+
+   storage could possibly be database driven .. intermediate results
+   must be kept. identification issues are the most difficult.
+
+   matrix-vector multiplication; just needs to check that the vector
+   subsumes the matrix dom_cols vector.
+
+   it might be constructed like this: a node gets a bunch of vectors,
+   and constructs the matrix it needs from that (finding the right
+   hosts by communicating with an info node).
+   or better: a node gets a domain vector, containing the vids (as indices)
+   of the vectors it needs to multiply.
+
+?/ carry through num/real renaming, careful scrutinizing of int and float
+   usage. Ouch, this one is painful.
+
+_LONG_TERM_STUFF_, _PROJECTS_, projectia
+==============================================================================
+diligentia
+
+-  better naming conventions in pval.h
+   ( ones with two args and ones with void arg)
+
+diligentia
+==============================================================================
+_CODING_GUIDELINES_, _CODING_STANDARDS_
+
+-  write down my coding standard :)
+   e.g. when do I use xxx_yyyy and when xxxYyyy ?
+
+-  convert stack code in /shmcx/stack.[ch] to generic code using callbacks.
+   do better job at type handling.
+
+-  compile with -Wall -pedantic -ansi
+
+/  seek compiler flag to forbid trigraphs (gcc -Wall seems to include this).
+
+-  use as few integer types as possible. pnum was introduced to accomodate
+   large indices (which makes sense since mcl indices never act as offset).
+
+   almost all other integer types should be simply int, despite the
+   fact that it is possibly only a 16-bit type.
+
+-  create coding guidelines for printf usage and
+   c's integer types troubles and float/double troubles.
+   -  use casts
+   -  use strtol
+
+-  all apps should support / be clear on
+   -  sparse columns
+   -  zero matrices
+   -  faulty clusterings
+   -  non-sequentially indexed clusterings.
+   -  sub-super-equal domain behaviour.
+
+_CODING_GUIDELINES_, _CODING_STANDARDS_
+==============================================================================
+_TAIL_
+
+-  make mcl memclean on errors.
+
+?     make --enable-valgrind optie
+         (-g -O)
+-oo   can we use $^ and $@ in Makefile.am just like in Makefile?
+
+-  perhaps remove propagation stuff from vectorUnary,
+   make vectorCascade instead.
+
+-  when dumping 'chr', preferably make sure that columns are per-line
+   (and don't span multiple)?
+
+.  n_ite is used different for logging and pretty print
+   (latter uses two indices for every iteration, former one).
+
+-  there could be other ways of choosing a middle threshold between
+   selfval and maxval.
+
+-  can I generalize split/join towards overlapping clusterings?
+
+-  shmcx/ops.c now calls mcxStatsNew with NULL windowSizes arg
+   and n_windows == 0. This should work, but does it?
+
+-  clmimac: perhaps write enstrict information in enstricted clustering.
+-  clmimac: count of overlap instances can exceed graph cardinality ..
+   perhaps this need be so.
+-  clmimac: make --tag flag, that appends parameter in case of single
+   file name ??  semantics are becoming a bit unwieldy?
+
+-  mcx: how would I support arrays?
+   idea: array would contain <type> information,
+   e.g. "matrix", "int", "double", "mixed"
+   but array accessory and insertion functions etc are difficult to do right.
+   not a small project.
+   how about dropping contiguity demand, replace by linked chunks?
+
+-  should --show-log output the same stuff as --log?
+
+-  making (script-like) hooks via which user-defined matrix-quantities
+   can be monitored during the process.  Like replacement entropy measures for
+   inhomogeneity.
+   should e.g.  enable dump of listing of 'kept mass' instances?
+
+-  what about funny arg combo's like
+      --expand-only and --inflate-first.
+      --log and --binary.
+   no checking yet.
+
+-  Not really a todo item, but rather recording a thought:
+   I would like it best if
+
+   aclocal.m4 bootstrap depcomp install-sh mkdinstalldirs stamp-h stamp-h.in
+
+   Were all in a separate directory say named 'auto'.  Would that conflict
+   with the standard setup of autotools, or would it be relatively painless to
+   achieve?
+
+-  ideas for alg info: cluster granularity, cluster overlap,
+
+_TAIL_
+==============================================================================
+_DESIGN_
+
+-  the presence of zero values should never harm; it should never
+   harm to remove them.
+
+-  note how the vid thing is absent from nearly all vector methods.
+   it has to be done by custom code.
+
+-  compile time choice between int or long indices, float or double values, in
+   the types
+
+      pnum
+      pval
+
+   After some coding I found it the cleanest to use the largest allowable
+   type as much as possible, and have as few *pnum* and *pval* occurrences
+   in the code as possible.
+
+   This is done by doing all pnum related stuff in the largest type supported
+   (currently long), which may give overhead when using the smaller type. How
+   much overhead is currently not known.  This might be an issue already, or it
+   might become an issue if 'long long' was ever to be supported.
+
+-  dichotomoty between sorted dedupped ivp arrays (vectors)
+   and unsorted arrays leaves me longing for more oo functionality.
+   
+   I want to share the mclvResize mclvInstantiate functionality etc,
+   but only a few of these.
+
+_DESIGN_
+===============================================================================
+_mcx_
+
+-  extend mcx with iteration, access to vectors, nodes.
+   vector copy, ..
+   how about beginning with a python frontend talking to a C backend?
+   scripting in python (or perl) should make life easier .. 
+   some education in computer algebra systems is needed.
+   some education in byte-compiling might be interesting as well.
+   what level of sophistication of data structures?
+
+   lex/yacc. make mcx app code more generic as well.
+
+-  scripting. still stack based?
+   data storage, assignment, composite structures; to what extent?
+
+-  pruning options for matrix. Some monster approach.
+-  clsort op?  note this needs renaming of vids.
+      modes lex size revsize none.
+-  mcx: cmap op?
+-  try to move more clm stuff into mcx. e.g. enstriction, domain
+   selection.
+-  equip mcx with better scripting capabilities, node addressing.  (e.g.
+   matrix vector/entry selection, loops)
+-  I may be interested in utilities operating on vectors as sets.  BUT
+   them should be part of mcx.  think of good primitive names. all start
+   with vec?
+-  can I integrate mcxsubs in mcx? too much IO specifics?
+-  I might want to implement clmimac as mcx operator, using mx 10 -tight
+   imac syntax.  main advantage: general framework reducing duplicate
+   coding, e.g. for  input/output.
+
+   when passing options to those, I could adopt the convention that strings
+   starting with a hyphen are option strings. :).  only, would I have to
+   reverse the listing?  e.g.
+      10 -Q 8 -P imac.
+   mm,
+      matrix -Q 10 -P 8 imac
+   would be neater.  but who is going to be responsible for switching those?
+   imac? the parser?  best if it is the parser. perhaps sth comparable to
+   opening a block and closing a block.  how to do then
+      matrix -Q 2 10 mul -P 8 imac
+   So alas,
+      matrix 2 10 mul -Q 8 -P imac
+   is easiest.  this will require a framework of wrappers around paramNew
+   routines I believe. but this can pbb be quite simple.
+      HOW ABOUT BUILDING UP PARAMETERS IN A BLOCK ?
+      { matrix -Q 10 -P 8 } imac
+   imac is then simply a primitive receiving a block.
+
+   uh, but imac should be implemented as program in mcx language.
+   perhaps mcl not.
+
+_mcx_
+===============================================================================
+_clmformat_ _CLMFORMAT_
+
+a  clmformat/scan: works for any combination of nil vectors/domains ?
+   (had trouble even with singletons ..)
+   also test for void matrix, void clustering, and for zero matrix
+   of positive dimension.
+
+~  optify percentage threshold (now 0.95) and count threshold (now 10)
+~  enable matrix output of cl with self values.
+?  add bottom to inner and outer navigation bars?
+?  optify sorting child nodes.
+?  tablize index
+/  test for fznny.mci, i.e. non canonical graphs.
+/  modularize and prettify clmformat code. it's damn ugly.
+/  audit footers, headers, rules.
+/  html/txt mode not separated for recent index work.
+-? if > points to other file, make stand out.
+   perhaps more generally for all pointers ?????
+-  add average, ctr cluster size etc.
+   use mclvScan for this. make 'staafdiagram'?
+-? equip clmformat with -i option as well ?
+-  mcxIOopen needed for tab, not for mx.
+?  does not currently test for graphity?
+
+-  generalize hit scores.
+-  use greedy algorithm to take sample from clusters.
+   compute expansion of cluster projection,
+   by sweeping all other nodes into a rest node.
+
+   covering nodes:
+   what about just a greedy algorithm:
+      take best according to sophisticated hit rate,
+      then scan the entire list and find a node which will
+      add the most extra weight.
+      sth like expander nodes in there;
+         cluster submatrix C:
+         thereof rectangular submatrix R,
+         st R * C * C *C has highest total weight. or so.
+   hit rates: take the weighted average of
+   the (simple) hit rates of the neighbours - repeat?
+
+   Suppose cluster A has many nodes outer for B.
+   How often is then the reverse also true ?
+
+   alignments; order nodes on hit scores.
+
+_clmformat_ _CLMFORMAT_
+===============================================================================
+_clmdist_ _CLMDIST_
+
+-  sth to pinpoint the set of nodes in flux between different clusterings.
+   there is not necessrily a unique set of those; use some rule of thumb.
+
+o  allow multiple dists to be specified.
+o  -mode sc only works (from a formatting point of view) in conjunction
+   with other distances [, not when by itself?]
+o  rework clmdist example. perhaps include sc output.
+o  fix former clmdist {} projection account reporting.
+o  add to clmdist, + 4 largest cluster sizes ? ctr ? cube ?
+o  clmdist make nicer formatting, with '[' and ',' and ']' all aligned?
+o  clmdist
+   supply -norm {n}{nlogn}{logn}{n2}{n/logn} option.
+      hum ho, what interface? -{div,mul} logn, n, n2 nmin1
+      --exp (for -mode vi)
+
+-  clmdist --nice output format:
+
+         2.      3.       4.
+1.    [30   ] [40    ] [600    ]
+      [0    ] [20    ] [300    ]
+      [   30] [    20] [    300]
+      {12   }
+      {   13}
+
+2.            [20    ] [300    ]
+              [    20] [    300]
+
+_clmdist_ _CLMDIST_
+===============================================================================
+_audit_
+
+
+-  %.2f + (double)
+   %ld + (long)
+
+
+

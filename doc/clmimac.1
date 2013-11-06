@@ -1,0 +1,156 @@
+.\" Copyright (c) 2005 Stijn van Dongen
+.TH "clmimac" 1 "31 Mar 2005" "clmimac 1\&.004, 05-090" "USER COMMANDS"
+.po 2m
+.de ZI
+.\" Zoem Indent/Itemize macro I.
+.br
+'in +\\$1
+.nr xa 0
+.nr xa -\\$1
+.nr xb \\$1
+.nr xb -\\w'\\$2'
+\h'|\\n(xau'\\$2\h'\\n(xbu'\\
+..
+.de ZJ
+.br
+.\" Zoem Indent/Itemize macro II.
+'in +\\$1
+'in +\\$2
+.nr xa 0
+.nr xa -\\$2
+.nr xa -\\w'\\$3'
+.nr xb \\$2
+\h'|\\n(xau'\\$3\h'\\n(xbu'\\
+..
+.if n .ll -2m
+.am SH
+.ie n .in 4m
+.el .in 8m
+..
+.SH NAME
+clmimac \- Interpret Matrices (c\&.q\&. MCL iterands output by \fBmcl\fP) As Clusterings\&.
+.SH SYNOPSIS
+
+\fBclmimac\fP -imx <fname> [options]
+
+\fBclmimac\fP
+\fB-imx\fP fname (\fIinput file\fP)
+\fB[-o\fP fname (\fIname/stem for output\fP)\fB]\fP
+\fB[-dag\fP fname (\fIoutput DAG\fP)\fB]\fP
+\fB[-t\fP num (\fItightness parameter\fP)\fB]\fP
+\fB[-tstep\fP num (\fItightness step increment\fP)\fB]\fP
+\fB[-tbound\fP num (\fItightness ceiling\fP)\fB]\fP
+\fB[--enstrict\fP (\fIremove overlap\fP)\fB]\fP
+\fB[--center\fP (\fIuse center in defining tightness\fP)\fB]\fP
+\fB[-sort\fP str (\fIsize|revsize|lex|none\fP)\fB]\fP
+\fB[-h\fP (\fIlist help\fP)\fB]\fP
+\fB[--apropos\fP (\fIlist synopsis of all options\fP)\fB]\fP
+.SH DESCRIPTION
+
+Use \fBclmimac\fP to interpret matrices (as clusterings) output by \fBmcl\fP using
+\fBmcl\fP\&'s \fB-dump\fP\ \fBite\fP option\&.
+
+Use \fBclmimac\fP only if you have a special reason; the normal usage
+of \fBmcl\fP is to do multiple runs for varying \fB-I\fP parameters
+and use the clusterings output by \fBmcl\fP itself\&.
+One reason is if you are interested in clusterings with overlap;
+early MCL iterands generally induce clusterings possessing overlap\&.
+Another reason is to investigate how the cluster structure
+associated with the MCL process evolves over time\&.
+.SH OPTIONS
+
+.ZI 3m "\fB-imx\fP fname (\fIinput file\fP)"
+\&
+.br
+The input file is presumably an MCL iterand resulting
+from the mcl option \fB-dump\fP\ \fBite\fP\&.
+.in -3m
+
+.ZI 3m "\fB-t\fP num (\fItightness parameter\fP)"
+\&
+.br
+\fInum\fP should be a number in the range [0\&.0, 100\&.0]\&.
+The highter \fInum\fP, the less overlap will result\&.
+Its default value is 0\&. Multiple tightness parameters
+can be specified by using the \fB-tstep\fP\ option\&.
+.in -3m
+
+.ZI 3m "\fB-tstep\fP num (\fItightness step increment\fP)"
+\&
+.br
+Repeat interpretation for tightness parameters that
+increaes with stepsize \fInum\fP, starting with the value
+given by the \fB-t\fP\ option\&. By default, interpretation
+is not repeated\&.
+.in -3m
+
+.ZI 3m "\fB-tbound\fP num (\fItightness step increment\fP)"
+\&
+.br
+Ceiling for the tightness parameter as resulting
+from the \fB-t\fP\ and \fB-tstep\fP\ options\&.
+.in -3m
+
+.ZI 3m "\fB--center\fP (\fIuse center in defining tightness\fP)"
+\&
+.br
+This option will generally result in more stringent clusterings
+(containing fewer overlap), and tries to retain the most significant
+entries\&.
+Use this option \fIonly\fP on matrices resulting from the MCL
+\fB-dump\fP\ \fBdag\fP option, and do not use it on matrices resulting
+from the \fB-dump\fP\ \fBite\fP option\&.
+.in -3m
+
+.ZI 3m "\fB-o\fP fname (\fIfile name/stem\fP)"
+\&
+.br
+Write to file named \fIfname\fP\&. In case multiple tightness parameters
+are specified, use \fIfname\fP as stem for the output file names\&.
+.in -3m
+
+.ZI 3m "\fB-dag\fP fname (\fIoutput DAG\fP)"
+\&
+.br
+Write the DAG (directed acyclic graph) constructed from the input to
+file\&. This DAG is constructed according to the structure associated
+with diagonally positive semi-definite matrices as described
+in the PhD thesis \fIGraph clustering by flow simulation\fP\&.
+Consult \fBmclfaq(7)\fP for references\&.
+.in -3m
+
+.ZI 3m "\fB-sort\fP str (\fIsize|revsize|lex|none\fP)"
+\&
+.br
+Sort the clusters either by increasing size, decreasing size,
+lexicographically by the indices they contain, or use the clustering
+exactly as obtained from the interpretation routine\&.
+.in -3m
+
+.ZI 3m "\fB--enstrict\fP (\fIremove overlap\fP)"
+\&
+.br
+Remove overlap should it be found, by allocating the nodes
+in overlap to the first cluster in which they were found\&.
+.in -3m
+
+.ZI 3m "\fB-h\fP (\fIlist help\fP)"
+\&
+.br
+Print help, this could possibly be the same output as
+supplied with \fB--apropos\fP\&.
+.in -3m
+
+.ZI 3m "\fB--apropos\fP (\fIlist synopsis of all options\fP)"
+\&
+.br
+List a one-line synopsis for all options\&.
+.in -3m
+.SH AUTHOR
+
+Stijn van Dongen\&.
+.SH SEE ALSO
+\fBmcl\fP,
+\fBmclfaq\fP,
+and \fBmclfamily(7)\fP for an overview of all the documentation
+and the utilities in the mcl family\&.

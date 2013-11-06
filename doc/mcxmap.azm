@@ -1,0 +1,164 @@
+\def{"man::synstyle"}{long}
+\def{"man::defstyle"}{long}
+\import{mcx.zmm}
+
+\set{"man::name"}{mcxmap}
+\set{"man::html-title"}{The mcxmap manual}
+\set{"man::author"}{Stijn van Dongen}
+\set{"man::section"}{1}
+
+\"man::preamble"
+\${html}{\"man::maketoc"}
+
+\sec{name}{NAME}
+\NAME{mcxmap}{permute or remap the indices of graphs and matrices.}
+
+\sec{synopsis}{SYNOPSIS}
+   \par
+   \mcxmap
+   \synoptopt{-cmul}{a}{coefficient}
+   \synoptopt{-cshift}{b}{translate}
+   \synoptopt{-rmul}{c}{coefficient}
+   \synoptopt{-rshift}{d}{translate}
+   \synoptopt{-mul}{e}{coefficient}
+   \synoptopt{-shift}{f}{translate}
+   \synoptopt{-map}{fname}{row/col map file}
+   \synoptopt{-rmap}{fname}{row map file}
+   \synoptopt{-cmap}{fname}{column map file}
+   \synoptopt{--invert}{invert map file(s)}
+   \synoptopt{--invertc}{invert column map file}
+   \synoptopt{--invertr}{invert row map file}
+   \synoptopt{-digits}{n}{digits width}
+   \synoptopt{-o}{fname}{output}
+   \synreqopt{-imx}{fname}{input}
+
+\sec{description}{DESCRIPTION}
+
+\par
+   This utility relabels graphs or matrices. Its main use is in applying a
+   \it{map file} to a given matrix or graph.  A map file contains a so called
+   \it{map matrix} in mcl format that has some special properties (given
+   further below).  The functionality of mcxmap can also be provided by \mcx, as
+   a mapped matrix (i.e. the result of applying a map matrix to another matrix)
+   is simply the usual matrix product of a matrix and a map matrix. However,
+   \mcx will construct a new matrix and leave the original matrix to be mapped
+   alone.  When dealing with huge matrices, considerable gains in efficiency
+   memory-wise and time-wise can be achieved by doing the mapping in-place.
+   This is what mcxmap does. In the future, its functionality may be
+   embedded in \mcx with new mcx operators.
+
+\par
+   The special properties of a map matrix are
+
+\begin{itemize}{
+   {mark}{\*{bullet}}
+   {compact}{1}
+   {align}{right}
+}
+   \item
+      The column domain and row domain are
+      of the same cardinality.
+   \item
+      Each column has exactly one entry.
+   \item
+      Each row domain index occurs in exactly one column.
+\end{itemize}
+
+\par
+   These properties imply that the matrix can be used
+   as a map from the column domain onto the row domain.
+   An example map matrix is found in the \secref{examples} Section.
+
+\sec{options}{OPTIONS}
+\begin{itemize}
+
+\item{\defopt{-o}{fname}{output file}}
+   Output file.
+
+\item{\defopt{-imx}{fname}{input file}}
+   Input file.
+
+\item{\defopt{-digits}{n}{digits width}}
+   Number of digits output for values.
+
+\items{
+   {\defopt{-cmul}{a}{coefficient}}
+   {\defopt{-cshift}{b}{translate}}
+   {\defopt{-cmap}{fname}{col map file}}
+}
+   If the map file is specified, column indices will be mapped
+   according to this file. Otherwise, if any of the first two
+   options is used, column indices\~\v{i} are mapped to\~\v{a*i+b}.
+
+\items{
+   {\defopt{--invert}{invert map file(s)}}
+   {\defopt{--invertc}{invert column map file}}
+   {\defopt{--invertr}{invert row map file}}
+}
+   Specifies to use the inverse of the map file(s) given.
+
+\items{
+   {\defopt{-rmul}{c}{coefficient}}
+   {\defopt{-rshift}{d}{translate}}
+   {\defopt{-rmap}{fname}{row map file}}
+}
+   If the map file is specified, row indices will be mapped
+   according to this file. Otherwise, if any of the first two
+   options is used, row indices\~\v{i} are mapped to\~\v{c*i+d}.
+
+\items{
+   {\defopt{-mul}{e}{coefficient}}
+   {\defopt{-shift}{f}{translate}}
+   {\defopt{-map}{fname}{row/col map file}}
+}
+   If the map file is specified, both column and row indices
+   will be mapped according to it.
+   Otherwise, if any of the two first options is specified,
+   both column and row indices\~\v{i} will be mapped
+   to\~\v{e*i+f}.
+
+\end{itemize}
+
+
+\sec{examples}{EXAMPLES}
+
+\par
+The matrix below has two canonical domains which are identical.
+It denotes a map of the canonical domain onto itself, in which
+node 0 is relabeled to 8, node 1 is relabeled to 5, et cetera.
+
+\verbatix{\
+(mclheader
+mcltype matrix
+dimensions 12x12
+)
+(mclmatrix
+begin
+0  8  $
+1  5  $
+2  3  $
+3  2  $
+4  4  $
+5  6  $
+6  7  $
+7  9  $
+8  1  $
+9  10 $
+10 11 $
+11 0  $
+)
+}
+
+
+\sec{author}{AUTHOR}
+Stijn van Dongen.
+
+\sec{seealso}{SEE ALSO}
+   \sibmcxio,
+   \sib{mcx},
+   \sib{mcxsubs},
+   and \sibmclfamily for an overview of all the documentation
+   and the utilities in the mcl family.
+
+\"man::postamble"
+

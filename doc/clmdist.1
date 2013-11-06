@@ -1,0 +1,358 @@
+.\" Copyright (c) 2005 Stijn van Dongen
+.TH "clmdist" 1 "31 Mar 2005" "clmdist 1\&.004, 05-090" "USER COMMANDS"
+.po 2m
+.de ZI
+.\" Zoem Indent/Itemize macro I.
+.br
+'in +\\$1
+.nr xa 0
+.nr xa -\\$1
+.nr xb \\$1
+.nr xb -\\w'\\$2'
+\h'|\\n(xau'\\$2\h'\\n(xbu'\\
+..
+.de ZJ
+.br
+.\" Zoem Indent/Itemize macro II.
+'in +\\$1
+'in +\\$2
+.nr xa 0
+.nr xa -\\$2
+.nr xa -\\w'\\$3'
+.nr xb \\$2
+\h'|\\n(xau'\\$3\h'\\n(xbu'\\
+..
+.if n .ll -2m
+.am SH
+.ie n .in 4m
+.el .in 8m
+..
+.SH NAME
+clmdist \- compute the distance between two or more partitions (clusterings)\&.
+
+Distance can be any of
+\fIsplit/join distance\fP, \fIvariance of information\fP,
+\fIJacquard index\fP, or \fIscatter distance\fP\&.
+.SH SYNOPSIS
+
+\fBclmdist\fP [options] <file name> <file name>+
+
+\fBclmdist\fP
+\fB[--adapt\fP (\fIallow domain mismatch\fP)\fB]\fP
+\fB[-mode\fP <sj|vi|jq|sc> (\fIdistance type\fP)\fB]\fP
+\fB[-digits\fP k (\fIoutput decimals\fP)\fB]\fP
+\fB[-width\fP k (\fItab width\fP)\fB]\fP
+\fB[--noindex\fP (\fIomit indices\fP)\fB]\fP
+\fB[-parts\fP <l|d|u>+ (\fIarray parts to print\fP)\fB]\fP
+<file name> <file name>+
+.SH DESCRIPTION
+
+\fBclmdist\fP computes distances between clusterings\&. It can compute
+the \fIsplit/join distance\fP (described below),
+the \fIvariance of information measure\fP,
+the \fIJacquard index\fP,
+and the \fIscatter\fP distance\&.
+It can compute the chosen distance for all pairs of distances in a set of
+clusterings\&. Clusterings must be in the mcl matrix format (Cf\&. \fBmcxio(5)\fP),
+and are supplied on the command line as the names of the files in which they
+are stored\&.
+
+Currently, \fBclmdist\fP cannot compute different distance types simultaneously,
+with one exception\&. The scatter distance \fIcan\fP be computed simultaneously
+with any of the other three distances\&.
+
+.ZI 3m "\fB--adapt\fP (\fIallow domain mismatch\fP)"
+\&
+.br
+Allow a pair of clusterings to pertain to different domains\&. \fBclmdist\fP will
+project both clusterings onto the meet of the domains\&.
+.in -3m
+
+.ZI 3m "\fB-mode\fP <sj|vi|jq|sc> (\fIdistance type\fP)"
+\&
+.br
+Use \fBsj\fP for the \fIsplit/join distance\fP (described below), \fBvi\fP for
+the \fIvariance of information measure\fP, \fBjq\fP for the \fIJacquard
+index\fP, and \fBsc\fP for the \fIscatter distance\fP\&.
+The scatter distance \fIcan\fP be computed simultaneously
+with any of the other three distances\&. This is achieved e\&.g\&. by
+supplying \fB-mode\fP\ \fBsj\fP \fB-mode\fP\ \fBsc\fP\&.
+.in -3m
+
+.ZI 3m "\fB-digits\fP k (\fIoutput decimals\fP)"
+\&
+.br
+The number of decimals printed when using the variance of information measure\&.
+.in -3m
+
+.ZI 3m "\fB-width\fP k (\fItab width\fP)"
+\&
+.br
+The tabbing width in the output table\&.
+.in -3m
+
+.ZI 3m "\fB--noindex\fP (\fIomit indices\fP)"
+\&
+.br
+Do not print indices around the table\&.
+.in -3m
+
+.ZI 3m "\fB-parts\fP <l|d|u>+ (\fIarray parts to print\fP)"
+\&
+.br
+Use \fBl\fP to print the lower diagonal part of the table, use \fBd\fP
+to print the (boring) diagonal part of the table (it\&'s full of zeroes),
+use \fBu\fP to print the upper diagonal part of the table\&.
+You may use any combination of these\&.
+.in -3m
+.SH SPLIT/JOIN DISTANCE
+For each pair of clusterings \fBC1\fP, \fBC2\fP, two numbers are given,
+say \fBd1\fP and \fBd2\fP\&. Then \fBd1\fP + \fBd2\fP equals the number
+of nodes that have to be exchanged in order to transform any of the two
+clusterings into the other, and you can think of (\fBd1\fP+\fBd2\fP)/\fB2N\fP
+as the percentage that the two clusterings differ\&. The split/join
+distance has a linearity property with respect to the meet of \fBC1\fP and
+\fBC2\fP, see below\&.
+
+The split/join distance \fBsjd\fP is very handy in computing the consistency of
+two or more clusterings of the same graph, or comparing clusterings made
+with different resource (but otherwise identical) parameters\&. The latter is
+for finding out whether you can settle for cheaper mcl settings, or whether
+you need to switch to more expensive settings\&. The former is for finding out
+whether clusterings are identical, conflicting, or whether one is (almost) a
+subclustering of the other - mostly for comparing a set of clusterings of
+different granularity, made by letting the mcl parameter \fB-I\fP vary\&.
+The \fBEXAMPLES\fP section contains examples of all these \fBclmdist\fP uses,
+and the use of \fBclminfo\fP and \fBclmmeet\fP is also discussed there\&.
+
+\fBsjd\fP is a metric distance on the space of partitions of
+a set of a given fixed cardinality\&. It has the following linearity
+property\&. Let \fBP1\fP and \fBP2\fP be partitions, then
+
+\fBsjd\fP(\fBP1\fP, \fBP2\fP) = \fBsjd\fP(\fBP1\fP, \fBD\fP) + \fBsjd\fP(\fBP2\fP, \fBD\fP)
+
+where \fBD\fP (for Dutch Doorsnede)
+is the intersection of \fBP1\fP and \fBP2\fP, i\&.e\&. the unique clustering
+that is both a subclustering of \fBP1\fP and \fBP2\fP \fIand\fP a superclustering of
+all other subclusterings of \fBP1\fP and \fBP2\fP\&. Sloppily worded, \fBD\fP is the largest
+subclustering of both \fBP1\fP and \fBP2\fP\&. See the \fBREFERENCES\fP section for
+a pointer to the technical report in which \fBsjd\fP was first defined (and in
+which the non-trivial triangle inequality is proven)\&.
+
+Because it is useful to know whether one partition (or clustering)
+is almost a subclustering of the other, \fBclmdist\fP returns the
+two constituents \fBsjd\fP(\fBP1\fP,\fBD\fP) and \fBsjd\fP(\fBP2\fP,\fBD\fP)\&.
+
+The output of \fBclmdist\fP is slightly different depending on whether two or
+more than two clusterings are given\&. In the first case, one pair of numbers
+is returned (the \fBsjd\fP constituents)\&. In the latter case, an array is
+returned for which the upper triangular part contains all possible
+distances\&. The array is extended with the (file) names of the clusterings\&.
+
+Let \fBP1\fP and \fBP2\fP be two clusterings of a graph of cardinality \fBN\fP,
+and suppose \fBclmdist\fP returns the integers \fBd1\fP and \fBd2\fP\&. You can think of
+\fB100 * (d1 + d2) / N\fP as the percentage that \fBP1\fP and \fBP2\fP differ\&.
+This interpretation is in fact slightly conservative\&.
+The numerator is the number of nodes that need to be exchanged in order to
+transform one into the other\&. This number may grow as large as
+\fB2*N - 2*sqrt(N)\fP, so it would be justified to take 50 as a scaling
+factor rather than 100\&.
+
+For example, if \fBA\fP and \fBB\fP are both clusterings of a graph
+on a set of 9058 nodes and \fBclmdist\fP returns [38, 2096], this conveys
+that \fBA\fP is almost a subclustering of \fBB\fP (by splitting 38 nodes
+in \fBA\fP we obtain a clustering \fBD\fP that is a subclustering of \fBB\fP),
+and that \fBB\fP is much less granular than \fBA\fP\&. The latter is
+because we can obtain \fBB\fP from \fBD\fP by \fIjoining\fP 2096 nodes
+in some way\&.
+.SH EXAMPLES
+
+The following is an example of several mcl validation tools
+applied to a set of clusterings on a protein graph of 9058 nodes\&.
+In the first experiment, six
+different clusterings were generated for different values of the inflation
+parameter, which was respectively set to 1\&.2, 1\&.6, 2\&.0, 2\&.4, 2\&.8, and 3\&.2\&.
+It should be noted that protein graphs seem somewhat special in that an
+inflation parameter setting as low as 1\&.2 still produces a very acceptable
+clustering\&. The six clusterings are scrutinized using \fBclmdist\fP,
+\fBclminfo\fP, and \fBclmmeet\fP\&.
+In the second experiment, four different clusterings were generated
+with identical flow (i\&.e\&. inflation) parameter, but
+with different resource parameters\&. \fBclmdist\fP is used to choose
+a sufficient resource level\&.
+
+High \fB-P/-S/-R\fP values make \fBmcl\fP more accurate but also
+more time and memory consuming\&. Run \fBmcl\fP with different settings for these
+parameters, holding other parameters fixed\&. If the expensive and supposedly
+more accurate clusterings are very similar to the clusterings resulting from
+cheaper settings, the cheaper setting is sufficient\&. If the distances
+between cheaper clusterings and more expensive clusterings are large, this
+is an indication that you need the expensive settings\&. In that case, you may
+want to increase the \fB-P/-S/-R\fP parameters (or simply the
+\fB-scheme\fP parameter) until associated
+clusterings at nearby resource levels are very similar\&.
+
+In this particular example, the validation tools do not reveal that one
+clustering in particular can be chosen as \&'best\&', because all clusterings
+seem at least acceptable\&. They do aid however in showing the relative
+merits of each clusterings\&. The most important issue in this respect is
+cluster granularity\&. The table below shows the output of \fBclminfo\fP\&.
+
+.di ZV
+.in 0
+.nf \fC
+
+     Efficiency  Mass frac  Area frac  Cl weight  Mx link weight
+1\&.2   0\&.42364     0\&.98690    0\&.02616    52\&.06002    50\&.82800
+1\&.6   0\&.58297     0\&.95441    0\&.01353    55\&.40282    50\&.82800
+2\&.0   0\&.63279     0\&.92386    0\&.01171    58\&.09409    50\&.82800
+2\&.4   0\&.65532     0\&.90702    0\&.01091    59\&.58283    50\&.82800
+2\&.8   0\&.66854     0\&.84954    0\&.00940    63\&.19183    50\&.82800
+3\&.2   0\&.67674     0\&.82275    0\&.00845    66\&.10831    50\&.82800
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
+This data shows that there is exceptionally strong cluster structure present
+in the input graph\&. The 1\&.2 clustering captures almost all edge mass using
+only 2\&.5 percent of \&'area\&'\&. The 3\&.2 clustering still captures 82 percent of
+the mass using less than 1 percent of area\&. We continue with looking at the
+mutual consistency of the six clusterings\&. Below is a table that shows all
+pairwise distances between the clusterings\&.
+
+.di ZV
+.in 0
+.nf \fC
+
+    |   1\&.6  |   2\&.0  |   2\&.4  |   2\&.8  |   3\&.2  |   3\&.6
+-----------------------------------------------------------\&.
+1\&.2 |2096,38 |2728,41 |3045,48 |3404,45 |3621,43 |3800, 42 |
+-----------------------------------------------------------|
+1\&.6 |        | 797,72 |1204,76 |1638,78 |1919,70 |2167, 69 |
+-----------------------------------------------------------|
+2\&.0 |        |        | 477,68 | 936,78 |1235,85 |1504, 88 |
+-----------------------------------------------------------|
+2\&.4 |        |        |        | 498,64 | 836,91 |1124,103 |
+-----------------------------------------------------------|
+2\&.8 |        |        |        |        | 384,95 | 688,119 |
+-----------------------------------------------------------|
+3\&.2 |        |        |        |        |        | 350,110 |
+-----------------------------------------------------------\&.
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
+The table shows that the different clusterings are pretty consistent with
+each other, because for two different clusterings it is generally true that
+one is almost a subclustering of the other\&. The interpretation for the
+distance between the 1\&.6 and the 3\&.2 clustering for example, is that by
+rearranging 43 nodes in the 3\&.2 clustering, we obtain a subclustering of the
+1\&.6 clustering\&. The table shows that for any pair of clusterings, at most
+119 entries need to be rearranged in order to make one a subclustering of
+the other\&.
+
+The overall consistency becomes all the more clear by looking at the meet of
+all the clusterings:
+
+.di ZV
+.in 0
+.nf \fC
+
+clmmeet -o meet out12 out16 out20 out24 out28 out32
+clmdist meet out12 out16 out20 out24 out28 out32
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
+results in the following distances between the respective clusterings
+and their meet\&.
+
+.di ZV
+.in 0
+.nf \fC
+
+    |   1\&.2  |    1\&.6 |  2\&.0   |   2\&.4  |  2\&.8   |  3\&.2    |  
+-------------- --------------------------------------------\&.
+meet|  0,3663|  0,1972| 0,1321 |  0,958 | 0,559  | 0,283   |
+-------------- --------------------------------------------\&.
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
+This shows that by rearranging only 283 nodes in the 3\&.2 clustering,
+one obtains a subclustering of all other clusterings\&.
+
+In the last experiment, \fBmcl\fP was run with inflation parameter 1\&.4,
+for each of the four different preset pruning schemes \fCk=1,2,3,4\fR\&.
+The \fBclmdist\fP distances between the different clusterings
+are shown below\&.
+
+.di ZV
+.in 0
+.nf \fC
+
+    |  k=2   |   k=3  |   k=4  |
+-------------------------------\&.
+k=1 |  17,17 |  16,16 |  16,16 |
+-------------------------------\&.
+k=2 |        |   3,3  |   5,5  |
+-------------------------------\&.
+k=3 |        |        |   4,4  |
+-------------------------------\&.
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
+This example is a little boring in that the cheapest scheme seems adequate\&.
+If anything, the gaps between the \fCk=1\fR scheme and the rest are a little
+larger than the three gaps between the \fCk=2\fR, \fCk=3\fR, and \fCk=4\fR
+clusterings\&. Had all distances been much larger, then such an observation
+would be reason to choose the \fCk=2\fR setting\&.
+
+Note that you need not feel uncomfortable with the clusterings
+still being different at high resource levels, if ever so slightly\&.
+In all likelihood, there are anyway nodes which are not in any core of
+attraction, and that are on the boundary between two or more clusterings\&.
+They may go one way or another, and these are the nodes which
+will go different ways even at high resource levels\&.
+Such nodes may be stable in clusterings obtained for lower inflation
+values (i\&.e\&. coarser clusterings), in which the different clusters
+to which they are attracted are merged\&.
+.SH AUTHOR
+
+Stijn van Dongen\&.
+.SH SEE ALSO
+
+\fBclminfo\fP,
+\fBclmmeet\fP,
+\fBclmmate\fP,
+and \fBmclfamily(7)\fP for an overview of all the documentation
+and the utilities in the mcl family\&.
+.SH REFERENCES
+
+Stijn van Dongen\&. \fIPerformance criteria for graph clustering and Markov
+cluster experiments\fP\&. Technical Report INS-R0012, National Research
+Institute for Mathematics and Computer Science in the Netherlands,
+Amsterdam, May 2000\&.
+.br
+http://www\&.cwi\&.nl/ftp/CWIreports/INS/INS-R0012\&.ps\&.Z

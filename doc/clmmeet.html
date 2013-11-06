@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<!-- Copyright (c) 2005 Stijn van Dongen -->
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<style type="text/css">
+body
+{ text-align: justify;
+color: #001111;
+background: white;
+margin-left: 8%;
+margin-right: 8%;
+}
+h3 { margin-top:1em; }
+h2 { margin-top:2em; }
+a:link { text-decoration: none; }
+a:active { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:link { color: #1111aa; }
+a:active { color: #1111aa; }
+a:visited { color: #111166; }
+a.local:link { color: #11aa11; }
+a.local:active { color: #11aa11; }
+a.local:visited { color: #116611; }
+a.intern:link { color: #1111aa; }
+a.intern:active { color: #1111aa; }
+a.intern:visited { color: #111166; }
+a.extern:link { color: #aa1111; }
+a.extern:active { color: #aa1111; }
+a.extern:visited { color: #661111; }
+a.quiet:link { color: black; }
+a.quiet:active { color: black; }
+a.quiet:visited { color: black; }
+div.copy
+{ font-size: 12pt;
+font-family: monospace;
+text-align: left;
+white-space: pre;
+margin-left: 2em;
+margin-top: 1em;
+margin-bottom: 1em;
+}
+div.indent
+{margin-left: 8%;
+margin-right: 0%;
+}
+</style>
+<title>
+The clmmeet manual
+</title>
+</head>
+<body>
+
+<p style="text-align:right">
+31 Mar 2005&nbsp;&nbsp;&nbsp;
+<a class="local" href="clmmeet.ps"><b>clmmeet</b></a>
+1.004, 05-090
+</p>
+
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr>
+<td width=48 valign="top" align="left">
+1.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#name">NAME</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+2.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#synopsis">SYNOPSIS</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+3.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#description">DESCRIPTION</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+4.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#author">AUTHOR</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+5.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#seealso">SEE ALSO</a>
+</div></td>
+</tr>
+</table>
+
+</div>
+
+<a name="name"></a>
+<h2>NAME</h2>
+
+<p style="text-align:justify">
+clmmeet - compute the intersection of a set of clusterings.
+
+<a name="synopsis"></a>
+<h2>SYNOPSIS</h2>
+
+<p style="text-align:justify">
+<b>clmmeet</b> [--adapt] [-o &lt;output file name&gt;] &lt;file name&gt;+
+
+<a name="description"></a>
+<h2>DESCRIPTION</h2>
+
+<p style="text-align:justify">
+<b>clmmeet</b> computes the intersection of a set of clusterings, that is,
+the largest clustering that is a subclustering of all the clusterings
+in the set. It stores the intersection (or meet) in the argument
+to the <b>-o</b> flag, which must be the first option given.
+All remaining arguments are interpreted as names of files containing
+clusterings in mcl format (see <a class="local" href="mcxio.html">mcxio</a>), which must all
+pertain to a set of the same cardinality.
+
+<p style="text-align:justify">
+This utility can be useful in measuring (in conjunction with
+<a class="local" href="clmdist.html">clmdist</a>) the consistency of a set of clusterings at different
+levels of granularity - if the meet of all those clusterings is close to
+being a subclustering of each of them, consistency is good. See
+<a class="local" href="clmdist.html">clmdist</a> for an example.
+
+<p style="text-align:justify">
+The --adapt option allows domain mismatches to occur between clusterings.
+<b>clmmeet</b> will project the clusterings onto the meet of their domains.
+
+<a name="author"></a>
+<h2>AUTHOR</h2>
+
+<p style="text-align:justify">
+Stijn van Dongen.
+
+<a name="seealso"></a>
+<h2>SEE ALSO</h2>
+
+<p style="text-align:justify">
+<a class="local" href="clmdist.html">clmdist</a>,
+<a class="local" href="clmmate.html">clmmate</a>,
+<a class="local" href="clminfo.html">clminfo</a>,
+and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+and the utilities in the mcl family.
+
+</body>
+</html>

@@ -1,0 +1,1226 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<!-- Copyright (c) 2005 Stijn van Dongen -->
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<style type="text/css">
+body
+{ text-align: justify;
+color: #001111;
+background: white;
+margin-left: 8%;
+margin-right: 8%;
+}
+h3 { margin-top:1em; }
+h2 { margin-top:2em; }
+a:link { text-decoration: none; }
+a:active { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:link { color: #1111aa; }
+a:active { color: #1111aa; }
+a:visited { color: #111166; }
+a.local:link { color: #11aa11; }
+a.local:active { color: #11aa11; }
+a.local:visited { color: #116611; }
+a.intern:link { color: #1111aa; }
+a.intern:active { color: #1111aa; }
+a.intern:visited { color: #111166; }
+a.extern:link { color: #aa1111; }
+a.extern:active { color: #aa1111; }
+a.extern:visited { color: #661111; }
+a.quiet:link { color: black; }
+a.quiet:active { color: black; }
+a.quiet:visited { color: black; }
+div.copy
+{ font-size: 12pt;
+font-family: monospace;
+text-align: left;
+white-space: pre;
+margin-left: 2em;
+margin-top: 1em;
+margin-bottom: 1em;
+}
+div.indent
+{margin-left: 8%;
+margin-right: 0%;
+}
+</style>
+<title>
+The mcxsubs manual
+</title>
+</head>
+<body>
+
+<p style="text-align:right">
+31 Mar 2005&nbsp;&nbsp;&nbsp;
+<a class="local" href="mcxsubs.ps"><b>mcxsubs</b></a>
+1.004, 05-090
+</p>
+
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr>
+<td width=48 valign="top" align="left">
+1.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#name">NAME</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+2.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#synopsis">SYNOPSIS</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+3.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#description">DESCRIPTION</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+4.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#options">OPTIONS</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+5.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#spec">SUBMATRIX SPECIFICATIONS</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+6.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#author">AUTHOR</a>
+</div></td>
+</tr>
+<tr>
+<td width=48 valign="top" align="left">
+7.
+</td>
+<td width=8>&nbsp;</td>
+<td><div style="text-align:justify">
+<a class="intern" href="#seealso">SEE ALSO</a>
+</div></td>
+</tr>
+</table>
+
+</div>
+
+<a name="name"></a>
+<h2>NAME</h2>
+
+<p style="text-align:justify">
+mcxsubs - extract submatrices (subgraphs) of a matrix (graph).
+
+<p style="text-align:justify">
+This can be used to
+inspect local cluster structure in a graph, for example by looking at the
+subgraph induced by a single cluster or a couple of clusterings, or the
+edge set where all tail nodes are from a set of domains and all head
+nodes are from the complement of this set, and many other variants and
+refinements.
+
+<p style="text-align:justify">
+Additionally, mcxsubs enables
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr>
+<td width=32 valign="top" align="left">
+*
+</td>
+<td width=8>&nbsp;</td><td><div style="text-align:justify">
+selecting matrix entries based on value.
+</div></td>
+</tr>
+<tr>
+<td width=32 valign="top" align="left">
+*
+</td>
+<td width=8>&nbsp;</td><td><div style="text-align:justify">
+making the result characteristic (set all nonzero values to 1.0).
+</div></td>
+</tr>
+<tr>
+<td width=32 valign="top" align="left">
+*
+</td>
+<td width=8>&nbsp;</td><td><div style="text-align:justify">
+pruning empty columns and empty rows.
+</div></td>
+</tr>
+<tr>
+<td width=32 valign="top" align="left">
+*
+</td>
+<td width=8>&nbsp;</td><td><div style="text-align:justify">
+transposing the result.
+</div></td>
+</tr>
+<tr>
+<td width=32 valign="top" align="left">
+*
+</td>
+<td width=8>&nbsp;</td><td><div style="text-align:justify">
+remapping the indices of the result to consecutive indices.
+</div></td>
+</tr>
+<tr>
+<td width=32 valign="top" align="left">
+*
+</td>
+<td width=8>&nbsp;</td><td><div style="text-align:justify">
+and other miscellaneous operations.
+</div></td>
+</tr>
+</table>
+
+</div>
+
+<a name="synopsis"></a>
+<h2>SYNOPSIS</h2>
+
+<p style="text-align:justify">
+<b>mcxsubs</b> <b>-imx</b> &lt;fname&gt; [options] &lt;specs&gt;+
+
+<p style="text-align:justify">
+<b>mcxsubs</b> <b>-imx</b> &lt;fname&gt; (<i>input matrix</i>)
+<a class="intern" href="#opt-dom"><b>[-dom</b> &lt;fname&gt; (<i>domain matrix</i>)<b>]</b></a>
+<a class="intern" href="#opt--block"><b>[--block</b> (<i>use block matrix</i>)<b>]</b></a>
+<a class="intern" href="#opt--blockc"><b>[--blockc</b> (<i>use complement of block matrix</i>)<b>]</b></a>
+<a class="intern" href="#opt--skin-read"><b>[--skin-read</b> (<i>read domain structure without entries</i>)<b>]</b></a>
+<a class="intern" href="#opt--extend"><b>[--extend</b> (<i>read extended submatrices</i>)<b>]</b></a>
+<a class="intern" href="#opt--from-disk"><b>[--from-disk</b> (<i>space/speed optimizer</i>)<b>]</b></a>
+<a class="intern" href="#opt-out"><b>[-out</b> &lt;fname&gt; (<i>special purpose output file name</i>)<b>]</b></a>
+<a class="intern" href="#opt-efac"><b>[-efac</b> &lt;num&gt; (<i>random edge selection</i>)<b>]</b></a>
+<a class="intern" href="#opt-dfac"><b>[-dfac</b> &lt;num&gt; (<i>random domain selection</i>)<b>]</b></a>
+<a class="intern" href="#opt-rfac"><b>[-rfac</b> &lt;num&gt; (<i>random column selection</i>)<b>]</b></a>
+<a class="intern" href="#opt-cfac"><b>[-cfac</b> &lt;num&gt; (<i>random row selection</i>)<b>]</b></a>
+<a class="intern" href="#opt--rand-discard"><b>[--rand-discard</b> (<i>remove random selections</i>)<b>]</b></a>
+<a class="intern" href="#opt--rand-merge"><b>[--rand-merge</b> (<i>merge random selections</i>)<b>]</b></a>
+<a class="intern" href="#opt--rand-intersect"><b>[--rand-intersect</b> (<i>intersect random selections</i>)<b>]</b></a>
+<a class="intern" href="#opt--rand-exclusive"><b>[--rand-exclusive</b> (<i>only random selections</i>)<b>]</b></a>
+<a class="intern" href="#opt-tag-digits"><b>[-tag-digits</b> k (<i>set precision</i>)<b>]</b></a>
+<a class="intern" href="#opt--tag"><b>[--tag</b> (<i>tag nodes</i>)<b>]</b></a>
+&lt;specs&gt;+
+
+<p style="text-align:justify">
+If you are a frequent <b>mcxsubs</b> user with very large graphs, consider
+converting the input matrix into binary format using
+<a class="local" href="mcxconvert.html">mcxconvert</a> and then using the mcxsubs <b>--from-disk</b>
+option. This should give you a 400-fold speed gain.
+
+<a name="description"></a>
+<h2>DESCRIPTION</h2>
+
+<p style="text-align:justify">
+<b>mcxsubs</b> lets you extract submatrices/subgraphs corresponding with index
+sets and (possibly) sets of domains from a given domain matrix (e.g.
+a matrix representing a clustering). Columns and
+rows of the target submatrix can be specified both independently and
+simultaneously, and can be specified as unions of simple index and domain
+ranges and complements of these.
+
+<p style="text-align:justify">
+Because a submatrix or subgraph specification is composed of type,
+location, column, row, index, and set specifications,
+the word specification is
+abbreviated as spec. Multiple submatrices can be specified
+simultaneously. A submatrix is created for each submatrix spec. Everything
+encountered after the <b>mcxsubs</b> options are exhausted should be a spec.
+The syntax of specs is described in the <a class="intern" href="#spec">SUBMATRIX SPECIFICATIONS</a> section.
+By default, the domains of the submatrix will be set to the domains
+as described in the specification. This can be changed using the
+<i>uni</i> directives from the <b>fin</b> part.
+
+<a name="options"></a>
+<h2>OPTIONS</h2>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr>
+<td colspan=3>
+<a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>input matrix</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Submatrices will all be selected from the matrix in file <tt>&lt;fname&gt;</tt>.
+This option is obligatory, and throughout this manual its argument
+is called the <i>source matrix</i>.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt-dom"></a><b>-dom</b> &lt;fname&gt; (<i>domain matrix</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Submatrices are specified in terms of sets (or domains) of
+indices. These sets are specified by (the label of) the vectors
+from the matrix given by this options.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--block"></a><b>--block</b> (<i>use block matrix</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+This replaces the input matrix by the block diagonal matrix
+induced by the domain matrix specified by the <b>-dom</b> option.
+It works by including a block for each domain in the domain matrix,
+and will work if there are overlapping domains. That is, it
+will not include overlapping parts more than once.
+The output file name can either be specified in the submatrix
+specification language using the <b>out</b>(<i>fname</i>) directive,
+or with the <b>-out</b> option.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--blockc"></a><b>--blockc</b> (<i>use complement of block matrix</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+This replaces the input matrix by the complement of the block diagonal
+matrix described above, and selection of the output name
+is exactly the same.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--skin-read"></a><b>--skin-read</b> (<i>read domain structure without entries</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+This reads a skeleton matrix by only considering its domain structure
+and not reading any entries, pertaining to the matrix
+specified by the <b>-imx</b> option.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--extend"></a><b>--extend</b> (<i>read extended submatrices</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+This causes the selection of submatrices where either a row index
+is in the selected row domain or a columns index is in the selected
+column domain or both. Equivalently it only excludes matrix entries
+for which neither the column nor row index is in the selected domains.
+The resulting matrix has both domains equal to the source matrix.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt-out"></a><b>-out</b> &lt;fname&gt; (<i>special purpose output file name</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+This specifies an output name that can be used for special purposes.
+Normally, output file names are specified in the submatrix specification
+using the <b>out</b>(<i>fname</i>) directive.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt-efac"></a><b>-efac</b> &lt;num&gt; (<i>random edge selection</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+<i>num</i> should be inbetween zero and one. It denotes the probability
+with which each edge is selected.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt-dfac"></a><b>-dfac</b> &lt;num&gt; (<i>random domain selection</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+<i>num</i> should be inbetween zero and one. It denotes the probability
+with which entries in the domains will make it into the randomized
+selection used for subsequent processing.
+If the column and row domain are identical, they are submitted to
+the same selection process and will end up identical. If you don't want
+this, use <b>-rfac</b> and <b>-cfac</b> separately.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt-rfac"></a><b>-rfac</b> &lt;num&gt; (<i>random column selection</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+As <b>-dfac</b>, limited to the column domain.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt-cfac"></a><b>-cfac</b> &lt;num&gt; (<i>random row selection</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+As <b>-dfac</b>, limited to the row domain.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--rand-merge"></a><b>--rand-merge</b> (<i>merge random selections</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+The random selection(s) of domains identify parts of the
+matrix that will be merged with the result of the main
+selection process (default).
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--rand-discard"></a><b>--rand-discard</b> (<i>remove random selections</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+The random selection(s) of domains identify parts of the
+matrix that will be removed from the result of the main
+selection process.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--rand-intersect"></a><b>--rand-intersect</b> (<i>intersect random selections</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+The random selection(s) of domains identify parts of the
+matrix that will be intersected with the result of the main
+selection process.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--rand-exclusive"></a><b>--rand-exclusive</b> (<i>only random selections</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+The random selection(s) of domains identify parts of the
+matrix from which the result of the main
+selection process will be removed.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt-tag-digits"></a><b>-tag-digits</b> k (<i>set precision</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Sets the precision for tagged output.
+Setting it to <b>-tag-digits</b>&nbsp;<b>-1</b>
+disables the output of values altogether - only the node indices
+and the cluster indices are written.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--tag"></a><b>--tag</b> (<i>tag nodes</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Each node in the column (tail node) listing of the matrix (graph)
+spec is tagged with the domain it is in. This requires
+the use of the <b>-dom</b> option.
+This output mode, called <i>tagged matrix</i>, is currently not
+recognized by any of the <b>mcl</b>/<b>mcx</b> input routines. It is present
+to facilitate easier visual inspection of clustering results.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<a name="opt--from-disk"></a><b>--from-disk</b> (<i>space/speed optimizer</i>)
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Use this if the input graph is in binary format, or if the
+input graph is very large and the subgraph(s) to extract
+are small in comparison, or if the available memory
+does not comfortably exceed the size of the graph.
+
+<p style="text-align:justify">
+The effect of this option is that the subgraph will be read
+directly from disk, without reading in the entire graph
+in advance. This will be done repeatedly for all subgraphs that are
+specified.
+
+<p style="text-align:justify">
+This option reduces memory consumption to the size of the subgraph(s)
+to be extracted.
+
+<p style="text-align:justify">
+For graphs in ascii format, the speed gain is not
+dramatic. If more than one subgraph is specified, there will most
+likely be a loss in speed.
+
+<p style="text-align:justify">
+With input graphs in binary format, <b>mcxsubs</b> will
+be *very* much faster, to the extent of 400-fold speed gains.
+It does not matter whether more than one subgraph is specified.
+</div></td>
+</tr>
+</table>
+
+</div>
+
+<a name="spec"></a>
+<h2>SUBMATRIX SPECIFICATIONS</h2>
+A submatrix or subgraph spec may contain a number of spec parts. Each part
+is specified in a function-style notation. Different parts are separated by
+commas. Parts may occur multiple times, but for most parts only the last one
+specified will be effective. The spec parts are the following: <b>dom</b>,
+<b>val</b>, <b>size</b>, <b>fin</b>, and <b>out</b>. These are described below in
+the sections DOMAINS, VALUES, SIZE, FINALIZE and OUTPUT.
+
+<p style="text-align:justify">
+<b>DOMAINS</b>
+<br>
+The domain part is specified as
+
+<p style="text-align:justify">
+<b>dom</b>(<i>X</i> &lt;, <i>Y</i>(<i>ispec</i>) &gt;+)
+
+<p style="text-align:justify">
+Here <i>X</i> is the row/column indicator. Rows are indicated with
+either <tt>r</tt> or <tt>R</tt>, columns are indicated with either
+<tt>c</tt> or <tt>C</tt>. <i>X</i> may contain one or two indicators, with
+a single indicator per column domain and row domain allowed.
+Uppercase indicators indicate that the complement is being specified
+relative to the corresponding domain in the target matrix.
+
+<p style="text-align:justify">
+<i>Y</i> is the type indicator, it is exactly one of
+<tt>i</tt>, <tt>I</tt>, <tt>d</tt>, or <tt>D</tt>. The <tt>i/I</tt> indicators specify
+that <i>ispec</i> contains a simple index specifation.
+The <tt>d/D</tt> specify that <i>ispec</i> contains domain indices.
+<i>ispec</i> must contain a comma-separated list of integers or
+integer ranges (e.g. 2, 5, 4-8).
+
+<p style="text-align:justify">
+For domain specifications (<tt>d/D</tt>) the columns indexed by
+these integers in the matrix specified in the <b>-dom</b>
+option will be fetched and merged. If <b>-dom</b> was not used
+the target matrix itself (as specified by the <b>-imx</b> option) will be
+used. The special value -1 denotes the domain matrix column domain, the
+value -2 denotes the domain matrix row domain. For simple specifications
+(<tt>i/I</tt>) the result is simply the list of integers itself. Uppercase
+indicators indicate that the complement is being specified.
+
+<p style="text-align:justify">
+Examples:
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr>
+<td colspan=3>
+<tt>dom(cr, i(0-6,10,11-14))</tt>
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Principal submatrix on indices 0-6, 10, and 11-14 - all column and row
+indices are from this set. Equivalently, this encodes the subgraph on
+nodes 0-6, 10, 11-14. The 'c' stands for column, the 'r' for row, and the
+'i' for index. After the colon it is also allowed to specify a 'd' part
+(standing for domain), this is shown further below.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<tt>dom(c, i(0-6,10,11-14)), dom(r, i(1-6,10,11-14))</tt>
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Equivalent (but less clear) spec of the above.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<tt>dom(cR, i(0-6,10,11-14))</tt>
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Matrix with column indices in 0-6, 10, 11-14, and row indices
+in the complement of this set. Corresponds with all edges going
+<i>out</i> from the set 0-6, 10, 11-14. Complements are triggered
+by the use of a capital; see the next examples.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3 align="left">
+<tt>dom(c, i(0-6,10,11-14)), dom(R, i(1-6,10,11-14))</tt>
+</td>
+</tr>
+<tr>
+<td colspan=3 align="left">
+<tt>dom(c, i(0-6,10,11-14)), dom(r, I(1-6,10,11-14))</tt>
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Both these examples are equivalent to the previous one.
+In the last example, the capital 'I' indicates that the complement
+should be taken. In this example, 'r' combined with 'I' has the
+same effect as 'R' combined with 'i'.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<tt>dom(c, d(3,5-9)), dom(r, d(8-14), i(10-30))</tt>
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Column indices are taken from the domains 3, 5-9 (from the
+domain matrix specified by <b>-dom</b>), row indices are taken
+from domains 8-14 plus the indices 10-30.
+</div></td>
+</tr>
+<tr>
+<td width=32>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+<tt>dom(cR, d(0-2))</tt>
+</td>
+</tr>
+<tr>
+<td width=32>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Column indices are all indices from domains 0-2, row indices
+are all other indices. This gives all edges going <i>out</i>
+from domains 0-2.
+
+<p style="text-align:justify">
+The use of 'D' is analogous to that of 'C', 'R', and 'I'.
+Thus, <tt>D(0-3,8,21-30)</tt> specifies all indices which are in the
+complement of the set formed by taking the union of
+domains 0-3,8,21-30.
+
+<p style="text-align:justify">
+There are two special domains - use <tt>-1</tt> to obtain the row domain
+of the domain matrix, use <tt>-2</tt> to obtain its column domain.
+</div></td>
+</tr>
+</table>
+
+</div>
+
+<p style="text-align:justify">
+As seen above, indices (either representing themselves or domains) are
+entered as comma-separated lists of single indices, ranges of indices
+(which may overlap), or staircases of indices (lists of indices with
+a fixed increment inbetween successive indices).
+The union of the corresponding elements is taken and
+passed along. Before anything else, the result set is replaced by its
+complement if 'I' is specified (for simple indices) or 'D' is specified
+(for domains). If there is both an index and a set spec string, the
+union of the results of both is taken and passed along. If the latter
+result is passed to either 'C' or 'R', it is replaced by its complement.
+
+<p style="text-align:justify">
+A range is specified e.g. as <tt>10-14</tt> and it is inclusive, denoting
+in this case the indices <tt>{10,11,12,13,14}</tt>.
+
+<p style="text-align:justify">
+<b>VALUES</b>
+<br>
+The value part is specified as
+
+<p style="text-align:justify">
+<b>val</b>( &lt; <b>lt</b>(<i>x</i>) | <b>lq</b>(<i>x</i>) | <b>gq</b>(<i>x</i>) | <b>gt</b>(<i>x</i>) &gt; + )
+
+<p style="text-align:justify">
+Where <i>x</i> is a real number, and multiple value specifications (such as
+<b>gq</b>(0.8)) are separated by commas.
+The strings 'lt', 'lq', 'gq', 'gt', respectively denote
+<i>less than</i>,
+<i>less than or equal to</i>,
+<i>greater than or equal to</i>,
+and
+<i>greater than</i>.
+
+<p style="text-align:justify">
+This selects matrix entries based on their value.
+
+<p style="text-align:justify">
+<b>SIZE</b>
+<br>
+The size part is specified as
+
+<p style="text-align:justify">
+<b>size</b>( &lt; <b>lt</b>(<i>x</i>) | <b>lq</b>(<i>x</i>) | <b>gq</b>(<i>x</i>) | <b>gt</b>(<i>x</i>) &gt; + )
+
+<p style="text-align:justify">
+Where <i>x</i> is a nonnegative integer, and multiple specifications
+are separated by commas.
+The strings 'lt', 'lq', 'gq', 'gt', respectively denote
+<i>less than</i>,
+<i>less than or equal to</i>,
+<i>greater than or equal to</i>,
+and
+<i>greater than</i>.
+
+<p style="text-align:justify">
+This prunes or removes column vectors based on their size. If <b>lt</b> or
+<b>lq</b> is used, column vectors are removed if they have not as much entries
+as the corresponding lower bound. If <b>gt</b> or <b>gq</b> is used and a
+column vector has an excess of entries over the corresponding upper bound,
+the smallest entries are removed. Ties are not arbitrarily broken, implying
+that the resulting vector may still have more entries than the specified
+bound.
+
+<p style="text-align:justify">
+<b>FINALIZE</b>
+<br>
+The finalize part is specified as
+<b>fin</b>( &lt; <i>key</i> &gt; )
+where <i>key</i> is a string and multiple keys are separated by commas. The
+corresponding actions are generally applied to the matrix that was extracted
+according to the domain and value specifications. Exceptions are indicated
+below. Currently, there is a fixed order in which actions are considered,
+corresponding with the order in which they are listed below.
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr>
+<td colspan=3>
+empty
+</td>
+</tr>
+<tr>
+<td width=96>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+This creates an empty submatrix on the specified domains, and does
+<i>not</i> fill it with the corresponding entries from the
+<a class="intern" href="#opt-imx">source matrix</a>.
+Options from the <b>fin</b> part that affect the column and
+row domains of a matrix will still be in effect.
+</div></td>
+</tr>
+<tr>
+<td width=96>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3 align="left">
+uni
+</td>
+</tr>
+<tr>
+<td colspan=3 align="left">
+unir
+</td>
+</tr>
+<tr>
+<td colspan=3 align="left">
+unic
+</td>
+</tr>
+<tr>
+<td width=96>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+After the submatrix is selected from the source matrix, its domains
+are changed to mirror one or both of the domains of the source matrix.
+</div></td>
+</tr>
+<tr>
+<td width=96>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+tp
+</td>
+</tr>
+<tr>
+<td width=96>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+The resulting submatrix is replaced by its transpose.
+</div></td>
+</tr>
+<tr>
+<td width=96>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3>
+cc
+</td>
+</tr>
+<tr>
+<td width=96>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+The resulting submatrix is made characteristic.
+</div></td>
+</tr>
+<tr>
+<td width=96>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3 align="left">
+weedc
+</td>
+</tr>
+<tr>
+<td colspan=3 align="left">
+weedr
+</td>
+</tr>
+<tr>
+<td colspan=3 align="left">
+weed
+</td>
+</tr>
+<tr>
+<td width=96>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+Domains are shrunk if there are no corresponding entries in the matrix.
+This is done for both domains if <tt>weed</tt> is specified, for the
+column domain if <tt>weedc</tt> is specified, and for the row domain
+if <tt>weedr</tt> is specified. Thus, with <tt>weedc</tt> columns are removed
+from the domain and the matrix if they are empty.
+</div></td>
+</tr>
+<tr>
+<td width=96>&nbsp;
+</td>
+<td width=8>&nbsp;
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan=3 align="left">
+mapc
+</td>
+</tr>
+<tr>
+<td colspan=3 align="left">
+mapr
+</td>
+</tr>
+<tr>
+<td colspan=3 align="left">
+map
+</td>
+</tr>
+<tr>
+<td width=96>
+&nbsp;
+</td><td width=8>
+&nbsp;
+</td>
+<td><div style="text-align:justify">
+The appropriate domains are mapped onto consecutive indices starting at zero.
+</div></td>
+</tr>
+</table>
+
+</div>
+
+<p style="text-align:justify">
+<b>OUTPUT</b>
+<br>
+The output part is specified as
+<b>out</b>( <i>fname</i> &lt;, <i>key</i> &gt;* )
+that is, the <i>fname</i> option is obligatory if the <b>out</b> part is specified.
+Currently, key can be a single directive, namely <b>wb</b> specifying that
+the resulting matrix should be output in binary format.
+
+<a name="author"></a>
+<h2>AUTHOR</h2>
+
+<p style="text-align:justify">
+Stijn van Dongen.
+
+<a name="seealso"></a>
+<h2>SEE ALSO</h2>
+<a class="local" href="mcx.html">mcx</a>,
+and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
+and the utilities in the mcl family.
+
+</body>
+</html>
