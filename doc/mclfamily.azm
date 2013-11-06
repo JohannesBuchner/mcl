@@ -40,6 +40,7 @@
    {\sib{mcxassemble}}{create matrices from raw data}
    {\sib{mcxdump}}{dump a matrix optionally with label substitions}
    {\sib{mcxarray}}{transform array data to MCL matrices}
+   {\sib{mcxconvert}}{convert between ascii/binary storage types}
 {skip}{}
    {\sib{mcx}}{general matrix operations}
    {\sib{mcxsubs}}{extracting submatrices in various ways}
@@ -49,9 +50,11 @@
    {\sib{clmdist}}{compute split/join distance between clusterings}
    {\sib{clmmate}}{find best matching clusters between clusterings}
    {\sib{clminfo}}{compute performance measure for clusterings}
+   {\sib{clmclose}}{fetch connected components from graphs or subgraphs}
    {\sib{clmmeet}}{compute intersection of clusterings}
    {\sib{clmimac}}{interpret MCL iterand/matrix as clustering}
    {\sib{clmresidue}}{extend subgraph clustering}
+   {\sib{clmorder}}{reorder indices to represent blocks from different clusterings}
 {skip}{}
    {\sib{mclpipeline}}{parsing/assembly/clustering/display}
    {\sib{mclblastline} \v{*}}{BLAST pipeline}
@@ -176,10 +179,10 @@
 \par
    \sib{mclblastline} - BLAST specific pipeline.
 
-\""{
-\par
+\par{
    \sib{mcxconvert} - convert matrices from ascii mcl format to
-   binary mcl format or vice versa.}
+   binary mcl format or vice versa.
+}
 
 \"man::postamble"
 

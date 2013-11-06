@@ -4,6 +4,17 @@ mcxio(5) or mcxio.html and the header files may be better places to look.
 
  * 0  Directory structure and prefix usage.
 
+   Types and functions are prefixed like this:
+
+      mcxTing  mcxTingNew(..)
+      mcxHash  mcxHashSearch(..)
+
+      mclMatrix mclVector and mclIvp are via macros also available as
+      mclx, mclv and mclp, and their functions use the latter prefixes.
+
+   Within the code, variables should *not* use capitals. There are still places
+   where this occurs, and these are gradually being cleaned out.
+
 
  * 1  The impala directory.
    

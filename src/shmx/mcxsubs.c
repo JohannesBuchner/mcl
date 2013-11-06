@@ -120,17 +120,23 @@ mcxOptAnchor options[] =
    ,  NULL
    ,  "use the block matrix induced by dom"
    }
+,  {  "--blockc"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_BLOCKC
+   ,  NULL
+   ,  "use the complement of block matrix"
+   }
 ,  {  "-out"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_OUT
    ,  "<fname>"
    ,  "special purpose output file name"
    }
-,  {  "--blockc"
+,  {  "--from-disk"
    ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_BLOCKC
-   ,  NULL
-   ,  "use the complement of block matrix"
+   ,  MY_OPT_FROM_DISK
+   ,  "<fname>"
+   ,  "read submatrix directly from disk"
    }
 ,  {  "--tag"
    ,  MCX_OPT_DEFAULT
@@ -1250,6 +1256,7 @@ void spec_exec
             ,  EXIT_ON_FAIL
             )
       ,  mcxIOclose(xfmx)
+      ,  mcxTell(me, "read matrix from disk")
    ;  else                 /* fixme: must check subness */
       sub =  mclxSub(mx, spec->cvec, spec->rvec)
 

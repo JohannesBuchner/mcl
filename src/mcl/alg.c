@@ -376,7 +376,7 @@ void showSetting
       (  stdout
       ,
 "mcl %s, %s\n"
-"Copyright (c) 1999-2004, Stijn van Dongen. mcl comes with NO WARRANTY\n"
+"Copyright (c) 1999-2005, Stijn van Dongen. mcl comes with NO WARRANTY\n"
 "to the extent permitted by law. You may redistribute copies of mcl under\n"
 "the terms of the GNU General Public License.\n"
       ,  mclNumTag
@@ -469,13 +469,13 @@ mclMatrix* postprocess
          ;  xf2 = mcxIOnew(fn2->str, "w")
 
          ;  if (mlp->modes & ALG_DO_FORCE_CONNECTED)
-            {  mclxWrite(cl, xf2, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
+            {  mclxaWrite(cl, xf2, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
             ;  mclxFree(&cl)
             ;  cl = cm
             ;  mcxTell(me, "proceeding with splitted clustering")
          ;  }
             else
-            {  mclxWrite(cm, xf2, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
+            {  mclxaWrite(cm, xf2, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
             ;  mclxFree(&cm)
             ;  mcxTell(me, "proceeding with original clustering")
          ;  }
@@ -490,7 +490,7 @@ mclMatrix* postprocess
 
       /* write clustering only now */
 
-      mclxWrite(cl, mlp->xfout, MCLXIO_VALUE_NONE, EXIT_ON_FAIL)
+      mclxaWrite(cl, mlp->xfout, MCLXIO_VALUE_NONE, EXIT_ON_FAIL)
    ;  if (mlp->modes & ALG_DO_APPEND_LOG)
       mclWriteLog(mlp->xfout->fp, mlp, cl)
    ;  mcxIOclose(mlp->xfout)
@@ -1219,20 +1219,12 @@ void mclCenter
             {  match = (vec->ivps+offset)
             ;  match->val  =  0.0
          ;  }
-            else                    /* create extra room in vector */
-            {  mclvResize (vec, (vec->n_ivps)+1)
-            ;  match       =  vec->ivps+(vec->n_ivps-1)
-            ;  match->val  =  0.0
-            ;  match->idx  =  vec->vid
-            ;  mclvSort (vec, mclpIdxCmp)
-                             /* fixme ^^^ this could be done by shifting */
-
+            else
+            {  mclvInsertIdx (vec, vec->vid, 0.0)
             ;  mclvIdxVal(vec, vec->vid, &offset)
-
             ;  if (offset < 0)
                   mcxErr("mclCenter", "error: insertion failed ?!?")
                ,  mcxExit(1)
-
             ;  match    =  (vec->ivps+offset)
          ;  }
 

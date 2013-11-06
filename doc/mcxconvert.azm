@@ -11,7 +11,7 @@
 \${html}{\"man::maketoc"}
 
 \sec{name}{NAME}
-\NAME{mcxconvert}{convert between mcx storage types.}
+\NAME{mcxconvert}{convert between mcx storage types}
 
 \sec{synopsis}{SYNOPSIS}
 \par

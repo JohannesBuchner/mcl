@@ -1,4 +1,30 @@
 
+Thu, 28 Apr 2005
+
+   *  mcl-05-118 released
+
+   *  fixed matrix read speed problem. Reading a matrix went from
+      O(N^2) to O(E) where E is the number of edges (and N the number
+      of nodes).
+
+   *  mcxassemble accepts --write-binary option to force binary format.
+
+   *  mcxdump now accepts --no-loops and --force-loops options.
+
+   *  Tweaked binary matrix read routine a bit - optimized full reads.
+
+   *  GRATUITOUS. Bumped the gratuitous version tag to 1.005 - because of the
+      input read speed up.
+
+Wed, 6 Apr 2005
+
+   *  mcl-05-096 released
+
+   *  [Joost] added clmorder.azm
+
+   *  Updated mclfamily and mclindex documentation to mention
+      clmclose and clmorder.
+
 Thu, 31 Mar 2005
 
    *  mcl-05-090 released.

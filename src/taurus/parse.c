@@ -332,7 +332,7 @@ struct ispec* parse_int_set
 
          ;  if (!(s = mcxTokSkip(s, isspace, z-s)))
             {  status = STATUS_OK
-;fprintf(stderr, "taurus: parsed <%ld>\n", x[0])
+;if(0) fprintf(stderr, "taurus: parsed <%ld>\n", x[0])
             ;  x[1] = x[0]
             ;  break
          ;  }
@@ -351,7 +351,7 @@ struct ispec* parse_int_set
 
             n_ops++
          ;  s += n
-;fprintf(stderr, "parsed <%ld> <%ld>\n", x[0], x[1])
+;if(0) fprintf(stderr, "parsed <%ld> <%ld>\n", x[0], x[1])
 
          ;  if (mcxTokSkip(s, isspace, z-s))
             {  mcxErr(me, "spurious data: <%s>", s)

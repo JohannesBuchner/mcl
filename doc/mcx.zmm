@@ -34,6 +34,7 @@
 \def{clmimac}{\bf{clmimac}}
 \def{clmmate}{\bf{clmmate}}
 \def{clmresidue}{\bf{clmresidue}}
+\def{clmorder}{\bf{clmorder}}
 \def{mcxconvert}{\bf{mcxconvert}}
 \def{mcxarray}{\bf{mcxarray}}
 \def{mcxdump}{\bf{mcxdump}}

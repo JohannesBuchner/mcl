@@ -40,6 +40,7 @@ enum
 ,  MY_OPT_SINGLE
 ,  MY_OPT_OUTPUT
 ,  MY_OPT_XO
+,  MY_OPT_BINMODE
 ,                 MY_OPT_NO
 ,  MY_OPT_MAP =   MY_OPT_NO  + 2
 ,  MY_OPT_MAP_
@@ -208,6 +209,12 @@ mcxOptAnchor options[] =
    ,  NULL
    ,  "do not write default symmetrized result"
    }
+,  {  "--write-binary"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_BINMODE
+   ,  NULL
+   ,  "write result matrices in binary format"
+   }
 ,  {  "-s"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_CHECK
@@ -279,10 +286,11 @@ int main
    ;  mclx *mx = NULL, *tp = NULL, *sym = NULL, *skew = NULL
    ;  mclx *cmap = NULL, *rmap = NULL
    ;  mcxbits maptype = 0
-   ;  mcxbool write_skw = FALSE
-   ;  mcxbool noput_sym = FALSE
-   ;  mcxbool write_prm = FALSE
-   ;  mcxbool check_sym   = FALSE
+   ;  mcxbool write_skw =  FALSE
+   ;  mcxbool noput_sym =  FALSE
+   ;  mcxbool write_prm =  FALSE
+   ;  mcxbool check_sym =  FALSE
+   ;  mcxbool binmode   =  FALSE
    ;  mcxbool single_data_file = FALSE
    ;  mcxbits warn_repeat = MCLV_WARN_REPEAT
    ;  int EODATA = EOF
@@ -366,6 +374,11 @@ int main
             case MY_OPT_PRM
          :  xf_prm = mcxIOnew(opt->val, "w")
          ;  write_prm = TRUE
+         ;  break
+         ;
+
+            case MY_OPT_BINMODE
+         :  binmode = TRUE
          ;  break
          ;
 
@@ -629,12 +642,12 @@ int main
       mclxMapRows(mx, rmap)
 
    ;  if (xf_prm)
-      mclxWrite(mx, xf_prm, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
+      mclxAppWrite(mx, xf_prm, EXIT_ON_FAIL, binmode)
 
    ;  if (!noput_sym)
       {  tp = mclxTranspose(mx)
       ;  sym = mclxBinary(mx, tp, fltmxbinary)
-      ;  mclxWrite(sym, xf_sym, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
+      ;  mclxAppWrite(sym, xf_sym, EXIT_ON_FAIL, binmode)
       ;  mclxFree(&sym)
    ;  }
 
@@ -645,7 +658,7 @@ int main
       ;  mclxScale(tp, min)
       ;  skew = mclxAdd(mx, tp)
       ;  if (write_skw)
-         mclxWrite(skew, xf_skew, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
+         mclxAppWrite(skew, xf_skew, EXIT_ON_FAIL, binmode)
       ;  n = mclxNrofEntries(skew)
       ;  fprintf(stdout, "symmetry check: %ld skew edges\n", (long) (n/2))
    ;  }

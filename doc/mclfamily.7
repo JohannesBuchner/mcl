@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "The\ MCL\ family" 7 "31 Mar 2005" "The\ MCL\ family 1\&.004, 05-090" "MISCELLANEOUS"
+.TH "The\ MCL\ family" 7 "28 Apr 2005" "The\ MCL\ family 1\&.005, 05-118" "MISCELLANEOUS"
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -53,6 +53,9 @@ dump a matrix optionally with label substitions
 .ZI 16m "\fBmcxarray\fP"
 transform array data to MCL matrices
 .in -16m
+.ZI 16m "\fBmcxconvert\fP"
+convert between ascii/binary storage types
+.in -16m
 
 .ZI 16m "\fBmcx\fP"
 general matrix operations
@@ -76,6 +79,9 @@ find best matching clusters between clusterings
 .ZI 16m "\fBclminfo\fP"
 compute performance measure for clusterings
 .in -16m
+.ZI 16m "\fBclmclose\fP"
+fetch connected components from graphs or subgraphs
+.in -16m
 .ZI 16m "\fBclmmeet\fP"
 compute intersection of clusterings
 .in -16m
@@ -84,6 +90,9 @@ interpret MCL iterand/matrix as clustering
 .in -16m
 .ZI 16m "\fBclmresidue\fP"
 extend subgraph clustering
+.in -16m
+.ZI 16m "\fBclmorder\fP"
+reorder indices to represent blocks from different clusterings
 .in -16m
 
 .ZI 16m "\fBmclpipeline\fP"
@@ -199,3 +208,6 @@ with mcxassemble (for fully controlling how to generate MCL input
 matrices) or one can use mclblastline with which it is integrated\&.
 
 \fBmclblastline\fP - BLAST specific pipeline\&.
+
+\fBmcxconvert\fP - convert matrices from ascii mcl format to
+binary mcl format or vice versa\&.

@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
 # TODO
+#     Allow specification of cl0 (to extend previous run)
+#
 #     Check the effect of using the block method. Tune it?
+#
+#     Trap exit and delete rubbish if necessary.
 #
 #     Prepare the next level matrix for further reclustering.
 #
@@ -139,7 +143,7 @@ done
 #    exit 1
 # fi
 
-if ! (test "$mx0" && test "$opts0" && test "$opts1" ); then
+if ! (test "$mx0" && test "$opts0" ); then
    echo "-M, -0 and -1 options are required (see -h)"
    false
 fi
@@ -152,9 +156,14 @@ stem=$mx0.$tag0
 
 
 if do_create $cl0 $new; then
-   mcl $mx0 -ap = -aa '.C' $opts0 --append-log=y --analyze=y
+   mcl $mx0 -o $cl0 $opts0 --append-log=y --analyze=y
 fi
+do_tell "SIZE DISTRIBUTION LEVEL 0"
+clxdo gr $cl0
 
+if !(test "$opts1"); then
+   exit 0
+fi
             more_rubbish $cl0
 
 
@@ -189,7 +198,7 @@ cl1=`mcl $mx1 -ap = -aa '.C' $opts1 -az`
 tag1=`mcl $mx1 $opts1 -ax`
 
 if do_create $cl1 $new; then
-   mcl $mx1 -ap = -aa '.C' $opts1 --append-log=y --analyze=y
+   mcl $mx1 -o $cl1 $opts1 --append-log=y --analyze=y
 fi
             more_rubbish $cl1
 
@@ -205,20 +214,21 @@ if test "$opts2" && let $(($block)); then
 fi
 
 
-if ! test "$opts2"; then
 
-   if test "$outfile"; then
-      cl1P=$outfile
-   else
-      cl1P=$cl1'P'
-   fi
-   mcx -1 dgt /$cl0 lm /$cl1 lm mul /$cl1P wm
-
-   do_tell "SIZE DISTRIBUTION"
-   clxdo gr $cl1P
-
-
+if test "$outfile" && ! test "$opts2"; then
+   cl1P=$outfile
 else
+   cl1P=$cl1'P'
+fi
+
+mcx -1 dgt /$cl0 lm /$cl1 lm mul /$cl1P wm
+
+do_tell "SIZE DISTRIBUTION LEVEL 1"
+clxdo gr $cl1P
+
+
+
+if test "$opts2"; then
 
    mx2=$TT.$stem.$tag1
    if do_create $mx2 $new; then
@@ -244,7 +254,7 @@ else
 
    mcx -1 dgt /$cl0 lm /$cl2P lm mul /$cl2PP wm
 
-   do_tell "SIZE DISTRIBUTION"
+   do_tell "SIZE DISTRIBUTION LEVEl 2"
    clxdo gr $cl2PP
 fi
 

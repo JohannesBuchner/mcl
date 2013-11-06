@@ -23,22 +23,10 @@
 /* TODO:
  *    Make ascii format parsing looser (not line based).
  *    The ascii parsing code is not all that great, a bit heavy-weight.
- *    How to tackle this. lex/yac !?
+ *    Then, it would be faster if not fgetc based but does buffering.
  *
  *    There should be a clearer framework for rewinding streams
  *    after gathering partial information (readDomains, readDimensions).
- *
- *    ? mclxSubWrite
- *      mclxaSubWrite
- *      mclxbSubWrite
- *    hum, for what purpose? mcxsubs allows transformations on the
- *    submatrices, so no good there.
- *
- *    ?  unify xread, xaread, xbread
- *       with MCLXIO_FORMAT_EITHER, MCLXIO_FORMAT_ASCII
- *       MCLXIO_FORMAT_BINARY argument?
- *    this will lead to less repeated code (xf checking, fseek)
- *    mostly applications will not care.
  *
  *    There is now a funky callback mclxIOinfoReset, invoked
  *    by mclxIOclose. Look out for implications.
@@ -55,6 +43,10 @@
 #define MCL_APP_WB_YES  8
 
 
+/*                               0           1
+ * MCLXIOFORMAT                  ascii       binary
+ * MCLXIOVERBOSITY               silent      verbose
+*/
 
 mcxbool mclxIOgetQMode        /* quad mode */
 (  const char* opt
@@ -170,6 +162,18 @@ mcxstatus  mclxbWrite
 (  const mclMatrix*  mtx
 ,  mcxIO*            xfOut
 ,  mcxOnFail         ON_FAIL
+)  ;
+
+
+/* Provides easy interface for applications that accept --write-binary option,
+ * they can simply pass their boolean along
+*/
+
+mcxstatus mclxAppWrite
+(  const mclx* mx
+,  mcxIO*      xf
+,  mcxOnFail   ON_FAIL
+,  mcxbool     binmode
 )  ;
 
 

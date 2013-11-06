@@ -23,7 +23,7 @@ mcxHeap* mcxHeapInit
 )
    {  mcxHeap* heap  =     (mcxHeap*) h
 
-   ;  if (!h && !(h = mcxAlloc(sizeof(mcxHeap), RETURN_ON_FAIL)))
+   ;  if (!heap && !(heap = mcxAlloc(sizeof(mcxHeap), RETURN_ON_FAIL)))
       MCX_ACT_ON_ALLOC_FAILURE
 
    ;  heap->base     =     NULL

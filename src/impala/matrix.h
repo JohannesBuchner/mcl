@@ -458,6 +458,13 @@ mcxstatus mclxMapCols
 )  ;
 
 
+void mclxAdjustLoops
+(  mclx*    mx
+,  double (*op)(mclv* vec, long r, void* data)
+,  void* data
+)  ;
+
+
 mclx* mclxMakeMap
 (  mclv*  dom_cols
 ,  mclv*  new_dom_cols

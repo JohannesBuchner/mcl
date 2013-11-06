@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-## $Id: Makefile.am,v 1.1 2004/08/15 08:15:36 flux Exp $
+## $Id: Makefile.am,v 1.3 2005/04/06 11:51:24 flux Exp $
 
 TROFF =  groff
 COL   =  col
@@ -33,13 +33,14 @@ doc_DATA_dep = mcl.html mcl.ps mcl.txt \
  clmmate.html clmmate.ps \
  clmmeet.html clmmeet.ps \
  clmformat.html clmformat.ps \
+ clmorder.html clmorder.ps \
  mcxio.html mcxio.ps
 
 doc_DATA = $(doc_DATA_dep) mclmcl.txt
 
 MAINTAINERCLEANFILES = mcl.1 mclfamily.7 mclfaq.7 mclindex.7 mcx.1 mcxio.5\
  mcxassemble.1 mcxmap.1 mcxdump.1 \
- clmdist.1 clminfo.1 clmmate.1 clmmeet.1 mcxconvert.1\
+ clmdist.1 clminfo.1 clmmate.1 clmmeet.1 clmorder.1 mcxconvert.1\
  clmresidue.1 clmformat.1 clmclose.1 clmimac.1 mcxarray.1 mcxsubs.1 mclpipeline.1\
  $(doc_DATA_dep)
 
@@ -54,7 +55,8 @@ ALIENFILES = mcxdeblast.html mcxdeblast.ps mclblastline.html mclblastline.ps
 
 EXTRA_DIST = mclmcl.txt mcx.zmm\
  stamp.day stamp.month stamp.stamp stamp.tag stamp.year\
- clmformat.azm clmdist.azm clmmate.azm clminfo.azm clmmeet.azm mcl.azm\
+ clmformat.azm clmdist.azm clmmate.azm clminfo.azm clmmeet.azm\
+ clmorder.azm mcl.azm\
  mclfamily.azm mclfaq.azm mcx.azm mclpipeline.azm\
  mcxdump.azm mcxconvert.azm mcxio.azm clmresidue.azm clmclose.azm clmimac.azm mcxassemble.azm\
  mcxmap.azm mcxarray.azm mcxsubs.azm index.in.azm index.html distindex.html\
@@ -62,7 +64,8 @@ EXTRA_DIST = mclmcl.txt mcx.zmm\
  $(MAINTAINERCLEANFILES)
 
 man_MANS = mcl.1 mclindex.7 mclfamily.7 mclfaq.7 mcx.1 mcxio.5 \
-   clmresidue.1 clmclose.1 clmimac.1 clmmate.1 clmmeet.1 clmformat.1 clmdist.1 clminfo.1 \
+   clmresidue.1 clmclose.1 clmimac.1 clmmate.1 clmmeet.1 clmformat.1 \
+   clmdist.1 clminfo.1 clmorder.1 \
    mcxconvert.1 mcxassemble.1 mcxmap.1 mcxsubs.1 mcxdump.1 mcxarray.1 \
    mclpipeline.1
 
@@ -123,6 +126,7 @@ clmmate:            clmmate.1        clmmate.html        clmmate.ps
 clmresidue:      clmresidue.1     clmresidue.html     clmresidue.ps
 clmimac:            clmimac.1        clmimac.html        clmimac.ps
 clmclose:          clmclose.1       clmclose.html       clmclose.ps
+clmorder:          clmorder.1       clmorder.html       clmorder.ps
                                                       
 mcx:                    mcx.1            mcx.html            mcx.ps
 mcxassemble:    mcxassemble.1    mcxassemble.html    mcxassemble.ps

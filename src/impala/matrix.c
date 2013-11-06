@@ -1190,3 +1190,27 @@ mclv* mclxUnionv
 ;  }
 
 
+
+void mclxAdjustLoops
+(  mclx*    mx
+,  double  (*op)(mclv* vec, long r, void* data)
+,  void*    data
+)
+   {  long i
+   ;  for (i=0;i<N_COLS(mx);i++)
+      {  mclv*    vec   =  mx->cols+i
+      ;  mclp*    ivp   =  mclvGetIvp(vec, vec->vid, NULL)
+      ;  double   val   =  op(vec, vec->vid, data)
+
+      ;  if (ivp && !val)
+            ivp->val = 0.0
+         ,  mclvUnary(vec, fltCopy, NULL)
+      ;  else if (ivp && val)
+         ivp->val = val
+      ;  else if (!ivp && val)
+         mclvInsertIdx(vec, vec->vid, val)
+   ;  }
+   }
+
+
+

@@ -21,8 +21,12 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
+#include <errno.h>
+#include <math.h>
 
 #include "io.h"
+#include "vector.h"
 #include "iface.h"
 
 #include "util/compile.h"
@@ -257,7 +261,7 @@ mcxbool mclxIOsetQMode
    ;  char* str = mcxTingish(tmp)
 
    ;  while (1)
-      {  if (mode & 5)     /* modes 1 and 4 cannot be overridden */
+      {  if (mode & 10)     /* modes 2 and 8 cannot be overridden */
          break
       ;  if (putenv(str))
          break
@@ -360,7 +364,7 @@ mcxstatus mclxReadDomains
    ;  mclxIOinfo* info = NULL
 
 ;if (!xf || !dom_rows)
-fprintf(stderr, "--> huh!\n")
+fprintf(stderr, "--> !xf||dom_rows!\n")
 
    ;  if (mclxReadDimensions(xf, &n_cols, &n_rows))
       return STATUS_FAIL
@@ -409,28 +413,26 @@ mclMatrix* mclxReadBody
 ;  }
 
 
+
+mcxstatus mclx_test_readable
+(  mcxIO* xf
+)
+   {  if (!xf->fp && mcxIOopen(xf, RETURN_ON_FAIL) != STATUS_OK)
+      {  mcxErr("mclIO", "cannot open <%s> for reading", xf->fn->str)
+      ;  return STATUS_FAIL
+   ;  }
+      return  STATUS_OK
+;  }
+
+
+
 mclMatrix* mclxSubRead
 (  mcxIO* xf
 ,  mclVector* colmask         /* create submatrix on this domain */
 ,  mclVector* rowmask         /* create submatrix on this domain */
 ,  mcxOnFail ON_FAIL
 )
-   {  mclv* dom_cols = mclvNew(NULL, 0)
-   ;  mclv* dom_rows = mclvNew(NULL, 0)
-
-   ;  if (mclxReadDomains(xf, dom_cols, dom_rows))
-      {  mclvFree(&dom_rows)
-      ;  mclvFree(&dom_cols)
-      ;  if (ON_FAIL == EXIT_ON_FAIL)
-         mcxDie
-         (1, "mclxSubRead", "error reading domains in file %s", xf->fn->str)
-      ;  else
-         mcxErr
-         (  "mclxSubRead", "error reading domains in file %s", xf->fn->str)
-      ;  return NULL
-   ;  }
-
-      return mclxReadBody(xf, dom_cols, dom_rows, colmask, rowmask, ON_FAIL)
+   {  return mclxSubReadx(xf, colmask, rowmask, ON_FAIL, 0)
 ;  }
 
 
@@ -444,13 +446,18 @@ mclMatrix* mclxSubReadx
    {  mclv* dom_cols = mclvNew(NULL, 0)
    ;  mclv* dom_rows = mclvNew(NULL, 0)
    ;  mcxstatus status = STATUS_FAIL
-   ;  mclx* mx
 
    ;  while (1)
-      {  if (mclxReadDomains(xf, dom_cols, dom_rows))
+      {  if (mclx_test_readable(xf))  
+         break
+      
+      ;  if (mclxReadDomains(xf, dom_cols, dom_rows))
          break
 
-      ;  if (!MCLD_EQUAL(dom_cols, dom_rows))
+      ;  if
+         (  bits & MCL_READX_GRAPH
+         && !MCLD_EQUAL(dom_cols, dom_rows)
+         )
          {  mcxErr("mclxReadGraph", "domains are not equal in file %s", xf->fn->str)
          ;  break
       ;  }
@@ -466,12 +473,144 @@ mclMatrix* mclxSubReadx
       ;  return NULL
    ;  }
 
-      mx = mclxReadBody(xf, dom_cols, dom_rows, colmask, rowmask, ON_FAIL)
-
-   ;  return mx
+      return mclxReadBody(xf, dom_cols, dom_rows, colmask, rowmask, ON_FAIL)
 ;  }
 
 
+mcxstatus mclIOvcheck
+(  mclv* vec
+,  mclv* dom
+)
+   {  long ct = 0
+   ;  const char* me = "mclIOvcheck"
+   ;  if (mcldIsCanonical(dom))
+      return
+      mclvCheck
+      (  vec
+      ,  MCLV_MINID(dom)
+      ,  MCLV_MAXID(dom)
+      ,  MCLV_CHECK_DEFAULT
+      ,  RETURN_ON_FAIL
+      )
+   ;  else if
+      (  dom->n_ivps
+      && vec->n_ivps < dom->n_ivps / (log(dom->n_ivps) + 1)
+      )
+      {  long i, prev_idx = -1
+      ;  mclp* ivp = NULL
+      ;  for (i=0;i<vec->n_ivps;i++)
+         {  long idx = vec->ivps[i].idx
+         ;  if (!(ivp = mclvGetIvp(dom, idx, ivp)))
+            {  mcxErr(me, "alien entry %ld in vid %ld", idx, vec->vid)
+            ;  return STATUS_FAIL
+         ;  }
+            if (idx <= prev_idx)
+            {  mcxErr(me, "no ascent from %ld to %ld", prev_idx, idx)
+            ;  return STATUS_FAIL
+         ;  }
+            prev_idx = idx
+      ;  }
+      }
+      else if ((ct = mcldCountSet(vec, dom, MCLD_CT_LDIFF)))
+      {  mcxErr
+         (  me
+         ,  "%ld alien entries in vid %ld"
+         ,  (long) ct
+         ,  (long) vec->vid
+         )
+      ;  return STATUS_FAIL
+   ;  }
+      return STATUS_OK
+;  }
+
+
+static mclMatrix* mclxb_read_body_all
+(  mcxIO* xf
+,  mclVector* dom_cols
+,  mclVector* dom_rows
+,  mcxOnFail ON_FAIL
+)
+   {  mclMatrix* mx     =  NULL
+   ;  long n_rows       =  0
+   ;  long n_cols       =  0
+   ;  int level         =  0
+   ;  int szl           =  sizeof(long)
+   ;  mcxstatus status  =  STATUS_FAIL
+   ;  long n_mod        =  0
+   ;  mcxbool  progress =     isatty(fileno(stderr))
+                           && mclxIOgetQMode("MCLXIOVERBOSITY")
+
+   ;  if (progress)
+      fprintf(stderr, "[mclIO full] reading <%s> ", xf->fn->str)
+
+   ;  while (1)
+      {  n_cols = dom_cols->n_ivps
+      ;  n_rows = dom_rows->n_ivps
+
+      ;  n_mod = MAX(1+(n_cols-1)/40, 1)
+
+      ;  if (!(mx = mclxAllocZero(dom_cols, dom_rows)))
+         break
+
+      ;  level++
+
+      ;  {  long k      =  0              /* skip the offset array */
+         ;  if (fseek(xf->fp, (1+n_cols)*szl, SEEK_CUR))
+            break
+         ;  level++
+
+         ;  while (k < dom_cols->n_ivps)
+            {  mclv* veck   = mx->cols+k
+
+            ;  if (progress && (k+1) % n_mod == 0)
+               fputc('.', stderr)
+
+            ;  if (mclvEmbedRead(veck, xf, ON_FAIL))
+               break
+
+            ;  level++
+            ;  if (veck->vid != dom_cols->ivps[k].idx)
+               break
+
+            ;  level++
+            ;  if (mclIOvcheck(veck, dom_rows))
+               break
+
+            ;  level++
+            ;  k++
+         ;  }
+
+            if (k != dom_cols->n_ivps)
+            break
+         ;  level++                         /*  ignore end of matrix offset */
+      ;  }
+
+         status = STATUS_OK
+      ;  break
+   ;  }
+
+      if (progress)
+      fputc('\n', stderr)
+
+   ;  if (status)
+      {  mcxErr
+         (  "mclIO"
+         ,  "failed to read native binary "
+            "%ldx%ld matrix from stream <%s> at level <%ld>"
+         ,  (long) N_ROWS(mx)
+         ,  (long) N_COLS(mx)
+         ,  xf->fn->str
+         ,  (long) level
+         )
+      ;  mclxFree(&mx)
+      ;  if (ON_FAIL == EXIT_ON_FAIL)
+         mcxDie(1, "mclIO", "exiting")
+   ;  }
+      else if (mclxIOgetQMode("MCLXIOVERBOSITY"))
+      tell_read_native(mx, "binary")
+
+   ;  return mx
+;  }
 
 
 static mclMatrix* mclxb_read_body
@@ -483,23 +622,33 @@ static mclMatrix* mclxb_read_body
 ,  mcxOnFail ON_FAIL
 )
    {  mclMatrix* mx     =  NULL
-   ;  long n_rows       =  0
-   ;  long n_cols       =  0
+   ;  long n_cols       =  dom_cols->n_ivps
    ;  int level         =  0
    ;  int szl           =  sizeof(long)
    ;  mcxstatus status  =  STATUS_FAIL
    ;  long n_mod        =  0, n_mod_gauge = 0
+   ;  long* oa          =  NULL
+   ;  char* mode        =  "sparse"
    ;  mcxbool  progress =     isatty(fileno(stderr))
                            && mclxIOgetQMode("MCLXIOVERBOSITY")
 
-   ;  if (progress)
-      fprintf(stderr, "[mclIO] reading <%s> ", xf->fn->str)
+   ;  if (!colmask && !rowmask)
+      return mclxb_read_body_all(xf, dom_cols, dom_rows, ON_FAIL)
+
+   ;  else if
+      (  colmask
+      && colmask->n_ivps > dom_cols->n_ivps / 16
+      )
+      {  if (!(oa = mcxAlloc((1+n_cols)*szl, ON_FAIL)))
+         return NULL
+      ;  mode = "dense"       /* prepare for reading all ofsets */
+   ;  }
+
+      if (progress)
+      fprintf(stderr, "[mclIO %s] reading <%s> ", mode, xf->fn->str)
 
    ;  while (1)
-      {  n_cols = dom_cols->n_ivps
-      ;  n_rows = dom_rows->n_ivps
-
-      ;  n_mod_gauge = colmask ? colmask->n_ivps : n_cols
+      {  n_mod_gauge = colmask ? colmask->n_ivps : n_cols
 
       ;  n_mod = MAX(1+(n_mod_gauge-1)/40, 1)
 
@@ -508,19 +657,26 @@ static mclMatrix* mclxb_read_body
       ;  if (!rowmask)
          rowmask = dom_rows
 
-      ;  if (!(mx = mclxAllocZero(colmask, rowmask)))       break ; level++
+      ;  if (!(mx = mclxAllocZero(colmask, rowmask)))
+         break
+      ;  level++
 
-      ;  {  long oa_start =  ftell(xf->fp)     /* start of offset array */
-         ;  long k      =  0
-         ;  long vec_os = -1
-         ;  long v_pos
+      ;  {  long oa_start  =  ftell(xf->fp)     /* start of offset array */
+         ;  long k =  0, vec_os  = -1, v_pos = 0
          ;  level += 100
 
-         ;  if (oa_start < 0)                                        break
+         ;  if (oa_start < 0)
+            break
+         ;  level++
+
+         ;  if (oa && (1+n_cols) != fread(oa, szl, 1+n_cols, xf->fp))
+            break
+         ;  level++
 
          ;  while (k < colmask->n_ivps)
-            {  long vec_idx = colmask->ivps[k].idx   /* MUST be sorted */
-            ;  vec_os = mclvGetIvpOffset(dom_cols, vec_idx, vec_os)
+            {  long vec_vid = colmask->ivps[k].idx   /* MUST be sorted */
+            ;  mclv* veck = mx->cols+k
+            ;  vec_os = mclvGetIvpOffset(dom_cols, vec_vid, vec_os)
 
             ;  if (progress && (k+1) % n_mod == 0)
                fputc('.', stderr)
@@ -530,18 +686,36 @@ static mclMatrix* mclxb_read_body
                ;  continue
             ;  }
                                              /* fetch the offset */
-               if (fseek(xf->fp, oa_start + vec_os * szl, SEEK_SET))
-                                                               break ;  level++
-            ;  if (1 != fread(&v_pos, szl, 1, xf->fp))         break ;  level++
-            ;  if (fseek(xf->fp, v_pos, SEEK_SET))             break ;  level++
-            ;  if (mclvEmbedRead(mx->cols+k, xf, ON_FAIL))     break ;  level++
-            ;  if (mclvCheck(mx->cols+k,-1,MCLV_CHECK_DEFAULT, RETURN_ON_FAIL))
-                                                               break ;  level++
-            ;  if (mcldCountSet(mx->cols+k, dom_rows, MCLD_CT_LDIFF))
-                                                               break ;  level++
+               if (oa)
+               v_pos = oa[vec_os]
+            ;  else
+               {  if (fseek(xf->fp, oa_start + vec_os * szl, SEEK_SET))
+                  break
+               ;  level++
+
+               ;  if (1 != fread(&v_pos, szl, 1, xf->fp))
+                  break
+               ;  level++
+            ;  }
+
+               if (fseek(xf->fp, v_pos, SEEK_SET))
+               break
+            ;  level++
+
+            ;  if (mclvEmbedRead(veck, xf, ON_FAIL))
+               break
+            ;  level++
+
+            ;  if (veck->vid != vec_vid)
+               break
+            ;  level++
+
+            ;  if (mclIOvcheck(veck, dom_rows))
+               break
+            ;  level++
 
             ;  if (rowmask != dom_rows)
-               mcldMeet(mx->cols+k, rowmask, mx->cols+k)
+               mcldMeet(veck, rowmask, veck)
 
             ;  k++
          ;  }
@@ -560,6 +734,9 @@ static mclMatrix* mclxb_read_body
 
       if (progress)
       fputc('\n', stderr)
+
+   ;  if (oa)
+      mcxFree(oa)
 
    ;  if (colmask != dom_cols)
       mclvFree(&dom_cols)
@@ -585,6 +762,7 @@ static mclMatrix* mclxb_read_body
 
    ;  return mx
 ;  }
+
 
 
 static mcxstatus mclxb_read_dompart
@@ -1113,11 +1291,26 @@ mcxstatus mclxWrite
 ,  int                     valdigits
 ,  mcxOnFail               ON_FAIL
 )
-   {  if (!xfout->fp && mcxIOopen(xfout, RETURN_ON_FAIL) != STATUS_OK)
+   {  if (!xfout->fp && mcxIOopen(xfout, ON_FAIL) != STATUS_OK)
       return STATUS_FAIL
    ;  if (mclxIOgetQMode("MCLXIOFORMAT"))
       return mclxbWrite(mx, xfout, ON_FAIL)
    ;  return mclxaWrite(mx, xfout, valdigits, ON_FAIL)
+;  }
+
+
+mcxstatus mclxAppWrite
+(  const mclx* mx
+,  mcxIO*      xf
+,  mcxOnFail   ON_FAIL
+,  mcxbool     binmode
+)
+   {  if (!xf->fp && mcxIOopen(xf, ON_FAIL) != STATUS_OK)
+      return STATUS_FAIL
+   ;  return
+         binmode
+      ?  mclxbWrite(mx, xf, ON_FAIL)
+      :  mclxWrite(mx, xf, MCLXIO_VALUE_GETENV, ON_FAIL)
 ;  }
 
 
@@ -1650,7 +1843,7 @@ mclMatrix* mclxRead
 (  mcxIO       *xf
 ,  mcxOnFail   ON_FAIL
 )  
-   {  return mclxSubRead(xf, NULL, NULL, ON_FAIL)
+   {  return mclxSubReadx(xf, NULL, NULL, ON_FAIL, 0)
 ;  }
 
 
@@ -1804,12 +1997,8 @@ mcxstatus mclxaSubReadRaw
          if (mclvGetIvp(tst_cols, cidx, NULL))
          {  if (!(vec = mclxGetVector(mx, cidx, RETURN_ON_FAIL, NULL)))
                vec = discardv
-            ,  mcxErr
-               (  me
-               ,  "PANIC column %ld not found in domain (discarding)"
-               ,  (long) cidx
-               )
             ,  warnmask = 0
+            /* could be submatrix read */
       ;  }
          else
          {  mcxErr(me, "found alien col index <%ld> (discarding)", (long) cidx)
@@ -1831,9 +2020,13 @@ mcxstatus mclxaSubReadRaw
          ;  break
       ;  }
 
+         /* now vector should be strictly ascending */
+
          if (vec != discardv)
-         {  if (mcldCountSet(vec, tst_rows, MCLD_CT_LDIFF))
-            {  mclv* ldif = mcldMinus(vec, tst_rows, NULL)
+         {  mclv* ldif = NULL
+         ;  if (mclIOvcheck(vec, tst_rows))
+            {  mclvCleanse(vec)
+            ;  ldif = mcldMinus(vec, tst_rows, NULL)
             ;  mcxErr
                (  me
                ,  "alien row indices in column <%ld> - (a total of %ld)"

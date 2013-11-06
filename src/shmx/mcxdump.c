@@ -40,6 +40,8 @@ enum
 ,  MY_OPT_TABR
 ,  MY_OPT_LAZY_TAB
 ,  MY_OPT_NO_VALUES
+,  MY_OPT_NO_LOOPS
+,  MY_OPT_FORCE_LOOPS
 ,  MY_OPT_TRANSPOSE
 ,  MY_OPT_DUMP_PAIRS
 ,  MY_OPT_DUMP_LINES
@@ -107,6 +109,18 @@ mcxOptAnchor options[] =
    ,  NULL
    ,  "do not emit values"
    }
+,  {  "--no-loops"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_NO_LOOPS
+   ,  NULL
+   ,  "do not include self in listing"
+   }
+,  {  "--force-loops"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_FORCE_LOOPS
+   ,  NULL
+   ,  "force self in listing"
+   }
 ,  {  "-o"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_OUTPUT
@@ -159,6 +173,25 @@ mcxOptAnchor options[] =
 }  ;
 
 
+double self_ignore
+(  mclv* vec
+,  long  r
+,  void* data
+)
+   {  return 0.0
+;  }
+
+
+double self_force
+(  mclv* vec
+,  long  r
+,  void* data
+)
+   {  mclp* ivp = mclvGetIvp(vec, r, NULL)
+   ;  return ivp && ivp->val ? ivp->val : 1.0
+;  }
+
+
 int main
 (  int                  argc
 ,  const char*          argv[]
@@ -173,6 +206,7 @@ int main
    ;  mclTab* tabc   =  NULL
    ;  mclx* mx       =  NULL
    ;  mcxbool pr_values = TRUE
+   ;  int pr_loops   =  1
    ;  mcxbool transpose = FALSE
    ;  mcxbool lazy_tab = FALSE
    ;  mcxmode mode_dump =  'p'      /* pairs, lines, rlines (no col tag) */
@@ -241,6 +275,16 @@ int main
          ;  break
          ;
 
+            case MY_OPT_NO_LOOPS
+         :  pr_loops = 0
+         ;  break
+         ;
+
+            case MY_OPT_FORCE_LOOPS
+         :  pr_loops = 2
+         ;  break
+         ;
+
             case MY_OPT_NO_VALUES
          :  pr_values = FALSE
          ;  break
@@ -283,6 +327,14 @@ int main
       {  mclx* tp = mclxTranspose(mx)
       ;  mclxFree(&mx)
       ;  mx = tp
+   ;  }
+
+      if ((!pr_loops || pr_loops == 2) && mclxIsGraph(mx))
+      {  double (*op)(mclv* vec, long r, void* data)
+         =     !pr_loops
+            ?  self_ignore
+            :  self_force
+      ;  mclxAdjustLoops(mx, op, NULL)
    ;  }
 
       if (xf_tab)

@@ -494,7 +494,6 @@ SUM     The sum of *all* edges leaving node idx.}
    \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z}
 
 \sec{seealso}{SEE ALSO}
-
 \par
    \sibmclfamily for an overview of all the documentation
    and the utilities in the mcl family.

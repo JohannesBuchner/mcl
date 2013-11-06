@@ -93,6 +93,11 @@ mcxLink*  mcxLinkBefore
 ,  void*       val
 )  ;
 
+mcxstatus mcxLinkClose
+(  mcxLink* need_next
+,  mcxLink* need_prev
+)  ;
+
 
 /* You can use the val pointer, immediately after deleting.
 */

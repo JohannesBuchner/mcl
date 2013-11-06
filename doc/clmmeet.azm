@@ -45,12 +45,10 @@
 
 \sec{seealso}{SEE ALSO}
 
-\par
-   \sib{clmdist},
-   \sib{clmmate},
-   \sib{clminfo},
-   and \sibmclfamily for an overview of all the documentation
+\par{
+   \sibmclfamily for an overview of all the documentation
    and the utilities in the mcl family.
+}
 
 \"man::postamble"
 

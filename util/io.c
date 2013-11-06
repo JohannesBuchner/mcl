@@ -201,11 +201,10 @@ mcxstatus  mcxIOopen
       ;  xf->stdio   =  1
    ;  }
       else if ((xf->fp = fopen(fname, xf->mode)) == NULL)
-      {  mcxIOerr(xf, "mcxIOopen", "can not be opened")
-      ;  if (ON_FAIL == RETURN_ON_FAIL)
+      {  if (ON_FAIL == RETURN_ON_FAIL)
          return STATUS_FAIL
-      ;  else
-         mcxExit(1)
+      ;  mcxIOerr(xf, "mcxIOopen", "can not be opened")
+      ;  mcxExit(1)
    ;  }
       return STATUS_OK
 ;  }

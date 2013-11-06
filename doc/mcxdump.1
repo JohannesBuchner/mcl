@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcxdump" 1 "31 Mar 2005" "mcxdump 1\&.004, 05-090" "USER COMMANDS"
+.TH "mcxdump" 1 "28 Apr 2005" "mcxdump 1\&.005, 05-118" "USER COMMANDS"
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -39,6 +39,8 @@ mcxdump \- dump matrices, optionally map indices to labels
 \fB[-tabr\fP <fname> (\fIrow tab file\fP)\fB]\fP
 \fB[--lazy-tab\fP (\fIallow tab/domain mismatch\fP)\fB]\fP
 \fB[--no-values\fP (\fIomit values\fP)\fB]\fP
+\fB[--no-loops\fP (\fIomit loops\fP)\fB]\fP
+\fB[--force-loops\fP (\fIforce loops\fP)\fB]\fP
 \fB[--dump-pairs\fP (\fIemit pairs per line\fP)\fB]\fP
 \fB[--dump-lines\fP (\fIemit rows per line\fP)\fB]\fP
 \fB[--dump-rlines\fP (\fIomit leading column node\fP)\fB]\fP
@@ -103,6 +105,22 @@ the tab files will be replaced by a question mark\&.
 \&
 .br
 Do not emit values\&.
+.in -3m
+
+.ZI 3m "\fB--no-loops\fP (\fIomit loops\fP)"
+\&
+.br
+Do not output entries for which the row index equals the column index,
+if present\&.
+Applies only to matrices for which column and row domains are equal\&.
+.in -3m
+
+.ZI 3m "\fB--force-loops\fP (\fIforce loops\fP)"
+\&
+.br
+For each column, force output of a row entry that matches the
+column index\&.
+Applies only to matrices for which column and row domains are equal\&.
 .in -3m
 
 .ZI 3m "\fB--dump-pairs\fP (\fIemit pairs per line\fP)"

@@ -226,7 +226,7 @@ MCL FAQ(7)                       MISCELLANEOUS                      MCL FAQ(7)
           the year 2002. This date stamp agrees (as of April  2000)  with  the
           (differently  presented) date stamp used in all manual pages shipped
           with that release.  For example, the date stamp of the FAQ  you  are
-          reading is 31 Mar 2005, which corresponds with the MCL stamp 05-090.
+          reading is 28 Apr 2005, which corresponds with the MCL stamp 05-118.
           The Changelog file contains a list of what's changed/added with each
           release. Currently, the date stamp is the primary way of identifying
           an mcl release. When asked for its version by using  --version,  mcl
@@ -1044,4 +1044,4 @@ MCL FAQ(7)                       MISCELLANEOUS                      MCL FAQ(7)
 
 
 
-  MCL FAQ 1.004, 05-090             31 Mar 2005                       MCL FAQ(7)
+  MCL FAQ 1.005, 05-118             28 Apr 2005                       MCL FAQ(7)

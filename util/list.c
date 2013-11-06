@@ -123,6 +123,22 @@ mcxLink*  mcxLinkSpawn
 ;  }
 
 
+
+mcxstatus mcxLinkClose
+(  mcxLink* need_next
+,  mcxLink* need_prev
+)
+   {  if
+      (  !need_next || !need_next->prev || need_next->next
+      || !need_prev || !need_prev->next || need_prev->prev
+      )
+      return STATUS_FAIL
+   ;  need_next->next = need_prev
+   ;  need_prev->prev = need_next
+   ;  return STATUS_OK
+;  }
+
+
 mcxLink*  mcxLinkBefore
 (  mcxLink*    next
 ,  void*       val

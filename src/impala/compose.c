@@ -89,10 +89,6 @@ mclVector* mclxVectorCompose
          ch =  mclxComposePrepare(mx, NULL)
       ,  cleanup = 1
 
-#ifdef RUNTIME_INTEGRITY
-   ;  mclvCheck(vecs, -1, MCLV_CHECK_DEFAULT, EXIT_ON_FAIL)
-#endif
-
    ;  iovs[0].ref    =  -1
    ;  iovs[0].index  =  -1
    ;  iovs[0].value  =  -1.0

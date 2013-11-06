@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mclindex" 7 "31 Mar 2005" "mclindex 1\&.004, 05-090" "MISCELLANEOUS"
+.TH "mclindex" 7 "28 Apr 2005" "mclindex 1\&.005, 05-118" "MISCELLANEOUS"
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -58,6 +58,9 @@ dump matrices, optionally map indices to labels
 .ZI 15m "\fBmcxarray(1)\fP"
 transform array data to MCL matrices
 .in -15m
+.ZI 15m "\fBmcxconvert(1)\fP"
+convert between ascii/binary storage types
+.in -15m
 
 .SH Dealing with clustering results
 
@@ -81,6 +84,12 @@ Interpret Matrices (c\&.q\&. MCL iterands) As Clusterings
 .in -15m
 .ZI 15m "\fBclmresidue(1)\fP"
 extend subgraph clusterings onto encompassing graph
+.in -15m
+.ZI 15m "\fBclmorder(1)\fP"
+reorder indices to represent blocks from different clusterings
+.in -15m
+.ZI 15m "\fBclmclose(1)\fP"
+fetch connected components from graphs or subgraphs
 .in -15m
 
 .SH Dealing with matrices

@@ -107,6 +107,7 @@
 \mkentry{mcxassemble}{1}{prepare input matrix from cooccurrence scores}
 \mkentry{mcxdump}{1}{dump matrices, optionally map indices to labels}
 \mkentry{mcxarray}{1}{transform array data to MCL matrices}
+\mkentry{mcxconvert}{1}{convert between ascii/binary storage types}
 \utend
 
 
@@ -118,6 +119,8 @@
 \mkentry{clmmate}{1}{compute best matches between two clusterings}
 \mkentry{clmimac}{1}{Interpret Matrices (c.q. MCL iterands) As Clusterings}
 \mkentry{clmresidue}{1}{extend subgraph clusterings onto encompassing graph}
+\mkentry{clmorder}{1}{reorder indices to represent blocks from different clusterings}
+\mkentry{clmclose}{1}{fetch connected components from graphs or subgraphs}
 \utend
 
 

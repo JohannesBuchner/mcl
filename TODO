@@ -1,22 +1,27 @@
 regularia projectia diligentia
 
-taking submatrix with same domains, is that slow?
 
--  kernighan-lin-style exchanges across cluster periphery according
-   to clmformat.
+-  does mcxdump still have lazy-tab option?
+   yes, absence requires domain match.
 
--  over n entries: reduce to n or 0 ?
+!  how much would ascii input benefit from buffered io ?
+   (some issue with integer and float reads there).
+   Read block, make it end on a line.
+   test with read first.
 
--  support for single link clustering / MST, tree operations.
+!! Think hard about clever handling of mismatched domains.
+   in which cases should it be supported in the libary,
+   in which cases in the application,
+   in which cases not at all.
 
-!  scripting language; conditionals, data types, etc.
-   iterate over matrix elements.
-   how to do datastructures? hook up to python.
-      One goal: enable filtering of a matrix before it enters mcl.
-      with some mcx/mcxsubs capacities.
-      Tie this together with making mcl accessible as a library routine,
-      initially with file based IO.
-      __setitem__, __getitem__.
+   being lax gives ample scope for accumulation of trouble.
+   e.g. checked reads become pointless (or the code becomes
+   a clutter).
+
+-  rewrite mcldMeet to use getIvp in situations where that is faster.
+
+?  mclvGetIvp could check next entry as special case if ivp arg not null.
+   idem mclvGetIvpOffset. bit cumbersome though.
 
 !  mclxMakeMap does/must work with idx-sorted vectors (because it uses them as
    domains).  no use for general reordering.  relevant if clmorder result is
@@ -26,13 +31,25 @@ taking submatrix with same domains, is that slow?
 !  make mcxmap work on tab files as well.
    ( but how about subselection ......... )
 
+-  taking submatrix with same domains, is that slow?
+
+-  optionally set a hint about the nr of entries in a matrix.
+
+-  over n entries: reduce to n or 0 ?
+
+?  check/further debug mcl tiny-nil.mci on alpha.
+#0  0x120011734 in mclExpand (mx=0x140037900, mxp=0x140011540) at expand.c:622
+#1  0x12000a504 in doIteration (mxin=0x11fff9ec0, mxout=0x11fff9eb8, mpp=0x140030a00, type=2) at proc.c:281
+#2  0x12000a25c in mclProcess (mx0=0x11fff9f28, mpp=0x140030a00) at proc.c:222
+#3  0x12000d65c in mclAlgorithm (themx=0x140037900, mlp=0x140031080) at alg.c:618
+#4  0x120009bcc in main (argc=2, argv=0x11fffa018) at mcl.c:172
+
 -  ilInstantiate can not act as resize; reset everything.
    should change this.
+   some things (accounting code) depend on this.
 
 -  -dump-subd:
       should construct spec first, then do mclxSubRead.
-
-!  embedding / extending libs in Python.
 
 -  implement mcxsubs --extend as spec option.
 
@@ -74,13 +91,6 @@ taking submatrix with same domains, is that slow?
 
 !  investigate siphoning (using visualization)
 
-!  check/further debug mcl tiny-nil.mci on alpha.
-#0  0x120011734 in mclExpand (mx=0x140037900, mxp=0x140011540) at expand.c:622
-#1  0x12000a504 in doIteration (mxin=0x11fff9ec0, mxout=0x11fff9eb8, mpp=0x140030a00, type=2) at proc.c:281
-#2  0x12000a25c in mclProcess (mx0=0x11fff9f28, mpp=0x140030a00) at proc.c:222
-#3  0x12000d65c in mclAlgorithm (themx=0x140037900, mlp=0x140031080) at alg.c:618
-#4  0x120009bcc in main (argc=2, argv=0x11fffa018) at mcl.c:172
-
 !  look at all cmp functions returning a difference. overflows with long.
 -  test all utils for long compatability.
 
@@ -121,13 +131,10 @@ mcxfetch? for format, dimensions, domains, ....
    cols, rows
    n_entries
 
-INCORPORATE MCXSUBS INTO MCX.
-
 ?  add env variable for verbosity on non-matching domains
 
-
 make better binary format,
-   - backwards compatåbility enabled by mechanism for section+length structure.
+   - backwards compatability enabled by mechanism for section+length structure.
    - 
 
 LEGEND                     changes all the time.
@@ -153,21 +160,10 @@ LEGEND                     changes all the time.
    w  documentation.
    z  far future finking.
 
--  mcl speedup (little): shift rather than sort in centering.
-
 -  saner structured output format for clminfo.
-
-?  make mcxmap less strict with domains? e.g. allow take
-   restriction, fill gap with identity matrix?
-   (this does not work, as identity map may be occupied by
-   part that does map).
 
 -  mcx should pbb have more efficient stack code.
    also, depth/type checking should be done by dispatcher mostly.
-
--  mcxsubs:
-      unify dfac and efac logic (direction),
-      move dfac into inner loop.
 
 ?  is mcxsubs efficient if new domains include the old domains?
 !  mcxsubs reading domains from
@@ -187,32 +183,9 @@ d  mcxdeblast --abc option covers a very generic format.
  -    principles of practice/theory?
  ! clmformat
 
-!  how much would ascii input benefit from buffered io ?
-   (some issue with integer and float reads there).
-   Read block, make it end on a line.
-   test with read first.
-
-!! Think hard about clever handling of mismatched domains.
-   in which cases should it be supported in the libary,
-   in which cases in the application,
-   in which cases not at all.
-
-   mcxdump --lazy-tab approach is one way (exception string)
-   clminfo etc another (when strictness is required, modify)
-
 -  dump format: combined index/label can be handy.
    would be nice to have format-string for that (rather
    than arguments for left-middle-right).
-
-!  profile reading of huge (but very thin, e.g. cluster) matrices.
-   takes very long. strace yields that brk is called umpteen times,
-   each time with a 4096 byte increment. Is this some rotten
-   lib just on my system, or what?
-
-   For clmclose, its observed lack of speed also occurred when
-   constructing such a thin matrix.
-
-   memory fragmentation problem?
 
 () make better binary format, with sections that have identifiers
    and length description. use this to facilitate bc and optional info.
@@ -1480,4 +1453,12 @@ _audit_
    %ld + (long)
 
 
+
+
+corrupted matrices due to alien entries in vectors.
+ # suppose a corrupted matrix has additional alien indices.
+ # which part blows up?  why not a panic?
+ # compose creates overly long vectors, whereas it reckons
+ # they cannot get any bigger than the relevant domain size.  So, should create
+ # check in compose ..?  others, e.g. mclxBinary?
 

@@ -81,7 +81,8 @@ typedef struct
 
 mcxstatus mclvCheck
 (  const mclVector*  vec
-,  long              range
+,  long              min         /* inclusive */
+,  long              max         /* inclusive */
 ,  mcxbits           modes
 ,  mcxOnFail         ON_FAIL
 )  ;
@@ -210,6 +211,13 @@ void mclvSortDescVal
 int mclvUniqueIdx
 (  mclVector*     vec
 ,  void (*merge)(void* ivp1, const void* ivp2)
+)  ;
+
+
+/* sorts vectors and discards duplicates (based on idx) */
+
+void mclvCleanse
+(  mclVector*  vec
 )  ;
 
 

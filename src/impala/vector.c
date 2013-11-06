@@ -45,7 +45,8 @@ void mclvRuntime
 
 mcxstatus mclvCheck
 (  const mclVector*        vec
-,  long                    range
+,  long                    min
+,  long                    max
 ,  mcxbits                 bits
 ,  mcxOnFail               ON_FAIL
 )  
@@ -55,15 +56,15 @@ mcxstatus mclvCheck
    ;  const char* me    =  "mclvCheck"
    ;  mcxbool  ok       =  TRUE
 
-   ;  if (!vec->ivps && vec->n_ivps)
-      {  mcxErr(me, "deadly: NULL ivps and <%ld> n_ivps", (long) vec->n_ivps)
-      ;  if (ON_FAIL == RETURN_ON_FAIL)
-         return STATUS_FAIL
-      ;  else
-         mcxExit(1)
-   ;  }
-         
-      while (ivp<ivpmax)
+   ;  if (vec->n_ivps && !vec->ivps)
+         mcxErr(me, "deadly: NULL ivps and %ld n_ivps", (long) vec->n_ivps)
+      ,  ok = FALSE
+   ;  else if (vec->n_ivps && min >= 0 && MCLV_MINID(vec) < min)
+         mcxErr
+         (me, "daemons: MINID %ld less than %ld", (long) MCLV_MINID(vec), min)
+      ,  ok = FALSE
+
+   ;  while (ok && ivp<ivpmax)
       {  if (ivp->idx <= last)
          {  mcxErr
             (  me
@@ -97,12 +98,12 @@ mcxstatus mclvCheck
       ;  ivp++
    ;  }
 
-      if (!ok && range >= 0 && last >= range)
+      if (ok && max >= 0 && last > max)
       {  mcxErr
          (  me
          ,  "deadly: index <%ld> tops range <%ld> at ivp <%ld>"
          ,  (long) last
-         ,  (long) range
+         ,  (long) max
          ,  (long) (ivp - 1 - vec->ivps)
          )
       ;  ok    =  FALSE
@@ -273,6 +274,14 @@ void mclvFree
       ;  mcxFree(*vecpp)
       ;  (*vecpp) = NULL
    ;  }
+;  }
+
+
+void mclvCleanse
+(  mclVector*  vec
+)
+   {  mclvSort(vec, mclpIdxCmp)
+   ;  mclvUniqueIdx(vec, mclpMergeLeft)
 ;  }
 
 
@@ -965,9 +974,13 @@ mclVector* mclvInsertIdx
       else if ((offset =  mclvGetIvpOffset(vec, idx, -1)) >= 0)
       vec->ivps[offset].val = val
    ;  else
-      {  mclVector* tmp = mclvInsertIdx(NULL, idx, val)
-      ;  mclvBinary(vec, tmp, vec, fltAdd)
-      ;  mclvFree(&tmp)
+      {  long i = vec->n_ivps
+      ;  mclvResize(vec, i+1)
+      ;  while (i && vec->ivps[i-1].idx > idx)
+            vec->ivps[i] = vec->ivps[i-1]
+         ,  i--
+      ;  vec->ivps[i].val = val
+      ;  vec->ivps[i].idx = idx
    ;  }
       return vec
 ;  }

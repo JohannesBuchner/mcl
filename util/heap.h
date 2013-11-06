@@ -38,7 +38,7 @@ mcxHeap* mcxHeapNew
 ,  int      heapSize
 ,  int      elemSize
 ,  int      (*cmp)(const void* lft, const void* rgt)
-,  int      HEAPTYPE          /* MIN_HEAP or MAX_HEAP */
+,  int      HEAPTYPE          /* MCX_MIN_HEAP or MCX_MAX_HEAP */
 )  ;
 
 

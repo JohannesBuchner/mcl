@@ -24,6 +24,8 @@
    \synoptopt{-tabr}{<fname>}{row tab file}
    \synoptopt{--lazy-tab}{allow tab/domain mismatch}
    \synoptopt{--no-values}{omit values}
+   \synoptopt{--no-loops}{omit loops}
+   \synoptopt{--force-loops}{force loops}
    \synoptopt{--dump-pairs}{emit pairs per line}
    \synoptopt{--dump-lines}{emit rows per line}
    \synoptopt{--dump-rlines}{omit leading column node}
@@ -74,6 +76,16 @@
 
 \item{\defopt{--no-values}{omit values}}
    Do not emit values.
+
+\item{\defopt{--no-loops}{omit loops}}
+   Do not output entries for which the row index equals the column index,
+   if present.
+   Applies only to matrices for which column and row domains are equal.
+
+\item{\defopt{--force-loops}{force loops}}
+   For each column, force output of a row entry that matches the
+   column index.
+   Applies only to matrices for which column and row domains are equal.
 
 \item{\defopt{--dump-pairs}{emit pairs per line}}
    Output a single pair of column-identifier and row-identifier per line,

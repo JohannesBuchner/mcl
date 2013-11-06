@@ -1,0 +1,47 @@
+\def{"man::synstyle"}{long}
+\def{"man::defstyle"}{long}
+\import{mcx.zmm}
+
+\set{"man::name"}{clmorder}
+\set{"man::html-title"}{The clmorder manual}
+\set{"man::author"}{Stijn van Dongen}
+\set{"man::section"}{1}
+
+\"man::preamble"
+\${html}{\"man::maketoc"}
+
+\sec{name}{NAME}
+\NAME{clmorder}{reorder indices to represent blocks from different clusterings.}
+
+\sec{synopsis}{SYNOPSIS}
+   \par
+   \clmorder <file name>+
+
+\sec{description}{DESCRIPTION}
+
+\par
+   Given a set of input clusterings, \clmorder reorders indices so that
+   the ordering represents blocks from different clusterings (which are
+   preferably more or less hierarchically organized).  It puts nodes that
+   share many clusters over the different clusters nearby, and puts nodes
+   in larger clusters earlier in the ordering.  It is presumed that the
+   clusterings are successive subclusterings, but it need not be strictly
+   the case - \clmorder will convert the input clusterings to a strictly
+   nested sequence.
+
+\par
+   \clmorder interprets its arguments as names of files containing
+   clusterings in mcl format (see \sibmcxio).
+
+\sec{author}{AUTHOR}
+\par
+   Stijn van Dongen.
+
+\sec{seealso}{SEE ALSO}
+
+\par
+   \sibmclfamily for an overview of all the documentation
+   and the utilities in the mcl family.
+
+\"man::postamble"
+

@@ -305,13 +305,10 @@ k=3 |        |        |   4,4  |
 
 
 \sec{seealso}{SEE ALSO}
-
-\par
-   \sib{clminfo},
-   \sib{clmmeet},
-   \sib{clmmate},
-   and \sibmclfamily for an overview of all the documentation
+\par{
+   \sibmclfamily for an overview of all the documentation
    and the utilities in the mcl family.
+}
 
 \sec{references}{REFERENCES}
 
