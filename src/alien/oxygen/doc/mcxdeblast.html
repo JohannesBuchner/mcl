@@ -4,15 +4,35 @@
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <style type="text/css">
-body
-{ text-align: justify;
+body {
+text-align: justify;
 color: #001111;
 background: white;
 margin-left: 8%;
 margin-right: 8%;
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+p.default {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+p.L53 { font-size: 30pt; }
+p.L52 { font-size: 20pt; }
+p.L51 { font-size: 15pt; }
+p.L50 { font-size: 12pt; }
+p.L49 { font-size: 10pt; }
+p.L48 { font-size: 9pt; }
+p.L47 { font-size: 8pt; }
+td {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
 }
 h3 { margin-top:1em; }
 h2 { margin-top:2em; }
+.left { text-align: left; align: left; }
+.right { text-align: right; align: right; }
+.center { text-align: center; align: center; }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -41,36 +61,30 @@ margin-top: 1em;
 margin-bottom: 1em;
 }
 div.indent
-{margin-left: 8%;
+{ margin-left: 8%;
 margin-right: 0%;
 }
 </style>
-<title>
-The mcxdeblast manual
-</title>
+<title>The mcxdeblast manual</title>
 </head>
 <body>
-
 <p style="text-align:right">
-28 Apr 2005&nbsp;&nbsp;&nbsp;
+29 Sep 2005&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxdeblast.ps"><b>mcxdeblast</b></a>
-1.005, 05-118
+1.005, 05-272
 </p>
 
 <a name="name"></a>
 <h2>NAME</h2>
-
-<p style="text-align:justify">
-mcxdeblast - parse BLAST files and write mcxassemble input.
-
-<p style="text-align:justify">
+<p class="default L50" style="margin-bottom:0">
+mcxdeblast - parse BLAST files and write mcxassemble input.</p>
+<p class="default L50">
 mcxassemble will in turn create input suitable for mcl.
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
 <b>mcxdeblast</b> file-name
-
-<p style="text-align:justify">
+<p class="default L50">
 <b>mcxdeblast</b>
 <a class="intern" href="#opt--score"><b>[--score=</b>&lt;b|e|r&gt; (<i>bit scores|e-values|normalize bit score</i>)<b>]</b></a>
 <a class="intern" href="#opt--sort"><b>[--sort=</b>&lt;a|o&gt; (<i>alphabetic|occurrence sorting</i>)<b>]</b></a>
@@ -88,8 +102,7 @@ mcxassemble will in turn create input suitable for mcl.
 <b>mcxdeblast</b> parses BLAST files and writes results suitable for
 input in mcxassemble (which will in turn create input suitable for mcl).
 It is used by the pipeline script <a class="local" href="mclblastline.html">mclblastline</a>.
-
-<p style="text-align:justify">
+<p class="default L50">
 If the input file is named <tt>iput</tt>, mcxdeblast will by
 default create files <tt>iput.hdr</tt>, <tt>iput.raw</tt>, <tt>iput.tab</tt>,
 <tt>iput.map</tt>, and <tt>iput.err</tt>. The <tt>hdr</tt> file contains
@@ -104,8 +117,7 @@ The <tt>tab</tt> file contains bindings between mcl identifiers
 (peptide identifiers). Refer to the manual of <a class="local" href="mcxassemble.html">mcxassemble</a>
 for the syntax of a tab file.
 The <tt>err</tt> file contains a list of any errors encountered.
-
-<p style="text-align:justify">
+<p class="default L50">
 If the <b>--tab</b>=<b>fname</b> option is used mcxdeblast changes
 its behaviour. It will read the file <b>fname</b>, and use
 the bindings found therein. It will no longer output any
@@ -114,8 +126,7 @@ file should be provided by the same application that generated
 the specified tab file, and the <tt>map</tt> file should no longer be
 necessary (it might be convenient though and perhaps the
 future will bring a new <b>--map</b> option).
-
-<p style="text-align:justify">
+<p class="default L50">
 The <b>--tab</b>=<b>fname</b> option can be convenient e.g. if
 you split a BLAST job over multiple machines and want
 to apply mcxdeblast to each of the subresults. You do
@@ -138,211 +149,31 @@ the total number of different peptides encountered in the BLAST input.
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr>
-<td colspan=3>
-<a name="opt--tab"></a><b>--tab</b>=&lt;fname&gt; (<i>tab file</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+<tr><td colspan=3><a name="opt--tab"></a><b>--tab</b>=&lt;fname&gt; (<i>tab file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Specify a tab file to use, rather than automatically generating one.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--score"></a><b>--score</b>=&lt;b|e&gt; (<i>bit scores|e-values</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--score"></a><b>--score</b>=&lt;b|e|r&gt; (<i>bit scores|e-values|norm bit score</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Specify whether to use bit scores, E-values, or bit scores
 normalized by length of the HSP.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--sort"></a><b>--sort</b>=&lt;a|o&gt; (<i>alphabetic|occurrence sorting</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--sort"></a><b>--sort</b>=&lt;a|o&gt; (<i>alphabetic|occurrence sorting</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Specify how to sort labels.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--m9"></a><b>--m9</b> (<i>expect BLAST column format</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--m9"></a><b>--m9</b> (<i>expect BLAST column format</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Use this option to parse BLAST output formatted with the -m 9 option.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--abc"></a><b>--abc</b> (<i>expect ID1 ID2 SCORE format</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--abc"></a><b>--abc</b> (<i>expect ID1 ID2 SCORE format</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Use if each input line has the format ID1 ID2 SCORE.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--xi-dat"></a><b>--xi-dat</b>=&lt;suf&gt; (<i>strip &lt;suf&gt; from &lt;file-name&gt;</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--xi-dat"></a><b>--xi-dat</b>=&lt;suf&gt; (<i>strip &lt;suf&gt; from &lt;file-name&gt;</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 If set, the suffix &lt;suf&gt; is stripped from file-name in order
 to obtain the base name for output. If &lt;file-name&gt; does not
 end with suffix, it is assumed to be the base name, and &lt;suf&gt; is
 added in order to obtain the (real) file-name.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--xo-dat"></a><b>--xo-dat</b>=&lt;suf&gt; (<i>add &lt;suf&gt; to base name</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--xo-dat"></a><b>--xo-dat</b>=&lt;suf&gt; (<i>add &lt;suf&gt; to base name</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Attaches the suffix to the base name. Use this to distinguish
 between different parses. One might for example
 use <b>--score</b>=<i>b</i> <b>--bcut</b>=<i>5</i> <b>--xo-dat</b>=<i>b</i>.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--bcut"></a><b>--bcut</b>=&lt;val&gt; (<i>bit score cutoff</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--bcut"></a><b>--bcut</b>=&lt;val&gt; (<i>bit score cutoff</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Scores below the cutoff value are ignored.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--ecut"></a><b>--ecut</b>=&lt;val&gt; (<i>E-value cutoff</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--ecut"></a><b>--ecut</b>=&lt;val&gt; (<i>E-value cutoff</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Scores below the cutoff value are ignored.
-</div></td>
-</tr>
+</div></td></tr>
 </table>
 
 </div>
@@ -358,3 +189,5 @@ and fixes.
 <h2>SEE ALSO</h2>
 <a class="local" href="mclblastline.html">mclblastline</a>, <a class="local" href="mcxassemble.html">mcxassemble</a>, <a class="local" href="mcl.html">mcl</a>,
 <a class="local" href="clmformat.html">clmformat</a>.
+</body>
+</html>

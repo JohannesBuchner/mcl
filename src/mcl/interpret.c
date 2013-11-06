@@ -12,6 +12,8 @@
 #include <float.h>
 #include <limits.h>
 
+#include "clm.h"
+
 #include "util/types.h"
 #include "util/alloc.h"
 #include "util/io.h"
@@ -53,26 +55,28 @@
  *
 */
 
-/* maxdepth used for testing once. not so interesting */
 
 int isAttractive
 (  const mclMatrix*  Mt
 ,  int*              colProps
 ,  int               col
 ,  int               depth
-,  int*              maxdepth
 )  ;
 
 
-mclMatrix* mclTryDag
+/* Keep only highest weight edges for each tail node,
+ * using some weighting factors.
+*/
+
+mclMatrix* mclDag
 (  const mclMatrix*  A
 ,  const mclInterpretParam* ipp
 )
    {  long col
 
-   ;  double w_center = ipp ? ipp->w_center : 0.0
    ;  double w_selfval= ipp ? ipp->w_selfval: 0.999
    ;  double w_maxval = ipp ? ipp->w_maxval : 0.001
+   ;  double delta    = ipp ? ipp->delta    : 0.01 
 
    ;  mclMatrix* M = mclxAllocZero
                      (  mclvCopy(NULL, A->dom_cols)
@@ -81,46 +85,246 @@ mclMatrix* mclTryDag
    ;  for (col=0;col<N_COLS(A);col++)           /* thorough clean-up */
       {  mclVector*  vec      =  A->cols+col
       ;  mclVector*  dst      =  M->cols+col
-      ;  double      center   =  mclvPowSum(vec, 2)
       ;  double      selfval  =  mclvIdxVal(vec, vec->vid, NULL)
       ;  double      maxval   =  mclvMaxValue(vec)
-
-      ;  int         n_bar
-      ;  double      bar
-
-      ;  if (ipp && ipp->w_partialsum)
-         {  mclvTop(vec, ipp->w_partialsum, NULL, &bar, FALSE)
-         ;  bar *=  0.99
-         ;  n_bar = 0
-        /*  disregard count returned by mclvTop in order to ensure fairness */
-      ;  }
-         else
-         {  bar   =  (  (w_center * center) 
-                     +  (w_selfval * selfval) 
-                     +  (w_maxval * maxval) 
-                     )
-                     *  0.99
-         ;  n_bar =  mclvCountGiven(vec, mclpGivenValGt, &bar)
-      ;  }
-
-         mclvCopyGiven(dst, vec, mclpGivenValGt, &bar, n_bar)
+      ;  double      bar      =  selfval < maxval
+                                 ?  (  (w_selfval * selfval) 
+                                    +  (w_maxval * maxval) 
+                                    )
+                                 :     delta
+                                    ?  selfval / (1 + delta)
+                                    :  selfval
+      ;  int n_bar =  mclvCountGiven(vec, mclpGivenValGt, &bar)
+      ;  mclvCopyGiven(dst, vec, mclpGivenValGt, &bar, n_bar)
    ;  }
       return M
 ;  }
 
 
 
+/* we have equivalence classes of attractors, indexed by classid.
+   classes are mapped back to neighbour lists, namely
+   the merge of all the neighbours in a given class.
+*/
+
+int calc_depth
+(  mclx* m_transient
+,  mclx* m_attr_to_classid
+,  mclx* m_classid_to_jointnb
+)
+   {  mclv *wave_attr=  mclvInit(NULL)
+   ;  mclv* wave     =  mclvInit(NULL)
+   ;  mclv *classid  =  mclvInit(NULL)
+   ;  mclv *classnb  =  mclvInit(NULL)
+   ;  mclv *new_wave =  mclvInit(NULL)
+   ;  mclv *seen_tr  =  mclvInit(NULL)
+   ;  mclv *seen_at  =  mclvInit(NULL)
+   ;  const mclv* classid_single_attr = NULL /* don't free this one */
+   ;  int maxdepth   =  0
+   ;  int i
+
+   ;  for (i=0;i<N_COLS(m_transient);i++)
+      {  long cid = m_transient->cols[i].vid
+      ;  mcxbool  attr_in_chain = FALSE
+      ;  long     attr_example  = -1
+      ;  int      depth = 0
+
+      ;  if
+         (  (  classid_single_attr
+            =  mclxGetVector(m_attr_to_classid, cid, RETURN_ON_FAIL, NULL)
+            )
+         )
+         {  mclxUnionv(m_classid_to_jointnb, classid_single_attr, wave)
+         ;  if (wave->n_ivps)
+               attr_in_chain =   TRUE
+            ,  attr_example  =   cid
+      ;  }
+         else
+         mclvCopy(wave, m_transient->cols+i)
+
+      ;  mclvResize(seen_tr, 0)
+      ;  mclvResize(seen_at, 0)
+
+                                       /* fixme keep track of seen attractors */
+      ;  while (wave->n_ivps)
+         {  if (mclvGetIvp(wave, cid, NULL))
+            {  fprintf(stderr, "loop from %ld depth %d\n", cid, depth)
+            ;  break
+         ;  }
+
+                           /* 1. find attractors in wave */
+                           /* 2. find classids of those attractors */
+                           /* 3. find joint transient neighbours */
+                           /* 4. remove attractors from wave */
+                           /* 5. create next wave by merging transient neighbour lists */
+                           /* 6. merge attractor induced neighbours */
+                           /* 7. discards those we already saw */
+                           /* 8. update the seen list for next time around */
+
+         ;  mcldMeet(wave, m_attr_to_classid->dom_cols, wave_attr)
+         ;  mclxUnionv(m_attr_to_classid, wave_attr, classid)
+         ;  mclxUnionv(m_classid_to_jointnb, classid, classnb)
+         ;  if (wave_attr->n_ivps)
+            mcldMinus(wave, wave_attr, wave)
+         ;  if (!attr_in_chain && classnb->n_ivps && wave_attr->n_ivps)
+               attr_in_chain =   TRUE
+            ,  attr_example  =   wave_attr->ivps[0].idx
+         ;  mclxUnionv(m_transient, wave, new_wave)
+         ;  mcldMerge(new_wave, classnb, new_wave)
+         ;  mcldMinus(new_wave, seen_tr, new_wave)
+         ;  mcldMerge(seen_tr, new_wave, seen_tr)
+
+         ;  {  mclv* tmp = wave
+            ;  wave = new_wave
+            ;  new_wave = tmp
+         ;  }
+            depth++
+      ;  }
+         if (depth > maxdepth)
+         maxdepth = depth
+      ;  if (attr_in_chain)
+         fprintf(stderr, "attr %ld in chain starting at %ld\n", attr_example, cid)
+   ;  }
+
+      mclvFree(&wave)
+   ;  mclvFree(&wave_attr)
+   ;  mclvFree(&classid)
+   ;  mclvFree(&classnb)
+   ;  mclvFree(&new_wave)
+   ;  mclvFree(&seen_tr)
+   ;  mclvFree(&seen_at)
+   ;  return maxdepth
+;  }
+
+
+
+  /* 
+   *  calc_depth takes care of situations
+   *  where attractors go further down the transient matrix. It is improbable,
+   *  but one possible scenario is this:
+   *
+   *    (mclheader
+   *    mcltype matrix
+   *    dimensions 7x7
+   *    )
+   *    (mclmatrix
+   *    begin
+   *    0 1 4 $
+   *    1 2 3 $
+   *    2 2 3 5 $
+   *    3 3 $
+   *    4 5 $
+   *    5 6 $
+   *    6 6 $
+   *    )
+   *
+   *  note though that this matrix is not dpsd (asymmetric 0/1 pattern to start with)
+  */
+
+
+int mclDagTest
+(  const mclMatrix* dag
+)
+   {  mclx* m_attr_classes, *m_attr_to_classid, *m_classid_to_jointnb
+   ;  mclx* m_attr      =  mclxAllocClone(dag)
+   ;  mclx* m_transient =  mclxCopy(dag)
+   ;  int maxdepth      =  0
+   ;  int i
+
+                       /*
+                        *  m_attr
+                        *     is the symmetrified matrix on all nodes that do
+                        *     have a self-value. Links to non-attractors are removed.
+                        *  m_transient
+                        *     is the matrix where all attractor vectors are truncated.
+                        *  m_attr_classes
+                        *     lists the connected components of m_attr
+                        *  m_attr_to_classid
+                        *     maps attractors to their class ID.
+                        *  m_classid_to_jointnb
+                        *     maps the class ID to joint neighbours
+                       */
+
+#ifdef DEBUG
+   ;  mcxIO *u_attr_to_classid      =  mcxIOnew("u_attr_to_classid", "w")
+   ;  mcxIO *u_classid_to_jointnb   =  mcxIOnew("u_classid_to_jointnb", "w")
+   ;  mcxIO *u_transient            =  mcxIOnew("u_transient", "w")
+#endif
+
+   ;  for (i=0;i<N_COLS(m_transient);i++)
+      {  mclv* col = m_transient->cols+i
+      ;  if (mclvGetIvp(col, col->vid, NULL))   /* deemed attractor */
+            mclvCopy(m_attr->cols+i, col)
+         ,  mclvResize(col, 0)                  /* remove from transient */
+   ;  }
+
+                                                /* coldom on attrs only */
+      {  mclx* weed = mclxWeed(m_attr, MCLX_WEED_COLS)
+      ;  mclxFree(&m_attr)                      /* rowdom idem */
+      ;  mclxChangeRDomain(weed, mclvClone(weed->dom_cols))
+      ;  m_attr = weed
+      ;  mclxAddTranspose(m_attr, 1.0)          /* symmetrify */
+      ;  mclxMakeCharacteristic(m_attr)
+   ;  }
+
+                                                /* deemed attr systems */
+   ;  m_attr_classes       =  mclcComponents(m_attr, NULL)
+   ;  m_attr_to_classid    =  mclxTranspose(m_attr_classes)
+   ;  m_classid_to_jointnb =  mclxAllocZero
+                              (  mclvClone(m_attr_classes->dom_cols)
+                              ,  mclvClone(dag->dom_cols)
+                              )
+
+   ;  for (i=0;i<N_COLS(m_attr_classes);i++)
+      {  mclv* class =  m_attr_classes->cols+i
+      ;  mclv* joint =  m_classid_to_jointnb->cols+i
+      ;  mclv* nb    =  NULL
+      ;  int j
+      ;  for (j=0;j<class->n_ivps;j++)
+         {  long id  = class->ivps[j].idx
+         ;  nb = mclxGetVector(dag, id, EXIT_ON_FAIL, nb)
+         ;  mcldMerge(joint, nb, joint)
+      ;  }
+         mcldMinus(joint, m_attr_classes->cols+i, joint)
+        /*  if the above statement does something, we have a node
+         *  (in joint) reached by one of the attractors that reaches back
+         *  into the attractor set -- i.e. it is a loop.
+         *  We might opt to not do this and inspect and solve
+         *  the problem in the general loop-checking code.
+        */
+   ;  }
+
+#ifdef DEBUG
+      mclxWrite(m_attr_to_classid, u_attr_to_classid, 6, EXIT_ON_FAIL)
+   ;  mclxWrite(m_transient, u_transient, 6, EXIT_ON_FAIL)
+   ;  mclxWrite(m_classid_to_jointnb, u_classid_to_jointnb, 6, EXIT_ON_FAIL)
+#endif
+
+   ;  maxdepth = calc_depth(m_transient, m_attr_to_classid, m_classid_to_jointnb)
+
+   ;  mclxFree(&m_transient)
+   ;  mclxFree(&m_attr_to_classid)
+   ;  mclxFree(&m_classid_to_jointnb)
+   ;  mclxFree(&m_attr)
+   ;  mclxFree(&m_attr_classes)
+
+#ifdef DEBUG
+   ;  mcxIOfree(&u_classid_to_jointnb)
+   ;  mcxIOfree(&u_attr_to_classid)
+   ;  mcxIOfree(&u_transient)
+#endif
+
+   ;  return maxdepth
+;  }
+
+
 mclMatrix* mclInterpret
-(  const mclMatrix*     A
-,  const mclInterpretParam* ipp
-,  int*  depthptr
-,  mclMatrix** dagptr
+(  const mclMatrix* dag
 )
    {  mclx* clus2elem   =  NULL
-   ;  mclx* M, *Mt
+   ;  mclx* dagtp      =  mclxTranspose(dag)
 
-   ;  int n_cols =  N_COLS(A)
-   ;  int dagdepth = 0
+   ;  int n_cols =  N_COLS(dag)
    ;  int col, i, startoffset, n_cluster
 
    ;  int*           colProps = NULL
@@ -145,41 +349,23 @@ mclMatrix* mclInterpret
    ;  for (i=0;i<n_cols;i++)
       *(colProps+i) = 0
 
-   ;  M  = mclTryDag(A, ipp)
-   ;  Mt = mclxTranspose(M)
-   ;
-      {  int maxdepth = 1
-      ;  for (col=0;col<n_cols;col++)
-         {  mclVector*  vec    =  M->cols+col
-         ;  int offset
+   ;  for (col=0;col<n_cols;col++)
+      {  mclVector*  vec    =  dag->cols+col
+      ;  int offset
+                       /* vertex col has a loop */
+      ;  if (mclvIdxVal(vec, vec->vid, &offset), offset >= 0)
+         colProps[col] = colProps[col] | is_attractive
 
-           /*
-            *  vertex col has a loop
-           */
-         ;  if
-            (  mclvIdxVal(vec, vec->vid, &offset)
-            ,  offset >= 0
-            )
-            colProps[col] = colProps[col] | is_attractive
-
-           /*
-            *  vertex col has no parents (and thus not a loop)
-           */
-         ;  if
-            (  (Mt->cols+col)->n_ivps == 0
-            )
-            colProps[col] = colProps[col] | is_unattractive
-         ;
-         }
-
-        /*
-         *  compute closure of Bool "has attractive parent"
-        */
-      ;  for (col=0;col<n_cols;col++)
-         isAttractive (Mt, colProps, col, 0, &maxdepth)
+                       /* vertex col has no parents (and thus not a loop) */
+      ;  if ((dagtp->cols+col)->n_ivps == 0)
+         colProps[col] = colProps[col] | is_unattractive
    ;  }
 
-      startoffset = 0
+                       /* compute closure of Bool "has attractive parent" */
+   ;  for (col=0;col<n_cols;col++)
+      isAttractive (dagtp, colProps, col, 0)
+
+   ;  startoffset = 0
    ;  n_cluster = 0
    ;
 
@@ -204,14 +390,11 @@ mclMatrix* mclInterpret
          ;  mclVector  *treenodes = mclvResize(NULL, 0)
          ;  int depth = 0
 
-         ;  mclpInstantiate(leafnodes->ivps+0,M->cols[startoffset].vid,1.0)
+         ;  mclpInstantiate(leafnodes->ivps+0,dag->cols[startoffset].vid,1.0)
 
          ;  while (leafnodes->n_ivps)
             {  mclVector  *new_leafnodes = mclvInit(NULL)
             ;  mclIvp *leafivp, *leafl, *leafr
-
-            ;  if (depth > dagdepth)
-               dagdepth = depth
 
             ;  depth++
 
@@ -220,7 +403,7 @@ mclMatrix* mclInterpret
 
             ;  for (leafivp=leafl; leafivp < leafr; leafivp++)
                {  int leafoffset       =   mclxGetVectorOffset
-                                          (  M
+                                          (  dag
                                           ,  leafivp->idx
                                           ,  EXIT_ON_FAIL
                                           ,  -1
@@ -231,19 +414,19 @@ mclMatrix* mclInterpret
                ;  if (colProps[leafoffset] & is_attractive)
                   {  mcldMerge          /* look forward */
                      (  new_leafnodes
-                     ,  M->cols+leafoffset
+                     ,  dag->cols+leafoffset
                      ,  new_leafnodes
                      )
                   ;  mcldMerge          /* look backward too */
                      (  new_leafnodes
-                     ,  Mt->cols+leafoffset
+                     ,  dagtp->cols+leafoffset
                      ,  new_leafnodes
                      )
                ;  }
                   else if (!(colProps[leafoffset] & is_attractive))
                   mcldMerge          /* look backward only */
                   (  new_leafnodes
-                  ,  Mt->cols+leafoffset
+                  ,  dagtp->cols+leafoffset
                   ,  new_leafnodes
                   )
             ;  }
@@ -259,15 +442,11 @@ mclMatrix* mclInterpret
       ;  }
       }
 
-      if (depthptr)
-      *depthptr = dagdepth
-   ;
-
      /*  NOTE this should work for empty matrix and zero clusters as well */
 
       {  clus2elem =    mclxAllocZero
                         (  mclvCanonical(NULL, n_cluster, 1.0)
-                        ,  mclvCopy(NULL, A->dom_cols)
+                        ,  mclvCopy(NULL, dag->dom_cols)
                         )
       ;  for (i=0;i<n_cluster;i++)
          {  mclvRenew
@@ -283,12 +462,7 @@ mclMatrix* mclInterpret
 
       free(colProps)
    ;  free(clusterNodes)
-   ;  mclxFree(&Mt)
-
-   ;  if (dagptr)
-      *dagptr = M
-   ;  else
-      mclxFree(&M)
+   ;  mclxFree(&dagtp)
 
    ;  return clus2elem
 ;  }
@@ -299,13 +473,9 @@ int isAttractive
 ,  int* colProps
 ,  int colidx
 ,  int depth
-,  int* maxdepth
 )
    {  int   i
    ;  mclVector* parents = Mt->cols+colidx
-
-   ;  if (depth > *maxdepth)
-      *maxdepth = depth
 
    ;  if (colProps[colidx] & is_attractive)     /* already categorized */
       return 1
@@ -327,7 +497,6 @@ int isAttractive
             ,  colProps
             ,  j
             ,  depth +1
-            ,  maxdepth
             )
          )
          {  colProps[colidx] = colProps[colidx] |  is_attractive
@@ -445,6 +614,7 @@ void mclInterpretParamFree
 ;  }
 
 
+
 mclInterpretParam* mclInterpretParamNew
 (  void
 )
@@ -452,10 +622,8 @@ mclInterpretParam* mclInterpretParamNew
                                 (  sizeof(mclInterpretParam)
                                 ,  EXIT_ON_FAIL
                                 )
-   ;  ipp->w_center     =  0.0
    ;  ipp->w_selfval    =  0.999
    ;  ipp->w_maxval     =  0.001
-   ;  ipp->w_partialsum =  0.0
 
    ;  return ipp
 ;  }

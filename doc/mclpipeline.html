@@ -4,15 +4,35 @@
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <style type="text/css">
-body
-{ text-align: justify;
+body {
+text-align: justify;
 color: #001111;
 background: white;
 margin-left: 8%;
 margin-right: 8%;
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+p.default {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+p.L53 { font-size: 30pt; }
+p.L52 { font-size: 20pt; }
+p.L51 { font-size: 15pt; }
+p.L50 { font-size: 12pt; }
+p.L49 { font-size: 10pt; }
+p.L48 { font-size: 9pt; }
+p.L47 { font-size: 8pt; }
+td {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
 }
 h3 { margin-top:1em; }
 h2 { margin-top:2em; }
+.left { text-align: left; align: left; }
+.right { text-align: right; align: right; }
+.center { text-align: center; align: center; }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -41,35 +61,29 @@ margin-top: 1em;
 margin-bottom: 1em;
 }
 div.indent
-{margin-left: 8%;
+{ margin-left: 8%;
 margin-right: 0%;
 }
 </style>
-<title>
-The mclpipeline manual
-</title>
+<title>The mclpipeline manual</title>
 </head>
 <body>
-
 <p style="text-align:right">
-28 Apr 2005&nbsp;&nbsp;&nbsp;
+29 Sep 2005&nbsp;&nbsp;&nbsp;
 <a class="local" href="mclpipeline.ps"><b>mclpipeline</b></a>
-1.005, 05-118
+1.005, 05-272
 </p>
 
 <a name="name"></a>
 <h2>NAME</h2>
-
-<p style="text-align:justify">
-mclpipeline - a generic pipeline for generating and scrutinizing mcl clusterings.
+<p class="default L50" style="margin-bottom:0">
+mclpipeline - a generic pipeline for generating and scrutinizing mcl clusterings.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-
-<p style="text-align:justify">
+<p class="default L50">
 <b>mclpipeline</b> [options] &lt;file-name&gt;<br>
-
-<p style="text-align:justify">
+<p class="default L50">
 where &lt;file-name&gt; is either the name of the data input file, or its base name.
 In the latter case the <b>--xi-dat</b> option is required.
 In case mclpipeline is indeed used to control all stages from the data
@@ -79,8 +93,7 @@ input file onwards, usage will often be like this:
    mclpipeline [cluster options 2] --start-mcl &lt;file-name&gt;
    .. etc
 </pre>
-
-<p style="text-align:justify">
+<p class="default L50">
 <b>mclpipeline</b> can also be used to control shorter pipelines, i.e. in
 case the input matrix was already created or in case pre-assembled parts
 of the input matrix were already created. In this case, usage will
@@ -90,35 +103,37 @@ often be like this:
 or
    mclpipeline [assembly options] --start-assemble=&lt;fname&gt; --prepare-mcl
 </pre>
-<p style="text-align:justify; margin-bottom:0">
-<b>NOTE</b><br>With the default settings, mclpipeline requires the presence
-of the <b>zoem</b> macro processor to produce pretty-printed output
-(refer to the <a class="intern" href="#seealso">SEE ALSO</a> section and the
-<a class="local" href="clmformat.html">clmformat manual</a> for more information on zoem).
-If the <b>--fmt-dump</b> option or the <b>--prepare-format</b> option is used,
-zoem will not be required.
-</p>
-
-<p style="text-align:justify">
-This program is a relatively new addition to the MCL suite.
-If it does not work as expected, please file a bug report
-with the developer and/or subscribe to mcl-devel as
-indicated on <a class="extern" href="http://micans.org/mcl/">http://micans.org/mcl/</a>.
-
-<p style="text-align:justify">
+<p class="default L50" style="margin-bottom:0"><b>NOTE</b><br>
+It is possible to make mclpipeline output a large arrary
+of performance measures related to nodes and clusters
+in hyperlinked output by supplying the <b>--fmt-fancy</b> option.
+This can be useful if one wants to scrutinize a clustering in greater
+detail and navigate within the clustering. The output then includes
+listings of external nodes that are relevant/close to a given cluster,
+and vice versa, listings of external clusters that are relevant/close
+to a given node.</p>
+<p class="default L50" style="margin-bottom:0">
+Generating this more intricate output requires the presence of the <b>zoem</b> macro
+processor. Refer to the <a class="intern" href="#seealso">SEE ALSO</a> section and the
+<a class="local" href="clmformat.html">clmformat manual</a> for more information on zoem. By default
+zoem is not required, and the return result is a file where each line contains
+a clustering consisting of tab-separated labels.</p>
+<p class="default L50">
+If this program does not work as expected, please file a bug report with the
+developer and/or subscribe to mcl-devel as indicated on
+<a class="extern" href="http://micans.org/mcl/">http://micans.org/mcl/</a>. The problem will then be fixed.
+<p class="default L50">
 The full list of pipeline options is given below. Start simple,
 and if you need some behaviour, try to see if there is an option
 that fits your needs.
 If you use a wrapper pipeline such as <a class="local" href="mclblastline.html">mclblastline</a>, you
 can ignore the <b>--parser</b> and <b>--parser-tag</b> options
 as they are provided by the wrapper.
-
-<p style="text-align:justify">
+<p class="default L50">
 <b>mclpipeline</b>
 <a class="intern" href="#opt--parser"><b>--parser=</b>application (<i>data parser</i>)</a>
 <a class="intern" href="#opt--parser-tag"><b>--parser-tag=</b>str (<i>parse option transporter</i>)</a>
-
-<p style="text-align:justify">
+<p class="default L50">
 <a class="intern" href="#opt--whatif"><b>[--whatif</b> (<i>do not execute</i>)<b>]</b></a><br>
 <a class="intern" href="#opt--start-assemble"><b>[--start-assemble</b> (<i>skip parse stage</i>)<b>]</b></a><br>
 <a class="intern" href="#opt--start-mcl"><b>[--start-mcl</b> (<i>skip earlier stages</i>)<b>]</b></a><br>
@@ -146,7 +161,6 @@ as they are provided by the wrapper.
 <a class="intern" href="#opt--mcl-o"><b>[--mcl-o=</b>fname (<i>do not use</i>)<b>]</b></a><br>
 <a class="intern" href="#opt--mcl-opt"><b>[--mcl-opt=</b>val (<i>mcl option transporter</i>)<b>]</b></a><br>
 <a class="intern" href="#opt--fmt-lump-count"><b>[--fmt-lump-count=</b>num (<i>collect formatted output</i>)<b>]</b></a><br>
-<a class="intern" href="#opt--fmt-dump"><b>[--fmt-dump=</b>fname (<i>make dump file</i>)<b>]</b></a><br>
 <a class="intern" href="#opt--fmt-opt"><b>[--fmt-opt</b> val (<i>clmformat option transporter</i>)<b>]</b></a><br>
 <a class="intern" href="#opt--fmt-tab"><b>[--fmt-tab</b> fname (<i>use this tab file</i>)<b>]</b></a><br>
 <a class="intern" href="#opt--fmt-notab"><b>[--fmt-notab</b> (<i>ignore tab file</i>)<b>]</b></a><br>
@@ -154,14 +168,12 @@ as they are provided by the wrapper.
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-
-<p style="text-align:justify">
+<p class="default L50">
 <b>mclpipeline</b> encapsulates a sequence of programs to be run on some
 input data in order to obtain clusterings and formatted output
 representing the clusterings, while maintaining unique file names
 and file name ensembles corresponding with differently parametrized runs.
-
-<p style="text-align:justify">
+<p class="default L50">
 The script can behave in several ways. By default, the pipeline
 consists of the stages of <i>parsing</i>, <i>assembly</i>,
 <i>clustering</i>, and <i>formatting</i>.
@@ -170,8 +182,7 @@ represented by some parser script obeying the interface
 rules described below. The assembly stage is done by
 <a class="local" href="mcxassemble.html">mcxassemble</a>, the clustering stage is done by <a class="local" href="mcl.html">mcl</a>,
 and the formatting stage is done by <a class="local" href="clmformat.html">clmformat</a>.
-
-<p style="text-align:justify">
+<p class="default L50">
 The script can also be put to simpler uses, e.g. letting the script take
 care of unique file names for differently parametrized mcl runs. In this
 case there is no need to specify either the parser or the data file, and
@@ -182,8 +193,7 @@ subsequent invocations might look like this:
    mclpipeline --start-mcl=&lt;fname&gt; --mcl-I=2.4 --mcl-scheme=4
    .. etc
 </pre>
-
-<p style="text-align:justify">
+<p class="default L50">
 It is easiest if for each parser a wrapper script is written
 encapsulating the parser and <b>mclpipeline</b>. A mechanism is provided
 through which mclpipeline can recognize options that are meant to be
@@ -193,8 +203,7 @@ parameters <b>--parser</b>=<b>mcxdeblast</b> <b>--parser-tag</b>=<b>blast</b>.
 In this case the parser is <b>mcxdeblast</b>, and mclpipeline will
 pass any options of the forms <b>--blast-foo</b> and <b>--blast-bar=zut</b>
 to the parser (respectively as <b>--foo</b> and <b>--bar=zut</b>).
-
-<p style="text-align:justify">
+<p class="default L50">
 For a given data set the stages of parsing and assembling
 will often not need to be repeated, especially if there
 is a well established way of creating a matrix from
@@ -207,12 +216,10 @@ will look like
    mclpipeline [cluster options 3] --start-mcl &lt;file-name&gt;
    ...
 </pre>
-
-<p style="text-align:justify">
+<p class="default L50">
 Note that <b>mclpipeline</b> will store the output of those runs
 in unique file names derived from the parametrizations.
-
-<p style="text-align:justify">
+<p class="default L50">
 There are some options that affect the file names of intermediate
 results. In the above setup of repeated runs, if used in one run,
 they must be used in all runs, as <b>mclpipeline</b> uses them to compute the
@@ -221,15 +228,13 @@ For the setup above, these options are
 <b>--xi</b>=<i>suf</i>,
 <b>--xo-dat</b>=<i>suf</i>, and
 <b>--xo-ass</b>=<i>suf</i>.
-
-<p style="text-align:justify">
+<p class="default L50">
 There are other ways of resuming the pipeline, and one must always take care
 that options starting with <b>--xi-</b>, <b>--xo-</b>, <b>--xa</b>, or
 <b>--xe</b> are repeated among preparatory and subsequent runs.
 These tags respectively mnemonize <i>extension in</i>, <i>extension out</i>,
 <i>extension append</i>, and <i>extension extra</i>.
-
-<p style="text-align:justify">
+<p class="default L50">
 Should one want to experiment with various ways of creating input
 matrices, then <b>mclpipeline</b> supplies options to create unique file
 names and file name ensembles corresponding with different setups and
@@ -237,17 +242,13 @@ parametrizations. These are <b>--xo-dat</b>=<i>suf</i> for the parsing
 stage and <b>--xo-ass</b>=<i>suf</i> for the assembly stage. mclpipeline
 <i>automatically</i> generates unique file names for the cluster results,
 but it does not do so for the parse and assembly results.
-
-<p style="text-align:justify">
-<b>Parser interface requirements</b>
-<br>
+<p class="default L50"><b>Parser interface requirements</b><br>
 The parser should recognize its last argument as a file name
 or as the base name of a file.
 It should produce the files <tt>base.raw</tt>, <tt>base.hdr</tt>,
 and preferably <tt>base.tab</tt> and <tt>base.map</tt>, where the base name
 <tt>base</tt> is determined as described below.
-
-<p style="text-align:justify">
+<p class="default L50">
 <b>mclpipeline</b> will pass its last argument &lt;file-name&gt; to the parser.
 The parser should recognize the <b>--xi-dat</b>=<i>suf</i>
 and <b>--xo-dat</b>=<i>suf</i> options. If the first is present,
@@ -260,10 +261,7 @@ If the <b>--xo-dat</b>=<i>suf</i> option is present, it must append the
 suffix specified in the value to the base part as described above.
 The result is then the full base name to which the <tt>raw</tt>, <tt>hdr</tt>,
 and other suffixes will be appended.
-
-<p style="text-align:justify">
-<b>Parser interface examples</b>
-<br>
+<p class="default L50"><b>Parser interface examples</b><br>
 <pre>&lt;parser&gt; --xi-dat=abc --xo-dat=xyz foo
  *  parser reads foo.abc, writes foo.xyz.raw, foo.xyz.hdr et cetera.
 &lt;parser&gt; --xi-dat=abc --xo-dat=xyz foo.abc
@@ -275,10 +273,7 @@ and other suffixes will be appended.
 &lt;parser&gt; foo.abc
  *  parser reads foo.abc, writes foo.abc.raw, foo.abc.hdr et cetera.
 </pre>
-
-<p style="text-align:justify">
-<b>Output file names construction</b>
-<br>
+<p class="default L50"><b>Output file names construction</b><br>
 The files of primary interest are the mcl output file and
 the formatted output produced by clmformat.
 The pipeline constructs a file name for the mcl output
@@ -286,8 +281,7 @@ in which several parameters are encoded. The first
 part of the file name is either the base name for the assembly
 stage, or simply the name of the input file, depending on
 whether the option <b>--xo-ass</b>=<i>suf</i> was used or not.
-
-<p style="text-align:justify">
+<p class="default L50">
 A suffix encoding key-value pairs is appended. By default
 it has the form <tt>I..s.</tt>, e.g. <tt>I20s2</tt>. The latter examples
 denotes primary inflation value 2.0 and scheme 2.
@@ -306,102 +300,24 @@ lowercase, so a full example is <tt>I25c30i35l2pi28s3</tt>.
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr>
-<td colspan=3>
-<a name="opt--whatif"></a><b>--whatif</b> (<i>do not execute</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+<tr><td colspan=3><a name="opt--whatif"></a><b>--whatif</b> (<i>do not execute</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Shows only what would be done without executing it.
 Hugely useful!
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--start-assemble"></a><b>--start-assemble</b> (<i>skip parse stage</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--start-assemble"></a><b>--start-assemble</b> (<i>skip parse stage</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Skip the parse stage, assume the necessary files have been created in a
 previous run.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--prepare-mcl"></a><b>--prepare-mcl</b> (<i>do preparatory stages</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--prepare-mcl"></a><b>--prepare-mcl</b> (<i>do preparatory stages</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Do the parsing and assembly stage, then quit. Useful if you
 want to do multiple cluster runs for a given graph - use
 <b>--start-mcl</b>
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--start-mcl"></a><b>--start-mcl</b> (<i>skip earlier stages</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--start-mcl"></a><b>--start-mcl</b> (<i>skip earlier stages</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Immediately start the mcl stage.
 Assume the necessary files have been created in a previous run.
-
-<p style="text-align:justify">
-<b>NOTE</b>
-<br>
+<p class="default L50"><b>NOTE</b><br>
 This option can be used as <b>--start-mcl</b>=<i>fname</i>.
 In this case, no final file name argument need be given, and
 mcl will use <i>fname</i> as the file name for its input.
-
-<p style="text-align:justify">
+<p class="default L50">
 The difference with <b>--start-mcl</b> is that the latter
 will assume it is picking up the results of a previous run.
 The names of those results might include suffixes corresponding
@@ -409,651 +325,113 @@ with the parse and assembly stage (cf. <b>--xo-dat</b> and
 <b>--xo-ass</b>).
 If you are not clear on this (and you should not be), exercise
 the <b>--whatif</b> option to be sure.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--start-format"></a><b>--start-format</b> (<i>skip earlier stages</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--start-format"></a><b>--start-format</b> (<i>skip earlier stages</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Immediately start the format stage.
 Assume the necessary files have been created in a previous run.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--help"></a><b>--help</b> (<i>summary of options</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--help"></a><b>--help</b> (<i>summary of options</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Print a terse summary of options.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--xi"></a><b>--xi</b> suf (<i>strip suffix from data file</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--xi"></a><b>--xi</b> suf (<i>strip suffix from data file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 In normal usage, this will strip the specified suffix from the data file
 to obtain the base name for further output.
 When used with <b>--start-mcl</b>=<i>fname</i> the same behaviour is applied
 to the mcl input file name specified in <i>fname</i>.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--xo-dat"></a><b>--xo-dat</b> suf (<i>attach suf to parse output</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--xo-dat"></a><b>--xo-dat</b> suf (<i>attach suf to parse output</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 This suffix will be attached to the base name of the parse output.
 It can be used to distinguish between different parse parametrizations
 if this is applicable.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--xo-ass"></a><b>--xo-ass</b> suf (<i>attach suf to assembly output</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--xo-ass"></a><b>--xo-ass</b> suf (<i>attach suf to assembly output</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 This suffix will be attached to the base name of the assembly output.
 It can be used to distinguish between different assembly parametrizations
 if this is applicable.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--xo-mcl"></a><b>--xo-mcl</b> suf (<i>replace mcl output suffix</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--xo-mcl"></a><b>--xo-mcl</b> suf (<i>replace mcl output suffix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 This suffix will be used instead of the suffix by default created
 by the pipeline.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--xa-mcl"></a><b>--xa-mcl</b> str (<i>append to mcl output suffix</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--xa-mcl"></a><b>--xa-mcl</b> str (<i>append to mcl output suffix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 This string will be appended to the suffix by default created
 by the pipeline.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--xe-mcl"></a><b>--xe-mcl</b> suf (<i>append to mcl output</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--xe-mcl"></a><b>--xe-mcl</b> suf (<i>append to mcl output</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 This string will be appended as a single suffix to the output base
 name before mclpipeline appends its own suffix.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--xo-fmt"></a><b>--xo-fmt</b> suf (<i>attach suf to clmformat output</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--xo-fmt"></a><b>--xo-fmt</b> suf (<i>attach suf to clmformat output</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 This suffix will be used instead of the suffix by default used
 by the formatting stage.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--ass-repeat"></a><b>--ass-repeat</b> str (<i>assembly repeat option</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--ass-repeat"></a><b>--ass-repeat</b> str (<i>assembly repeat option</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Corresponds with the <b>mcxassemble</b> <b>-r</b>&nbsp;<i>mode</i> option.
 Refer to the <a class="local" href="mcxassemble.html">mcxassemble</a> manual.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--ass-opt"></a><b>--ass-opt</b> val (<i>assembly option transporter</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--ass-opt"></a><b>--ass-opt</b> val (<i>assembly option transporter</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Transfer <b>-opt</b>&nbsp;<i>val</i> to <b>mcxassemble</b>.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--ass-nomap"></a><b>--ass-nomap</b> (<i>ignore map file</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--ass-nomap"></a><b>--ass-nomap</b> (<i>ignore map file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Either no map file is present or it should be ignored.
 For parsers that don't write map files.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--mcl-I"></a><b>--mcl-I</b> float (<i>mcl inflation value</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--mcl-I"></a><b>--mcl-I</b> float (<i>mcl inflation value</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 The (main) inflation value mcl should use.
 <i>This is the primary mcl option</i>.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--mcl-scheme"></a><b>--mcl-scheme</b> i (<i>mcl scheme index</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--mcl-scheme"></a><b>--mcl-scheme</b> i (<i>mcl scheme index</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 The scheme index to use. This options is also important.
 Refer to the <a class="local" href="mcl.html">mcl</a> manual.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--mcl-te"></a><b>--mcl-te</b> num (<i>#expansion threads</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--mcl-te"></a><b>--mcl-te</b> num (<i>#expansion threads</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 The number of threads <b>mcl</b> should use.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--mcl-i"></a><b>--mcl-i</b> float (<i>mcl initial inflation value</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--mcl-i"></a><b>--mcl-i</b> float (<i>mcl initial inflation value</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 The initial inflation value mcl should use.
 Only for fine-tuning or testing.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--mcl-l"></a><b>--mcl-l</b> float (<i>mcl initial loop length</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--mcl-l"></a><b>--mcl-l</b> float (<i>mcl initial loop length</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 The length of the loop in which initial inflation
 is applied. By default zero.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--mcl-c"></a><b>--mcl-c</b> float (<i>mcl center value</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--mcl-c"></a><b>--mcl-c</b> float (<i>mcl center value</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 The center value. One may attempt to affect granularity
 by exercising this option, which controls the loop weights
 in the input matrix. Refer to the <a class="local" href="mcl.html">mcl</a> manual.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--mcl-pi"></a><b>--mcl-pi</b> float (<i>mcl pre-inflation value</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--mcl-pi"></a><b>--mcl-pi</b> float (<i>mcl pre-inflation value</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Pre-inflation, another option which may possibly affect granularity by
 changing the input matrix. It makes the edge weight
 distribution either more or less homogeneous.
 Refer to the <a class="local" href="mcl.html">mcl</a> manual.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--mcl-o"></a><b>--mcl-o</b> fname (<i>do not use</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--mcl-o"></a><b>--mcl-o</b> fname (<i>do not use</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Set the mcl output name.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--mcl-opt"></a><b>--mcl-opt</b> val (<i>mcl option transporter</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--mcl-opt"></a><b>--mcl-opt</b> val (<i>mcl option transporter</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Transfer <b>-opt</b>&nbsp;<i>val</i> to <b>mcl</b>.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--fmt-lump-count"></a><b>--fmt-lump-count</b> num (<i>collect formatted output</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--fmt-dump-stats"></a><b>--fmt-dump-stats</b> (<i>add simple measures to dump file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+This adds some simple performance measures to the dump file. For each
+cluster, five columns proceed the label listing. These are the cluster ID,
+the number of elements in the cluster, the projection (percentage of
+within-cluster edge weight relative to total outgoing edge weight), the
+efficiency of the cluster (which is the average of the efficiency of all its
+nodes), and the maximum efficiency (average of the max-efficiency of all the
+nodes). Look into the <a class="local" href="clmformat.html">clmformat manual</a> for more
+information on and references to the efficiency measures.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--fmt-fancy"></a><b>--fmt-fancy</b> (<i>create detailed output (requires zoem)</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Creates extensive description of node/cluster and cluster/cluster
+relationships.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--fmt-lump-count"></a><b>--fmt-lump-count</b> num (<i>collect formatted output</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Collect clusters in the same file until the total number
 of nodes has exceeded <i>num</i> (in the formatted output).
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--fmt-dump"></a><b>--fmt-dump</b> fname (<i>make dump file</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
-Make a simple dump of the clustering. Does also work in
-conjunction with the <b>--fmt-tab</b> option.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--fmt-tab"></a><b>--fmt-tab</b> (<i>use this tab file</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+Only meaninful when <b>--fmt-fancy</b> is given.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--fmt-tab"></a><b>--fmt-tab</b> (<i>use this tab file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Explicitly specify the tab file to use.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--fmt-notab"></a><b>--fmt-notab</b> (<i>ignore tab file</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--fmt-notab"></a><b>--fmt-notab</b> (<i>ignore tab file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Either no tab file is present or it should be ignored.
 For parsers that don't write tab files.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--fmt-opt"></a><b>--fmt-opt</b> val (<i>clmformat option transporter</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--fmt-opt"></a><b>--fmt-opt</b> val (<i>clmformat option transporter</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Transfer <b>-opt</b>&nbsp;<i>val</i> to <b>clmformat</b>.
-</div></td>
-</tr>
+</div></td></tr>
 </table>
 
 </div>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-
-<p style="text-align:justify">
+<p class="default L50">
 Stijn van Dongen
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-
-<p style="text-align:justify">
+<p class="default L50">
 <a class="local" href="mcxdeblast.html">mcxdeblast</a>, <a class="local" href="mclblastline.html">mclblastline</a>,
 and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
-
-<p style="text-align:justify">
+<p class="default L50">
 With default settings, <b>mclpipeline</b> depends on the presence
 of <b>zoem</b>. It can be obtained from
 <a class="extern" href="http://micans.org/zoem/">http://micans.org/zoem/</a> .
+</body>
+</html>

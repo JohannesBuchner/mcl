@@ -93,10 +93,13 @@ enum
 
 ,  MY_OPT_DIR        =  MY_OPT_FMT + 2
 ,  MY_OPT_INFIX
+,  MY_OPT_FANCY
 ,  MY_OPT_LUMP_COUNT
 
 ,  MY_OPT_DUMP       =  MY_OPT_LUMP_COUNT + 2
+,  MY_OPT_DUMP_NOARG
 ,  MY_OPT_DUMP_PAIRS
+,  MY_OPT_DUMP_MEASURES
 ,  MY_OPT_DNS
 
 ,  MY_OPT_NSM        =  MY_OPT_DNS + 2
@@ -204,11 +207,29 @@ mcxOptAnchor options[] =
    ,  "<fname>"
    ,  "dump line-based output, default one cluster per line"
    }
+,  {  "--dump"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_DUMP_NOARG
+   ,  NULL
+   ,  "dump line-based output, default one cluster per line"
+   }
+,  {  "--fancy"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_FANCY
+   ,  NULL
+   ,  "use with -dump/--dump if you want html/txt files as well"
+   }
 ,  {  "--dump-pairs"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_DUMP_PAIRS
    ,  NULL
    ,  "write cluster/element pair per single line"
+   }
+,  {  "--dump-measures"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_DUMP_MEASURES
+   ,  NULL
+   ,  "include performance measures in dump output"
    }
 ,  {  "-dump-node-sep"
    ,  MCX_OPT_HASARG
@@ -711,6 +732,9 @@ int main
    ;  mcxbool     adapt       =  FALSE
    ;  mcxbool     subgraph    =  FALSE
    ;  mcxbool     lazy_tab    =  FALSE
+   ;  mcxbool     dump        =  FALSE
+   ;  mcxbool     fancy       =  FALSE
+   ;  mcxbool     dump_measures  =  FALSE
    ;  mcxTing*    dn_fmt      =  NULL
    ;  mcxTing*    fn_azm      =  mcxTingNew("fmt.azm")
    ;  mclMatrix   *cl         =  NULL
@@ -834,8 +858,24 @@ int main
          ;  break
          ;
 
+            case MY_OPT_DUMP_NOARG     /* construct output file from input */
+         :  dump = TRUE
+         ;  break
+         ;
+
             case MY_OPT_DUMP
          :  xf_dump = mcxIOnew(opt->val, "w")
+         ;  dump = TRUE
+         ;  break
+         ;
+
+            case MY_OPT_FANCY
+         :  fancy = TRUE
+         ;  break
+         ;
+
+            case MY_OPT_DUMP_MEASURES
+         :  dump_measures =  TRUE
          ;  break
          ;
 
@@ -864,12 +904,13 @@ int main
       ;  }
       }
 
-      if (!xf_cl || (!xf_dump && !xf_mx))
-      mcxDie(1, me, "-imx and -icl or -dump required (see -h)")
+      if (!fancy && !dump)
+      fancy = TRUE
 
-   /* fixme: demand graph; make utility function for that,
-    * e.g. report_nag
-   */
+   ;  if (!xf_cl)
+      mcxDie(1, me, "-icl is required in all modes (see -h)")
+   ;  else if (fancy && !xf_mx)
+      mcxDie(1, me, "to get fancy you have to supply -imx (see -h)")
 
    ;  if (xf_ccm)
       mcxIOopen(xf_ccm, EXIT_ON_FAIL)
@@ -982,35 +1023,45 @@ int main
         */
    ;  }
 
-     /*  note: branch below is not mem-clean
-      *  todo? enable output of some confidence scores in dump?
-     */
+      if (fancy)
+      {  if (!dn_fmt)
+         dn_fmt = mcxTingPrint(NULL, "fmt.%s", xf_cl->fn->str) 
+      ;  if (chdir(dn_fmt->str))
+         {  if (errno == ENOENT)
+            {  if (mkdir(dn_fmt->str, 0777))
+                  perror("mkdir error")
+               ,  mcxDie(1, me, "Cannot create dir <%s>", dn_fmt->str)
+            ;  else if (chdir(dn_fmt->str))
+               mcxDie(1, me, "Cannot change dir to <%s>", dn_fmt->str)
+         ;  }
+            else
+               perror("chdir error")
+            ,  mcxDie(1, me, "Cannot change dir to <%s>", dn_fmt->str)
+      ;  }
+      }
+
+      if (dump && !xf_dump)
+      {  if  (fancy)
+         xf_dump = mcxIOnew("dump", "w")
+      ;  else 
+         {  mcxTing* dump_name = mcxTingPrint(NULL, "dump.%s", xf_cl->fn->str)
+         ;  xf_dump = mcxIOnew(dump_name->str, "w")
+         ;  mcxTingFree(&dump_name)
+      ;  }
+      }
+
       if (xf_dump)
       {  mcxIOopen(xf_dump, EXIT_ON_FAIL)
-      ;  clvals = mx ? mkclvals(mx, cl, cl_on_cl) : NULL
+      ;  clvals = mx && dump_measures ? mkclvals(mx, cl, cl_on_cl) : NULL
       ;  dodump(xf_dump, cl, tab, clvals)
-      ;  return 0
-   ;  }
-
-      if (!dn_fmt)
-      dn_fmt = mcxTingPrint(NULL, "fmt.%s", xf_cl->fn->str) 
-
-   ;  if (chdir(dn_fmt->str))
-      {  if (errno == ENOENT)
-         {  if (mkdir(dn_fmt->str, 0777))
-               perror("mkdir error")
-            ,  mcxDie(1, me, "Cannot create dir <%s>", dn_fmt->str)
-         ;  else if (chdir(dn_fmt->str))
-            mcxDie(1, me, "Cannot change dir to <%s>", dn_fmt->str)
-      ;  }
-         else
-            perror("chdir error")
-         ,  mcxDie(1, me, "Cannot change dir to <%s>", dn_fmt->str)
+      ;  if (!fancy)
+         return 0
    ;  }
 
       fnames = mknames(cl, infix, batchsize)
 
-   ;  clvals = mkclvals(mx, cl, cl_on_cl)
+   ;  if (!clvals)
+      clvals = mkclvals(mx, cl, cl_on_cl)
    ;  elscores = mkelvals(mx, cl, el_to_cl)
 
    ;  {  xf_azm = mcxIOnew(fn_azm->str, "w")

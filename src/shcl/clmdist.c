@@ -37,10 +37,10 @@
 
 #define  DIST_SPLITJOIN 1
 #define  DIST_VARINF    2
-#define  DIST_JACQUARD  4
+#define  DIST_MIRKIN    4
 #define  DIST_SCATTER   8
 
-#define  DIST_MAIN      (DIST_SPLITJOIN | DIST_VARINF | DIST_JACQUARD)
+#define  DIST_MAIN      (DIST_SPLITJOIN | DIST_VARINF | DIST_MIRKIN)
 /* fixme: ugly hack. unify setcount with others, support simultaneous output */
 
 #define  PART_LOWER     1
@@ -93,7 +93,8 @@ const char* usagelines[] =
 ,  "  [-parts <l|d|u>+]"
 ,  "Mode sj: Split/join distance"
 ,  "Mode vi: Variance of information"
-,  "Mode jq: Jacquard index"
+,  "Mode ehd: Edge hamming distance, aka Mirkin metric"
+,  "Mode mk: Edge hamming distance, (Mirkin metric)"
 ,  NULL
 }  ;
 
@@ -167,8 +168,8 @@ int main
             mode |= DIST_SPLITJOIN
          ;  else if (!strcmp(argv[a], "vi"))
             mode |= DIST_VARINF
-         ;  else if (!strcmp(argv[a], "jq"))
-            mode |= DIST_JACQUARD
+         ;  else if (!strcmp(argv[a], "ehd") || !strcmp(argv[a], "mk"))
+            mode |= DIST_MIRKIN
          ;  else if (!strcmp(argv[a], "sc"))
             mode |= DIST_SCATTER
       ;  }
@@ -190,7 +191,7 @@ int main
       if (!mode)
       mode = DIST_SPLITJOIN
 
-   ;  if (mode & DIST_JACQUARD || mode & DIST_SPLITJOIN)
+   ;  if (mode & DIST_MIRKIN || mode & DIST_SPLITJOIN)
       {  digits = 0
    ;  }
 
@@ -214,8 +215,8 @@ int main
          fprintf(stdout, "Using the split/join distance (metric)\n")
       ;  else if (mode & DIST_VARINF)
          fprintf(stdout, "Using variance of information measure (metric)\n")
-      ;  else if (mode & DIST_JACQUARD)
-         fprintf(stdout, "Using Jacquard index (metric)\n")
+      ;  else if (mode & DIST_MIRKIN)
+         fprintf(stdout, "Using Mirkin metric (metric)\n")
       ;  if (mode & DIST_SCATTER)
          fprintf(stdout, "Using set count (metric)\n")
       ;  fprintf(stdout, "\n")
@@ -291,7 +292,7 @@ int main
             {  mclcVIDistance(cl1, cl2, meet12, &dist1d, &dist2d)
             ;  FILL(i,j,D_VIA,D_VIB, dist1d, dist2d)
          ;  }
-            else if (mode & DIST_JACQUARD)
+            else if (mode & DIST_MIRKIN)
             {  mclcJQDistance(cl1, cl2, meet12, &dist1d, &dist2d)
             ;  FILL(i,j,D_JQA, D_JQB,dist2d, dist1d)
          ;  }
@@ -344,7 +345,7 @@ int main
       ;  }
 
          for (j=offset;j<bound;j++)
-         {  char tmp[200]
+         {  mcxTing* tmp = mcxTingEmpty(NULL, 200)
          ;  if (i == j && !DO_DIAGONAL)
             {  fprintf(stdout, "%*s", width, "")
             ;  mcxTingPrintAfter(scline, "%*s", width, "")
@@ -352,20 +353,21 @@ int main
          ;  }
 
             if (mode & DIST_VARINF)
-            sprintf(tmp, "[%.*f,%.*f]", digits,USE(i,j,D_VIA),digits,USE(i,j,D_VIB))
+            mcxTingPrint(tmp, "[%.*f,%.*f]", digits,USE(i,j,D_VIA),digits,USE(i,j,D_VIB))
          ;  else if (mode & DIST_SPLITJOIN)
-            sprintf(tmp, "[%.*f,%.*f]", digits,USE(i,j,D_SJA),digits,USE(i,j,D_SJB))
-         ;  else if (mode & DIST_JACQUARD)
-            sprintf(tmp, "[%.*f,%.*f]", digits,USE(i,j,D_JQA),digits,USE(i,j,D_JQB))
+            mcxTingPrint(tmp, "[%.*f,%.*f]", digits,USE(i,j,D_SJA),digits,USE(i,j,D_SJB))
+         ;  else if (mode & DIST_MIRKIN)
+            mcxTingPrint(tmp, "[%.*f,%.*f]", digits,USE(i,j,D_JQA),digits,USE(i,j,D_JQB))
 
          ;  if (mode & DIST_MAIN)
-            fprintf(stdout, "%*s", width, tmp)
+            fprintf(stdout, "%*s", width, tmp->str)
 
          ;  if (mode & DIST_SCATTER)
-            {  sprintf(tmp, "[%.0f,%.0f]", USE(i,j, D_SCA), USE(i,j,D_SCB))
-            ;  mcxTingPrintAfter(scline, "%*s", width, tmp)
+            {  mcxTingPrint(tmp, "[%.0f,%.0f]", USE(i,j, D_SCA), USE(i,j,D_SCB))
+            ;  mcxTingPrintAfter(scline, "%*s", width, tmp->str)
          ;  }
-         }
+            mcxTingFree(&tmp)
+      ;  }
 
          if (offset < bound)
          for (x=bound;x<n_clusterings;x++)

@@ -4,15 +4,35 @@
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <style type="text/css">
-body
-{ text-align: justify;
+body {
+text-align: justify;
 color: #001111;
 background: white;
 margin-left: 8%;
 margin-right: 8%;
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+p.default {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+p.L53 { font-size: 30pt; }
+p.L52 { font-size: 20pt; }
+p.L51 { font-size: 15pt; }
+p.L50 { font-size: 12pt; }
+p.L49 { font-size: 10pt; }
+p.L48 { font-size: 9pt; }
+p.L47 { font-size: 8pt; }
+td {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
 }
 h3 { margin-top:1em; }
 h2 { margin-top:2em; }
+.left { text-align: left; align: left; }
+.right { text-align: right; align: right; }
+.center { text-align: center; align: center; }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -41,94 +61,47 @@ margin-top: 1em;
 margin-bottom: 1em;
 }
 div.indent
-{margin-left: 8%;
+{ margin-left: 8%;
 margin-right: 0%;
 }
 </style>
-<title>
-The mcxdump manual
-</title>
+<title>The mcxdump manual</title>
 </head>
 <body>
-
 <p style="text-align:right">
-28 Apr 2005&nbsp;&nbsp;&nbsp;
+29 Sep 2005&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxdump.ps"><b>mcxdump</b></a>
-1.005, 05-118
+1.005, 05-272
 </p>
-
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr>
-<td width=48 valign="top" align="left">
-1.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+<tr><td width=48 valign="top" class=left>1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#name">NAME</a>
-</div></td>
-</tr>
-<tr>
-<td width=48 valign="top" align="left">
-2.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class=left>2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td>
-</tr>
-<tr>
-<td width=48 valign="top" align="left">
-3.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class=left>3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td>
-</tr>
-<tr>
-<td width=48 valign="top" align="left">
-4.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class=left>4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#options">OPTIONS</a>
-</div></td>
-</tr>
-<tr>
-<td width=48 valign="top" align="left">
-5.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class=left>5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#author">AUTHOR</a>
-</div></td>
-</tr>
-<tr>
-<td width=48 valign="top" align="left">
-6.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class=left>6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#seealso">SEE ALSO</a>
-</div></td>
-</tr>
+</div></td></tr>
 </table>
 
 </div>
 
 <a name="name"></a>
 <h2>NAME</h2>
-
-<p style="text-align:justify">
-mcxdump - dump matrices, optionally map indices to labels
+<p class="default L50" style="margin-bottom:0">
+mcxdump - dump matrices, optionally map indices to labels</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-
-<p style="text-align:justify">
+<p class="default L50">
 <b>mcxdump</b>
 <a class="intern" href="#opt-imx"><b>-imx</b> &lt;fname&gt; (<i>matrix file</i>)</a>
 <a class="intern" href="#opt-o"><b>[-o</b> &lt;fname&gt; (<i>dumpf file ('-' for stdout)</i>)<b>]</b></a>
@@ -166,388 +139,60 @@ a particular entry is by default output as well.
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr>
-<td colspan=3>
-<a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>matrix file</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+<tr><td colspan=3><a name="opt-imx"></a><b>-imx</b> &lt;fname&gt; (<i>matrix file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Input matrix.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt-dump"></a><b>-dump</b> &lt;fname&gt; (<i>dumpf file ('-' for stdout)</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-dump"></a><b>-dump</b> &lt;fname&gt; (<i>dumpf file ('-' for stdout)</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Output stream.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt-tab"></a><b>-tab</b> &lt;fname&gt; (<i>row/column tab (label) file</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-tab"></a><b>-tab</b> &lt;fname&gt; (<i>row/column tab (label) file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Substitute column indices and row indices by labels from the tab file.
 Since the same tab file is used for both, this implies that the matrix
 domains are identical.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt-tabc"></a><b>-tabc</b> &lt;fname&gt; (<i>column tab file</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-tabc"></a><b>-tabc</b> &lt;fname&gt; (<i>column tab file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Substitute column indices by labels from the tab file.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt-tabr"></a><b>-tabr</b> &lt;fname&gt; (<i>row tab file</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-tabr"></a><b>-tabr</b> &lt;fname&gt; (<i>row tab file</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Substitute row indices by labels from the tab file.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--lazy-tab"></a><b>--lazy-tab</b> (<i>allow tab/domain mismatch</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--lazy-tab"></a><b>--lazy-tab</b> (<i>allow tab/domain mismatch</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 If used, the tab file domain(s) do not necessarily need to match
 the corresponding domain in the input matrix. Entries missing in
 the tab files will be replaced by a question mark.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--no-values"></a><b>--no-values</b> (<i>omit values</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--no-values"></a><b>--no-values</b> (<i>omit values</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Do not emit values.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--no-loops"></a><b>--no-loops</b> (<i>omit loops</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--no-loops"></a><b>--no-loops</b> (<i>omit loops</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Do not output entries for which the row index equals the column index,
 if present.
 Applies only to matrices for which column and row domains are equal.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--force-loops"></a><b>--force-loops</b> (<i>force loops</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--force-loops"></a><b>--force-loops</b> (<i>force loops</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 For each column, force output of a row entry that matches the
 column index.
 Applies only to matrices for which column and row domains are equal.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--dump-pairs"></a><b>--dump-pairs</b> (<i>emit pairs per line</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--dump-pairs"></a><b>--dump-pairs</b> (<i>emit pairs per line</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Output a single pair of column-identifier and row-identifier per line,
 optionally followed by the value of the corresponding matrix entry.
 All fields are separated by the field separator.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--dump-lines"></a><b>--dump-lines</b> (<i>emit rows per line</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--dump-lines"></a><b>--dump-lines</b> (<i>emit rows per line</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 For each matrix column, the corresponding row is output on a
 single line, with row identifiers separated by the field separator
 and values attached to the row identifier by the node/value separator.
 In this format, the column identifier is output as the leading field.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--dump-rlines"></a><b>--dump-rlines</b> (<i>omit leading column node</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--dump-rlines"></a><b>--dump-rlines</b> (<i>omit leading column node</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 As the option above, except that the column identifier is not output.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt-sep-value"></a><b>-sep-value</b> &lt;str&gt; (<i>node/value separator</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-sep-value"></a><b>-sep-value</b> &lt;str&gt; (<i>node/value separator</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Set the node/value separator for line based row ensemble output.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt-sep"></a><b>-sep</b> &lt;str&gt; (<i>field separator</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-sep"></a><b>-sep</b> &lt;str&gt; (<i>field separator</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Set the field separator.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt-h"></a><b>-h</b> (<i>list help</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-h"></a><b>-h</b> (<i>list help</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Print help, this could possibly be the same output as
 supplied with <b>--apropos</b>.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--apropos"></a><b>--apropos</b> (<i>list synopsis of all options</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--apropos"></a><b>--apropos</b> (<i>list synopsis of all options</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 List a one-line synopsis for all options.
-</div></td>
-</tr>
+</div></td></tr>
 </table>
 
 </div>
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-
-<p style="text-align:justify">
+<p class="default L50">
 Stijn van Dongen.
 
 <a name="seealso"></a>
@@ -556,6 +201,5 @@ Stijn van Dongen.
 <a class="local" href="mclfaq.html">mclfaq</a>,
 and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
-
 </body>
 </html>

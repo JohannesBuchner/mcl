@@ -615,9 +615,11 @@ int opImac
 (  void
 )
    {  mclx* mx = zsGetOb(0, UTYPE_MX)
-   ;  mclx* cl
+   ;  mclx* cl, *dag
    ;  if (!mx) return 0
-   ;  cl = mclInterpret(mx, NULL, NULL, NULL)
+   ;  dag = mclDag(mx, NULL)
+   ;  cl = mclInterpret(dag)
+   ;  mclxFree(&dag)
    ;  return zgPush(UTYPE_MX, cl)
 ;  }
 
@@ -1498,17 +1500,21 @@ int opAllOne
 )
    {  const int  *kp    =  zsGetOb(1, UTYPE_INT)
    ;  const int  *lp    =  zsGetOb(0, UTYPE_INT)
+   ;  mclv* dom_rows, *dom_cols
 
-   ;  if (!kp || lp)
+   ;  if (!kp || !lp)
       return 0
+
+   ;  dom_rows = mclvCanonical(NULL, *kp, 1.0)
+   ;  dom_cols = mclvCanonical(NULL, *lp, 1.0)
 
    ;  zsPop()
    ;  zsPop()
    ;  return   zgPush
                (  UTYPE_MX
                ,  mclxCartesian
-                  (  mclvCanonical(NULL, *kp, 1.0)
-                  ,  mclvCanonical(NULL, *lp, 1.0)
+                  (  dom_rows
+                  ,  dom_cols
                   ,  1.0
                   )
                )

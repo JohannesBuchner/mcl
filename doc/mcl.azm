@@ -364,6 +364,7 @@
 \begin{itemize}{\mcx_itemopts}
 
 \item{\defopt{-I}{f}{inflation}}
+\car{
    Sets the main inflation value to f. This value is the main handle
    for affecting cluster granularity. It is usually chosen somewhere
    in the range [1.2-5.0]. \useopt{-I}{5.0} will tend to result
@@ -375,6 +376,7 @@
    certain values of \genopt{-I} are simply not right for your data.  The
    \sib{clmdist} section contains a discussion of how to use the cluster
    validation tools shipped with \mcl (see the \secref{seealso} section).
+}
 
 \par{
    A second option for affecting cluster granularity is the
@@ -465,6 +467,7 @@
    \bf{progress}\| 
    \bf{pruning}\| 
    \bf{explain}\| 
+   \bf{clusters}\|
    \bf{all}
 }
 \par{
@@ -496,6 +499,10 @@
    This mode causes output of resource-related quantities. It has
    \optref{-v-pruning}{a separate\
    entry in the \refcaption{pruneoptions} section}.
+
+\item{\useopt{-v}{clusters}}
+   This mode prints a terse list of characteristics of the
+   clusterings associated with intermediate iterands.
 
 \item{\defopt{-progress}{k}{gauge}}
    If k>0 then for each matrix multiplication \mcl will print an
@@ -649,9 +656,11 @@
 
 \items{
    {\defopt{-di}{i:j}{dump interval}}
+   {\genopt{-di}{all}}
    {\genopt{-dump-interval}{i:j}}
 }
-   Dump during iterations i..j-1. See the \genopt{-dump}{str} option below.
+   Dump during iterations i..j-1. Use \it{all} to dump in all
+   iterations. See the \genopt{-dump}{str} option below.
 
 \items{
    {\defopt{-dm}{k}{dump i+0..i+k..}}
@@ -678,11 +687,12 @@
    list of single integers and integer ranges. Ranges are denoted by
    two integers separated by a hyphen.
 
-\par
+\par{
    If \genopt{-dump-dom} is used and specifies a matrix file,
    the indices specified in the \genopt{-dump-subd} option should index
    columns in that matrix. These columns are merged and added to the
    list of entries used in selecting the extended principal submatrix.
+}
 
 \""{
    \items{
@@ -693,16 +703,27 @@
       less disk space.}
 
 \item{\defopt{-dump}{str}{type}}
-   \genarg{str} can be of the following types.
+   \genarg{str} is checked for substring occurrences of the following entries.
+   Repeated use of \genopt{-dump} is also allowed.
 
 \par{
    \bf{ite}\|
    \bf{dag}\|
    \bf{cls}\|
-   \bf{chr}
+   \bf{chr}\|
+   \bf{lines}\|
+   \bf{cat}
 }
+
 \par{
-   Repeated use is allowed.
+   \bf{lines} and \bf{cat} change the mode of dumping. The first
+   changes the dump format to a line based pairwise format rather
+   than the default mcl matrix format. The second causes all
+   dumped items to be dumped to the default stream used for the
+   output clustering, which is appended at the end.
+}
+
+\par{
    The \bf{ite} option writes \mcl iterands to file.  The \bf{cls}
    option writes clusterings associated with mcl iterands to file.
    These clusters are obtained from a particular directed acyclic graph
@@ -716,6 +737,11 @@
    many applications. For more information
    refer to \sibmclfaq and the \secref{references} section below.
 }
+
+\par{
+   The \bf{result} option dumps the usual MCL clustering.
+}
+
 \par{
    The \bf{chr} option says, for each iterand I, to output a matrix C with
    characteristics of I.  C has the same number of columns as I.  For each
@@ -727,6 +753,7 @@
    maximum value found in that column at the same time.  Entry 4 is the
    amount of mass kept for that column \it{after pruning}.
 }
+
 \par{
    The \genopt{-ds} option sets the stem for file names of dumped
    objects (default \it{mcl}).  The \genopt{-di} and \genopt{-dm}
@@ -871,14 +898,14 @@
    on, so that multiple mcl runs need not redo the same computation (the
    first expansion step).
 
-\par
+\par{
    Note that the \optref{-scheme}{\genopt{-scheme} parameters} affect the
    matrix computed with \genopt{--expand-only}.  Other options that affect
    the matrix resulting from this option:
    \optref{-pp}{\genopt{-pp}}, \optref{-c}{\genopt{-c}},
    and \optref{-digits}{\genopt{-digits}}. The latter option
    sets the precision for output in native ascii format.
-
+}
 \item{\defopt{-in-gq}{f}{filter threshold}}
    mcl will remove any edges in the input graph (equivalently, entries in
    the input matrix) for which the weight is below\~\genarg{f}.
@@ -1403,6 +1430,13 @@ all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|
    It is possible to enforce listing of empty vectors by
    setting bit '1' in the variable MCLXASCIIFLAGS.
 
+\item{MCLXIOUNCHECKED}
+   MCL and its sibling applications will always check a matrix for consistency
+   while it is being read.  If this variable is set, the consistency check is
+   omitted.  For large graphs the speed up can be considerable. However, if the
+   input graph is not conforming it will likely crash the application that
+   is using it.
+
 \end{itemize}
 
 
@@ -1418,8 +1452,9 @@ all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|
    No known bugs at this time. Please send bug reports to mcl-devel@micans.org.
 }
 \sec{author}{AUTHOR}
-\par
+\par{
 Stijn van Dongen.
+}
 
 \sec{history}{HISTORY/CREDITS}
 \par{

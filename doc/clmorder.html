@@ -4,15 +4,35 @@
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <style type="text/css">
-body
-{ text-align: justify;
+body {
+text-align: justify;
 color: #001111;
 background: white;
 margin-left: 8%;
 margin-right: 8%;
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+p.default {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+p.L53 { font-size: 30pt; }
+p.L52 { font-size: 20pt; }
+p.L51 { font-size: 15pt; }
+p.L50 { font-size: 12pt; }
+p.L49 { font-size: 10pt; }
+p.L48 { font-size: 9pt; }
+p.L47 { font-size: 8pt; }
+td {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
 }
 h3 { margin-top:1em; }
 h2 { margin-top:2em; }
+.left { text-align: left; align: left; }
+.right { text-align: right; align: right; }
+.center { text-align: center; align: center; }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -41,91 +61,50 @@ margin-top: 1em;
 margin-bottom: 1em;
 }
 div.indent
-{margin-left: 8%;
+{ margin-left: 8%;
 margin-right: 0%;
 }
 </style>
-<title>
-The clmorder manual
-</title>
+<title>The clmorder manual</title>
 </head>
 <body>
-
 <p style="text-align:right">
-28 Apr 2005&nbsp;&nbsp;&nbsp;
+29 Sep 2005&nbsp;&nbsp;&nbsp;
 <a class="local" href="clmorder.ps"><b>clmorder</b></a>
-1.005, 05-118
+1.005, 05-272
 </p>
-
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr>
-<td width=48 valign="top" align="left">
-1.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+<tr><td width=48 valign="top" class=left>1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#name">NAME</a>
-</div></td>
-</tr>
-<tr>
-<td width=48 valign="top" align="left">
-2.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class=left>2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td>
-</tr>
-<tr>
-<td width=48 valign="top" align="left">
-3.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class=left>3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td>
-</tr>
-<tr>
-<td width=48 valign="top" align="left">
-4.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class=left>4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#author">AUTHOR</a>
-</div></td>
-</tr>
-<tr>
-<td width=48 valign="top" align="left">
-5.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class=left>5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#seealso">SEE ALSO</a>
-</div></td>
-</tr>
+</div></td></tr>
 </table>
 
 </div>
 
 <a name="name"></a>
 <h2>NAME</h2>
-
-<p style="text-align:justify">
-clmorder - reorder indices to represent blocks from different clusterings.
+<p class="default L50" style="margin-bottom:0">
+clmorder - reorder indices to represent blocks from different clusterings.</p>
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-
-<p style="text-align:justify">
+<p class="default L50">
 <b>clmorder</b> &lt;file name&gt;+
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-
-<p style="text-align:justify">
+<p class="default L50">
 Given a set of input clusterings, <b>clmorder</b> reorders indices so that
 the ordering represents blocks from different clusterings (which are
 preferably more or less hierarchically organized). It puts nodes that
@@ -134,23 +113,19 @@ in larger clusters earlier in the ordering. It is presumed that the
 clusterings are successive subclusterings, but it need not be strictly
 the case - <b>clmorder</b> will convert the input clusterings to a strictly
 nested sequence.
-
-<p style="text-align:justify">
+<p class="default L50">
 <b>clmorder</b> interprets its arguments as names of files containing
 clusterings in mcl format (see <a class="local" href="mcxio.html">mcxio</a>).
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-
-<p style="text-align:justify">
+<p class="default L50">
 Stijn van Dongen.
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-
-<p style="text-align:justify">
+<p class="default L50">
 <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
-
 </body>
 </html>

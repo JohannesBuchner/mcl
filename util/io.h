@@ -21,6 +21,7 @@
 #define util_file_h
 
 #include <stdio.h>
+#include <sys/types.h>
 
 #include "ting.h"
 #include "types.h"
@@ -138,6 +139,24 @@ mcxIO* mcxIOnew
 ,  const char*    mode
 )  ;
 
+
+mcxstatus mcxIOopen
+(  mcxIO*         xf
+,  mcxOnFail      ON_FAIL
+)  ;
+
+
+mcxstatus mcxIOtestOpen
+(  mcxIO*         xf
+,  mcxOnFail      ON_FAIL
+)  ;
+
+mcxstatus mcxIOtrunc
+(  mcxIO*         xf
+,  mcxOnFail      ON_FAIL
+)  ;
+
+
 /*
  *    mcxIOfree does *not* support callback for freeing the usr object
 */
@@ -153,12 +172,6 @@ void mcxIOfree_v
 
 void mcxIOrelease
 (  mcxIO*   xf
-)  ;
-
-
-mcxstatus mcxIOopen
-(  mcxIO*   xf
-,  mcxOnFail      ON_FAIL
 )  ;
 
 

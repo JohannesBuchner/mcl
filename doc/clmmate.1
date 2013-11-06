@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "clmmate" 1 "28 Apr 2005" "clmmate 1\&.005, 05-118" "USER COMMANDS"
+.TH "clmmate" 1 "29 Sep 2005" "clmmate 1\&.005, 05-272" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -34,23 +34,23 @@ clmmate \- compute best matches between two clusterings
 \fBclmmate\fP [-twins fname] <clfile1> <clfile2>
 .SH DESCRIPTION
 
-\fBclmmate\fP computes for each cluster \fCC1\fR in \fCclfile1\fR all clusters
-\fCC2\fR in \fCclfile2\fR that have non-empty intersection, and prints
-the number of shared nodes, the numbers of nodes in \fCC1\fR absent
-in \fCC2\fR, the number of nodes in \fCC2\fR absent in \fCC1\fR, and
-the total number of nodes in \fCC2\fR\&. The total number of nodes
-in \fCC1\fR is listed once for each sublisting, where the primary
-listing is over clusters in \fCclfile1\fR\&.
+\fBclmmate\fP computes for each cluster \fCC1\fP in \fCclfile1\fP all clusters
+\fCC2\fP in \fCclfile2\fP that have non-empty intersection, and prints
+the number of shared nodes, the numbers of nodes in \fCC1\fP absent
+in \fCC2\fP, the number of nodes in \fCC2\fP absent in \fCC1\fP, and
+the total number of nodes in \fCC2\fP\&. The total number of nodes
+in \fCC1\fP is listed once for each sublisting, where the primary
+listing is over clusters in \fCclfile1\fP\&.
 
 All of this information can also be obtained from the
 contingency matrix defined for two clusterings\&.
-The \fC[i,j]\fR row-column entry in a contigency matrix between
+The \fC[i,j]\fP row-column entry in a contigency matrix between
 to clusterings gives the number of entries in the intersection
-between cluster\ \fCi\fR and cluster\ \fCj\fR from the respective
+between cluster\ \fCi\fP and cluster\ \fCj\fP from the respective
 clusterings\&. The other information is implicitly present;
-the total number of nodes in clusters\ \fCi\fR and\ \fCj\fR
-for example can be obtained as the sum of entries in row\ \fCi\fR
-and column\ \fCj\fR respectively, and the difference counts
+the total number of nodes in clusters\ \fCi\fP and\ \fCj\fP
+for example can be obtained as the sum of entries in row\ \fCi\fP
+and column\ \fCj\fP respectively, and the difference counts
 can then be obtained by substracting the intersection count\&.
 The contingency matrix can easily be computed using \fBmcx\fP;
 e\&.g\&.
@@ -69,15 +69,15 @@ mcx /clfile2 lm /clfile1 lm tp mul /ting wm
 .fi \fR
 
 will create the contingency matrix in mcl matrix format
-in the file \fCting\fR, where columns range over the clusters
-in \fCclfile1\fR\&.
+in the file \fCting\fP, where columns range over the clusters
+in \fCclfile1\fP\&.
 
 \fBclmmate\fP has the advantage that information is presented
 in a more comprehensible fashion than available from
 the contingency matrix\&.
 Additionally, the \fB-twins\fP\ \fItwinfile\fP option is useful
-to inspect the list of best matching clusters from \fCclfile2\fR\&.
-This option will create a file \fCtwinfile\fR which contains
+to inspect the list of best matching clusters from \fCclfile2\fP\&.
+This option will create a file \fCtwinfile\fP which contains
 cryptic (but useful) lines of the form
 
 .di ZV
@@ -97,14 +97,14 @@ cryptic (but useful) lines of the form
 .ZV
 .fi \fR
 
-The first line indicates that clusters\ 0 from \fCclfile1\fR
-and\ 2 from \fCclfile2\fR have 194\ nodes in their
+The first line indicates that clusters\ 0 from \fCclfile1\fP
+and\ 2 from \fCclfile2\fP have 194\ nodes in their
 intersection; there are 214\ additional nodes in cluster\ 0,
 and 0\ additional nodes in cluster\ 2\&.
-Denote the size of the intersection (also called meet) by\ \fCm\fR,
-and the sizes of the two clusters as \fCs1\fR\ and\ \fCs2\fR respectively\&.
+Denote the size of the intersection (also called meet) by\ \fCm\fP,
+and the sizes of the two clusters as \fCs1\fP\ and\ \fCs2\fP respectively\&.
 The scores beginning each line are
-computed as \fC2*m/(s1+s2)\fR\&. Such a score equals
+computed as \fC2*m/(s1+s2)\fP\&. Such a score equals
 exactly 1\&.0 if the two clusters are identical, and for nearly identical
 clusterings the score will be close to 1\&.0\&.
 

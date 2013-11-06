@@ -14,6 +14,7 @@
 
 #include "vector.h"
 #include "matrix.h"
+#include "tab.h"
 
 #include "util/io.h"
 #include "util/types.h"
@@ -22,15 +23,20 @@
 
 /* TODO:
  *    Make ascii format parsing looser (not line based).
- *    The ascii parsing code is not all that great, a bit heavy-weight.
- *    Then, it would be faster if not fgetc based but does buffering.
+ *    The ascii parsing code is not all that great, heavy-weight.
+
+ *    mcl input format needs a clean approach with grammar and parsing.
+ *    Then it would be (much?) faster if not fgetc based but does buffering.
  *
- *    There should be a clearer framework for rewinding streams
- *    after gathering partial information (readDomains, readDimensions).
+ *    There should be a clearer framework for rewinding streams after gathering
+ *    partial information (readDomains, readDimensions).
  *
- *    There is now a funky callback mclxIOinfoReset, invoked
- *    by mclxIOclose. Look out for implications.
+ *    There is now a funky callback mclxIOinfoReset, invoked by mclxIOclose.
+ *    Look out for implications.
+ *
+ *    mclvaDump and mclvaDump2 are weird.
 */
+
 
 #define mclxCookie   0x0d141831u     /* MTX1 */
 #define mclvCookie   0x16050331u     /* VEC1 */
@@ -43,7 +49,7 @@
 #define MCL_APP_WB_YES  8
 
 
-/*                               0           1
+/*                                1,2         4,8
  * MCLXIOFORMAT                  ascii       binary
  * MCLXIOVERBOSITY               silent      verbose
 */
@@ -57,7 +63,7 @@ mcxbool mclxIOsetQMode        /* quad mode */
 ,  unsigned long mode
 )  ;
 
-                              /* get format: 'a' or 'b' */
+                              /* get format: 'a' or 'b' or '0' (unknown) */
 int mclxIOformat
 (  mcxIO* xf
 )  ;
@@ -106,10 +112,10 @@ mclMatrix* mclxSubRead
 
 mclMatrix* mclxSubReadx
 (  mcxIO* xf
-,  mclVector* colmask         /* create submatrix on this domain */
-,  mclVector* rowmask         /* create submatrix on this domain */
+,  mclVector* colmask    /* create submatrix on this domain */
+,  mclVector* rowmask    /* create submatrix on this domain */
 ,  mcxOnFail ON_FAIL
-,  mcxbits    bits            /* currently only/always checks for equald domains */
+,  mcxbits    bits       /* refer to mclxReadx */
 )  ;
 
 
@@ -249,9 +255,15 @@ void                 mclxBoolPrint
 )  ;
 
 
+mcxstatus mclIOvcheck
+(  mclv* vec
+,  mclv* dom
+)  ;
+
+
 mcxstatus mclvEmbedRead
 (  mclVector*        vec
-,  mcxIO*            xfIn
+,  mcxIO*            xf
 ,  mcxOnFail         ON_FAIL
 )  ;
 
@@ -276,9 +288,14 @@ void mclvaWrite
 )  ;
 
 
-/*
- *    does *not* accept MCLXIO_VALUE_GETENV
+
+/*************************************
+ * *
+ **
+ *
 */
+
+               /*  does *not* accept MCLXIO_VALUE_GETENV */
 void mclvaDump
 (  const mclVector*  vec
 ,  FILE*             fp
@@ -288,13 +305,10 @@ void mclvaDump
 )  ;
 
 
-/*
- *    does *not* accept MCLXIO_VALUE_GETENV
- *
- * The default corresponds with a vector printed in a matrix:
- *    no header nor trail, eov values and vid indeed.
-*/
-
+               /*    Does *not* accept MCLXIO_VALUE_GETENV.
+                *    The default corresponds with a vector printed in a matrix:
+                *    no header nor trail, eov values and vid indeed.
+               */
 #define MCLVA_DUMP_HEADER_YES 1
 #define MCLVA_DUMP_VALUE_NO   2
 #define MCLVA_DUMP_VID_NO     4
@@ -309,6 +323,52 @@ void mclvaDump2
 ,  const char*       sep
 ,  mcxbits           opts
 )  ;
+
+
+
+
+/*************************************
+ * *
+ **
+ *
+*/
+
+
+#define MCX_DUMP_VALUES          1 <<  0
+#define MCX_DUMP_PAIRS           1 <<  1
+#define MCX_DUMP_LINES           1 <<  2
+#define MCX_DUMP_RLINES          1 <<  3
+#define MCX_DUMP_LOOP_ASIS       1 <<  4
+#define MCX_DUMP_LOOP_NONE       1 <<  5
+#define MCX_DUMP_LOOP_FORCE      1 <<  6
+
+typedef struct
+{  mcxbits        modes
+;  const char*    sep_row
+;  const char*    sep_val
+;  double         threshold
+;
+}  mclxIOdumper   ;
+
+
+void mclxIOdumpSet
+(  mclxIOdumper*  dump
+,  mcxbits        modes
+,  const char*    sep_row
+,  const char*    sep_val
+)  ;
+
+
+mcxstatus mclxIOdump
+(  mclx*       mx
+,  mcxIO*      xf_dump
+,  mclxIOdumper* dump
+,  mclTab*     tabc
+,  mclTab*     tabr
+,  mcxOnFail   ON_FAIL
+)  ;
+
+/*************************************/
 
 
 mclpAR *mclpaReadRaw

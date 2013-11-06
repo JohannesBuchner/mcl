@@ -52,22 +52,6 @@ char* mcxStrRChrAint
 ,  int      offset
 )  ;
 
-#define TR_SQUASH 1
-#define TR_DELETE 2
-#define TR_COMPLEMENT 4
-
-mcxbool trLoadTable
-(  const char*    src
-,  const char*    dst
-,  int*     tbl         /* should have size 256 */
-,  int      flags
-)  ;
-
-int mcxStrTranslate
-(  char*    src
-,  int*     tbl         /* should have size 256 */
-,  int      flags
-)  ;
-
 #endif
+
 

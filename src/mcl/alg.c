@@ -40,7 +40,7 @@
 #include "util/opt.h"
 #include "util/err.h"
 #include "util/types.h"
-#include "util/opt.h"
+#include "util/tr.h"
 
 #define chb(a,b,c,d,e,f,g) mcxOptCheckBounds("mcl-main", a, b, c, d, e, f, g)
 
@@ -72,6 +72,7 @@ enum
 ,  ALG_OPT_SVD
 ,  ALG_OPT_ANALYZE
 ,  ALG_OPT_SORT
+,  ALG_OPT_UNCHECKED
 ,  ALG_OPT_DIGITS
 ,  ALG_OPT_ASCII
                         ,  ALG_OPT_BINARY
@@ -100,11 +101,18 @@ grade gradeDir[] =
 ,  { 100, "yabadabadoo!" }
 ,  {  99, "perfect" }
 ,  {  96, "superb" }
-,  {  93, "excellent" }
-,  {  90, "superior" }
+,  {  93, "superior" }
+,  {  92, "fabulous" }
+,  {  90, "excellent" }
+,  {  88, "smashing baby!" }
+,  {  86, "cracking" }
 ,  {  85, "outstanding" }
+,  {  84, "really neat" }
+,  {  83, "swell" }
+,  {  82, "dandy" }
 ,  {  80, "favourable" }
 ,  {  75, "good" }
+,  {  74, "solid" }
 ,  {  70, "adequate" }
 ,  {  65, "fair" }
 ,  {  60, "satisfactory" }
@@ -115,16 +123,19 @@ grade gradeDir[] =
 ,  {  35, "deplorable" }
 ,  {  30, "lousy" }
 ,  {  26, "abominable" }
-,  {  22, "miserable" }
-,  {  18, "awful" }
-,  {  15, "pathetic" }
+,  {  24, "miserable" }
+,  {  22, "appalling" }
+,  {  20, "awful" }
+,  {  18, "pathetic" }
+,  {  16, "terrible" }
+,  {  14, "dreadful" }
 ,  {  12, "wretched" }
-,  {   9, "terrible" }
-,  {   7, "horrid" }
-,  {   5, "ghastly" }
-,  {   3, "atrocious" }
+,  {  10, "horrid" }
+,  {   8, "ghastly" }
+,  {   6, "atrocious" }
 ,  {  -2, "impossible" }
 }  ;
+
 
 void juryCharter
 (  mclProcParam* mpp
@@ -149,7 +160,7 @@ void mclAlgPrintInfo
 
 void mclCenter
 (  mclMatrix*        mx
-,  double            w_center
+,  double            w_self
 ,  double            w_maxval
 )  ;
 
@@ -215,6 +226,12 @@ mcxOptAnchor mclAlgOptions[] =
    ,  ALG_OPT_SORT
    ,  "<mode>"
    ,  "order clustering by one of lex|size|revsize|none"
+   }
+,  {  "--unchecked"
+   ,  MCX_OPT_DEFAULT
+   ,  ALG_OPT_UNCHECKED
+   ,  NULL
+   ,  "do not check input matrix validity(danger sign here)"
    }
 ,  {  "--ascii"
    ,  MCX_OPT_DEFAULT
@@ -472,7 +489,7 @@ mclMatrix* postprocess
             {  mclxaWrite(cl, xf2, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
             ;  mclxFree(&cl)
             ;  cl = cm
-            ;  mcxTell(me, "proceeding with splitted clustering")
+            ;  mcxTell(me, "proceeding with split clustering")
          ;  }
             else
             {  mclxaWrite(cm, xf2, MCLXIO_VALUE_NONE, RETURN_ON_FAIL)
@@ -490,9 +507,23 @@ mclMatrix* postprocess
 
       /* write clustering only now */
 
+      if (MCPVB(mlp->mpp, MCPVB_CAT))
+      {  mclDumpMatrix(cl, mlp->mpp, "result", "", 0, FALSE)
+      ;  return cl
+   ;  }
+
+      if (mcxIOopen(mlp->xfout, RETURN_ON_FAIL) != STATUS_OK)
+      {  mcxWarn(me, "cannot open out stream <%s>", mlp->xfout->fn->str)
+      ;  mcxWarn(me, "trying to fall back to default <out.mcl>")
+      ;  mcxIOnewName(mlp->xfout, "out.mcl")
+      ;  mcxIOopen(mlp->xfout, EXIT_ON_FAIL)
+   ;  }
+
       mclxaWrite(cl, mlp->xfout, MCLXIO_VALUE_NONE, EXIT_ON_FAIL)
+
    ;  if (mlp->modes & ALG_DO_APPEND_LOG)
       mclWriteLog(mlp->xfout->fp, mlp, cl)
+
    ;  mcxIOclose(mlp->xfout)
 
       /* clustering written, now check matrix */
@@ -658,15 +689,9 @@ mcxstatus mclAlgorithm
             mclxColumnsRealign(thecluster, mclvLexCmp)
       ;  }
       }
+
      /* EO cluster enstriction
       */
-
-      if (mcxIOopen(mlp->xfout, RETURN_ON_FAIL) != STATUS_OK)
-      {  mcxWarn(me, "cannot open out stream <%s>", mlp->xfout->fn->str)
-      ;  mcxWarn(me, "trying to fall back to default <out.mcl>")
-      ;  mcxIOnewName(mlp->xfout, "out.mcl")
-      ;  mcxIOopen(mlp->xfout, EXIT_ON_FAIL)
-   ;  }
 
       thecluster = postprocess(mlp, thecluster)
 
@@ -694,7 +719,9 @@ mcxstatus mclAlgorithm
 
       mcxTell(me, "%ld clusters found", (long) N_COLS(thecluster))
    ;  mclxFree(&thecluster)
+
    ;  mcxTell(me, "output is in %s", mlp->xfout->fn->str)
+
    ;  return STATUS_OK
 ;  }
 
@@ -783,6 +810,14 @@ mcxstatus mclAlgorithmInit
             case ALG_OPT_BINARY
          :  mlp->writeMode  =  'b'
          ;  break
+         ;
+
+            case ALG_OPT_UNCHECKED
+         :  {  mcxTing* tmp = mcxTingPrint(NULL, "MCLXIOUNCHECKED=1")
+            ;  const char* str = mcxTinguish(tmp)
+            ;  putenv(str)
+         ;  }
+            break
          ;
 
             case ALG_OPT_SHOWVERSION
@@ -1024,10 +1059,18 @@ mcxstatus mclAlgorithmInit
       ;  mcxTingWrite(mlp->xfout->fn, name->str)
 
       ;  if (!mpp->dump_stem->len)
-         mcxTingPrint(mpp->dump_stem, "ite.%s.", suf->str)
+         mcxTingPrint(mpp->dump_stem, "%s.%s", mlp->fnin->str, suf->str)
 
       ;  mcxTingFree(&name)
    ;  }
+
+      if (!mpp->dump_stem->len)
+      {  if (!strcmp(mlp->xfout->fn->str, "-"))
+         mcxTingPrint(mpp->dump_stem, "%s", mlp->fnin->str)
+      ;  else
+         mcxTingPrint(mpp->dump_stem, "%s", mlp->xfout->fn->str)
+   ;  }
+
 
                        /* forgot why the stderr feature, and also forgot
                         * why it only applies to the full name.
@@ -1049,6 +1092,15 @@ mcxstatus mclAlgorithmInit
          ,  isatty(fileno(stdout)) ? "\n" : ""
          )
       ;  return ALG_INIT_DONE
+   ;  }
+
+                        /* truncate (cat operates in append mode */
+      if (MCPVB(mpp, MCPVB_CAT))
+      {  mcxIO* tmp = NULL
+      ;  mcxTingWrite(mpp->dump_stem, mlp->xfout->fn->str)
+      ;  tmp = mcxIOnew(mpp->dump_stem->str, "w")
+      ;  mcxIOtestOpen(tmp, RETURN_ON_FAIL)
+      ;  mcxIOclose(tmp)
    ;  }
 
       mcxTingFree(&suf)

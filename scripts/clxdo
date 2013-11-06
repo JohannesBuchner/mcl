@@ -3,27 +3,64 @@
 # make function to require argument count (e.g. sym)
 
 mode=$1
+nargs=$#
+
+set -e
+
+function require_num() {
+   local num=$1
+   if let $(($num != $nargs)); then
+      echo "mode $mode needs $num arguments (see -h)"
+      false
+   fi
+}
+
 
     case "$mode" in
+
+################################
+
     gr)
+export MCLXIOVERBOSITY=2
 shift 1
 for mx in $@; do
+   echo $mx
+   echo -n "  "
      mcxdump -imx $mx --no-values --dump-rlines -o - \
    | perl -ne '$x = s/(\w+)//g; print $x, "\n";' \
    | sort -n | tr '\n' ' '
+   echo
 done
-      echo
       ;;
+
+################################
+
     sym)
+require_num 3
 mx=$2
 check=$3
 mcx /$mx lm tp -1 mul add /$check wm
       ;;
-    h)
+
+################################
+
+    grok)
+require_num 5
+cl=$2
+mx=$3
+nsm=$4
+ccm=$5
+mcx /$cl lm tp /$mx lm st mul dup st /$nsm wm pop exch mul st /$ccm wm
+      ;;
+
+################################
+
+    -h)
       cat <<EOU
 Usage:
-clxdo gr  <cluster-file>            #  show size distribution.
-clxdo sym <mx-file> <check-file>    #  check symmetry.
+clxdo gr    <cl-file>                  #  show size distribution (granularity)
+clxdo sym   <mx-file> <check-file>     #  check symmetry.
+clxdo grok  <cl-file> <mx-file> <nsm-name> <ccm-name>    # node-cl and cl-cl
 EOU
       exit
       ;;

@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcl" 1 "28 Apr 2005" "mcl 1\&.005, 05-118" "USER COMMANDS"
+.TH "mcl" 1 "29 Sep 2005" "mcl 1\&.005, 05-272" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -46,7 +46,7 @@ immaterial\&.
 As of the first 1\&.002 release, \fBmcl\fP will accept a very general input format\&.
 Graph indices no longer need be sequential; you can use any set of indices
 you like, as long as they are in a suitable range\&. Refer to the \fBmcxio(5)\fP
-section, and use \fCmcl\ -z\fR to find the range from which indices can be
+section, and use \fCmcl\ -z\fP to find the range from which indices can be
 picked\&.
 
 As of the first 1\&.003 release, \fBclmformat\fP enables you to map a
@@ -264,7 +264,7 @@ clmformat -icl <mcl-out-file> -dump -
 
 to convert mcl output to a line/tab based format, where
 each lines contains a cluster in the form of tab-separated
-indices\&. If you throw in the \fC-tab\ <tab-file>\fR
+indices\&. If you throw in the \fC-tab\ <tab-file>\fP
 option, you can get tab-separated labels\&. Refer to
 the \fBclmformat manual\fP page for more information\&.
 
@@ -482,6 +482,8 @@ These are the different verbosity modes:
 .br
 \fBexplain\fP
 .br
+\fBclusters\fP
+.br
 \fBall\fP
 
 where \fIall\fP means all three previous modes\&.
@@ -522,6 +524,13 @@ This mode causes output of resource-related quantities\&. It has
 a separate entry in the PRUNING OPTIONS section\&.
 .in -3m
 
+.ZI 3m "\fB-v\fP\ \fBclusters\fP"
+\&
+.br
+This mode prints a terse list of characteristics of the
+clusterings associated with intermediate iterands\&.
+.in -3m
+
 .ZI 3m "\fB-progress\fP k (\fIgauge\fP)"
 \&
 .br
@@ -552,7 +561,7 @@ If the \fB-o\fP\ \fIoption\fP is not used,
 \fBmcl\fP will create a file name (for writing output to) that
 should uniquely characterize the important parameters used in the
 current invocation of mcl\&. The default format is \fBout\&.fname\&.suf\fP,
-where \fBout\fP is simply the literal string \fCout\fR, \fBfname\fP is the
+where \fBout\fP is simply the literal string \fCout\fP, \fBfname\fP is the
 first argument containing the name of the file (with the graph) to be
 clustered, and where \fBsuf\fP is the suffix encoding a set of parameters
 (described further below)\&.
@@ -589,7 +598,7 @@ mcl small\&.mci -I 3 -c 2\&.5 -pi 0\&.8 -scheme 5
 .ZV
 .fi \fR
 
-results in the file name \fCout\&.small\&.mci\&.I30s5c25pi08\fR\&.
+results in the file name \fCout\&.small\&.mci\&.I30s5c25pi08\fP\&.
 If you want to know beforehand what file name will be produced,
 use the \fB-az\fP option\&.
 .in -3m
@@ -721,10 +730,13 @@ may result in less granular clusterings) or more heterogeneous
 (which may result in more granular clusterings)\&.
 Homogeneity is achieved for values \fIf\fP less than one,
 heterogeneity for values larger than one\&.
-Values to try are normally in the range \fC[2\&.0,10\&.0]\fR\&.
+Values to try are normally in the range \fC[2\&.0,10\&.0]\fP\&.
 .in -3m
 
 .ZI 3m "\fB-di\fP i:j (\fIdump interval\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-di\fP\ \fIall\fP"
 \&
 'in -3m
 .ZI 3m "\fB-dump-interval\fP\ \fIi:j\fP"
@@ -733,7 +745,8 @@ Values to try are normally in the range \fC[2\&.0,10\&.0]\fR\&.
 'in +3m
 \&
 .br
-Dump during iterations i\&.\&.j-1\&. See the \fB-dump\fP\ \fIstr\fP option below\&.
+Dump during iterations i\&.\&.j-1\&. Use \fIall\fP to dump in all
+iterations\&. See the \fB-dump\fP\ \fIstr\fP option below\&.
 .in -3m
 
 .ZI 3m "\fB-dm\fP k (\fIdump i+0\&.\&.i+k\&.\&.\fP)"
@@ -789,7 +802,8 @@ list of entries used in selecting the extended principal submatrix\&.
 .ZI 3m "\fB-dump\fP str (\fItype\fP)"
 \&
 .br
-\fIstr\fP can be of the following types\&.
+\fIstr\fP is checked for substring occurrences of the following entries\&.
+Repeated use of \fB-dump\fP is also allowed\&.
 
 \fBite\fP
 .br
@@ -798,8 +812,17 @@ list of entries used in selecting the extended principal submatrix\&.
 \fBcls\fP
 .br
 \fBchr\fP
+.br
+\fBlines\fP
+.br
+\fBcat\fP
 
-Repeated use is allowed\&.
+\fBlines\fP and \fBcat\fP change the mode of dumping\&. The first
+changes the dump format to a line based pairwise format rather
+than the default mcl matrix format\&. The second causes all
+dumped items to be dumped to the default stream used for the
+output clustering, which is appended at the end\&.
+
 The \fBite\fP option writes \fBmcl\fP iterands to file\&. The \fBcls\fP
 option writes clusterings associated with mcl iterands to file\&.
 These clusters are obtained from a particular directed acyclic graph
@@ -812,6 +835,8 @@ It should be noted that clusterings associated with intermediate
 iterands may contain overlap, which is interesting in
 many applications\&. For more information
 refer to \fBmclfaq(7)\fP and the \fBREFERENCES\fP section below\&.
+
+The \fBresult\fP option dumps the usual MCL clustering\&.
 
 The \fBchr\fP option says, for each iterand I, to output a matrix C with
 characteristics of I\&. C has the same number of columns as I\&. For each
@@ -911,10 +936,10 @@ they will be split into subclusters corresponding to
 connected components\&.
 With \fB--force-connected\fP=\fIy\fP mcl will write the
 corrected clustering to the normal output file, and the old clustering
-to the same file with suffix \fCorig\fR\&.
+to the same file with suffix \fCorig\fP\&.
 With \fB--check-connected\fP=\fIy\fP mcl will write the
 loose clustering to the normal output file, and the corrected clustering
-to the same file with suffix \fCcoco\fR\&.
+to the same file with suffix \fCcoco\fP\&.
 
 These options are not on by default, as the analysis
 is currently (overly) time-consuming
@@ -1581,6 +1606,16 @@ the domain information found in the header part\&.
 It is possible to enforce listing of empty vectors by
 setting bit \&'1\&' in the variable MCLXASCIIFLAGS\&.
 .in -3m
+
+.ZI 3m "MCLXIOUNCHECKED"
+\&
+.br
+MCL and its sibling applications will always check a matrix for consistency
+while it is being read\&. If this variable is set, the consistency check is
+omitted\&. For large graphs the speed up can be considerable\&. However, if the
+input graph is not conforming it will likely crash the application that
+is using it\&.
+.in -3m
 .SH DIAGNOSTICS
 
 If \fBmcl\fP issues a diagnostic error, it will most likely be
@@ -1657,7 +1692,7 @@ There are many more utilities\&. Consult
 \fBmclfamily(7)\fP for an overview of and links to all the documentation
 and the utilities in the mcl family\&.
 
-\fBmcl\fP development is discussed on \fCmcl-devel@lists\&.micans\&.org\fR,
+\fBmcl\fP development is discussed on \fCmcl-devel@lists\&.micans\&.org\fP,
 (subscribtion) information is at
 https://lists\&.micans\&.org:446/listinfo/mcl-devel , this list is
 archived at https://lists\&.micans\&.org:446/pipermail/mcl-devel/\&.

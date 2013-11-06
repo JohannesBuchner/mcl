@@ -9,7 +9,6 @@
 
 #include "alloc.h"
 #include "gralloc.h"
-#include "compile.h"
 
 
 /* TODO

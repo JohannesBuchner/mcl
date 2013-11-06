@@ -10,6 +10,12 @@
 /* TODO
  *    make callback/accumulator mechanism to obtain characteristic
  *    vectors for matrix (columns sum, max, self value).
+ *
+ *    think about mclvTernary in conjunction with sophisticated
+ *    mask/merge operations.
+ *
+ *    cut down on subroutines. unify mclxAccomodate and mclxAllocClone
+ *    and possibly others.
 */
 
 
@@ -96,6 +102,10 @@ mclx* mclxAllocZero
 ,  mclv*  dom_rows
 )  ;
 
+mclx* mclxAllocClone
+(  const mclx* mx
+)  ;
+
 
 /* args become members of object
 */
@@ -139,6 +149,11 @@ mclx*  mclxSub
    )  ;
 
  * which will use mclvTernary to avoid spurious mallocing.
+*/
+
+
+/*  gives back extended sub: all nodes to and from
+ *  these two domains
 */
 
 mclx*  mclxExtSub
@@ -307,7 +322,7 @@ void mclxUnary
 
 
 
-/* 0 or MCL_VECTOR_COMPLETE */
+/* MCL_VECTOR_SPARSE or MCL_VECTOR_COMPLETE */
 
 mclv* mclxColNums
 (  const mclx*  m
@@ -458,11 +473,21 @@ mcxstatus mclxMapCols
 )  ;
 
 
+
+/*************************************
+ * *
+ **
+ *
+*/
+
 void mclxAdjustLoops
 (  mclx*    mx
 ,  double (*op)(mclv* vec, long r, void* data)
 ,  void* data
 )  ;
+
+
+/*************************************/
 
 
 mclx* mclxMakeMap
@@ -472,11 +497,24 @@ mclx* mclxMakeMap
 
 
 /* return union of columns with vid in dom.
+ * fixme fixme fixme *VERY* ugly hack:
+ *   idx -1 denotes cols
+ *   idx -2 denotes rows
 */
 
 mclv* mclxUnionv
 (  const mclx* mx
 ,  const mclv* dom
+,  mclv* dst
+)  ;
+
+
+#define MCLX_WEED_COLS 1
+#define MCLX_WEED_ROWS 2
+
+mclx* mclxWeed
+(  mclx* mx
+,  mcxbits bits
 )  ;
 
 

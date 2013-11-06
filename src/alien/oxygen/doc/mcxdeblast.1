@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcxdeblast" 1 "28 Apr 2005" "mcxdeblast 1\&.005, 05-118" "USER COMMANDS"
+.TH "mcxdeblast" 1 "29 Sep 2005" "mcxdeblast 1\&.005, 05-272" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -50,27 +50,27 @@ mcxassemble will in turn create input suitable for mcl\&.
 input in mcxassemble (which will in turn create input suitable for mcl)\&.
 It is used by the pipeline script \fBmclblastline\fP\&.
 
-If the input file is named \fCiput\fR, mcxdeblast will by
-default create files \fCiput\&.hdr\fR, \fCiput\&.raw\fR, \fCiput\&.tab\fR,
-\fCiput\&.map\fR, and \fCiput\&.err\fR\&. The \fChdr\fR file contains
+If the input file is named \fCiput\fP, mcxdeblast will by
+default create files \fCiput\&.hdr\fP, \fCiput\&.raw\fP, \fCiput\&.tab\fP,
+\fCiput\&.map\fP, and \fCiput\&.err\fP\&. The \fChdr\fP file contains
 information about the number of nodes found\&. It will be read
-by \fBmcxassemble\fP\&. The \fCraw\fR file contains the co-occurrence
+by \fBmcxassemble\fP\&. The \fCraw\fP file contains the co-occurrence
 scores between different nodes (peptides), also to be
 read by mcxassemble\&. The co-occurrence scores are in
 terms of mcl indentiers, which are subjected to rearranging
 by mcxassemble in order to correctly align them with the tab file\&.
-The \fCtab\fR file contains bindings between mcl identifiers
+The \fCtab\fP file contains bindings between mcl identifiers
 (after rearranging as specified in the map file) and the BLAST labels
 (peptide identifiers)\&. Refer to the manual of \fBmcxassemble\fP
 for the syntax of a tab file\&.
-The \fCerr\fR file contains a list of any errors encountered\&.
+The \fCerr\fP file contains a list of any errors encountered\&.
 
 If the \fB--tab\fP=\fBfname\fP option is used mcxdeblast changes
 its behaviour\&. It will read the file \fBfname\fP, and use
 the bindings found therein\&. It will no longer output any
-of the \fChdr\fR, \fCmap\fR, or \fCtab\fR files\&. The \fChdr\fR
+of the \fChdr\fP, \fCmap\fP, or \fCtab\fP files\&. The \fChdr\fP
 file should be provided by the same application that generated
-the specified tab file, and the \fCmap\fR file should no longer be
+the specified tab file, and the \fCmap\fP file should no longer be
 necessary (it might be convenient though and perhaps the
 future will bring a new \fB--map\fP option)\&.
 
@@ -79,14 +79,14 @@ you split a BLAST job over multiple machines and want
 to apply mcxdeblast to each of the subresults\&. You do
 this by generating a single central tab file in advance\&.
 Then provide each instance of mcxdeblast with this tab file\&.
-Each instance will generate a \fCraw\fR file\&. The respective
-\fCraw\fR files can simply be concatenated and fed to mcxassemble
-using its \fB-raw\fP option\&. Additionally, a \fChdr\fR file
+Each instance will generate a \fCraw\fP file\&. The respective
+\fCraw\fP files can simply be concatenated and fed to mcxassemble
+using its \fB-raw\fP option\&. Additionally, a \fChdr\fP file
 has to be specified for mcxassemble using its \fB-hdr\fP
-option\&. The syntax of \fChdr\fR files is described in
+option\&. The syntax of \fChdr\fP files is described in
 the \fBmcxassemble\fP manual\&.
 Currently there is usually only one variable
-in the \fChdr\fR file, which is the number of bindings
+in the \fChdr\fP file, which is the number of bindings
 listed in the tab file\&. This number, in turn, should equal
 the total number of different peptides encountered in the BLAST input\&.
 .SH OPTIONS
@@ -97,7 +97,7 @@ the total number of different peptides encountered in the BLAST input\&.
 Specify a tab file to use, rather than automatically generating one\&.
 .in -3m
 
-.ZI 3m "\fB--score\fP=<b|e> (\fIbit scores|e-values\fP)"
+.ZI 3m "\fB--score\fP=<b|e|r> (\fIbit scores|e-values|norm bit score\fP)"
 \&
 .br
 Specify whether to use bit scores, E-values, or bit scores

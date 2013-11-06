@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcx" 1 "28 Apr 2005" "mcx 1\&.005, 05-118" "USER COMMANDS"
+.TH "mcx" 1 "29 Sep 2005" "mcx 1\&.005, 05-272" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -123,24 +123,24 @@ conditions may be relaxed in the future though\&.
 
 Strings are always entered
 with a leading slash, and anything with a leading slash is a string, so
-\fC/this\fR is a string\&. Currently, the double quote has no special
+\fC/this\fP is a string\&. Currently, the double quote has no special
 meaning, but it may acquire meaning in the future, especially as in
-\fC/"maybe the mcx future will be brighter"\fR\&.
+\fC/"maybe the mcx future will be brighter"\fP\&.
 
 Variables names are always entered with a leading dot, and anything with a
 leading dot is a variable name\&. Variables are implicitly typed by the
 object to which they are bound\&. There is no support for arrays (yet)\&.
-If variables are used, as in \fC\&.x \&.y add\fR, only the names of
+If variables are used, as in \fC\&.x \&.y add\fP, only the names of
 the variables are popped, and the binding between the names and their
 values stays intact\&.
 
 There are some operators that do in-place modification of the object that
-they act on, such as \fCinfl\fR (inflation)\&. Currently, these are all
+they act on, such as \fCinfl\fP (inflation)\&. Currently, these are all
 operators acting on matrices\&. When presented with a variable,
 they do change the object associated with the variable\&.
 In the built-in documentation strings (accessible with \fBhelp\fP
 and \fBgrep\fP), such in-place modification is denoted with
-a prime as in \fC<m> -> <m\&'>\fR\&.
+a prime as in \fC<m> -> <m\&'>\fP\&.
 
 \fBdup\fP can be used to duplicate objects\&. In case of variables,
 this will be a copy of the variable name\&. If one occurrence is
@@ -151,17 +151,17 @@ handles in the stack listing\&. \fBcopy\fP can be used to copy the
 object associated with a variable\&.
 
 \fBmcx\fP is/interprets a stack language\&. In order to add 1 and 2 you need to
-write \fC1 2 add\fR\&. When add is evaluated, it removes the previous two
+write \fC1 2 add\fP\&. When add is evaluated, it removes the previous two
 items from the stack and replaces it with their sum, in this case the
 integer 3\&.
-\fBmcx\fP\&'s types are denoted as \fC<int>\fR, \fC<real>\fR, \fC<mx>\fR,
-\fC<str>\fR, \fC<block>\fR, and so are objects that can be of that type\&. An
+\fBmcx\fP\&'s types are denoted as \fC<int>\fP, \fC<real>\fP, \fC<mx>\fP,
+\fC<str>\fP, \fC<block>\fP, and so are objects that can be of that type\&. An
 object that is of underspecified type (such as taken by overloaded
-operators) is denoted \fC<obj>\fR\&.
-Where a variable name must occur, \fC<var>\fR is written\&.
+operators) is denoted \fC<obj>\fP\&.
+Where a variable name must occur, \fC<var>\fP is written\&.
 In \fBmcx\fP parlance a \&'variable\&' is the same as \&'handle\&'\&.
-Remember that a variable named \fCx\fR is written \fC\&.x\fR, and
-that a string "foo" is entered as \fC/foo\fR in \fBmcx\fP\&.
+Remember that a variable named \fCx\fP is written \fC\&.x\fP, and
+that a string "foo" is entered as \fC/foo\fP in \fBmcx\fP\&.
 .SH OPERATORS
 
 .ZI 3m "\fBhelp\fP"
@@ -172,19 +172,19 @@ Can only be used at bottom of stack\&.
 Alias: \fBh\fP\&.
 .in -3m
 
-.ZI 3m "\fC/str\fR \fBhelp\fP"
+.ZI 3m "\fC/str\fP \fBhelp\fP"
 \&
 .br
-\fBhelp\fP with argument \fC/str\fR prints a descriptive line for the
-primitive named \fCstr\fR\&. The string must be identical to the primitive\&'s
+\fBhelp\fP with argument \fC/str\fP prints a descriptive line for the
+primitive named \fCstr\fP\&. The string must be identical to the primitive\&'s
 name, or help will not show anything\&. Alias: \fBh\fP\&.
 .in -3m
 
-.ZI 3m "\fC/str\fR \fBgrep\fP"
+.ZI 3m "\fC/str\fP \fBgrep\fP"
 \&
 .br
 Prints each descriptive line in which the string str occurs (literally)\&.
-So \fC/matrix grep\fR should produce a lot of matrix related
+So \fC/matrix grep\fP should produce a lot of matrix related
 primitives (although it may miss generic primitives such as \fBadd\fP
 and \fBmul\fP)\&. At bottom of stack, prints all descriptive lines\&.
 Alias: \fBg\fP\&.
@@ -208,10 +208,10 @@ Lists the contents of the operand stack\&.
 Lists the top element of the operand stack\&.
 .in -3m
 
-.ZI 3m "\fC<int>\fR \fBtell\fP"
+.ZI 3m "\fC<int>\fP \fBtell\fP"
 \&
 .br
-Lists the top \fC<int>\fR elements of the operand stack\&.
+Lists the top \fC<int>\fP elements of the operand stack\&.
 The trio of \fBlist\fP, \fBinfo\fP, and \fBtell\fP
 is perhaps overdoing it slightly, but anyway there it is\&.
 .in -3m
@@ -222,54 +222,54 @@ is perhaps overdoing it slightly, but anyway there it is\&.
 Lists all variables currently bound\&.
 .in -3m
 
-.ZI 3m "\fC<obj>\fR \fC<var>\fR \fBdef\fP"
+.ZI 3m "\fC<obj>\fP \fC<var>\fP \fBdef\fP"
 \&
 .br
-Bind \fC<obj>\fR to \fC<var>\fR\&. Redefinition is allowed\&.
+Bind \fC<obj>\fP to \fC<var>\fP\&. Redefinition is allowed\&.
 .in -3m
 
-.ZI 3m "\fC<var>\fR \fBfree\fP"
+.ZI 3m "\fC<var>\fP \fBfree\fP"
 \&
 .br
-Break the binding between \fC<var>\fR and the object it currently binds,
+Break the binding between \fC<var>\fP and the object it currently binds,
 and remove object\&.
 .in -3m
 
 .ZI 3m "\fBunlink\fP"
 \&
 .br
-Break the binding between \fC<var>\fR and the object it currently binds,
+Break the binding between \fC<var>\fP and the object it currently binds,
 and push object on the stack\&.
 .in -3m
 
-.ZI 3m "\fC<int> <block1> <block2>\fR \fBifelse\fP"
+.ZI 3m "\fC<int> <block1> <block2>\fP \fBifelse\fP"
 \&
 .br
-If \fC<int>\fR is nonzero execute \fC<block1>\fR,
-otherwise execute \fC<block2>\fR\&.
+If \fC<int>\fP is nonzero execute \fC<block1>\fP,
+otherwise execute \fC<block2>\fP\&.
 The equate operators \fBlt\fP, \fBlq\fP, \fBeq\fP, \fBgq\fP, and \fBgt\fP
-can be used to leave an \fC<int>\fR on the stack\&.
+can be used to leave an \fC<int>\fP on the stack\&.
 .in -3m
 
-.ZI 3m "\fC<block>\fR \fBdo\fP"
+.ZI 3m "\fC<block>\fP \fBdo\fP"
 \&
 .br
-Execute \fC<block>\fR (one time)\&.
+Execute \fC<block>\fP (one time)\&.
 .in -3m
 
-.ZI 3m "\fC<int> <block>\fR \fBrepeat\fP"
+.ZI 3m "\fC<int> <block>\fP \fBrepeat\fP"
 \&
 .br
-Execute \fC<block>\fR \fC<int>\fR times\&.
+Execute \fC<block>\fP \fC<int>\fP times\&.
 .in -3m
 
-.ZI 3m "\fC<block1> <block2>\fR \fBwhile\fP"
+.ZI 3m "\fC<block1> <block2>\fP \fBwhile\fP"
 \&
 .br
-This primitive repeatedly executes the \fIcondition\fP \fC<block1>\fR,
+This primitive repeatedly executes the \fIcondition\fP \fC<block1>\fP,
 \fIwhich must push an integer each time it is executed\fP\&. Each time, the
-pushed integer is popped\&. If it was non-zero, \fC<block2>\fR is executed,
-\fC<block1>\fR is executed, and the cycle continues\&. If it was zero,
+pushed integer is popped\&. If it was non-zero, \fC<block2>\fP is executed,
+\fC<block1>\fP is executed, and the cycle continues\&. If it was zero,
 \fBwhile\fP is done\&.
 .in -3m
 
@@ -295,10 +295,10 @@ objects may emerge), a \fIdeep copy\fP is made that is completely independent
 of the original object\&.
 .in -3m
 
-.ZI 3m "\fC<int>\fR \fBmdup\fP"
+.ZI 3m "\fC<int>\fP \fBmdup\fP"
 \&
 .br
-Duplicates the top \fC<int>\fR elements\&. See the \fBdup\fP entry
+Duplicates the top \fC<int>\fP elements\&. See the \fBdup\fP entry
 above for the semantics of duplication\&. I wrote \fBmdup\fP because
 I thought some other operator needed it, which turned out to be false\&.
 In the meantime, I became very much attached to \fBmdup\fP,
@@ -313,11 +313,11 @@ In case of a variable, copies the object associated with the variable
 rather than the variable\&'s name (as \fBdup\fP would do)\&.
 .in -3m
 
-.ZI 3m "\fC<int1> <int2>\fR \fBroll\fP"
+.ZI 3m "\fC<int1> <int2>\fP \fBroll\fP"
 \&
 .br
-Shift \fC<int1>\fR objects cyclically \fC<int2>\fR times to the right
-if \fC<int2>\fR is positive, to the left otherwise\&.
+Shift \fC<int1>\fP objects cyclically \fC<int2>\fP times to the right
+if \fC<int2>\fP is positive, to the left otherwise\&.
 .in -3m
 
 .ZI 3m "\fBclear\fP"

@@ -27,7 +27,120 @@
 #include "util/types.h"
 #include "util/err.h"
 #include "util/opt.h"
+#include "util/opt.h"
 #include "util/minmax.h"
+
+
+enum
+{  MY_OPT_ICL
+,  MY_OPT_IMX
+,  MY_OPT_INFLATION
+,  MY_OPT_ST
+,  MY_OPT_E_MAX
+,  MY_OPT_E_POW
+,  MY_OPT_E_SHIFT
+,  MY_OPT_V_POW
+,  MY_OPT_V_SHIFT
+,  MY_OPT_N_LINE
+,  MY_OPT_CAPTION
+,  MY_OPT_HELP
+,  MY_OPT_APROPOS
+,  MY_OPT_VERSION
+}  ;
+
+
+const char* syntax = "Usage: clmps [options]";
+
+
+mcxOptAnchor options[] =
+{  {  "--version"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_VERSION
+   ,  NULL
+   ,  "output version information, exit"
+   }
+,  {  "-imx"
+   ,  MCX_OPT_HASARG | MCX_OPT_REQUIRED
+   ,  MY_OPT_IMX
+   ,  "<fname>"
+   ,  "input graph file"
+   }
+,  {  "-icl"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_ICL
+   ,  "<fname>"
+   ,  "input cluster file"
+   }
+,  {  "-I"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_INFLATION
+   ,  "<num>"
+   ,  "apply inflation to input graph"
+   }
+,  {  "--apropos"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_APROPOS
+   ,  NULL
+   ,  "this info"
+   }
+,  {  "-h"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_HELP
+   ,  NULL
+   ,  "this info"
+   }
+,  {  "-v-shift"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_V_SHIFT
+   ,  "<num>"
+   ,  ""
+   }
+,  {  "-v-pow"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_V_POW
+   ,  "<num>"
+   ,  ""
+   }
+,  {  "-e-shift"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_E_SHIFT
+   ,  "<num>"
+   ,  ""
+   }
+,  {  "-e-pow"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_E_POW
+   ,  "<num>"
+   ,  ""
+   }
+,  {  "--st"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_ST
+   ,  NULL
+   ,  ""
+   }
+,  {  "-caption"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_CAPTION
+   ,  "<string>"
+   ,  ""
+   }
+,  {  "-n-line"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_N_LINE
+   ,  "<num>"
+   ,  ""
+   }
+,  {  "-e-max"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_E_MAX
+   ,  "<num>"
+   ,  ""
+   }
+,  {  NULL ,  0 ,  0 ,  NULL, NULL}
+}  ;
+
+
 
 
 
@@ -46,95 +159,103 @@ int main
    {  mcxIO *xf_cl = NULL, *xf_mx = NULL
    ;  mclx *mx = NULL, *mxt = NULL
    ;  mclv* sums = NULL, *diagv = NULL
-   ;  int a = 1, i, k=0, l
+   ;  int i, k=0, l
    ;  int n_print = 7, e_max = 16
    ;  double v_pow = 1.0, e_pow = 1.0, e_shift = 0.0, v_shift = 0.0
    ;  double inflation = 1.0
    ;  const char* caption = ""
    ;  mcxbool make_stochastic = FALSE
 
-   ;  while(a < argc)
-      {  if (!strcmp(argv[a], "-icl"))
-         {  if (a++ + 1 >= argc)
-            goto arg_missing
-         ;  xf_cl =  mcxIOnew(argv[a], "r")
-      ;  }
-         else if (!strcmp(argv[a], "-h"))
-         {  help
-         :  mcxUsage(stdout, me, usagelines)
-         ;  mcxExit(STATUS_FAIL)
-      ;  }
+   ;  mcxOption* opts, *opt
+   ;  mcxstatus parseStatus   =  STATUS_OK
 
-         else if (!strcmp(argv[a], "-imx"))
-         {  if (a++ + 1 >= argc)
-            goto arg_missing
-         ;  xf_mx = mcxIOnew(argv[a], "r")
-      ;  }
-         else if (!strcmp(argv[a], "-I"))
-         {  if (a++ + 1 >= argc)
-            goto arg_missing
-         ;  inflation = atof(argv[a])
-      ;  }
-         else if (!strcmp(argv[a], "-e-max"))
-         {  if (a++ + 1 >= argc)
-            goto arg_missing
-         ;  e_max = atoi(argv[a])
-      ;  }
-         else if (!strcmp(argv[a], "-caption"))
-         {  if (a++ + 1 >= argc)
-            goto arg_missing
-         ;  caption = argv[a]
-      ;  }
-         else if (!strcmp(argv[a], "-n-line"))
-         {  if (a++ + 1 >= argc)
-            goto arg_missing
-         ;  n_print = atoi(argv[a])
-      ;  }
-         else if (!strcmp(argv[a], "-v-shift"))
-         {  if (a++ + 1 >= argc)
-            goto arg_missing
-         ;  v_shift = atof(argv[a])
-      ;  }
-         else if (!strcmp(argv[a], "-e-shift"))
-         {  if (a++ + 1 >= argc)
-            goto arg_missing
-         ;  e_shift = atof(argv[a])
-      ;  }
-         else if (!strcmp(argv[a], "-e-pow"))
-         {  if (a++ + 1 >= argc)
-            goto arg_missing
-         ;  e_pow = atof(argv[a])
-      ;  }
-         else if (!strcmp(argv[a], "-v-pow"))
-         {  if (a++ + 1 >= argc)
-            goto arg_missing
-         ;  v_pow = atof(argv[a])
-      ;  }
-         else if (!strcmp(argv[a], "--st"))
-         {  make_stochastic =  TRUE
-      ;  }
-         else if (!strcmp(argv[a], "-h"))
-         {  goto help
-      ;  }
-         else if (0)
-         {  arg_missing:
-         ;  mcxErr
-            (  me
-            ,  "flag <%s> needs argument; see help (-h)"
-            ,  argv[argc-1]
-            )
-         ;  mcxExit(1)
-      ;  }
-         else
-         {  mcxErr
-            (  me
-            ,  "unrecognized flag <%s>; see help (-h)"
-            ,  argv[a]
-            )
-         ;  mcxExit(1)
-      ;  }
-         a++
+   ;  if (argc <= 1)
+      {  mcxOptApropos(stdout, me, syntax, 0, 0, options)
+      ;  exit(0)
    ;  }
+
+      mcxOptAnchorSortById(options, sizeof(options)/sizeof(mcxOptAnchor) -1)
+   ;  opts = mcxOptParse(options, (char**) argv, argc, 1, 0, &parseStatus)
+
+   ;  if (parseStatus != STATUS_OK)
+      {  mcxErr(me, "initialization failed")
+      ;  exit(1)
+   ;  }
+
+      for (opt=opts;opt->anch;opt++)
+      {  mcxOptAnchor* anch = opt->anch
+
+      ;  switch(anch->id)
+         {  case MY_OPT_VERSION
+         :  app_report_version(me)
+         ;  exit(0)
+         ;
+
+            case MY_OPT_ICL
+         :  xf_cl =  mcxIOnew(opt->val, "r")
+         ;  break
+         ;
+
+            case MY_OPT_IMX
+         :  xf_mx = mcxIOnew(opt->val, "r")
+         ;  break
+         ;
+
+            case MY_OPT_INFLATION
+         :  inflation = atof(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_HELP
+         :  case MY_OPT_APROPOS
+         :  mcxOptApropos(stdout, me, syntax, 0, 0, options)
+         ;  exit(0)
+         ;
+
+            case MY_OPT_ST
+         :  make_stochastic =  TRUE
+         ;  break
+         ;
+
+            case MY_OPT_E_MAX
+         :  e_max = atoi(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_E_POW
+         :  e_pow = atof(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_E_SHIFT
+         :  e_shift = atof(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_V_POW
+         :  v_pow = atof(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_V_SHIFT
+         :  v_shift = atof(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_CAPTION
+         :  caption = opt->val
+         ;  break
+         ;
+
+            case MY_OPT_N_LINE
+         :  n_print = atoi(opt->val)
+         ;  break
+         ;
+
+            default
+         :  mcxDie(1, me, "most unusual") 
+      ;  }
+      }
 
       if (!xf_mx)
          mcxErr(me, "need cluster file")

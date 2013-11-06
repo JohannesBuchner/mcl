@@ -46,40 +46,46 @@ static mclVector* pmt_vector
 )
    {  mclpAR*  ar_dom = NULL
    ;  mclv*    new_dom_cols = NULL
+   ;  mcxstatus status = STATUS_FAIL
    ;  int i
    ;  *ar_dompp = NULL
 
-   ;  if (dom->n_ivps != map->dom_cols->n_ivps)
-      {  mcxErr
-         (  "mclxMapCheck"
-         ,  "domains do not match (dom size %ld, map size %ld)"
-         ,  (long) dom->n_ivps
-         ,  (long) map->dom_cols->n_ivps
-         )
-      ;  goto fail
-   ;  }
-      ar_dom = mclpARresize(NULL, dom->n_ivps)
-
-   ;  for (i=0;i<N_COLS(map);i++)
-      {  if (map->cols[i].n_ivps != 1)
-         {  mcxErr("mclxMapCheck", "not a mapping matrix")
-         ;  goto fail
+   ;  while (1)
+      {  if (dom->n_ivps != map->dom_cols->n_ivps)
+         {  mcxErr
+            (  "mclxMapCheck"
+            ,  "domains do not match (dom size %ld, map size %ld)"
+            ,  (long) dom->n_ivps
+            ,  (long) map->dom_cols->n_ivps
+            )
+         ;  break
       ;  }
-         ar_dom->ivps[i].idx = map->cols[i].ivps[0].idx
+         ar_dom = mclpARensure(NULL, dom->n_ivps)
+
+      ;  for (i=0;i<N_COLS(map);i++)
+         {  if (map->cols[i].n_ivps != 1)
+            {  mcxErr("mclxMapCheck", "not a mapping matrix")
+            ;  break
+         ;  }
+            ar_dom->ivps[i].idx = map->cols[i].ivps[0].idx
+         ;  ar_dom->n_ivps++
+      ;  }
+         if (i != N_COLS(map))
+         break
+
+      ;  new_dom_cols = mclvFromIvps(NULL, ar_dom->ivps, ar_dom->n_ivps)
+
+      ;  if (new_dom_cols->n_ivps != ar_dom->n_ivps)
+         {  mcxErr("mclxMapCheck", "map is not bijective")
+         ;  break
+      ;  }
+         *ar_dompp = ar_dom
+      ;  status = STATUS_OK
+      ;  break
    ;  }
 
-      new_dom_cols = mclvFromIvps(NULL, ar_dom->ivps, ar_dom->n_ivps)
-
-   ;  if (new_dom_cols->n_ivps != ar_dom->n_ivps)
-      {  mcxErr("mclxMapCheck", "map is not bijective")
-      ;  goto fail
-   ;  }
-
-      *ar_dompp = ar_dom
-
-   ;  if (0)
-      {  fail
-      :  mclvFree(&new_dom_cols)
+      if (status)
+      {  mclvFree(&new_dom_cols)
       ;  mclpARfree(&ar_dom)
    ;  }
       return new_dom_cols
@@ -186,6 +192,25 @@ void mclxInflate
       ;  vecPtr++
    ;  }
    }
+
+
+mclx* mclxAllocClone
+(  const mclx* mx
+)
+   {  mclv* dom_cols, *dom_rows
+   ;  if (!mx)
+      {  mcxErr("mclxAllocClone PBD", "void matrix argument")
+      ;  return NULL
+   ;  }
+
+      dom_cols = mclvClone(mx->dom_cols)
+   ;  dom_rows = mclvClone(mx->dom_rows)
+
+   ;  if (!dom_cols || !dom_rows)
+      return NULL
+
+   ;  return mclxAllocZero(dom_cols, dom_rows)
+;  }
 
 
 /* todo: cleanup after errors; return NULL
@@ -1165,31 +1190,6 @@ void mclxCenter
 #endif
 
 
-mclv* mclxUnionv
-(  const mclx* mx
-,  const mclv* dom
-)
-   {  mclv* res = mclvInit(NULL)
-   ;  const mclVector* dvec = NULL
-   ;  long x
-   ;  for (x=0;x<dom->n_ivps;x++)
-      {  long idx = dom->ivps[x].idx
-
-      ;  if (idx == -1)
-         dvec = mx->dom_cols
-      ;  else if (idx == -2)
-         dvec = mx->dom_rows
-      ;  else
-         dvec = mclxGetVector(mx, idx, RETURN_ON_FAIL, dvec)
-
-      ;  mcldMerge(res, dvec, res)
-      ;  if (idx < 0)
-         dvec = NULL
-   ;  }
-      return res
-;  }
-
-
 
 void mclxAdjustLoops
 (  mclx*    mx
@@ -1212,5 +1212,62 @@ void mclxAdjustLoops
    ;  }
    }
 
+
+mclv* mclxUnionv
+(  const mclx* mx
+,  const mclv* dom
+,  mclv* dst
+)
+   {  const mclVector* dvec = NULL
+   ;  long x
+   ;  if (!dst)
+      dst = mclvInit(dst)
+   ;  else
+      mclvResize(dst, 0)
+
+   ;  if (!dom)
+      dom = mx->dom_cols
+
+   ;  for (x=0;x<dom->n_ivps;x++)
+      {  long idx = dom->ivps[x].idx
+
+      ;  if (idx == -1)             /* DING DING DING ugly meltdown fixme */
+         dvec = mx->dom_cols
+      ;  else if (idx == -2)
+         dvec = mx->dom_rows
+      ;  else
+         dvec = mclxGetVector(mx, idx, RETURN_ON_FAIL, dvec)
+
+      ;  if (dvec)
+         mcldMerge(dst, dvec, dst)
+
+      ;  if (idx < 0)
+         dvec = NULL
+   ;  }
+      return dst
+;  }
+
+
+mclx* mclxWeed
+(  mclx* mx
+,  mcxbits bits
+)
+   {  mclv* colselect
+      =     bits & MCLX_WEED_COLS
+         ?  mclxColNums(mx, mclvSize, MCL_VECTOR_SPARSE)
+         :  NULL
+
+   ;  mclv* rowselect
+      =     bits & MCLX_WEED_ROWS
+         ?  mclxUnionv(mx, NULL, NULL)
+         :  NULL
+
+   ;  mclx* res = mclxSub(mx, colselect, rowselect)
+
+   ;  mclvFree(&colselect)
+   ;  mclvFree(&rowselect)
+
+   ;  return res
+;  }
 
 

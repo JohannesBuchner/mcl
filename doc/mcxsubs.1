@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcxsubs" 1 "28 Apr 2005" "mcxsubs 1\&.005, 05-118" "USER COMMANDS"
+.TH "mcxsubs" 1 "29 Sep 2005" "mcxsubs 1\&.005, 05-272" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -109,7 +109,7 @@ as described in the specification\&. This can be changed using the
 .ZI 3m "\fB-imx\fP <fname> (\fIinput matrix\fP)"
 \&
 .br
-Submatrices will all be selected from the matrix in file \fC<fname>\fR\&.
+Submatrices will all be selected from the matrix in file \fC<fname>\fP\&.
 This option is obligatory, and throughout this manual its argument
 is called the \fIsource matrix\fP\&.
 .in -3m
@@ -181,10 +181,44 @@ with which each edge is selected\&.
 .br
 \fInum\fP should be inbetween zero and one\&. It denotes the probability
 with which entries in the domains will make it into the randomized
-selection used for subsequent processing\&.
+selection used for subsequent processing\&. By default the randomized
+selection is intersected with whatever the other selection criteria (if any)
+yield, i\&.e\&. the behaviour under the \fB--rand-intersect\fP option\&.
+
 If the column and row domain are identical, they are submitted to
 the same selection process and will end up identical\&. If you don\&'t want
 this, use \fB-rfac\fP and \fB-cfac\fP separately\&.
+
+If you just want a randomized selection, doing
+
+.di ZV
+.in 0
+.nf \fC
+mcxsubs -imx foo -dfac 0\&.5 \&'out(foo\&.rnd)\&'
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
+will not yield the expected result\&. Randomized selections only work
+if a domain has explicitly been specified\&. The minimal way to achieve
+this is the following:
+
+.di ZV
+.in 0
+.nf \fC
+mcxsubs -imx foo -dfac 0\&.5 \&'dom(cr), out(foo\&.rnd)\&'
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
 .in -3m
 
 .ZI 3m "\fB-rfac\fP <num> (\fIrandom column selection\fP)"
@@ -220,7 +254,7 @@ selection process\&.
 .br
 The random selection(s) of domains identify parts of the
 matrix that will be intersected with the result of the main
-selection process\&.
+selection process\&. This is the default\&.
 .in -3m
 
 .ZI 3m "\fB--rand-exclusive\fP (\fIonly random selections\fP)"
@@ -290,47 +324,47 @@ The domain part is specified as
 \fBdom\fP(\fIX\fP <, \fIY\fP(\fIispec\fP) >+)
 
 Here \fIX\fP is the row/column indicator\&. Rows are indicated with
-either \fCr\fR or \fCR\fR, columns are indicated with either
-\fCc\fR or \fCC\fR\&. \fIX\fP may contain one or two indicators, with
+either \fCr\fP or \fCR\fP, columns are indicated with either
+\fCc\fP or \fCC\fP\&. \fIX\fP may contain one or two indicators, with
 a single indicator per column domain and row domain allowed\&.
 Uppercase indicators indicate that the complement is being specified
 relative to the corresponding domain in the target matrix\&.
 
 \fIY\fP is the type indicator, it is exactly one of
-\fCi\fR, \fCI\fR, \fCd\fR, or \fCD\fR\&. The \fCi/I\fR indicators specify
+\fCi\fP, \fCI\fP, \fCd\fP, or \fCD\fP\&. The \fCi/I\fP indicators specify
 that \fIispec\fP contains a simple index specifation\&.
-The \fCd/D\fR specify that \fIispec\fP contains domain indices\&.
+The \fCd/D\fP specify that \fIispec\fP contains domain indices\&.
 \fIispec\fP must contain a comma-separated list of integers or
 integer ranges (e\&.g\&. 2, 5, 4-8)\&.
 
-For domain specifications (\fCd/D\fR) the columns indexed by
+For domain specifications (\fCd/D\fP) the columns indexed by
 these integers in the matrix specified in the \fB-dom\fP
 option will be fetched and merged\&. If \fB-dom\fP was not used
 the target matrix itself (as specified by the \fB-imx\fP option) will be
 used\&. The special value -1 denotes the domain matrix column domain, the
 value -2 denotes the domain matrix row domain\&. For simple specifications
-(\fCi/I\fR) the result is simply the list of integers itself\&. Uppercase
+(\fCi/I\fP) the result is simply the list of integers itself\&. Uppercase
 indicators indicate that the complement is being specified\&.
 
 Examples:
 
-.ZI 3m "\fCdom(cr, i(0-6,10,11-14))\fR"
+.ZI 3m "\fCdom(cr, i(0-6,10,11-14))\fP"
 \&
 .br
 Principal submatrix on indices 0-6, 10, and 11-14 \- all column and row
 indices are from this set\&. Equivalently, this encodes the subgraph on
 nodes 0-6, 10, 11-14\&. The \&'c\&' stands for column, the \&'r\&' for row, and the
-\&'i\&' for index\&. After the colon it is also allowed to specify a \&'d\&' part
+\&'i\&' for index\&. It is also possible to specify a \&'d\&' part
 (standing for domain), this is shown further below\&.
 .in -3m
 
-.ZI 3m "\fCdom(c, i(0-6,10,11-14)), dom(r, i(1-6,10,11-14))\fR"
+.ZI 3m "\fCdom(c, i(0-6,10,11-14)), dom(r, i(1-6,10,11-14))\fP"
 \&
 .br
 Equivalent (but less clear) spec of the above\&.
 .in -3m
 
-.ZI 3m "\fCdom(cR, i(0-6,10,11-14))\fR"
+.ZI 3m "\fCdom(cR, i(0-6,10,11-14))\fP"
 \&
 .br
 Matrix with column indices in 0-6, 10, 11-14, and row indices
@@ -339,10 +373,10 @@ in the complement of this set\&. Corresponds with all edges going
 by the use of a capital; see the next examples\&.
 .in -3m
 
-.ZI 3m "\fCdom(c, i(0-6,10,11-14)), dom(R, i(1-6,10,11-14))\fR"
+.ZI 3m "\fCdom(c, i(0-6,10,11-14)), dom(R, i(1-6,10,11-14))\fP"
 \&
 'in -3m
-.ZI 3m "\fCdom(c, i(0-6,10,11-14)), dom(r, I(1-6,10,11-14))\fR"
+.ZI 3m "\fCdom(c, i(0-6,10,11-14)), dom(r, I(1-6,10,11-14))\fP"
 \&
 'in -3m
 'in +3m
@@ -354,7 +388,7 @@ should be taken\&. In this example, \&'r\&' combined with \&'I\&' has the
 same effect as \&'R\&' combined with \&'i\&'\&.
 .in -3m
 
-.ZI 3m "\fCdom(c, d(3,5-9)), dom(r, d(8-14), i(10-30))\fR"
+.ZI 3m "\fCdom(c, d(3,5-9)), dom(r, d(8-14), i(10-30))\fP"
 \&
 .br
 Column indices are taken from the domains 3, 5-9 (from the
@@ -362,7 +396,7 @@ domain matrix specified by \fB-dom\fP), row indices are taken
 from domains 8-14 plus the indices 10-30\&.
 .in -3m
 
-.ZI 3m "\fCdom(cR, d(0-2))\fR"
+.ZI 3m "\fCdom(cR, d(0-2))\fP"
 \&
 .br
 Column indices are all indices from domains 0-2, row indices
@@ -370,12 +404,12 @@ are all other indices\&. This gives all edges going \fIout\fP
 from domains 0-2\&.
 
 The use of \&'D\&' is analogous to that of \&'C\&', \&'R\&', and \&'I\&'\&.
-Thus, \fCD(0-3,8,21-30)\fR specifies all indices which are in the
+Thus, \fCD(0-3,8,21-30)\fP specifies all indices which are in the
 complement of the set formed by taking the union of
 domains 0-3,8,21-30\&.
 
-There are two special domains \- use \fC-1\fR to obtain the row domain
-of the domain matrix, use \fC-2\fR to obtain its column domain\&.
+There are two special domains \- use \fC-1\fP to obtain the row domain
+of the domain matrix, use \fC-2\fP to obtain its column domain\&.
 .in -3m
 
 As seen above, indices (either representing themselves or domains) are
@@ -389,8 +423,8 @@ complement if \&'I\&' is specified (for simple indices) or \&'D\&' is specified
 union of the results of both is taken and passed along\&. If the latter
 result is passed to either \&'C\&' or \&'R\&', it is replaced by its complement\&.
 
-A range is specified e\&.g\&. as \fC10-14\fR and it is inclusive, denoting
-in this case the indices \fC{10,11,12,13,14}\fR\&.
+A range is specified e\&.g\&. as \fC10-14\fP and it is inclusive, denoting
+in this case the indices \fC{10,11,12,13,14}\fP\&.
 
 \fBVALUES\fP
 .br
@@ -493,9 +527,9 @@ The resulting submatrix is made characteristic\&.
 \&
 .br
 Domains are shrunk if there are no corresponding entries in the matrix\&.
-This is done for both domains if \fCweed\fR is specified, for the
-column domain if \fCweedc\fR is specified, and for the row domain
-if \fCweedr\fR is specified\&. Thus, with \fCweedc\fR columns are removed
+This is done for both domains if \fCweed\fP is specified, for the
+column domain if \fCweedc\fP is specified, and for the row domain
+if \fCweedr\fP is specified\&. Thus, with \fCweedc\fP columns are removed
 from the domain and the matrix if they are empty\&.
 .in -7m
 

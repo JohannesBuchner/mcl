@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-#     (C) Copyright 2002, 2003, 2004, 2005 Stijn van Dongen
+#     (C) Copyright 2002, 2003, 2004 Stijn van Dongen
 #     (C) Copyright 2004 Jason Stajich (column output parsing)
 #
 # Other (C)ontributors;
@@ -21,7 +21,6 @@
 #     cross-accessed in subs.
 #  -  Is the m9/seenlfgt combination correct?
 #  -  Check whether m9 output state is correct if errors occur.
-#  ?  Enable STDIN BLAST read?
 
 #  -  Check values; check correct usage --key=val and --key
 #     (by associating type with key). Or just be sane, use Getopt::Long.
@@ -54,6 +53,8 @@ my $addfix = "";
 my $user_tabfile = "";
 my $stdhandler = 0;
 
+my $obase = "";
+
 while ($ARGV[0] =~ /^--/) {
    my $arg = shift @ARGV;
    my ($val, $key) = ("", "");
@@ -82,10 +83,11 @@ while ($ARGV[0] =~ /^--/) {
    elsif ($key eq 'xo-dat')      { $addfix      = $val; }
    elsif ($key eq 'xi-dat')      { $blastfix    = $val; }
    elsif ($key eq 'stdhandler')  { $stdhandler  = 1;    }
+   elsif ($key eq 'base')        { $obase       = $val; }
 
    elsif ($key eq 'score') {
       $::mode_score = $val;
-      if ($::mode_score !~ /[eb]/) {
+      if ($::mode_score !~ /^[ebr]$/) {
          die "unknown sort mode <$::mode_score>\n";
       }
    }
@@ -103,7 +105,7 @@ if (!@ARGV) {
 }
 
 my $fname = shift || die "please submit name of blast file\n";
-my $obase = $fname;
+$obase = $fname unless $obase;
 
 if ($blastfix) {
    $obase = $fname;
@@ -124,8 +126,12 @@ $::seenrgt = {};
 my $tagTocc = {};
 my $me = "[$0] ";
 my $lc = 0;
+my $fh = \*STDIN;
 
-open(F_BLAST, "<$fname") || die "cannot open $fname\n";
+if ($fname ne '-') {
+   open(F_BLAST, "<$fname") || die "cannot open $fname\n";
+   $fh = \*F_BLAST;
+}
 
 $::TAB_user = {};
 
@@ -163,10 +169,10 @@ if ($stdhandler) {
 $::ID = 0;
 
 if ($::mode_parse eq 'long') {
-   munge_long(\*F_BLAST, $::f_raw);
+   munge_long($fh, $::f_raw);
 }
 elsif ($::mode_parse eq 'm9' || $::mode_parse eq 'abc') {
-   munge_linewise(\*F_BLAST, $::f_raw, $::mode_parse);
+   munge_linewise($fh, $::f_raw, $::mode_parse);
 }
 else {
    die "Unknown parse mode $::mode_parse\n";

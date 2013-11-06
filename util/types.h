@@ -17,8 +17,8 @@ typedef unsigned long mcxenum  ;
          /* mcxstatus   defined below */
          /* mcxbool     defined below */
 
-#define BIT_ON(var, bit)   var |= bit
-#define BIT_OFF(var, bit)  var |= bit, var ^= bit
+#define BIT_ON(var, bit)   (var) |= (bit)
+#define BIT_OFF(var, bit)  (var) |= (bit), (var) ^= (bit)
 
 /*  **************************************************************************
  * *

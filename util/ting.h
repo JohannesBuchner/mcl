@@ -11,7 +11,6 @@
 
 #include <string.h>
 
-#include "compile.h"
 #include "alloc.h"
 #include "types.h"
 #include "hash.h"
@@ -45,9 +44,13 @@ typedef struct
  *    or perhaps from ding.h. Just remember to treat it as a const object
  *    when doing so.
 
+ * Applications
+ *    Zoem is the macro processor that processes the zoem language. It is very
+ *    string-heavy and its string operations are entirely based on the ting
+ *    module.
+
  * Caveat
- *    When compiled to return (rather than exit) in case of alloc failure,
- *    nearly all routines return a NULL pointer indicating failure.
+ *    Nearly all routines return a NULL pointer indicating malloc failure.
 
  * Data structure
  *    str:  array of chars
@@ -63,10 +66,8 @@ typedef struct
  *    mcxTingEnsure is the only routine allowed to fiddle with mxl.
  *    (apart from mcxTingInit which sets it to zero).
  *
- *    Future option could be stuff like
- *       mcxTingFinalize,  (release unused memory).
- *       mcxTingify,       (plunge char* str into a new ting).
- *       mcxTingish,       (return char* str, free ting).
+ *    Future idea
+ *       mcxTingFinalize,  (realloc to length)
  * 
  *    Routines marked `!' will NOT accept ting==NULL argument.
  *    Routines marked `#' should not be called other than by ting routines
@@ -74,9 +75,9 @@ typedef struct
  *                _ #Init  _
  *               /          \
  *          Ensure   <--- #Instantiate
- *         /       \               \                   
+ *         /       \               \
  *   Empty       !Splice        New,Write,Print,PrintAfter
- *   NWrite           |               
+ *   NWrite           |
  *                    |
  *           Append,Insert,Delete,PrintSplice
 */
@@ -111,7 +112,6 @@ mcxTing* mcxTingInstantiate
                            *     prepare for successive calls of Append.  (see
                            *     also Empty).
                           */
-
 mcxTing* mcxTingEnsure
 (  mcxTing*    ting
 ,  int         length
@@ -192,7 +192,7 @@ mcxTing* mcxTingify
 
                           /*    destroys argument.
                           */
-char* mcxTingish
+char* mcxTinguish
 (  mcxTing*    ting
 )  ;
 
@@ -347,27 +347,15 @@ __attribute__ ((format (printf, 4, 5)))
 */
 
 char*  mcxTingStr
-(  const mcxTing*    ting
+(  const mcxTing* ting
 )  ;
 
 char* mcxTingSubStr
-(  const mcxTing*    ting
-,  int         offset
-,  int         length
+(  const mcxTing* ting
+,  int            offset
+,  int            length
 )  ;
 
-int mcxTingTranslate
-(  mcxTing*    src
-,  int*        tbl        /* should have size 256 */
-,  int         flags
-)  ;
-
-int mcxTingTr
-(  mcxTing*    txt
-,  const char* src
-,  const char* dst
-,  int         flags
-)  ;
                           /*     accepts NULL argument.
                           */
 mcxTing*  mcxTingRoman
@@ -395,14 +383,40 @@ mcxTing*  mcxTingDouble
  **   Comparing.
 */
 
+                  /* compare two mcxTing* pointers */
 int mcxTingCmp
 (  const void* t1
 ,  const void* t2
 )  ;
 
+                  /* compare two mcxTing* pointers */
 int mcxTingRevCmp
 (  const void* t1
 ,  const void* t2
+)  ;
+
+                  /* compare two mcxTing** pointers */
+int mcxTingPCmp
+(  const void* t1
+,  const void* t2
+)  ;
+
+                  /* compare two mcxTing** pointers */
+int mcxTingPRevCmp
+(  const void* t1
+,  const void* t2
+)  ;
+
+                  /* compare two mcxKV** pointers by key as mcxTing* */
+int mcxPKeyTingCmp
+(  const void* k1
+,  const void* k2
+)  ;
+
+                  /* compare two mcxKV** pointers by key as mcxTing* */
+int mcxPKeyTingRevCmp
+(  const void* k1
+,  const void* k2
 )  ;
 
 

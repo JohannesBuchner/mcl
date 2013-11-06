@@ -90,7 +90,7 @@
 \item{\defkvp{--tab}{<fname>}{tab file}}
    Specify a tab file to use, rather than automatically generating one.
 
-\item{\defkvp{--score}{<b|e>}{bit scores|e-values}}
+\item{\defkvp{--score}{<b|e|r>}{bit scores|e-values|norm bit score}}
    Specify whether to use bit scores, E-values, or bit scores
    normalized by length of the HSP.
 
@@ -132,3 +132,4 @@
    \sib{mclblastline}, \sib{mcxassemble}, \sib{mcl},
    \sib{clmformat}.
 
+\"man::postamble"

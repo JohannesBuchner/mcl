@@ -35,24 +35,12 @@ static volatile sig_atomic_t abort_loop = 0;
 static int mclVerbosityStart    =  1;        /* mq static */
 
 
-
-
-void  mclDumpMatrix
-(  mclMatrix*     mx
-,  mclProcParam*  mpp
-,  const char*    affix
-,  const char*    pfix
-,  int            n
-,  mcxbool        printValue
-)  ;
-
-
 void  mclDumpVector
 (  mclProcParam*  mpp
 ,  const char*    affix
 ,  const char*    pfix
 ,  int            n
-,  mcxbool        printValue
+,  mcxbool        print_value
 )  ;
 
 
@@ -240,10 +228,13 @@ mclMatrix*  mclProcess
 
       mpp->lap = ((double) (clock() - t1)) / CLOCKS_PER_SEC
 
-   ;  mxCluster = mclInterpret(mxEven, mpp->ipp, NULL, NULL)
    ;  *mx0 = mxEven
 
-   ;  return mxCluster
+   ;  {  mclx* mxDag = mclDag(mxEven, mpp->ipp)
+      ;  mxCluster = mclInterpret(mxDag)
+   ;  }
+
+      return mxCluster
 ;  }
 
 
@@ -297,8 +288,8 @@ int doIteration
    ;  }
 
       if (mpp->printMatrix)
-      {  sprintf
-         (  msg, "%d%s%s%s"
+      {  snprintf
+         (  msg, sizeof msg, "%d%s%s%s"
          ,  (int) 2*n_ite+1, " After expansion (", when, ")"
          )
       ;  if (XPNVB(mxp,XPNVB_VPROGRESS))
@@ -339,14 +330,14 @@ int doIteration
    ;  }
 
       if (XPNVB(mxp, XPNVB_CLUSTERS) || MCPVB(mpp, (MCPVB_CLUSTERS | MCPVB_DAG)))
-      {  int dagdepth, o, m, e
-      ;  mclMatrix* dag = NULL
-      ;  mclMatrix* clus = mclInterpret(*mxout, mpp->ipp, &dagdepth, &dag)
+      {  int o, m, e
+      ;  mclMatrix* dag  = mclDag(*mxout, mpp->ipp)
+      ;  mclMatrix* clus = mclInterpret(dag)
+      ;  int dagdepth = mclDagTest(dag)
       ;  mclcEnstrict(clus, &o, &m, &e, ENSTRICT_KEEP_OVERLAP)
-      ;  if (XPNVB(mxp, XPNVB_CLUSTERS))
-         fprintf
+      ;  fprintf
          (  stderr
-         ,  "clusters <%d> overlap <%d> dagdepth <%d> [missing/empty %d/%d]\n"
+         ,  "clusters <%d> overlap <%d> dagdepth <%d> m/e <%d/%d>\n"
          ,  (int) N_COLS(clus)
          ,  o
          ,  dagdepth
@@ -367,8 +358,8 @@ int doIteration
       mclxInflate(*mxout, inflation)
 
    ;  if (mpp->printMatrix)
-      {  sprintf
-         (  msg,  "%d%s%s%s"
+      {  snprintf
+         (  msg,  sizeof msg, "%d%s%s%s"
          ,  (int) 2*n_ite+2, " After inflation (", when, ")"
          )
       ;  if (XPNVB(mxp, XPNVB_VPROGRESS))
@@ -403,19 +394,26 @@ int doIteration
 ;  }
 
 
-void  mclDumpMatrix
+void mclDumpMatrix
 (  mclMatrix*     mx
-,  mclProcParam*  mpp  
+,  mclProcParam*  mpp
 ,  const char*    affix
 ,  const char*    postfix
 ,  int            n
-,  mcxbool        printValue
+,  mcxbool        print_value
 )
-   {  mcxIO*   xfDump
-   ;  char snum[18]
+   {  mcxIO*   xfdump
    ;  mcxTing*  fname
+   ;  mcxbool   lines   =  MCPVB(mpp, MCPVB_LINES)
+   ;  mcxbool   cat     =  MCPVB(mpp, MCPVB_CAT)
 
-   ;  if (  (  mpp->dump_offset
+   ;  mcxbits   dump_modes =     !strcmp(affix, "result")
+                              ?  MCX_DUMP_RLINES
+                              :  MCX_DUMP_PAIRS | MCX_DUMP_VALUES
+
+   ;  if (!strcmp(affix, "result"))
+
+   ;  else if (  (  mpp->dump_offset
             && (n<mpp->dump_offset)
             )
          || (  mpp->dump_bound
@@ -425,26 +423,36 @@ void  mclDumpMatrix
          )
          return
 
-   ;  fname = mcxTingNew(mpp->dump_stem->str)
-   ;  mcxTingAppend(fname, affix)
+   ;  if (cat)
+      fname = mcxTingNew(mpp->dump_stem->str)
+   ;  else
+      fname
+      =  mcxTingPrint
+         (NULL, "%s-%d.%s%s", affix, (int) n, mpp->dump_stem->str, postfix)
 
-   ;  sprintf(snum, "%d", (int) n)
-   ;  mcxTingAppend(fname, snum)
-   ;  mcxTingAppend(fname, postfix)
+   ;  xfdump = mcxIOnew(fname->str, cat ? "a" : "w")
 
-   ;  xfDump   =  mcxIOnew(fname->str, "w")
-
-   ;  if (mcxIOopen(xfDump, RETURN_ON_FAIL) != STATUS_OK)
+   ;  if (mcxIOopen(xfdump, RETURN_ON_FAIL) != STATUS_OK)
       {  mcxErr
-         ("mclDumpMatrix", "cannot open stream <%s>, ignoring", xfDump->fn->str)
+         ("mclDumpMatrix", "cannot open stream <%s>, ignoring", xfdump->fn->str)
       ;  return
    ;  }
+      else if (lines)
+      {  mclxIOdumper dumper
+      ;  mclxIOdumpSet(&dumper, dump_modes, NULL, NULL)
+      ;  dumper.threshold = 0.001
+      ;  if (cat)
+         fprintf(xfdump->fp, "(mcldump %s %d\n", affix, (int) n)
+      ;  mclxIOdump(mx, xfdump, &dumper, NULL, NULL, RETURN_ON_FAIL)
+      ;  if (cat)
+         fprintf(xfdump->fp, ")\n")
+   ;  }
       else
-      {  mcxenum printMode = printValue?MCLXIO_VALUE_GETENV:MCLXIO_VALUE_NONE
-      ;  mclxWrite(mx, xfDump, printMode, RETURN_ON_FAIL)
+      {  mcxenum printMode = print_value?MCLXIO_VALUE_GETENV:MCLXIO_VALUE_NONE
+      ;  mclxWrite(mx, xfdump, printMode, RETURN_ON_FAIL)
    ;  }
 
-      mcxIOfree(&xfDump)
+      mcxIOfree(&xfdump)
    ;  mcxTingFree(&fname)
 ;  }
 
@@ -454,10 +462,9 @@ void  mclDumpVector
 ,  const char*    affix
 ,  const char*    postfix
 ,  int            n
-,  mcxbool        printValue
+,  mcxbool        print_value
 )
    {  mcxIO*   xf
-   ;  char snum[18]
    ;  mcxTing*  fname
 
    ;  if (  (  mpp->dump_offset
@@ -472,8 +479,7 @@ void  mclDumpVector
    ;  fname = mcxTingNew(mpp->dump_stem->str)
    ;  mcxTingAppend(fname, affix)
 
-   ;  sprintf(snum, "%d", (int) n)
-   ;  mcxTingAppend(fname, snum)
+   ;  mcxTingPrintAfter(fname, "%d", (int) n)
    ;  mcxTingAppend(fname, postfix)
 
    ;  xf =  mcxIOnew(fname->str, "w")
@@ -483,7 +489,7 @@ void  mclDumpVector
       ;  return
    ;  }
 
-      mclvaWrite(mpp->vec_attr, xf->fp, printValue ? 8 : MCLXIO_VALUE_NONE)
+      mclvaWrite(mpp->vec_attr, xf->fp, print_value ? 8 : MCLXIO_VALUE_NONE)
    ;  mcxIOfree(&xf)
    ;  mcxTingFree(&fname)
 ;  }

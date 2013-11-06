@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcxio" 5 "28 Apr 2005" "mcxio 1\&.005, 05-118" "FILE FORMATS"
+.TH "mcxio" 5 "29 Sep 2005" "mcxio 1\&.005, 05-272" "FILE FORMATS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -96,12 +96,12 @@ the indices is that they be nonnegative, and can be represented by the
 integer type used by MCL\&. On many machines, the largest allowable integer
 will be 2147483647\&.
 
-MCL associates two domains with a matrix\ \fCM\fR, the row domain and column
-domain\&. The matrix\ \fCM\fR can only have entries\ \fCM[i,j]\fR where\ \fCi\fR is
-in the row domain and\ \fCj\fR is in the column domain\&. This is vital when
-specifying a matrix: it is illegal to specify an entry\ \fCM[i,j]\fR violating
+MCL associates two domains with a matrix\ \fCM\fP, the row domain and column
+domain\&. The matrix\ \fCM\fP can only have entries\ \fCM[i,j]\fP where\ \fCi\fP is
+in the row domain and\ \fCj\fP is in the column domain\&. This is vital when
+specifying a matrix: it is illegal to specify an entry\ \fCM[i,j]\fP violating
 this condition\&. However, it is not necessary to specify \fIall\fP
-entries\ \fCM[i,j]\fR for all possible combinations of\ \fCi\fR and\ \fCj\fR\&. One
+entries\ \fCM[i,j]\fP for all possible combinations of\ \fCi\fP and\ \fCj\fP\&. One
 needs only specify those entries for which the value is nonzero, and only
 nonzero values will be stored internally\&. In the MCL matrix format, the
 matrix domains must be specified explicitly if they are not canonical (more
@@ -125,8 +125,8 @@ of a matrix quite closely matches the internal representation\&.
 
 A matrix M has two domains: the column domain and the row domain\&. Both
 simply take the form of a set (represented as an ordered list) of indices\&. A
-\fIcanonical domain\fP is a domain of some size \fCK\fR where the indices are
-simply the first \fCK\fR nonnegative integers \fC0,1\&.\&.,K-1\fR\&. The domains
+\fIcanonical domain\fP is a domain of some size \fCK\fP where the indices are
+simply the first \fCK\fP nonnegative integers \fC0,1\&.\&.,K-1\fP\&. The domains
 dictate which nonzero entries are allowed to occur in a matrix; only entries
 M[i,j] are allowed where i is in the row domain and j is in the column
 domain\&.
@@ -183,8 +183,8 @@ An example where both a row domain and a column domain are specified:
 
 This example combines with the header given above, as the dimensions fit\&.
 Had the row domain specification been omitted, the row domain would
-automatically be set to the integers \fC0,1,\&.\&.8\fR\&. Had the column specification
-been omitted, it would be set to \fC0,1,\&.\&.13\fR\&.
+automatically be set to the integers \fC0,1,\&.\&.8\fP\&. Had the column specification
+been omitted, it would be set to \fC0,1,\&.\&.13\fP\&.
 
 Suppose now that the header did specify the dimensions 10x10\&.
 Because the dimensions are identical, this raises the possibility

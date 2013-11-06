@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "compile.h"
 #include "alloc.h"
 #include "heap.h"
 #include "types.h"
@@ -24,7 +23,7 @@ mcxHeap* mcxHeapInit
    {  mcxHeap* heap  =     (mcxHeap*) h
 
    ;  if (!heap && !(heap = mcxAlloc(sizeof(mcxHeap), RETURN_ON_FAIL)))
-      MCX_ACT_ON_ALLOC_FAILURE
+      return NULL
 
    ;  heap->base     =     NULL
    ;  heap->heapSize =     0
@@ -45,23 +44,36 @@ mcxHeap* mcxHeapNew
 )
    {  mcxHeap* heap     =  mcxHeapInit(h)
    ;  char*    base
+   ;  mcxstatus status  =  STATUS_FAIL
 
-   ;  if (heapSize <= 0)
-      {  mcxErr("mcxHeapNew PBD", "non-positive request <%d>", heapSize)
-      ;  MCX_ACT_ON_ALLOC_FAILURE
+   ;  while (1)
+      {  if (!heap)
+         break
+
+      ;  if (heapSize <= 0)
+         {  mcxErr("mcxHeapNew PBD", "non-positive request <%d>", heapSize)
+         ;  break
+      ;  }
+
+         if (type != MCX_MIN_HEAP && type != MCX_MAX_HEAP)
+         {  mcxErr("mcxHeapNew PBD", "unknown heap type")
+         ;  break
+      ;  }
+
+         if
+         (  !heap
+         || !(heap->base = mcxAlloc (heapSize*elemSize, RETURN_ON_FAIL))
+         )
+         {  mcxHeapFree(&heap)
+         ;  break
+      ;  }
+         status = STATUS_OK
+      ;  break
    ;  }
 
-      if (type != MCX_MIN_HEAP && type != MCX_MAX_HEAP)
-      {  mcxErr("mcxHeapNew PBD", "unknown heap type")
-      ;  MCX_ACT_ON_ALLOC_FAILURE
-   ;  }
-
-      if
-      (  !heap
-      || !(heap->base = mcxAlloc (heapSize*elemSize, RETURN_ON_FAIL))
-      )
+      if (status)
       {  mcxHeapFree(&heap)
-      ;  MCX_ACT_ON_ALLOC_FAILURE
+      ;  return NULL
    ;  }
 
       heap->heapSize    =  heapSize

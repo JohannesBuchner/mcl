@@ -9,7 +9,6 @@
 #include "list.h"
 #include "alloc.h"
 #include "gralloc.h"
-#include "compile.h"
 
 #define DEBUG 0
 

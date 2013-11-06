@@ -40,10 +40,12 @@ typedef struct
 #define  MCPVB(mpp, bit)   (mpp->dumping & bit)
 
 #define  MCPVB_ITE       1 << 0
-#define  MCPVB_CHR       1 << 1
+#define  MCPVB_CHR       1 << 1     /* characteristics                     */
 #define  MCPVB_CLUSTERS  1 << 2
 #define  MCPVB_DAG       1 << 3
-#define  MCPVB_SUB       1 << 4
+#define  MCPVB_SUB       1 << 4     /* dump submatrices                    */
+#define  MCPVB_LINES     1 << 5     /* line based dump                     */
+#define  MCPVB_CAT       1 << 6     /* all to same destination (dump_stem) */
 
 ;  mcxbits              dumping
 ;  int                  dump_modulo
@@ -111,6 +113,16 @@ mclMatrix*  mclProcess
 
 void mclSigCatch
 (  int sig
+)  ;
+
+
+void  mclDumpMatrix
+(  mclMatrix*     mx
+,  mclProcParam*  mpp  
+,  const char*    affix
+,  const char*    postfix
+,  int            n
+,  mcxbool        print_value
 )  ;
 
 

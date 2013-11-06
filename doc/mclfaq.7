@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "MCL\ FAQ" 7 "28 Apr 2005" "MCL\ FAQ 1\&.005, 05-118" "MISCELLANEOUS"
+.TH "MCL\ FAQ" 7 "29 Sep 2005" "MCL\ FAQ 1\&.005, 05-272" "MISCELLANEOUS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -317,7 +317,7 @@ Indeed, \fIMCL\fP is used as a tag for \fIMacintosh Common Lisp\fP,
 \fIMission Critical Linux\fP, \fIMonte Carlo Localization\fP, \fIMUD Client
 for Linux\fP, \fIMovement for Canadian Literacy\fP, and a gazillion other
 things \- refer to the file mclmcl\&.txt\&. Confusing\&. It seems that
-the three characters \fCMCL\fR possess otherworldly magical powers making
+the three characters \fCMCL\fP possess otherworldly magical powers making
 them an ever so strange and strong attractor in the space of TLAs\&. It
 probably helps that Em-See-Ell (Em-Say-Ell in Dutch) has some rhythm
 to it as well\&. Anyway MCL stuck, and it\&'s here to stay\&.
@@ -366,8 +366,8 @@ The current setup, which I hope to continue, is this\&. All releases are
 identified by a date stamp\&. For example 02-095 denotes day 95 in the year
 2002\&. This date stamp agrees (as of April 2000) with the (differently
 presented) date stamp used in all manual pages shipped with that release\&.
-For example, the date stamp of the FAQ you are reading is \fB28 Apr 2005\fP,
-which corresponds with the MCL stamp \fB05-118\fP\&.
+For example, the date stamp of the FAQ you are reading is \fB29 Sep 2005\fP,
+which corresponds with the MCL stamp \fB05-272\fP\&.
 The Changelog file contains a list of what\&'s changed/added with each
 release\&. Currently, the date stamp is the primary way of identifying an \fBmcl\fP
 release\&. When asked for its version by using \fB--version\fP, mcl
@@ -521,7 +521,7 @@ module (maintained by Anton Enright)) or by custom sofware written
 by someone you know (e\&.g\&. yourself), it is advisable to test whether
 the software generates symmetric matrices\&. This can be done as follows
 using the \fBmcx utility\fP, assuming that you want to test the
-matrix stored in file \fCmatrix\&.mci\fR\&. The mcx utility should be available
+matrix stored in file \fCmatrix\&.mci\fP\&. The mcx utility should be available
 on your system if mcl was installed in the normal way\&.
 
 .di ZV
@@ -536,18 +536,18 @@ mcx /matrix\&.mci lm tp -1 mul add /check wm
 .ZV
 .fi \fR
 
-This loads the graph/matrix stored in \fCmatrix\&.mci\fR into \fBmcx\fP\&'s memory with
+This loads the graph/matrix stored in \fCmatrix\&.mci\fP into \fBmcx\fP\&'s memory with
 the mcx \fIlm\fP primitive\&. \- the leading slash is how strings are
 introduced in the stack language interpreted by \fBmcx\fP\&. The transpose of
 that matrix is then pushed on the stack with the \fItp\fP primitive and
 multiplied by minus one\&. The two matrices are added, and the result is
-written to the file \fCcheck\fR\&.
+written to the file \fCcheck\fP\&.
 The transposed matrix is the mirrored version of the original matrix stored
-in \fCmatrix\&.mci\fR\&. If a graph/matrix is undirected/symmetric, the mirrored
+in \fCmatrix\&.mci\fP\&. If a graph/matrix is undirected/symmetric, the mirrored
 image is necessarily the same, so if you subtract one from the other it
 should yield an all zero matrix\&.
 
-Thus, the file \fCcheck\fR \fIshould look like this\fP:
+Thus, the file \fCcheck\fP \fIshould look like this\fP:
 
 .di ZV
 .in 0
@@ -567,10 +567,10 @@ begin
 .ZV
 .fi \fR
 
-Where \fC<num>\fR is the same as in the file \fCmatrix\&.mci\fR\&. If this is not
+Where \fC<num>\fP is the same as in the file \fCmatrix\&.mci\fP\&. If this is not
 the case, find out what\&'s prohibiting you from feeding mcl symmetric
 matrices\&. Note that any nonzero entries found in the matrix stored as
-\fCcheck\fR correspond to node pairs for which the arcs in the two possible
+\fCcheck\fP correspond to node pairs for which the arcs in the two possible
 directions have different weight\&.
 
 .ce
@@ -1034,8 +1034,15 @@ possibly large changes in magnitude of the similarities\&. MCL is not affected
 by absolute magnitudes, it is only affected by magnitudes taken relative to
 each other\&.
 
+\fBUPDATE\fP
+.br
+As of version 03-154, mcl supports the pre-inflation \fB-pi\fP\ \fIf\fP option,
+where \fIf\fP is the inflation parameter described below\&.
+Use this option rather than the convoluted procedure described below\&.
+Read on to find out what it does\&.
+
 Here is how to make a graph more homogeneous with respect to the weight
-function\&. Given \fCorig\&.mci\fR, clustering \fCrevised\&.mci\fR as constructed
+function\&. Given \fCorig\&.mci\fP, clustering \fCrevised\&.mci\fP as constructed
 below should generally lead to coarser clusterings\&.
 
 .di ZV
@@ -1050,11 +1057,15 @@ mcx /orig\&.mci lm 0\&.5 hdp /revised\&.mci wm
 .ZV
 .fi \fR
 
-The parameter 0\&.5 can be changed to other values in the range \fC[0\&.\&.1\&.0]\fR\&.
+This simply applies inflation with parameter 0\&.5 to \fCorig\&.mci\fP\&.
+In the \fBmcx\fP language, \fBhdp\fP stands for Hadamard power (entrywise power),
+which is equivalent to inflation except that the normalization step is omitted\&.
+This step is not needed since it is part of mcl (initialization) itself\&.
+The parameter 0\&.5 can be changed to other values in the range \fC[0\&.\&.1\&.0]\fP\&.
 The closer it is to zero, the more clusterings will tend to be coarse\&.
 
-If the parameter is chosen larger than 1\&.0, say in the range \fC[1\&.2\&.\&.5\&.0]\fR
-then clusterings will tend to be more finer-graine\&. For example,
+If the parameter is chosen larger than 1\&.0, say in the range \fC[1\&.2\&.\&.5\&.0]\fP
+then clusterings will tend to be more finer-grained\&. For example,
 
 .di ZV
 .in 0
@@ -1101,7 +1112,7 @@ you are looking for\&.
 Two-level approaches can be implemented in a variety of ways, and you may
 wish to invoke tools other than mcl\&. However, it is possible to experiment
 with two-level approaches using \fBmcl\fP and its associated utility \fBmcx\fP\&. Here
-is how, assuming your original graph is called \fCorig\&.mci\fR\&.
+is how, assuming your original graph is called \fCorig\&.mci\fP\&.
 
 \fBWarning\fP
 .br
@@ -1121,7 +1132,7 @@ mcl orig\&.mci -I 5\&.0 -c 3\&.0 -scheme 5 -o orig\&.i5\&.mco
 .fi \fR
 
 Cluster it first so that you get a fine-grained clustering\&.
-Since \fCorig\&.mci\fR is likely a large graph, I opted for a high scheme\&.
+Since \fCorig\&.mci\fP is likely a large graph, I opted for a high scheme\&.
 
 .di ZV
 .in 0
@@ -1136,7 +1147,7 @@ mcx /orig\&.i5\&.mco lm tp exch     # line continues
 .ZV
 .fi \fR
 
-This transforms the clustering+graph into a new graph \fCcoarse\&.mci\fR where
+This transforms the clustering+graph into a new graph \fCcoarse\&.mci\fP where
 the clusters are nodes\&. You may, upon inspection, wish to change the
 homogeneity of the weight distribution by applying the method described in
 faq entry 5\&.3 \- but that\&'s
@@ -1171,7 +1182,7 @@ mcx /orig\&.i5\&.mco lm /coarse\&.mco lm mul /projected\&.mco wm
 .fi \fR
 
 Project the \&'coarsened\&' clustering back onto the original graph\&.
-Now \fCprojected\&.mco\fR should be a coarse cluster for \fCorig\&.mci\fR\&.
+Now \fCprojected\&.mco\fP should be a coarse cluster for \fCorig\&.mci\fP\&.
 
 There are a lot of parameters to play with here; e\&.g\&. the 5\&.0, 3\&.0 and
 2\&.0, and 1\&.0\&. These seem reasonable defaults\&.

@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mclblastline" 1 "28 Apr 2005" "mclblastline 1\&.005, 05-118" "USER COMMANDS"
+.TH "mclblastline" 1 "29 Sep 2005" "mclblastline 1\&.005, 05-272" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -94,9 +94,9 @@ mcxdeblast options must be passed using the mechanism described above\&.
 This will use bit scores, sort cluster indices such that the corresponding
 labels are ordered alphabetically, ignore bit scores not exceeding
 5, and use inflation value 2\&.5\&. In this case, the output clustering
-will be in the file named \fCmyblastfile\&.I25s2\fR (I25 identifying
+will be in the file named \fCmyblastfile\&.I25s2\fP (I25 identifying
 the inflation value and s2 identifying the resource scheme) and the
-formatted output will be in the file \fCmyblastfile\&.I25s2\&.fmt\fR\&.
+formatted output will be in the file \fCmyblastfile\&.I25s2\&.fmt\fP\&.
 
 .nf \fC
    mclblastline --prepare-mcl myblastfile
@@ -109,7 +109,7 @@ formatted output will be in the file \fCmyblastfile\&.I25s2\&.fmt\fR\&.
 .fi \fR
 
 The first run prepares an input matrix to be read by \fBmcl\fP\&.
-In this case its file will be named \fCmyblastfile\&.sym\fR\&.
+In this case its file will be named \fCmyblastfile\&.sym\fP\&.
 The subsequent runs use this matrix\&.
 \fBCAVEAT\fP there are some options that you need to repeat
 when executing such a resumed run\&. They are clearly marked
@@ -128,7 +128,7 @@ this concerns the mclpipeline options that have prefix
    etc \&.\&.
 .fi \fR
 
-In this case, the matrix file will be named \fCmyblastfile\&.b\&.sym\fR,
+In this case, the matrix file will be named \fCmyblastfile\&.b\&.sym\fP,
 and the \fB--xo-dat\fP options must be repeated in all runs
 so that the pipeline reconstructs the correct file name(s)\&.
 .SH AUTHOR

@@ -42,19 +42,28 @@ or
    mclpipeline [assembly options] --start-assemble=<fname> --prepare-mcl
 }
 
-\cpar{NOTE}{With the default settings, mclpipeline requires the presence
-of the \zoem macro processor to produce pretty-printed output
-(refer to the \secref{seealso} section and the
-\sibref{clmformat}{clmformat manual} for more information on zoem).
-If the \genopt{--fmt-dump} option                                               or the \genopt{--prepare-format} option is used,
-zoem will not be required.}
+\cpar{NOTE}{
+It is possible to make mclpipeline output a large arrary
+of performance measures related to nodes and clusters
+in hyperlinked output by supplying the \genopt{--fmt-fancy} option.
+This can be useful if one wants to scrutinize a clustering in greater
+detail and navigate within the clustering. The output then includes
+listings of external nodes that are relevant/close to a given cluster,
+and vice versa, listings of external clusters that are relevant/close
+to a given node.}
+
+\par{
+Generating this more intricate output requires the presence of the \zoem macro
+processor.  Refer to the \secref{seealso} section and the
+\sibref{clmformat}{clmformat manual} for more information on zoem.  By default
+zoem is not required, and the return result is a file where each line contains
+a clustering consisting of tab-separated labels.}
 
 
 \par
-   This program is a relatively new addition to the MCL suite.
-   If it does not work as expected, please file a bug report
-   with the developer and/or subscribe to mcl-devel as
-   indicated on \httpref{http://micans.org/mcl/}.
+   If this program does not work as expected, please file a bug report with the
+   developer and/or subscribe to mcl-devel as indicated on
+   \httpref{http://micans.org/mcl/}. The problem will then be fixed.
 
 \par
    The full list of pipeline options is given below. Start simple,
@@ -97,7 +106,6 @@ zoem will not be required.}
 \synoptkvp{--mcl-o}{fname}{do not use}\|
 \synoptkvp{--mcl-opt}{val}{mcl option transporter}\|
 \synoptkvp{--fmt-lump-count}{num}{collect formatted output}\|
-\synoptkvp{--fmt-dump}{fname}{make dump file}\|
 \synoptopt{--fmt-opt}{val}{clmformat option transporter}\|
 \synoptopt{--fmt-tab}{fname}{use this tab file}\|
 \synoptopt{--fmt-notab}{ignore tab file}\|
@@ -369,13 +377,24 @@ zoem will not be required.}
 \item{\defopt{--mcl-opt}{val}{mcl option transporter}}
    Transfer \genopt{-opt}{val} to \mcl.
 
+\item{\defopt{--fmt-dump-stats}{add simple measures to dump file}}
+   This adds some simple performance measures to the dump file.  For each
+   cluster, five columns proceed the label listing.  These are the cluster ID,
+   the number of elements in the cluster, the projection (percentage of
+   within-cluster edge weight relative to total outgoing edge weight), the
+   efficiency of the cluster (which is the average of the efficiency of all its
+   nodes), and the maximum efficiency (average of the max-efficiency of all the
+   nodes).  Look into the \sibref{clmformat}{clmformat manual} for more
+   information on and references to the efficiency measures.
+
+\item{\defopt{--fmt-fancy}{create detailed output (requires zoem)}}
+   Creates extensive description of node/cluster and cluster/cluster
+   relationships.
+
 \item{\defopt{--fmt-lump-count}{num}{collect formatted output}}
    Collect clusters in the same file until the total number
    of nodes has exceeded \genarg{num} (in the formatted output).
-
-\item{\defopt{--fmt-dump}{fname}{make dump file}}
-   Make a simple dump of the clustering. Does also work in
-   conjunction with the \genopt{--fmt-tab} option.
+   Only meaninful when \genopt{--fmt-fancy} is given.
 
 \item{\defopt{--fmt-tab}{use this tab file}}
    Explicitly specify the tab file to use.
@@ -406,3 +425,4 @@ zoem will not be required.}
    of \zoem. It can be obtained from
    \httpref{http://micans.org/zoem/} .
 
+\"man::postamble"

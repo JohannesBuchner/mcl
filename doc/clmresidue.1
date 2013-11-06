@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "clmresidue" 1 "28 Apr 2005" "clmresidue 1\&.005, 05-118" "USER COMMANDS"
+.TH "clmresidue" 1 "29 Sep 2005" "clmresidue 1\&.005, 05-272" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -40,10 +40,10 @@ clmresidue \- extend clustering of subgraph to clustering of graph\&.
 .SH DESCRIPTION
 
 The cluster file presumably contains a clustering of a subgraph of the
-graph\ \fCG\fR contained by the matrix file, implying that the row domain of
+graph\ \fCG\fP contained by the matrix file, implying that the row domain of
 that clustering is a subset of the node domain of the graph\&. clmresidue will
 compute a simple upwards projection of that clustering, resulting in a
-clustering of\ \fCG\fR\&.
+clustering of\ \fCG\fP\&.
 .SH OPTIONS
 
 .ZI 3m "\fB-rpm\fP fname (\fIresidue projection matrix\fP)"
@@ -54,7 +54,7 @@ It contains for each node and for each cluster in the input clustering
 the combined weight of the (edges to the) neighbours of that node
 in that cluster\&.
 
-The default output file name is \fCout\&.rpm\fR\&.
+The default output file name is \fCout\&.rpm\fP\&.
 .in -3m
 
 .ZI 3m "\fB-mvp\fP fname (\fImajority vote projection (clustering)\fP)"
@@ -70,7 +70,7 @@ residue (i\&.e\&. the set of missing nodes) is initially viewed as a cluster;
 the set of nodes for which the projection is largest for the residue itself
 will form a new cluster, if it is not empty\&.
 
-The default output file name is \fCout\&.mvp\fR\&.
+The default output file name is \fCout\&.mvp\fP\&.
 .in -3m
 
 .ZI 3m "\fB--adapt\fP (\fIallow domain mismatch\fP)"

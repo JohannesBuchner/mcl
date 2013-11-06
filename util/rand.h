@@ -11,18 +11,13 @@
 
 #define RANDOM_MAX (2*((1<<30)-1)+1)
 
-/*   seed -> dees -> geez -> geese -> goose -> duck
- *   formerly called brand: braindead rand(om number stuff).
-*/
-
-
 
 /*   This is for weak seeding, to obtain fresh seeds which will definitely
  *   *not* be suitable for cryptographic needs
 */
 
 unsigned int mcxSeed
-(  void
+(  unsigned int seedlet
 )  ;
 
 

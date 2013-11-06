@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcxassemble" 1 "28 Apr 2005" "mcxassemble 1\&.005, 05-118" "USER COMMANDS"
+.TH "mcxassemble" 1 "29 Sep 2005" "mcxassemble 1\&.005, 05-272" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -121,7 +121,7 @@ the raw input\&.
 
 \fBExample\fP
 .br
-Suppose \fCblastresult\fR is a file containing blast results\&.
+Suppose \fCblastresult\fP is a file containing blast results\&.
 The following two commands construct an mcl matrix file from the file\&.
 
 .di ZV
@@ -138,10 +138,10 @@ The following two commands construct an mcl matrix file from the file\&.
 .fi \fR
 
 \fBmcxdeblast\fP will generate the
-files \fCblastresult\&.hdr\fR, \fCblastresult\&.raw\fR, and \fCblastresult\&.map\fR\&.
+files \fCblastresult\&.hdr\fP, \fCblastresult\&.raw\fP, and \fCblastresult\&.map\fP\&.
 The \fB--sort=a\fP option will create a map file corresponding
 with alphabetic ordering\&. These files are processed by \fBmcxassemble\fP
-and it will generate the file \fCblastresult\&.sym\fR\&. The \fB-r\fP
+and it will generate the file \fCblastresult\&.sym\fP\&. The \fB-r\fP
 option tells \fBmcxassemble\fP that repeated entries should be maxed;
 each time the largest entry seen thus far will be taken\&.
 
@@ -186,8 +186,8 @@ entries have to be present in the row domain\&.
 \fIIf one concatenates the contents of the header file and the data file\fP,
 the result is \fIalmost but not quite\fP a file containing a matrix in
 syntactically correct mcl generic matrix format\&. The parts missing
-are the \fC(mclmatrix\fR introduction token, (followed by) the
-\fCbegin\fR token, and the closing \fC)\fR token\&.
+are the \fC(mclmatrix\fP introduction token, (followed by) the
+\fCbegin\fP token, and the closing \fC)\fP token\&.
 
 \fBMap file\fP
 .br
@@ -300,7 +300,7 @@ than constructing the file names from a base name and suffixes)\&.
 \&
 .br
 Map options\&. \fB--cmap\fP combines with the \fB-b\fP\ option,
-and says that the map file in \fBbase\fP\&.\fCcmap\fR (where \fBbase\fP
+and says that the map file in \fBbase\fP\&.\fCcmap\fP (where \fBbase\fP
 was specified with \fB-b\fP\ \fBbase\fP) should be applied to the column
 domain only\&. \fB--rmap\fP works the same for the
 row domain, and \fB--map\fP can be used to apply the same map
@@ -338,7 +338,7 @@ raw data and adding entries to the skeleton matrix as specified
 with the \fB-r\fP, \fB-re\fP, and \fB-rv\fP options\&.
 This matrix can be written using one of the \fBprm\fP options\&.
 Calling the primary matrix A, the skew matrix (as defined here)
-is the matrix \fCA\ -\ A^T\fR, i\&.e\&. A minus its transposed matrix\&.
+is the matrix \fCA\ -\ A^T\fP, i\&.e\&. A minus its transposed matrix\&.
 It can be written using one of the \fBskw\fP options\&.
 
 If for some reason the symmetrized result is not needed, its output
@@ -363,7 +363,7 @@ can be prevented using the \fB-n\fP\ option\&.
 The \fB-xo\fP\ option is used in conjunction with the \fB-b\fP\ option
 in order to change the suffix for the file in which the symmetrized
 result matrix is written\&. Use e\&.g\&. \fB-xo\fP\ \fBmci\fP to change the suffix
-from the default value \fCsym\fR to \fCmci\fR\&. Use \fB-o\fP to explicitly
+from the default value \fCsym\fP to \fCmci\fP\&. Use \fB-o\fP to explicitly
 specify the filename in full\&. Use \fB-digits\fP to set the number of
 digits written for matrix entries (c\&.q\&. edge weights)\&.
 
@@ -406,7 +406,7 @@ symmetrization can be done in the same variety of ways\&.
 
 The \fBre\fP option, for repeats within the same column, is carried out
 first\&. It is applied \fIafter\fP the column has its entries sorted, so the
-\fCleft\fR and \fCright\fR options are not garantueed to follow the order found
+\fCleft\fP and \fCright\fP options are not garantueed to follow the order found
 in the raw input\&. The \fBrv\fP option, for repeats over different columns,
 is carried out second\&.
 
@@ -427,7 +427,7 @@ The column
 .fi \fR
 
 is encountered in the input, listing entries for the vector labeled
-with index\ \fC0\fR\&. If \fB-re\fP\ \fBadd\fP or \fB-r\fP\ \fBadd\fP
+with index\ \fC0\fP\&. If \fB-re\fP\ \fBadd\fP or \fB-r\fP\ \fBadd\fP
 is used, it will transform to the vector
 
 .di ZV
@@ -458,7 +458,7 @@ is used instead, it will transform to the vector
 .fi \fR
 
 Suppose \fIadd\fP mode is used, and that later on another
-vector specification for the index\ \fC0\fR is found, leading
+vector specification for the index\ \fC0\fP is found, leading
 to this transformed vector:
 
 .di ZV
@@ -492,12 +492,12 @@ previous vector by taking the entry wise maximum:
 .fi \fR
 
 Finally, suppose that somewhere one or more vector listings
-were specified for index\ \fC3\fR, which eventually led to an entry \fC0:50\fR\&.
-The final symmetrization step will take the \fC[0,3]\fR
-entry of weight\ \fC20\fR and combine it with the \fC[3,0]\fR entry
-of weight\ \fC50\fR\&. The resulting matrix will then have the \fC[0,3]\fR
-and the \fC[3,0]\fR entry both equal to either the maximum, the sum,
-or the product of the two quantities\ \fC50\fR and\ \fC20\fR\&.
+were specified for index\ \fC3\fP, which eventually led to an entry \fC0:50\fP\&.
+The final symmetrization step will take the \fC[0,3]\fP
+entry of weight\ \fC20\fP and combine it with the \fC[3,0]\fP entry
+of weight\ \fC50\fP\&. The resulting matrix will then have the \fC[0,3]\fP
+and the \fC[3,0]\fP entry both equal to either the maximum, the sum,
+or the product of the two quantities\ \fC50\fP and\ \fC20\fP\&.
 .in -3m
 
 .ZI 3m "\fB--quiet-re\fP (\fIquiet for repeated entries\fP)"

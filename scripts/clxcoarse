@@ -20,9 +20,12 @@ set -e
 new=0
 block=0
 delete=0
+groundup=0
 
 declare -a rubbish
 n_rubbish=0
+
+export MCLXIOVERBOSITY=2
 
 function more_rubbish {
    rubbish[$n_rubbish]="./$1"
@@ -61,7 +64,7 @@ outfile=""
 T=M
 TT=MM
 
-while getopts :ndbhz0:1:2:M:o: opt
+while getopts :ndbghz0:1:2:M:o: opt
 do
     case "$opt" in
     M)
@@ -72,6 +75,9 @@ do
       ;;
     d)
       delete=1
+      ;;
+    g)
+      groundup=1
       ;;
     b)
       block=1
@@ -99,6 +105,7 @@ Options
 -b    Work with adapted matrix which has intra-cluster edges removed
 -z    Create all files in binary format (saves a little space)
 -d    Delete intermediate results
+-g    Groundup, compute coarsened matrices relative to input matrix
 
 -o <mx-file>   final output cluster file.
 -M <mx-file> * input matrix file.
@@ -213,6 +220,10 @@ if test "$opts2" && let $(($block)); then
    TT=BB
 fi
 
+if let $(($groundup)); then
+   TT=$TT''G
+fi
+
 
 
 if test "$outfile" && ! test "$opts2"; then
@@ -232,7 +243,11 @@ if test "$opts2"; then
 
    mx2=$TT.$stem.$tag1
    if do_create $mx2 $new; then
-      mcx /$cl1 lm tp exch st /$mx1 lm exch mul mul st /$mx2 wm
+      if let $(($groundup)); then
+         mcx /$cl1P lm tp exch st /$mx0 lm exch mul mul st /$mx2 wm
+      else
+         mcx /$cl1 lm tp exch st /$mx1 lm exch mul mul st /$mx2 wm
+      fi
    fi
             more_rubbish $mx2
 

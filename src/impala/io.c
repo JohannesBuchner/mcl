@@ -258,7 +258,7 @@ mcxbool mclxIOsetQMode
    ;  mcxTing* tmp
       = mcxTingPrint(NULL, "%s=%ld", opt, (unsigned long) (newmode & 10))
    ;  mcxbool ok = FALSE
-   ;  char* str = mcxTingish(tmp)
+   ;  char* str = mcxTinguish(tmp)
 
    ;  while (1)
       {  if (mode & 10)     /* modes 2 and 8 cannot be overridden */
@@ -307,10 +307,6 @@ int set_ascii_digits
 ;  }
 
 
-
-/* hierverder:
- * readgraph should pbb be an option of other routine.
-*/
 
 mcxstatus mclxReadDimensions
 (  mcxIO          *xf
@@ -393,7 +389,6 @@ fprintf(stderr, "--> !xf||dom_rows!\n")
    ;  return STATUS_OK
 ;  }
 
-/* hierverder; dom_rows is corrupt */
 
 
 mclMatrix* mclxReadBody
@@ -411,19 +406,6 @@ mclMatrix* mclxReadBody
       return mclxa_read_body(xf, dom_cols, dom_rows, colmask, rowmask, ON_FAIL)
    ;  return NULL
 ;  }
-
-
-
-mcxstatus mclx_test_readable
-(  mcxIO* xf
-)
-   {  if (!xf->fp && mcxIOopen(xf, RETURN_ON_FAIL) != STATUS_OK)
-      {  mcxErr("mclIO", "cannot open <%s> for reading", xf->fn->str)
-      ;  return STATUS_FAIL
-   ;  }
-      return  STATUS_OK
-;  }
-
 
 
 mclMatrix* mclxSubRead
@@ -448,7 +430,7 @@ mclMatrix* mclxSubReadx
    ;  mcxstatus status = STATUS_FAIL
 
    ;  while (1)
-      {  if (mclx_test_readable(xf))  
+      {  if (mcxIOtestOpen(xf, ON_FAIL))  
          break
       
       ;  if (mclxReadDomains(xf, dom_cols, dom_rows))
@@ -483,6 +465,10 @@ mcxstatus mclIOvcheck
 )
    {  long ct = 0
    ;  const char* me = "mclIOvcheck"
+
+   ;  if (get_env_flags("MCLXIOUNCHECKED"))
+      return STATUS_OK
+
    ;  if (mcldIsCanonical(dom))
       return
       mclvCheck
@@ -783,15 +769,23 @@ static mcxstatus mclxb_read_dompart
    ;  n_read += fread(&flags, szl, 1, xf->fp)
 
    ;  while (1)
-      {  if (n_read != 1)                                      break ; level++
+      {  if (n_read != 1)
+         break
+      ;  level++
 
       ;  if (flags & 1)
-         mclvCanonical(dom_cols, n_cols, 1.0)                        , level++
-      ;  else if (mclvEmbedRead(dom_cols, xf, RETURN_ON_FAIL)) break ; level++
+            mclvCanonical(dom_cols, n_cols, 1.0)
+         ,  level++
+      ;  else if (mclvEmbedRead(dom_cols, xf, RETURN_ON_FAIL))
+         break
+      ;  level++
 
       ;  if (flags & 2)
-         mclvCanonical(dom_rows, n_rows, 1.0)                        , level++
-      ;  else if (mclvEmbedRead(dom_rows, xf, RETURN_ON_FAIL)) break ; level++
+            mclvCanonical(dom_rows, n_rows, 1.0)
+         ,  level++
+      ;  else if (mclvEmbedRead(dom_rows, xf, RETURN_ON_FAIL))
+         break
+      ;  level++
 
       ;  status = STATUS_OK
       ;  break
@@ -1125,7 +1119,7 @@ static mclMatrix* mclxa_read_body
 
       ;  if
          (  mclxaSubReadRaw
-           (xf, mx, dom_cols, dom_rows, ON_FAIL, ')', bits, mclpMergeLeft, fltLeft
+           (xf, mx, dom_cols, dom_rows, ON_FAIL, ')', bits, mclpMergeLeft, fltMax
            )!= STATUS_OK
          )
          {  mx = NULL      /* twas freed by mclxaSubReadRaw */
@@ -1518,8 +1512,10 @@ static void report_vector_size
 )
    {  char                 report[80]
 
-   ;  sprintf
-      (  report, "%s %ld pair%s\n"
+   ;  snprintf
+      (  report
+      ,  sizeof report
+      , "%s %ld pair%s\n"
       ,  action
       ,  (long) vec->n_ivps
       ,  vec->n_ivps == 1 ? "" : "s"
@@ -1594,7 +1590,7 @@ mclpAR* mclpReaDaList
       *sortbits = 0
 
    ;  if (!ar)
-      ar = mclpARresize(NULL, 100)
+      ar = mclpARensure(NULL, 100)
 
    ;  while (1)
       {  long idx
@@ -1939,7 +1935,7 @@ mcxstatus mclxaSubReadRaw
 ,  double (*fltbinary)(pval val1, pval val2)
 )
    {  const char* me       =  "mclxaSubReadRaw"
-   ;  mclpAR*     ar       =  mclpARresize(NULL, 100)
+   ;  mclpAR*     ar       =  mclpARensure(NULL, 100)
    ;  mclv*       discardv =  mclvNew(NULL, 0)
 
    ;  int         N_cols   =  N_COLS(mx)
@@ -2126,6 +2122,128 @@ void mclvaDump2
       fputs(sep, fp)
    ;  if (print_eov)
       fputs(eov, fp)
+;  }
+
+
+
+void mclxIOdumpSet
+(  mclxIOdumper*  dump
+,  mcxbits        modes
+,  const char*    sep_row
+,  const char*    sep_val
+)
+   {  dump->modes    =  modes
+   ;  dump->sep_row  =  sep_row  ? sep_row : "\t"
+   ;  dump->sep_val  =  sep_val  ? sep_val : ":"
+   ;  dump->threshold = 0.0
+;  }
+
+
+
+mcxstatus mclxIOdump
+(  mclx*       mx
+,  mcxIO*      xf_dump
+,  mclxIOdumper* dumper
+,  mclTab*     tabc
+,  mclTab*     tabr
+,  mcxOnFail   ON_FAIL
+)
+   {  mcxbits modes = dumper->modes
+   ;  if (mcxIOtestOpen(xf_dump, ON_FAIL))
+      return STATUS_FAIL
+
+   ;  if
+      (  (modes & (MCX_DUMP_LOOP_FORCE | MCX_DUMP_LOOP_NONE))
+      && mclxIsGraph(mx)
+      )
+      {  double (*op)(mclv* vec, long r, void* data)
+         =     modes & MCX_DUMP_LOOP_NONE
+            ?  mclvAdjustDiscard
+            :  mclvAdjustForce
+      ;  mclxAdjustLoops(mx, op, NULL)
+   ;  }
+   
+      if (modes & MCX_DUMP_PAIRS)
+      {  long i, j, labelc_o = -1
+      ;  char* labelc = "", *labelr = ""
+
+      ;  for (i=0;i<N_COLS(mx);i++)
+         {  mclv* vec = mx->cols+i
+         ;  long labelr_o = -1
+
+         ;  if (tabc)
+            labelc = mclTabGet(tabc, vec->vid, &labelc_o)
+
+         ;  for (j=0;j<vec->n_ivps;j++)
+            {  mclIvp* ivp = vec->ivps+j
+            ;  if (ivp->val < dumper->threshold)
+               continue
+
+            ;  if (tabr)
+               labelr = mclTabGet(tabr, ivp->idx, &labelr_o)
+
+            ;  if (tabc)
+               fputs(labelc, xf_dump->fp)
+            ;  else
+               fprintf(xf_dump->fp, "%ld", (long) vec->vid)
+
+            ;  fputs(dumper->sep_row, xf_dump->fp)
+
+            ;  if (tabr)
+               fputs(labelr, xf_dump->fp)
+            ;  else
+               fprintf(xf_dump->fp, "%ld", (long) ivp->idx)
+
+            ;  if (modes & MCX_DUMP_VALUES)
+               fprintf(xf_dump->fp, "%s%f", dumper->sep_row, ivp->val)
+            ;  fputc('\n', xf_dump->fp)
+         ;  }
+         }
+      }
+      else if (modes & (MCX_DUMP_LINES | MCX_DUMP_RLINES))
+      {  long i, j, labelc_o = -1
+      ;  char* labelc = "", *labelr = ""
+
+      ;  for (i=0;i<N_COLS(mx);i++)
+         {  mclv* vec = mx->cols+i
+         ;  long labelr_o = -1
+         ;  mcxbool busy = FALSE
+
+         ;  if (tabc)
+            labelc = mclTabGet(tabc, vec->vid, &labelc_o)
+
+         ;  if (modes & MCX_DUMP_LINES)
+            {  if (tabc)
+               fputs(labelc, xf_dump->fp)
+            ;  else
+               fprintf(xf_dump->fp, "%ld", (long) vec->vid)
+         ;  }
+
+            for (j=0;j<vec->n_ivps;j++)
+            {  const char* sep = ((modes & MCX_DUMP_RLINES) && !busy) ? "" : dumper->sep_row
+            ;  mclIvp* ivp = vec->ivps+j
+            ;  if (ivp->val < dumper->threshold)
+               continue
+
+            ;  busy = TRUE
+            ;  if (tabr)
+               labelr = mclTabGet(tabr, ivp->idx, &labelr_o)
+
+            ;  fputs(sep, xf_dump->fp)
+
+            ;  if (tabr)
+               fputs(labelr, xf_dump->fp)
+            ;  else
+               fprintf(xf_dump->fp, "%ld", (long) ivp->idx)
+
+            ;  if (modes & MCX_DUMP_VALUES)
+               fprintf(xf_dump->fp, "%s%f", dumper->sep_val, ivp->val)
+         ;  }
+            if ((modes & MCX_DUMP_LINES) || vec->n_ivps)   /* sth was printed */
+            fputc('\n', xf_dump->fp)
+      ;  }
+      }
+      return STATUS_OK
 ;  }
 
 

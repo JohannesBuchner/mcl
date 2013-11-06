@@ -16,7 +16,7 @@
 */
 
 
-/*  **************************************************************************
+/*  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * *
  **            Implementation notes (a few).
  *
@@ -32,8 +32,8 @@
  *
  *    What the interface cannot do currently is hash integers by value (rather
  *    than by reference). This functionality will probably be added someday.
- *    Features:
- *
+
+ * Features:
  *    o  Searching, inserting, and deletion are all done by
  *       mcxHashSearch. It returns a pointer to mcxKV. When deleting, the
  *       caller must use apply mcxKVfree to it after doing whatever needs to
@@ -53,11 +53,18 @@
  *       a feature - however, since the idiotic <hsearch.h> does not offer
  *       this I thought I'd mention it.
  *
- *    o  Witness mcxHashWalkNew, mcxHashWalkStep, mcxHashWalkFree.
+ *    o  Witness mcxHashWalkInit, mcxHashWalkStep.
  * 
  *    o  There is mcxHashMerge.
  *
+ *    o  mcxHashKeys, mcxHashKVs.
+ *
  *    Enjoy.
+
+ * Notes
+ *    There is a utility hashfile.c (distributed in a separate package)
+ *    that can be used to stress-test this module. It allows customization
+ *    of several aspects, including the hash function that should be used.
 */
 
 #include "types.h"
@@ -123,15 +130,15 @@ void mcxHashGetSettings
 )  ;
 
 
-/*  **************************************************************************
+/*  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * *
  **            mcxHashSearch
  *
  *    action               returns
  *
- *    DATUM_DELETE   ->    deleted mcxKV* or NULL if not present
- *    DATUM_INSERT   ->    new or present mcxKV*
- *    DATUM_FIND     ->    mcxKV* if present NULL otherwise.
+ *    MCX_DATUM_DELETE   ->    deleted mcxKV* or NULL if not present
+ *    MCX_DATUM_INSERT   ->    new or present mcxKV*
+ *    MCX_DATUM_FIND     ->    mcxKV* if present NULL otherwise.
  * 
  * usage:
  *
@@ -166,7 +173,7 @@ mcxKV*   mcxHashSearch
 )  ;
 
 
-/*  **************************************************************************
+/*  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * *
  **            mcxHashMerge
  *
@@ -187,7 +194,7 @@ mcxHash* mcxHashMerge
 )  ;
 
 
-/*  **************************************************************************
+/*  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * *
  **            mcxHashFree
  *
@@ -215,8 +222,34 @@ void mcxHashFree
 )  ;
 
 
-/*
- **   Prints some information to stdout.
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *    It copies the pointers stored in the hash
+*/
+
+void** mcxHashKeys
+(  mcxHash*    hash
+,  int*        n_entries
+,  int       (*cmp)(const void*, const void*)
+,  mcxbits     opts        /* unused yet */
+)  ;
+                           /* Future options: SORT, SORT_DESC */
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *    It copies the pointers stored in the hash
+*/
+
+void** mcxHashKVs
+(  mcxHash*    hash
+,  int*        n_entries
+,  int       (*cmp)(const void*, const void*)
+,  mcxbits     opts        /* unused yet */
+)  ;
+
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *    Prints some information to stdout.
 */
 
 void mcxHashStats
@@ -233,8 +266,9 @@ typedef struct
 }  mcxHashWalk ;
 
 
-mcxHashWalk* mcxHashWalkNew
+void mcxHashWalkInit
 (  mcxHash  *hash
+,  mcxHashWalk* walk
 )  ;
 
 

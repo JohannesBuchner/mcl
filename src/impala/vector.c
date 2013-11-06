@@ -143,7 +143,7 @@ mclVector* mclvInstantiate
 (  mclVector*     dst_vec
 ,  int            new_n_ivps
 ,  const mclIvp*  src_ivps
-)  
+)
    {  mclIvp*     new_ivps
    ;  int         old_n_ivps
 
@@ -182,6 +182,7 @@ mclVector* mclvInstantiate
    ;  dst_vec->n_ivps = new_n_ivps
    ;  return dst_vec
 ;  }
+
 
 
 mclVector* mclvNew
@@ -1405,5 +1406,25 @@ double mclvMaxValue
    ;  }
       return  max_val
 ;  }
+
+
+double mclvAdjustDiscard
+(  mclv* vec
+,  long  r
+,  void* data
+)
+   {  return 0.0
+;  }
+
+
+double mclvAdjustForce
+(  mclv* vec
+,  long  r
+,  void* data
+)
+   {  mclp* ivp = mclvGetIvp(vec, r, NULL)
+   ;  return ivp && ivp->val ? ivp->val : 1.0
+;  }
+
 
 

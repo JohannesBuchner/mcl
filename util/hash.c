@@ -20,7 +20,6 @@
 #include "hash.h"
 #include "minmax.h"
 #include "types.h"
-#include "compile.h"
 #include "ting.h"
 #include "err.h"
 #include "gralloc.h"
@@ -107,7 +106,7 @@ mcxHash* mcxHashNew
    ;  int n_bits   =  0
 
    ;  if (!(h = mcxAlloc(sizeof(mcxHash), RETURN_ON_FAIL)))
-      MCX_ACT_ON_ALLOC_FAILURE
+      return NULL
 
    ;  h->mask           =  --n_buckets
 
@@ -369,6 +368,7 @@ mcxLink* mcx_bucket_search
       return link
 ;  }
 
+
 mcxstatus mcxHashDouble
 (  mcxHash* h
 )  ;
@@ -411,6 +411,70 @@ mcxKV* mcxHashSearch
 ;  }
 
 
+enum
+{  ARRAY_OF_KEY
+,  ARRAY_OF_KV
+}  ;
+
+
+void** mcxHashArray
+(  mcxHash*    hash
+,  int*        n_entries
+,  int       (*cmp)(const void*, const void*)
+,  mcxbits     opts                    /* unused yet */
+,  mcxenum     mode
+)
+   {  mcxHashWalk walk
+   ;  void** obs   =  mcxAlloc(sizeof(void*) * hash->n_entries, RETURN_ON_FAIL)
+   ;  int i = 0
+   ;  mcxKV* kv
+
+   ;  mcxHashWalkInit(hash, &walk)
+
+   ;  if (!obs)
+      return NULL
+
+   ;  while ((kv = mcxHashWalkStep(&walk)))
+      {  if (i >= hash->n_entries)
+         {  mcxErr("mcxHashKeys PANIC", "inconsistent state (n_entries %d)", hash->n_entries)
+         ;  break
+      ;  }
+         obs[i] = mode == ARRAY_OF_KEY ? kv->key : kv
+      ;  i++
+   ;  }
+      if (i != hash->n_entries)
+      mcxErr("mcxHashKeys PANIC", "inconsistent state (n_entries %d)", hash->n_entries)
+
+   ;  qsort(obs, i, sizeof(void*), cmp)
+
+   ;  *n_entries = i
+   ;  return obs
+;  }
+
+
+
+void** mcxHashKeys
+(  mcxHash*    hash
+,  int*        n_entries
+,  int       (*cmp)(const void*, const void*)
+,  mcxbits     opts                    /* unused yet */
+)
+   {  return mcxHashArray(hash, n_entries, cmp, opts, ARRAY_OF_KEY)
+;  }
+
+
+
+void** mcxHashKVs
+(  mcxHash*    hash
+,  int*        n_entries
+,  int       (*cmp)(const void*, const void*)
+,  mcxbits     opts                    /* unused yet */
+)
+   {  return mcxHashArray(hash, n_entries, cmp, opts, ARRAY_OF_KV)
+;  }
+
+
+
 mcxKV* mcxHashWalkStep
 (  mcxHashWalk  *walk
 )
@@ -427,22 +491,18 @@ mcxKV* mcxHashWalkStep
 ;  }
 
 
-mcxHashWalk* mcxHashWalkNew
+void mcxHashWalkInit
 (  mcxHash  *h
+,  mcxHashWalk* walk
 )
-   {  mcxHashWalk* walk
-      
-   ;  if (!(walk = mcxAlloc(sizeof(mcxHashWalk), RETURN_ON_FAIL)))
-      MCX_ACT_ON_ALLOC_FAILURE
-
-   ;  walk->hash     =  h
+   {  walk->hash     =  h
 
    ;  if (!h || !h->buckets)
-      return NULL
+      return
 
    ;  walk->i_bucket =  0
    ;  walk->link     =  (h->buckets+0)->base
-   ;  return walk
+   ;  return
 ;  }
 
 

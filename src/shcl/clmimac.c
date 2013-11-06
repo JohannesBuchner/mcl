@@ -37,12 +37,8 @@ enum
 {  MY_OPT_INPUTFILE
 ,  MY_OPT_OUTPUTFILE
 ,  MY_OPT_DAG
-,  MY_OPT_TIGHT
-,  MY_OPT_TSTEP
-,  MY_OPT_TBOUND
 ,  MY_OPT_ENSTRICT
 ,  MY_OPT_SORT
-,  MY_OPT_USE_CENTER
 ,  MY_OPT_HELP
 ,  MY_OPT_APROPOS
 ,  MY_OPT_VERSION
@@ -75,24 +71,6 @@ mcxOptAnchor options[] =
    ,  "<fname>"
    ,  "input matrix file, presumably dumped mcl iterand or dag"
    }
-,  {  "-t"
-   ,  MCX_OPT_HASARG
-   ,  MY_OPT_TIGHT
-   ,  "<num>"
-   ,  "(tightness) double in range [0.0,100.0]"
-   }
-,  {  "-tstep"
-   ,  MCX_OPT_HASARG
-   ,  MY_OPT_TSTEP
-   ,  "<num>"
-   ,  "step size for multiple tightness (default off)"
-   }
-,  {  "-tbound"
-   ,  MCX_OPT_HASARG
-   ,  MY_OPT_TBOUND
-   ,  "<num>"
-   ,  "bound on tightness in the presence of steps"
-   }
 ,  {  "--apropos"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_APROPOS
@@ -117,12 +95,6 @@ mcxOptAnchor options[] =
    ,  "<fname>"
    ,  "output DAG associated with matrix"
    }
-,  {  "--center"
-   ,  MCX_OPT_DEFAULT
-   ,  MY_OPT_USE_CENTER
-   ,  NULL
-   ,  "vary tightness over [center, max] interval"
-   }
 ,  {  NULL ,  0 ,  0 ,  NULL, NULL}
 }  ;
 
@@ -134,29 +106,20 @@ int main
    {  mcxstatus parseStatus   =  STATUS_OK
 
    ;  mcxbool keep_overlap    =  TRUE
-   ;  mcxbool use_center      =  FALSE
    ;  mclInterpretParam* ipp  =  mclInterpretParamNew()
-   ;  mcxTing* fnstem         =  NULL
+   ;  mcxTing* fname          =  mcxTingNew("out.imac")
    ;  mcxIO* xfdag            =  NULL
    ;  const char* sortmode    =  "revsize"
 
-   ;  int flags = 0
+   ;  mcxbits  flags          =  0
+   ;  int o = 0, m = 0, e = 0
 
    ;  mcxIO* xfin
-   ;  mclx *mx = NULL, *cl = NULL, *dag = NULL
-   ;  int o, e, m
-   ;  double t = 0.0
-   ;  double toffset =  0.0         /* tight factor */
-   ;  double tbound  =  100.0       /* tight factor */
-   ;  double tstep   =  200.0       /* tight step */
+   ;  mclx *mx = NULL, *dag = NULL, *cl = NULL
    ;  const char* me = "clmimac"
    ;  const char* arg_fnin = NULL
 
    ;  mcxOption* opts, *opt
-
-   ;  ipp->w_selfval = 0.999
-   ;  ipp->w_maxval  = 0.001
-   ;  ipp->w_center  = 0.0
 
    ;  if (argc <= 1)
       {  mcxOptApropos(stdout, me, syntax, 0, 0, options)
@@ -199,12 +162,7 @@ int main
          ;
 
             case MY_OPT_OUTPUTFILE
-         :  fnstem = mcxTingNew(opt->val)
-         ;  break
-         ;
-
-            case MY_OPT_USE_CENTER
-         :  use_center = TRUE
+         :  fname = mcxTingNew(opt->val)
          ;  break
          ;
 
@@ -212,21 +170,6 @@ int main
          :  case MY_OPT_APROPOS
          :  mcxOptApropos(stdout, me, syntax, 0, 0, options)
          ;  exit(0)
-         ;
-
-            case MY_OPT_TBOUND
-         :  tbound = atof(opt->val)
-         ;  break
-         ;
-
-            case MY_OPT_TSTEP
-         :  tstep = atof(opt->val)
-         ;  break
-         ;
-
-            case MY_OPT_TIGHT
-         :  toffset = atof(opt->val)
-         ;  break
          ;
 
             case MY_OPT_DAG
@@ -254,67 +197,31 @@ int main
       xfin     =  mcxIOnew(arg_fnin, "r")
    ;  mx       =  mclxReadx(xfin, EXIT_ON_FAIL, MCL_READX_GRAPH)
    ;  mclxMakeStochastic(mx)
+   ;  mcxIOfree(&xfin)
 
-   ;  if (!fnstem)
-      fnstem = mcxTingNew("out.imac")
-   ;
+   ;  dag   =  mclDag(mx, ipp)
+   ;  mclxFree(&mx)
+   ;  cl    =  mclInterpret(dag)
+   ;  mclDagTest(dag)
 
-      for (t = toffset; t <= tbound; t += tstep)
-      {  mcxIO* xfout
-      ;  int dagdepth
+   ;  if (xfdag)
+      mclxWrite(dag, xfdag, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+   ;  mclxFree(&dag)
 
-      ;  xfout =  mcxIOnew(fnstem->str, "w")
-      ;  if (tstep <= 100.0)
-         mcxTingPrintAfter(xfout->fn, "%02.0f", t)
+   ;  if (keep_overlap)
+      flags |= ENSTRICT_KEEP_OVERLAP
 
-      ;  ipp->w_maxval = t / 100.0
-      ;  ipp->w_partialsum = 0.0
+   ;  {  mcxIO* xfout = mcxIOnew(fname->str, "w")
+      ;  const char* did = keep_overlap ? "found" : "removed"
+      ;  mcxIOopen(xfout, EXIT_ON_FAIL)
 
-      ;  if (use_center)
-            ipp->w_selfval =  0.0
-         ,  ipp->w_center  =  (100.0 - t) / 100.0
-      ;  else
-            ipp->w_selfval =  (100.0 - t) / 100.0
-         ,  ipp->w_center  =  0.0
-
-      ;  cl = mclInterpret(mx, ipp, &dagdepth, &dag)
-
-      ;  mcxTell(me, "dagdepth <%d>", dagdepth)
-
-      ;  if (xfdag)
-         mclxWrite(dag, xfdag, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
-      ;  else
-         mclxFree(&dag)
-
-      ;  if (keep_overlap)
-         flags |= ENSTRICT_KEEP_OVERLAP
-
-      ;  mclcEnstrict(cl, &o, &m, &e, flags)  
-
+      ;  mclcEnstrict(cl, &o, &m, &e, flags)
       ;  if (o)
-         mcxTell
-         (  me
-         ,  "%s <%d> instances of overlap (t parameter %.0f)"
-         ,  keep_overlap ? "found" : "removed"
-         ,  (int) o
-         ,  (double) t
-         )
-
+         mcxTell(me, "%s <%d> instances of overlap", did, o)
       ;  if (m)
-         mcxTell
-         (  me
-         ,  "collected <%d> missing nodes (t parameter %.0f)"
-         ,  (int) m
-         ,  (double) t
-         )
-
+         mcxTell(me, "collected <%d> missing nodes", m)
       ;  if (e)
-         mcxTell
-         (  me
-         ,  "removed <%d> empty clusters (t parameter %.0f)"
-         ,  (int) e
-         ,  (double) t
-         )
+         mcxTell(me, "removed <%d> empty clusters", e)
 
       ;  if (!strcmp(sortmode, "size"))
          mclxColumnsRealign(cl, mclvSizeCmp)
@@ -326,12 +233,15 @@ int main
         /* ok */
       ;  else
          mcxErr(me, "ignoring unknown sort mode <%s>", sortmode)
-
+                                                                                                     
       ;  mclxWrite(cl, xfout, MCLXIO_VALUE_NONE, EXIT_ON_FAIL)
       ;  mcxIOfree(&xfout)
    ;  }
 
-      return 0
+      mclxFree(&cl)
+   ;  mclInterpretParamFree(&ipp)
+   ;  mcxTingFree(&fname)
+   ;  return 0
 ;  }
 
 

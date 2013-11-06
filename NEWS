@@ -1,8 +1,3 @@
-$Id: NEWS,v 1.11 2003/11/29 21:30:05 flux Exp $
-
-BLAST users may consider using the blast module. Add --enable-blast to
-./configure and read the manual pages of mcxdeblast and mcxassemble.  and
-optionally mclblastline. The blast module does not conflict with the tribe
-module; you can install both of them simultaneously.
+$Id: NEWS,v 1.12 2005/09/15 14:42:36 flux Exp $
 
 Read ChangeLog.

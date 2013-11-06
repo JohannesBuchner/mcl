@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "clmformat" 1 "28 Apr 2005" "clmformat 1\&.005, 05-118" "USER COMMANDS"
+.TH "clmformat" 1 "29 Sep 2005" "clmformat 1\&.005, 05-272" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -33,57 +33,92 @@ clmformat \- display cluster results in readable form
 (optionally with labels and/or cohesion and stickiness measures
 attached)\&.
 
-Unless used with the -dump option,
+Unless used with the \fB-dump\fP\ \fIfname\fP or \fB--dump\fP option,
 \fBclmformat\fP depends on the presence of the macro processor \fBzoem\fP, as
 described further below\&.
+
+The \fB-icl\fP\ \fIfname\fP input clustering option is always required\&. The
+\fB-imx\fP\ \fIfname\fP input matrix option is required in fancy mode\&. The tab
+file option \fB-tab\fP\ \fIfname\fP is needed if you want label information in
+the output rather than mcl identifiers\&.
 .SH SYNOPSIS
 
-\fBclmformat\fP
-\fB-icl\fP fname (\fIinput cluster file\fP)
-\fB-dump\fP fname (\fIwrite dump to file\fP)
-\fB[-tab\fP fname (\fIread tab file\fP)\fB]\fP
+\fBclmformat\fP has two different modes of output: \fIdump\fP and \fIfancy\fP\&.
+If neither is specified, \fIfancy\fP is used\&. In this mode, clmformat
+generates a large arrary of performance measures related to nodes and
+clusters in both interlinked html output and plain text files\&. The files
+will be contained in an output directory that is newly created if not yet
+existing\&. In fancy mode the \fB-imx\fP option is required and the macro
+processor \fBzoem\fP must be available (http://micans\&.org/zoem)\&.
 
-The clustering in file \fBfname\fP should be in mcl matrix format - mcl
-generates clusters in this format\&. This will create a dump where each line
+If \fIdump\fP is specified (see below how to do this) clmformat just
+generates a dump file where each line
 contains a cluster in the form of tab-separated indices, or tab-separated
 labels in case the \fB-tab\fP option is used\&. This dump is easy to parse
 with a simple or even quick-and-dirty script\&.
+You can include some very simple performance measures in this dump file
+by supplying \fB--dump-measures\fP\&. Use
+\fB-dump\fP\ \fIfname\fP to specify the name of the file to dump to, rather
+than having \fBclmformat\fP construct a file name by itself\&.
+
+\fBclmformat\fP can combine the both modes by using either \fB--dump\fP or
+\fB-dump\fP\ \fIfname\fP \fIand\fP \fB--fancy\fP\&. In this case the dump file
+will be created in the output directory that is used by \fIfancy\fP mode\&.
 
 \fBclmformat\fP
-\fB-icl\fP fname (\fIinput cluster file\fP)
-\fB-imx\fP fname (\fIinput matrix/graph file\fP)
-\fB[-tab\fP fname (\fIread tab file\fP)\fB]\fP
-\fB[-dir\fP dirname (\fIwrite results to directory\fP)\fB]\fP
-\fB[-zmm\fP fname (\fIassume macro definitions are in fname\fP)\fB]\fP
-\fB[-fmt\fP fname (\fIwrite to encoding file fname\fP)\fB]\fP
 
-\fBclmformat\fP
+.in +4m
 \fB-icl\fP fname (\fIinput cluster file\fP)
+.br
 \fB-imx\fP fname (\fIinput matrix/graph file\fP)
-\fB[-tab\fP fname (\fIread tab file\fP)\fB]\fP
-\fB[-dir\fP dirname (\fIwrite results to directory\fP)\fB]\fP
-\fB[-zmm\fP fname (\fIassume macro definitions are in fname\fP)\fB]\fP
-\fB[-fmt\fP fname (\fIwrite to encoding file fname\fP)\fB]\fP
-\fB[--lazy-tab\fP (\fIallow mismatched tab-file\fP)\fB]\fP
-\fB[-h\fP (\fIsynopsis\fP)\fB]\fP
-\fB[-dump\fP fname (\fIwrite dump to file\fP)\fB]\fP
-\fB[--dump-pairs\fP (\fIwrite cluster/node pair per line\fP)\fB]\fP
-\fB[-dump-node-sep\fP str (\fIseparate entries with str\fP)\fB]\fP
-\fB[-pi\fP num (\fIapply pre-inflation to matrix\fP)\fB]\fP
-\fB[-infix\fP str (\fIuse after base name/directory\fP)\fB]\fP
-\fB[-lump-count\fP n (\fInode threshold\fP)\fB]\fP
-\fB[-nsm\fP fname (\fIoutput node stickiness file\fP)\fB]\fP
-\fB[-ccm\fP fname (\fIoutput cluster cohesion file\fP)\fB]\fP
-\fB[--split\fP (\fIprepare output for csplit usage\fP)\fB]\fP
-\fB[--adapt\fP (\fIallow domain mismatch\fP)\fB]\fP
-\fB[--version\fP (\fIprint version\fP)\fB]\fP
-\fB[--subgraph\fP (\fItake subgraph with --adapt\fP)\fB]\fP
+.br
+\fB-pi\fP num (\fIapply pre-inflation to matrix\fP)
+.br
+\fB-tab\fP fname (\fIread tab file\fP)
+.br
+\fB--lazy-tab\fP (\fIallow mismatched tab-file\fP)
+.br
+\fB--dump\fP (\fIwrite dump to dump\&.<icl-name>\fP)
+.br
+\fB-dump\fP fname (\fIwrite dump to file\fP)
+.br
+\fB--dump-pairs\fP (\fIwrite cluster/node pair per line\fP)
+.br
+\fB--dump-measures\fP (\fIwrite simple performance measures\fP)
+.br
+\fB-dump-node-sep\fP str (\fIseparate entries with str\fP)
+.br
+\fB--fancy\fP (\fIspawn information blizzard\fP)
+.br
+\fB-dir\fP dirname (\fIwrite results to directory\fP)
+.br
+\fB-infix\fP str (\fIuse after base name/directory\fP)
+.br
+\fB-nsm\fP fname (\fIoutput node stickiness file\fP)
+.br
+\fB-ccm\fP fname (\fIoutput cluster cohesion file\fP)
+.br
+\fB--adapt\fP (\fIallow domain mismatch\fP)
+.br
+\fB--subgraph\fP (\fItake subgraph with --adapt\fP)
+.br
+\fB-zmm\fP fname (\fIassume macro definitions are in fname\fP)
+.br
+\fB-fmt\fP fname (\fIwrite to encoding file fname\fP)
+.br
+\fB--version\fP (\fIprint version\fP)
+.br
+\fB-h\fP (\fIsynopsis\fP)
+.in -4m
 
-\fBclmformat\fP generates a logical description of the to-be-formatted content in
-a very small vocabulary of clmformat-specific zoem macros\&. The appearance
-of the output can be easily changed by adapting a zoem macro definition file
-(also output by clmformat) that is used by the zoem interpreter to interpret
-the logical elements\&.
+Consult the option descriptions and the introduction above for
+interdependencies of options\&.
+
+\fBclmformat\fP generates in fancy mode a logical description of the
+to-be-formatted content in a very small vocabulary of clmformat-specific
+zoem macros\&. The appearance of the output can be easily changed by adapting
+a zoem macro definition file (also output by clmformat) that is used by the
+zoem interpreter to interpret the logical elements\&.
 
 The output format is apt to change over subsequent releases, as a result of
 user feedback\&. Such changes will most likely be confined to the zoem macro
@@ -115,21 +150,21 @@ is newly created if it does not yet exist (normally several files
 will be created, for which the directory acts as a natural container)\&.
 It is possible to simply output to the current directory, for that you need
 to specify \fB-dir\fP\ \fB\&./\fP\&. If \fB-dir\fP is not specified, the output
-directory \fCfmt\&.<clname>\fR will be used, where \fC<clname>\fR is the argument
+directory \fCfmt\&.<clname>\fP will be used, where \fC<clname>\fP is the argument
 to the \fB-cl\fP option\&. In the output directory, clmformat will
 normally write two files\&. One contains zoem macros encoding formatted output
 (the encoding file), and the second (the definition file) contains zoem
 macro definitions which are used by the former\&.
 
-The encoding file is by default called \fCfmt\&.azm\fR
+The encoding file is by default called \fCfmt\&.azm\fP
 (cf\&. the \fB-fmt\fP\ \fIfname\fP option)\&.
 It contains \fIzoem\fP macros\&. It imports the macro definition file
-called \fCclmformat\&.zmm\fR
+called \fCclmformat\&.zmm\fP
 that is normally also written by clmformat\&. Another macro definition
 file can be specified by using the \fB-zmm\fP\ \fI<defsname>\fP
 option\&. In this case clmformat will refrain from writing the definition
-file and replace mentions of \fCclmformat\&.zmm\fR in the encoding file
-by \fC<defsname>\fR\&.
+file and replace mentions of \fCclmformat\&.zmm\fP in the encoding file
+by \fC<defsname>\fP\&.
 
 The encoding file needs to be processed by issuing one of the following
 commands from within the directory where the file is located\&.
@@ -188,39 +223,14 @@ Name of the graph/matrix file\&.
 .ZI 3m "\fB-tab\fP fname (\fIread tab file\fP)"
 \&
 .br
-The file \fCfname\fR should be in \fItab format\fP; each line starts
+The file \fCfname\fP should be in \fItab format\fP; each line starts
 with a unique number which is an index used in the matrix input
 file and the cluster input file\&. The rest of the line contains a
 descriptive string associated with the number\&. Lines starting with
-\fC#\fR are considered comment and are disregarded\&. A single unique
+\fC#\fP are considered comment and are disregarded\&. A single unique
 line should be present for each node/index of the cluster row domain
 (or the graph/matrix domain optionally specified with the \fB-imx\fP
 option)\&. The leading indices should be in ascending order\&.
-.in -3m
-
-.ZI 3m "\fB-dir\fP dirname (\fIwrite results to directory\fP)"
-\&
-.br
-Use \fBdirname\fP as target directory\&. It will be created
-if it does not exist already\&.
-.in -3m
-
-.ZI 3m "\fB-fmt\fP fname (\fIwrite to encoding file fname\fP)"
-\&
-.br
-Write to encoding file \fBfname\fP rather than the default \fCfmt\&.azm\fR\&.
-It is best to supply fname with the standard zoem suffix \fC\&.azm\fR\&. Zoem
-will process file of any name, but those lacking the \fC\&.azm\fR suffix must be
-specified using the zoem \fB-I\fP\ \fIfname\fP option\&.
-.in -3m
-
-.ZI 3m "\fB-zmm\fP defsname (\fIassume macro definitions are in fname\fP)"
-\&
-.br
-If this option is used, clmformat will not output the definition file,
-and mentions of the definition file in the encoding file will use
-the file name \fCdefsname\fR\&. This option assumes that a valid definition
-file by the name of \fCdefsname\fR does exist\&.
 .in -3m
 
 .ZI 3m "\fB--lazy-tab\fP (\fIallow mismatched tab-file\fP)"
@@ -235,12 +245,22 @@ Allow missing and spurious entries in the tab file\&.
 Clusters are written to file\&. For each cluster a single line is written
 containing all indices of all nodes in that cluster\&. The indices are
 separated by tabs\&. If a tab file is specified, the indices are replaced by
-the corresponding tab file entry\&. If an input matrix is specified, three
-measures of efficiency are prepended, respectively the simple projection
-score, efficiency or coverage, and the max-efficiency or max-coverage\&.
+the corresponding tab file entry\&.
+.in -3m
 
-This option can be used e\&.g\&. in conjunction with mclgraga to gauge
-the granularity (size distribution) of a clustering\&.
+.ZI 3m "\fB--dump\fP (\fIwrite dump to file\fP)"
+\&
+.br
+As \fB-dump\fP\ \fIfname\fP except that \fBclmformat\fP writes to the file
+named \fCdump\&.<icl-name>\fP where \fC<icl-name>\fP is the argument to
+the \fB-icl\fP option\&.
+.in -3m
+
+.ZI 3m "\fB--fancy\fP (\fIforce fancy mode\fP)"
+\&
+.br
+This enforces fany mode if either of \fB-dump\fP or \fB--dump\fP
+is given\&. The dump file will be created in the output directory\&.
 .in -3m
 
 .ZI 3m "\fB--dump-pairs\fP (\fIwrite cluster/node pair per line\fP)"
@@ -250,6 +270,14 @@ Rather than writing a single cluster on each line, write a single
 cluster index/node (either tab entry or index) pair per line\&.
 Works in conjunction with the
 \fB-tab\fP and \fB-imx\fP options\&.
+.in -3m
+
+.ZI 3m "\fB--dump-measures\fP (\fIwrite simple performance measures\fP)"
+\&
+.br
+If an input matrix is specified with \fB-imx\fP\ \fIfname\fP, three
+measures of efficiency are prepended, respectively the simple projection
+score, efficiency or coverage, and the max-efficiency or max-coverage\&.
 .in -3m
 
 .ZI 3m "\fB-dump-node-sep\fP str (\fIseparate entries with str\fP)"
@@ -286,6 +314,40 @@ the clustering is a clustering of a subgraph\&. The cohesion and stickiness
 measures will pertain to the relevant part of the graph only\&.
 .in -3m
 
+.ZI 3m "\fB--subgraph\fP (\fIuse restriction\fP)"
+\&
+.br
+If the cluster domain is a subset of the graph domain, the cohesion and
+stickiness measures will by default still pertain to the entire graph\&. By
+setting this option, the measures will pertain to the subgraph induced by
+the cluster domain\&.
+.in -3m
+
+.ZI 3m "\fB-dir\fP dirname (\fIwrite results to directory\fP)"
+\&
+.br
+Use \fBdirname\fP as output directory\&. It will be created
+if it does not exist already\&.
+.in -3m
+
+.ZI 3m "\fB-fmt\fP fname (\fIwrite to encoding file fname\fP)"
+\&
+.br
+Write to encoding file \fBfname\fP rather than the default \fCfmt\&.azm\fP\&.
+It is best to supply fname with the standard zoem suffix \fC\&.azm\fP\&. Zoem
+will process file of any name, but those lacking the \fC\&.azm\fP suffix must be
+specified using the zoem \fB-I\fP\ \fIfname\fP option\&.
+.in -3m
+
+.ZI 3m "\fB-zmm\fP defsname (\fIassume macro definitions are in fname\fP)"
+\&
+.br
+If this option is used, clmformat will not output the definition file,
+and mentions of the definition file in the encoding file will use
+the file name \fCdefsname\fP\&. This option assumes that a valid definition
+file by the name of \fCdefsname\fP does exist\&.
+.in -3m
+
 .ZI 3m "\fB-nsm\fP fname (\fIoutput node stickiness file\fP)"
 \&
 .br
@@ -309,15 +371,6 @@ by the \fB-icl\fP option\&. An entry specifies the projection
 of one cluster onto another cluster, which is simply the average
 of the projection value onto the second cluster of all nodes in the
 first cluster\&.
-.in -3m
-
-.ZI 3m "\fB--subgraph\fP (\fIuse restriction\fP)"
-\&
-.br
-If the cluster domain is a subset of the graph domain, the cohesion and
-stickiness measures will by default still pertain to the entire graph\&. By
-setting this option, the measures will pertain to the subgraph induced by
-the cluster domain\&.
 .in -3m
 
 .ZI 3m "\fB--version\fP (\fIwrite version\fP)"

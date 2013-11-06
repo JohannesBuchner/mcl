@@ -1,5 +1,5 @@
 
- 100+ uses for the three-letter string "MCL".
+ 120+ uses for the three-letter string "MCL".
 
  Science and computing:
 
@@ -26,6 +26,10 @@
 *  Mission Critical Linux
 *  Maximum Chlorophyll Layer
 *  Mark-Compact-Lazy [Allocate]
+*  Mesh Connectivity Layer
+*  Machine Congestion Level
+*  Midclavicular Line
+*  Module Creation Language
 
  Highlights:
 
@@ -47,6 +51,7 @@
 *  Multi Carousel Loader
 *  Mini Club Luzern (Mini Cooper)
 *  Model Car List
+*  Musical Chain Letters
 
  Dutch:
 
@@ -80,6 +85,7 @@
 *  Manchester City Library
 *  Medical Center Libraries
 *  Mid Columbia Library (district)
+*  Mobilization Cross-Leveling [System]
 *  Montreal Children's Library
 *  Morris County Library
 *  Multi Cultural Library

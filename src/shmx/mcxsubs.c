@@ -50,7 +50,7 @@
 #include "util/tok.h"
 #include "util/opt.h"
 #include "util/array.h"
-#include "util/duck.h"
+#include "util/rand.h"
 
 #include "taurus/parse.h"
 #include "taurus/la.h"
@@ -227,16 +227,6 @@ mcxOptAnchor options[] =
 #define FIN_MISC_DOMR    8
 #define FIN_MISC_EMPTY  16
 
-#define MCLX_WEED_ROWS 1
-#define MCLX_WEED_COLS 2
-
-mclx* mclxWeed
-(  mclx* mx
-,  mclv** colnumspp
-,  mclv** rownumspp
-,  mcxbits bits
-)  ;
-
 
 #define FIN_MAP_CAN_COLS 1
 #define FIN_MAP_CAN_ROWS 2
@@ -272,8 +262,8 @@ typedef struct
 ;  mclx*       el2dom
 ;  mclv*       universe_cols
 ;  mclv*       universe_rows
-;  mclv*       subspace_cols
-;  mclv*       subspace_rows
+;  mclv*       randselect_cols
+;  mclv*       randselect_rows
 ;  long        min
 ;  long        max
 ;  int         rand_mode
@@ -390,7 +380,7 @@ int main
 
    ;  mclx *dom = NULL,*el2dom = NULL, *mx = NULL
    ;  mclv *universe_rows = NULL, *universe_cols = NULL
-   ;  mclv *subspace_rows = NULL, *subspace_cols = NULL
+   ;  mclv *randselect_rows = NULL, *randselect_cols = NULL
    ;  context_mt  ctxt
    ;  mcxTing* fnout     =  mcxTingNew("out.mcxsubs")
 
@@ -405,8 +395,8 @@ int main
    ;  mcxbool reread    =  FALSE
    ;  mcxbool skin_read =  FALSE
    ;  mcxbool do_extend =  FALSE
-   ;  int rand_mode     =  'm'
-   ;  unsigned int seed =  mcxSeed()
+   ;  int rand_mode     =  'i'
+   ;  unsigned int seed =  mcxSeed(0)
    ;  int n_arg_read    =  0
    ;  mcxbits do_block  =  0     /* 1 block, 2 blockc, 4 blocks2 */
 
@@ -591,25 +581,25 @@ int main
    ;  }
 
       if (dfac)
-      {  subspace_cols = mclvClone(universe_cols)
-      ;  thin_out(subspace_cols, dfac)
+      {  randselect_cols = mclvClone(universe_cols)
+      ;  thin_out(randselect_cols, dfac)
       ;  if (mcldEquate(universe_rows, universe_cols, MCLD_EQ_EQUAL))
-         subspace_rows = mclvClone(subspace_cols)
+         randselect_rows = mclvClone(randselect_cols)
       ;  else
-            subspace_rows = mclvClone(universe_rows)
-         ,  thin_out(subspace_cols, dfac)
+            randselect_rows = mclvClone(universe_rows)
+         ,  thin_out(randselect_cols, dfac)
    ;  }
       else
       {  if (cfac)
-            subspace_cols = mclvClone(universe_cols)
-         ,  thin_out(subspace_cols, cfac)
+            randselect_cols = mclvClone(universe_cols)
+         ,  thin_out(randselect_cols, cfac)
       ;  else
-         subspace_cols = mclvInit(NULL)
+         randselect_cols = mclvInit(NULL)
       ;  if (rfac)
-            subspace_rows = mclvClone(universe_rows)
-         ,  thin_out(subspace_cols, rfac)
+            randselect_rows = mclvClone(universe_rows)
+         ,  thin_out(randselect_cols, rfac)
       ;  else
-         subspace_rows = mclvInit(NULL)
+         randselect_rows = mclvInit(NULL)
    ;  }
 
       if (xfcl)
@@ -652,8 +642,8 @@ int main
    ;  ctxt.el2dom          =  el2dom
    ;  ctxt.universe_cols   =  universe_cols
    ;  ctxt.universe_rows   =  universe_rows
-   ;  ctxt.subspace_cols   =  subspace_cols
-   ;  ctxt.subspace_rows   =  subspace_rows
+   ;  ctxt.randselect_cols   =  randselect_cols
+   ;  ctxt.randselect_rows   =  randselect_rows
    ;  ctxt.rand_mode       =  rand_mode
    ;  ctxt.spec_ct         =  i
 
@@ -682,27 +672,6 @@ int main
    ;  return 0
 ;  }
 
-
-mclx* mclxWeed
-(  mclx* mx
-,  mclv** colnumspp
-,  mclv** rownumspp
-,  mcxbits bits
-)
-   {  long c
-   ;  mclv* colnums = mclxColNums(mx, mclvSize, 0)
-   ;  mclv* rownums = mclvNew(NULL, 0)
-
-   ;  for (c=0;c<N_COLS(mx);c++)
-      mclvAdd(mx->cols+c, rownums, rownums)
-
-   ;  if (colnumspp && rownumspp)
-      {  *colnumspp = colnums
-      ;  *rownumspp = rownums
-      ;  return NULL
-   ;  }
-      return mclxSub(mx, colnums, rownums)
-;  }
 
 
 mcxstatus parse_fin
@@ -815,8 +784,8 @@ mcxstatus add_vec
    ;  mclv* cvec        =  mclvInit(NULL)
    ;  mclv* rvec        =  mclvInit(NULL)
 
-   ;  const mclv* subspace_cols  =  ctxt->subspace_cols
-   ;  const mclv* subspace_rows  =  ctxt->subspace_rows
+   ;  const mclv* randselect_cols  =  ctxt->randselect_cols
+   ;  const mclv* randselect_rows  =  ctxt->randselect_rows
 
    ;  const mclv* universe_cols  =  ctxt->universe_cols
    ;  const mclv* universe_rows  =  ctxt->universe_rows
@@ -829,7 +798,7 @@ mcxstatus add_vec
       invec2 = (mclv*) invec              /* modify in 'd/D' case */
 
    ;  else if (itype == 'd' || itype == 'D')
-      invec2 = mclxUnionv(ctxt->dom, invec)
+      invec2 = mclxUnionv(ctxt->dom, invec, NULL)
 
    ;  if (modec)
       {  mclv* invec_c = mclvClone(invec2)
@@ -845,15 +814,15 @@ mcxstatus add_vec
       ;  mcldMerge(cvec, invec_c, cvec)
       ;  mclvFree(&invec_c)
 
-      ;  if (subspace_cols)
+      ;  if (randselect_cols)
          {  if (rand_mode == 'd')      /* discard */
-            mcldMinus(cvec, subspace_cols, cvec)
+            mcldMinus(cvec, randselect_cols, cvec)
          ;  else if (rand_mode == 'e')
-            mcldMinus(subspace_cols, cvec, cvec)
+            mcldMinus(randselect_cols, cvec, cvec)
          ;  else if (rand_mode == 'i')
-            mcldMeet(subspace_cols, cvec, cvec)
+            mcldMeet(randselect_cols, cvec, cvec)
          ;  else
-            mcldMerge(cvec, subspace_cols, cvec)
+            mcldMerge(cvec, randselect_cols, cvec)
       ;  }
          mcldMerge(cvec, spec->cvec, spec->cvec)
       ;  spec->n_col_specs++
@@ -873,15 +842,15 @@ mcxstatus add_vec
       ;  mcldMerge(rvec, invec_r, rvec)
       ;  mclvFree(&invec_r)
 
-      ;  if (subspace_rows)
+      ;  if (randselect_rows)
          {  if (rand_mode == 'd')
-            mcldMinus(rvec, subspace_rows, rvec)
+            mcldMinus(rvec, randselect_rows, rvec)
          ;  else if (rand_mode == 'e')
-            mcldMinus(subspace_rows, rvec, rvec)
+            mcldMinus(randselect_rows, rvec, rvec)
          ;  else if (rand_mode == 'i')
-            mcldMeet(subspace_rows, rvec, rvec)
+            mcldMeet(randselect_rows, rvec, rvec)
          ;  else
-            mcldMerge(rvec, subspace_rows, rvec)
+            mcldMerge(rvec, randselect_rows, rvec)
       ;  }
          mcldMerge(rvec, spec->rvec, spec->rvec)
       ;  spec->n_row_specs++
@@ -921,13 +890,32 @@ mcxstatus parse_dom
       *  to add_vec in case there is no 'iIdD' specification.
      */
       if (!lk->next)
-      {  if (strchr(dtype, 'C'))
-            mclvResize(spec->cvec, 0)
-         ,  spec->n_col_specs++
-      ;  if (strchr(dtype, 'R'))
-            mclvResize(spec->rvec, 0)
-         ,  spec->n_row_specs++
-      ;  return STATUS_OK
+      {  mclv* empty = mclvInit(NULL)
+      ;  mcxstatus status = STATUS_FAIL
+
+      ;  while (1)
+         {  if (  strchr(dtype, 'C')
+               && add_vec("c", 'i', empty, spec, ctxt)
+               )
+               break
+         ;  if (  strchr(dtype, 'R')
+               && add_vec("r", 'i', empty, spec, ctxt)
+               )
+               break
+         ;  if (  strchr(dtype, 'c')
+               && add_vec("c", 'i', ctxt->universe_cols, spec, ctxt)
+               )
+               break
+         ;  if (  strchr(dtype, 'r')
+               && add_vec("r", 'i', ctxt->universe_rows, spec, ctxt)
+               )
+               break
+         ;  status = STATUS_OK
+         ;  break
+      ;  }
+         if (!status)
+         spec->n_row_specs++
+      ;  return status
    ;  }
 
       while ((lk = lk->next))
@@ -965,12 +953,17 @@ mcxstatus parse_dom
                twilch = -2
          ;  }
 
-            if (!(vec = ilSpecToVec(tf.args->next, &twilch, NULL, RETURN_ON_FAIL)))
+            if
+            ( !(  vec 
+               =  ilSpecToVec(tf.args->next, &twilch, NULL, RETURN_ON_FAIL)
+               )
+            )
             {  mcxErr(me, "error converting")
             ;  mclvFree(&vec)
             ;  break
          ;  }
             mcxTokFuncFree(&tf)
+
          ;  if (add_vec(dtype, itype, vec, spec, ctxt))
             {  mclvFree(&vec)
             ;  break
@@ -1304,12 +1297,11 @@ fprintf(stderr, "%ld %ld %ld\n", (long) spec->sel_sz_opts, spec->sz_min, spec->s
       mclxMakeCharacteristic(sub)
 
    ;  if (spec->fin_map_opts & (FIN_MAP_WEED_COLS | FIN_MAP_WEED_ROWS))
-      {  mclv* colnums = NULL, *rownums = NULL
-      ;  mcxbits bc
+      {  mcxbits bc
          =  spec->fin_map_opts & FIN_MAP_WEED_COLS ? MCLX_WEED_COLS : 0
       ;  mcxbits br
          =  spec->fin_map_opts & FIN_MAP_WEED_ROWS ? MCLX_WEED_ROWS : 0
-      ;  mclxWeed(sub, &colnums, &rownums, bc | br)
+      ;  mclxWeed(sub, bc | br)
    ;  }
 
       if (spec->fin_map_opts & FIN_MAP_CAN_COLS)

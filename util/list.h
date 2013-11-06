@@ -77,6 +77,10 @@ mcxLink*  mcxLinkSpawn
 ,  void* val
 )  ;
 
+
+/* freeval doesn't do anything yet
+*/
+
 void  mcxLinkFree
 (  mcxLink**   lk
 ,  void        freeval(void* valpp)    /* (yourtype1** valpp)     */

@@ -189,7 +189,7 @@ void mclExpandVectorLine
    ;  mclExpandParam*  mxp    =  a->mxp
    ;  mclExpandStats* stats   =  a->stats
 
-   ;  mclpAR* ivpbuf =  mclpARresize(NULL, N_ROWS(mxs))  
+   ;  mclpAR* ivpbuf =  mclpARensure(NULL, N_ROWS(mxs))  
    ;  mclxComposeHelper*ch =  mclxComposePrepare(mxs, NULL)
 
    ;  for (colidx = a->start; colidx < a->end; colidx++)
@@ -562,7 +562,7 @@ mclMatrix* mclExpand
    ;  }      /* glob a is destroyed by mclExpandVectorLine */
 
       else
-      {  mclpAR* ivpbuf = mclpARresize(NULL, N_ROWS(mx))  
+      {  mclpAR* ivpbuf = mclpARensure(NULL, N_ROWS(mx))  
       ;  mclxComposeHelper *ch = mclxComposePrepare(mx, NULL)
       ;
          for (col=0;col<n_cols;col++)
@@ -960,40 +960,53 @@ void mclExpandAppendLog
 ,  int n_ite
 )
    {  int z
-   ;  char buf[100]
+   ;  mcxTing* buf = mcxTingEmpty(NULL, 60)
 
    ;  for (z=0;z<s->n_windows;z++)
-      sprintf(buf+3*z, "%3d", (int) (100.0*s->mass_prune_low[z]))
-   ;  sprintf
-      (buf+3*s->n_windows, " %3d", (int)(100.0*s->mass_prune_all))
-   ;  mcxTingNAppend(Log, buf, 3 * s->n_windows + 4)
+      mcxTingPrintAfter(buf, "%3d", (int) (100.0*s->mass_prune_low[z]))
+   ;  mcxTingPrintAfter(buf, " %3d", (int)(100.0*s->mass_prune_all))
+
+   ;  mcxTingAppend(Log, buf->str)
+
    ;  mcxTingAppend(Log, "                                ")
-   ;  sprintf(buf, " %8d\n", (int) s->n_recoveries)
-   ;  for (z=1;*(buf+z+1)==' ';z++)
-      *(buf+z) ='.'
-   ;  mcxTingAppend(Log, buf)
+   ;  mcxTingPrint(buf, " %8d\n", (int) s->n_recoveries)
 
+   ;  for (z=1;buf->str[z+1]==' ';z++)
+      buf->str[z] = '.'
+
+   ;  mcxTingAppend(Log, buf->str)
+
+   ;  mcxTingEmpty(buf, 0)
    ;  for (z=0;z<s->n_windows;z++)
-      sprintf(buf+3*z, "%3d", (int) (100.0*s->mass_final_low[z]))
-   ;  sprintf
-      (buf+3*s->n_windows, " %3d ", (int)(100.0*s->mass_final_all))
-   ;  mcxTingNAppend(Log, buf, 3 * s->n_windows + 5)
-   ;  mcxTingAppend(Log, s->levels_expand->str)
-   ;  mcxTingAppend(Log, " ")
-   ;  mcxTingAppend(Log, s->levels_prune->str)
-   ;  sprintf(buf, " %8d\n", (int) s->n_selects)
-   ;  for (z=1;*(buf+z+1)==' ';z++)
-      *(buf+z) ='.'
-   ;  mcxTingAppend(Log, buf)
+      mcxTingPrintAfter(buf, "%3d", (int) (100.0*s->mass_final_low[z]))
+   ;  mcxTingPrintAfter(buf, " %3d ", (int)(100.0*s->mass_final_all))
 
+   ;  mcxTingAppend(Log, buf->str)
+
+   ;  mcxTingPrintAfter
+      (  Log
+      ,  "%s %s"
+      ,  s->levels_expand->str
+      ,  s->levels_prune->str
+      )
+
+   ;  mcxTingPrint(buf, " %8d\n", (int) s->n_selects)
+
+   ;  for (z=1;buf->str[z+1]==' ';z++)
+      buf->str[z] = '.'
+
+   ;  mcxTingAppend(Log, buf->str)
    ;  mcxTingKAppend(Log, "-", 3* s->n_windows + 4)
    ;  mcxTingAppend(Log, " --------------- ---------------")
-   ;  sprintf(buf, " %8d\n", (int) s->n_below_pct)
-   ;  for (z=1;*(buf+z+1)==' ';z++)
-      *(buf+z) ='-'
-   ;  mcxTingAppend(Log, buf)
 
-   ;  sprintf
+   ;  mcxTingPrint(buf, " %8d\n", (int) s->n_below_pct)
+
+   ;  for (z=1;buf->str[z+1]==' ';z++)
+      buf->str[z] = '-'
+
+   ;  mcxTingAppend(Log, buf->str)
+
+   ;  mcxTingPrint
       (  buf
       ,  "ite %d time %.2f chaos %.2f/%.2f\n"
       ,  (int) n_ite
@@ -1001,9 +1014,12 @@ void mclExpandAppendLog
       ,  (double) s->chaosMax
       ,  (double) s->chaosAvg
       )
-   ;  mcxTingAppend(Log, buf)
+
+   ;  mcxTingAppend(Log, buf->str)
+
    ;  mcxTingKAppend(Log, "-", 3* s->n_windows + 45)
    ;  mcxTingAppend(Log, "\n")
+   ;  mcxTingFree(&buf)
 ;  }
 
 

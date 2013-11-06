@@ -966,13 +966,17 @@ int zgUnlink
 ;  }
 
 
+/* fixme can use mcxhashkeys now */
+
 int zgVars
 (  void
 )
-   {  mcxHashWalk *hw = mcxHashWalkNew(hdltable_g)
+   {  mcxHashWalk hw
    ;  mcxKV* kv
 
-   ;  while ((kv = mcxHashWalkStep(hw)))
+   ;  mcxHashWalkInit(hdltable_g, &hw)
+
+   ;  while ((kv = mcxHashWalkStep(&hw)))
       {  zgglob_p  glob = (zgglob_p) kv->val
       ;  mcxTing* hdl  = (mcxTing*) kv->key
       ;  const char* what
@@ -1007,8 +1011,7 @@ int zgVars
       ;  }
       ;  zmTell('m', "%8s  ==  handle to %s", hdl->str, what)
    ;  }
-      mcxHashWalkFree(&hw)
-   ;  return 1
+      return 1
 ;  }
 
 

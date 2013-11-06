@@ -636,10 +636,10 @@ int main
          )
       ,  mcxIOclose(xf_raw)
 
-   ;  if (cmap)
-      mclxMapCols(mx, cmap)
-   ;  if (rmap)
-      mclxMapRows(mx, rmap)
+   ;  if (cmap && mclxMapCols(mx, cmap))
+      mcxDie(1, me, "could not map columns")
+   ;  if (rmap && mclxMapRows(mx, rmap))
+      mcxDie(1, me, "could not map rows")
 
    ;  if (xf_prm)
       mclxAppWrite(mx, xf_prm, EXIT_ON_FAIL, binmode)

@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mclpipeline" 1 "28 Apr 2005" "mclpipeline 1\&.005, 05-118" "USER COMMANDS"
+.TH "mclpipeline" 1 "29 Sep 2005" "mclpipeline 1\&.005, 05-272" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -60,17 +60,24 @@ or
 
 \fBNOTE\fP
 .br
-With the default settings, mclpipeline requires the presence
-of the \fBzoem\fP macro processor to produce pretty-printed output
-(refer to the \fBSEE ALSO\fP section and the
-\fBclmformat manual\fP for more information on zoem)\&.
-If the \fB--fmt-dump\fP option or the \fB--prepare-format\fP option is used,
-zoem will not be required\&.
+It is possible to make mclpipeline output a large arrary
+of performance measures related to nodes and clusters
+in hyperlinked output by supplying the \fB--fmt-fancy\fP option\&.
+This can be useful if one wants to scrutinize a clustering in greater
+detail and navigate within the clustering\&. The output then includes
+listings of external nodes that are relevant/close to a given cluster,
+and vice versa, listings of external clusters that are relevant/close
+to a given node\&.
 
-This program is a relatively new addition to the MCL suite\&.
-If it does not work as expected, please file a bug report
-with the developer and/or subscribe to mcl-devel as
-indicated on http://micans\&.org/mcl/\&.
+Generating this more intricate output requires the presence of the \fBzoem\fP macro
+processor\&. Refer to the \fBSEE ALSO\fP section and the
+\fBclmformat manual\fP for more information on zoem\&. By default
+zoem is not required, and the return result is a file where each line contains
+a clustering consisting of tab-separated labels\&.
+
+If this program does not work as expected, please file a bug report with the
+developer and/or subscribe to mcl-devel as indicated on
+http://micans\&.org/mcl/\&. The problem will then be fixed\&.
 
 The full list of pipeline options is given below\&. Start simple,
 and if you need some behaviour, try to see if there is an option
@@ -136,8 +143,6 @@ as they are provided by the wrapper\&.
 \fB[--mcl-opt=\fPval (\fImcl option transporter\fP)\fB]\fP
 .br
 \fB[--fmt-lump-count=\fPnum (\fIcollect formatted output\fP)\fB]\fP
-.br
-\fB[--fmt-dump=\fPfname (\fImake dump file\fP)\fB]\fP
 .br
 \fB[--fmt-opt\fP val (\fIclmformat option transporter\fP)\fB]\fP
 .br
@@ -230,9 +235,9 @@ but it does not do so for the parse and assembly results\&.
 .br
 The parser should recognize its last argument as a file name
 or as the base name of a file\&.
-It should produce the files \fCbase\&.raw\fR, \fCbase\&.hdr\fR,
-and preferably \fCbase\&.tab\fR and \fCbase\&.map\fR, where the base name
-\fCbase\fR is determined as described below\&.
+It should produce the files \fCbase\&.raw\fP, \fCbase\&.hdr\fP,
+and preferably \fCbase\&.tab\fP and \fCbase\&.map\fP, where the base name
+\fCbase\fP is determined as described below\&.
 
 \fBmclpipeline\fP will pass its last argument <file-name> to the parser\&.
 The parser should recognize the \fB--xi-dat\fP=\fIsuf\fP
@@ -244,7 +249,7 @@ must interpret <file-name> as the base name and append the suffix
 in order to construct the name of the file it will try to read\&.
 If the \fB--xo-dat\fP=\fIsuf\fP option is present, it must append the
 suffix specified in the value to the base part as described above\&.
-The result is then the full base name to which the \fCraw\fR, \fChdr\fR,
+The result is then the full base name to which the \fCraw\fP, \fChdr\fP,
 and other suffixes will be appended\&.
 
 \fBParser interface examples\fP
@@ -274,7 +279,7 @@ stage, or simply the name of the input file, depending on
 whether the option \fB--xo-ass\fP=\fIsuf\fP was used or not\&.
 
 A suffix encoding key-value pairs is appended\&. By default
-it has the form \fCI\&.\&.s\&.\fR, e\&.g\&. \fCI20s2\fR\&. The latter examples
+it has the form \fCI\&.\&.s\&.\fP, e\&.g\&. \fCI20s2\fP\&. The latter examples
 denotes primary inflation value 2\&.0 and scheme 2\&.
 The pipeline will automatically append several other mcl parameters
 if they are used\&. These correspond with the pipeline options
@@ -283,7 +288,7 @@ and \fB--mcl-pi\fP=\fIf\fP,
 which in turn correspond with the mcl options \fB-i\fP\ \fIf\fP,
 \fB-l\fP\ \fIi\fP, \fB-c\fP\ \fIf\fP, and \fB-pi\fP\ \fIf\fP\&.
 The order of appending is alphabetical with capitals preceding
-lowercase, so a full example is \fCI25c30i35l2pi28s3\fR\&.
+lowercase, so a full example is \fCI25c30i35l2pi28s3\fP\&.
 .SH OPTIONS
 
 .ZI 3m "\fB--whatif\fP (\fIdo not execute\fP)"
@@ -478,18 +483,32 @@ Set the mcl output name\&.
 Transfer \fB-opt\fP\ \fIval\fP to \fBmcl\fP\&.
 .in -3m
 
+.ZI 3m "\fB--fmt-dump-stats\fP (\fIadd simple measures to dump file\fP)"
+\&
+.br
+This adds some simple performance measures to the dump file\&. For each
+cluster, five columns proceed the label listing\&. These are the cluster ID,
+the number of elements in the cluster, the projection (percentage of
+within-cluster edge weight relative to total outgoing edge weight), the
+efficiency of the cluster (which is the average of the efficiency of all its
+nodes), and the maximum efficiency (average of the max-efficiency of all the
+nodes)\&. Look into the \fBclmformat manual\fP for more
+information on and references to the efficiency measures\&.
+.in -3m
+
+.ZI 3m "\fB--fmt-fancy\fP (\fIcreate detailed output (requires zoem)\fP)"
+\&
+.br
+Creates extensive description of node/cluster and cluster/cluster
+relationships\&.
+.in -3m
+
 .ZI 3m "\fB--fmt-lump-count\fP num (\fIcollect formatted output\fP)"
 \&
 .br
 Collect clusters in the same file until the total number
 of nodes has exceeded \fInum\fP (in the formatted output)\&.
-.in -3m
-
-.ZI 3m "\fB--fmt-dump\fP fname (\fImake dump file\fP)"
-\&
-.br
-Make a simple dump of the clustering\&. Does also work in
-conjunction with the \fB--fmt-tab\fP option\&.
+Only meaninful when \fB--fmt-fancy\fP is given\&.
 .in -3m
 
 .ZI 3m "\fB--fmt-tab\fP (\fIuse this tab file\fP)"

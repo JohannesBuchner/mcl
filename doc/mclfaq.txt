@@ -1,4 +1,4 @@
-MCL FAQ(7)                       MISCELLANEOUS                      MCL FAQ(7)
+MCL FAQ(7)                      MISCELLANEOUS                       MCL FAQ(7)
 
 
 
@@ -226,7 +226,7 @@ MCL FAQ(7)                       MISCELLANEOUS                      MCL FAQ(7)
           the year 2002. This date stamp agrees (as of April  2000)  with  the
           (differently  presented) date stamp used in all manual pages shipped
           with that release.  For example, the date stamp of the FAQ  you  are
-          reading is 28 Apr 2005, which corresponds with the MCL stamp 05-118.
+          reading is 29 Sep 2005, which corresponds with the MCL stamp 05-272.
           The Changelog file contains a list of what's changed/added with each
           release. Currently, the date stamp is the primary way of identifying
           an mcl release. When asked for its version by using  --version,  mcl
@@ -767,170 +767,180 @@ MCL FAQ(7)                       MISCELLANEOUS                      MCL FAQ(7)
           similarities. MCL is not affected by absolute magnitudes, it is only
           affected by magnitudes taken relative to each other.
 
-          Here  is  how  to  make a graph more homogeneous with respect to the
-          weight function. Given  orig.mci,  clustering  revised.mci  as  con-
+          UPDATE
+          As  of  version 03-154, mcl supports the pre-inflation -pi f option,
+          where f is the inflation parameter described below.  Use this option
+          rather  than  the  convoluted procedure described below.  Read on to
+          find out what it does.
+
+          Here is how to make a graph more homogeneous  with  respect  to  the
+          weight  function.  Given  orig.mci,  clustering  revised.mci as con-
           structed below should generally lead to coarser clusterings.
 
           mcx /orig.mci lm 0.5 hdp /revised.mci wm
 
-          The  parameter  0.5  can  be  changed  to  other values in the range
-          [0..1.0].  The closer it is to zero, the more clusterings will  tend
-          to be coarse.
+          This simply applies inflation with parameter 0.5  to  orig.mci.   In
+          the  mcx  language, hdp stands for Hadamard power (entrywise power),
+          which is equivalent to inflation except that the normalization  step
+          is  omitted.   This step is not needed since it is part of mcl (ini-
+          tialization) itself.  The parameter 0.5 can be changed to other val-
+          ues in the range [0..1.0].  The closer it is to zero, the more clus-
+          terings will tend to be coarse.
 
-          If  the  parameter  is  chosen  larger  than  1.0,  say in the range
-          [1.2..5.0] then clusterings will tend to be more  finer-graine.  For
+          If the parameter is  chosen  larger  than  1.0,  say  in  the  range
+          [1.2..5.0]  then clusterings will tend to be more finer-grained. For
           example,
 
           mcx /orig.mci lm 3.0 hdp /revised.mci wm
 
    5.4    The effect of initial centering on cluster granularity.
 
-          This  refers  to  the  -c  parameter,  which adds loops to the input
+          This refers to the -c parameter,  which  adds  loops  to  the  input
           graph. Its default value is 1.0, which results in loops of a somehow
           'neutral' weight to be added. If you need to really fine-tune granu-
           larity, this option can be of use, otherwise you should abstain from
           using it.  Increasing its value will increase cluster granularity.
 
-          Conceivable/normal  values  are in the range 1.0 to 5.0, but nothing
-          stops you from going higher or slightly lower. Going lower than  0.5
+          Conceivable/normal values are in the range 1.0 to 5.0,  but  nothing
+          stops  you from going higher or slightly lower. Going lower than 0.5
           is definitely not a good idea.
 
-          If  you  are into clustering at high levels of granularity, there is
-          the issue whether to  further  increase  -I,  or  whether  to  start
-          increasing  or  further  increase  -c.  It will really depend on the
+          If you are into clustering at high levels of granularity,  there  is
+          the  issue  whether  to  further  increase  -I,  or whether to start
+          increasing or further increase -c. It  will  really  depend  on  the
           characteristics of the graph you are working with, and at this point
-          in  time I cannot even give advice in terms of a general categoriza-
+          in time I cannot even give advice in terms of a general  categoriza-
           tion. Experiment, learn, and let me know the results if you like.
 
    5.5    How to implement two-level approaches using mcl.
 
-          If changing inflation does not yield  clusterings  that  are  suffi-
-          ciently  coarse  to your liking, you may consider trying a two-level
-          approach.  Presumably your input graph is very  large  if  you  find
-          yourself  in  this situation. You should be aware of the possibility
+          If  changing  inflation  does  not yield clusterings that are suffi-
+          ciently coarse to your liking, you may consider trying  a  two-level
+          approach.   Presumably  your  input  graph is very large if you find
+          yourself in this situation. You should be aware of  the  possibility
           that the graph you are clustering simply does not posses the type of
           coarse-grained structure that you are looking for.
 
-          Two-level  approaches  can  be implemented in a variety of ways, and
+          Two-level approaches can be implemented in a variety  of  ways,  and
           you may wish to invoke tools other than mcl. However, it is possible
           to experiment with two-level approaches using mcl and its associated
-          utility mcx. Here is how, assuming your  original  graph  is  called
+          utility  mcx.  Here  is  how, assuming your original graph is called
           orig.mci.
 
           Warning
-          This  approach  is  a  little crude, and will suffer if (many) small
+          This approach is a little crude, and will  suffer  if  (many)  small
           clusters are present.
 
           mcl orig.mci -I 5.0 -c 3.0 -scheme 5 -o orig.i5.mco
 
-          Cluster it first so that you get a fine-grained  clustering.   Since
+          Cluster  it  first so that you get a fine-grained clustering.  Since
           orig.mci is likely a large graph, I opted for a high scheme.
 
           mcx /orig.i5.mco lm tp exch     # line continues
                       /orig.mci lm exch mul mul tp add /coarse.mci wm
 
-          This  transforms  the  clustering+graph  into a new graph coarse.mci
-          where the clusters are nodes. You  may,  upon  inspection,  wish  to
-          change  the  homogeneity  of the weight distribution by applying the
-          method described in faq entry 5.3 - but that's something  best  left
-          for  optionally  fine-tuning this method once you decide it has mer-
+          This transforms the clustering+graph into  a  new  graph  coarse.mci
+          where  the  clusters  are  nodes.  You may, upon inspection, wish to
+          change the homogeneity of the weight distribution  by  applying  the
+          method  described  in faq entry 5.3 - but that's something best left
+          for optionally fine-tuning this method once you decide it  has  mer-
           its.
 
           mcl coarse.mci -I 2.0 -c 0.0 -scheme 5 -o coarse.mco
 
-          Cluster the coarsened graph, and keep the loops as computed  in  the
+          Cluster  the  coarsened graph, and keep the loops as computed in the
           coarsening step.
 
           mcx /orig.i5.mco lm /coarse.mco lm mul /projected.mco wm
 
-          Project  the  'coarsened'  clustering  back onto the original graph.
+          Project the 'coarsened' clustering back  onto  the  original  graph.
           Now projected.mco should be a coarse cluster for orig.mci.
 
-          There are a lot of parameters to play with here; e.g. the  5.0,  3.0
+          There  are  a lot of parameters to play with here; e.g. the 5.0, 3.0
           and 2.0, and 1.0. These seem reasonable defaults.
 
                              Implementing the MCL algorithm
 
    6.1    How easy is it to implement the MCL algorithm?
 
-          Very  easy,  if you will be doing small graphs only, say up to a few
+          Very easy, if you will be doing small graphs only, say up to  a  few
           thousand entries at most. These are the basic ingredients:
 
-          o  Adding loops to the  input  graph,  conversion  to  a  stochastic
+          o  Adding  loops  to  the  input  graph,  conversion to a stochastic
              matrix.
           o  Matrix multiplication and matrix inflation.
-          o  The  interpretation function mapping MCL limits onto clusterings.
+          o  The interpretation function mapping MCL limits onto  clusterings.
 
           These must be wrapped in a program that does graph input and cluster
-          output,  alternates multiplication (i.e. expansion) and inflation in
+          output, alternates multiplication (i.e. expansion) and inflation  in
           a loop, monitors the matrix iterands thus found, quits the loop when
           convergence is detected, and interprets the last iterand.
 
           Implementing matrix muliplication is a standard exercise. Implement-
-          ing inflation is nearly trivial. The hardest part  may  actually  be
-          the  interpretation  function,  because you need to cover the corner
-          cases of overlap and attractor systems of cardinality  greater  than
+          ing  inflation  is  nearly trivial. The hardest part may actually be
+          the interpretation function, because you need to  cover  the  corner
+          cases  of  overlap and attractor systems of cardinality greater than
           one.
 
-          In  Mathematica  or Maple, this should be doable in at most 50 lines
-          of code.  For perl you may need 50 more lines - note that  MCL  does
-          not  use intricate and expensive operations such as matrix inversion
+          In Mathematica or Maple, this should be doable in at most  50  lines
+          of  code.   For perl you may need 50 more lines - note that MCL does
+          not use intricate and expensive operations such as matrix  inversion
           or matrix reductions. In lower level languages such as C a basic MCL
-          program  may  need  a  few  hundred lines, but the largest part will
+          program may need a few hundred lines,  but  the  largest  part  will
           probably be input/output and interpretation.
 
-          It is perhaps even such that implementing the  basic  MCL  algorithm
+          It  is  perhaps  even such that implementing the basic MCL algorithm
           makes a nice programming exercise. However, if you need an implemen-
-          tation that scales to several hundreds of  thousands  of  nodes  and
-          possibly  beyond,  then  your  duties  become  much heavier. This is
-          because one needs to prune MCL iterands (c.q.  matrices)  such  that
-          they  remain  sparse.  This must be done carefully and preferably in
-          such a way that a trade-off between speed, memory usage, and  poten-
-          tial  losses  or  gains in accuracy can be controlled via monitoring
-          and logging of relevant characteristics.  Some other points  are  i)
-          support  for  threading via pthreads, openMP, or some other parallel
-          programming API.  ii) a robust and generic  interpretation  function
+          tation  that  scales  to  several hundreds of thousands of nodes and
+          possibly beyond, then your  duties  become  much  heavier.  This  is
+          because  one  needs  to prune MCL iterands (c.q. matrices) such that
+          they remain sparse. This must be done carefully  and  preferably  in
+          such  a way that a trade-off between speed, memory usage, and poten-
+          tial losses or gains in accuracy can be  controlled  via  monitoring
+          and  logging  of relevant characteristics.  Some other points are i)
+          support for threading via pthreads, openMP, or some  other  parallel
+          programming  API.   ii) a robust and generic interpretation function
           is written in terms of weakly connected components.
 
                   Cluster overlap / MCL iterand cluster interpretation
 
    7.1    Introduction
 
-          A  natural  mapping exists of MCL iterands to DAGs (directed acyclic
+          A natural mapping exists of MCL iterands to DAGs  (directed  acyclic
           graphs). This is because MCL iterands are generally diagonally posi-
-          tive  semi-definite  -  see [3].  Such a DAG can be interpreted as a
-          clustering, simply by taking as cores all endnodes  (sinks)  of  the
+          tive semi-definite - see [3].  Such a DAG can be  interpreted  as  a
+          clustering,  simply  by  taking as cores all endnodes (sinks) of the
           DAG, and by attaching to each core all the nodes that reach it. This
           procedure may result in clusterings containing overlap.
 
-          In the MCL limit, the associated DAG has in general a very  degener-
-          ated  form,  which  induces overlap only on very rare occasions (see
+          In  the MCL limit, the associated DAG has in general a very degener-
+          ated form, which induces overlap only on very  rare  occasions  (see
           faq entry 7.2).
 
-          Interpreting mcl iterands as clusterings may  well  be  interesting.
+          Interpreting  mcl  iterands  as clusterings may well be interesting.
           Few experiments have been done so far. It is clear though that early
-          iterands generally contain the most  overlap  (when  interpreted  as
-          clusterings).   Overlap   dissappears  soon  as  the  iterand  index
-          increases. For more information, consult the other entries  in  this
+          iterands  generally  contain  the  most overlap (when interpreted as
+          clusterings).  Overlap  dissappears  soon  as  the   iterand   index
+          increases.  For  more information, consult the other entries in this
           section and the clmimac manual page.
 
    7.2    Can the clusterings returned by mcl contain overlap?
 
-          No.  Clusterings  resulting  from  the abstract MCL algorithm may in
-          theory contain overlap, but the  default  behaviour  in  mcl  is  to
+          No. Clusterings resulting from the abstract  MCL  algorithm  may  in
+          theory  contain  overlap,  but  the  default  behaviour in mcl is to
           remove it should it occur, by allocating the nodes in overlap to the
-          first cluster in which they are seen. mcl  will  warn  you  if  this
-          occurs.  This  behaviour  is  switched off by supplying --keep-over-
+          first  cluster  in  which  they  are seen. mcl will warn you if this
+          occurs. This behaviour is switched  off  by  supplying  --keep-over-
           lap=yes.
 
-          Do note that overlap is mostly a  theoretical  possibility.   It  is
-          conjectured  that it requires the presence of very strong symmetries
-          in the input graph, to the extent that there exists an  automorphism
+          Do  note  that  overlap  is mostly a theoretical possibility.  It is
+          conjectured that it requires the presence of very strong  symmetries
+          in  the input graph, to the extent that there exists an automorphism
           of the input graph mapping the overlapping part onto itself.
 
-          It  is possible to construct (highly symmetric) input graphs leading
-          to cluster overlap. Examples of overlap in which  a  few  nodes  are
-          involved  are easy to construct; examples with many nodes are excep-
+          It is possible to construct (highly symmetric) input graphs  leading
+          to  cluster  overlap.  Examples  of overlap in which a few nodes are
+          involved are easy to construct; examples with many nodes are  excep-
           tionally hard to construct.
 
           Clusterings associated with intermediate/early MCL iterands may very
@@ -939,10 +949,9 @@ MCL FAQ(7)                       MISCELLANEOUS                      MCL FAQ(7)
 
    7.3    How do I obtain the clusterings associated with MCL iterands?
 
-          There  are  two  options.  If  you  are  interested  in  clusterings
-          containing  overlap,  you  should go for the second. If not, use the
-          first, but beware that the resulting clusterings may  contain  over-
-          lap.
+          There are two options. If you are interested in clusterings contain-
+          ing overlap, you should go for the second. If not,  use  the  first,
+          but beware that the resulting clusterings may contain overlap.
 
           The first solution is to use -dump cls (probably in conjunction with
           either -L or -dumpi in order to limit the number of  matrices  writ-
@@ -1044,4 +1053,4 @@ MCL FAQ(7)                       MISCELLANEOUS                      MCL FAQ(7)
 
 
 
-  MCL FAQ 1.005, 05-118             28 Apr 2005                       MCL FAQ(7)
+  MCL FAQ 1.005, 05-272             29 Sep 2005                       MCL FAQ(7)

@@ -32,6 +32,7 @@ const char* sep_value_g = ":";
 
 const char* syntax = "Usage: mcxdump -imx <fname> [-dump <fname>] [options]";
 
+
 enum
 {  MY_OPT_IMX
 ,  MY_OPT_OUTPUT
@@ -172,47 +173,30 @@ mcxOptAnchor options[] =
 ,  {  NULL, 0, 0, NULL, NULL  }
 }  ;
 
-
-double self_ignore
-(  mclv* vec
-,  long  r
-,  void* data
-)
-   {  return 0.0
-;  }
-
-
-double self_force
-(  mclv* vec
-,  long  r
-,  void* data
-)
-   {  mclp* ivp = mclvGetIvp(vec, r, NULL)
-   ;  return ivp && ivp->val ? ivp->val : 1.0
-;  }
-
-
 int main
 (  int                  argc
 ,  const char*          argv[]
 )
-   {  mcxIO* xf_tab  =  NULL
-   ;  mcxIO* xf_tabr =  NULL
-   ;  mcxIO* xf_tabc =  NULL
-   ;  mcxIO* xf_mx   =  NULL
-   ;  mcxIO* xf_dump =  NULL
+   {  mcxIO* xf_tab     =  NULL
+   ;  mcxIO* xf_tabr    =  NULL
+   ;  mcxIO* xf_tabc    =  NULL
+   ;  mcxIO* xf_mx      =  NULL
+   ;  mcxIO* xf_dump    =  NULL
    ;  const char*  fndump  =  "-"
-   ;  mclTab* tabr   =  NULL
-   ;  mclTab* tabc   =  NULL
-   ;  mclx* mx       =  NULL
-   ;  mcxbool pr_values = TRUE
-   ;  int pr_loops   =  1
-   ;  mcxbool transpose = FALSE
-   ;  mcxbool lazy_tab = FALSE
-   ;  mcxmode mode_dump =  'p'      /* pairs, lines, rlines (no col tag) */
+   ;  mclTab* tabr      =  NULL
+   ;  mclTab* tabc      =  NULL
+   ;  mclx* mx          =  NULL
+   ;  mcxbool transpose =  FALSE
+   ;  mcxbool lazy_tab  =  FALSE
    ;  mcxstatus parseStatus = STATUS_OK
 
+   ;  mcxbits modes     =  MCX_DUMP_VALUES
+
+   ;  mcxbits mode_dump =  MCX_DUMP_PAIRS
+   ;  mcxbits mode_loop =  MCX_DUMP_LOOP_ASIS
+
    ;  mcxOption* opts, *opt
+   ;  mclxIOdumper dumper
    
    ;  mcxOptAnchorSortById(options, sizeof(options)/sizeof(mcxOptAnchor) -1)
    ;  opts = mcxOptParse(options, (char**) argv, argc, 1, 0, &parseStatus)
@@ -275,23 +259,28 @@ int main
          ;  break
          ;
 
-            case MY_OPT_NO_LOOPS
-         :  pr_loops = 0
-         ;  break
-         ;
-
-            case MY_OPT_FORCE_LOOPS
-         :  pr_loops = 2
-         ;  break
-         ;
-
             case MY_OPT_NO_VALUES
-         :  pr_values = FALSE
+         :  BIT_OFF(modes, MCX_DUMP_VALUES)
          ;  break
          ;
 
             case MY_OPT_DUMP_RLINES
-         :  mode_dump = 'r'
+         :  mode_dump = MCX_DUMP_RLINES
+         ;  break
+         ;
+
+            case MY_OPT_DUMP_LINES
+         :  mode_dump = MCX_DUMP_LINES
+         ;  break
+         ;
+
+            case MY_OPT_NO_LOOPS
+         :  mode_loop = MCX_DUMP_LOOP_NONE
+         ;  break
+         ;
+
+            case MY_OPT_FORCE_LOOPS
+         :  mode_loop = MCX_DUMP_LOOP_FORCE
          ;  break
          ;
 
@@ -300,16 +289,14 @@ int main
          ;  break
          ;
 
-            case MY_OPT_DUMP_LINES
-         :  mode_dump = 'l'
-         ;  break
-         ;
-
             case MY_OPT_DUMP_PAIRS
-         :  mode_dump = 'p'
+         :  mode_dump = MCX_DUMP_PAIRS
          ;  break
       ;  }
       }
+
+
+   ;  modes |= mode_loop | mode_dump
 
    ;  if (!xf_mx)
       mcxDie(1, me, "-imx argument required")
@@ -318,23 +305,18 @@ int main
    ;  mcxIOopen(xf_dump, EXIT_ON_FAIL)
 
    ;  mcxIOopen(xf_mx, EXIT_ON_FAIL)
-   ;  mx = mclxRead(xf_mx, EXIT_ON_FAIL)
-   ;  if (xf_tab && !mcldEquate(mx->dom_rows, mx->dom_cols, MCLD_EQ_EQUAL))
-      mcxDie(1, me, "domains are not identical")
+
+   ;  if (xf_tab && !lazy_tab)
+      mx = mclxReadx(xf_mx, EXIT_ON_FAIL, MCL_READX_GRAPH)
+   ;  else
+      mx = mclxRead(xf_mx, EXIT_ON_FAIL)
+
    ;  mcxIOfree(&xf_mx)
 
    ;  if (transpose)
       {  mclx* tp = mclxTranspose(mx)
       ;  mclxFree(&mx)
       ;  mx = tp
-   ;  }
-
-      if ((!pr_loops || pr_loops == 2) && mclxIsGraph(mx))
-      {  double (*op)(mclv* vec, long r, void* data)
-         =     !pr_loops
-            ?  self_ignore
-            :  self_force
-      ;  mclxAdjustLoops(mx, op, NULL)
    ;  }
 
       if (xf_tab)
@@ -377,79 +359,12 @@ int main
       ;  }
       }
 
-      if (mode_dump == 'p')
-      {  long i, j, labelc_o = -1
-      ;  char* labelc = "", *labelr = ""
+      mclxIOdumpSet(&dumper, modes, sep_g, sep_value_g)
 
-      ;  for (i=0;i<N_COLS(mx);i++)
-         {  mclv* vec = mx->cols+i
-         ;  long labelr_o = -1
+   ;  if (mclxIOdump(mx, xf_dump, &dumper, tabc, tabr, RETURN_ON_FAIL))
+      mcxDie(1, me, "something suboptimal")
 
-         ;  if (tabc)
-            labelc = mclTabGet(tabc, vec->vid, &labelc_o)
-
-         ;  for (j=0;j<vec->n_ivps;j++)
-            {  if (tabr)
-               labelr = mclTabGet(tabr, vec->ivps[j].idx, &labelr_o)
-
-            ;  if (tabc)
-               fputs(labelc, xf_dump->fp)
-            ;  else
-               fprintf(xf_dump->fp, "%ld", (long) vec->vid)
-
-            ;  fputs(sep_g, xf_dump->fp)
-
-            ;  if (tabr)
-               fputs(labelr, xf_dump->fp)
-            ;  else
-               fprintf(xf_dump->fp, "%ld", (long) vec->ivps[j].idx)
-
-            ;  if (pr_values)
-               fprintf(xf_dump->fp, "%s%f", sep_g, vec->ivps[j].val)
-            ;  fputc('\n', xf_dump->fp)
-         ;  }
-         }
-      }
-      else if (mode_dump == 'l' || mode_dump == 'r')
-      {  long i, j, labelc_o = -1
-      ;  char* labelc = "", *labelr = ""
-
-      ;  for (i=0;i<N_COLS(mx);i++)
-         {  mclv* vec = mx->cols+i
-         ;  long labelr_o = -1
-
-         ;  if (tabc)
-            labelc = mclTabGet(tabc, vec->vid, &labelc_o)
-
-         ;  if (mode_dump == 'l')
-            {  if (tabc)
-               fputs(labelc, xf_dump->fp)
-            ;  else
-               fprintf(xf_dump->fp, "%ld", (long) vec->vid)
-         ;  }
-
-            for (j=0;j<vec->n_ivps;j++)
-            {  const char* sep = mode_dump == 'r' && !j ? "" : sep_g
-
-            ;  if (tabr)
-               labelr = mclTabGet(tabr, vec->ivps[j].idx, &labelr_o)
-
-            ;  fputs(sep, xf_dump->fp)
-
-            ;  if (tabr)
-               fputs(labelr, xf_dump->fp)
-            ;  else
-               fprintf(xf_dump->fp, "%ld", (long) vec->ivps[j].idx)
-
-            ;  if (pr_values)
-               fprintf(xf_dump->fp, "%s%f", sep_value_g, vec->ivps[j].val)
-         ;  }
-            if (mode_dump == 'l' || vec->n_ivps)   /* sth was printed */
-            fputc('\n', xf_dump->fp)
-      ;  }
-      }
-
-      mcxIOfree(&xf_dump)
+   ;  mcxIOfree(&xf_dump)
    ;  return 0
 ;  }
 

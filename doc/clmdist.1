@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "clmdist" 1 "28 Apr 2005" "clmdist 1\&.005, 05-118" "USER COMMANDS"
+.TH "clmdist" 1 "29 Sep 2005" "clmdist 1\&.005, 05-272" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -32,14 +32,14 @@ clmdist \- compute the distance between two or more partitions (clusterings)\&.
 
 Distance can be any of
 \fIsplit/join distance\fP, \fIvariance of information\fP,
-\fIJacquard index\fP, or \fIscatter distance\fP\&.
+\fIMirkin metric\fP, or \fIscatter distance\fP\&.
 .SH SYNOPSIS
 
 \fBclmdist\fP [options] <file name> <file name>+
 
 \fBclmdist\fP
 \fB[--adapt\fP (\fIallow domain mismatch\fP)\fB]\fP
-\fB[-mode\fP <sj|vi|jq|sc> (\fIdistance type\fP)\fB]\fP
+\fB[-mode\fP <sj|vi|mk|sc> (\fIdistance type\fP)\fB]\fP
 \fB[-digits\fP k (\fIoutput decimals\fP)\fB]\fP
 \fB[-width\fP k (\fItab width\fP)\fB]\fP
 \fB[--noindex\fP (\fIomit indices\fP)\fB]\fP
@@ -50,7 +50,7 @@ Distance can be any of
 \fBclmdist\fP computes distances between clusterings\&. It can compute
 the \fIsplit/join distance\fP (described below),
 the \fIvariance of information measure\fP,
-the \fIJacquard index\fP,
+the \fIMirkin metric\fP,
 and the \fIscatter\fP distance\&.
 It can compute the chosen distance for all pairs of distances in a set of
 clusterings\&. Clusterings must be in the mcl matrix format (Cf\&. \fBmcxio(5)\fP),
@@ -68,12 +68,12 @@ Allow a pair of clusterings to pertain to different domains\&. \fBclmdist\fP wil
 project both clusterings onto the meet of the domains\&.
 .in -3m
 
-.ZI 3m "\fB-mode\fP <sj|vi|jq|sc> (\fIdistance type\fP)"
+.ZI 3m "\fB-mode\fP <sj|vi|mk|sc> (\fIdistance type\fP)"
 \&
 .br
 Use \fBsj\fP for the \fIsplit/join distance\fP (described below), \fBvi\fP for
-the \fIvariance of information measure\fP, \fBjq\fP for the \fIJacquard
-index\fP, and \fBsc\fP for the \fIscatter distance\fP\&.
+the \fIvariance of information measure\fP, \fBmk\fP for the \fIMirkin metric\fP,
+and \fBsc\fP for the \fIscatter distance\fP\&.
 The scatter distance \fIcan\fP be computed simultaneously
 with any of the other three distances\&. This is achieved e\&.g\&. by
 supplying \fB-mode\fP\ \fBsj\fP \fB-mode\fP\ \fBsc\fP\&.
@@ -299,7 +299,7 @@ This shows that by rearranging only 283 nodes in the 3\&.2 clustering,
 one obtains a subclustering of all other clusterings\&.
 
 In the last experiment, \fBmcl\fP was run with inflation parameter 1\&.4,
-for each of the four different preset pruning schemes \fCk=1,2,3,4\fR\&.
+for each of the four different preset pruning schemes \fCk=1,2,3,4\fP\&.
 The \fBclmdist\fP distances between the different clusterings
 are shown below\&.
 
@@ -324,10 +324,10 @@ k=3 |        |        |   4,4  |
 .fi \fR
 
 This example is a little boring in that the cheapest scheme seems adequate\&.
-If anything, the gaps between the \fCk=1\fR scheme and the rest are a little
-larger than the three gaps between the \fCk=2\fR, \fCk=3\fR, and \fCk=4\fR
+If anything, the gaps between the \fCk=1\fP scheme and the rest are a little
+larger than the three gaps between the \fCk=2\fP, \fCk=3\fP, and \fCk=4\fP
 clusterings\&. Had all distances been much larger, then such an observation
-would be reason to choose the \fCk=2\fR setting\&.
+would be reason to choose the \fCk=2\fP setting\&.
 
 Note that you need not feel uncomfortable with the clusterings
 still being different at high resource levels, if ever so slightly\&.
@@ -353,3 +353,12 @@ Institute for Mathematics and Computer Science in the Netherlands,
 Amsterdam, May 2000\&.
 .br
 http://www\&.cwi\&.nl/ftp/CWIreports/INS/INS-R0012\&.ps\&.Z
+
+Marina Meila\&. \fIComparing Clusterings \- An Axiomatic View\fP\&.
+In \fIProceedings of the 22nd International Conference on Machine Learning\fP,
+Bonn, Germany, 2005\&.
+
+Marina Meila\&. \fIComparing Clusterings\fP,
+UW Statistics Technical Report 418\&.
+.br
+http://www\&.stat\&.washington\&.edu/www/research/reports/2002/tr418\&.ps

@@ -13,6 +13,7 @@
 
 #include "ivp.h"
 
+#include "util/err.h"
 #include "util/alloc.h"
 #include "util/types.h"
 #include "util/minmax.h"
@@ -46,27 +47,29 @@ mclpAR* mclpARinit
 ;  }
 
 
-mclpAR* mclpARresize
+mclpAR* mclpARensure
 (  mclpAR* mclpar
 ,  int     n
 )
-   {  if (!mclpar)
-      mclpar =  mclpARinit(NULL)
+   {  if (!mclpar && !(mclpar =  mclpARinit(NULL)))
+      return NULL
 
-   ;  if (n > mclpar->n_alloc)
-      {  mclpar->ivps =
-         mcxNRealloc
-         (  mclpar->ivps
-         ,  n
-         ,  mclpar->n_ivps
-         ,  sizeof(mclp)
-         ,  mclpInit_v
-         ,  EXIT_ON_FAIL
+   ;  if
+      (  (n > mclpar->n_alloc)
+      &&!( mclpar->ivps
+         =  mcxNRealloc
+            (  mclpar->ivps
+            ,  n
+            ,  mclpar->n_ivps
+            ,  sizeof(mclp)
+            ,  mclpInit_v
+            ,  RETURN_ON_FAIL
+            )
          )
-      ;  mclpar->n_alloc = n
-   ;  }
+      )
+      return NULL
 
-      mclpar->n_ivps = n
+   ;  mclpar->n_alloc = n
    ;  return mclpar
 ;  }
 
@@ -76,9 +79,12 @@ mclpAR* mclpARfromIvps
 ,  mclp*    ivps
 ,  int      n
 )
-   {  mclpar = mclpARresize(mclpar, n)
+   {  mclpar = mclpARensure(mclpar, n)
+   ;  if (!mclpar)
+      return NULL
    ;  if (n)
       memcpy(mclpar->ivps, ivps, n * sizeof(mclIvp))
+   ;  mclpar->n_ivps = n
    ;  return mclpar
 ;  }
 

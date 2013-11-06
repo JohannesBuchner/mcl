@@ -791,6 +791,7 @@ How can I trust the output clustering?}
 
 
 \faq{simil_granul}{The effect of similarity distribution homogeneity on cluster granularity.}
+
    How similarities in the input graph were derived, constructed,
    adapted, filtered (et cetera) will affect cluster granularity.
    It is important that the similarities are honest;
@@ -806,6 +807,13 @@ How can I trust the output clustering?}
    by absolute magnitudes, it is only affected by magnitudes taken relative to
    each other.
 
+\cpar{UPDATE}{
+   As of version 03-154, mcl supports the pre-inflation \genopt{-pi}{f} option,
+   where \genarg{f} is the inflation parameter described below.
+   Use this option rather than the convoluted procedure described below.
+   Read on to find out what it does.
+}
+
 \par
    Here is how to make a graph more homogeneous with respect to the weight
    function. Given \v{orig.mci}, clustering \v{revised.mci} as constructed
@@ -814,12 +822,16 @@ How can I trust the output clustering?}
 \verbatim{mcx /orig.mci lm 0.5 hdp /revised.mci wm}
 
 \car
+   This simply applies inflation with parameter 0.5 to \v{orig.mci}.
+   In the \mcx language, \bf{hdp} stands for Hadamard power (entrywise power),
+   which is equivalent to inflation except that the normalization step is omitted.
+   This step is not needed since it is part of mcl (initialization) itself. 
    The parameter 0.5 can be changed to other values in the range \v{[0..1.0]}.
    The closer it is to zero, the more clusterings will tend to be coarse.
 
 \par
    If the  parameter is chosen larger than 1.0, say in the range \v{[1.2..5.0]}
-   then clusterings will tend to be more finer-graine. For example,
+   then clusterings will tend to be more finer-grained. For example,
 
 \verbatim{mcx /orig.mci lm 3.0 hdp /revised.mci wm}
 

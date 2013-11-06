@@ -4,15 +4,35 @@
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <style type="text/css">
-body
-{ text-align: justify;
+body {
+text-align: justify;
 color: #001111;
 background: white;
 margin-left: 8%;
 margin-right: 8%;
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+p.default {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
+}
+p.L53 { font-size: 30pt; }
+p.L52 { font-size: 20pt; }
+p.L51 { font-size: 15pt; }
+p.L50 { font-size: 12pt; }
+p.L49 { font-size: 10pt; }
+p.L48 { font-size: 9pt; }
+p.L47 { font-size: 8pt; }
+td {
+font-family: Helvetica, Univers, Verdana, sans-serif;
+text-align: justify;
 }
 h3 { margin-top:1em; }
 h2 { margin-top:2em; }
+.left { text-align: left; align: left; }
+.right { text-align: right; align: right; }
+.center { text-align: center; align: center; }
 a:link { text-decoration: none; }
 a:active { text-decoration: none; }
 a:visited { text-decoration: none; }
@@ -41,123 +61,60 @@ margin-top: 1em;
 margin-bottom: 1em;
 }
 div.indent
-{margin-left: 8%;
+{ margin-left: 8%;
 margin-right: 0%;
 }
 </style>
-<title>
-The clmdist manual
-</title>
+<title>The clmdist manual</title>
 </head>
 <body>
-
 <p style="text-align:right">
-28 Apr 2005&nbsp;&nbsp;&nbsp;
+29 Sep 2005&nbsp;&nbsp;&nbsp;
 <a class="local" href="clmdist.ps"><b>clmdist</b></a>
-1.005, 05-118
+1.005, 05-272
 </p>
-
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr>
-<td width=48 valign="top" align="left">
-1.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+<tr><td width=48 valign="top" class=left>1.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#name">NAME</a>
-</div></td>
-</tr>
-<tr>
-<td width=48 valign="top" align="left">
-2.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class=left>2.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#synopsis">SYNOPSIS</a>
-</div></td>
-</tr>
-<tr>
-<td width=48 valign="top" align="left">
-3.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class=left>3.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#description">DESCRIPTION</a>
-</div></td>
-</tr>
-<tr>
-<td width=48 valign="top" align="left">
-4.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class=left>4.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#_section_4">SPLIT/JOIN DISTANCE</a>
-</div></td>
-</tr>
-<tr>
-<td width=48 valign="top" align="left">
-5.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class=left>5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#examples">EXAMPLES</a>
-</div></td>
-</tr>
-<tr>
-<td width=48 valign="top" align="left">
-6.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class=left>6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#author">AUTHOR</a>
-</div></td>
-</tr>
-<tr>
-<td width=48 valign="top" align="left">
-7.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class=left>7.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#seealso">SEE ALSO</a>
-</div></td>
-</tr>
-<tr>
-<td width=48 valign="top" align="left">
-8.
-</td>
-<td width=8>&nbsp;</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class=left>8.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#references">REFERENCES</a>
-</div></td>
-</tr>
+</div></td></tr>
 </table>
 
 </div>
 
 <a name="name"></a>
 <h2>NAME</h2>
-
-<p style="text-align:justify">
-clmdist - compute the distance between two or more partitions (clusterings).
-
-<p style="text-align:justify">
+<p class="default L50" style="margin-bottom:0">
+clmdist - compute the distance between two or more partitions (clusterings).</p>
+<p class="default L50">
 Distance can be any of
 <i>split/join distance</i>, <i>variance of information</i>,
-<i>Jacquard index</i>, or <i>scatter distance</i>.
+<i>Mirkin metric</i>, or <i>scatter distance</i>.
 
 <a name="synopsis"></a>
 <h2>SYNOPSIS</h2>
-
-<p style="text-align:justify">
+<p class="default L50">
 <b>clmdist</b> [options] &lt;file name&gt; &lt;file name&gt;+
-
-<p style="text-align:justify">
+<p class="default L50">
 <b>clmdist</b>
 <a class="intern" href="#opt--adapt"><b>[--adapt</b> (<i>allow domain mismatch</i>)<b>]</b></a>
-<a class="intern" href="#opt-mode"><b>[-mode</b> &lt;sj|vi|jq|sc&gt; (<i>distance type</i>)<b>]</b></a>
+<a class="intern" href="#opt-mode"><b>[-mode</b> &lt;sj|vi|mk|sc&gt; (<i>distance type</i>)<b>]</b></a>
 <a class="intern" href="#opt-digits"><b>[-digits</b> k (<i>output decimals</i>)<b>]</b></a>
 <a class="intern" href="#opt-width"><b>[-width</b> k (<i>tab width</i>)<b>]</b></a>
 <a class="intern" href="#opt--noindex"><b>[--noindex</b> (<i>omit indices</i>)<b>]</b></a>
@@ -166,19 +123,17 @@ Distance can be any of
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
-
-<p style="text-align:justify">
+<p class="default L50">
 <b>clmdist</b> computes distances between clusterings. It can compute
 the <i>split/join distance</i> (described below),
 the <i>variance of information measure</i>,
-the <i>Jacquard index</i>,
+the <i>Mirkin metric</i>,
 and the <i>scatter</i> distance.
 It can compute the chosen distance for all pairs of distances in a set of
 clusterings. Clusterings must be in the mcl matrix format (Cf. <a class="local" href="mcxio.html">mcxio</a>),
 and are supplied on the command line as the names of the files in which they
 are stored.
-
-<p style="text-align:justify">
+<p class="default L50">
 Currently, <b>clmdist</b> cannot compute different distance types simultaneously,
 with one exception. The scatter distance <i>can</i> be computed simultaneously
 with any of the other three distances.
@@ -186,145 +141,28 @@ with any of the other three distances.
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr>
-<td colspan=3>
-<a name="opt--adapt"></a><b>--adapt</b> (<i>allow domain mismatch</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+<tr><td colspan=3><a name="opt--adapt"></a><b>--adapt</b> (<i>allow domain mismatch</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Allow a pair of clusterings to pertain to different domains. <b>clmdist</b> will
 project both clusterings onto the meet of the domains.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt-mode"></a><b>-mode</b> &lt;sj|vi|jq|sc&gt; (<i>distance type</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-mode"></a><b>-mode</b> &lt;sj|vi|mk|sc&gt; (<i>distance type</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Use <b>sj</b> for the <i>split/join distance</i> (described below), <b>vi</b> for
-the <i>variance of information measure</i>, <b>jq</b> for the <i>Jacquard
-index</i>, and <b>sc</b> for the <i>scatter distance</i>.
+the <i>variance of information measure</i>, <b>mk</b> for the <i>Mirkin metric</i>,
+and <b>sc</b> for the <i>scatter distance</i>.
 The scatter distance <i>can</i> be computed simultaneously
 with any of the other three distances. This is achieved e.g. by
 supplying <b>-mode</b>&nbsp;<b>sj</b> <b>-mode</b>&nbsp;<b>sc</b>.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt-digits"></a><b>-digits</b> k (<i>output decimals</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-digits"></a><b>-digits</b> k (<i>output decimals</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 The number of decimals printed when using the variance of information measure.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt-width"></a><b>-width</b> k (<i>tab width</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-width"></a><b>-width</b> k (<i>tab width</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 The tabbing width in the output table.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt--noindex"></a><b>--noindex</b> (<i>omit indices</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--noindex"></a><b>--noindex</b> (<i>omit indices</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Do not print indices around the table.
-</div></td>
-</tr>
-<tr>
-<td width=32>&nbsp;
-</td>
-<td width=8>&nbsp;
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td colspan=3>
-<a name="opt-parts"></a><b>-parts</b> &lt;l|d|u&gt;+ (<i>array parts to print</i>)
-</td>
-</tr>
-<tr>
-<td width=32>
-&nbsp;
-</td><td width=8>
-&nbsp;
-</td>
-<td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-parts"></a><b>-parts</b> &lt;l|d|u&gt;+ (<i>array parts to print</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Use <b>l</b> to print the lower diagonal part of the table, use <b>d</b>
 to print the (boring) diagonal part of the table (it's full of zeroes),
 use <b>u</b> to print the upper diagonal part of the table.
 You may use any combination of these.
-</div></td>
-</tr>
+</div></td></tr>
 </table>
 
 </div>
@@ -338,8 +176,7 @@ clusterings into the other, and you can think of (<b>d1</b>+<b>d2</b>)/<b>2N</b>
 as the percentage that the two clusterings differ. The split/join
 distance has a linearity property with respect to the meet of <b>C1</b> and
 <b>C2</b>, see below.
-
-<p style="text-align:justify">
+<p class="default L50">
 The split/join distance <b>sjd</b> is very handy in computing the consistency of
 two or more clusterings of the same graph, or comparing clusterings made
 with different resource (but otherwise identical) parameters. The latter is
@@ -350,16 +187,13 @@ subclustering of the other - mostly for comparing a set of clusterings of
 different granularity, made by letting the mcl parameter <b>-I</b> vary.
 The <a class="intern" href="#examples">EXAMPLES</a> section contains examples of all these <b>clmdist</b> uses,
 and the use of <a class="local" href="clminfo.html">clminfo</a> and <a class="local" href="clmmeet.html">clmmeet</a> is also discussed there.
-
-<p style="text-align:justify">
+<p class="default L50">
 <b>sjd</b> is a metric distance on the space of partitions of
 a set of a given fixed cardinality. It has the following linearity
 property. Let <b>P1</b> and <b>P2</b> be partitions, then
-
-<p style="text-align:justify">
+<p class="default L50">
 <b>sjd</b>(<b>P1</b>, <b>P2</b>) = <b>sjd</b>(<b>P1</b>, <b>D</b>) + <b>sjd</b>(<b>P2</b>, <b>D</b>)
-
-<p style="text-align:justify">
+<p class="default L50">
 where <b>D</b> (for Dutch Doorsnede)
 is the intersection of <b>P1</b> and <b>P2</b>, i.e. the unique clustering
 that is both a subclustering of <b>P1</b> and <b>P2</b> <i>and</i> a superclustering of
@@ -367,20 +201,17 @@ all other subclusterings of <b>P1</b> and <b>P2</b>. Sloppily worded, <b>D</b> i
 subclustering of both <b>P1</b> and <b>P2</b>. See the <a class="intern" href="#references">REFERENCES</a> section for
 a pointer to the technical report in which <b>sjd</b> was first defined (and in
 which the non-trivial triangle inequality is proven).
-
-<p style="text-align:justify">
+<p class="default L50">
 Because it is useful to know whether one partition (or clustering)
 is almost a subclustering of the other, <b>clmdist</b> returns the
 two constituents <b>sjd</b>(<b>P1</b>,<b>D</b>) and <b>sjd</b>(<b>P2</b>,<b>D</b>).
-
-<p style="text-align:justify">
+<p class="default L50">
 The output of <b>clmdist</b> is slightly different depending on whether two or
 more than two clusterings are given. In the first case, one pair of numbers
 is returned (the <b>sjd</b> constituents). In the latter case, an array is
 returned for which the upper triangular part contains all possible
 distances. The array is extended with the (file) names of the clusterings.
-
-<p style="text-align:justify">
+<p class="default L50">
 Let <b>P1</b> and <b>P2</b> be two clusterings of a graph of cardinality <b>N</b>,
 and suppose <b>clmdist</b> returns the integers <b>d1</b> and <b>d2</b>. You can think of
 <b>100 * (d1 + d2) / N</b> as the percentage that <b>P1</b> and <b>P2</b> differ.
@@ -389,8 +220,7 @@ The numerator is the number of nodes that need to be exchanged in order to
 transform one into the other. This number may grow as large as
 <b>2*N - 2*sqrt(N)</b>, so it would be justified to take 50 as a scaling
 factor rather than 100.
-
-<p style="text-align:justify">
+<p class="default L50">
 For example, if <b>A</b> and <b>B</b> are both clusterings of a graph
 on a set of 9058 nodes and <b>clmdist</b> returns [38, 2096], this conveys
 that <b>A</b> is almost a subclustering of <b>B</b> (by splitting 38 nodes
@@ -401,8 +231,7 @@ in some way.
 
 <a name="examples"></a>
 <h2>EXAMPLES</h2>
-
-<p style="text-align:justify">
+<p class="default L50">
 The following is an example of several mcl validation tools
 applied to a set of clusterings on a protein graph of 9058 nodes.
 In the first experiment, six
@@ -416,8 +245,7 @@ In the second experiment, four different clusterings were generated
 with identical flow (i.e. inflation) parameter, but
 with different resource parameters. <b>clmdist</b> is used to choose
 a sufficient resource level.
-
-<p style="text-align:justify">
+<p class="default L50">
 High <b>-P/-S/-R</b> values make <b>mcl</b> more accurate but also
 more time and memory consuming. Run <b>mcl</b> with different settings for these
 parameters, holding other parameters fixed. If the expensive and supposedly
@@ -428,8 +256,7 @@ is an indication that you need the expensive settings. In that case, you may
 want to increase the <b>-P/-S/-R</b> parameters (or simply the
 <b>-scheme</b> parameter) until associated
 clusterings at nearby resource levels are very similar.
-
-<p style="text-align:justify">
+<p class="default L50">
 In this particular example, the validation tools do not reveal that one
 clustering in particular can be chosen as 'best', because all clusterings
 seem at least acceptable. They do aid however in showing the relative
@@ -474,8 +301,7 @@ rearranging 43 nodes in the 3.2 clustering, we obtain a subclustering of the
 1.6 clustering. The table shows that for any pair of clusterings, at most
 119 entries need to be rearranged in order to make one a subclustering of
 the other.
-
-<p style="text-align:justify">
+<p class="default L50">
 The overall consistency becomes all the more clear by looking at the meet of
 all the clusterings:
 <pre>
@@ -492,8 +318,7 @@ meet|  0,3663|  0,1972| 0,1321 |  0,958 | 0,559  | 0,283   |
 </pre>
 This shows that by rearranging only 283 nodes in the 3.2 clustering,
 one obtains a subclustering of all other clusterings.
-
-<p style="text-align:justify">
+<p class="default L50">
 In the last experiment, <b>mcl</b> was run with inflation parameter 1.4,
 for each of the four different preset pruning schemes <tt>k=1,2,3,4</tt>.
 The <b>clmdist</b> distances between the different clusterings
@@ -513,8 +338,7 @@ If anything, the gaps between the <tt>k=1</tt> scheme and the rest are a little
 larger than the three gaps between the <tt>k=2</tt>, <tt>k=3</tt>, and <tt>k=4</tt>
 clusterings. Had all distances been much larger, then such an observation
 would be reason to choose the <tt>k=2</tt> setting.
-
-<p style="text-align:justify">
+<p class="default L50">
 Note that you need not feel uncomfortable with the clusterings
 still being different at high resource levels, if ever so slightly.
 In all likelihood, there are anyway nodes which are not in any core of
@@ -527,26 +351,34 @@ to which they are attracted are merged.
 
 <a name="author"></a>
 <h2>AUTHOR</h2>
-
-<p style="text-align:justify">
+<p class="default L50">
 Stijn van Dongen.
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<p style="text-align:justify; margin-bottom:0">
+<p class="default L50" style="margin-bottom:0">
 <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
 </p>
 
 <a name="references"></a>
 <h2>REFERENCES</h2>
-
-<p style="text-align:justify">
+<p class="default L50" style="margin-bottom:0">
 Stijn van Dongen. <i>Performance criteria for graph clustering and Markov
 cluster experiments</i>. Technical Report INS-R0012, National Research
 Institute for Mathematics and Computer Science in the Netherlands,
 Amsterdam, May 2000.<br>
 <a class="extern" href="http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z">http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z</a>
-
+</p>
+<p class="default L50" style="margin-bottom:0">
+Marina Meila. <i>Comparing Clusterings - An Axiomatic View</i>.
+In <i>Proceedings of the 22nd International Conference on Machine Learning</i>,
+Bonn, Germany, 2005.
+</p>
+<p class="default L50" style="margin-bottom:0">
+Marina Meila. <i>Comparing Clusterings</i>,
+UW Statistics Technical Report 418.<br>
+<a class="extern" href="http://www.stat.washington.edu/www/research/reports/2002/tr418.ps">http://www.stat.washington.edu/www/research/reports/2002/tr418.ps</a>
+</p>
 </body>
 </html>

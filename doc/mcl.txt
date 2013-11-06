@@ -1,4 +1,4 @@
-mcl(1)                           USER COMMANDS                          mcl(1)
+mcl(1)                          USER COMMANDS                           mcl(1)
 
 
 
@@ -327,6 +327,7 @@ mcl(1)                           USER COMMANDS                          mcl(1)
          progress
          pruning
          explain
+         clusters
          all
 
          where  all means all three previous modes.  --verbose and -v all turn
@@ -352,63 +353,67 @@ mcl(1)                           USER COMMANDS                          mcl(1)
          This mode causes output of resource-related quantities. It has a sep-
          arate entry in the PRUNING OPTIONS section.
 
+      -v clusters
+         This mode prints a terse list of characteristics of  the  clusterings
+         associated with intermediate iterands.
+
       -progress k (gauge)
-         If k>0 then for each matrix multiplication mcl will  print  an  ascii
+         If  k>0  then  for each matrix multiplication mcl will print an ascii
          gauge telling how far it is. The gauge will be (in some cases approx-
          imately) k characters long. If k<0 then mcl will emit a gauge that is
          extended by one character after every |k| vectors computed. For large
          graphs, this option has been known to ease the pain of impatience. If
          k=0 then mcl will print a message only after every matrix multiplica-
-         tion, and not during matrix multiplication. This can be  useful  when
+         tion,  and  not during matrix multiplication. This can be useful when
          you want mcl to be as speedy as possible, for example when using par-
-         allellized mode (as monitoring progress  requires  thread  communica-
+         allellized  mode  (as  monitoring progress requires thread communica-
          tion).  For parallellization (by threading) see the -t option.
 
       -aa str (append str to suffix)
          See the -ap option below.
 
       -ap str (use str as file name prefix)
-         If  the -o option is not used, mcl will create a file name (for writ-
+         If the -o option is not used, mcl will create a file name (for  writ-
          ing output to) that should uniquely characterize the important param-
-         eters  used  in  the current invocation of mcl. The default format is
-         out.fname.suf, where out is simply the literal string out,  fname  is
-         the  first  argument containing the name of the file (with the graph)
+         eters used in the current invocation of mcl. The  default  format  is
+         out.fname.suf,  where  out is simply the literal string out, fname is
+         the first argument containing the name of the file (with  the  graph)
          to be clustered, and where suf is the suffix encoding a set of param-
          eters (described further below).
 
          The -ap str option specifies a prefix to use rather than out.fname as
-         sketched above.  However, mcl will interpret the  character  '=',  if
+         sketched  above.   However,  mcl will interpret the character '=', if
          present in str, as a placeholder for the input file name.
 
-         If  the -aa str option is used, mcl will append str to the suffix suf
+         If the -aa str option is used, mcl will append str to the suffix  suf
          created by itself.  You can use this if you need to encode some extra
          information in the file name suffix.
 
-         The  suffix is constructed as follows. The -I f and -scheme parameter
+         The suffix is constructed as follows. The -I f and -scheme  parameter
          are always encoded.  The -pi f, -l k, -i f, and -c f options are only
-         encoded  if  they  are  used.  Any  real  argument f is encoded using
+         encoded if they are used.  Any  real  argument  f  is  encoded  using
          exactly one trailing digit behind the decimal separator (which itself
-         is  not  written).  The  setting  -I 3.14 is thus encoded as I31. The
-         -scheme option is encoded using the letter  's',  all  other  options
-         mentioned  here  are  encoded as themselves (stripped of the hyphen).
+         is not written). The setting -I 3.14 is  thus  encoded  as  I31.  The
+         -scheme  option  is  encoded  using the letter 's', all other options
+         mentioned here are encoded as themselves (stripped  of  the  hyphen).
          For example
 
          mcl small.mci -I 3 -c 2.5 -pi 0.8 -scheme 5
 
-         results in the file name out.small.mci.I30s5c25pi08.  If you want  to
-         know  beforehand what file name will be produced, use the -az option.
+         results  in the file name out.small.mci.I30s5c25pi08.  If you want to
+         know beforehand what file name will be produced, use the -az  option.
 
       -az (show output file name and exit)
       -ax (show output suffix and exit)
-         If mcl automatically constructs a file name, it  can  be  helpful  to
-         known  beforehand  what  that file name will be. Use -az and mcl will
-         write the file name to STDOUT and exit. This can be used  if  mcl  is
-         integrated  into  other  software for which the automatic creation of
+         If  mcl  automatically  constructs  a file name, it can be helpful to
+         known beforehand what that file name will be. Use -az  and  mcl  will
+         write  the  file  name to STDOUT and exit. This can be used if mcl is
+         integrated into other software for which the  automatic  creation  of
          unique file names is convenient.
 
-         By default MCL incorporates the input file name into the output  file
-         name  and appends a short suffix describing the most important option
-         settings. Use -ax to find out what that suffix is.  This can be  use-
+         By  default MCL incorporates the input file name into the output file
+         name and appends a short suffix describing the most important  option
+         settings.  Use -ax to find out what that suffix is.  This can be use-
          ful in wrapper pipeline scripts such as clxcoarse.
 
       -te k (#expansion threads)
@@ -426,61 +431,63 @@ mcl(1)                           USER COMMANDS                          mcl(1)
       -t k (#threads)
          The -t options are self-explanatory. Note that threading inflation is
          hardly useful, as inflation is orders of magnitude faster than expan-
-         sion.  Also  note  that threading is only useful if you have a multi-
+         sion. Also note that threading is only useful if you  have  a  multi-
          processor system.
 
-         The --clone option says to give each  thread  its  own  copy  of  the
-         matrix  being expanded/squared. The latter option can be further con-
-         trolled using the --cloneat k option. Copies are  only  made  if  the
+         The  --clone  option  says  to  give  each thread its own copy of the
+         matrix being expanded/squared. The latter option can be further  con-
+         trolled  using  the  --cloneat k  option. Copies are only made if the
          source matrix (the one to be squared) has on average at least k posi-
-         tive entries per vector. This option is  probably  not  very  useful,
+         tive  entries  per  vector.  This option is probably not very useful,
          because without it mcl is a memory munger already.
 
-         When  threading,  it is best not to turn on pruning verbosity mode if
+         When threading, it is best not to turn on pruning verbosity  mode  if
          you are letting mcl run unattended, unless you want to scrutinize its
-         output  later.  This  is  because  it  makes mcl run somewhat slower,
+         output later. This is because  it  makes  mcl  run  somewhat  slower,
          although the difference is not dramatic.
 
       -l n (initial iteration number) (small letter ell)
-         The number of times mcl will use a different inflation  value  before
-         it  switches  to  the  (main) inflation given by the -I (capital eye)
-         option. The different value is called initial inflation and  is  tun-
-         able  using  the -i f option (default value f=2.0). The default value
-         (to -l) is zero. This option supplies new ways of  affecting  cluster
+         The  number  of times mcl will use a different inflation value before
+         it switches to the (main) inflation given by  the  -I  (capital  eye)
+         option.  The  different value is called initial inflation and is tun-
+         able using the -i f option (default value f=2.0). The  default  value
+         (to  -l)  is zero. This option supplies new ways of affecting cluster
          granularity, e.g. by supplying
 
          mcl proteins -i 1.4 -l 2 -I 4.0
 
-         one  lets expansion prevail during the first two iterations, followed
-         by inflation catching up (in a figurative way of writing).  This  may
-         be  useful in certain cases, but this type of experiment is certainly
+         one lets expansion prevail during the first two iterations,  followed
+         by  inflation catching up (in a figurative way of writing).  This may
+         be useful in certain cases, but this type of experiment is  certainly
          secondary to simply varying -I (capital eye).
 
       -L n (main iteration number)
-         Normally, mcl computes the MCL process until it has  converged  fully
-         to  a  doubly idempotent matrix. The number of iterations required is
-         typically somewhere in the range 10-100.  The  first  few  iterations
-         generally  take the longest time.  The -L option can be used to spec-
-         ify the number of iterations mcl may do at most. When this number  is
-         reached,  mcl  will output the clustering associated with the iterand
+         Normally,  mcl  computes the MCL process until it has converged fully
+         to a doubly idempotent matrix. The number of iterations  required  is
+         typically  somewhere  in  the range 10-100.  The first few iterations
+         generally take the longest time.  The -L option can be used to  spec-
+         ify  the number of iterations mcl may do at most. When this number is
+         reached, mcl will output the clustering associated with  the  iterand
          last computed.
 
       -i f (initial inflation)
-         The inflation value used during the first n iterations,  where  n  is
+         The  inflation  value  used during the first n iterations, where n is
          specified by the -l (ell) option.  By default, n=0 and f=2.0.
 
       -pi f (pre-inflation)
-         If  used, mcl will apply inflation one time to the input graph before
-         entering the main process. This can be useful  for  making  the  edge
-         weights  in a graph either more homogeneous (which may result in less
+         If used, mcl will apply inflation one time to the input graph  before
+         entering  the  main  process.  This can be useful for making the edge
+         weights in a graph either more homogeneous (which may result in  less
          granular clusterings) or more heterogeneous (which may result in more
-         granular  clusterings).   Homogeneity  is  achieved for values f less
-         than one, heterogeneity for values larger than one.   Values  to  try
+         granular clusterings).  Homogeneity is achieved  for  values  f  less
+         than  one,  heterogeneity  for values larger than one.  Values to try
          are normally in the range [2.0,10.0].
 
       -di i:j (dump interval)
+      -di all
       -dump-interval i:j
-         Dump during iterations i..j-1. See the -dump str option below.
+         Dump during iterations i..j-1. Use all to dump in all iterations. See
+         the -dump str option below.
 
       -dm k (dump i+0..i+k..)
       -dump-modulo k
@@ -506,34 +513,44 @@ mcl(1)                           USER COMMANDS                          mcl(1)
          selecting the extended principal submatrix.
 
       -dump str (type)
-         str can be of the following types.
+         str  is  checked  for substring occurrences of the following entries.
+         Repeated use of -dump is also allowed.
 
          ite
          dag
          cls
          chr
+         lines
+         cat
 
-         Repeated use is allowed.  The ite option writes mcl iterands to file.
-         The cls option writes clusterings associated  with  mcl  iterands  to
-         file.  These clusters are obtained from a particular directed acyclic
-         graph (abbreviated as DAG) associated  with  each  iterand.  The  dag
-         option  writes  that  DAG  to file. The DAG can optionally be further
-         pruned and then again be interpreted as a clustering  using  clmimac,
-         and  clmimac  can  also  work with the matrices written using the ite
-         option.  It should be noted that clusterings associated with interme-
-         diate  iterands  may  contain  overlap,  which is interesting in many
-         applications. For more information refer to mclfaq(7) and the  REFER-
-         ENCES section below.
+         lines and cat change the mode of dumping. The first changes the  dump
+         format  to  a  line based pairwise format rather than the default mcl
+         matrix format. The second causes all dumped items to be dumped to the
+         default  stream  used for the output clustering, which is appended at
+         the end.
+
+         The ite option writes mcl iterands to file.  The  cls  option  writes
+         clusterings associated with mcl iterands to file.  These clusters are
+         obtained from a particular directed  acyclic  graph  (abbreviated  as
+         DAG)  associated with each iterand. The dag option writes that DAG to
+         file. The DAG can optionally be further  pruned  and  then  again  be
+         interpreted  as a clustering using clmimac, and clmimac can also work
+         with the matrices written using the ite option.  It should  be  noted
+         that  clusterings  associated  with intermediate iterands may contain
+         overlap, which is interesting in many applications. For more informa-
+         tion refer to mclfaq(7) and the REFERENCES section below.
+
+         The result option dumps the usual MCL clustering.
 
          The  chr  option  says, for each iterand I, to output a matrix C with
          characteristics of I. C has the same number of columns as I. For each
          column  k in C, row entry 0 is the diagonal or 'loop' value of column
-         k in  I  after  expansion  and  pruning,  and  before  inflation  and
-         rescaling.  Entry  1 is the loop value after inflation and rescaling.
-         Entry 2 is the center of column k (the sum of  its  entries  squared)
-         computed  after  expansion and before pruning, entry 3 is the maximum
-         value found in that column at the same time. Entry 4 is the amount of
-         mass kept for that column after pruning.
+         k in I after expansion and pruning, and before inflation and  rescal-
+         ing.  Entry 1 is the loop value after inflation and rescaling.  Entry
+         2 is the center of column k (the sum of its entries squared) computed
+         after  expansion  and  before  pruning,  entry 3 is the maximum value
+         found in that column at the same time. Entry 4 is the amount of  mass
+         kept for that column after pruning.
 
          The  -ds  option  sets  the  stem  for  file  names of dumped objects
          (default mcl). The -di and -dm options allow a selection of  iterands
@@ -706,17 +723,17 @@ mcl(1)                           USER COMMANDS                          mcl(1)
       -R r (recover number)
       -pct pct (recover percentage)
       -my-scheme n (tag custom scheme)
-         After computing a new (column stochastic) matrix vector during expan-
-         sion  (which  is  matrix multiplication c.q. squaring), the vector is
-         successively exposed to different pruning strategies. The  intent  of
-         pruning  is  that many small entries are removed while retaining much
-         of the stochastic mass of the original vector. After pruning, vectors
-         are  rescaled  to be stochastic again. MCL iterands are theoretically
-         known to be sparse in a weighted sense, and this manoever effectively
-         perturbs  the  MCL  process a little in order to obtain matrices that
-         are genuinely sparse, thus  keeping  the  computation  tractable.  An
-         example  of  monitoring  pruning  can  be  found in the discussion of
-         -v pruning at the end of this section.
+         After computing  a  new  (column  stochastic)  matrix  vector  during
+         expansion  (which is matrix multiplication c.q. squaring), the vector
+         is successively exposed to different pruning strategies.  The  intent
+         of  pruning  is  that  many small entries are removed while retaining
+         much of the stochastic mass of the original  vector.  After  pruning,
+         vectors  are  rescaled to be stochastic again. MCL iterands are theo-
+         retically known to be sparse in a weighted sense, and  this  manoever
+         effectively  perturbs  the  MCL  process  a little in order to obtain
+         matrices that are genuinely  sparse,  thus  keeping  the  computation
+         tractable.  An example of monitoring pruning can be found in the dis-
+         cussion of -v pruning at the end of this section.
 
          mcl proceeds as follows. First, entries that are smaller than  cutoff
          are removed, resulting in a vector with at most 1/cutoff entries. The
@@ -1084,6 +1101,13 @@ mcl(1)                           USER COMMANDS                          mcl(1)
          the  header part.  It is possible to enforce listing of empty vectors
          by setting bit '1' in the variable MCLXASCIIFLAGS.
 
+      MCLXIOUNCHECKED
+         MCL and its sibling applications will always check a matrix for  con-
+         sistency while it is being read. If this variable is set, the consis-
+         tency check is omitted. For large graphs the speed up can be  consid-
+         erable.  However, if the input graph is not conforming it will likely
+         crash the application that is using it.
+
   DIAGNOSTICS
       If mcl issues a diagnostic error, it will most  likely  be  because  the
       input  matrix  could not be parsed succesfully.  mcl tries to be helpful
@@ -1181,8 +1205,8 @@ mcl(1)                           USER COMMANDS                          mcl(1)
 
       Stijn  van  Dongen. Performance criteria for graph clustering and Markov
       cluster  experiments.  Technical  Report  INS-R0012,  National  Research
-      Institute  for  Mathematics  and  Computer  Science  in the Netherlands,
-      Amsterdam, May 2000.
+      Institute  for Mathematics and Computer Science in the Netherlands, Ams-
+      terdam, May 2000.
       http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z
 
       Enright A.J., Van Dongen S., Ouzounis C.A.  An efficient  algorithm  for
@@ -1197,4 +1221,4 @@ mcl(1)                           USER COMMANDS                          mcl(1)
 
 
 
-  mcl 1.005, 05-118                 28 Apr 2005                           mcl(1)
+  mcl 1.005, 05-272                 29 Sep 2005                           mcl(1)

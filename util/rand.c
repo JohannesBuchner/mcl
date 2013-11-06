@@ -11,10 +11,10 @@
 #include <unistd.h>
 #include <time.h>
 
-#include "duck.h"
+#include "rand.h"
 
 unsigned int mcxSeed
-(  void
+(  unsigned int i
 )
    {  pid_t   p  = getpid()
    ;  pid_t   pp = getppid()
@@ -24,6 +24,7 @@ unsigned int mcxSeed
    ;  unsigned int  s  =      (p ^ p << 4 ^ p << 16 ^ p << 28)
                            ^  (pp ^ pp << 8 ^ pp << 24)
                            ^  (t ^ t << 12 ^ t << 20)
+                           ^  (i ^ i << 3 ^ i << 23 ^ i << 26)
 
          /* I have no solid evidence backing up the usefulness of the xors.
           * They won't increase entropy anyway of course, and this function is
@@ -34,4 +35,5 @@ unsigned int mcxSeed
          */
    ;  return s
 ;  }
+
 

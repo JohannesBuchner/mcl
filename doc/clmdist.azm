@@ -25,7 +25,7 @@
 \par
    Distance can be any of
    \it{split/join distance}, \it{variance of information},
-   \it{Jacquard index}, or \it{scatter distance}.
+   \it{Mirkin metric}, or \it{scatter distance}.
 
 \sec{synopsis}{SYNOPSIS}
 \par
@@ -34,7 +34,7 @@
 \par
    \clmdist
       \synoptopt{--adapt}{allow domain mismatch}
-      \synoptopt{-mode}{<sj|vi|jq|sc>}{distance type}
+      \synoptopt{-mode}{<sj|vi|mk|sc>}{distance type}
       \synoptopt{-digits}{k}{output decimals}
       \synoptopt{-width}{k}{tab width}
       \synoptopt{--noindex}{omit indices}
@@ -47,7 +47,7 @@
    \clmdist computes distances between clusterings. It can compute
    the \it{split/join distance} (described below),
    the \it{variance of information measure},
-   the \it{Jacquard index},
+   the \it{Mirkin metric},
    and the \it{scatter} distance.
    It can compute the chosen distance for all pairs of distances in a set of
    clusterings.  Clusterings must be in the mcl matrix format (Cf. \sibmcxio),
@@ -64,10 +64,10 @@
    Allow a pair of clusterings to pertain to different domains. \clmdist will
    project both clusterings onto the meet of the domains.
 
-\item{\defopt{-mode}{<sj|vi|jq|sc>}{distance type}}
+\item{\defopt{-mode}{<sj|vi|mk|sc>}{distance type}}
    Use \bf{sj} for the \it{split/join distance} (described below), \bf{vi} for
-   the \it{variance of information measure}, \bf{jq} for the \it{Jacquard
-   index}, and \bf{sc} for the \it{scatter distance}.
+   the \it{variance of information measure}, \bf{mk} for the \it{Mirkin metric},
+   and \bf{sc} for the \it{scatter distance}.
    The scatter distance \it{can} be computed simultaneously
    with any of the other three distances. This is achieved e.g. by
    supplying \useopt{-mode}{sj} \useopt{-mode}{sc}.
@@ -312,12 +312,25 @@ k=3 |        |        |   4,4  |
 
 \sec{references}{REFERENCES}
 
-\par
+\par{
    Stijn van Dongen. \it{Performance criteria for graph clustering and Markov
    cluster experiments}.  Technical Report INS-R0012, National Research
    Institute for Mathematics and Computer Science in the Netherlands,
    Amsterdam, May 2000.\|
    \httpref{http://www.cwi.nl/ftp/CWIreports/INS/INS-R0012.ps.Z}
+}
+
+\par{
+   Marina Meila. \it{Comparing Clusterings \- An Axiomatic View}.
+   In \it{Proceedings of the 22nd International Conference on Machine Learning},
+   Bonn, Germany, 2005.
+}
+
+\par{
+   Marina Meila. \it{Comparing Clusterings},
+   UW Statistics Technical Report 418.\|
+   \httpref{http://www.stat.washington.edu/www/research/reports/2002/tr418.ps}
+}
 
 \"man::postamble"
 

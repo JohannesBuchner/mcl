@@ -9,6 +9,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 #include "impala/matrix.h"
 #include "impala/vector.h"
@@ -36,48 +37,34 @@ int main
 (  int                  argc
 ,  const char*          argv[]
 )  
-   {  mclx* mxv, *mxd
-   ;  mclv* vec, *dom
-   ;  mcxIO* xfv, *xfd
-   ;  mclvScore vscore
-   ;  double cov, covmax
-   ;  int iv, id
+   {  mcxIO* xf = mcxIOnew(argv[1], "r")
+   ;  mclx* mx
+   ;  mclv* vec1, *vec2
 
-   ;  if (argc != 5)
-      mcxDie(1, me, "need 4 args: vecmx, dommx, vec idx, vec idx")
+   ;  mcxIOopen(xf, EXIT_ON_FAIL)
+   ;  mx = mclxRead(xf, EXIT_ON_FAIL)
 
-   ;  xfv = mcxIOnew(argv[1], "r")
-   ;  xfd = mcxIOnew(argv[2], "r")
+   ;  vec1 = mclvCopy(NULL, mx->cols+0)
+   ;  vec2 = mclvCopy(NULL, mx->cols+1)
 
-   ;  iv = atoi(argv[3]);
-   ;  id = atoi(argv[4]);
+   ;  mclvCopy(vec1, mx->cols+2)
+   ;  mclvCopy(vec2, mx->cols+3)
 
-   ;  mxv = mclxRead(xfv, EXIT_ON_FAIL)
-   ;  mxd = mclxRead(xfd, EXIT_ON_FAIL)
+   ;  mcldMinus(vec1, vec2, vec1)
+   ;  mcldMinus(vec2, vec2, vec2)
+   ;  mcldMinus(vec1, vec2, vec1)
+   ;  mcldMinus(vec1, vec1, vec1)
 
-   ;  vec = mxv->cols+iv
-   ;  dom = mxd->cols+id
-
-   ;  mclvSubScan
-      (  vec
-      ,  dom
-      ,  &vscore
-      )
-
-   ;  mclvScoreCoverage
-      (  &vscore
-      ,  &cov
-      ,  &covmax
-      )  ;
-
-   ;  fprintf(stdout, "cov    = %f\n", cov)
-   ;  fprintf(stdout, "maxcov = %f\n", covmax)
-   ;  return 0
+   ;  mclvFree(&vec1)
+   ;  mclvFree(&vec2)
+   ;  mclxFree(&mx)
+   ;  mcxIOfree(&xf)
 ;  }
 
 
 const char* usagelines[] =
 {  NULL
 }  ;
+
 
 

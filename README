@@ -1,4 +1,4 @@
-# $Id: README,v 1.29 2004/07/05 10:47:41 flux Exp $
+# $Id: README,v 1.30 2005/09/15 14:42:36 flux Exp $
 
    If you use MCL software in your research, cite it as you would cite a
    journal or a book. This includes papers published in regular or electronic
@@ -19,8 +19,8 @@
    and proper attributions to mcl's home http://micans.org/mcl/ and its author,
    Stijn van Dongen.
 
-   Do this *also* if you are using some wrapper around mcl such as the tribe
-   module or the (mcl) blast package.
+   Do this *also* if you are using some wrapper around mcl such as the blast
+   module or the tribe module.
 
    For biological applications, it is appropriate to cite, additionally,
    the reference article for the first application of mcl to biological data:
@@ -40,10 +40,6 @@
    encapsulates mcxdeblast, mcxassemble, mcl, and clmformat (the latter
    prettyprints clustering results).
    
-   In case you use the TribeMCL module, include, besides the citations listed
-   above, proper citations to the TribeMCL copyright holder EMBL-EBI and its
-   author Anton Enright.
-
    MCL documentation is in doc/, in various formats. It gets installed in
    <prefix>/share/doc/mcl/. A few example input graphs are in graphs/, in the
    mcl matrix format; these are installed in <prefix>/share/doc/mcl/examples/.
@@ -82,15 +78,12 @@ Configure and compiler options
    pipeline script mclblastline. It encapsulates all the stages of parsing,
    matrix creation, running mcl, and formatting the result into a single
    application. These scripts can be used in place of the tribe module. Enable
-   them by adding --enable-blast to ./configure.
-
-   MCL comes with a module called TribeMCL, containing the tribe software that
-   wraps around mcl. In order to build and install this module, add the option
-   '--enable-tribe' when doing './configure' (see INSTALL). See
-   http://www.ebi.ac.uk/research/cgg/tribe/ for more information on the tribe
-   module.
+   them by adding --enable-blast to ./configure.  For the TribeMCL module issue
+   --enable-tribe. Be sure to read http://micans.org/mcl/#mods first though. It
+   is suggested you use the BLAST module instead.
 
 See also
 
    LICENSE for copyright and licensing, THANKS for contributors, INSTALL for
    generic installation instructions.
+

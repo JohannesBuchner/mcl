@@ -64,7 +64,7 @@ my $dat_xo = "";
 my $dat_in = "";
 my $parse_options = "";
 my $parser_tag = "";
-my $parser = "<parser>";
+my $parser = "";
 
 
 
@@ -102,15 +102,16 @@ my $mcloptions = "";
 
 # clmformat options.
 #
-my $fmt_dir = "";
+my ($fmt_fancy, $fmt_dir_name, $fmt_dump_name) = (0, "", "");
+
 my $fmt_n_count = 500;
-my $fmt_dump_name = "";
 my $fmt_xo = "fmt";
 
-my $do_tab = 1;
+my $fmt_tab = 1;
+my $fmt_stats = 0;
 my $tab_fname = "";
 
-my $fmtoptions = "";
+my $fmtoptions = "--dump";       # always generate a plain dump file.
 
 
 
@@ -119,7 +120,7 @@ my $showonly = 0;
 my $debug = 0;
 
 my $startlevel = 0;
-my $endlevel = 5;
+my $endlevel = 4;
 
 
 
@@ -167,6 +168,9 @@ while (@ARGV && $ARGV[0] =~ /^--/) {
    }
    elsif ($key eq 'xi-mcl') {       # mcl uses this suffix when --start-mcl.
       $mcl_xi = $val;
+   }
+   elsif ($key eq 'input') {
+      $dat_in = $val;
    }
    elsif ($key eq 'xo-mcl') {       # mcl writes this suffix.
       reqval($key, $val, '<suffix>');
@@ -273,8 +277,17 @@ while (@ARGV && $ARGV[0] =~ /^--/) {
       $assoptions .= " $asskey $val";
    }
 
+   elsif ($key eq 'fmt-dir') {
+      $fmt_dir_name = $val;
+   }
+   elsif ($key eq 'fmt-dump') {
+      $fmt_dump_name = $val;
+   }
    elsif ($key eq 'fmt-notab') {
-      $do_tab = 0;
+      $fmt_tab = 0;
+   }
+   elsif ($key eq 'fmt-dump-stats') {
+      $fmt_stats = 1;
    }
    elsif ($key eq 'fmt-tab') {
       reqval($key, $val, '<fname>');
@@ -283,10 +296,8 @@ while (@ARGV && $ARGV[0] =~ /^--/) {
    elsif ($key eq 'fmt-lump-count') {
       $fmt_n_count = $val;
    }
-   elsif ($key eq 'fmt-dump') {
-      $fmt_dump_name = $val;
-      $endlevel = 4;
-      $fmtoptions .= " -dump $val";
+   elsif ($key eq 'fmt-fancy') {
+      $fmt_fancy = 1;
    }
    elsif ($key =~ /^fmt(.*)$/) {
       my $fmtkey = $1;
@@ -300,7 +311,7 @@ while (@ARGV && $ARGV[0] =~ /^--/) {
 }
 
 if (!@ARGV) {
-   if (!$startwith) {
+   if (!$startwith && !$dat_in) {
       print "Submit name of data file to be fed to the pipeline\n";
       dang();
    }
@@ -312,14 +323,16 @@ elsif (@ARGV > 1) {
    print "Supply no arguments at all to get list of supported options\n";
    dang();
 }
-elsif ($startlevel == 0 && ($parser eq '<parser>')) {
+elsif ($startlevel == 0 && !$parser) {
    print "--parser=<executable> option is required\n";
    dang();
 }
 
 
 
-if (!$startwith) {
+if ($dat_in) {
+}
+elsif (!$startwith) {
    $dat_in = shift @ARGV;
 }
 elsif ($startlevel == 1) {
@@ -417,27 +430,19 @@ if ($startlevel == 2 && $startwith) {
 #
 #  where label is either user or custom defined - see below.
 
+
+my $cl_mcl     =     "mcl $mcl_in"
+                  .  " -scheme $mcl_scheme -I $mcl_I"
+                  .  " --append-log=yes"
+                  .  "$mcloptions";
+
 if (!$mcl_out) {
    my $label = "";
    if ($mcl_xo) {
       $label = $mcl_xo;
    }
    else {
-      my @parts = ("I$mcl_I", "s$mcl_scheme");
-      if ($mcl_c) {
-         push @parts, "c$mcl_c";
-      }
-      if ($mcl_l) {
-         push @parts, "l$mcl_l";
-         push @parts, "i$mcl_i";
-      }
-      if ($mcl_pi) {
-         push @parts, "pi$mcl_pi";
-      }
-      @parts = sort @parts;
-      local $" = "";
-      $label = "@parts";
-      $label =~ s/\.//g;
+      $label = `$cl_mcl -ax`;
       if ($mcl_xa) {
          $label .= "$mcl_xa";
       }
@@ -448,12 +453,11 @@ if (!$mcl_out) {
    $mcl_out = "out.$base3.$label";
 }
 
+$cl_mcl .= " -o $mcl_out";
+
+
 
 $base4 = $mcl_out;
-
-unless ($fmt_dump_name) {
-   $fmt_dir = "$fmt_xo.$base4";
-}
 
 #  $base4 is the basename of clmformat output, simply the mcl output name.
 #  It generates
@@ -477,12 +481,7 @@ my $cl_assemble =    "mcxassemble -b $base2 -q"
 
 
 
-my $cl_mcl     =     "mcl $mcl_in"
-                  .  " -scheme $mcl_scheme -I $mcl_I -o $mcl_out"
-                  .  " --append-log=yes"
-                  .  "$mcloptions";
-
-if ($do_tab) {
+if ($fmt_tab) {
    if ($tab_fname) {
       $fmtoptions .= " -tab $tab_fname";
    }
@@ -493,13 +492,22 @@ if ($do_tab) {
 if ($fmt_n_count) {
    $fmtoptions .= " -lump-count $fmt_n_count";
 }
-if ($fmt_dir) {
-   $fmtoptions .= " -imx $mcl_in";
+if ($fmt_stats) {
+   $fmtoptions .= " --dump-measures";
 }
-my $cl_format  =     "clmformat " .  ($fmt_dir ? "-dir $fmt_dir" : "") . " -icl $mcl_out"
-                  .  "$fmtoptions";
+if ($fmt_fancy) {
+   $fmtoptions .= " --fancy";
+}
+$fmtoptions .= " -imx $mcl_in";
 
-my $cl_zoem    =     "$have_zoem && (cd $fmt_dir && zoem -i fmt -d html && zoem -i fmt -d txt)";
+$fmt_dir_name  =  "$fmt_xo.$base4" unless $fmt_dir_name;
+$fmt_dump_name =  ($fmt_fancy ? "dump" : "dump.$base4") unless $fmt_dump_name;
+
+
+my $cl_format  =   "clmformat $fmtoptions -dump $fmt_dump_name -icl $mcl_out -dir $fmt_dir_name";
+
+
+my $cl_zoem    =     "$have_zoem && (cd $fmt_dir_name && zoem -i fmt -d html && zoem -i fmt -d txt)";
 
 
 my @progs  = ($parser, 'mcxassemble', 'mcl', 'clmformat', 'zoem');
@@ -573,21 +581,22 @@ sub report_files {
       printfile("$mcl_out","(mcl output file)");
    }
    if (($whatif && $todo->{'3'}) || defined($ok->{'3'})) {
-      if ($fmt_dump_name) {
-         print "Formatting: clmformat $create\n";
-         printfile($fmt_dump_name, "(clmformat dump file)");
-      }
-      else {
+      print "Formatting: clmformat $create\n";
+      my $dump_location = "";
+      $dump_location .= "$fmt_dir_name/" if $fmt_fancy;
+      $dump_location .= $fmt_dump_name;
+      printfile($dump_location, "(clmformat dump file)");
+      if ($fmt_fancy) {
          print "Formatting: clmformat $create two master files in this directory\n";
-         printfile("$fmt_dir","(formatted output)");
+         printfile("$fmt_dir_name","(formatted output)");
       }
    }
    if ($whatif && $todo->{'4'}) {
       if ($have_zoem eq 'true') {
-         print "zoem will further process the files in $fmt_dir\n";
+         print "zoem will further process the files in $fmt_dir_name\n";
       }
       else {
-         print "zoem should further process the files in $fmt_dir\n";
+         print "zoem should further process the files in $fmt_dir_name\n";
          print "but  you don't seem to have zoem installed --\n";
          print "visit http://micans.org/zoem if you like\n";
       }
@@ -598,7 +607,7 @@ sub report_files {
       }
       else {
          if ($have_zoem eq 'true') {
-            print "zoem should further process the files in $fmt_dir\n";
+            print "zoem should further process the files in $fmt_dir_name\n";
             print "but  you don't seem to have zoem installed --\n";
             print "visit http://micans.org/zoem if you like\n";
          }
@@ -761,7 +770,6 @@ and GENERALLY,
 ________ clmformat options:
    --fmt-lump-size=<num>   collect clusters of size lq <num> in a single file.
    --fmt-lump-count=<num>  make batches containing approximately <num> nodes.
-   --fmt-dump=<fname>      create dump file, don't run zoem.
    --fmt-notab             tab file does not exist or should be ignored.
    --fmt-tab=<fname>       use tab file fname.
 and GENERALLY,

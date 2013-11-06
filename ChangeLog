@@ -1,4 +1,68 @@
 
+
+Thu, 29 Sep 2005
+
+   *  mcl-05-272 released
+
+   *  sanitized clmimac, its analysis mode for detecting DAG structure in
+      iterands is now functional.
+
+   *  mcl now accepts '-dump lines' to dump simple line-based pairs format.
+      With '-dump cat' it will dump all items to the same stream. The name for
+      the stream is then taken as the argument to the -o option, rather than
+      derived from '-ds dump-stem' option.
+
+      The -dump option now will simply look for substring occurrences
+      of its known targets in the argument string. An example is the
+      incarnation below.
+
+         -dump ite,lines,cat -o - -di all
+
+      will dump all iterands and the result clustering to stdout
+      in a line based format.
+
+   *  fixed bug in mcxassemble/impala; mclsMap{Cols,Rows} would
+      not work due to wrongly set mclpAR->n_ivps.
+
+   *  moved dump code from mcxdump to IO library.
+
+   *  In clmdist and its manual page, replaced erroneous mention of Jacquard
+      index by Mirkin metric or edge hamming distance.
+
+   *  mcl would not correctly read vectors specified in multiple places,
+      now fixed.
+
+   *  mclblastline has changed.
+      By default it now only creates a line-based tab-separated dump file.
+      This means that by default it is not necessary to have zoem installed.
+      zoem *will* be invoked when the --fmt-fancy option is supplied.
+
+   *  mcxdeblast can read from STDIN by setting the filename to '-'.
+
+   *  mcxdeblasts now acts on --score=r as the documentation promises.
+
+   *  clmformat now accepts the --fancy option on top of the
+      -dump <fname> option: it will do fancy output as well as dump output.
+
+   *  clmformat will no longer by default output performance measures in dump
+      mode. Use --dump-measures to obtain them.
+
+   *  added grok option to clxdo, to obtain clmformat's node stickiness
+      and cluster cohesion matrices.
+
+   *  mcl accepts the --unchecked option, after which it will omit
+      consistency checks on the input matrix. See below.
+
+   *  Setting the environment variable
+         MCLXIOUNCHECKED
+      causes consistency checks to be skipped during matrix input read.
+      This will speed up applications, but they will likely crash
+      when confronted with nonconforming input. Only use with very
+      large matrices in binary format and when in a hurry.
+
+   *  added scripts/perllib/mcl/matrix.pm for reading/writing/manipulating
+      matrices from perl. It's simple and will not expand into something grand.
+
 Thu, 28 Apr 2005
 
    *  mcl-05-118 released

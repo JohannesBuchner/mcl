@@ -16,7 +16,6 @@
 #include <ctype.h>
 
 
-#include "compile.h"
 #include "io.h"
 #include "types.h"
 #include "ting.h"
@@ -129,7 +128,7 @@ mcxIO* mcxIOrenew
       ;  }
 
          if (!(xf = (mcxIO*) mcxAlloc(sizeof(mcxIO), RETURN_ON_FAIL)))
-         MCX_ACT_ON_ALLOC_FAILURE
+         return NULL
 
       ;  if (!(xf->fn = mcxTingEmpty(NULL, 20)))
          {  mcxFree(xf)
@@ -208,6 +207,19 @@ mcxstatus  mcxIOopen
    ;  }
       return STATUS_OK
 ;  }
+
+
+mcxstatus  mcxIOtestOpen
+(  mcxIO*         xf
+,  mcxOnFail      ON_FAIL
+)
+   {  if (!xf->fp && mcxIOopen(xf, ON_FAIL) != STATUS_OK)
+      {  mcxErr("mcxIO", "open test <%s> failed", xf->fn->str)
+      ;  return STATUS_FAIL
+   ;  }
+      return  STATUS_OK
+;  }
+
 
 
 void mcxIOrelease
@@ -554,7 +566,7 @@ mcxstatus  mcxIOreadLine
    ;  if (stat)
       return stat    /* fixme; should we not check chomp first ? */
 
-   ;  if (chomp && *(dst->str+dst->len-1) == '\n')
+   ;  if (chomp && dst->len && *(dst->str+dst->len-1) == '\n')
       mcxTingShrink(dst, -1)
 
    ;  if (xf->ateof && !dst->len)

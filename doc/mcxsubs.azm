@@ -145,17 +145,34 @@ This specifies an output name that can be used for special purposes.
 Normally, output file names are specified in the submatrix specification
 using the \bf{out}(\it{fname}) directive.
 
+
 \item{\defopt{-efac}{<num>}{random edge selection}}
 \genarg{num} should be inbetween zero and one. It denotes the probability
 with which each edge is selected.
 
 \item{\defopt{-dfac}{<num>}{random domain selection}}
-\genarg{num} should be inbetween zero and one. It denotes the probability
-with which entries in the domains will make it into the randomized
-selection used for subsequent processing.
-If the column and row domain are identical, they are submitted to
-the same selection process and will end up identical. If you don't want
-this, use \genopt{-rfac} and \genopt{-cfac} separately.
+\car{
+   \genarg{num} should be inbetween zero and one. It denotes the probability
+   with which entries in the domains will make it into the randomized
+   selection used for subsequent processing. By default the randomized
+   selection is intersected with whatever the other selection criteria (if any)
+   yield, i.e. the behaviour under the \genopt{--rand-intersect} option.
+}
+\par{
+   If the column and row domain are identical, they are submitted to
+   the same selection process and will end up identical. If you don't want
+   this, use \genopt{-rfac} and \genopt{-cfac} separately.
+}
+\par{
+   If you just want a randomized selection, doing}
+
+\verbatim{mcxsubs -imx foo -dfac 0.5 'out(foo.rnd)'}
+\car{
+   will not yield the expected result. Randomized selections only work
+   if a domain has explicitly been specified. The minimal way to achieve
+   this is the following:}
+
+\verbatim{mcxsubs -imx foo -dfac 0.5 'dom(cr), out(foo.rnd)'}
 
 \item{\defopt{-rfac}{<num>}{random column selection}}
 As \genopt{-dfac}, limited to the column domain.
@@ -176,22 +193,12 @@ selection process.
 \item{\defopt{--rand-intersect}{intersect random selections}}
 The random selection(s) of domains identify parts of the
 matrix that will be intersected with the result of the main
-selection process.
+selection process. This is the default.
 
 \item{\defopt{--rand-exclusive}{only random selections}}
 The random selection(s) of domains identify parts of the
 matrix from which the result of the main
 selection process will be removed.
-
-
-\""{
-\item{\defopt{-stem}{str}{for output files}}
-   Each generated submatrix is written to a file which is named after
-   its spec or a tag appended to the spec (see
-   the \secref{spec} section). In both cases, the identifying string
-   (spec or tag) is prefixed with a fixed string which is by
-   default "out.sub-". This prefix can be changed using this option.
-}
 
 \item{\defopt{-tag-digits}{k}{set precision}}
 Sets the precision for tagged output.
@@ -286,7 +293,7 @@ It does not matter whether more than one subgraph is specified.
 Principal submatrix on indices 0-6, 10, and 11-14 \- all column and row
 indices are from this set. Equivalently, this encodes the subgraph on
 nodes 0-6, 10, 11-14. The 'c' stands for column, the 'r' for row, and the
-'i' for index. After the colon it is also allowed to specify a 'd' part
+'i' for index. It is also possible to specify a 'd' part
 (standing for domain), this is shown further below.
 
 \item{\v{dom(c, i(0-6,10,11-14)), dom(r, i(1-6,10,11-14))}}

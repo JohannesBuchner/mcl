@@ -11,16 +11,15 @@
 #include <stdarg.h>
 #include <math.h>
 
-#include "compile.h"
 #include "ting.h"
 #include "ding.h"
 #include "minmax.h"
 #include "alloc.h"
 #include "array.h"
 #include "hash.h"
-#include "compile.h"
 #include "types.h"
 #include "err.h"
+#include "tr.h"
 
 
 
@@ -365,6 +364,46 @@ int mcxTingCmp
 ;  }
 
 
+int mcxTingPCmp
+(  const void* t1
+,  const void* t2
+)
+   {  return (strcmp(((mcxTing**)t1)[0]->str, ((mcxTing**)t2)[0]->str))
+;  }
+
+
+int mcxTingPRevCmp
+(  const void* t1
+,  const void* t2
+)
+   {  return (strcmp(((mcxTing**)t2)[0]->str, ((mcxTing**)t1)[0]->str))
+;  }
+
+
+int mcxPKeyTingCmp
+(  const void* k1
+,  const void* k2
+)
+   {  return
+      strcmp
+      (  ((mcxTing*) ((mcxKV**)k1)[0]->key)->str
+      ,  ((mcxTing*) ((mcxKV**)k2)[0]->key)->str
+      )
+;  }
+
+
+int mcxPKeyTingRevCmp
+(  const void* k1
+,  const void* k2
+)
+   {  return
+      strcmp
+      (  ((mcxTing*) ((mcxKV**)k2)[0]->key)->str
+      ,  ((mcxTing*) ((mcxKV**)k1)[0]->key)->str
+      )
+;  }
+
+
 mcxstatus mcxTingSplice
 (  mcxTing*       ting
 ,  const char*    pstr
@@ -543,7 +582,7 @@ mcxTing* mcxTingify
 ;  }
 
 
-char* mcxTingish
+char* mcxTinguish
 (  mcxTing*    ting
 )
    {  char* str = ting->str
@@ -692,30 +731,6 @@ mcxTing* mcxTingDelete
       return NULL
 
    ;  return ting
-;  }
-
-
-int mcxTingTranslate
-(  mcxTing* src
-,  int*     tbl
-,  int      flags
-)
-   {  src->len  =  mcxStrTranslate(src->str, tbl, flags)
-   ;  return src->len
-;  }
-
-
-int mcxTingTr
-(  mcxTing*    txt
-,  const char* src
-,  const char* dst
-,  int         flags
-)
-   {  int tbl[256]
-   ;  if (!trLoadTable(src, dst, tbl, flags))
-      return -1
-   ;  txt->len  =  mcxStrTranslate(txt->str, tbl, flags)
-   ;  return txt->len
 ;  }
 
 

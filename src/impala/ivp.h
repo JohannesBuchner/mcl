@@ -15,6 +15,7 @@
 #include "util/types.h"
 
 
+                        /* Index Value Pair */
 typedef struct
 {  pnum        idx
 ;  pval        val
@@ -137,7 +138,7 @@ mclpAR* mclpARinit
 )  ;
 
 
-mclpAR* mclpARresize
+mclpAR* mclpARensure
 (  mclpAR*  mclpar
 ,  int      n
 )  ;

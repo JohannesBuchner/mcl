@@ -1,7 +1,151 @@
-regularia projectia diligentia
+regularia projectia diligentia        _____________________________________
+                                     |                                     |
+                                     - make mcl available as library call  |
+                                     - extend mcl with scripting language. |
+                                     - visualize mcl process dynamically   |
+                                     - framework for IO domain manipulation|
+                                     - framework for adapt                 |
+                                     |_____________________________________|
+
+--------------------
+
+-  work on clmps for easy creation of graphics.
 
 
--  does mcxdump still have lazy-tab option?
+-  sth to make matrices symmetric; by add or max or mul ..
+   generalize addTranspose to mclxMergeTranspose
+
+   optimize mclxUnionv
+p  
+   mclvBinary always allocs temp thing?
+   should/could optimize for case where dest is one of the two src and
+   encapsulates the other.
+p  
+   rewrite mcldMeet to use getIvp in situations where that is faster.
+
+-  is the crazy falkner.ps finished?
+
+=  clmimac
+   *  better dag analysis; check attractor systems before symmetrification.
+   *  reasonable edge weights for dag.
+   *  dump mode with attractors tagged.
+   *  dump mode with overlap tagged.
+   *  mclDagTest ok with missing nodes?
+   *  optify dumper.threshold.
+
+=  sanitize/rework the mcl IO dump interface. it's crowded.
+
+=  mclxChangeRDomain etc better take const domain arg?
+
+-  mclcComponents assumes symmetric input (0/1 pattern). That's a pity.
+
+?  transformations that make difficult graphs more amenable.
+   (large diameter/segmentation)
+
+-  clmformat
+   *  fancy mode: directory should perhaps be emptied.
+   *  nsm and ccm created in directory?
+   *  adapt functional?
+   The stuff below probably requires re-designing the architecture.
+   *  allow overlap.
+      need separate section for those  nodes.
+      'self value' no longer defined -> duplicated.
+      alien selection may need to enforce all explicit clusters.
+      mclvScore no longer well defined (the array, print_el_scores).
+      -  interesting if nodes have neighbours in overlap?
+   !  chunked indexes.
+   ?  make refs back to index
+   -  create node stickiness matrix from mclvScore array.
+   -  add more info at cluster header (cov max min etc)
+   -  write hash of indices -> fname, so that it can be changed in zoem space.
+   ?  enable index sorted on label [but sorting begets intricacy] (?)
+
+-  mclpipeline:
+   *  should check empty/impossible val for many options.
+   *  allow multiple blastfiles?
+   *  can rewrite it with Getopt::Long ? (option forwarding possible?)
+   *  perhaps cut down on all the filename customizability.
+
+-  mcxsubs
+   *  is it far from memclean ?
+   *  think about evolution towards more modular chained approach.
+   *   --block still seems to take ridiculously long. slow.  profile.
+   *  option indicating that it should extend the
+      selected domain with all neighbours.
+      Perhaps j and e tags.  The first number indicates the level.
+   *  option to specify all the nodes in all shortest paths for
+      a set of nodes.
+      p8,20-30
+   *  smart complement of blocks requires different mclxSub coding
+      -  Simply using a callback generalizing mcldMeet is difficult because
+         domain operation is now tied to row domain of target matrix.
+      -  There are also problems with complementing overlapping blocks.
+      -  For singletons it is a costly operation to build the complementary
+         domain, so for mclxBlockx-complemented might need sth smarter than
+         simply use mclxSub-complemented.
+      -  Allow column complementation in the interface, or should the caller
+         take care of that?
+   *  implement mcxsubs --extend as spec option.
+   *  is mcxsubs efficient if new domains include the old domains?
+   *  mcxsubs reading domains from
+      domain matrix should also be supported from disk.
+   *  blocks from disk not yet supported.
+   *  -1, -2 domain tags, horrid interface AND implementation.
+
+-  find out what depends on taurus, replace it,
+   move taurus to some dark basement.  (mcxsubs; src/mcl; others?)
+   taurus is hideous.
+
+-  clmps
+   -  only require node locations as input.
+   -  compactify ps code, input.
+   -  change colouring scheme so that 0.3 0.3 0.4 does not pale next to 1.0 or 0.8 0.2
+   !-  base blackness on v / ctr
+    -  base line width on v.
+   -  allow definition of BBLL etc in same coordinates as vertices;
+         automatically compute (in app logic, not PS) PS coordinates.
+   -  provision for ranges? e.g.
+      [0-25, 25-75, 75-125 ... 925-975, 975-1000] / 1000.
+
+-  clmformat, others:
+      compute clustering coefficient, global and localized to clusters.
+
+=  mcx 'max' is very rotten.
+   make it work on matrices as well.
+   or make 'map/apply' type operator.
+
+=  on web, do something about text outside <p>;
+   (in zoem lists, stuck in between <hrule>s etc)
+   make it a particular class.
+
+=  convert all text after item to \car.
+=  get rid of all \par#0, \car#0
+
+-  clmimac: sth that just emits non-overlapping cores.
+   core/periphery angle.
+
+-  enable mcxdeblast to read from multiple files
+
+
+######
+14:01|589 ecs2d ~/graphs-> mcl hsf.mcx -I 2 -scheme 6
+   Segmentation fault (core dumped)
+   Cause: read long 135171210771160
+   mclvResize succeeds with int 31448 (sth like l % (INT_MAX+1))
+   fread fails with size_t ..
+
+
+-  faq symcheck: mention clxdo script.
+
+-  clean up all the interface enums in io.h
+   some are not used.
+
+   Is there a way to force enums to be of some type ?
+
+#  WTF does clxcoarse do with diff ?
+   ah, uh, yes, it removes intra cluster edges.
+
+#  does mcxdump still have lazy-tab option?
    yes, absence requires domain match.
 
 !  how much would ascii input benefit from buffered io ?
@@ -18,15 +162,8 @@ regularia projectia diligentia
    e.g. checked reads become pointless (or the code becomes
    a clutter).
 
--  rewrite mcldMeet to use getIvp in situations where that is faster.
-
 ?  mclvGetIvp could check next entry as special case if ivp arg not null.
    idem mclvGetIvpOffset. bit cumbersome though.
-
-!  mclxMakeMap does/must work with idx-sorted vectors (because it uses them as
-   domains).  no use for general reordering.  relevant if clmorder result is
-   used to remap using mcxmap, (which would likely imply need for tab file
-   remapping).
 
 !  make mcxmap work on tab files as well.
    ( but how about subselection ......... )
@@ -50,8 +187,6 @@ regularia projectia diligentia
 
 -  -dump-subd:
       should construct spec first, then do mclxSubRead.
-
--  implement mcxsubs --extend as spec option.
 
 -  mclvaDump2: implement n_per_line argument.
 
@@ -100,24 +235,6 @@ regularia projectia diligentia
 -  sth to compute clustering coefficient, or samples of shortest path
    lengths, capacities?
 
-   option indicating that it should extend the
-   selected domain with all neighbours.
-   Perhaps j and e tags.  The first number indicates the level.
-
-   option to specify all the nodes in all shortest paths for
-   a set of nodes.
-   p8,20-30
-
-   smart complement of blocks requires different mclxSub coding
-   -  Simply using a callback generalizing mcldMeet is difficult because domain
-      operation is now tied to row domain of target matrix.
-   -  There are also problems with complementing overlapping blocks.
-   -  For singletons it is a costly operation to build the complementary
-      domain, so for mclxBlockx-complemented might need sth smarter than simply
-      use mclxSub-complemented.
-   -  Allow column complementation in the interface, or should the
-      caller take care of that?
-
    so sth else is needed.
    Perhaps mclxSub, mclxBlocks, mclxMerge need reconsidering.
 
@@ -137,38 +254,10 @@ make better binary format,
    - backwards compatability enabled by mechanism for section+length structure.
    - 
 
-LEGEND                     changes all the time.
-   -  todo
-   ?  todo?
-   !  definitely do
-   () observation/aside
-   #  done (for good vibrations)
-   #? done?
-   /  mostly done, needs continuation/finishing/testing
-   ~  move to _pending_, or move to _after_release_ ?
-   bd build environment
-   a  audit.
-   d  design (library level, data structures, core interfaces).
-   f  framework, integration issues
-   g  generalize [design].
-   h  API / library / header file grouping
-   i  iota, scribble, vaguely related.
-   s  support for new functionality.
-   q  faq
-   t  test target.
-   u  user interface stuff.
-   w  documentation.
-   z  far future finking.
-
 -  saner structured output format for clminfo.
 
 -  mcx should pbb have more efficient stack code.
    also, depth/type checking should be done by dispatcher mostly.
-
-?  is mcxsubs efficient if new domains include the old domains?
-!  mcxsubs reading domains from
-   domain matrix should also be supported from disk.
--  blocks from disk not yet supported.
 
 !  If zoem is not present, pipelines should exit more gracefully.
 
@@ -233,31 +322,6 @@ regularia
       hdr file has to be specified
       map file has to be omitted
          do not use mcxassemble -b option 
-
-remove autoprefix?
-
-clmformat:
-   -  allow overlap.
-      need separate section for those  nodes.
-      'self value' no longer defined -> duplicated.
-      alien selection may need to enforce all explicit clusters.
-      mclvScore no longer well defined (the array, print_el_scores).
-      -  interesting if nodes have neighbours in overlap?
-
-   !  chunked indexes.
-   ?  make refs back to index
-   -  create node stickiness matrix from mclvScore array.
-   -  add more info at cluster header (cov max min etc)
-   -  write hash of indices -> fname, so that it can be changed in zoem space.
-   ?  enable index sorted on label [but sorting begets intricacy] (?)
-
-
-
-EFFICIENCY
--  In the mcxsubs/clmclose vein, reanalyze
-   clminfo, clmformat, all programs that operate in non-trivial manners.
-
--  zoem leaks.
 
 -  keep bits of information about a matrix with it
    memory:
@@ -347,6 +411,7 @@ neighbour count - 1 (if self is neighbour)
    Ouch, brain hurt danger sign.
 
 d! option to pass domains to input routine at mclxRead level;
+   [What is a sane design for stuff below?]
    it checks immediately
    for identity, so domain errors cascade quickly.
    then read cluster files first (clminfo, clmformat)
@@ -366,11 +431,9 @@ d! option to pass domains to input routine at mclxRead level;
       all need Checked counterpart? no big deal;
       only asubrawreadchecked and bsubreadchecked will do verification.
 
--  mclpipeline: don't be smart with -I, use --mcl-I as well.
 
 #  implemented more binary read integrity checking.
 -  tell that - can always be used to specify stdout.
--  mclpipeline: use mcl auto-naming.
 -  mcl overlap: make mode where union is taken.
 ?  runinfo tables can be stored as matrices .. for what it's worth.
 ?  make environment variables for leadwidth / overflow length.
@@ -609,7 +672,6 @@ w  features section in mclfaq ? esp for sparse representation.
 
 ?  include configure options in built-in build information.
 
-?  mclpipeline: make both plain text file and html file with clmformat.
 -  -pi: it uses -c center value; might it be too large?
 !  set good default values for bcut and ecut thresholds.
 
@@ -670,8 +732,6 @@ h  how to compute characteristics of some result vector without actually
    latter is not useful, and the former is covered (scan.[ch]).
 
 w  doc: mcx_itemopts used everywhere [no] ?
-
-f  deduplicate mcl suffix work done both in mclpipeline and mcl
 
 f  in light of the pipeline transport options: make toggle and override
    facilitities for e.g. '-v all' and -q.
@@ -752,8 +812,6 @@ w? prune/reduce/project. example in clmresidue manpage ?
    clmreduce -imx <xx.mci> -chr <mclchr:0.8> -chr <mclchr2:0.7> -omx <sub.mci>
    mcl sub.mci -o sub.mco
    clmresidue -imx xx.mci -icl sub.mco -mvc projected.mco -rpm residue.mco
-
-   mcxsubs -mtx mclchr1 r:i4_v:gq0.95_m:tp,cc##domain
 
 w~ define 'cluster domain' and 'graph domain' somewhere.
    use 'graph' rather than matrix in manuals: grep for matrix.
@@ -884,11 +942,6 @@ _PENDING_
 
 ?  split off mcxarithmetic from mcxformat.
 
--  how to compute a clustering projected onto subdomain ?
-   with e.g. mcxsubs, s:-1
-    make -ihd <mx file> option that only reads in the header and sets
-   header vectors -- -imx option will also set those.
-/
 -  mclxFilePeek should be able to read vectors, optionally.
 
 -  document mcx/mcl prefixes.
@@ -901,9 +954,6 @@ _PENDING_
 
 -  do sth about mclx[Sub]NrofEntries
 
-===============================================================================
-_AFTER_RELEASE_, _AR_
-
 i  MCLV_CHECK is not used consistently.
 
 #? fix all alloczero null,null invocations.
@@ -912,10 +962,6 @@ i  MCLV_CHECK is not used consistently.
 -  split --adapt into --adapt-domain, --adapt-partition.
 
 -  add -digits option to mcxconvert.
-
-() mcxsubs (what does it require wrt domains?)
-      it does not adapt domains currently. Overly large domains
-      will just remain overly large.
 
 () note mcxconvert fixed suffix arg convention. more of those:
       mcl
@@ -1150,10 +1196,6 @@ begin
    this is also depending on syntax decision (s-expression?)
 
 -  fix col/row argument order, both for API and for cl interfaces.
-   note mclxcompose order.
-   note -1 row domain -2 col domain in mcxsubs.
-   note mcxmap a b c d col/row meaning.
-   note how el2clus means column-to-row in the source :(
 
 -  distributed mcl: based on decomposed matrix multiplication + inflation.
    results are tagged with identifier and written to disk, including
@@ -1340,9 +1382,6 @@ _mcx_
    them should be part of mcx.  think of good primitive names. all start
    with vec?
 -  can I integrate mcxsubs in mcx? too much IO specifics?
--  I might want to implement clmimac as mcx operator, using mx 10 -tight
-   imac syntax.  main advantage: general framework reducing duplicate
-   coding, e.g. for  input/output.
 
    when passing options to those, I could adopt the convention that strings
    starting with a hyphen are option strings. :).  only, would I have to
@@ -1461,4 +1500,32 @@ corrupted matrices due to alien entries in vectors.
  # compose creates overly long vectors, whereas it reckons
  # they cannot get any bigger than the relevant domain size.  So, should create
  # check in compose ..?  others, e.g. mclxBinary?
+
+
+--------------------
+
+LEGEND                     changes all the time.
+   -  todo
+   ~~ stream of subconsciousness entry
+   ?  todo?
+   !  definitely do
+   () observation/aside
+   #  done (for good vibrations)
+   #? done?
+   /  mostly done, needs continuation/finishing/testing
+   ~  move to _pending_, or move to _after_release_ ?
+   bd build environment
+   a  audit.
+   d  design (library level, data structures, core interfaces).
+   f  framework, integration issues
+   g  generalize [design].
+   h  API / library / header file grouping
+   i  iota, scribble, vaguely related.
+   s  support for new functionality.
+   p  performance
+   q  faq
+   t  test target.
+   u  user interface stuff.
+   w  documentation.
+   z  far future finking.
 

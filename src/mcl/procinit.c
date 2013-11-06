@@ -541,7 +541,7 @@ mcxstatus consider_spec
          ;  if (!(vect = convert_spec(specd, -2)))
             break
 
-         ;  if (!(vecd = mclxUnionv(dom, vect)))
+         ;  if (!(vecd = mclxUnionv(dom, vect, NULL)))
             break
 
          ;  mcldMerge(mpp->dump_list, vecd, mpp->dump_list)
@@ -987,21 +987,25 @@ mcxstatus mclProcessInit
 
             case PROC_OPT_DUMP
          :  arg = opt->val
-         ;  if (strcmp(arg, "chr") == 0)
+         ;  if (strstr(arg, "chr"))
             BIT_ON(mpp->dumping, MCPVB_CHR)
-         ;  else if (strcmp(arg, "ite") == 0)
+         ;  if (strstr(arg, "ite"))
             BIT_ON(mpp->dumping, MCPVB_ITE)
-         ;  else if (strcmp(arg, "cls") == 0)
+         ;  if (strstr(arg, "cls"))
             BIT_ON(mpp->dumping, MCPVB_CLUSTERS)
-         ;  else if (strcmp(arg, "dag") == 0)
+         ;  if (strstr(arg, "dag"))
             BIT_ON(mpp->dumping, MCPVB_DAG)
-         ;  else
-            mcxErr(me, "no such dump mode: <%s>", arg)
+         ;  if (strstr(arg, "lines"))
+            BIT_ON(mpp->dumping, MCPVB_LINES)
+         ;  if (strstr(arg, "cat"))
+            BIT_ON(mpp->dumping, MCPVB_CAT)
          ;  break
          ;
 
             case PROC_OPT_DUMPINTERVAL
-         :  if (sscanf(opt->val,"%d:%d",&mpp->dump_offset,&mpp->dump_bound)!=2)
+         :  if (!strcmp(opt->val, "all"))
+            mpp->dump_bound = 1000
+         ;  else if (sscanf(opt->val,"%d:%d",&mpp->dump_offset,&mpp->dump_bound)!=2)
             {  mcxErr
                (  me
                ,  "flag -dump-interval expects i:j format, j=0 denoting infinity"

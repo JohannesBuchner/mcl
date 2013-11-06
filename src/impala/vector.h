@@ -528,6 +528,20 @@ int mclvGetIvpOffset
 )  ;
 
 
+double mclvAdjustForce
+(  mclv* vec
+,  long  r
+,  void* data
+)  ;
+
+
+double mclvAdjustDiscard
+(  mclv* vec
+,  long  r
+,  void* data
+)  ;
+
+
 /* looks first at size, then at lexicographic ordering, ignores vid. */
 
 int mclvSizeCmp

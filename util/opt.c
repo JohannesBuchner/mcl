@@ -12,7 +12,6 @@
 
 
 #include "opt.h"
-#include "compile.h"
 #include "types.h"
 #include "err.h"
 #include "equate.h"

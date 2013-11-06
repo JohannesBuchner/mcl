@@ -23,11 +23,7 @@
    \synreqopt{-imx}{fname}{input file}
    \synoptopt{-o}{fname}{name/stem for output}
    \synoptopt{-dag}{fname}{output DAG}
-   \synoptopt{-t}{num}{tightness parameter}
-   \synoptopt{-tstep}{num}{tightness step increment}
-   \synoptopt{-tbound}{num}{tightness ceiling}
    \synoptopt{--enstrict}{remove overlap}
-   \synoptopt{--center}{use center in defining tightness}
    \synoptopt{-sort}{str}{size|revsize|lex|none}
    \synoptopt{-h}{list help}
    \synoptopt{--apropos}{list synopsis of all options}
@@ -55,33 +51,8 @@
    The input file is presumably an MCL iterand resulting
    from the mcl option \useopt{-dump}{ite}.
 
-\item{\defopt{-t}{num}{tightness parameter}}
-   \genarg{num} should be a number in the range [0.0, 100.0].
-   The highter \genarg{num}, the less overlap will result.
-   Its default value is 0.  Multiple tightness parameters
-   can be specified by using the \genopt{-tstep}\~option.
-
-\item{\defopt{-tstep}{num}{tightness step increment}}
-   Repeat interpretation for tightness parameters that
-   increaes with stepsize \genarg{num}, starting with the value
-   given by the \genopt{-t}\~option. By default, interpretation
-   is not repeated.
-
-\item{\defopt{-tbound}{num}{tightness step increment}}
-   Ceiling for the tightness parameter as resulting
-   from the \genopt{-t}\~and \genopt{-tstep}\~options.
-
-\item{\defopt{--center}{use center in defining tightness}}
-   This option will generally result in more stringent clusterings
-   (containing fewer overlap), and tries to retain the most significant
-   entries.
-   Use this option \it{only} on matrices resulting from the MCL
-   \useopt{-dump}{dag} option, and do not use it on matrices resulting
-   from the \useopt{-dump}{ite} option.
-
 \item{\defopt{-o}{fname}{file name/stem}}
-   Write to file named \genarg{fname}. In case multiple tightness parameters
-   are specified, use \genarg{fname} as stem for the output file names.
+   Write to file named \genarg{fname}.
 
 \item{\defopt{-dag}{fname}{output DAG}}
    Write the DAG (directed acyclic graph) constructed from the input to

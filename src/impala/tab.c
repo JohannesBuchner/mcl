@@ -46,7 +46,7 @@ mclTab*   mclTabRead
 )
    {  mclTab* tab    =  mcxAlloc(sizeof(mclTab), EXIT_ON_FAIL)
    ;  mcxTing* line  =  mcxTingEmpty(NULL, 100)
-   ;  mclpAR*     ar =  mclpARresize(NULL, 100)
+   ;  mclpAR*     ar =  mclpARensure(NULL, 100)
    ;  const char* me =  "mclTabRead"
    ;  int c_seen     =  0
    ;  int n_ivps     =  0  
@@ -75,7 +75,7 @@ mclTab*   mclTabRead
             (me, "order violation: <%ld> follows <%ld>", vid, vidprev)
          ;  goto fail
       ;  }
-         if (dom && dom->ivps[n_ivps].idx != vid)
+         if (dom && (!dom->n_ivps || dom->ivps[n_ivps].idx != vid))
          {  mcxErr
             (me, "domain violation: unexpected index <%ld>", vid)
          ;  goto fail
@@ -116,7 +116,7 @@ mclTab*   mclTabRead
       if (dom && ar->n_ivps != dom->n_ivps)
       {  mcxErr
          (  me
-         ,  "too few labels: got/need %ld/%ld"
+         ,  "label count mismatch: got/need %ld/%ld"
          ,  (long) ar->n_ivps
          ,  (long) dom->n_ivps
          )

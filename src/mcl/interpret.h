@@ -73,26 +73,6 @@
  *    the clustering.  note: The (graph associated with the) transformed matrix
  *    still need not be a DAG.
  *
- *    The sum of the values of the members below should sum to 1 or a number
- *    slightly smaller (e.g. somewhere in between 0.99..0.95), and they should
- *    be nonnegative.  For one thing, this implies that no matter their
- *    relative values, doubly idempotent matrices (which admit only one
- *    sensible clustering) will always be interpreted correctly.  The
- *    transformation works as follows: For each column k a bar is computed. All
- *    values below the bar are removed. The bar equals
- *
- *          w_center    *  (center of column k)
- *          w_selfval   *  (value of kk entry)
- *       +  w_maxval    *  (maximum value in column k)
- *       --------------------------------------------
- *       =  bar
- *
- *    selfval should not be used when extracting the DAG from MCL iterands,
- *    i.e. w_selfval should in that case be 0 (either when mcl writes the
- *    DAG itself [-dump dag], or when clmimac extracts the DAG from iterands
- *    written by mcl [dump ite]).
- *    If subselections of such a DAG are made, w_selfval can be used.
- *
  *    The transformed matrix (call it) T is interpreted as follows.  nodes
  *    which still have a positive return value (corresponding with columns with
  *    nonzero diagonal entry) are considered attractive. If T_{kl} != 0 we say
@@ -113,10 +93,9 @@
 */
 
 typedef struct
-{  double   w_center       /* default 0.0       */
-;  double   w_selfval      /* default ~ 0.999   */
-;  double   w_maxval       /* default ~ 0.001   */
-;  double   w_partialsum   /* default 0.0       */
+{  double   w_selfval      /* default ~ 0.001   */
+;  double   w_maxval       /* default ~ 0.999   */
+;  double   delta          /* default 0.01      */
 ;  
 }  mclInterpretParam;
 
@@ -131,11 +110,16 @@ void mclInterpretParamFree
 
 mclMatrix* mclInterpret
 (  const mclMatrix*     mx
-,  const mclInterpretParam* ipp
-,  int*  depthptr
-,  mclMatrix** dagptr
 )  ;
 
+mclMatrix* mclDag
+(  const mclMatrix* A
+,  const mclInterpretParam* ipp
+)  ;
+
+int mclDagTest
+(  const mclMatrix* dag
+)  ;
 
 double mclxCoverage
 (  const mclMatrix*     mx

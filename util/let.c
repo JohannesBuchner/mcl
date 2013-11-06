@@ -1,4 +1,4 @@
-/*   Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
+/*   Copyright (C) 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 2 of the License or
@@ -285,21 +285,14 @@ double sign
 ;  }
 
 
-double round
+double letround
 (double f
 )
    { return f > 0 ? floor(f+0.5) : ceil(f-0.5)
 ;  }
 
 
-/* below was necessary to compile under cygwin. dunnow if this is best
- * solution.
-*/
-#ifdef log2
-#  undef log2
-#endif
-
-double log2
+double letlog2
 (double f) { return f > 0 ? log(f) / log(2) : 0.0 ;  }
 
 
@@ -326,7 +319,7 @@ static fun1Hook fun1HookDir[] =
 ,  {  "exp",   exp   ,  0    }
 ,  {  "log",   log   ,  0    }
 ,  {  "log10", log10 ,  0    }
-,  {  "log2",  log2  ,  0    }
+,  {  "log2",  letlog2  ,  0    }
 ,  {  "asin",  asin  ,  0    }
 ,  {  "acos",  cos   ,  0    }
 ,  {  "atan",  atan  ,  0    }
@@ -334,8 +327,8 @@ static fun1Hook fun1HookDir[] =
 ,  {  "abs",   fabs  ,  FUN_SPECIAL     }
 ,  {  "floor", floor ,  FUN_INTRESULT   }
 ,  {  "ceil",  ceil  ,  FUN_INTRESULT   }
-,  {  "round", round ,  FUN_INTRESULT   }
-,  {  "int",   round ,  FUN_INTRESULT   }
+,  {  "round", letround ,  FUN_INTRESULT   }
+,  {  "int",   letround ,  FUN_INTRESULT   }
 ,  {  "sign",  sign  ,  FUN_INTRESULT   }
 ,  {  "bits",  show_bits   ,  FUN_SPECIAL }
 ,  {   NULL,   NULL  ,  0    }
@@ -480,7 +473,7 @@ tn* tnNewToken
    {  tn* node = mcxAlloc(sizeof(tn), RETURN_ON_FAIL)
 
    ;  if (!node)
-      MCX_ACT_ON_ALLOC_FAILURE
+      return NULL
 
    ;  if (!(node->token = mcxTingNew(token ? token : "_<>_")))
       {  mcxFree(node)
@@ -657,7 +650,7 @@ telRaam* trmInit
    {  telRaam* raam=     mcxAlloc(sizeof(telRaam), RETURN_ON_FAIL)
 
    ;  if (!raam)
-      MCX_ACT_ON_ALLOC_FAILURE
+      return NULL
 
    ;  raam->text   =     mcxTingNew(str)
    ;  raam->token  =     mcxTingEmpty(NULL, 30)
@@ -1013,7 +1006,7 @@ mcxstatus flatten
                ,  flags |= TN_ISNAN
             ;  else
                fval = pow(flft,frgt)
-            ;  ival = round(fval)
+            ;  ival = letround(fval)
             ;  break
 
             ;  case OP_ADD_ADD

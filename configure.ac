@@ -1,9 +1,9 @@
 # Process this file with autoconf to produce a configure script.
 #
-# $Id: configure.ac.in,v 1.26 2005/03/18 12:48:59 flux Exp $
+# $Id: configure.ac.in,v 1.28 2005/09/28 20:37:11 flux Exp $
 
 AC_PREREQ(2.50)
-AC_INIT(mcl, 05-118, mcl-devel@lists.micans.org)
+AC_INIT(mcl, 05-272, mcl-devel@lists.micans.org)
 
 PACKAGE=$PACKAGE_NAME
 VERSION=$PACKAGE_VERSION
