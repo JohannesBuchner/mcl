@@ -1,5 +1,5 @@
 .\" Copyright (c) 2010 Stijn van Dongen
-.TH "mclcm" 1 "28 May 2010" "mclcm 1\&.008, 10-148" "USER COMMANDS "
+.TH "mclcm" 1 "20 Jul 2010" "mclcm 10-201" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -55,6 +55,7 @@ mclcm \- hierarchical clustering of graphs with mcl
 \fB[-a\fP <opts> (\fIshared mcl options\fP)\fB]\fP
 \fB[-b1\fP <opts> (\fIdedicated base 1 mcl options\fP)\fB]\fP
 \fB[-b2\fP <opts> (\fIdedicated base 2 mcl options\fP)\fB]\fP
+\fB[-tf\fP spec (\fIapply tf-spec to input matrix\fP)\fB]\fP
 \fB[-c\fP <fname> (\fIinput clustering\fP)\fB]\fP
 \fB[-n\fP <num> (\fIiteration limit\fP)\fB]\fP
 \fB[--root\fP (\fIensure universe root clustering\fP)\fB]\fP
@@ -190,7 +191,7 @@ Example of usage: -a "-I 5"\&.
 \&
 .br
 This will apply the mcl options \fIopts\fP to the input matrix\&. The
-resulting start matrix is used as the base matrix for constucting contracted
+resulting start matrix is used as the base matrix for constructing contracted
 graphs\&.
 .in -2m
 
@@ -200,7 +201,14 @@ graphs\&.
 This will apply the mcl options \fIopts\fP to the input matrix and
 compute the first iterand of the corresponding mcl process\&. The first
 iterand, aka the expansion matrix, is used as the base matrix for
-constucting contracted graphs\&.
+constructing contracted graphs\&.
+.in -2m
+
+.ZI 2m "\fB-tf\fP <tf-spec> (\fItransform input matrix values\fP)"
+\&
+.br
+Transform the input matrix values according
+to the syntax described in \fBmcxio(5)\fP\&.
 .in -2m
 
 .ZI 2m "\fB-c\fP <fname> (\fIinput clustering\fP)"
@@ -267,7 +275,7 @@ between the two clusters in in the original graph\&.
 .ZI 2m "\fB-write\fP <tag> (\fIselect output modes\fP)"
 \&
 .br
-Use this option to explictly specify all of the output types you want
+Use this option to explicitly specify all of the output types you want
 written in a comma-separated string\&. \fI<tag>\fP may contain
 any of the strings \fIstack\fP, \fIcone\fP, \fIcoarse\fP, \fIsteps\fP\&.
 The current default is to write all of these except \fIcoarse\fP\&.

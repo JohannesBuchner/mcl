@@ -1,5 +1,5 @@
 .\" Copyright (c) 2010 Stijn van Dongen
-.TH "clm close" 1 "28 May 2010" "clm close 1\&.008, 10-148" "USER COMMANDS "
+.TH "clm close" 1 "20 Jul 2010" "clm close 10-201" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -49,6 +49,8 @@ in the \fBclm\fP manual page\&.
 \fB[--write-count\fP (\fIoutput component count\fP)\fB]\fP
 \fB[--write-sizes\fP (\fIoutput component sizes (default)\fP)\fB]\fP
 \fB[--write-cc\fP (\fIoutput components as clustering\fP)\fB]\fP
+\fB[--write-block\fP (\fIoutput graph restricted to -dom argument\fP)\fB]\fP
+\fB[--write-blockc\fP (\fIoutput graph complement of -dom argument\fP)\fB]\fP
 \fB[-cc-bound\fP num (\fIselect components with size at least num\fP)\fB]\fP
 \fB[-tf\fP spec (\fIapply tf-spec to input matrix\fP)\fB]\fP
 \fB[-h\fP (\fIprint synopsis, exit\fP)\fB]\fP
@@ -100,6 +102,12 @@ manner\&.
 .ZI 2m "\fB--write-cc\fP (\fIoutput components as clustering\fP)"
 \&
 'in -2m
+.ZI 2m "\fB--write-block\fP (\fIoutput graph restricted to -dom argument\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--write-blockc\fP (\fIoutput graph complement of -dom argument\fP)"
+\&
+'in -2m
 'in +2m
 \&
 .br
@@ -107,7 +115,9 @@ The default behaviour is currently to output the sizes of the
 connected components\&. It is also possible to simply output
 the number of components with \fB--write-count\fP or to
 write the components as a clustering in mcl format with
-\fB-write-cc\fP\&.
+\fB-write-cc\fP\&. Even more options exist: it is possible
+to output the restriction of the input graph to a domain, or
+to output the complement of this restriction\&.
 .in -2m
 
 .ZI 2m "\fB--is-undirected\fP (\fIomit graph undirected check\fP)"

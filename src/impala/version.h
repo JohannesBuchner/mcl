@@ -3,5 +3,6 @@
 
 extern const char *mclDateTag;
 extern const char *mclNumTag;
+extern const char *mclYear;
 
 #endif

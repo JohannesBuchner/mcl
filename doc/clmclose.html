@@ -79,9 +79,9 @@ margin-right: 8%;
 </head>
 <body>
 <p style="text-align:right">
-28 May 2010&nbsp;&nbsp;&nbsp;
+20 Jul 2010&nbsp;&nbsp;&nbsp;
 <a class="local" href="clmclose.ps"><b>clm close</b></a>
-1.008, 10-148
+10-201
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -136,6 +136,8 @@ in the <a class="local sibling" href="clm.html">clm</a> manual page.</p>
 <a class="intern" href="#opt--write-count"><b>[--write-count</b> (<i>output component count</i>)<b>]</b></a>
 <a class="intern" href="#opt--write-sizes"><b>[--write-sizes</b> (<i>output component sizes (default)</i>)<b>]</b></a>
 <a class="intern" href="#opt--write-cc"><b>[--write-cc</b> (<i>output components as clustering</i>)<b>]</b></a>
+<a class="intern" href="#opt--write-block"><b>[--write-block</b> (<i>output graph restricted to -dom argument</i>)<b>]</b></a>
+<a class="intern" href="#opt--write-blockc"><b>[--write-blockc</b> (<i>output graph complement of -dom argument</i>)<b>]</b></a>
 <a class="intern" href="#opt-cc-bound"><b>[-cc-bound</b> num (<i>select components with size at least num</i>)<b>]</b></a>
 <a class="intern" href="#opt-tf"><b>[-tf</b> spec (<i>apply tf-spec to input matrix</i>)<b>]</b></a>
 <a class="intern" href="#opt-h"><b>[-h</b> (<i>print synopsis, exit</i>)<b>]</b></a>
@@ -182,14 +184,16 @@ connected components, and the program will process these in the normal
 manner.
 </p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-count"></a><b>--write-count</b> (<i>output component count</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-sizes"></a><b>--write-sizes</b> (<i>output component sizes (default)</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-cc"></a><b>--write-cc</b> (<i>output components as clustering</i>)</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-count"></a><b>--write-count</b> (<i>output component count</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-sizes"></a><b>--write-sizes</b> (<i>output component sizes (default)</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-cc"></a><b>--write-cc</b> (<i>output components as clustering</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-block"></a><b>--write-block</b> (<i>output graph restricted to -dom argument</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--write-blockc"></a><b>--write-blockc</b> (<i>output graph complement of -dom argument</i>)</div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
 The default behaviour is currently to output the sizes of the
 connected components. It is also possible to simply output
 the number of components with <b>--write-count</b> or to
 write the components as a clustering in mcl format with
-<b>-write-cc</b>.
+<b>-write-cc</b>. Even more options exist: it is possible
+to output the restriction of the input graph to a domain, or
+to output the complement of this restriction.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--is-undirected"></a><b>--is-undirected</b> (<i>omit graph undirected check</i>)</div></div>

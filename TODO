@@ -3,6 +3,21 @@
  mostly *NOT* to mcl.
 
 
+-  optify mcx query clmUGraphComponents 
+- clm adjust with a parameter so that unconditional merging without resort
+   to efficiency/coverage is possible.
+
+$$$ MergeTranspose3 that takes a list of transformations.
+
+(ebi-001|protein3/data) mcxi /dag.5 lm ch 0.0 max
+### <mtx> <dbl> [add] not supported
+
+update FAQ
+   not deterministic ?
+   convergence proven ?[behaviour well understood]
+   speed section ...
+
+
 +todo____________________________________________________________________________
     |                      general guidelines                                    |
     |  - code as much as possible in high-level routines, do not micro-optimize. |

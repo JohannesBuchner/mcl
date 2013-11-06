@@ -90,7 +90,7 @@ ALIENFILES = mcxdeblast.html mcxdeblast.ps mclblastline.html mclblastline.ps
 ##  sec_questions.html \
 
 EXTRA_DIST = mclmcl.txt mcx.zmm\
- stamp.day stamp.month stamp.stamp stamp.tag stamp.year\
+ stamp.day stamp.month stamp.stamp stamp.year\
  clmformat.azm clmvol.azm clmdist.azm clmmate.azm clminfo.azm clmmeet.azm\
  clm.azm clmorder.azm mcl.azm mclcm.azm\
  mclfamily.azm mclfaq.azm mcxi.azm mcx.azm mcxquery.azm mclpipeline.azm\

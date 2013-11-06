@@ -313,6 +313,22 @@ double fltLaR
 
 
 
+double fltArcMaxGQ(pval lft, pval rgt, pval arg) {  return lft >= arg || rgt >= arg ?  lft :  0.0 ;  }
+double fltArcMaxGT(pval lft, pval rgt, pval arg) {  return lft >  arg || rgt >  arg ?  lft :  0.0 ;  }
+double fltArcMaxLQ(pval lft, pval rgt, pval arg) {  return lft <= arg || rgt <= arg ?  lft :  0.0 ;  }
+double fltArcMaxLT(pval lft, pval rgt, pval arg) {  return lft <  arg || rgt <  arg ?  lft :  0.0 ;  }
+
+double fltArcMinGQ(pval lft, pval rgt, pval arg) {  return lft >= arg && rgt >= arg ?  lft :  0.0 ;  }
+double fltArcMinGT(pval lft, pval rgt, pval arg) {  return lft >  arg && rgt >  arg ?  lft :  0.0 ;  }
+double fltArcMinLQ(pval lft, pval rgt, pval arg) {  return lft <= arg && rgt <= arg ?  lft :  0.0 ;  }
+double fltArcMinLT(pval lft, pval rgt, pval arg) {  return lft <  arg && rgt <  arg ?  lft :  0.0 ;  }
+
+double fltArcDiffGQ(pval lft, pval rgt, pval arg) {  return lft - rgt >= arg || rgt - lft >= arg ?  lft :  0.0 ;  }
+double fltArcDiffGT(pval lft, pval rgt, pval arg) {  return lft - rgt >  arg || rgt - lft >  arg ?  lft :  0.0 ;  }
+double fltArcDiffLQ(pval lft, pval rgt, pval arg) {  return lft - rgt <= arg || rgt - lft <= arg ?  lft :  0.0 ;  }
+double fltArcDiffLT(pval lft, pval rgt, pval arg) {  return lft - rgt <  arg || rgt - lft <  arg ?  lft :  0.0 ;  }
+
+
 double fltArcMax
 (  pval     lft
 ,  pval     rgt

@@ -24,20 +24,18 @@
 \'setx{"man::year"}{\'zinsert{stamp.year}}
 \'setx{"man::month"}{\'zinsert{stamp.month}}
 \'setx{"man::day"}{\'zinsert{stamp.day}}
-\'setx{"mcx::tag"}{\'zinsert{stamp.tag}}
 \'setx{"mcx::stamp"}{\'zinsert{stamp.stamp}}
 
 \'setx{"man::year"}{\'tr{{delete}{[:space:]}}{\"man::year"}}
 \'setx{"man::month"}{\'tr{{delete}{[:space:]}}{\"man::month"}}
 \'setx{"man::day"}{\'tr{{delete}{[:space:]}}{\"man::day"}}
-\'setx{"mcx::tag"}{\'tr{{delete}{[:space:]}}{\"mcx::tag"}}
 \'setx{"mcx::stamp"}{\'tr{{delete}{[:space:]}}{\"mcx::stamp"}}
 
 \setx{man_share}{
    {year}    {\"man::year"}
    {month}   {\"man::month"}
    {day}     {\"man::day"}
-   {tag}     {\"mcx::tag", \"mcx::stamp"}
+   {tag}     {\"mcx::stamp"}
    {stamp}   {\"mcx::stamp"}
 }
 

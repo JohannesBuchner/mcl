@@ -55,7 +55,7 @@
    remaining edge weights to be shifted to the range [0-0.3], assuming that the
    input contains correlations. Many more transformations are supported, as
    documented in \mysib{mcxio}. Examples of graph-wide transformations are
-   \v{#knn(<num>)} and \v{#ceilnb(<num>)}. The first only keeps those edges
+   \v{'#knn(<num>)'} and \v{'#ceilnb(<num>)'}. The first only keeps those edges
    that occur in the list of top-\v{<num>} edges of highest weight in both of
    its incident nodes. The second removes edges from nodes of highest degree
    first, proceeding until all node degrees satisfy the given threshold.
@@ -105,29 +105,31 @@ option.}
    \mcl <-|fname>
       \synoptopt{-I}{<num>}{inflation}
       \synoptopt{-o}{<str>}{fname}
-      \synoptopt{-scheme}{<int>}{resource scheme}
+      \:  synoptopt{-scheme}{<int>}{resource scheme}
 }
 
 \par{
    These options are sufficient in 95 percent of the cases or more.  The first
    argument must be the name of a file containing a graph/matrix in the mcl
    input format, or a hyphen to read from STDIN.  With respect to clustering,
-   the \optref{-I}{\genopt{-I} option} and \optref{-scheme}{\genopt{-scheme}
-   option} are foremost relevant.}
+   the \optref{-I}{\genopt{-I} option} is foremost relevant.
+   }
+   
+   \: and \optref{-scheme}{\genopt{-scheme} option} are foremost relevant.
 
 \par{
    The full listing of \mcl options is shown further below, separated
    into parts corresponding with functional aspects such
    as clustering, threading, verbosity, network preprocessing, pruning and resource management,
    automatic output naming, and dumping.
+   }
 
-   The \genopt{-scheme} parameter provides a single access point to the
-   pruning options, and should be sufficient in most cases.}
+   \: The \genopt{-scheme} parameter provides a single access point to the
+   \: pruning options, and should be sufficient in most cases.}
 
 \cpar{Baseline clustering options}{
    \synoptopt{-I}{<num>}{inflation}
    \synoptopt{-o}{<fname>}{fname}
-   \synoptopt{-scheme}{<num>}{resource scheme}
 }
 
 \cpar{Output options}{
@@ -156,9 +158,6 @@ option.}
    \synoptopt{-ph}{<num>}{pre-inflation, max-bound}
    \synoptopt{-if}{<num>}{start-inflation}
    \synoptkvp{--discard-loops}{<y/n>}{discard y/n loops in input}
-   \synoptopt{--shadow}{<mode>}{modulation type}
-   \synoptopt{-shadow-s}{<num>}{boost factor}
-   \synoptopt{--shadow-vl}{shadow distant nodes}
    \synoptopt{--sum-loops}{set loops to sum of other arcs weights}
    \synoptopt{-c}{<num>}{reweight loops}
 }
@@ -169,7 +168,6 @@ option.}
    \synoptkvp{--check-connected}{<y/n>}{analyze components}
    \synoptkvp{--analyze}{<y/n>}{performance criteria}
    \synoptkvp{--show-log}{<y/n>}{show log}
-   \synoptkvp{--append-log}{<y/n>}{append log}
 }
 \cpar{Verbosity options}{
    \synoptopt{-q}{<spec>}{log levels}
@@ -193,9 +191,6 @@ option.}
    \synoptopt{-dump-modulo}{<int>}{dump modulo}
    \synoptopt{-dump-stem}{<stem>}{dump file stem}
    \synoptopt{-dump}{<str>}{type}
-   \synoptopt{-dump-subi}{<spec>}{index list for submatrix dump}
-   \synoptopt{-dump-subd}{<spec>}{domain list for submatrix dump}
-   \synoptopt{-dump-dom}{<fname>}{domain matrix file}
    \synoptopt{-digits}{<int>}{printing precision}
    \synoptopt{--write-binary}{write matrices in binary format}
 }
@@ -211,6 +206,10 @@ option.}
    \synoptopt{--show-schemes}{show resource schemes}
 }
 
+\cpar{Implementation options}{
+   \synoptopt{-sparse}{<int>}{sparse matrix multiplication threshold}
+}
+
 \cpar{Pruning options}{
    The following options all pertain to the various pruning strategies that can
    be employed by \mcl.  They are described in the \secref{pruneoptions}
@@ -219,16 +218,15 @@ option.}
    and you have an appetite for tuning, have a look at the following:}
 
 \par{
+   \synoptopt{-scheme}{<int>}{resource scheme}
+   \synoptopt{-resource}{<int>}{per-node resource maximum}
    \synoptopt{-p}{<num>}{cutoff}
    \synoptopt{-P}{<int>}{1/cutoff}
    \synoptopt{-S}{<int>}{selection number}
    \synoptopt{-R}{<int>}{recovery number}
    \synoptopt{-pct}{<int>}{recover percentage}
-   \synoptopt{-my-scheme}{<int>}{tag custom scheme}
-   \synoptopt{-resource}{<int>}{per-node resource maximum}
    \synoptopt{-warn-pct}{<int>}{prune warn percentage}
    \synoptopt{-warn-factor}{<int>}{prune warn factor}
-   \synoptopt{-nj}{<int>}{jury window index}
 }
 
 \par{
@@ -452,53 +450,58 @@ option.}
    not used.}
 
 
-\items{
-   {\defopt{-shadow}{<mode>}{apply shadowing}}
-   {\defopt{-shadow-s}{<num>}{boost factor (experimental)}}
-   {\defopt{--shadow-vl}{shadow distant nodes}}
-}
+\""{ Too experimental to document for real.
 
-\cpar{EXPERIMENTAL}{
-   \it{These options are intended and useful for hierarchical
-   clustering with} \mysib{mclcm}.
-   \useopt{--shadow-vl} is the same as \useopt{-shadow}{vl}
-   and is at present the best mode to choose.
+   \items{
+      {\""defopt {-shadow}{<mode>}{apply shadowing}}
+      {\""defopt {-shadow-s}{<num>}{boost factor (experimental)}}
+      {\""defopt {--shadow-vl}{shadow distant nodes}}
    }
 
-\par{
-   Use these to weaken the connectivity of certain
-   classes of nodes. This means that the effect of the edges
-   in which they participate on the final clustering result is diminished.
-   This is done such that the extent to which a node exhibits certain
-   characteristics is correlated with the extent to which its connectivity is
-   weakened. The different types of characteristics that can be regulated
-   are}
+   \cpar{EXPERIMENTAL}{
+      \it{These options are intended and useful for hierarchical
+      clustering with} \mysib{mclcm}.
+      \useopt{--shadow-vl} is the same as \useopt{-shadow}{vl}
+      and is at present the best mode to choose.
+      }
 
-\begin{itemize}{
-   {flow}{compact}
-   {interitem}{0}
-   {textindent}{4}
-}
-\item{\bf{vl}}   value low - nodes for which the average value of its edges
-            is low compared with the same number across its neighbours.
-\item{\bf{vh}}   value high - nodes for which the average value of its edges
-            is high compared with the same number across its neighbours.
-\item{\bf{el}}   edge low - nodes for which the number of neighbours
-            is low compared with the same number across its neighbours.
-\item{\bf{eh}}   edge high - nodes for which the number of neighbours
-            is high compared with the same number across its neighbours.
-\end{itemize}   
+   \par{
+      Use these to weaken the connectivity of certain
+      classes of nodes. This means that the effect of the edges
+      in which they participate on the final clustering result is diminished.
+      This is done such that the extent to which a node exhibits certain
+      characteristics is correlated with the extent to which its connectivity is
+      weakened. The different types of characteristics that can be regulated
+      are}
 
-\par{The characteristics above, e.g. \bf{vl}, correspond to the modes
-   that can be passed to the \genopt{-shadow} argument.  The first mode \bf{vl}
-   is the one most likely to be useful.  Combining different modes is possible
-   but may lead to unbalanced clusterings.  Using the mode \bf{el} in \mclcm
-   may similarly lead to unbalanced hierachies.}
-
-\par{
-   The boost factor can be set e.g. to 2.0 to increase the effect of shadowing.
-   The default setting is 1.0.
+   \begin{itemize}{
+      {flow}{compact}
+      {interitem}{0}
+      {textindent}{4}
    }
+   \item{\bf{vl}}   value low - nodes for which the average value of its edges
+               is low compared with the same number across its neighbours.
+   \item{\bf{vh}}   value high - nodes for which the average value of its edges
+               is high compared with the same number across its neighbours.
+   \item{\bf{el}}   edge low - nodes for which the number of neighbours
+               is low compared with the same number across its neighbours.
+   \item{\bf{eh}}   edge high - nodes for which the number of neighbours
+               is high compared with the same number across its neighbours.
+   \end{itemize}   
+
+   \par{The characteristics above, e.g. \bf{vl}, correspond to the modes
+      that can be passed to the \genopt{-shadow} argument.  The first mode \bf{vl}
+      is the one most likely to be useful.  Combining different modes is possible
+      but may lead to unbalanced clusterings.  Using the mode \bf{el} in \mclcm
+      may similarly lead to unbalanced hierachies.}
+
+   \par{
+      The boost factor can be set e.g. to 2.0 to increase the effect of shadowing.
+      The default setting is 1.0.
+      }
+}
+
+
 
 \items{
    {\defopt{-c}{<num>}{reweight loops}}
@@ -582,9 +585,7 @@ option.}
    grade (the so called \it{jury synopsis}) to the appropriateness of the
    scheme used.  \it{A low grade does not necessarily imply that the
    resulting clustering is bad} - but anyway, a low grade should be reason
-   to try for a higher scheme. The grades are listed in the
-   \secref{pruneoptions} section under the
-   \optref{-nj}{\genopt{-nj} option}.
+   to try for a higher scheme.
    }
 
 \par{
@@ -775,7 +776,13 @@ option.}
    The \genopt{-ph} option is special in that it does not rescale
    columns to be stochastic. Instead, it rescales columns so that
    the maximum value found in the column stays the same after
-   inflation was applied. This is for use in conjunction with
+   inflation was applied. There is little significance to this,
+   and what little there is is undocumented.
+   }
+
+
+\""{
+   This is for use in conjunction with
    \genkvp{--shadow}{vl}, as the latter option is affected by
    absolute differences in edge weights.
 }
@@ -813,23 +820,6 @@ option.}
    Set the the stem for file names of dumped
    objects (default \it{mcl}). See the \genopt{-dump}{str} option below.}
 
-\items{
-   {\defopt{-dump-subi}{<spec>}{index list for submatrix dump}}
-   {\defopt{-dump-subd}{<spec>}{domain list for submatrix dump}}
-   {\defopt{-dump-dom}{<fname>}{domain matrix file}}
-}
-\car{
-   \genopt{-dump-subi} specifies a range of indices which will be
-   used to select the extended principal submatrix.
-   Argument \genarg{spec} can be a comma-separated
-   list of single integers and integer ranges. Ranges are denoted by
-   two integers separated by a hyphen.}
-
-\par{
-   If \genopt{-dump-dom} is used and specifies a matrix file,
-   the indices specified in the \genopt{-dump-subd} option should index
-   columns in that matrix. These columns are merged and added to the
-   list of entries used in selecting the extended principal submatrix.}
 
 \item{\defopt{-dump}{<str>}{type}}
 \car{
@@ -982,11 +972,6 @@ option.}
    and compute a few performance criteria and attach them to
    the output file. Off by default.}
 
-\item{\defkvp{--append-log}{<y/n>}{append log}}
-\car{
-   Appends a log with the process characteristics to the output file.
-   Off by default.}
-
 \item{\defkvp{--show-log}{<y/n>}{show log}}
 \car{
    Shows the log with process characteristics on STDOUT.
@@ -1054,7 +1039,6 @@ option.}
    {\defopt{-S}{<int>}{selection number}}
    {\defopt{-R}{<int>}{recover number}}
    {\defopt{-pct}{<pct>}{recover percentage}}
-   {\defopt{-my-scheme}{<int>}{tag custom scheme}}
 }
    After computing a new (column stochastic) matrix vector during expansion
    (which is matrix multiplication c.q. squaring), the vector is
@@ -1117,15 +1101,6 @@ option.}
    for a discussion of this issue.
 }
 
-\par{
-   The \useopt{-my-scheme}{n} option sets a tag that is used in constructing
-   the default output naming file. If not used, \mcl will create
-   a relatively long string describing the settings of the
-   \genopt{-P}, \genopt{-pct}, \genopt{-R}, and \genopt{-S} parameters,
-   e.g. \bf{P600Q85R1000S1200} (where \bf{Q} tags the \it{pct} setting).
-   If used, mcl will simply use the tag \bf{s}\it{n}.
-}
-
 \: If you do not know nor want to know the mcl internals, just ignore the
 \: additional information below and follow the recommendations. They are
 \: quite straightforward.
@@ -1173,123 +1148,168 @@ option.}
    \useopt{-v}{explain} to get explanatory headers in the output as well
    (or simply use \useopt{-v}{all}).
 
-\cpar{Selection and recovery}{
-   The number of selections and recoveries \mcl had to perform during each
-   iteration is shown.  It also shows the number of vectors for which the
-   mass after final pruning was below the fraction defined by the
-   \optref{-pct}{\genopt{-pct} option} as a percentage (default probably 90
-   or 95).
-}
-\cpar{Initial and pruned vector footprint distributions}{
-   The distribution of the vector footprints (i.e. the number of nonzero
-   entries) before and after pruning is shown. This is assembled in a terse
-   (horrid if you will) format, looking as follows (with some context
-   stripped, noting that the data for three expansion steps is shown):
-}
-\verbatim{\
-----------------------------------------------------
- mass percentages  | distr of vec footprints       |
-         |         |____ expand ___.____ prune ____|
-  prune  | final   |e4   e3   e2   |e4  e3   e2    |
-all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|
----------.---------.---------------.---------.-----.
- 98 88 86  98 91 86 _________022456 ___________0234
- 98 89 86  98 94 91 _______00245678 ___________0234
- 98 90 89  99 95 94 _______00235568 ___________0234
- ...}
+\""{  dropped these options. Documentation has a little afterlife.
 
-\car{
-   This particular output was generated (and truncated after three rounds of
-   expansion and inflation) from clustering a protein graph on 9058 nodes
-   with settings \useopt{-I}{1.4}, \useopt{-P}{2000}, \useopt{-S}{500},
-   \useopt{-R}{600}, and \useopt{-pct}{95}.
-}
-\par{
-   The header entries 8532c85.. indicate thresholds going from 80000, 50000,
-   20000, 12500, 8000, all the way down to 300, 200, and 125. The character 'c'
-   signifies the base 1.25 (for no apparent reason). The second entry '2'
-   (after '0') on the first line signifies that roughly 20 percent of all the
-   vectors had a footprint (#nonzero entries) in excess of 800 entries.
-   Likewise, 40 percent had a footprint in excess of 300 entries. The '0'
-   entries signify a fraction somewhere below 5 percent, and the '@' entries
-   signify a fraction somewhere above 95 percent.  }
+   \cpar{Selection and recovery}{
+      The number of selections and recoveries \mcl had to perform during each
+      iteration is shown.  It also shows the number of vectors for which the
+      mass after final pruning was below the fraction defined by the
+      \optref{-pct}{\genopt{-pct} option} as a percentage (default probably 90
+      or 95).
+   }
+   \cpar{Initial and pruned vector footprint distributions}{
+      The distribution of the vector footprints (i.e. the number of nonzero
+      entries) before and after pruning is shown. This is assembled in a terse
+      (horrid if you will) format, looking as follows (with some context
+      stripped, noting that the data for three expansion steps is shown):
+   }
+   \verbatim{\
+   ----------------------------------------------------
+    mass percentages  | distr of vec footprints       |
+            |         |____ expand ___.____ prune ____|
+     prune  | final   |e4   e3   e2   |e4  e3   e2    |
+   all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|
+   ---------.---------.---------------.---------.-----.
+    98 88 86  98 91 86 _________022456 ___________0234
+    98 89 86  98 94 91 _______00245678 ___________0234
+    98 90 89  99 95 94 _______00235568 ___________0234
+    ...}
 
-\par{
-   Two columns are listed, one for the expansion vector footprints
-   (i.e. after squaring), and the other for the vector
-   footprints \it{right after initial pruning took place} (i.e. before
-   selection and recovery, after either adaptive or rigid pruning).
-   This may give an idea of the soundness of the initial  pruning
-   process (overly severe, or overly mild), and the extent
-   to which you want to apply selection and/or recovery.
-}
-\cpar{Initial and final mass windows}{
-   The mass averages of the pruned vectors after the first selection
-   stage are shown, and the mass averages of the vectors as \it{finally
-   computed}, i.e. after selection and recovery.  Note that the latter
-   corresponds to a different stage than what is shown for the vector
-   footprints, if either selection or recovery is turned on.
+   \car{
+      This particular output was generated (and truncated after three rounds of
+      expansion and inflation) from clustering a protein graph on 9058 nodes
+      with settings \useopt{-I}{1.4}, \useopt{-P}{2000}, \useopt{-S}{500},
+      \useopt{-R}{600}, and \useopt{-pct}{95}.
+   }
+   \par{
+      The header entries 8532c85.. indicate thresholds going from 80000, 50000,
+      20000, 12500, 8000, all the way down to 300, 200, and 125. The character 'c'
+      signifies the base 1.25 (for no apparent reason). The second entry '2'
+      (after '0') on the first line signifies that roughly 20 percent of all the
+      vectors had a footprint (#nonzero entries) in excess of 800 entries.
+      Likewise, 40 percent had a footprint in excess of 300 entries. The '0'
+      entries signify a fraction somewhere below 5 percent, and the '@' entries
+      signify a fraction somewhere above 95 percent.  }
 
-   For both cases, three averages are shown: the average over all vectors,
-   the average over the worst x cases, and the average over the worst y
-   cases.  The mass averages are shown as percentages: '98' on the first
-   line under the 'prune/all' column means that overall 98 percent of the
-   stochastic mass of the matrix was kept after pruning.
-}
-\par{
-   This example demonstrates that many entries could be
-   removed while retaining much of the stochastic mass. The effect of the
-   recovery (\genopt{-R}) parameter is also clear: the final averages are
-   higher than the initial averages, as a result of  \mcl undoing some
-   overenthousiastic pruning.
-}
-\par{
-   An average over the worst k cases is called a window of width k;
-   internally, \mcl tracks many more such windows.  The result of this can
-   be seen when using the \optref{--append-log}{\usekvp{--append-log}{y}} option
-   (which appends a log to the cluster output) or the
-   \optref{--show-log}{\usekvp{--show-log}{y} option}
-   (which sends the log to STDOUT).
+   \par{
+      Two columns are listed, one for the expansion vector footprints
+      (i.e. after squaring), and the other for the vector
+      footprints \it{right after initial pruning took place} (i.e. before
+      selection and recovery, after either adaptive or rigid pruning).
+      This may give an idea of the soundness of the initial  pruning
+      process (overly severe, or overly mild), and the extent
+      to which you want to apply selection and/or recovery.
+   }
+   \cpar{Initial and final mass windows}{
+      The mass averages of the pruned vectors after the first selection
+      stage are shown, and the mass averages of the vectors as \it{finally
+      computed}, i.e. after selection and recovery.  Note that the latter
+      corresponds to a different stage than what is shown for the vector
+      footprints, if either selection or recovery is turned on.
 
-   From a fixed set of windows those that are applicable are tracked, that
-   is, all those windows for which the width does not exceed the graph
-   cardinality. The windows in the fixed set have respective sizes 1, 2, 5,
-   10, 20, 50, and so on up until 5000000 (which makes 15 windows in all).
-}
+      For both cases, three averages are shown: the average over all vectors,
+      the average over the worst x cases, and the average over the worst y
+      cases.  The mass averages are shown as percentages: '98' on the first
+      line under the 'prune/all' column means that overall 98 percent of the
+      stochastic mass of the matrix was kept after pruning.
+   }
+   \par{
+      This example demonstrates that many entries could be
+      removed while retaining much of the stochastic mass. The effect of the
+      recovery (\genopt{-R}) parameter is also clear: the final averages are
+      higher than the initial averages, as a result of  \mcl undoing some
+      overenthousiastic pruning.
+   }
+   \par{
+      An average over the worst k cases is called a window of width k;
+      internally, \mcl tracks many more such windows.  The result of this can
+      be seen when using the \optref{--append-log}{\usekvp{--append-log}{y}} option
+      (which appends a log to the cluster output) or the
+      \optref{--show-log}{\usekvp{--show-log}{y} option}
+      (which sends the log to STDOUT).
 
-\item{\defopt{-nj}{i}{jury window index}}
-\car{
-   The \genopt{-nj} denotes a window index in the same way as \genopt{-nx}
-   and \genopt{-ny} do. This particular window is used for computing the
-   \it{jury marks}, which are the three number reported by \mcl when it is
-   done.  They are a reminder of the existence of pruning and its importance
-   for both speed and accuracy, and they are \it{indicative rather than
-   authorative}.
+      From a fixed set of windows those that are applicable are tracked, that
+      is, all those windows for which the width does not exceed the graph
+      cardinality. The windows in the fixed set have respective sizes 1, 2, 5,
+      10, 20, 50, and so on up until 5000000 (which makes 15 windows in all).
    }
 
-\par{
-   These jury marks are simply the respective mass averages in the jury
-   window for the first three iterations.  The marks are even further
-   simplified and mapped to the jury synopsis, which is a single grade
-   expressed as an adjective.  The grades are, in decreasing order of
-   achievement, \it{perfect exceptional superior excellent good acceptable
-   mediocre poor bad lousy miserable awful wretched atrocious}. Doing 'mcl
-   --jury-charter' will tell you how the jury marks map onto the jury
-   synopsis.
+   \item{\defopt {-nj}{i}{jury window index}}
+   \car{
+      The \genopt{-nj} denotes a window index in the same way as \genopt{-nx}
+      and \genopt{-ny} do. This particular window is used for computing the
+      \it{jury marks}, which are the three number reported by \mcl when it is
+      done.  They are a reminder of the existence of pruning and its importance
+      for both speed and accuracy, and they are \it{indicative rather than
+      authorative}.
+      }
+
+   \par{
+      These jury marks are simply the respective mass averages in the jury
+      window for the first three iterations.  The marks are even further
+      simplified and mapped to the jury synopsis, which is a single grade
+      expressed as an adjective.  The grades are, in decreasing order of
+      achievement, \it{perfect exceptional superior excellent good acceptable
+      mediocre poor bad lousy miserable awful wretched atrocious}. Doing 'mcl
+      --jury-charter' will tell you how the jury marks map onto the jury
+      synopsis.
+   }
+   \par{
+      The jury marks should preferably be higher than 70.  If they are in the
+      vicinity of 80 or 90, \mcl is doing fine as far as pruning is concerned.
+      Choose a higher scheme if you think them too low.  For very dense graphs
+      that do have strong cluster structure, the jury marks can sink as low as
+      to the 30's and 40's, but the clusterings generated by mcl may still be
+      good.  The marks and the synopsis grade the severity of pruning, not
+      cluster quality.  Note that the jury becomes friendlier, resp. harsher
+      when the \genopt{-nj} option is increased/decreased.
+   }
+
 }
-\par{
-   The jury marks should preferably be higher than 70.  If they are in the
-   vicinity of 80 or 90, \mcl is doing fine as far as pruning is concerned.
-   Choose a higher scheme if you think them too low.  For very dense graphs
-   that do have strong cluster structure, the jury marks can sink as low as
-   to the 30's and 40's, but the clusterings generated by mcl may still be
-   good.  The marks and the synopsis grade the severity of pruning, not
-   cluster quality.  Note that the jury becomes friendlier, resp. harsher
-   when the \genopt{-nj} option is increased/decreased.
+
+\'end{itemize}
+
+\sec{impl}{IMPLEMENTATION OPTIONS}
+
+
+\'begin{itemize}{
+   {flow}{cascade}
+   {interitem}{1}
+   \mcx_itemopts
 }
+\item{\defopt{-sparse}{<int>}{sparse matrix multiplication threshold}}
+\car{
+   This value (by default set to 10) determines when mcl switches to sparse matrix/vector multiplication.
+   For a given column stochastic vector (corresponding with all the neighbours
+   of a given node \v{v} according to the current mcl iterand) the sum \v{S} of neighbour counts
+   of all neighbours of \v{v} is computed, counting duplicates. This is exactly the
+   number of matrix entries involved in the computation of the new column vector
+   for the matrix product. If \v{S} times \genarg{<int>} does not exceed the
+   number of nodes in the graph (equal to both column and row dimension of
+   the matrices used) then a sparse implementation is used. Otherwise
+   an optimized regular implementation is used. Intuitively, this option can
+   be thought of as the estimated overhead per matrix floating point operation incurred
+   by the sparse implementation compared with the regular implementation.
+   MCL uses this estimated overhead to determine which implementation is likely
+   to be quicker. Testing has shown this strategy works very well for graphs of a wide
+   range of sizes, including graphs with up to 3 million nodes and 500 million edges.
+
+   }
+
+\cpar{NOTE}{
+   The effectiveness of this option is influenced by hardware-specific properties
+   such as the CPU L2 cache size. The default value should work reasonably well
+   across a wide variety of scenarios, but it may be possible to squeeze
+   faster run times out of mcl by tuning this parameter to the graphs that are
+   specific for your application domain.
+
+   }
+
 
 
 \'end{itemize}
+
+
 
 
 \sec{examples}{EXAMPLES}

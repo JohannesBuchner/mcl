@@ -106,6 +106,7 @@ mclProcParam* mclProcParamNew
    ;  mpp->printDigits     =  3
    ;  mpp->printMatrix     =  0
    ;  mpp->expansionVariant=  0
+   ;  mpp->n_entries       =  0
 
    ;  mpp->dimension       =  0
    ;  return mpp
@@ -151,6 +152,8 @@ mclMatrix*  mclProcess
 
    ;  if (!mxp->stats)                 /* size dependent init stuff */
       mclExpandParamDim(mxp, mxEven)
+
+   ;  mpp->n_entries = mclxNrofEntries(mxstart[0])
 
    ;  if (mpp->printMatrix)
       mclFlowPrettyPrint
@@ -216,11 +219,8 @@ mclMatrix*  mclProcess
       ;  mxEven  =  mxOdd
 
       ;  if (abort_loop || convergence)
-         {  if (XPNVB(mxp, XPNVB_PRUNING))
-            fprintf(fplog, "\n")
-         ;  break
-      ;  }
-      }
+         break
+   ;  }
 
       if (cachexp && ! *cachexp)
       *cachexp = mxOdd
@@ -287,24 +287,25 @@ int doIteration
    ;  double            homgAvg
    ;  mclv*             homgVec
    ;  int               n_cols         =  N_COLS(*mxin)
+   ;  dim               n_expand_entries = 0
+   ;  dim               n_graph_entries = mclxNrofEntries(mxin[0])
+   ;  dim               n_new_entries  =  0
+   ;  dim i
 
    ;  mxp->inflation = inflation
 
    ;  if (mclVerbosityStart == 0)
-      {  dim i
-
-      ;  if (log_gauge)
+      {  if (log_gauge)
          {  fprintf(fplog, " ite ")
          ;  if (!mxp->n_ethreads)
             for (i=0;i<n_cols/mxp->vector_progression;i++)
             fputc('-', fplog)
-         ;  fputs("  chaos  time hom(avg,lo,hi)", fplog)
+         ;  fputs("  chaos  time hom(avg,lo,hi) expa expb expc fmv", fplog)
+         ;  if (log_stats)
+            fputs("   E/V  dd    cls   olap avg", fplog)
+         ;  fputc('\n', fplog)
       ;  }
-         if (log_stats)
-         fputs("   E/V  dd    cls   olap avg", fplog)
-
-      ;  fputc('\n', fplog)
-      ;  mclVerbosityStart = 1
+         mclVerbosityStart = 1
    ;  }
 
       if (log_gauge)
@@ -313,8 +314,13 @@ int doIteration
    ;  *mxout  =   mclExpand(*mxin, mpp->expansionVariant ? mxstart : *mxin,  mxp)
    ;  homgAvg =   mxp->stats->homgAvg
 
+   ;  n_new_entries = mclxNrofEntries(mxout[0])
+
    ;  homgVec = mxp->stats->homgVec
    ;  mxp->stats->homgVec = NULL       /* fixme ugly ownership */
+
+   ;  for (i=0;i<N_COLS(mxout[0]);i++)
+      n_expand_entries += mxp->stats->bob_expand[i]
 
    ;  if (n_ite < 5)
       {  dim z
@@ -336,16 +342,22 @@ int doIteration
       if (log_gauge)
       fprintf
       (  fplog
-      ,  " %6.2f %5.2f %.2f/%.2f/%.2f"
+      ,  " %6.2f %5.2f %.2f/%.2f/%.2f %.2f %.2f %.2f %3d"
       ,  (double) stats->chaosMax
       ,  (double) stats->lap
       ,  (double) stats->homgAvg
       ,  (double) stats->homgMin
       ,  (double) stats->homgMax
+      /*
+      ,  (double) n_graph_entries
+      ,  (double) n_expand_entries
+      ,  (double) n_new_entries
+      */
+      ,  (double) ((1.0 * n_expand_entries) / (n_graph_entries+1))
+      ,  (double) ((1.0 * n_new_entries) / (n_graph_entries+1))
+      ,  (double) ((1.0 * n_new_entries) / (mpp->n_entries+1))
+      ,  (int) ((100.0 * stats->bob_sparse) / N_COLS(mxout[0]))
       )
-
-   ;  if (XPNVB(mxp,XPNVB_PRUNING))
-      mclExpandStatsPrint(stats, fplog)
 
    ;  if (log_stats || MCPVB(mpp, (MCPVB_CLUSTERS | MCPVB_DAG)))
       {  dim o, m, e
@@ -390,7 +402,7 @@ mclxWrite(*mxout, xfstdout, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
       ;  mclxFree(&clus)
    ;  }
 
-      if (mclVerbosityStart)
+      if (log_gauge)
       fputc('\n', fplog)
 
    ;  if (mpp->printMatrix)

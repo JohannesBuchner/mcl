@@ -1,6 +1,41 @@
 
 
-Fri 28 May 2010
+Fri, 20 Jul 2010
+
+   *  mcl-10-201 released.
+
+   *  The speed of the clustering program mcl was improved.
+      It now utilises vanilla matrix/vector multiplication where this is faster
+      than sparse matrix/vector multiplication. It chooses between an
+      O(k^2 + N) algorithm with very low hidden constant and an O(k^2) algorithm
+      with significantly higher hidden constant, using the algorithm with least
+      expected run-time.  Here k is a constant that bounds the number of
+      resources allocated to a node in the graph.
+
+   *  The speed optimization code acquired a more logical option for adjustment
+      (-sparse) with a sane default setting that should work satisfactorily
+      across a wide range of graphs.
+
+   *  The memory management code for vectors and sets was improved to work
+      better under malloc implementations that do not cope well with high
+      memory churn and large shrinking realloc requests.
+
+   *  mcx query acquired --edges, --edges-sorted, and -edges-hist options.
+      They respectively output an unsorted list, sorted list, and histogram of
+      edge weights. Despite 'edges' being part of the names of these option,
+      the output contains a weight for each arc. For undirected graphs each
+      edge will be represented twice.
+
+   *  mcx query acquired --output-table option. With -vary-threshold or
+      --vary-correlation the output will be a tab-separated table with row
+      names and without key.
+
+   *  Got rid of the version tag (i.e. 1.008). It never acquired any meaning.
+
+   *  Documentation was fixed and upated.
+
+
+Fri, 28 May 2010
 
    *  mcl-10-148 released.
 

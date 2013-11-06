@@ -151,25 +151,25 @@ mcxOptAnchor mclProcOptions[] =
    ,  "the rigid pruning threshold"
    }
 ,  {  "-P"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MCX_OPT_HASARG
    ,  PROC_OPT_PPRUNE
    ,  "<int>"
    ,  "(inverted) rigid pruning threshold (cf -z)"
    }
 ,  {  "-S"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MCX_OPT_HASARG
    ,  PROC_OPT_SELECT
    ,  "<int>"
    ,  "select down to <int> entries if needed"
    }
 ,  {  "-R"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MCX_OPT_HASARG
    ,  PROC_OPT_RECOVER
    ,  "<int>"
    ,  "recover to maximally <int> entries if needed"
    }
 ,  {  "-pct"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MCX_OPT_HASARG
    ,  PROC_OPT_PCT
    ,  "<pct>"
    ,  "try recovery if mass is less than <pct>"
@@ -187,13 +187,13 @@ mcxOptAnchor mclProcOptions[] =
    ,  "\tM!\tDallow <int> neighbours throughout computation"
    }
 ,  {  "-sparse"
-   ,  MCX_OPT_HIDDEN | MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG
    ,  PROC_OPT_SPARSE
    ,  "<num>"
    ,  "use sparse matrix-vector product implementation only"
    }
 ,  {  "--partition-selection"
-   ,  MCX_OPT_HIDDEN
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
    ,  PROC_OPT_PARTITION_SELECT
    ,  NULL
    ,  "use partition selection"
@@ -229,37 +229,37 @@ mcxOptAnchor mclProcOptions[] =
    ,  "intermediate iterand interpretation option"
    }
 ,  {  "-warn-pct"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MCX_OPT_HASARG
    ,  PROC_OPT_WARNPCT
    ,  "<pct>"
    ,  "warn if pruning reduces mass to <pct> weight"
    }
 ,  {  "-warn-factor"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MCX_OPT_HASARG
    ,  PROC_OPT_WARNFACTOR
    ,  "<int>"
    ,  "warn if pruning reduces entry count by <int>"
    }
 ,  {  "-dump"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MCX_OPT_HASARG
    ,  PROC_OPT_DUMP
    ,  "<mode>"
    ,  "<mode> in chr|ite|cls|dag (cf manual page)"
    }
 ,  {  "-dump-stem"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MCX_OPT_HASARG
    ,  PROC_OPT_DUMPSTEM
    ,  "<str>"
    ,  "use <str> to construct dump (file) names"
    }
 ,  {  "-dump-interval"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MCX_OPT_HASARG
    ,  PROC_OPT_DUMPINTERVAL
    ,  "<int>:<int>"
    ,  "only dump for iterand indices in this interval"
    }
 ,  {  "-dump-modulo"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MCX_OPT_HASARG
    ,  PROC_OPT_DUMPMODULO
    ,  "<int>"
    ,  "only dump if the iterand index modulo <int> vanishes"
@@ -375,15 +375,15 @@ mcxstatus mclProcessInit
          :  verbosity = anch->id  == PROC_OPT_VERBOSITY ? TRUE : FALSE
          ;  arg = opt->val
 
-         ;  if (strstr(arg, "pruning"))
-            bit |= XPNVB_PRUNING
          ;  if (strstr(arg, "cls"))
             bit |= XPNVB_CLUSTERS
          ;  if (strstr(arg, "all"))
-               bit = ~0
-            ,  mcxLogLevelSetByString("x")
+            {  bit = ~0
+            ;  if (!verbosity)
+               mcxLogLevelSetByString("x")
+         ;  }
 
-         ;  if (!bit)
+            if (!bit)
             mcxWarn(me, "no match in verbosity string <%s>", opt->val)
 
          ;  if (verbosity)
@@ -421,20 +421,16 @@ mcxstatus mclProcessInit
          :  i = atoi(opt->val)
          ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_0, NULL, NULL)
          ;  if (vok)
-            {  mpp->n_ithreads = i
-            ;  BIT_OFF(mxp->verbosity, XPNVB_PRUNING)
-         ;  }
-            break
+            mpp->n_ithreads = i
+         ;  break
          ;
 
             case PROC_OPT_ETHREADS
          :  i = atoi(opt->val)
          ;  vok = CHB(anch->tag, 'i', &i, intGq, &i_0, NULL, NULL)
          ;  if (vok)
-            {  mxp->n_ethreads = i
-            ;  BIT_OFF(mxp->verbosity, XPNVB_PRUNING)
-         ;  }
-            break
+            mxp->n_ethreads = i
+         ;  break
          ;
 
             case PROC_OPT_PPRUNE

@@ -163,7 +163,7 @@ static mcxstatus residueMain
       {  mcxErr(me, "Ranges are identical - no residue to work with!")
       ;  mcxErr(me, "You still get a <%ld>x<0> matrix", (long) N_COLS(cl))
       ;  clmxres = mclxAllocZero(mclvInit(NULL), mclvCopy(NULL, cl->dom_cols))
-      ;  mclxWrite(clmxres, xfrpm, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
+      ;  mclxWrite(clmxres, xfout, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
       ;  mcxExit(0)
    ;  }
       else

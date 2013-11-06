@@ -1,5 +1,5 @@
 .\" Copyright (c) 2010 Stijn van Dongen
-.TH "mcx q" 1 "28 May 2010" "mcx q 1\&.008, 10-148" "USER COMMANDS "
+.TH "mcx q" 1 "20 Jul 2010" "mcx q 10-201" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -54,6 +54,10 @@ in the \fBmcx\fP manual page\&.
 \fB[--clcf\fP (\fIinclude clustering coefficient analysis\fP)\fB]\fP
 \fB[-div\fP <num> (\fIcluster size separating value\fP)\fB]\fP
 \fB[--dim\fP (\fIreport native format and dimensions\fP)\fB]\fP
+\fB[--edges\fP (\fIoutput all arc weights, unsorted\fP)\fB]\fP
+\fB[--edges-sorted\fP (\fIoutput all arc weights, sorted\fP)\fB]\fP
+\fB[-edges-hist\fP <start,end,step,scale (\fIoutput arc weight histogram\fP)\fB]\fP
+\fB[--output-table\fP (\fIoutput logical tab separated table without key\fP)\fB]\fP
 \fB[-t\fP <num> (\fInumber of threads to use\fP)\fB]\fP
 \fB[-icl\fP <fname> (\fIinput clustering\fP)\fB]\fP
 \fB[-tf\fP spec (\fIapply tf-spec to input matrix\fP)\fB]\fP
@@ -99,6 +103,29 @@ found in the tab file\&.
 This will report the matrix format (either interchange or binary)
 and the matrix dimensions\&. For a graph the two reported dimensions
 should be equal\&.
+.in -2m
+
+.ZI 2m "\fB--edges\fP (\fIoutput all arc weights, unsorted\fP)"
+\&
+'in -2m
+.ZI 2m "\fB--edges-sorted\fP (\fIoutput all arc weights, sorted\fP)"
+\&
+'in -2m
+.ZI 2m "\fB-edges-hist\fP <start,end,step,scale (\fIoutput arc weight histogram\fP)"
+\&
+'in -2m
+'in +2m
+\&
+.br
+These options are fairly self documenting\&. The result of \fB-edges-hist\fP
+is a tab separated table of bin offsets and bin counts\&.
+.in -2m
+
+.ZI 2m "\fB--output-table\fP (\fIoutput logical tab separated table without key\fP)"
+\&
+.br
+This option causes table output such as provided by \fB--vary-correlation\fP
+to be output in a logical tab-separated format rather than pretty-printed\&.
 .in -2m
 
 .ZI 2m "\fB-vary-threshold\fP <start,end,step,scale> (\fIanalyze graphs at similarity cutoffs\fP)"

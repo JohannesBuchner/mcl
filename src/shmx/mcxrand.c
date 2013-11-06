@@ -448,7 +448,7 @@ static dim do_add
 (  mclx* mx
 ,  dim N_add
 ,  dim N_edge
-,  double l_mean
+,  double *l_mean
 ,  double l_radius
 ,  double l_sdev
 ,  double l_min
@@ -498,10 +498,11 @@ static dim do_add
                ;  val = (val * 2 * l_radius) - l_radius
                                  /* map it back */
             ;  }
-               val += l_mean
+               val += l_mean[0]
          ;  }
             while (l_min < l_max && (val < l_min || val > l_max))
       ;  }
+               /* docme: uniform */
          else
          {  val = (((unsigned long) random()) * 1.0) / RAND_MAX
          ;  if (skew)
@@ -550,6 +551,7 @@ int main
    ;  double g_sdev = 0.0
    ;  double g_min  = 1.0
    ;  double g_max  = 0.0
+   ;  mcxbool do_gaussian = FALSE
 
    ;  dim i = 0
 
@@ -642,6 +644,7 @@ int main
 
             case MY_OPT_G_MEAN
          :  g_mean = atof(opt->val)
+         ;  do_gaussian = TRUE
          ;  break
          ;  
 
@@ -753,7 +756,7 @@ int main
          N_edge +=   do_add
                      (  mx
                      ,  N_add  ,  N_edge
-                     ,  g_mean ,  g_radius ,  g_sdev ,  g_min ,  g_max
+                     ,  do_gaussian ? &g_mean : NULL,  g_radius ,  g_sdev ,  g_min ,  g_max
                      ,  skew
                      ,  e_min ,  e_max
                      )

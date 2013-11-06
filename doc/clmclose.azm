@@ -34,6 +34,8 @@
    \synoptopt{--write-count}{output component count}
    \synoptopt{--write-sizes}{output component sizes (default)}
    \synoptopt{--write-cc}{output components as clustering}
+   \synoptopt{--write-block}{output graph restricted to -dom argument}
+   \synoptopt{--write-blockc}{output graph complement of -dom argument}
    \synoptopt{-cc-bound}{num}{select components with size at least num}
    \shared_synoptopt{-tf}
    \stdsynopt
@@ -82,13 +84,17 @@
    {\defopt{--write-count}{output component count}}
    {\defopt{--write-sizes}{output component sizes (default)}}
    {\defopt{--write-cc}{output components as clustering}}
+   {\defopt{--write-block}{output graph restricted to -dom argument}}
+   {\defopt{--write-blockc}{output graph complement of -dom argument}}
 }
 \car{
    The default behaviour is currently to output the sizes of the
    connected components. It is also possible to simply output
    the number of components with \genopt{--write-count} or to
    write the components as a clustering in mcl format with
-   \genopt{-write-cc}.
+   \genopt{-write-cc}. Even more options exist: it is possible
+   to output the restriction of the input graph to a domain, or
+   to output the complement of this restriction.
    }
 
 \item{\defopt{--is-undirected}{omit graph undirected check}}

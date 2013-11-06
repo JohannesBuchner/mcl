@@ -650,25 +650,21 @@ mclx* clmUGraphComponents
    ;  mcxbool project = dom ? TRUE : FALSE
    ;  mclv* wave1 = NULL
    ;  mclx* coco                                /* connected components */
-      ,  *mx
 
    ;  if (!mxin || !mclxIsGraph(mxin))
       return NULL
 
-   ;  mx = mclxCopy(mxin)
-   ;  mclxAddTranspose(mx, 0.0)
-
                         /* construct a single-column matrix */
    ;  if (!project)
       {  dom = mclxAllocZero
-               (mclvInsertIdx(NULL, 0, 1.0), mclvCopy(NULL, mx->dom_rows))
-      ;  mclvCopy(dom->cols+0, mx->dom_rows)
+               (mclvInsertIdx(NULL, 0, 1.0), mclvCopy(NULL, mxin->dom_rows))
+      ;  mclvCopy(dom->cols+0, mxin->dom_rows)
    ;  }
 
       coco  =  mclxAllocZero
-               (mclvCanonical(NULL, N_COLS(mx), 1.0), mclvCopy(NULL, mx->dom_rows))
+               (mclvCanonical(NULL, N_COLS(mxin), 1.0), mclvCopy(NULL, mxin->dom_rows))
 
-   ;  mclgUnionvReset(mx)
+   ;  mclgUnionvReset(mxin)
 
    ;  for (c=0;c<N_COLS(dom);c++)
       {  mclv* domvec = mclvClone(dom->cols+c)
@@ -688,12 +684,12 @@ mclx* clmUGraphComponents
             mcxDie(1, "mclcComponents", "ran out of space, fix me")
 
          ;  mclvInsertIdx(coco->cols+n_cls, cidx, 1.0)
-         ;  mclgUnionvInitNode(mx, cidx)
+         ;  mclgUnionvInitNode(mxin, cidx)
 
          ;  wave1 = mclvCopy(wave1, coco->cols+n_cls)
 
          ;  while (wave1->n_ivps)
-            {  wave2 = mclgUnionv(mx, wave1, domvec, SCRATCH_UPDATE, NULL)
+            {  wave2 = mclgUnionv(mxin, wave1, domvec, SCRATCH_UPDATE, NULL)
             ;  mcldMerge(wave2, coco->cols+n_cls, coco->cols+n_cls)
                                                 /* fixme; consider getting rid of merge */
             ;  mclvFree(&wave1)
@@ -713,9 +709,7 @@ mclx* clmUGraphComponents
    ;  mclxColumnsRealign(coco, mclvSizeRevCmp)
    ;  mclvFree(&wave1)
 
-   ;  mclgUnionvReset(mx)
-   ;  mclxFree(&mx)
-
+   ;  mclgUnionvReset(mxin)
    ;  return coco
 ;  }
 

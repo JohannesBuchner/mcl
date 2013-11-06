@@ -13,7 +13,7 @@ my %leaf_to_top = ();
 
 my $landscape = 0;
 my $debug = 0;
-my $cutoff = 0;
+my $cutoff = undef;
 my $help = 0;
 
 
@@ -54,6 +54,8 @@ if ($help) {
 }
 
 
+my $prev_val = 1.0;
+
 while (<>) {
 
    my ($x, $y, $val) = ("", "", 0);
@@ -64,9 +66,14 @@ while (<>) {
    elsif (/(\S+)\s+(\S+)\s+(\S+)/) {
       ($x, $y, $val) = ($1, $2, +$3);
    }
+   elsif (/(\S+)\s+(\S+)/) {
+      ($x, $y, $val) = ($1, $2, $prev_val);
+   }
    else {
       next;
    }
+
+   $prev_val = $val;
 
    print STDERR '.' if ++$i % 1000 == 0;
    if ($i % 40000 == 0) {
@@ -143,6 +150,7 @@ while (<>) {
 
    delete($top_to_leaf{$topy->{name}});
    delete($top_to_leaf{$topx->{name}});
+
    $top_to_leaf{$topxy->{name}} = [@$all_leaves_x, @$all_leaves_y];
 
    delete($top{$topy->{name}});
@@ -318,7 +326,7 @@ if ($landscape) {
 }
 
 
-elsif ($cutoff) {
+elsif (defined($cutoff)) {
    for my $t (@tops) {
       print_flat_clustering($top{$t}, $cutoff)
       # print Dumper($top{$t});

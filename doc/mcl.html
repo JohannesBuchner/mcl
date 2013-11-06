@@ -79,9 +79,9 @@ margin-right: 8%;
 </head>
 <body>
 <p style="text-align:right">
-28 May 2010&nbsp;&nbsp;&nbsp;
+20 Jul 2010&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcl.ps"><b>mcl</b></a>
-1.008, 10-148
+10-201
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -110,45 +110,49 @@ margin-right: 8%;
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">7.</div></div>
 <div class=" item_text " style="margin-left:4em">
-<a class="intern" href="#examples">EXAMPLES</a>
+<a class="intern" href="#impl">IMPLEMENTATION OPTIONS</a>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">8.</div></div>
 <div class=" item_text " style="margin-left:4em">
-<a class="intern" href="#applicability">APPLICABILITY</a>
+<a class="intern" href="#examples">EXAMPLES</a>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">9.</div></div>
 <div class=" item_text " style="margin-left:4em">
-<a class="intern" href="#files">FILES</a>
+<a class="intern" href="#applicability">APPLICABILITY</a>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">10.</div></div>
 <div class=" item_text " style="margin-left:4em">
-<a class="intern" href="#environment">ENVIRONMENT</a>
+<a class="intern" href="#files">FILES</a>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">11.</div></div>
 <div class=" item_text " style="margin-left:4em">
-<a class="intern" href="#diagnostics">DIAGNOSTICS</a>
+<a class="intern" href="#environment">ENVIRONMENT</a>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">12.</div></div>
 <div class=" item_text " style="margin-left:4em">
-<a class="intern" href="#bugs">BUGS</a>
+<a class="intern" href="#diagnostics">DIAGNOSTICS</a>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">13.</div></div>
 <div class=" item_text " style="margin-left:4em">
-<a class="intern" href="#author">AUTHOR</a>
+<a class="intern" href="#bugs">BUGS</a>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">14.</div></div>
 <div class=" item_text " style="margin-left:4em">
-<a class="intern" href="#history">HISTORY/CREDITS</a>
+<a class="intern" href="#author">AUTHOR</a>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">15.</div></div>
 <div class=" item_text " style="margin-left:4em">
-<a class="intern" href="#seealso">SEE ALSO</a>
+<a class="intern" href="#history">HISTORY/CREDITS</a>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">16.</div></div>
 <div class=" item_text " style="margin-left:4em">
-<a class="intern" href="#references">REFERENCES</a>
+<a class="intern" href="#seealso">SEE ALSO</a>
 </div>
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">17.</div></div>
+<div class=" item_text " style="margin-left:4em">
+<a class="intern" href="#references">REFERENCES</a>
+</div>
+<div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">18.</div></div>
 <div class=" item_text " style="margin-left:4em">
 <a class="intern" href="#notes">NOTES</a>
 </div>
@@ -190,7 +194,7 @@ sequences, such as <b>-tf</b>&nbsp;<b>'gq(0.7),add(-0.7)'</b>. This causes all
 remaining edge weights to be shifted to the range [0-0.3], assuming that the
 input contains correlations. Many more transformations are supported, as
 documented in <a class="local sibling" href="mcxio.html">mcxio</a>. Examples of graph-wide transformations are
-<tt>#knn(&lt;num&gt;)</tt> and <tt>#ceilnb(&lt;num&gt;)</tt>. The first only keeps those edges
+<tt>'#knn(&lt;num&gt;)'</tt> and <tt>'#ceilnb(&lt;num&gt;)'</tt>. The first only keeps those edges
 that occur in the list of top-<tt>&lt;num&gt;</tt> edges of highest weight in both of
 its incident nodes. The second removes edges from nodes of highest degree
 first, proceeding until all node degrees satisfy the given threshold.
@@ -233,25 +237,22 @@ option.</p>
 <b>mcl</b> &lt;-|fname&gt;
 <a class="intern" href="#opt-I"><b>[-I</b> &lt;num&gt; (<i>inflation</i>)<b>]</b></a>
 <a class="intern" href="#opt-o"><b>[-o</b> &lt;str&gt; (<i>fname</i>)<b>]</b></a>
-<a class="intern" href="#opt-scheme"><b>[-scheme</b> &lt;int&gt; (<i>resource scheme</i>)<b>]</b></a>
 </p>
 <p style="margin-bottom:0" class="asd_par">
 These options are sufficient in 95 percent of the cases or more. The first
 argument must be the name of a file containing a graph/matrix in the mcl
 input format, or a hyphen to read from STDIN. With respect to clustering,
-the <a class="intern" href="#opt-I"><b>-I</b> option</a> and <a class="intern" href="#opt-scheme"><b>-scheme</b>
-option</a> are foremost relevant.</p>
+the <a class="intern" href="#opt-I"><b>-I</b> option</a> is foremost relevant.
+</p>
 <p style="margin-bottom:0" class="asd_par">
 The full listing of <b>mcl</b> options is shown further below, separated
 into parts corresponding with functional aspects such
 as clustering, threading, verbosity, network preprocessing, pruning and resource management,
 automatic output naming, and dumping.
-The <b>-scheme</b> parameter provides a single access point to the
-pruning options, and should be sufficient in most cases.</p>
+</p>
 <p style="margin-bottom:0"><b>Baseline clustering options</b><br>
 <a class="intern" href="#opt-I"><b>[-I</b> &lt;num&gt; (<i>inflation</i>)<b>]</b></a>
 <a class="intern" href="#opt-o"><b>[-o</b> &lt;fname&gt; (<i>fname</i>)<b>]</b></a>
-<a class="intern" href="#opt-scheme"><b>[-scheme</b> &lt;num&gt; (<i>resource scheme</i>)<b>]</b></a>
 </p>
 <p style="margin-bottom:0"><b>Output options</b><br>
 <a class="intern" href="#opt-odir"><b>[-odir</b> &lt;dname&gt; (<i>directory</i>)<b>]</b></a>
@@ -278,9 +279,6 @@ pruning options, and should be sufficient in most cases.</p>
 <a class="intern" href="#opt-ph"><b>[-ph</b> &lt;num&gt; (<i>pre-inflation, max-bound</i>)<b>]</b></a>
 <a class="intern" href="#opt-if"><b>[-if</b> &lt;num&gt; (<i>start-inflation</i>)<b>]</b></a>
 <a class="intern" href="#opt--discard-loops"><b>[--discard-loops=</b>&lt;y/n&gt; (<i>discard y/n loops in input</i>)<b>]</b></a>
-<a class="intern" href="#opt--shadow"><b>[--shadow</b> &lt;mode&gt; (<i>modulation type</i>)<b>]</b></a>
-<a class="intern" href="#opt-shadow-s"><b>[-shadow-s</b> &lt;num&gt; (<i>boost factor</i>)<b>]</b></a>
-<a class="intern" href="#opt--shadow-vl"><b>[--shadow-vl</b> (<i>shadow distant nodes</i>)<b>]</b></a>
 <a class="intern" href="#opt--sum-loops"><b>[--sum-loops</b> (<i>set loops to sum of other arcs weights</i>)<b>]</b></a>
 <a class="intern" href="#opt-c"><b>[-c</b> &lt;num&gt; (<i>reweight loops</i>)<b>]</b></a>
 </p>
@@ -291,7 +289,6 @@ pruning options, and should be sufficient in most cases.</p>
 <a class="intern" href="#opt--check-connected"><b>[--check-connected=</b>&lt;y/n&gt; (<i>analyze components</i>)<b>]</b></a>
 <a class="intern" href="#opt--analyze"><b>[--analyze=</b>&lt;y/n&gt; (<i>performance criteria</i>)<b>]</b></a>
 <a class="intern" href="#opt--show-log"><b>[--show-log=</b>&lt;y/n&gt; (<i>show log</i>)<b>]</b></a>
-<a class="intern" href="#opt--append-log"><b>[--append-log=</b>&lt;y/n&gt; (<i>append log</i>)<b>]</b></a>
 </p>
 <p style="margin-bottom:0"><b>Verbosity options</b><br>
 <a class="intern" href="#opt-q"><b>[-q</b> &lt;spec&gt; (<i>log levels</i>)<b>]</b></a>
@@ -315,9 +312,6 @@ pruning options, and should be sufficient in most cases.</p>
 <a class="intern" href="#opt-dump-modulo"><b>[-dump-modulo</b> &lt;int&gt; (<i>dump modulo</i>)<b>]</b></a>
 <a class="intern" href="#opt-dump-stem"><b>[-dump-stem</b> &lt;stem&gt; (<i>dump file stem</i>)<b>]</b></a>
 <a class="intern" href="#opt-dump"><b>[-dump</b> &lt;str&gt; (<i>type</i>)<b>]</b></a>
-<a class="intern" href="#opt-dump-subi"><b>[-dump-subi</b> &lt;spec&gt; (<i>index list for submatrix dump</i>)<b>]</b></a>
-<a class="intern" href="#opt-dump-subd"><b>[-dump-subd</b> &lt;spec&gt; (<i>domain list for submatrix dump</i>)<b>]</b></a>
-<a class="intern" href="#opt-dump-dom"><b>[-dump-dom</b> &lt;fname&gt; (<i>domain matrix file</i>)<b>]</b></a>
 <a class="intern" href="#opt-digits"><b>[-digits</b> &lt;int&gt; (<i>printing precision</i>)<b>]</b></a>
 <a class="intern" href="#opt--write-binary"><b>[--write-binary</b> (<i>write matrices in binary format</i>)<b>]</b></a>
 </p>
@@ -332,6 +326,9 @@ pruning options, and should be sufficient in most cases.</p>
 <a class="intern" href="#opt-ax"><b>[-ax</b> (<i>show output suffix and exit</i>)<b>]</b></a>
 <a class="intern" href="#opt--show-schemes"><b>[--show-schemes</b> (<i>show resource schemes</i>)<b>]</b></a>
 </p>
+<p style="margin-bottom:0"><b>Implementation options</b><br>
+<a class="intern" href="#opt-sparse"><b>[-sparse</b> &lt;int&gt; (<i>sparse matrix multiplication threshold</i>)<b>]</b></a>
+</p>
 <p style="margin-bottom:0"><b>Pruning options</b><br>
 The following options all pertain to the various pruning strategies that can
 be employed by <b>mcl</b>. They are described in the <a class="intern" href="#pruneoptions">PRUNING OPTIONS</a>
@@ -339,16 +336,15 @@ section, accompanied by a description of the mcl pruning strategy.
 If your graphs are huge
 and you have an appetite for tuning, have a look at the following:</p>
 <p style="margin-bottom:0" class="asd_par">
+<a class="intern" href="#opt-scheme"><b>[-scheme</b> &lt;int&gt; (<i>resource scheme</i>)<b>]</b></a>
+<a class="intern" href="#opt-resource"><b>[-resource</b> &lt;int&gt; (<i>per-node resource maximum</i>)<b>]</b></a>
 <a class="intern" href="#opt-p"><b>[-p</b> &lt;num&gt; (<i>cutoff</i>)<b>]</b></a>
 <a class="intern" href="#opt-P"><b>[-P</b> &lt;int&gt; (<i>1/cutoff</i>)<b>]</b></a>
 <a class="intern" href="#opt-S"><b>[-S</b> &lt;int&gt; (<i>selection number</i>)<b>]</b></a>
 <a class="intern" href="#opt-R"><b>[-R</b> &lt;int&gt; (<i>recovery number</i>)<b>]</b></a>
 <a class="intern" href="#opt-pct"><b>[-pct</b> &lt;int&gt; (<i>recover percentage</i>)<b>]</b></a>
-<a class="intern" href="#opt-my-scheme"><b>[-my-scheme</b> &lt;int&gt; (<i>tag custom scheme</i>)<b>]</b></a>
-<a class="intern" href="#opt-resource"><b>[-resource</b> &lt;int&gt; (<i>per-node resource maximum</i>)<b>]</b></a>
 <a class="intern" href="#opt-warn-pct"><b>[-warn-pct</b> &lt;int&gt; (<i>prune warn percentage</i>)<b>]</b></a>
 <a class="intern" href="#opt-warn-factor"><b>[-warn-factor</b> &lt;int&gt; (<i>prune warn factor</i>)<b>]</b></a>
-<a class="intern" href="#opt-nj"><b>[-nj</b> &lt;int&gt; (<i>jury window index</i>)<b>]</b></a>
 </p>
 <p style="margin-bottom:0" class="asd_par">
 The first argument of <b>mcl</b> must be a file name, but some options are allowed
@@ -535,54 +531,6 @@ Look at the <a class="intern" href="#opt-ap"><b>-ap</b>&nbsp;<i>prefix</i></a> o
 automatic naming constructions employed by <b>mcl</b> if the <b>-o</b> option is
 not used.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-shadow"></a><b>-shadow</b> &lt;mode&gt; (<i>apply shadowing</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-shadow-s"></a><b>-shadow-s</b> &lt;num&gt; (<i>boost factor (experimental)</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--shadow-vl"></a><b>--shadow-vl</b> (<i>shadow distant nodes</i>)</div>
-<div class=" item_text " style="margin-left:2em">
-<p style="margin-bottom:0"><b>EXPERIMENTAL</b><br>
-<i>These options are intended and useful for hierarchical
-clustering with</i> <a class="local sibling" href="mclcm.html">mclcm</a>.
-<b>--shadow-vl</b> is the same as <b>-shadow</b>&nbsp;<b>vl</b>
-and is at present the best mode to choose.
-</p>
-<p style="margin-bottom:0" class="asd_par">
-Use these to weaken the connectivity of certain
-classes of nodes. This means that the effect of the edges
-in which they participate on the final clustering result is diminished.
-This is done such that the extent to which a node exhibits certain
-characteristics is correlated with the extent to which its connectivity is
-weakened. The different types of characteristics that can be regulated
-are</p>
-<div class=" itemize " style="margin-top:1em; font-size:100%">
-<div class=" item_compact"><div class=" item_leftalign nowrap " ><b>vl</b></div></div>
-<div class=" item_text " style="margin-left:4em">
-value low - nodes for which the average value of its edges
-is low compared with the same number across its neighbours.
-</div>
-<div class=" item_compact"><div class=" item_leftalign nowrap " ><b>vh</b></div></div>
-<div class=" item_text " style="margin-left:4em">
-value high - nodes for which the average value of its edges
-is high compared with the same number across its neighbours.
-</div>
-<div class=" item_compact"><div class=" item_leftalign nowrap " ><b>el</b></div></div>
-<div class=" item_text " style="margin-left:4em">
-edge low - nodes for which the number of neighbours
-is low compared with the same number across its neighbours.
-</div>
-<div class=" item_compact"><div class=" item_leftalign nowrap " ><b>eh</b></div></div>
-<div class=" item_text " style="margin-left:4em">
-edge high - nodes for which the number of neighbours
-is high compared with the same number across its neighbours.
-</div>
-</div>
-<p style="margin-bottom:0" class="asd_par">The characteristics above, e.g. <b>vl</b>, correspond to the modes
-that can be passed to the <b>-shadow</b> argument. The first mode <b>vl</b>
-is the one most likely to be useful. Combining different modes is possible
-but may lead to unbalanced clusterings. Using the mode <b>el</b> in <b>mclcm</b>
-may similarly lead to unbalanced hierachies.</p>
-<p style="margin-bottom:0" class="asd_par">
-The boost factor can be set e.g. to 2.0 to increase the effect of shadowing.
-The default setting is 1.0.
-</p>
-</div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-c"></a><b>-c</b> &lt;num&gt; (<i>reweight loops</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--sum-loops"></a><b>--sum-loops</b> (<i>set loops to sum of other arcs weights</i>)</div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
@@ -647,9 +595,7 @@ more accurate. The default scheme is 4. When <b>mcl</b> is done, it will give a
 grade (the so called <i>jury synopsis</i>) to the appropriateness of the
 scheme used. <i>A low grade does not necessarily imply that the
 resulting clustering is bad</i> - but anyway, a low grade should be reason
-to try for a higher scheme. The grades are listed in the
-<a class="intern" href="#pruneoptions">PRUNING OPTIONS</a> section under the
-<a class="intern" href="#opt-nj"><b>-nj</b> option</a>.
+to try for a higher scheme.
 </p>
 <p style="margin-bottom:0" class="asd_par">
 Use the <b>-resource</b>&nbsp;<i>&lt;num&gt;</i> option to cap for each nodes the number of
@@ -830,9 +776,8 @@ Values to try are normally in the range <tt>[2.0,10.0]</tt>.</p>
 The <b>-ph</b> option is special in that it does not rescale
 columns to be stochastic. Instead, it rescales columns so that
 the maximum value found in the column stays the same after
-inflation was applied. This is for use in conjunction with
-<b>--shadow</b>=<i>vl</i>, as the latter option is affected by
-absolute differences in edge weights.
+inflation was applied. There is little significance to this,
+and what little there is is undocumented.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-if"></a><b>-if</b> &lt;num&gt; (<i>start-inflation</i>)</div></div>
@@ -865,20 +810,6 @@ See the <b>-dump</b>&nbsp;<i>str</i> option below.</p>
 <p style="margin-top:0em; margin-bottom:0em">
 Set the the stem for file names of dumped
 objects (default <i>mcl</i>). See the <b>-dump</b>&nbsp;<i>str</i> option below.</p>
-</div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-dump-subi"></a><b>-dump-subi</b> &lt;spec&gt; (<i>index list for submatrix dump</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-dump-subd"></a><b>-dump-subd</b> &lt;spec&gt; (<i>domain list for submatrix dump</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-dump-dom"></a><b>-dump-dom</b> &lt;fname&gt; (<i>domain matrix file</i>)</div>
-<div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
-<b>-dump-subi</b> specifies a range of indices which will be
-used to select the extended principal submatrix.
-Argument <i>spec</i> can be a comma-separated
-list of single integers and integer ranges. Ranges are denoted by
-two integers separated by a hyphen.</p>
-<p style="margin-bottom:0" class="asd_par">
-If <b>-dump-dom</b> is used and specifies a matrix file,
-the indices specified in the <b>-dump-subd</b> option should index
-columns in that matrix. These columns are merged and added to the
-list of entries used in selecting the extended principal submatrix.</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-dump"></a><b>-dump</b> &lt;str&gt; (<i>type</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
@@ -1026,12 +957,6 @@ With this mode turned on, <b>mcl</b> will reread the input matrix
 and compute a few performance criteria and attach them to
 the output file. Off by default.</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--append-log"></a><b>--append-log</b>=&lt;y/n&gt; (<i>append log</i>)</div></div>
-<div class=" item_text " style="margin-left:2em">
-<p style="margin-top:0em; margin-bottom:0em">
-Appends a log with the process characteristics to the output file.
-Off by default.</p>
-</div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--show-log"></a><b>--show-log</b>=&lt;y/n&gt; (<i>show log</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
@@ -1090,7 +1015,7 @@ Show current settings for tunable parameters.
 <a name="pruneoptions"></a>
 <h2>PRUNING OPTIONS</h2>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
-<div class=" item_cascade item_leftalign nowrap" ><a name="opt-p"></a><b>-p</b> &lt;num&gt; (<i>cutoff</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-P"></a><b>-P</b> &lt;int&gt; (<i>1/cutoff</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-S"></a><b>-S</b> &lt;int&gt; (<i>selection number</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-R"></a><b>-R</b> &lt;int&gt; (<i>recover number</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-pct"></a><b>-pct</b> &lt;pct&gt; (<i>recover percentage</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-my-scheme"></a><b>-my-scheme</b> &lt;int&gt; (<i>tag custom scheme</i>)</div>
+<div class=" item_cascade item_leftalign nowrap" ><a name="opt-p"></a><b>-p</b> &lt;num&gt; (<i>cutoff</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-P"></a><b>-P</b> &lt;int&gt; (<i>1/cutoff</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-S"></a><b>-S</b> &lt;int&gt; (<i>selection number</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-R"></a><b>-R</b> &lt;int&gt; (<i>recover number</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-pct"></a><b>-pct</b> &lt;pct&gt; (<i>recover percentage</i>)</div>
 <div class=" item_text " style="margin-left:2em">
 After computing a new (column stochastic) matrix vector during expansion
 (which is matrix multiplication c.q. squaring), the vector is
@@ -1149,14 +1074,6 @@ generate the same output clusterings. Use <b>clm dist</b> to compare output
 clusterings for different resource parameters. Refer to <a class="local sibling" href="clmdist.html">clm dist</a>
 for a discussion of this issue.
 </p>
-<p style="margin-bottom:0" class="asd_par">
-The <b>-my-scheme</b>&nbsp;<b>n</b> option sets a tag that is used in constructing
-the default output naming file. If not used, <b>mcl</b> will create
-a relatively long string describing the settings of the
-<b>-P</b>, <b>-pct</b>, <b>-R</b>, and <b>-S</b> parameters,
-e.g. <b>P600Q85R1000S1200</b> (where <b>Q</b> tags the <i>pct</i> setting).
-If used, mcl will simply use the tag <b>s</b><i>n</i>.
-</p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-warn-pct"></a><b>-warn-pct</b> &lt;int&gt; (<i>prune warn percentage</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-warn-factor"></a><b>-warn-factor</b> &lt;int&gt; (<i>prune warn factor</i>)</div>
 <div class=" item_text " style="margin-left:2em">
@@ -1184,114 +1101,36 @@ Pruning verbosity mode causes <b>mcl</b> to emit several statistics related to
 the pruning process, each of which is described below. Use
 <b>-v</b>&nbsp;<b>explain</b> to get explanatory headers in the output as well
 (or simply use <b>-v</b>&nbsp;<b>all</b>).
-<p style="margin-bottom:0"><b>Selection and recovery</b><br>
-The number of selections and recoveries <b>mcl</b> had to perform during each
-iteration is shown. It also shows the number of vectors for which the
-mass after final pruning was below the fraction defined by the
-<a class="intern" href="#opt-pct"><b>-pct</b> option</a> as a percentage (default probably 90
-or 95).
-</p>
-<p style="margin-bottom:0"><b>Initial and pruned vector footprint distributions</b><br>
-The distribution of the vector footprints (i.e. the number of nonzero
-entries) before and after pruning is shown. This is assembled in a terse
-(horrid if you will) format, looking as follows (with some context
-stripped, noting that the data for three expansion steps is shown):
-</p>
-<div class="verbatim">----------------------------------------------------
- mass percentages  | distr of vec footprints       |
-         |         |____ expand ___.____ prune ____|
-  prune  | final   |e4   e3   e2   |e4  e3   e2    |
-all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|
----------.---------.---------------.---------.-----.
- 98 88 86  98 91 86 _________022456 ___________0234
- 98 89 86  98 94 91 _______00245678 ___________0234
- 98 90 89  99 95 94 _______00235568 ___________0234
- ...</div>
-<p style="margin-top:0em; margin-bottom:0em">
-This particular output was generated (and truncated after three rounds of
-expansion and inflation) from clustering a protein graph on 9058 nodes
-with settings <b>-I</b>&nbsp;<b>1.4</b>, <b>-P</b>&nbsp;<b>2000</b>, <b>-S</b>&nbsp;<b>500</b>,
-<b>-R</b>&nbsp;<b>600</b>, and <b>-pct</b>&nbsp;<b>95</b>.
-</p>
-<p style="margin-bottom:0" class="asd_par">
-The header entries 8532c85.. indicate thresholds going from 80000, 50000,
-20000, 12500, 8000, all the way down to 300, 200, and 125. The character 'c'
-signifies the base 1.25 (for no apparent reason). The second entry '2'
-(after '0') on the first line signifies that roughly 20 percent of all the
-vectors had a footprint (#nonzero entries) in excess of 800 entries.
-Likewise, 40 percent had a footprint in excess of 300 entries. The '0'
-entries signify a fraction somewhere below 5 percent, and the '@' entries
-signify a fraction somewhere above 95 percent. </p>
-<p style="margin-bottom:0" class="asd_par">
-Two columns are listed, one for the expansion vector footprints
-(i.e. after squaring), and the other for the vector
-footprints <i>right after initial pruning took place</i> (i.e. before
-selection and recovery, after either adaptive or rigid pruning).
-This may give an idea of the soundness of the initial pruning
-process (overly severe, or overly mild), and the extent
-to which you want to apply selection and/or recovery.
-</p>
-<p style="margin-bottom:0"><b>Initial and final mass windows</b><br>
-The mass averages of the pruned vectors after the first selection
-stage are shown, and the mass averages of the vectors as <i>finally
-computed</i>, i.e. after selection and recovery. Note that the latter
-corresponds to a different stage than what is shown for the vector
-footprints, if either selection or recovery is turned on.
-For both cases, three averages are shown: the average over all vectors,
-the average over the worst x cases, and the average over the worst y
-cases. The mass averages are shown as percentages: '98' on the first
-line under the 'prune/all' column means that overall 98 percent of the
-stochastic mass of the matrix was kept after pruning.
-</p>
-<p style="margin-bottom:0" class="asd_par">
-This example demonstrates that many entries could be
-removed while retaining much of the stochastic mass. The effect of the
-recovery (<b>-R</b>) parameter is also clear: the final averages are
-higher than the initial averages, as a result of <b>mcl</b> undoing some
-overenthousiastic pruning.
-</p>
-<p style="margin-bottom:0" class="asd_par">
-An average over the worst k cases is called a window of width k;
-internally, <b>mcl</b> tracks many more such windows. The result of this can
-be seen when using the <a class="intern" href="#opt--append-log"><b>--append-log</b>=<b>y</b></a> option
-(which appends a log to the cluster output) or the
-<a class="intern" href="#opt--show-log"><b>--show-log</b>=<b>y</b> option</a>
-(which sends the log to STDOUT).
-From a fixed set of windows those that are applicable are tracked, that
-is, all those windows for which the width does not exceed the graph
-cardinality. The windows in the fixed set have respective sizes 1, 2, 5,
-10, 20, 50, and so on up until 5000000 (which makes 15 windows in all).
-</p>
 </div>
-<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-nj"></a><b>-nj</b> i (<i>jury window index</i>)</div></div>
+</div>
+
+<a name="impl"></a>
+<h2>IMPLEMENTATION OPTIONS</h2>
+<div class=" itemize " style="margin-top:1em; font-size:100%">
+<div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-sparse"></a><b>-sparse</b> &lt;int&gt; (<i>sparse matrix multiplication threshold</i>)</div></div>
 <div class=" item_text " style="margin-left:2em">
 <p style="margin-top:0em; margin-bottom:0em">
-The <b>-nj</b> denotes a window index in the same way as <b>-nx</b>
-and <b>-ny</b> do. This particular window is used for computing the
-<i>jury marks</i>, which are the three number reported by <b>mcl</b> when it is
-done. They are a reminder of the existence of pruning and its importance
-for both speed and accuracy, and they are <i>indicative rather than
-authorative</i>.
+This value (by default set to 10) determines when mcl switches to sparse matrix/vector multiplication.
+For a given column stochastic vector (corresponding with all the neighbours
+of a given node <tt>v</tt> according to the current mcl iterand) the sum <tt>S</tt> of neighbour counts
+of all neighbours of <tt>v</tt> is computed, counting duplicates. This is exactly the
+number of matrix entries involved in the computation of the new column vector
+for the matrix product. If <tt>S</tt> times <i>&lt;int&gt;</i> does not exceed the
+number of nodes in the graph (equal to both column and row dimension of
+the matrices used) then a sparse implementation is used. Otherwise
+an optimized regular implementation is used. Intuitively, this option can
+be thought of as the estimated overhead per matrix floating point operation incurred
+by the sparse implementation compared with the regular implementation.
+MCL uses this estimated overhead to determine which implementation is likely
+to be quicker. Testing has shown this strategy works very well for graphs of a wide
+range of sizes, including graphs with up to 3 million nodes and 500 million edges.
 </p>
-<p style="margin-bottom:0" class="asd_par">
-These jury marks are simply the respective mass averages in the jury
-window for the first three iterations. The marks are even further
-simplified and mapped to the jury synopsis, which is a single grade
-expressed as an adjective. The grades are, in decreasing order of
-achievement, <i>perfect exceptional superior excellent good acceptable
-mediocre poor bad lousy miserable awful wretched atrocious</i>. Doing 'mcl
---jury-charter' will tell you how the jury marks map onto the jury
-synopsis.
-</p>
-<p style="margin-bottom:0" class="asd_par">
-The jury marks should preferably be higher than 70. If they are in the
-vicinity of 80 or 90, <b>mcl</b> is doing fine as far as pruning is concerned.
-Choose a higher scheme if you think them too low. For very dense graphs
-that do have strong cluster structure, the jury marks can sink as low as
-to the 30's and 40's, but the clusterings generated by mcl may still be
-good. The marks and the synopsis grade the severity of pruning, not
-cluster quality. Note that the jury becomes friendlier, resp. harsher
-when the <b>-nj</b> option is increased/decreased.
+<p style="margin-bottom:0"><b>NOTE</b><br>
+The effectiveness of this option is influenced by hardware-specific properties
+such as the CPU L2 cache size. The default value should work reasonably well
+across a wide variety of scenarios, but it may be possible to squeeze
+faster run times out of mcl by tuning this parameter to the graphs that are
+specific for your application domain.
 </p>
 </div>
 </div>

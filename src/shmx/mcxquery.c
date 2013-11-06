@@ -43,11 +43,19 @@
 #include "mcl/transform.h"
 
 
-int valcmp
+int valcmpdesc
 (  const void*             i1
 ,  const void*             i2
 )
    {  return *((pval*)i1) < *((pval*)i2) ? 1 : *((pval*)i1) > *((pval*)i2) ? -1 : 0
+;  }
+
+
+int valcmpasc
+(  const void*             i1
+,  const void*             i2
+)
+   {  return *((pval*)i1) > *((pval*)i2) ? 1 : *((pval*)i1) < *((pval*)i2) ? -1 : 0
 ;  }
 
 
@@ -76,8 +84,12 @@ enum
 ,  MY_OPT_VARY_CORRELATION
 ,  MY_OPT_VARY_THRESHOLD
 ,  MY_OPT_VARY_KNN
+,  MY_OPT_EDGEWEIGHTS
+,  MY_OPT_EDGEWEIGHTS_SORTED
+,  MY_OPT_EDGEWEIGHTS_HIST
 ,  MY_OPT_DIVIDE
 ,  MY_OPT_WEIGHT_SCALE
+,  MY_OPT_OUTPUT_TABLE
 ,  MY_OPT_MYTH
 ,  MY_OPT_TESTCYCLE
 ,  MY_OPT_TESTCYCLE_N
@@ -168,6 +180,24 @@ mcxOptAnchor qOptions[] =
    ,  "a,z,s,n"
    ,  "vary knn from z to a in steps s, scale edge weights by n"
    }
+,  {  "--edges"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_EDGEWEIGHTS
+   ,  NULL
+   ,  "output all edge weights, unsorted"
+   }
+,  {  "--edges-sorted"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_EDGEWEIGHTS_SORTED
+   ,  NULL
+   ,  "output all edge weights, sorted"
+   }
+,  {  "-edges-hist"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_EDGEWEIGHTS_HIST
+   ,  "a,z,s,n"
+   ,  "vary historgram from a to z in steps s, scale edge weights by n"
+   }
 ,  {  "-div"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_DIVIDE
@@ -192,6 +222,12 @@ mcxOptAnchor qOptions[] =
    ,  NULL
    ,  "very simple scale-freeness test, correlation of log/log values"
    }
+,  {  "--output-table"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_OUTPUT_TABLE
+   ,  NULL
+   ,  "output tab separated table without key"
+   }
 ,  {  "-report-scale"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_WEIGHT_SCALE
@@ -208,16 +244,17 @@ static  mcxIO* xfmx_g      =   (void*) -1;
 static  mcxIO* xfcl_g      =   (void*) -1;
 static  mcxIO* xftab_g     =   (void*) -1;
 
-static  unsigned int vary_a=  -1;
-static  unsigned int vary_z=  -1;
-static  unsigned int vary_s=  -1;
-static  unsigned int vary_n=  -1;
+static  int vary_a=  -1;
+static  int vary_z=  -1;
+static  int vary_s=  -1;
+static  int vary_n=  -1;
 static  unsigned int divide_g=  -1;
 static  double weight_scale = -1;
 static  unsigned mode_vary = -1;
 static  unsigned mode_get  =     -1;
 static  unsigned n_limit = 0;
 static  mcxbool weefreemen = -1;
+static  mcxbool output_table = -1;
 static  mcxbool knnexact_g = -1;
 static  mcxbool doclcf_g = -1;
 static  mcxbool user_imx = -1;
@@ -323,6 +360,7 @@ static mcxstatus qInit
    ;  knnexact_g = TRUE
    ;  doclcf_g = FALSE
    ;  weefreemen = FALSE
+   ;  output_table = FALSE
    ;  user_imx =  FALSE
    ;  weight_scale = 0.0
    ;  transform      =  NULL
@@ -404,8 +442,30 @@ static mcxstatus qArgHandle
       ;  break
       ;
 
+         case MY_OPT_OUTPUT_TABLE
+      :  output_table = TRUE
+      ;  break
+      ;
+
          case MY_OPT_MYTH
       :  weefreemen = TRUE
+      ;  break
+      ;
+
+         case MY_OPT_EDGEWEIGHTS
+      :  mode_get = 'e'
+      ;  break
+      ;
+
+         case MY_OPT_EDGEWEIGHTS_HIST
+      :  mode_get = 'H'
+      ;  if (4 != sscanf(val, "%d,%d,%d,%d", &vary_a, &vary_z, &vary_s, &vary_n))
+         mcxDie(1, me, "failed to parse argument as integers start,end,step,norm")
+      ;  break
+      ;
+
+         case MY_OPT_EDGEWEIGHTS_SORTED
+      :  mode_get = 'E'
       ;  break
       ;
 
@@ -425,7 +485,7 @@ static mcxstatus qArgHandle
       ;
 
          case MY_OPT_VARY_KNN
-      :  if (4 != sscanf(val, "%u,%u,%u,%u", &vary_a, &vary_z, &vary_s, &vary_n))
+      :  if (4 != sscanf(val, "%d,%d,%d,%d", &vary_a, &vary_z, &vary_s, &vary_n))
          mcxDie(1, me, "failed to parse argument as integers start,end,step,norm")
       ;  mode_vary = 'k'
       ;  break
@@ -462,17 +522,17 @@ struct level
 ;  double   sim_mean
 ;  double   sim_iqr
 
-;  long     nb_median
+;  ulong    nb_median
 ;  double   nb_mean
 ;  double   nb_sum
-;  long     nb_iqr
+;  double   nb_iqr
 
-;  double   bigsize
+;  ulong    bigsize
 ;  double   cc_exp
 ;  double   clcf
-;  long     n_single
-;  long     n_edge
-;  long     n_lq
+;  ulong    n_single
+;  ulong    n_edge
+;  ulong    n_lq
 ;
 }  ;
 
@@ -495,6 +555,7 @@ dim get_n_sort_allvals
 ,  pval* allvals
 ,  dim noe
 ,  double* sum_vals
+,  mcxbool asc
 )
    {  dim n_allvals = 0
    ;  double s = 0.0
@@ -509,22 +570,30 @@ dim get_n_sort_allvals
       ;  n_allvals += vec->n_ivps
       ;  s += mclvSum(vec)
    ;  }
-      qsort(allvals, n_allvals, sizeof(pval), valcmp)
+      mcxTell(me, "start sorting %lu values", (ulong) n_allvals)
+   ;  if (asc)
+      qsort(allvals, n_allvals, sizeof(pval), valcmpasc)
+   ;  else
+      qsort(allvals, n_allvals, sizeof(pval), valcmpdesc)
+   ;  mcxTell(me, "done sorting")
    ;  sum_vals[0] = s
    ;  return n_allvals
 ;  }
 
 
+
 static void vary_threshold
 (  mcxIO* xf
 ,  FILE*  fp
-,  dim vary_a
-,  dim vary_z
-,  dim vary_s
-,  dim vary_n
+,  int vary_a
+,  int vary_z
+,  int vary_s
+,  int vary_n
 ,  unsigned mode
+,  mcxbool output_table
 )
-   {  dim cor_i = 0, j, step
+   {  dim cor_i = 0, j
+   ;  int step
 
    ;  mclx* mx
    ;  unsigned long noe
@@ -535,13 +604,10 @@ static void vary_threshold
    ;  mx = mclxRead(xf, EXIT_ON_FAIL)
    ;  mcxIOclose(xf)
 
-   ;  if (transform_spec)
-      { if (!(transform = mclgTFparse(NULL, transform_spec)))
-         mcxDie(1, me, "input -tf spec does not parse")
-      ;  mclgTFexec(mx, transform)
-   ;  }
+   ;  if (transform)
+      mclgTFexec(mx, transform)
 
-      noe = mclxNrofEntries(mx)
+   ;  noe = mclxNrofEntries(mx)
    ;  allvals = mcxAlloc(noe * sizeof allvals[0], EXIT_ON_FAIL)
 
    ;  if (!weight_scale)
@@ -551,7 +617,7 @@ static void vary_threshold
          weight_scale = vary_n
    ;  }
 
-      n_allvals = get_n_sort_allvals(mx, allvals, noe, &sum_vals)
+      n_allvals = get_n_sort_allvals(mx, allvals, noe, &sum_vals, FALSE)
 
    ;  if (mode == 'c')
       {  double smallest = n_allvals ? allvals[n_allvals-1] : -DBL_MAX
@@ -568,6 +634,11 @@ static void vary_threshold
          )
    ;  }
 
+      if (output_table)
+      {
+;fprintf(fp, "L\tD\tR\tS\tcce\tEWmean\tEWmed\tEWiqr\tNDmean\tNDmed\tNDiqr\tCCF\t%s\n", mode == 'k' ? "kNN" : "Cutoff")
+;}    else
+      {
 ;fprintf(fp, "-------------------------------------------------------------------------------\n")
 ;fprintf(fp, " L       Percentage of nodes in the largest component\n")
 ;fprintf(fp, " D       Percentage of nodes in components of size at most %d [-div option]\n", (int) divide_g)
@@ -593,8 +664,9 @@ static void vary_threshold
 ;fprintf(fp, "-------------------------------------------------------------------------------\n")
 ;fprintf(fp, "  L   D   R   S     cce *EWmean  *EWmed *EWiqr NDmean  NDmed  NDiqr CCF %s%6s \n", mode == 'c' ? " " : "*", mode == 'k' ? "k-NN" : "Cutoff")
 ;fprintf(fp, "-------------------------------------------------------------------------------\n")
+;     }
 
-   ;  for (step = vary_a; step <= vary_z; step += vary_s)
+      for (step = vary_a; step <= vary_z; step += vary_s)
       {  double cutoff = step * 1.0 / vary_n
       ;  mclv* nnodes = mclvCanonical(NULL, N_COLS(mx), 0.0)
       ;  mclv* degree = mclvCanonical(NULL, N_COLS(mx), 0.0)
@@ -602,7 +674,7 @@ static void vary_threshold
       ;  double cor, y_prev, iqr = 0.0
       ;  mclx* cc = NULL, *res = NULL
       ;  mclv* sz, *ccsz = NULL
-      ;  dim step2 = vary_z + vary_a - step
+      ;  int step2 = vary_z + vary_a - step
 
       ;  sum_vals = 0.0
       
@@ -617,7 +689,7 @@ static void vary_threshold
          sz = mclxColSizes(res, MCL_VECTOR_COMPLETE)
       ;  mclvSortDescVal(sz)
 
-      ;  cc = clmComponents(res, NULL)     /* fixme: user has to specify -tf '#max()' if graph is directed */
+      ;  cc = clmUGraphComponents(res, NULL)     /* fixme: user has to specify -tf '#max()' if graph is directed */
       ;  if (cc)
          ccsz = mclxColSizes(cc, MCL_VECTOR_COMPLETE)
 
@@ -632,7 +704,7 @@ static void vary_threshold
             sum_vals += allvals[i]
       ;  }
          else if (mode == 'k')
-         {  n_allvals = get_n_sort_allvals(res, allvals, noe, &sum_vals)
+         {  n_allvals = get_n_sort_allvals(res, allvals, noe, &sum_vals, FALSE)
       ;  }
 
          levels[cor_i].sim_median=  mcxMedian(allvals, n_allvals, sizeof allvals[0], pval_get_double, &iqr)
@@ -710,46 +782,77 @@ static void vary_threshold
       ;  mclvFree(&ccsz)
       ;  mclxFree(&cc)
 
-;if(1){
-      ;  fprintf
-         (  fp
-         ,  "%3d %3d %3d %3d %7d "
-            "%7.0f %7.0f %6.0f"
-            "%6.1f %6.0f %6.0f"
+;  if(output_table)
+   {  fprintf
+      (  fp
+      ,  "%lu\t%lu\t%lu\t%lu\t%lu"
+         "\t%6g\t%6g\t%6g"
+         "\t%6g\t%lu\t%6g"
 
-         ,  0 ? 1 : (int) (0.5 + (100.0 * levels[cor_i].bigsize) / N_COLS(mx))
-         ,  0 ? 1 : (int) (0.5 + (100.0 * levels[cor_i].n_lq) / N_COLS(mx))
-         ,  0 ? 1 : (int) (0.5 + (100.0 * (N_COLS(mx) - levels[cor_i].bigsize - levels[cor_i].n_lq)) / N_COLS(mx))
-         ,  0 ? 1 : (int) (0.5 + (100.0 * levels[cor_i].n_single) / N_COLS(mx))
-         ,  0 ? 1 : (int) (0.5 + levels[cor_i].cc_exp)
+      ,  (ulong) levels[cor_i].bigsize
+      ,  (ulong) levels[cor_i].n_lq
+      ,  (ulong) N_COLS(mx) - levels[cor_i].bigsize - levels[cor_i].n_lq
+      ,  (ulong) levels[cor_i].n_single
+      ,  (ulong) levels[cor_i].cc_exp
 
-         ,  0 ? 1.0 : (double) (levels[cor_i].sim_mean   * weight_scale)
-         ,  0 ? 1.0 : (double) (levels[cor_i].sim_median * weight_scale)
-         ,  0 ? 1.0 : (double) (levels[cor_i].sim_iqr    * weight_scale)
+      ,  (double) levels[cor_i].sim_mean
+      ,  (double) levels[cor_i].sim_median
+      ,  (double) levels[cor_i].sim_iqr
 
-         ,  0 ? 1.0 : (double) (levels[cor_i].nb_mean                 )
-         ,  0 ? 1.0 : (double) (levels[cor_i].nb_median + 0.5         )
-         ,  0 ? 1.0 : (double) (levels[cor_i].nb_iqr + 0.5            )
-         )
+      ,  (double) levels[cor_i].nb_mean
+      ,  (ulong) levels[cor_i].nb_median
+      ,  (double) levels[cor_i].nb_iqr
+      )
 
-      ;  if (doclcf_g)
-         fprintf(fp, " %3d", 0 ? 1 : (int) (0.5 + (100.0 * levels[cor_i].clcf)))
-      ;  else
-         fputs("   -", fp)
+   ;  if (doclcf_g)
+      fprintf(fp, "\t%6g", levels[cor_i].clcf)
+   ;  else
+      fputs("\tNA", fp)
 
-      ;  if (mode == 'c')
-         fprintf(fp, "%8.2f\n", (double) levels[cor_i].threshold)
-      ;  else if (mode == 't')
-         fprintf(fp, "%8.0f\n", (double) levels[cor_i].threshold  * weight_scale)
-      ;  else if (mode == 'k')
-         fprintf(fp, "%8.0f\n", (double) levels[cor_i].threshold)
-;}
+   ;  fprintf(fp, "\t%6g\n", (double) levels[cor_i].threshold)
+;  }
+   else
+   {  fprintf
+      (  fp
+      ,  "%3d %3d %3d %3d %7d "
+         "%7.0f %7.0f %6.0f"
+         "%6.1f %6.0f %6.0f"
+
+      ,  0 ? 1 : (int) (0.5 + (100.0 * levels[cor_i].bigsize) / N_COLS(mx))
+      ,  0 ? 1 : (int) (0.5 + (100.0 * levels[cor_i].n_lq) / N_COLS(mx))
+      ,  0 ? 1 : (int) (0.5 + (100.0 * (N_COLS(mx) - levels[cor_i].bigsize - levels[cor_i].n_lq)) / N_COLS(mx))
+      ,  0 ? 1 : (int) (0.5 + (100.0 * levels[cor_i].n_single) / N_COLS(mx))
+      ,  0 ? 1 : (int) (0.5 + levels[cor_i].cc_exp)
+
+      ,  0 ? 1.0 : (double) (levels[cor_i].sim_mean   * weight_scale)
+      ,  0 ? 1.0 : (double) (levels[cor_i].sim_median * weight_scale)
+      ,  0 ? 1.0 : (double) (levels[cor_i].sim_iqr    * weight_scale)
+
+      ,  0 ? 1.0 : (double) (levels[cor_i].nb_mean                 )
+      ,  0 ? 1.0 : (double) (levels[cor_i].nb_median + 0.5         )
+      ,  0 ? 1.0 : (double) (levels[cor_i].nb_iqr + 0.5            )
+      )
+
+   ;  if (doclcf_g)
+      fprintf(fp, " %3d", 0 ? 1 : (int) (0.5 + (100.0 * levels[cor_i].clcf)))
+   ;  else
+      fputs("   -", fp)
+
+   ;  if (mode == 'c')
+      fprintf(fp, "%8.2f\n", (double) levels[cor_i].threshold)
+   ;  else if (mode == 't')
+      fprintf(fp, "%8.0f\n", (double) levels[cor_i].threshold  * weight_scale)
+   ;  else if (mode == 'k')
+      fprintf(fp, "%8.0f\n", (double) levels[cor_i].threshold)
+ ; }
+
       ;  cor_i++
       ;  if (res != mx)
          mclxFree(&res)
    ;  }
 
-      if (weefreemen)
+   if (!output_table)
+   {  if (weefreemen)
       {
 fprintf(fp, "-------------------------------------------------------------------------------\n")
 ;fprintf(fp, "The graph below plots the R^2 squared value for the fit of a log-log plot of\n")
@@ -771,6 +874,7 @@ fprintf(fp, "-------------------------------------------------------------------
       ;  else
          fprintf(fp, "%8.0f\n", (double) levels[j].threshold * weight_scale)
    ;  }
+
  fprintf(fp, "|----+----|----+----|----+----|----+----|----+----|----+----|----+----|--------\n")
 ;fprintf(fp, "| R^2   0.4       0.5       0.6       0.7       0.8       0.9    |  1.0    -o)\n")
 ;fprintf(fp, "+----+----+----+----+----+---------+----+----+----+----+----+----+----+    /\\\\\n")
@@ -779,21 +883,12 @@ fprintf(fp, "-------------------------------------------------------------------
 ;     }
       else
       fprintf(fp, "-------------------------------------------------------------------------------\n")
+;  }
 
-   ;  mclxFree(&mx)
+      mclxFree(&mx)
    ;  mcxFree(allvals)
 ;  }
 
-
-
-/*
-  /___  
-(o___,)|
-
- -o)\n")
- /\\\\\n")
-_\\_/\n")
-*/
 
 
 static mcxstatus qMain
@@ -811,6 +906,12 @@ static mcxstatus qMain
 
    ;  if (!mode_vary && !mode_get)
       mode_get = 'n'
+
+   ;  if
+      (  transform_spec
+      && !(transform = mclgTFparse(NULL, transform_spec))
+      )
+      mcxDie(1, me, "input -tf spec does not parse")
 
    ;  if (xftab_g)
       tab = mclTabRead(xftab_g, NULL, EXIT_ON_FAIL)
@@ -851,6 +952,7 @@ static mcxstatus qMain
       ,  vary_s
       ,  vary_n
       ,  mode_vary
+      ,  output_table
       )
 
    ;  else if (mode_get)
@@ -877,13 +979,10 @@ static mcxstatus qMain
          {  dim i
          ;  mclx* mx = mclxRead(xfmx_g, EXIT_ON_FAIL)
 
-         ;  if (transform_spec)
-            { if (!(transform = mclgTFparse(NULL, transform_spec)))
-               mcxDie(1, me, "input -tf spec does not parse")
-            ;  mclgTFexec(mx, transform)
-         ;  }
+         ;  if (transform)
+            mclgTFexec(mx, transform)
 
-            if (cl && !MCLD_EQUAL(cl->dom_rows, mx->dom_cols))
+         ;  if (cl && !MCLD_EQUAL(cl->dom_rows, mx->dom_cols))
             mcxDie(1, "query", "cluster row domain and matrix column domains differ")
 
          ;  fputs("node\tdegree\tmean\tmin\tmax\tmedian\tiqr", xfout_g->fp)
@@ -928,8 +1027,43 @@ static mcxstatus qMain
          else if (mode_get == 'c')
          {  mclx* mx = mclxReadx(xfmx_g, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH | MCLX_REQUIRE_CANONICAL)
          ;  mclxAdjustLoops(mx, mclxLoopCBremove, NULL)
+         ;  if (transform)
+            mclgTFexec(mx, transform)
          ;  return test_cycle(mx, n_limit)
       ;  }
+         else if (mode_get == 'E' || mode_get == 'e' || mode_get == 'H')
+         {  mclx* mx = mclxReadx(xfmx_g, EXIT_ON_FAIL, MCLX_REQUIRE_GRAPH | MCLX_REQUIRE_CANONICAL)
+         ;  unsigned long noe, n_allvals, i, j
+         ;  mclxAdjustLoops(mx, mclxLoopCBremove, NULL)
+         ;  noe = mclxNrofEntries(mx)
+         ;  if (mode_get == 'E' || mode_get == 'H')
+            {  double sum_vals = 0.0
+            ;  pval*  allvals = mcxAlloc(noe * sizeof allvals[0], EXIT_ON_FAIL)
+            ;  n_allvals = get_n_sort_allvals(mx, allvals, noe, &sum_vals, TRUE)
+            ;  if (mode_get == 'E')
+               {  for (i=0;i<n_allvals;i++)
+                  fprintf(xfout_g->fp, "%g\n", (double) allvals[i])
+            ;  }
+               else if (mode_get == 'H')
+               {  long step
+               ;  ulong ofs = 0, cur = 0
+               ;  for (step = vary_a; step <= vary_z; step += vary_s)
+                  {  double cutoff = step * 1.0 / vary_n
+                  ;  while (cur < n_allvals && allvals[cur] <= cutoff)
+                     cur++
+                  ;  fprintf(xfout_g->fp, "%g\t%lu\n", cutoff, (ulong) (cur - ofs))
+                  ;  ofs = cur
+               ;  }
+               }
+         ;  }
+            else
+            {  for (i=0;i<N_COLS(mx);i++)
+               {  mclv* v = mx->cols+i
+               ;  for (j=0;j<v->n_ivps;j++)
+                  fprintf(xfout_g->fp, "%g\n", (double) v->ivps[j].val)
+            ;  }
+            }
+         }
       }
 
       mcxIOclose(xfout_g)

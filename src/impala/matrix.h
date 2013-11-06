@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008, 2009  Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -472,6 +472,13 @@ void mclxMergeTranspose
 (  mclx* mx
 ,  double (*op)(pval arg1, pval arg2)
 ,  double diagweight
+)  ;
+
+void mclxMergeTranspose3
+(  mclx* mx
+,  double (*op)(pval arg1, pval arg2, pval arg3)
+,  double diagweight
+,  double arg3
 )  ;
 
 /* inline add; m1 is modified.

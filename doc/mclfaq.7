@@ -1,5 +1,5 @@
 .\" Copyright (c) 2010 Stijn van Dongen
-.TH "MCL\ \&FAQ" 7 "28 May 2010" "MCL\ \&FAQ 1\&.008, 10-148" "MISCELLANEOUS "
+.TH "MCL\ \&FAQ" 7 "20 Jul 2010" "MCL\ \&FAQ 10-201" "MISCELLANEOUS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -366,26 +366,12 @@ The current setup, which I hope to continue, is this\&. All releases are
 identified by a date stamp\&. For example 02-095 denotes day 95 in the year
 2002\&. This date stamp agrees (as of April 2000) with the (differently
 presented) date stamp used in all manual pages shipped with that release\&.
-For example, the date stamp of the FAQ you are reading is \fB28 May 2010\fP,
-which corresponds with the MCL stamp \fB10-148\fP\&.
+For example, the date stamp of the FAQ you are reading is \fB20 Jul 2010\fP,
+which corresponds with the MCL stamp \fB10-201\fP\&.
 The Changelog file contains a list of what\&'s changed/added with each
 release\&. Currently, the date stamp is the primary way of identifying an \fBmcl\fP
 release\&. When asked for its version by using \fB--version\fP, mcl
 outputs both the date stamp and a version tag (see below)\&.
-
-In early 2002 it occurred to me that \fBmcl\fP should, in addition to time
-stamps, also have something like version numbers, wanting to use those to
-indicate noteworthy changes\&. The April 2002 release got version tag 1\&.001,
-in order to celebrate the then-recent addition of this FAQ, mcl\&'s new
-logging facility \fB--log\fP, and \fBclm imac\fP to the MCL distribution\&. The
-January 2003 release had its version number bumped to 1\&.002, marking MCL\&'s
-ability to directly deal with a much more general type of graph encoding\&.
-1\&.003 brought mclpipeline, mcxdeblast, mclblastline, mcxassemble, \fBclm format\fP
-and automatic output naming\&. 1\&.004 revived binary format, improved mcxsubs,
-and had a host of other additions\&. 1\&.005 removed an IO bottleneck,
-considerably speeding up matrix reads\&. 1\&.006 featured mcl\&'s ability to
-directly read and produce label output\&. Currently, the version tag is not
-used in the mcl distribution name \- only the date stamp is used for that\&.
 
 .ce
 \s+2\fBInput format\fP\s-2
@@ -393,78 +379,7 @@ used in the mcl distribution name \- only the date stamp is used for that\&.
 .ZB 1m \fB2\&.1\fP
 \s+1\fBHow can I get my data into the MCL matrix format?\fP\s-1
 
-One of the easiest ways is if you have a list of label pairs with
-similarities attached to the pairs\&.
-Put this information into a file with each
-pair of labels and the associated similarity on a single line
-separated by whitespace\&. Example:
-
-.di ZV
-.in 0
-.nf \fC
-apples    oranges    2\&.14
-oranges   pears      0\&.78
-oranges   apples     1\&.57
-pears     apples     1\&.01
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-Suppose the file is called \fCmydata\fP\&.
-You can simply cluster it like this:
-
-.di ZV
-.in 0
-.nf \fC
-   mcl mydata --abc -I 2\&.0 -o mydata\&.cls-I20
-   mcl mydata --abc -I 2\&.4 -o mydata\&.cls-I24
-   mcl mydata --abc -I 2\&.8 -o mydata\&.cls-I28
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-In this example a few runs were shown with different inflation parameters\&.
-This is nonsensical with this particular 4-node input but a good idea in
-general\&. \fBmcl\fP provides many options to cache the intermediate matrix input
-and the intermediate tab file\&. Refer to the \fBmcl manual page\fP,
-specifically look for the \fB-write-tab\fP and \fB-write-graph\fP
-options\&.
-
-Alternatively, use \fBmcxload(1)\fP to save label input as an mcl matrix and
-one or more tab files, then apply mcl to the matrix file using the
-\fB-use-tab\fP option\&.
-
-\fBNOTE\fP
-.br
-Simply doing
-
-.di ZV
-.in 0
-.nf \fC
-   mcl mydata --abc -I 2\&.0
-   mcl mydata --abc -I 2\&.4
-   mcl mydata --abc -I 2\&.8
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-will result in the output files \fCout\&.mydata\&.I20\fP,
-\fCout\&.mydata\&.I24\fP, and \fCout\&.mydata\&.I28\fP\&.
-The automatic naming facility is very convenient \- try it\&. If you need to
-script mcl use the \fB-az\fP option to capture the name
-that mcl \fIwould\fP generate given the rest of the command-line\&.
+This is described in the \fIprotocols manual page\fP\&.
 
 .ce
 \s+2\fBWhat kind of graphs\fP\s-2
@@ -509,10 +424,27 @@ information that is thrown away (direction) is \fInot\fP informative with
 respect to the presence of cluster structure\&. This may well deserve a longer
 discussion than would be justified here\&.
 
+If your graph is directed and acyclic (or parts of it are), you can
+transform it before clustering with mcl by using \fB-tf\fP\ \&\fB\&'#max()\&'\fP, e\&.g\&.
+
+.di ZV
+.in 0
+.nf \fC
+   mcl YOUR-GRAPH -I 3\&.0 -tf \&'#max()\&'
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
 .ZB 1m \fB3\&.6\fP
 \s+1\fBDoes MCL work for tree graphs?\fP\s-1
 
 Nah, I don\&'t think so\&. More info at entry\ \&3\&.7\&.
+You could consider the \fIStrahler number\fP,
+which is numerical measure of branching complexity\&.
 
 .ZB 1m \fB3\&.7\fP
 \s+1\fBFor what kind of graphs does MCL work well and for which does it not?\fP\s-1
@@ -552,10 +484,10 @@ perfectly undirected, see the following faq for a discussion of that\&.
 \fBmcl\fP will work with the graph of random walks that is associated
 with your input graph, and that is the natural state of affairs\&.
 
-The input graph should preferably be honest in the sense that if s(x,y)=N
-and s(x,z)=200N (i\&.e\&. the similarities differ by a factor 200), then
-this should really reflect that the similarity of y to x is neglectible
-compared with the similarity of z to x\&.
+The input graph should preferably be honest in the sense that if \fCs(x,y)=N\fP
+and \fCs(x,z)=200N\fP (i\&.e\&. the similarities differ by a factor 200), then
+this should really reflect that the similarity of \fCy\fP to \fCx\fP is neglectible
+compared with the similarity of \fCz\fP to \fCx\fP\&.
 
 For the rest, anything goes\&. Try to get a feeling by experimenting\&.
 Sometimes it is a good idea to filter out high-frequency
@@ -662,10 +594,10 @@ directions have different weight\&.
 .ZB 1m \fB4\&.1\fP
 \s+1\fBHow fast is mcl/MCL?\fP\s-1
 
-It\&'s fast - here is how and why\&. Let N be the number of nodes in the input
+It\&'s fast - here is how and why\&. Let \fCN\fP be the number of nodes in the input
 graph\&. A straigtforward implementation of MCL will have time and space
-complexity respecively O(N^3) (i\&.e\&. cubic in N) and O(N^2) (quadratic in N)\&.
-So you don\&'t want one of those\&.
+complexity respecively \fCO(N^3)\fP (i\&.e\&. cubic in \fCN\fP) and \fCO(N^2)\fP
+(quadratic in \fCN\fP)\&. So you don\&'t want one of those\&.
 
 \fBmcl\fP implements a slightly perturbed version of the MCL process,
 as discussed in section \fIResource tuning / accuracy\fP\&.
@@ -678,23 +610,23 @@ While computing the square of a matrix
 by allowing a certain maximum number of nonzero entries
 per stochastic column\&. The maximum is one of the mcl parameters, and
 it is typically set somewhere between 500 and 1500\&.
-Call the maximum K\&.
+Call the maximum \fCK\fP\&.
 
 mcl\&'s time complexity is governed by the complexity of matrix squaring\&.
 There are two sub-algorithms to consider\&. The first is the
 algorithm responsible for assembling a new vector during matrix
-multiplication\&. This algorithm has worst case complexity O(K^2)\&. The
-pruning algorithm (which uses heap selection) has worst case complexity
-O(L*log(K)), where L is how large a newly computed matrix column can get
-before it is reduced to at most K entries\&. L is \fIbound by\fP the smallest
-of the two numbers N and K^2 (the square of K), but on average
-L will be much smaller than that, as the presence of cluster structure aids in
-keeping the factor L low\&. [Related to this is the fact that clustering
+multiplication\&. This algorithm has worst case complexity \fCO(K^2)\fP\&.
+The pruning algorithm (which uses heap selection) has worst case complexity
+\fCO(L*log(K))\fP, where \fCL\fP is how large a newly computed matrix column can get
+before it is reduced to at most \fCK\fP entries\&. \fCL\fP is \fIbound by\fP the smallest
+of the two numbers \fCN\fP and \fCK^2\fP (the square of \fCK\fP), but on average
+\fCL\fP will be much smaller than that, as the presence of cluster structure aids in
+keeping the factor \fCL\fP low\&. [Related to this is the fact that clustering
 algorithms are actually used to compute matrix splittings that minimize
 the number of cross-computations when carrying out matrix
 multiplication among multiple processors\&.]
-In actual cases of heavy usage, L is of order in the tens of thousands, and
-K is in the order of several hundreds up to a thousand\&.
+In actual cases of heavy usage, \fCL\fP is of order in the tens of thousands, and
+\fCK\fP is in the order of several hundreds up to a thousand\&.
 
 It is safe to say that in general the worst case complexity of mcl
 is of order O(N*K^2); for extremely tight and dense graphs this
@@ -704,18 +636,16 @@ and observed running times for actual usage are much better than that\&.
 
 In this analysis, the number of iterations required by mcl was not
 included\&. It is nearly always far below 100\&. Only the first
-few iterations are genuinely time consuming; the first few iterations
-(some number below 10) are usually responsible for more than 95 percent
-of the running time\&.
+few (less than ten) iterations are genuinely time consuming, and they are
+usually responsible for more than 95 percent of the running time\&.
 
 The process of removing the smallest entries of a vector is called
-pruning\&. mcl provides extensive facilities for monitoring and controlling
-the effect of pruning, and it will output statistics and a summary once it
+pruning\&. mcl outputs a summary of this once it
 is done\&. More information is provided in the pruning section of the
 \fBmcl manual\fP and \fISection\ \&6\fP
 in this FAQ\&.
 
-The space complexity is of order O(N*K)\&.
+The space complexity is of order \fCO(N*K)\fP\&.
 
 .ZB 1m \fB4\&.2\fP
 \s+1\fBWhat statistics are available?\fP\s-1
@@ -730,11 +660,19 @@ a few hours\&.
 \s+1\fBDoes this implementation need to sort vectors?\fP\s-1
 
 No, it does not\&. You might expect that one needs to sort
-a vector in order to obtain the K largest entries, but a simpler
+a vector in order to obtain the \fCK\fP largest entries, but a simpler
 mechanism called \fIheap selection\fP does the job nicely\&.
-Selecting the K largest entries from a set of L by sorting
-would require O(L*log(L)) operations; heap selection
-requires O(L*log(K)) operations\&.
+Selecting the \fCK\fP largest entries from a set of \fCL\fP by sorting
+would require \fCO(L*log(L))\fP operations; heap selection
+requires \fCO(L*log(K))\fP operations\&.
+Alternatively, the \fCK\fP largest entries can be also be
+determined in \fCO(N) + O(K log(K))\fP asymptotic time by using partition
+selection (more \fIhere\fP
+and \fIthere\fP)\&. It is
+possible to enable this mode of operaton in mcl with the option
+\fB--partition-selection\fP\&. However, benchmarking so far has shown this
+to be equivalent in speed to heap selection\&. This is explained by
+the bounded nature of \fCK\fP and \fCL\fP in practice\&.
 
 .ZB 1m \fB4\&.4\fP
 \s+1\fBmcl does not compute the ideal MCL process!\fP\s-1
@@ -758,15 +696,18 @@ and for which the (cluster) destination is very sensitive to
 fluctutations in edge weights or algorithm parametrizations (any
 algorithm, not just mcl)\&.
 
-One can
-say that the perturbation effect of the pruning process applied by
-mcl is just a small source of noise\&. Additionally, graphs at the noisy
-end of the spectrum will generally be very susceptible to changes in
-parametrization of the MCL algorithm and process, and the perturbation
-caused by computing an imperfect process will generally be small
-compared with the effect of changing parametrizations\&.
+In short, the perturbation effect of the pruning process applied by mcl is a
+source of noise\&. It is small compared to the effect of
+changing the inflation parametrization or perturbing the edge weights\&. If
+the change is larger, this is because the computed process tends to converge
+prematurely, leading to finer-grained clusterings\&. As a result the
+clustering will be close to a \fIsubclustering\fP of the clustering resulting
+from more conservative resource settings, and in that respect be consistent\&.
+All this can be measured using the program
+\fIclm dist\fP\&. It is possible to
+offset such a change by slightly lowering the inflation parameter\&.
 
-Of course, there is the issue of very large and very dense graphs\&.
+There is the issue of very large and very dense graphs\&.
 The act of pruning will have a larger impact as graphs grow
 larger and denser\&.
 Obviously, mcl will have trouble dealing with such very large and very dense
@@ -816,7 +757,7 @@ in [1] and [2] that discuss implementation\&. Perhaps
 they assume or insist that the only way to implement MCL is to implement the
 ideal process\&. And there is always the genuine possibility
 of a \fIreally\fP stupifyingly fast algorithm\&. It is certainly not the
-case that MCL has a time complexity of O(N^3) as is sometimes erroneously
+case that MCL has a time complexity of \fCO(N^3)\fP as is sometimes erroneously
 stated\&.
 
 .ce
@@ -831,11 +772,11 @@ multiplication, inflation is a particular way of rescaling the matrix
 entries\&.
 
 Expansion causes problems in terms of both time and space\&. mcl works with
-matrices of dimension N, where N is the number of nodes in the input graph\&.
+matrices of dimension \fCN\fP, where \fCN\fP is the number of nodes in the input graph\&.
 If no precautions are taken, the number of entries in the mcl iterands
-(which are stochastic matrices) will soon approach the square of N\&. The
+(which are stochastic matrices) will soon approach the square of \fCN\fP\&. The
 time it takes to compute such a matrix will be proportional to the cube of
-N\&. If your input graph has 100\&.000 nodes, the memory requirements become
+\fCN\fP\&. If your input graph has 100\&.000 nodes, the memory requirements become
 infeasible and the time requirements become impossible\&.
 
 What mcl does is perturbing the process it computes a little
@@ -843,7 +784,7 @@ by removing the smallest entries \- it keeps its matrices \fIsparse\fP\&.
 This is a natural thing to do, because the matrices are sparse in
 a weighted sense (a very high proportion of the stochastic mass
 is contained in relatively few entries), and the process converges
-to matrices that are extremely sparse, with usually no more than N entries\&.
+to matrices that are extremely sparse, with usually no more than \fCN\fP entries\&.
 It is thus known that the MCL iterands are sparse in a weighted
 sense and are usually very close to truly sparse matrices\&.
 The way mcl perturbs its matrices is by the strategy
@@ -881,10 +822,10 @@ It is rougly equal to
 .fi \fR
 
 bytes, where 2 is the number of matrices held in memory by \fBmcl\fP, s is the
-size of a single cell (c\&.q\&. matrix entry or node/arc specification), N is
-the number of nodes in the input graph, and where K is the maximum of the
+size of a single cell (c\&.q\&. matrix entry or node/arc specification), \fCN\fP is
+the number of nodes in the input graph, and where \fCK\fP is the maximum of the
 values corresponding with the \fB-S\fP and \fB-R\fP options (and this
-assumes that the average node degree in the input graph does not exceed K
+assumes that the average node degree in the input graph does not exceed \fCK\fP
 either)\&. The value of s can be found by using the \fB-z\fP option\&. It
 is listed in one of the first lines of the resulting output\&. s equals the
 size of an int plus the size of a float, which will be 8 on most systems\&.
@@ -1123,8 +1064,9 @@ Preferably the network should not have nodes of very high degree,
 that is, with exorbitantly many neighbours\&. Such nodes tend to
 obscure cluster structure and contribute to coarse clusters\&.
 The ways to combat this using \fBmcl\fP and sibling programs are documented
-in \fBclmprotocols(5)\fP\&. Briefly, they are the \fBmcl\fP and \fBmcx alter\fP
-options \fB-knn\fP and \fB-ceil-nb\fP\&.
+in \fBclmprotocols(5)\fP\&. Briefly, they are the
+transformations \fC#knn()\fP and \fC#ceilnb()\fP available
+to \fBmcl\fP, \fBmcx alter\fP and several more programs\&.
 
 .ZB 1m \fB7\&.4\fP
 \s+1\fBThe effect of edge weight differentiation on cluster granularity\&.\fP\s-1

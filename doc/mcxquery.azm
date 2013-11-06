@@ -39,6 +39,10 @@
       \synoptopt{-div}{<num>}{cluster size separating value}
       \: kynoptopt{-digits}{<num>}{width of fractional part}
       \synoptopt{--dim}{report native format and dimensions}
+      \synoptopt{--edges}{output all arc weights, unsorted}
+      \synoptopt{--edges-sorted}{output all arc weights, sorted}
+      \synoptopt{-edges-hist}{<start,end,step,scale}{output arc weight histogram}
+      \synoptopt{--output-table}{output logical tab separated table without key}
       \synoptopt{-t}{<num>}{number of threads to use}
       \synoptopt{-icl}{<fname>}{input clustering}
 
@@ -104,6 +108,23 @@
    This will report the matrix format (either interchange or binary)
    and the matrix dimensions. For a graph the two reported dimensions
    should be equal.
+   }
+
+
+\items{
+   {\defopt{--edges}{output all arc weights, unsorted}}
+   {\defopt{--edges-sorted}{output all arc weights, sorted}}
+   {\defopt{-edges-hist}{<start,end,step,scale}{output arc weight histogram}}
+}
+\car{
+   These options are fairly self documenting. The result of \genopt{-edges-hist}
+   is a tab separated table of bin offsets and bin counts.
+   }
+
+\item{\defopt{--output-table}{output logical tab separated table without key}}
+\car{
+   This option causes table output such as provided by \genopt{--vary-correlation}
+   to be output in a logical tab-separated format rather than pretty-printed.
    }
 
 \item{\defopt{-vary-threshold}{<start,end,step,scale>}{analyze graphs at similarity cutoffs}}

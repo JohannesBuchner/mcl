@@ -41,8 +41,6 @@
    \synoptopt{-j}{<intj>}{this job has index <intj>}
    \synoptopt{-start}{<int>}{start at column <int> inclusive}
    \synoptopt{-end}{<int>}{end at column <int> EXclusive}
-   \:synoptopt{-gq}{num}{ignore input smaller than}
-   \:synoptopt{-lq}{num}{ignore input larger than}
    \synoptopt{--transpose}{work with the transposed data matrix}
    \synoptopt{-tf}{spec}{transform result network}
    \synoptopt{-table-tf}{spec}{transform input table before processing}
@@ -182,15 +180,6 @@
 }
 \car{
    Output values smaller than \genarg{num} are removed (set to zero).}
-
-\""{
-\item{\defopt{-gq}{num}{ignore input smaller than}}
-\car{
-   Input values smaller than \genarg{num} are ignored.}
-\item{\defopt{-lq}{num}{ignore input larger than}}
-\car{
-   Input values larger than \genarg{num} are ignored.}
-}
 
 \item{\defopt{--transpose}{work with the transpose}}
 \car{

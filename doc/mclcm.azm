@@ -49,6 +49,7 @@
    \synoptopt{-a}{<opts>}{shared mcl options}
    \synoptopt{-b1}{<opts>}{dedicated base 1 mcl options}
    \synoptopt{-b2}{<opts>}{dedicated base 2 mcl options}
+   \shared_synoptopt{-tf}
    \synoptopt{-c}{<fname>}{input clustering}
    \synoptopt{-n}{<num>}{iteration limit}
    \synoptopt{--root}{ensure universe root clustering}
@@ -183,7 +184,7 @@
 \item{\defopt{-b1}{<opts>}{dedicated base 1 mcl options}}
 \car{
    This will apply the mcl options \genarg{opts} to the input matrix. The
-   resulting start matrix is used as the base matrix for constucting contracted
+   resulting start matrix is used as the base matrix for constructing contracted
    graphs.}
 
 \item{\defopt{-b2}{<opts>}{dedicated base 2 mcl options}}
@@ -191,7 +192,10 @@
    This will apply the mcl options \genarg{opts} to the input matrix and
    compute the first iterand of the corresponding mcl process.  The first
    iterand, aka the expansion matrix, is used as the base matrix for
-   constucting contracted graphs.}
+   constructing contracted graphs.}
+
+\shared_itemopt{-tf}
+\car{\shared_defopt{-tf}}
 
 \item{\defopt{-c}{<fname>}{input clustering}}
 \car{
@@ -244,7 +248,7 @@
 
 \item{\defopt{-write}{<tag>}{select output modes}}
 \car{
-   Use this option to explictly specify all of the output types you want
+   Use this option to explicitly specify all of the output types you want
    written in a comma-separated string. \genarg{<tag>} may contain
    any of the strings \it{stack}, \it{cone}, \it{coarse}, \it{steps}.
    The current default is to write all of these except \it{coarse}.

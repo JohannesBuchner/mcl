@@ -1,4 +1,4 @@
-/*   (C) Copyright 2005, 2006, 2007 Stijn van Dongen
+/*   (C) Copyright 2005, 2006, 2007, 2008, 2009, 2010 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -22,13 +22,13 @@ void app_report_version
 )
    {  fprintf
       (  stdout
-      ,  "%s %s, %s\n"
-"Copyright (c) 1999-2008, Stijn van Dongen. mcl comes with NO WARRANTY\n"
+      ,  "%s %s\n"
+"Copyright (c) 1999-%s, Stijn van Dongen. mcl comes with NO WARRANTY\n"
 "to the extent permitted by law. You may redistribute copies of mcl under\n"
 "the terms of the GNU General Public License.\n"
       ,   me
       ,  mclDateTag
-      ,  mclNumTag
+      ,  mclYear
       )
 ;  }
 

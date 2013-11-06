@@ -210,21 +210,6 @@ is it labeled 'Markov cluster' anyway?}
    release.  When asked for its version by using \useopt{--version}, mcl
    outputs both the date stamp and a version tag (see below).}
 
-\par{
-   In early 2002 it occurred to me that \mcl should, in addition to time
-   stamps, also have something like version numbers, wanting to use those to
-   indicate noteworthy changes. The April 2002 release got version tag 1.001,
-   in order to celebrate the then-recent addition of this FAQ, mcl's new
-   logging facility \genopt{--log}, and \clmref{imac} to the MCL distribution.  The
-   January 2003 release had its version number bumped to 1.002, marking MCL's
-   ability to directly deal with a much more general type of graph encoding.
-   1.003 brought mclpipeline, mcxdeblast, mclblastline, mcxassemble, \clmformat
-   and automatic output naming. 1.004 revived binary format, improved mcxsubs,
-   and had a host of other additions. 1.005 removed an IO bottleneck,
-   considerably speeding up matrix reads. 1.006 featured mcl's ability to
-   directly read and produce label output.  Currently, the version tag is not
-   used in the mcl distribution name \- only the date stamp is used for that.}
-
 \end{faqsec}
 
 \begin{faqsec}{
@@ -235,55 +220,8 @@ is it labeled 'Markov cluster' anyway?}
 \faq{}{How can I get my data into the MCL matrix format?}
 
 \car{
-   One of the easiest ways is if you have a list of label pairs with
-   similarities attached to the pairs.
-   Put this information into a file with each
-   pair of labels and the associated similarity on a single line
-   separated by whitespace. Example:}
-
-\verbatim{\:/
-apples    oranges    2.14
-oranges   pears      0.78
-oranges   apples     1.57
-pears     apples     1.01}
-
-
-\car{
-   Suppose the file is called \v{mydata}.
-   You can simply cluster it like this:}
-
-\verbatim{\:/
-   mcl mydata --abc -I 2.0 -o mydata.cls-I20
-   mcl mydata --abc -I 2.4 -o mydata.cls-I24
-   mcl mydata --abc -I 2.8 -o mydata.cls-I28}
-
-\car{
-   In this example a few runs were shown with different inflation parameters.
-   This is nonsensical with this particular 4-node input but a good idea in
-   general.  \mcl provides many options to cache the intermediate matrix input
-   and the intermediate tab file.  Refer to the \sibref{mcl}{mcl manual page},
-   specifically look for the \genopt{-write-tab} and \genopt{-write-graph}
-   options.}
-
-\par{
-   Alternatively, use \mysib{mcxload} to save label input as an mcl matrix and
-   one or more tab files, then apply mcl to the matrix file using the
-   \genopt{-use-tab} option.}
-
-\cpar{NOTE}{
-   Simply doing}
-
-\verbatim{\:/
-   mcl mydata --abc -I 2.0
-   mcl mydata --abc -I 2.4
-   mcl mydata --abc -I 2.8}
-
-\car{
-   will result in the output files \v{out.mydata.I20},
-   \v{out.mydata.I24}, and \v{out.mydata.I28}.
-   The automatic naming facility is very convenient \- try it. If you need to
-   script mcl use the \genopt{-az} option to capture the name
-   that mcl \it{would} generate given the rest of the command-line.}
+   This is described in the \lref{clmprotocols.html}{protocols manual page}.
+   }
 
 \end{faqsec}
 
@@ -330,9 +268,21 @@ pears     apples     1.01}
    respect to the presence of cluster structure. This may well deserve a longer
    discussion than would be justified here.}
 
+\par{
+   If your graph is directed and acyclic (or parts of it are), you can
+   transform it before clustering with mcl by using \useopt{-tf}{'#max()'}, e.g.
+   }
+
+\verbatim{\:/
+   mcl YOUR-GRAPH -I 3.0 -tf '#max()'}
+
+
 \faq{}{Does MCL work for tree graphs?}
 \car{
-   Nah, I don't think so. More info at entry\~\fnum{whatkind}.}
+   Nah, I don't think so. More info at entry\~\fnum{whatkind}.
+   You could consider the \aref{http://en.wikipedia.org/wiki/Strahler_number}{Strahler number},
+   which is numerical measure of branching complexity.
+   }
 
 
 \faq{whatkind}{For what kind of graphs does MCL work well and for which does it not?}
@@ -376,10 +326,10 @@ How to make them satisfy this Markov condition?}
    with your input graph, and that is the natural state of affairs.}
 
 \par{
-   The input graph should preferably be honest in the sense that if s(x,y)=N
-   and s(x,z)=200N (i.e. the similarities differ by a factor 200), then
-   this should really reflect that the similarity of y to x is neglectible
-   compared with the similarity of z to x.}
+   The input graph should preferably be honest in the sense that if \v{s(x,y)=N}
+   and \v{s(x,z)=200N} (i.e. the similarities differ by a factor 200), then
+   this should really reflect that the similarity of \v{y} to \v{x} is neglectible
+   compared with the similarity of \v{z} to \v{x}.}
 
 \par{
    For the rest, anything goes. Try to get a feeling by experimenting.
@@ -472,10 +422,10 @@ begin
 
 \faq{howfast}{How fast is mcl/MCL?}
 \car{
-   It's fast - here is how and why. Let N be the number of nodes in the input
+   It's fast - here is how and why. Let \v{N} be the number of nodes in the input
    graph. A straigtforward implementation of MCL will have time and space
-   complexity respecively O(N^3) (i.e. cubic in N) and O(N^2) (quadratic in N).
-   So you don't want one of those.}
+   complexity respecively \v{O(N^3)} (i.e. cubic in \v{N}) and \v{O(N^2)}
+   (quadratic in \v{N}).  So you don't want one of those.}
 
 \par{
    \mcl implements a slightly perturbed version of the MCL  process,
@@ -490,24 +440,24 @@ begin
    by allowing a certain maximum number of nonzero entries
    per stochastic column. The maximum is one of the mcl parameters, and
    it is typically set somewhere between 500 and 1500.
-   Call the maximum K.}
+   Call the maximum \v{K}.}
 
 \par{
    mcl's time complexity is governed by the complexity of matrix squaring.
    There are two sub-algorithms to consider. The first is the
    algorithm responsible for assembling a new vector during matrix
-   multiplication. This algorithm has worst case complexity O(K^2).  The
-   pruning algorithm (which uses heap selection) has worst case complexity
-   O(L*log(K)), where L is how large a newly computed matrix column can get
-   before it is reduced to at most K entries. L is \it{bound by} the smallest
-   of the two numbers N and K^2 (the square of K), but on average
-   L will be much smaller than that, as the presence of cluster structure aids in
-   keeping the factor L low. [Related to this is the fact that clustering
+   multiplication. This algorithm has worst case complexity \v{O(K^2)}.
+   The pruning algorithm (which uses heap selection) has worst case complexity
+   \v{O(L*log(K))}, where \v{L} is how large a newly computed matrix column can get
+   before it is reduced to at most \v{K} entries. \v{L} is \it{bound by} the smallest
+   of the two numbers \v{N} and \v{K^2} (the square of \v{K}), but on average
+   \v{L} will be much smaller than that, as the presence of cluster structure aids in
+   keeping the factor \v{L} low. [Related to this is the fact that clustering
    algorithms are actually used to compute matrix splittings that minimize
    the number of cross-computations when carrying out matrix
    multiplication among multiple processors.]
-   In actual cases of heavy usage, L is of order in the tens of thousands, and
-   K is in the order of several hundreds up to a thousand.}
+   In actual cases of heavy usage, \v{L} is of order in the tens of thousands, and
+   \v{K} is in the order of several hundreds up to a thousand.}
 
 \par{
    It is safe to say that in general the worst case complexity of mcl
@@ -519,20 +469,18 @@ begin
 \par{
    In this analysis, the number of iterations required by mcl was not
    included. It is nearly always far below 100. Only the first
-   few iterations are genuinely time consuming; the first few iterations
-   (some number below 10) are usually responsible for more than 95 percent
-   of the running time.}
+   few (less than ten) iterations are genuinely time consuming, and they are
+   usually responsible for more than 95 percent of the running time.}
 
 \par{
    The process of removing the smallest entries of a vector is called
-   pruning.  mcl provides extensive facilities for monitoring and controlling
-   the effect of pruning, and it will output statistics and a summary once it
+   pruning.  mcl outputs a summary of this once it
    is done. More information is provided in the pruning section of the
    \sibref{mcl}{mcl manual} and \iref{resource}{Section\~\refnumber{resource}}
    in this FAQ.}
 
 \par{
-   The space complexity is of order O(N*K).}
+   The space complexity is of order \v{O(N*K)}.}
 
 \faq{stats}{What statistics are available?}
 \car{
@@ -545,11 +493,20 @@ begin
 \faq{colsort}{Does this implementation need to sort vectors?}
 \car{
    No, it does not. You might expect that one needs to sort
-   a vector in order to obtain the K largest entries, but a simpler
+   a vector in order to obtain the \v{K} largest entries, but a simpler
    mechanism called \it{heap selection} does the job nicely.
-   Selecting the K largest entries from a set of L by sorting
-   would require O(L*log(L)) operations; heap selection
-   requires O(L*log(K)) operations.}
+   Selecting the \v{K} largest entries from a set of \v{L} by sorting
+   would require \v{O(L*log(L))} operations; heap selection
+   requires \v{O(L*log(K))} operations.
+   Alternatively, the \v{K} largest entries can be also be
+   determined in \v{O(N) + O(K log(K))} asymptotic time by using partition
+   selection (more \aref{http://en.wikipedia.org/wiki/Selection_algorithm#Optimised_sorting_algorithms}{here}
+   and \aref{http://wordaligned.org/articles/top-ten-percent}{there}).  It is
+   possible to enable this mode of operaton in mcl with the option
+   \genopt{--partition-selection}.  However, benchmarking so far has shown this
+   to be equivalent in speed to heap selection. This is explained by
+   the bounded nature of \v{K} and \v{L} in practice.
+   }
 
    
 \faq{approx}{mcl does not compute the ideal MCL process!}
@@ -576,16 +533,20 @@ begin
    algorithm, not just mcl).}
 
 \par{
-   One can
-   say that the perturbation effect of the pruning process applied by
-   mcl is just a small source of noise. Additionally, graphs at the noisy
-   end of the spectrum will generally be very susceptible to changes in
-   parametrization of the MCL algorithm and process, and the perturbation
-   caused by computing an imperfect process will generally be small
-   compared with the effect of changing parametrizations.}
+   In short, the perturbation effect of the pruning process applied by mcl is a
+   source of noise.  It is small compared to the effect of
+   changing the inflation parametrization or perturbing the edge weights.  If
+   the change is larger, this is because the computed process tends to converge
+   prematurely, leading to finer-grained clusterings.  As a result the
+   clustering will be close to a \it{subclustering} of the clustering resulting
+   from more conservative resource settings, and in that respect be consistent.
+   All this can be measured using the program
+   \lref{http://micans.org/mcl/man/clmdist.html}{clm dist}.  It is possible to
+   offset such a change by slightly lowering the inflation parameter.
+   }
 
 \par{
-   Of course, there is the issue of very large and very dense graphs.
+   There is the issue of very large and very dense graphs.
    The act of pruning will have a larger impact as graphs grow
    larger and denser.
    Obviously, mcl will have trouble dealing with such very large and very dense
@@ -642,7 +603,7 @@ begin
    they assume or insist that the only way to implement MCL is to implement the
    ideal process.  And there is always the genuine possibility
    of a \it{really} stupifyingly fast algorithm. It is certainly not the
-   case that MCL has a time complexity of O(N^3) as is sometimes erroneously
+   case that MCL has a time complexity of \v{O(N^3)} as is sometimes erroneously
    stated.}
 
 \""{
@@ -668,11 +629,11 @@ begin
 
 \par{
    Expansion causes problems in terms of both time and space.  mcl works with
-   matrices of dimension N, where N is the number of nodes in the input graph.
+   matrices of dimension \v{N}, where \v{N} is the number of nodes in the input graph.
    If no precautions are taken, the number of entries in the mcl iterands
-   (which are stochastic matrices) will soon approach the square of N.  The
+   (which are stochastic matrices) will soon approach the square of \v{N}.  The
    time it takes to compute such a matrix will be proportional to the cube of
-   N. If your input graph has 100.000 nodes, the memory requirements become
+   \v{N}. If your input graph has 100.000 nodes, the memory requirements become
    infeasible and the time requirements become impossible.}
 
 \par{
@@ -681,7 +642,7 @@ begin
    This is a natural thing to do, because the matrices are sparse in
    a weighted sense (a very high proportion of the stochastic mass
    is contained in relatively few entries), and the process converges
-   to matrices that are extremely sparse, with usually no more than N entries.
+   to matrices that are extremely sparse, with usually no more than \v{N} entries.
    It is thus known that the MCL iterands are sparse in a weighted
    sense and are usually very close to truly sparse matrices.
    The way mcl perturbs its matrices is by the strategy
@@ -710,10 +671,10 @@ begin
 
 \car{
    bytes, where 2 is the number of matrices held in memory by \mcl, s is the
-   size of a single cell (c.q. matrix entry or node/arc specification), N is
-   the number of nodes in the input graph, and where K is the maximum of the
+   size of a single cell (c.q. matrix entry or node/arc specification), \v{N} is
+   the number of nodes in the input graph, and where \v{K} is the maximum of the
    values corresponding with the \genopt{-S} and \genopt{-R} options (and this
-   assumes that the average node degree in the input graph does not exceed K
+   assumes that the average node degree in the input graph does not exceed \v{K}
    either).  The value of s can be found by using the \genopt{-z} option.  It
    is listed in one of the first lines of the resulting output.  s equals the
    size of an int plus the size of a float, which will be 8 on most systems.
@@ -934,8 +895,9 @@ How can I trust the output clustering?}
    that is, with exorbitantly many neighbours. Such nodes tend to
    obscure cluster structure and contribute to coarse clusters.
    The ways to combat this using \mcl and sibling programs are documented
-   in \mysib{clmprotocols}. Briefly, they are the \mcl and \mcx{alter}
-   options \genopt{-knn} and \genopt{-ceil-nb}.
+   in \mysib{clmprotocols}. Briefly, they are the
+   transformations \v{#knn()} and \v{#ceilnb()} available
+   to \mcl, \mcx{alter} and several more programs.
    }
 
 \faq{simil_granul}{The effect of edge weight differentiation on cluster granularity.}

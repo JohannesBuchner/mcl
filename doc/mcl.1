@@ -1,5 +1,5 @@
 .\" Copyright (c) 2010 Stijn van Dongen
-.TH "mcl" 1 "28 May 2010" "mcl 1\&.008, 10-148" "USER COMMANDS "
+.TH "mcl" 1 "20 Jul 2010" "mcl 10-201" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -59,7 +59,7 @@ sequences, such as \fB-tf\fP\ \&\fB\&'gq(0\&.7),add(-0\&.7)\&'\fP\&. This causes
 remaining edge weights to be shifted to the range [0-0\&.3], assuming that the
 input contains correlations\&. Many more transformations are supported, as
 documented in \fBmcxio(5)\fP\&. Examples of graph-wide transformations are
-\fC#knn(<num>)\fP and \fC#ceilnb(<num>)\fP\&. The first only keeps those edges
+\fC\&'#knn(<num>)\&'\fP and \fC\&'#ceilnb(<num>)\&'\fP\&. The first only keeps those edges
 that occur in the list of top-\fC<num>\fP edges of highest weight in both of
 its incident nodes\&. The second removes edges from nodes of highest degree
 first, proceeding until all node degrees satisfy the given threshold\&.
@@ -105,26 +105,21 @@ option\&.
 \fBmcl\fP <-|fname>
 \fB[-I\fP <num> (\fIinflation\fP)\fB]\fP
 \fB[-o\fP <str> (\fIfname\fP)\fB]\fP
-\fB[-scheme\fP <int> (\fIresource scheme\fP)\fB]\fP
 
 These options are sufficient in 95 percent of the cases or more\&. The first
 argument must be the name of a file containing a graph/matrix in the mcl
 input format, or a hyphen to read from STDIN\&. With respect to clustering,
-the \fB-I\fP option and \fB-scheme\fP
-option are foremost relevant\&.
+the \fB-I\fP option is foremost relevant\&.
 
 The full listing of \fBmcl\fP options is shown further below, separated
 into parts corresponding with functional aspects such
 as clustering, threading, verbosity, network preprocessing, pruning and resource management,
 automatic output naming, and dumping\&.
-The \fB-scheme\fP parameter provides a single access point to the
-pruning options, and should be sufficient in most cases\&.
 
 \fBBaseline clustering options\fP
 .br
 \fB[-I\fP <num> (\fIinflation\fP)\fB]\fP
 \fB[-o\fP <fname> (\fIfname\fP)\fB]\fP
-\fB[-scheme\fP <num> (\fIresource scheme\fP)\fB]\fP
 
 \fBOutput options\fP
 .br
@@ -156,9 +151,6 @@ pruning options, and should be sufficient in most cases\&.
 \fB[-ph\fP <num> (\fIpre-inflation, max-bound\fP)\fB]\fP
 \fB[-if\fP <num> (\fIstart-inflation\fP)\fB]\fP
 \fB[--discard-loops=\fP<y/n> (\fIdiscard y/n loops in input\fP)\fB]\fP
-\fB[--shadow\fP <mode> (\fImodulation type\fP)\fB]\fP
-\fB[-shadow-s\fP <num> (\fIboost factor\fP)\fB]\fP
-\fB[--shadow-vl\fP (\fIshadow distant nodes\fP)\fB]\fP
 \fB[--sum-loops\fP (\fIset loops to sum of other arcs weights\fP)\fB]\fP
 \fB[-c\fP <num> (\fIreweight loops\fP)\fB]\fP
 
@@ -170,7 +162,6 @@ pruning options, and should be sufficient in most cases\&.
 \fB[--check-connected=\fP<y/n> (\fIanalyze components\fP)\fB]\fP
 \fB[--analyze=\fP<y/n> (\fIperformance criteria\fP)\fB]\fP
 \fB[--show-log=\fP<y/n> (\fIshow log\fP)\fB]\fP
-\fB[--append-log=\fP<y/n> (\fIappend log\fP)\fB]\fP
 
 \fBVerbosity options\fP
 .br
@@ -198,9 +189,6 @@ pruning options, and should be sufficient in most cases\&.
 \fB[-dump-modulo\fP <int> (\fIdump modulo\fP)\fB]\fP
 \fB[-dump-stem\fP <stem> (\fIdump file stem\fP)\fB]\fP
 \fB[-dump\fP <str> (\fItype\fP)\fB]\fP
-\fB[-dump-subi\fP <spec> (\fIindex list for submatrix dump\fP)\fB]\fP
-\fB[-dump-subd\fP <spec> (\fIdomain list for submatrix dump\fP)\fB]\fP
-\fB[-dump-dom\fP <fname> (\fIdomain matrix file\fP)\fB]\fP
 \fB[-digits\fP <int> (\fIprinting precision\fP)\fB]\fP
 \fB[--write-binary\fP (\fIwrite matrices in binary format\fP)\fB]\fP
 
@@ -216,6 +204,10 @@ pruning options, and should be sufficient in most cases\&.
 \fB[-ax\fP (\fIshow output suffix and exit\fP)\fB]\fP
 \fB[--show-schemes\fP (\fIshow resource schemes\fP)\fB]\fP
 
+\fBImplementation options\fP
+.br
+\fB[-sparse\fP <int> (\fIsparse matrix multiplication threshold\fP)\fB]\fP
+
 \fBPruning options\fP
 .br
 The following options all pertain to the various pruning strategies that can
@@ -224,16 +216,15 @@ section, accompanied by a description of the mcl pruning strategy\&.
 If your graphs are huge
 and you have an appetite for tuning, have a look at the following:
 
+\fB[-scheme\fP <int> (\fIresource scheme\fP)\fB]\fP
+\fB[-resource\fP <int> (\fIper-node resource maximum\fP)\fB]\fP
 \fB[-p\fP <num> (\fIcutoff\fP)\fB]\fP
 \fB[-P\fP <int> (\fI1/cutoff\fP)\fB]\fP
 \fB[-S\fP <int> (\fIselection number\fP)\fB]\fP
 \fB[-R\fP <int> (\fIrecovery number\fP)\fB]\fP
 \fB[-pct\fP <int> (\fIrecover percentage\fP)\fB]\fP
-\fB[-my-scheme\fP <int> (\fItag custom scheme\fP)\fB]\fP
-\fB[-resource\fP <int> (\fIper-node resource maximum\fP)\fB]\fP
 \fB[-warn-pct\fP <int> (\fIprune warn percentage\fP)\fB]\fP
 \fB[-warn-factor\fP <int> (\fIprune warn factor\fP)\fB]\fP
-\fB[-nj\fP <int> (\fIjury window index\fP)\fB]\fP
 
 The first argument of \fBmcl\fP must be a file name, but some options are allowed
 to appear as the first argument instead\&. These are the options that cause
@@ -423,61 +414,6 @@ automatic naming constructions employed by \fBmcl\fP if the \fB-o\fP option is
 not used\&.
 .in -2m
 
-.ZI 2m "\fB-shadow\fP <mode> (\fIapply shadowing\fP)"
-\&
-'in -2m
-.ZI 2m "\fB-shadow-s\fP <num> (\fIboost factor (experimental)\fP)"
-\&
-'in -2m
-.ZI 2m "\fB--shadow-vl\fP (\fIshadow distant nodes\fP)"
-\&
-'in -2m
-'in +2m
-\&
-.br
-
-\fBEXPERIMENTAL\fP
-.br
-\fIThese options are intended and useful for hierarchical
-clustering with\fP \fBmclcm(1)\fP\&.
-\fB--shadow-vl\fP is the same as \fB-shadow\fP\ \&\fBvl\fP
-and is at present the best mode to choose\&.
-
-Use these to weaken the connectivity of certain
-classes of nodes\&. This means that the effect of the edges
-in which they participate on the final clustering result is diminished\&.
-This is done such that the extent to which a node exhibits certain
-characteristics is correlated with the extent to which its connectivity is
-weakened\&. The different types of characteristics that can be regulated
-are
-
-.ZI 4m "\fBvl\fP"
-value low - nodes for which the average value of its edges
-is low compared with the same number across its neighbours\&.
-.in -4m
-.ZI 4m "\fBvh\fP"
-value high - nodes for which the average value of its edges
-is high compared with the same number across its neighbours\&.
-.in -4m
-.ZI 4m "\fBel\fP"
-edge low - nodes for which the number of neighbours
-is low compared with the same number across its neighbours\&.
-.in -4m
-.ZI 4m "\fBeh\fP"
-edge high - nodes for which the number of neighbours
-is high compared with the same number across its neighbours\&.
-.in -4m
-
-The characteristics above, e\&.g\&. \fBvl\fP, correspond to the modes
-that can be passed to the \fB-shadow\fP argument\&. The first mode \fBvl\fP
-is the one most likely to be useful\&. Combining different modes is possible
-but may lead to unbalanced clusterings\&. Using the mode \fBel\fP in \fBmclcm\fP
-may similarly lead to unbalanced hierachies\&.
-
-The boost factor can be set e\&.g\&. to 2\&.0 to increase the effect of shadowing\&.
-The default setting is 1\&.0\&.
-.in -2m
-
 .ZI 2m "\fB-c\fP <num> (\fIreweight loops\fP)"
 \&
 'in -2m
@@ -584,9 +520,7 @@ more accurate\&. The default scheme is 4\&. When \fBmcl\fP is done, it will give
 grade (the so called \fIjury synopsis\fP) to the appropriateness of the
 scheme used\&. \fIA low grade does not necessarily imply that the
 resulting clustering is bad\fP - but anyway, a low grade should be reason
-to try for a higher scheme\&. The grades are listed in the
-\fBPRUNING OPTIONS\fP section under the
-\fB-nj\fP option\&.
+to try for a higher scheme\&.
 
 Use the \fB-resource\fP\ \&\fI<num>\fP option to cap for each nodes the number of
 neighbours tracked during computation at \fI<num>\fP nodes\&.
@@ -803,9 +737,8 @@ Values to try are normally in the range \fC[2\&.0,10\&.0]\fP\&.
 The \fB-ph\fP option is special in that it does not rescale
 columns to be stochastic\&. Instead, it rescales columns so that
 the maximum value found in the column stays the same after
-inflation was applied\&. This is for use in conjunction with
-\fB--shadow\fP=\fIvl\fP, as the latter option is affected by
-absolute differences in edge weights\&.
+inflation was applied\&. There is little significance to this,
+and what little there is is undocumented\&.
 .in -2m
 
 .ZI 2m "\fB-if\fP <num> (\fIstart-inflation\fP)"
@@ -853,30 +786,6 @@ See the \fB-dump\fP\ \&\fIstr\fP option below\&.
 .br
 Set the the stem for file names of dumped
 objects (default \fImcl\fP)\&. See the \fB-dump\fP\ \&\fIstr\fP option below\&.
-.in -2m
-
-.ZI 2m "\fB-dump-subi\fP <spec> (\fIindex list for submatrix dump\fP)"
-\&
-'in -2m
-.ZI 2m "\fB-dump-subd\fP <spec> (\fIdomain list for submatrix dump\fP)"
-\&
-'in -2m
-.ZI 2m "\fB-dump-dom\fP <fname> (\fIdomain matrix file\fP)"
-\&
-'in -2m
-'in +2m
-\&
-.br
-\fB-dump-subi\fP specifies a range of indices which will be
-used to select the extended principal submatrix\&.
-Argument \fIspec\fP can be a comma-separated
-list of single integers and integer ranges\&. Ranges are denoted by
-two integers separated by a hyphen\&.
-
-If \fB-dump-dom\fP is used and specifies a matrix file,
-the indices specified in the \fB-dump-subd\fP option should index
-columns in that matrix\&. These columns are merged and added to the
-list of entries used in selecting the extended principal submatrix\&.
 .in -2m
 
 .ZI 2m "\fB-dump\fP <str> (\fItype\fP)"
@@ -1043,13 +952,6 @@ and compute a few performance criteria and attach them to
 the output file\&. Off by default\&.
 .in -2m
 
-.ZI 2m "\fB--append-log\fP=<y/n> (\fIappend log\fP)"
-\&
-.br
-Appends a log with the process characteristics to the output file\&.
-Off by default\&.
-.in -2m
-
 .ZI 2m "\fB--show-log\fP=<y/n> (\fIshow log\fP)"
 \&
 .br
@@ -1137,9 +1039,6 @@ Show current settings for tunable parameters\&.
 .ZI 2m "\fB-pct\fP <pct> (\fIrecover percentage\fP)"
 \&
 'in -2m
-.ZI 2m "\fB-my-scheme\fP <int> (\fItag custom scheme\fP)"
-\&
-'in -2m
 'in +2m
 \&
 .br
@@ -1196,13 +1095,6 @@ Note that \&'less accurate\&' or \&'more accurate\&' computations may still
 generate the same output clusterings\&. Use \fBclm dist\fP to compare output
 clusterings for different resource parameters\&. Refer to \fBclm dist\fP
 for a discussion of this issue\&.
-
-The \fB-my-scheme\fP\ \&\fBn\fP option sets a tag that is used in constructing
-the default output naming file\&. If not used, \fBmcl\fP will create
-a relatively long string describing the settings of the
-\fB-P\fP, \fB-pct\fP, \fB-R\fP, and \fB-S\fP parameters,
-e\&.g\&. \fBP600Q85R1000S1200\fP (where \fBQ\fP tags the \fIpct\fP setting)\&.
-If used, mcl will simply use the tag \fBs\fP\fIn\fP\&.
 .in -2m
 
 .ZI 2m "\fB-warn-pct\fP <int> (\fIprune warn percentage\fP)"
@@ -1239,123 +1131,34 @@ Pruning verbosity mode causes \fBmcl\fP to emit several statistics related to
 the pruning process, each of which is described below\&. Use
 \fB-v\fP\ \&\fBexplain\fP to get explanatory headers in the output as well
 (or simply use \fB-v\fP\ \&\fBall\fP)\&.
-
-\fBSelection and recovery\fP
-.br
-The number of selections and recoveries \fBmcl\fP had to perform during each
-iteration is shown\&. It also shows the number of vectors for which the
-mass after final pruning was below the fraction defined by the
-\fB-pct\fP option as a percentage (default probably 90
-or 95)\&.
-
-\fBInitial and pruned vector footprint distributions\fP
-.br
-The distribution of the vector footprints (i\&.e\&. the number of nonzero
-entries) before and after pruning is shown\&. This is assembled in a terse
-(horrid if you will) format, looking as follows (with some context
-stripped, noting that the data for three expansion steps is shown):
-
-.di ZV
-.in 0
-.nf \fC
-----------------------------------------------------
- mass percentages  | distr of vec footprints       |
-         |         |____ expand ___\&.____ prune ____|
-  prune  | final   |e4   e3   e2   |e4  e3   e2    |
-all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|
----------\&.---------\&.---------------\&.---------\&.-----\&.
- 98 88 86  98 91 86 _________022456 ___________0234
- 98 89 86  98 94 91 _______00245678 ___________0234
- 98 90 89  99 95 94 _______00235568 ___________0234
- \&.\&.\&.
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-This particular output was generated (and truncated after three rounds of
-expansion and inflation) from clustering a protein graph on 9058 nodes
-with settings \fB-I\fP\ \&\fB1\&.4\fP, \fB-P\fP\ \&\fB2000\fP, \fB-S\fP\ \&\fB500\fP,
-\fB-R\fP\ \&\fB600\fP, and \fB-pct\fP\ \&\fB95\fP\&.
-
-The header entries 8532c85\&.\&. indicate thresholds going from 80000, 50000,
-20000, 12500, 8000, all the way down to 300, 200, and 125\&. The character \&'c\&'
-signifies the base 1\&.25 (for no apparent reason)\&. The second entry \&'2\&'
-(after \&'0\&') on the first line signifies that roughly 20 percent of all the
-vectors had a footprint (#nonzero entries) in excess of 800 entries\&.
-Likewise, 40 percent had a footprint in excess of 300 entries\&. The \&'0\&'
-entries signify a fraction somewhere below 5 percent, and the \&'@\&' entries
-signify a fraction somewhere above 95 percent\&.
-
-Two columns are listed, one for the expansion vector footprints
-(i\&.e\&. after squaring), and the other for the vector
-footprints \fIright after initial pruning took place\fP (i\&.e\&. before
-selection and recovery, after either adaptive or rigid pruning)\&.
-This may give an idea of the soundness of the initial pruning
-process (overly severe, or overly mild), and the extent
-to which you want to apply selection and/or recovery\&.
-
-\fBInitial and final mass windows\fP
-.br
-The mass averages of the pruned vectors after the first selection
-stage are shown, and the mass averages of the vectors as \fIfinally
-computed\fP, i\&.e\&. after selection and recovery\&. Note that the latter
-corresponds to a different stage than what is shown for the vector
-footprints, if either selection or recovery is turned on\&.
-For both cases, three averages are shown: the average over all vectors,
-the average over the worst x cases, and the average over the worst y
-cases\&. The mass averages are shown as percentages: \&'98\&' on the first
-line under the \&'prune/all\&' column means that overall 98 percent of the
-stochastic mass of the matrix was kept after pruning\&.
-
-This example demonstrates that many entries could be
-removed while retaining much of the stochastic mass\&. The effect of the
-recovery (\fB-R\fP) parameter is also clear: the final averages are
-higher than the initial averages, as a result of \fBmcl\fP undoing some
-overenthousiastic pruning\&.
-
-An average over the worst k cases is called a window of width k;
-internally, \fBmcl\fP tracks many more such windows\&. The result of this can
-be seen when using the \fB--append-log\fP=\fBy\fP option
-(which appends a log to the cluster output) or the
-\fB--show-log\fP=\fBy\fP option
-(which sends the log to STDOUT)\&.
-From a fixed set of windows those that are applicable are tracked, that
-is, all those windows for which the width does not exceed the graph
-cardinality\&. The windows in the fixed set have respective sizes 1, 2, 5,
-10, 20, 50, and so on up until 5000000 (which makes 15 windows in all)\&.
 .in -2m
+.SH IMPLEMENTATION OPTIONS
 
-.ZI 2m "\fB-nj\fP i (\fIjury window index\fP)"
+.ZI 2m "\fB-sparse\fP <int> (\fIsparse matrix multiplication threshold\fP)"
 \&
 .br
-The \fB-nj\fP denotes a window index in the same way as \fB-nx\fP
-and \fB-ny\fP do\&. This particular window is used for computing the
-\fIjury marks\fP, which are the three number reported by \fBmcl\fP when it is
-done\&. They are a reminder of the existence of pruning and its importance
-for both speed and accuracy, and they are \fIindicative rather than
-authorative\fP\&.
+This value (by default set to 10) determines when mcl switches to sparse matrix/vector multiplication\&.
+For a given column stochastic vector (corresponding with all the neighbours
+of a given node \fCv\fP according to the current mcl iterand) the sum \fCS\fP of neighbour counts
+of all neighbours of \fCv\fP is computed, counting duplicates\&. This is exactly the
+number of matrix entries involved in the computation of the new column vector
+for the matrix product\&. If \fCS\fP times \fI<int>\fP does not exceed the
+number of nodes in the graph (equal to both column and row dimension of
+the matrices used) then a sparse implementation is used\&. Otherwise
+an optimized regular implementation is used\&. Intuitively, this option can
+be thought of as the estimated overhead per matrix floating point operation incurred
+by the sparse implementation compared with the regular implementation\&.
+MCL uses this estimated overhead to determine which implementation is likely
+to be quicker\&. Testing has shown this strategy works very well for graphs of a wide
+range of sizes, including graphs with up to 3 million nodes and 500 million edges\&.
 
-These jury marks are simply the respective mass averages in the jury
-window for the first three iterations\&. The marks are even further
-simplified and mapped to the jury synopsis, which is a single grade
-expressed as an adjective\&. The grades are, in decreasing order of
-achievement, \fIperfect exceptional superior excellent good acceptable
-mediocre poor bad lousy miserable awful wretched atrocious\fP\&. Doing \&'mcl
---jury-charter\&' will tell you how the jury marks map onto the jury
-synopsis\&.
-
-The jury marks should preferably be higher than 70\&. If they are in the
-vicinity of 80 or 90, \fBmcl\fP is doing fine as far as pruning is concerned\&.
-Choose a higher scheme if you think them too low\&. For very dense graphs
-that do have strong cluster structure, the jury marks can sink as low as
-to the 30\&'s and 40\&'s, but the clusterings generated by mcl may still be
-good\&. The marks and the synopsis grade the severity of pruning, not
-cluster quality\&. Note that the jury becomes friendlier, resp\&. harsher
-when the \fB-nj\fP option is increased/decreased\&.
+\fBNOTE\fP
+.br
+The effectiveness of this option is influenced by hardware-specific properties
+such as the CPU L2 cache size\&. The default value should work reasonably well
+across a wide variety of scenarios, but it may be possible to squeeze
+faster run times out of mcl by tuning this parameter to the graphs that are
+specific for your application domain\&.
 .in -2m
 .SH EXAMPLES
 

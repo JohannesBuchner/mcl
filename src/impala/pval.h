@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -258,6 +258,23 @@ double fltArcMax
 (  pval     lft
 ,  pval     rgt
 )  ;
+
+
+   /* keeps both if at least one of the arcs exceeds arg */
+double fltArcMaxGQ(pval lft, pval rgt, pval arg);
+double fltArcMaxGT(pval lft, pval rgt, pval arg);
+double fltArcMaxLQ(pval lft, pval rgt, pval arg);
+double fltArcMaxLT(pval lft, pval rgt, pval arg);
+
+double fltArcMinGQ(pval lft, pval rgt, pval arg);
+double fltArcMinGT(pval lft, pval rgt, pval arg);
+double fltArcMinLQ(pval lft, pval rgt, pval arg);
+double fltArcMinLT(pval lft, pval rgt, pval arg);
+
+double fltArcDiffGQ(pval lft, pval rgt, pval arg);
+double fltArcDiffGT(pval lft, pval rgt, pval arg);
+double fltArcDiffLQ(pval lft, pval rgt, pval arg);
+double fltArcDiffLT(pval lft, pval rgt, pval arg);
 
 
 #endif

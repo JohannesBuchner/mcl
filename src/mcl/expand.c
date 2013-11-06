@@ -87,8 +87,7 @@ static void matrix_vector_array
 #endif
 
 
-/* compute linear combination of columns in mx. We do not worry about loss
-   of precision -- Kahan summation is not needed.
+/* compute linear combination of columns in mx.
  */
    ;  for (i=0;i<src->n_ivps;i++)
       {  mclv* c = mx->cols + src->ivps[i].idx
@@ -207,7 +206,7 @@ mclExpandParam* mclExpandParamNew
    ;  mxp->dimension       =  -1
 
    ;  mxp->inflation       =  -1.0
-   ;  mxp->sparse_trigger   =  100
+   ;  mxp->sparse_trigger  =  10
 
    ;  return mxp
 ;  }
@@ -335,9 +334,10 @@ static double mclExpandVector1
    ;  if
       (  have_canonical
       && mxp->sparse_trigger
-      && n_entries > srcvec->n_ivps * mxp->sparse_trigger
+      && n_entries * mxp->sparse_trigger >= N_COLS(mx)
       )
-      matrix_vector_array(mx, srcvec, dstvec, vecbuf)
+         matrix_vector_array(mx, srcvec, dstvec, vecbuf)
+      ,  stats->bob_sparse++     /* not an atomic update, but we do not care */
    ;  else
       mclxVectorCompose(mx, srcvec, dstvec, ch)
 
@@ -495,6 +495,7 @@ static double mclExpandVector1
 
       {  stats->bob_low[v_offset]   =  rg_mass_prune
       ;  stats->bob_final[v_offset] =  rg_mass_final
+      ;  stats->bob_expand[v_offset]=  rg_n_expand
 
       ;  if (progress && !mxp->n_ethreads)         /* fixme: change to thread-specific data. */
          {  stats->n_cols++
@@ -625,12 +626,14 @@ mclMatrix* mclExpand
 mclExpandStats* mclExpandStatsNew
 (  dim   n_cols
 )  
-   {  mclExpandStats* stats  =  (mclExpandStats*) mcxAlloc
-                                (  sizeof(mclExpandStats)
-                                ,  EXIT_ON_FAIL
-                                )
-   ;  stats->bob_low         =   mcxAlloc(n_cols * sizeof stats->bob_low[0], EXIT_ON_FAIL)
-   ;  stats->bob_final       =   mcxAlloc(n_cols * sizeof stats->bob_final[0], EXIT_ON_FAIL)
+   {  mclExpandStats* stats   =  (mclExpandStats*) mcxAlloc
+                                 (  sizeof(mclExpandStats)
+                                 ,  EXIT_ON_FAIL
+                                 )
+   ;  stats->bob_low          =  mcxAlloc(n_cols * sizeof stats->bob_low[0], EXIT_ON_FAIL)
+   ;  stats->bob_final        =  mcxAlloc(n_cols * sizeof stats->bob_final[0], EXIT_ON_FAIL)
+   ;  stats->bob_expand       =  mcxAlloc(n_cols * sizeof stats->bob_expand[0], EXIT_ON_FAIL)
+   ;  stats->bob_sparse       =  0
 
    ;  stats->homgVec          =  NULL
 
@@ -649,6 +652,7 @@ void mclExpandStatsReset
    ;  stats->homgAvg          =  0.0
    ;  stats->n_cols           =  0
    ;  stats->lap              =  0.0
+   ;  stats->bob_sparse       =  0
 
    ;  mclvFree(&(stats->homgVec))
 ;  }
@@ -661,19 +665,12 @@ void mclExpandStatsFree
 
    ;  mcxFree(stats->bob_low)
    ;  mcxFree(stats->bob_final)
+   ;  mcxFree(stats->bob_expand)
 
    ;  mclvFree(&(stats->homgVec))
    ;  mcxFree(stats)
 
    ;  *statspp = NULL
-;  }
-
-
-void mclExpandStatsPrint
-(  mclExpandStats*  stats
-,  FILE*             fp
-)
-   {  fprintf(fp, " NA")
 ;  }
 
 
@@ -845,6 +842,7 @@ static double mclExpandVector2
 ,  mclExpandStats*   stats
 )
    {  dim            v_offset       =  srcvec - mx->cols
+   ;  dim            rg_n_expand    =  0
 
    ;  double         rg_mass_current=  0.0
    ;  double         rg_mass_prune  =  0.0
@@ -874,11 +872,14 @@ static double mclExpandVector2
    ;  if
       (  have_canonical
       && mxp->sparse_trigger
-      && n_entries >= srcvec->n_ivps * mxp->sparse_trigger
+      && n_entries * mxp->sparse_trigger >= N_COLS(mx)
       )
-      matrix_vector_array(mx, srcvec, dstvec, vecbuf)
+         matrix_vector_array(mx, srcvec, dstvec, vecbuf)
+      ,  stats->bob_sparse++     /* not an atomic update, but we do not care */
    ;  else
       mclxVectorCompose(mx, srcvec, dstvec, ch)
+
+   ;  rg_n_expand = dstvec->n_ivps ? dstvec->n_ivps : 1
 
    ;  if (mxp->implementation & MCL_USE_RPRUNE)
          maxval   =  mclvMaxValue(dstvec)
@@ -1031,6 +1032,7 @@ static double mclExpandVector2
 
       {  stats->bob_low[v_offset]   =  rg_mass_prune
       ;  stats->bob_final[v_offset] =  rg_mass_current
+      ;  stats->bob_expand[v_offset]=  rg_n_expand
 
       ;  if (progress && !mxp->n_ethreads)         /* fixme: change to thread-specific data. */
          {  stats->n_cols++

@@ -79,9 +79,9 @@ margin-right: 8%;
 </head>
 <body>
 <p style="text-align:right">
-28 May 2010&nbsp;&nbsp;&nbsp;
+20 Jul 2010&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxquery.ps"><b>mcx q</b></a>
-1.008, 10-148
+10-201
 </p>
 <div class=" itemize " style="margin-top:1em; font-size:100%">
 <div class=" item_compact"><div class=" item_rightalign nowrap " style="right:-3em">1.</div></div>
@@ -136,6 +136,10 @@ in the <a class="local sibling" href="mcx.html">mcx</a> manual page.</p>
 <a class="intern" href="#opt--clcf"><b>[--clcf</b> (<i>include clustering coefficient analysis</i>)<b>]</b></a>
 <a class="intern" href="#opt-div"><b>[-div</b> &lt;num&gt; (<i>cluster size separating value</i>)<b>]</b></a>
 <a class="intern" href="#opt--dim"><b>[--dim</b> (<i>report native format and dimensions</i>)<b>]</b></a>
+<a class="intern" href="#opt--edges"><b>[--edges</b> (<i>output all arc weights, unsorted</i>)<b>]</b></a>
+<a class="intern" href="#opt--edges-sorted"><b>[--edges-sorted</b> (<i>output all arc weights, sorted</i>)<b>]</b></a>
+<a class="intern" href="#opt-edges-hist"><b>[-edges-hist</b> &lt;start,end,step,scale (<i>output arc weight histogram</i>)<b>]</b></a>
+<a class="intern" href="#opt--output-table"><b>[--output-table</b> (<i>output logical tab separated table without key</i>)<b>]</b></a>
 <a class="intern" href="#opt-t"><b>[-t</b> &lt;num&gt; (<i>number of threads to use</i>)<b>]</b></a>
 <a class="intern" href="#opt-icl"><b>[-icl</b> &lt;fname&gt; (<i>input clustering</i>)<b>]</b></a>
 <a class="intern" href="#opt-tf"><b>[-tf</b> spec (<i>apply tf-spec to input matrix</i>)<b>]</b></a>
@@ -187,6 +191,20 @@ found in the tab file.
 This will report the matrix format (either interchange or binary)
 and the matrix dimensions. For a graph the two reported dimensions
 should be equal.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--edges"></a><b>--edges</b> (<i>output all arc weights, unsorted</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt--edges-sorted"></a><b>--edges-sorted</b> (<i>output all arc weights, sorted</i>)</div><div class=" item_cascade item_leftalign nowrap" ><a name="opt-edges-hist"></a><b>-edges-hist</b> &lt;start,end,step,scale (<i>output arc weight histogram</i>)</div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+These options are fairly self documenting. The result of <b>-edges-hist</b>
+is a tab separated table of bin offsets and bin counts.
+</p>
+</div>
+<div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt--output-table"></a><b>--output-table</b> (<i>output logical tab separated table without key</i>)</div></div>
+<div class=" item_text " style="margin-left:2em">
+<p style="margin-top:0em; margin-bottom:0em">
+This option causes table output such as provided by <b>--vary-correlation</b>
+to be output in a logical tab-separated format rather than pretty-printed.
 </p>
 </div>
 <div style="margin-top:0em">&nbsp;</div><div class=" item_cascade"><div class=" item_leftalign nowrap " ><a name="opt-vary-threshold"></a><b>-vary-threshold</b> &lt;start,end,step,scale&gt; (<i>analyze graphs at similarity cutoffs</i>)</div></div>

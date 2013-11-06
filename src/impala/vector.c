@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007, 2008, 2009 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -936,6 +936,88 @@ dim mclvUpdateDiff
    ;  else
       return update_diff_zip(v1, v2, op)
 ;  }
+
+
+
+mclVector* mclvBinaryx
+(  const mclVector*  vec1
+,  const mclVector*  vec2
+,  mclVector*        dst
+,  double           (*op)(pval arg1, pval arg2, pval arg3)
+,  double            arg3
+)  
+   {  mclIvp  *ivp1, *ivp2, *ivp1max, *ivp2max, *ivpk, *ivpl
+   ;  long n1n2 = vec1->n_ivps+vec2->n_ivps
+
+   ;  if (vec1->n_ivps + vec2->n_ivps == 0)
+      return mclvInstantiate(dst, 0, NULL)
+
+   ;  ivpl  =  ivpk 
+            =  mcxAlloc
+               (  n1n2 * sizeof(mclIvp)
+               ,  RETURN_ON_FAIL
+               )
+   ;  if (!ivpk)
+      {  mcxMemDenied(stderr, "mclvBinary", "mclIvp", n1n2)
+      ;  return NULL
+   ;  }
+
+      ivp1     =  vec1->ivps
+   ;  ivp2     =  vec2->ivps
+
+   ;  ivp1max  =  ivp1 + vec1->n_ivps
+   ;  ivp2max  =  ivp2 + vec2->n_ivps
+   ;
+      
+      {  double rval
+
+      ;  while (ivp1 < ivp1max && ivp2 < ivp2max)
+         {  pval val1 =  0.0
+         ;  pval val2 =  0.0
+         ;  long idx
+
+         ;  if (ivp1->idx < ivp2->idx)
+            {  idx   =  ivp1->idx
+            ;  val1  =  (ivp1++)->val
+         ;  }
+            else if (ivp1->idx > ivp2->idx)
+            {  idx   =  ivp2->idx
+            ;  val2  =  (ivp2++)->val
+         ;  }
+            else
+            {  idx   =  ivp1->idx
+            ;  val1  =  (ivp1++)->val
+            ;  val2  =  (ivp2++)->val
+         ;  }
+
+            if ((rval = op(val1, val2, arg3)) != 0.0)
+            {  ivpl->idx      =  idx
+            ;  (ivpl++)->val  =  rval
+         ;  }
+         }
+
+         while (ivp1 < ivp1max)
+         {  if ((rval = op(ivp1->val, 0.0, arg3)) != 0.0)
+            {  ivpl->idx      =  ivp1->idx
+            ;  (ivpl++)->val  =  rval
+         ;  }
+            ivp1++
+      ;  }
+
+         while (ivp2 < ivp2max)
+         {  if ((rval = op(0.0, ivp2->val, arg3)) != 0.0)
+            {  ivpl->idx      =  ivp2->idx
+            ;  (ivpl++)->val  =  rval
+         ;  }
+            ivp2++
+      ;  }
+      }
+
+      dst = mclvInstantiate(dst, ivpl-ivpk, ivpk)
+   ;  mcxFree(ivpk)
+   ;  return dst
+;  }
+
 
 
 mclVector* mclvBinary

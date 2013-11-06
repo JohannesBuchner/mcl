@@ -1,4 +1,4 @@
-/*   (C) Copyright 2006, 2007 Stijn van Dongen
+/*   (C) Copyright 2006, 2007, 2008, 2009, 2010 Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -10,7 +10,7 @@
 /*
  * TODO
  *
- * Clean up, modularize.
+ * Clean up, modularize, compactify.
  * Different modes are now messy:
  *    vanilla/contract
  *    subcluster
@@ -72,6 +72,7 @@
 #include "mcl/proc.h"
 #include "mcl/procinit.h"
 #include "mcl/alg.h"
+#include "mcl/transform.h"
 
 #include "clew/clm.h"
 
@@ -100,6 +101,7 @@ fprintf(stderr, "       or  http://micans.org/mcl/lit/INS-R0010.ps.Z)\n\n");
 
 enum
 {  MY_OPT_SHARED
+,  MY_OPT_TRANSFORM
 ,  MY_OPT_Z
 ,  MY_OPT_BASE
 ,  MY_OPT_B1
@@ -206,6 +208,12 @@ mcxOptAnchor options[] =
    ,  MY_OPT_SHARED
    ,  "<opts>"
    ,  "shared mcl options"
+   }
+,  {  "-tf"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_TRANSFORM
+   ,  "<func(arg)[, func(arg)]*>"
+   ,  "apply unary transformations to matrix values"
    }
 ,  {  "-write-base"
    ,  MCX_OPT_HASARG
@@ -588,7 +596,8 @@ static mclx* get_base
       ;  mxbase = mclAlgParamRelease(mlp, mlp->mx_expanded)
    ;  }
       else
-      {  mclAlgorithmStart(mlp, FALSE)     /* reread <- false */
+      {  if (mclAlgorithmStart(mlp, FALSE))
+         mcxDie(1, me, "-b1 option start-up failed")
       ;  mxbase = mclAlgParamRelease(mlp, mlp->mx_start)
       ;  start_col_sums_g = mclvClone(mlp->mx_start_sums)
    ;  }
@@ -648,6 +657,9 @@ int main
    ;  int delta = 0
    ;  mcxOption* opts, *opt
    ;  mcxTing* cline = mcxOptArgLine(argv+1, argc-1, '\'')
+   ;  mclgTF* transform  =  NULL
+   ;  mcxTing* transform_spec = NULL
+
 
    ;  double iaf = 0.84
 
@@ -704,6 +716,11 @@ int main
 
             case MY_OPT_SHARED
          :  mcxTingPrintAfter(shared, " %s", opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_TRANSFORM
+         :  transform_spec = mcxTingNew(opt->val)
          ;  break
          ;
 

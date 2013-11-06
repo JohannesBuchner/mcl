@@ -42,6 +42,8 @@ typedef struct
 
 ;  float*            bob_low        /* initial pruning */
 ;  float*            bob_final      /* final result    */
+;  dim*              bob_expand     /* size after expansion */
+;  volatile dim      bob_sparse
 ;
 }  mclExpandStats    ;
 

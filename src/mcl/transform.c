@@ -56,6 +56,18 @@ enum
    ,  MCLG_TF_DUMMY_NOVALUE_END
 ,  MCLG_TF_TUG
 ,  MCLG_TF_SSQ
+,  MCLG_TF_ARCMAXGQ                 /* keep arc pair if max exceeds value */
+,  MCLG_TF_ARCMAXGT
+,  MCLG_TF_ARCMAXLQ
+,  MCLG_TF_ARCMAXLT
+,  MCLG_TF_ARCMINGQ
+,  MCLG_TF_ARCMINGT
+,  MCLG_TF_ARCMINLQ
+,  MCLG_TF_ARCMINLT
+,  MCLG_TF_ARCDIFFGQ
+,  MCLG_TF_ARCDIFFGT
+,  MCLG_TF_ARCDIFFLQ
+,  MCLG_TF_ARCDIFFLT
 ,  MCLG_TF_QT
 ,  MCLG_TF_SHRUG
 ,  MCLG_TF_STEP
@@ -136,6 +148,33 @@ mclgTF* mclgTFparse
             tfg = MCLG_TF_ARCSUB
          ;  else if (!strcmp(key, "#arcmax"))
             tfg = MCLG_TF_ARCMAX
+
+         ;  else if (!strcmp(key, "#arcmingq"))
+            tfg = MCLG_TF_ARCMINGQ
+         ;  else if (!strcmp(key, "#arcmingt"))
+            tfg = MCLG_TF_ARCMINGT
+         ;  else if (!strcmp(key, "#arcmimin"))
+            tfg = MCLG_TF_ARCMINLQ
+         ;  else if (!strcmp(key, "#arcminlt"))
+            tfg = MCLG_TF_ARCMINLT
+
+         ;  else if (!strcmp(key, "#arcdiffgq"))
+            tfg = MCLG_TF_ARCDIFFGQ
+         ;  else if (!strcmp(key, "#arcdiffgt"))
+            tfg = MCLG_TF_ARCDIFFGT
+         ;  else if (!strcmp(key, "#arcdifflq"))
+            tfg = MCLG_TF_ARCDIFFLQ
+         ;  else if (!strcmp(key, "#arcdifflt"))
+            tfg = MCLG_TF_ARCDIFFLT
+
+         ;  else if (!strcmp(key, "#arcmaxgq"))
+            tfg = MCLG_TF_ARCMAXGQ
+         ;  else if (!strcmp(key, "#arcmaxgt"))
+            tfg = MCLG_TF_ARCMAXGT
+         ;  else if (!strcmp(key, "#arcmaxlq"))
+            tfg = MCLG_TF_ARCMAXLQ
+         ;  else if (!strcmp(key, "#arcmaxlt"))
+            tfg = MCLG_TF_ARCMAXLT
 
          ;  else if (!strcmp(key, "#selfrm"))
             tfg = MCLG_TF_SELFRM
@@ -351,6 +390,22 @@ void mclgTFgraph
    ;  break ;  case MCLG_TF_NORMSELF:  mclxNormSelf(mx)
    ;  break ;  case MCLG_TF_MUL:       mclxMergeTranspose(mx, fltMultiply, 1.0)
    ;  break ;  case MCLG_TF_ARCMAX:    mclxMergeTranspose(mx, fltArcMax, 1.0)
+
+   ;  break ;  case MCLG_TF_ARCMAXGQ:  mclxMergeTranspose3(mx, fltArcMaxGQ, 1.0, val)
+   ;  break ;  case MCLG_TF_ARCMAXGT:  mclxMergeTranspose3(mx, fltArcMaxGT, 1.0, val)
+   ;  break ;  case MCLG_TF_ARCMAXLQ:  mclxMergeTranspose3(mx, fltArcMaxLQ, 1.0, val)
+   ;  break ;  case MCLG_TF_ARCMAXLT:  mclxMergeTranspose3(mx, fltArcMaxLT, 1.0, val)
+
+   ;  break ;  case MCLG_TF_ARCMINGQ:  mclxMergeTranspose3(mx, fltArcMinGQ, 1.0, val)
+   ;  break ;  case MCLG_TF_ARCMINGT:  mclxMergeTranspose3(mx, fltArcMinGT, 1.0, val)
+   ;  break ;  case MCLG_TF_ARCMINLQ:  mclxMergeTranspose3(mx, fltArcMinLQ, 1.0, val)
+   ;  break ;  case MCLG_TF_ARCMINLT:  mclxMergeTranspose3(mx, fltArcMinLT, 1.0, val)
+
+   ;  break ;  case MCLG_TF_ARCDIFFGQ: mclxMergeTranspose3(mx, fltArcDiffGQ, 1.0, val)
+   ;  break ;  case MCLG_TF_ARCDIFFGT: mclxMergeTranspose3(mx, fltArcDiffGT, 1.0, val)
+   ;  break ;  case MCLG_TF_ARCDIFFLQ: mclxMergeTranspose3(mx, fltArcDiffLQ, 1.0, val)
+   ;  break ;  case MCLG_TF_ARCDIFFLT: mclxMergeTranspose3(mx, fltArcDiffLT, 1.0, val)
+
    ;  break ;  case MCLG_TF_ARCSUB:    mclxMergeTranspose(mx, fltSubtract, 1.0)
    ;  break ;  case MCLG_TF_TUG:       mclxPerturb(mx, val, MCLX_PERTURB_SYMMETRIC)
    ;  break ;  case MCLG_TF_TRANSPOSE: { mclx* tp = mclxTranspose(mx); mclxTransplant(mx, &tp); }

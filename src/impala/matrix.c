@@ -1,5 +1,5 @@
 /*   (C) Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005 Stijn van Dongen
- *   (C) Copyright 2006, 2007 Stijn van Dongen
+ *   (C) Copyright 2006, 2007, 2008, 2009, 2010  Stijn van Dongen
  *
  * This file is part of MCL.  You can redistribute and/or modify MCL under the
  * terms of the GNU General Public License; either version 3 of the License or
@@ -1524,6 +1524,40 @@ void mclxMergeTranspose
          ;  continue
       ;  }
          mclvBinary(mvec, mxt->cols+d, mvec, op)
+      ;  mclvRelease(mxt->cols+d)
+   ;  }
+
+      if (diagweight != 1.0)
+      mclxScaleDiag(mx, diagweight)
+   ;  mclxFree(&mxt)
+;  }
+
+
+
+void mclxMergeTranspose3
+(  mclx* mx
+,  double (*op)(pval arg1, pval arg2, pval arg3)
+,  double diagweight
+,  double arg3
+)
+   {  dim d
+   ;  mclx* mxt = mclxTranspose(mx)
+   ;  mclv* mvec = NULL
+
+   ;  mclxChangeDomains
+      (  mx
+      ,  mcldMerge(mx->dom_cols, mxt->dom_cols, NULL)
+      ,  mcldMerge(mx->dom_rows, mxt->dom_rows, NULL)
+      )
+
+   ;  for (d=0;d<N_COLS(mxt);d++)
+      {  long vid = mxt->dom_cols->ivps[d].idx
+      ;  mvec = mclxGetVector(mx, vid, RETURN_ON_FAIL, mvec)
+      ;  if (!mvec)
+         {  mcxErr("mclxMergeTranspose panic", "no vector %ld in matrix", vid)
+         ;  continue
+      ;  }
+         mclvBinaryx(mvec, mxt->cols+d, mvec, op, arg3)
       ;  mclvRelease(mxt->cols+d)
    ;  }
 

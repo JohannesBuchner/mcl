@@ -551,7 +551,7 @@ hit bit  0.16
 \item{#rev}    Encode graph in reverse direction.
 \item{#tp}     Same as above in matrix speak (\it{t}rans\it{p}ose).
 \item{#tug}    Perturb edge weights with factor arg.
-\item{#rug}    Randomly perturb edge weights with factor arg.
+\item{#shrug}  Randomly perturb edge weights with factor arg.
 \item{#step}   Use the k-step relation, where \v{k=arg}.
 \item{#thread} Set thread pool size to arg.
 

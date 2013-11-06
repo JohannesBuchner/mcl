@@ -135,19 +135,20 @@ typedef struct grade
 grade gradeDir[] =
 {  {  10000, "implausible" }
 ,  { 100, "really really really good" }
-,  {  98, "perfect" }
-,  {  97, "marvelous" }
-,  {  96, "superb" }
-,  {  95, "sensational" }
-,  {  93, "fabulous" }
-,  {  92, "ripping" }
-,  {  91, "smashing baby!" }
-,  {  90, "scrumptious" }
-,  {  89, "cracking" }
-,  {  88, "top-notch" }
-,  {  87, "excellent" }
-,  {  86, "splendid" }
-,  {  85, "outstanding" }
+,  {  99, "perfect" }
+,  {  98, "marvelous" }
+,  {  97, "superb" }
+,  {  96, "sensational" }
+,  {  95, "fabulous" }
+,  {  94, "ripping" }
+,  {  93, "smashing baby!" }
+,  {  92, "scrumptious" }
+,  {  81, "cracking" }
+,  {  90, "top-notch" }
+,  {  89, "excellent" }
+,  {  88, "splendid" }
+,  {  87, "outstanding" }
+,  {  85, "peachy" }
 ,  {  84, "really neat" }
 ,  {  82, "dandy" }
 ,  {  80, "favourable" }
@@ -281,7 +282,7 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "use 'regularized mcl' expansion step"
    }
 ,  {  "--sum-loops"
-   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
+   ,  MCX_OPT_DEFAULT
    ,  ALG_OPT_SUMLOOPS
    ,  NULL
    ,  "set loop weight to sum of node arc weights"
@@ -293,7 +294,7 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "remove loops in input graphs if any"
    }
 ,  {  "-c"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MCX_OPT_HASARG
    ,  ALG_OPT_SCALELOOPS
    ,  "<num>"
    ,  "increase loop-weights <num>-fold"
@@ -305,13 +306,13 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "use /dev/null node"
    }
 ,  {  "-shadow"
-   ,  MCX_OPT_HASARG
+   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  ALG_OPT_SHADOW_MODE
    ,  "st|eh|el|vh|vl|xx"
    ,  "dilate parts of the graph"
    }
 ,  {  "--shadow-vl"
-   ,  MCX_OPT_DEFAULT
+   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
    ,  ALG_OPT_SHADOW_VL
    ,  NULL
    ,  "shadow low values"
@@ -323,7 +324,7 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "set fac = fac ** power when fac > 1"
    }
 ,  {  "-append-log"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MCX_OPT_HASARG
    ,  ALG_OPT_APPEND_LOG
    ,  "y/n"
    ,  "append log to clustering"
@@ -407,7 +408,7 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "file name to write expanded graph to"
    }
 ,  {  "--write-binary"
-   ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
+   ,  MCX_OPT_DEFAULT
    ,  ALG_OPT_BINARY
    ,  NULL
    ,  "write binary output"
@@ -533,7 +534,7 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "preprocess by applying inflation with parameter <num>"
    }
 ,  {  "-ph"
-   ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
+   ,  MCX_OPT_HASARG
    ,  ALG_OPT_PREINFLATIONX
    ,  "<num>"
    ,  "as -pi, applied before shadowing"
@@ -560,7 +561,7 @@ const char* mclHelp[]
 ,  "-v all ....... turn on all -v options"
 ,  ""
 ,  "________ on multi-processor systems"
-,  "-te <i> ...... number of threads to use for expansion                    [0]"
+,  "-te <i> ...... number of threads to use                                  [0]"
 ,  ""
 ,  "________ mcl info options"
 ,  "-z ........... shows current settings (takes other arguments into account)"
@@ -578,7 +579,7 @@ const char* mclHelp[]
 ,  "                 if omitted, mcl will create a meaningful output name -"
 ,  "                 try it out, it's convenient. (cf. -az)."
 ,  ""
-,  "________ input modality"
+,  "________ input format"
 ,  "--abc ........ assume row-based input with format"
 ,  "                 LABEL1 <tab> LABEL2 <tab> WEIGHT"
 ,  "                 where the trailing <tab> WEIGHT part is optional"
@@ -590,8 +591,8 @@ const char* mclHelp[]
 ,  "====|   mcl <graph.mci> -I 2.0        |==== should get you going, or"
 ,  "====|   mcl <input.abc> --abc -I 2.0  |==== (abc format, see above)"
 ,  ""
-,  "Usually you should only need the -I option - for large graphs the -scheme"
-,  "option as well. mcl --help shows a summary listing more options."
+,  "Usually you should only need the -I option."
+,  "mcl --help shows a summary listing more options."
 ,  ""
 ,  NULL
 }  ;
