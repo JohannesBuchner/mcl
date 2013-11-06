@@ -71,7 +71,7 @@
 
 \sec{seealso}{SEE ALSO}
 \par{
-   \sibmclfamily for an overview of all the documentation
+   \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 }
 

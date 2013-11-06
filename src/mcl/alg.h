@@ -58,6 +58,12 @@ typedef struct
 ;  mcxTing*             stream_mx_wname
 ;  mcxTing*             stream_yield
 
+;  mcxTing*             stream_transform_spec
+;  mclpAR*              stream_transform
+
+;  mcxTing*             transform_spec
+;  mclpAR*              transform
+
 ;  int                  writeMode
 ;  int                  sortMode
 ;  mcxTing*             cline

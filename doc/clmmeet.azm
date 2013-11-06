@@ -25,15 +25,15 @@
    in the set. It stores the intersection (or meet) in the argument
    to the \genopt{-o} flag, which must be the first option given.
    All remaining arguments are interpreted as names of files containing
-   clusterings in mcl format (see \sibmcxio), which must all
+   clusterings in mcl format (see \mysib{mcxio}), which must all
    pertain to a set of the same cardinality.
 
 \par
    This utility can be useful in measuring (in conjunction with
-   \sib{clmdist}) the consistency of a set of clusterings at different
+   \mysib{clmdist}) the consistency of a set of clusterings at different
    levels of granularity \- if the meet of all those clusterings is close to
    being a subclustering of each of them, consistency is good.  See
-   \sib{clmdist} for an example.
+   \mysib{clmdist} for an example.
 
 \par
    The --adapt option allows domain mismatches to occur between clusterings.
@@ -46,7 +46,7 @@
 \sec{seealso}{SEE ALSO}
 
 \par{
-   \sibmclfamily for an overview of all the documentation
+   \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 }
 

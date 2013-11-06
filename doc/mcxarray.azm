@@ -38,7 +38,7 @@
 \sec{description}{DESCRIPTION}
 
    \mcxarray reads a data file satisfying the mcl input format
-   (refer to \sibmcxio). By default it will work with the
+   (refer to \mysib{mcxio}). By default it will work with the
    columns as the data vectors (note that mcl matrices are
    presented as a listing of columns). This can be changed using
    the \optref{-t}{\genopt{-t} option}.
@@ -98,9 +98,9 @@
 
 \sec{seealso}{SEE ALSO}
 
-   \sib{mcl},
-   \sib{mclfaq},
-   and \sibmclfamily for an overview of all the documentation
+   \mysib{mcl},
+   \mysib{mclfaq},
+   and \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 
 \"man::postamble"

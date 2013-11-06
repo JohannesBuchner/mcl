@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcxio" 5 "10 Nov 2005" "mcxio 1\&.006, 05-314" "FILE FORMATS "
+.TH "mcxio" 5 "17 Nov 2005" "mcxio 1\&.006, 05-321" "FILE FORMATS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -28,17 +28,66 @@
 .el .in 8m
 ..
 .SH NAME
-mcxio \- the format specification for matrix input and output in the mcl family\&.
+mcxio \- the format specifications for input and output in the mcl family\&.
 .SH DESCRIPTION
-This document describes the \fIgeneric matrix format\fP
-used in the mcl libaries\&. It also describes the \fIraw intermediate
-format\fP used by \fBmcxassemble\fP\&.
-The two formats (generic and raw) are in fact
-identical at the vector level; they are distinguished by the error reporting
-implied by the generic format\&.
-Also described here is the \fItab format\fP used by mcl to convert
-between meaningful labels describing the input data and the numerical
-identifiers used internally\&.
+This document describes
+
+.ZI 3m "native matrix input format"
+\&
+.br
+The format that can be read in by any mcl application
+expecting a matrix argument\&. The native format closely resembles
+the layout of matrices as residing in computer memory\&. There are
+two distinct encodings, respectively \fIinterchange\fP and \fIbinary\fP\&.
+Their relative merits are described further below\&.
+.in -3m
+
+.ZI 3m "raw intermediate format"
+\&
+.br
+This is read by \fBmcxassemble(1)\fP\&.
+.in -3m
+
+.ZI 3m "tab format"
+\&
+.br
+Used by applications such as \fBmcl(1)\fP and \fBmcxdump(1)\fP to
+convert between meaningful labels describing the input data and the
+numerical identifiers used internally\&.
+.in -3m
+
+.ZI 3m "label format"
+\&
+.br
+The format used when streaming labels directly into
+\fBmcl(1)\fP or \fBmcxload(1)\fP\&.
+.in -3m
+
+.ZI 3m "transformation syntax"
+\&
+.br
+The syntax accepted by \fBmcl(1)\fP, \fBmcxload(1)\fP, \fBmcxsubs(1)\fP
+and \fBmcxassemble(1)\fP to transform values in an input stream
+or in input or output matrices\&.
+.in -3m
+
+The interchange format is a portable format that can be transmitted
+across computers and over networks and will work with any version
+of mcl or its sibling programs\&. It is documented (here) and very stable\&.
+Applications can easily create matrices in this format\&.
+The drawback of interchange format is that for very large graphs
+matrix encodings grow very big and are slow to read\&.
+
+The binary format is \fInot\fP garantueed to be portable across
+machines or different versions of mcl or differently compiled
+versions of mcl\&. Its distinct advantage is that for very large
+graphs the speed advantage over interchange format can be
+significant\&.
+
+Conversion between the two formats is easily achieved with
+\fBmcxconvert(1)\fP\&. Both \fBmcl(1)\fP and \fBmcxload(1)\fP
+can save a matrix in either format after constructing it from
+label input\&.
 
 A remark on the sloppy naming conventions used for \fBmcl\fP and its sibling
 utilities may be in order here\&. The prefix \fBmcx\fP is used for generic
@@ -64,18 +113,21 @@ Specifying matrices
 Specifying graphs
 .in -4m
 .ZI 4m "6\&."
-Additional notes
-.in -4m
-.ZI 4m "7\&."
 Raw format
 .in -4m
-.ZI 4m "8\&."
+.ZI 4m "7\&."
 Tab format / label information
 .in -4m
+.ZI 4m "8\&."
+Label input
+.in -4m
 .ZI 4m "9\&."
-SEE ALSO
+Transformation syntax
 .in -4m
 .ZI 4m "10\&."
+SEE ALSO
+.in -4m
+.ZI 4m "11\&."
 AUTHOR
 .in -4m
 .SH Internal representation of matrices in MCL
@@ -301,8 +353,8 @@ begin
 )
 .fi \fR
 
-.SH Additional notes
-
+\fBAdditional notes\fP
+.br
 There are few restrictions on the format that one might actually expect\&.
 Vectors and entries may occur in any order and need not be sorted\&.
 Repeated entries and repeated vectors are allowed but are always
@@ -310,7 +362,7 @@ discarded while an error message is emitted\&.
 
 If you want \fIfunctionally interesting behaviour\fP in combining
 repeated vectors and repeated entries, have a look at the next section
-and at \fBmcxassemble\fP\&.
+and at \fBmcxassemble(1)\fP\&.
 
 Within the vector listing, the \&'#\&' is a token that introduces
 a comment until the end of line\&.
@@ -320,15 +372,15 @@ A file in \fIraw format\fP is simply a listing of vectors without any
 sectioning structure\&. No header specification, no domain specification, and
 no matrix introduction syntax is used - these are supplied to the processing
 application by other means\&. The end-of-vector token \&'$\&' must still be used,
-and the comment token \&'#\&' is still valid\&. \fBmcxassemble\fP
+and the comment token \&'#\&' is still valid\&. \fBmcxassemble(1)\fP
 imports a file in raw
-format, creates a generic matrix from the data therein, and writes the
+format, creates a native matrix from the data therein, and writes the
 matrix to (a different) file\&. It allows customizable behaviour in how to
 combine repeated entries and repeated vectors\&. This is typically used in the
 following procedure\&. A) Do a one-pass-parse on some external cooccurrence
 file/format, generate raw data during the parse and write it to file
 (without needing to build a huge data structure in memory)\&. B) mcxassemble
-takes the raw data and assembles it according to instruction into a generic
+takes the raw data and assembles it according to instruction into a native
 mcl matrix\&.
 .SH Tab format / label information
 Several mcl programs accept options such as \fB-tab\fP, \fB-tabc\fP,
@@ -353,17 +405,136 @@ The ordered set of indices found in the tab file
 is called the \fItab domain\fP\&.
 
 Tab files are almost always employed in conjunction with an mcl matrix file\&.
-\fBmcxdump\fP and \fBclmformat\fP require by
+\fBmcxdump(1)\fP and \fBclmformat(1)\fP require by
 default that the tab domain coincides with the matrix domain (either row or
 column or both) to which they will be applied\&. This can be relaxed for
 either by supplying the \fB--lazy-tab\fP option\&.
 
 mcl provides explicit modes for dealing with tab structures by means of
 the \fB-extend-tab\fP, \fB-restrict-tab\fP and
-\fB-strict-tab\fP options\&. Refer to the \fBmcl\fP
+\fB-strict-tab\fP options\&. Refer to the \fBmcl(1)\fP
 documentation\&.
+.SH Label input
+Label input is a line based input where two nodes and a value
+are specified on each line\&. The nodes should be specified
+by labels containing no whitespace\&. A line thus consists
+of two labels and a numerical value, all separated by
+whitespace\&. Any line where the first non-whitespace
+character is the octothorp (#) is ignored\&.
+The following is an example of label input\&.
+
+.di ZV
+.in 0
+.nf \fC
+---8<------8<------8<------8<------8<---
+# the cat and the hat example
+cat hat  0\&.2
+hat bat  0\&.16
+bat cat  1\&.0
+bat bit  0\&.125
+bit fit  0\&.25
+fit hit  0\&.5
+hit bit  0\&.16
+--->8------>8------>8------>8------>8---
+.fi \fR
+.in
+.di
+.ne \n(dnu
+.nf \fC
+.ZV
+.fi \fR
+
+\fBmcl(1)\fP can read in label input and cluster it when it is
+given the \fB--abc\fP option\&. It can optionally save
+the input graph in native format and save the label information
+in a tab file with the \fB-save-graph\fP and \fB-save-tab\fP
+options\&.
+
+Refer to the \fBMCL getting started\fP and
+\fBMCL manual examples\fP sections
+for more information on how MCL deals with label input\&.
+
+\fBmcxload(1)\fP is a general purpose program for reading
+in label data and other stream formats\&. It
+encodes them in native mcl format and tab files\&.
+It allows intermediate transformations on the values\&.
+.SH Transformation syntax
+\fBmcl(1)\fP, \fBmcxload(1)\fP, \fBmcxsubs(1)\fP, \fBmcxassemble(1)\fP
+all accept the same transformation language in their
+respective \fBtf\fP-type options and mcxsub\&'s \fBval\fP
+specification\&.
+
+A statement in this language is simply a comma-separated
+list of functions accepting a single numerical value\&.
+The syntax of a function invocation in general is
+\fBfunc\fP(\fIarg\fP)\&.
+The functions \fBexp\fP, \fBlog\fP, \fBneglog\fP can
+also be given an empty parameter list, indicating that
+\fIe\fP is taken as the exponent base\&. In this case,
+the invocation looks like \fBfunc\fP()\&. The following
+functions are supported\&.
+
+.ZI 9m "lt"
+Filter out values greater than or equal to arg\&.
+.in -9m
+
+.ZI 9m "lq"
+Filter out values greater than arg\&.
+.in -9m
+
+.ZI 9m "gq"
+Filter out values less than arg\&.
+.in -9m
+
+.ZI 9m "gt"
+Filter out values less than or equal to arg\&.
+.in -9m
+
+.ZI 9m "ceil"
+Set everything higher than arg to arg\&.
+.in -9m
+
+.ZI 9m "floor"
+Set everything lower than arg to arg\&.
+.in -9m
+
+.ZI 9m "mul"
+Multiply by arg\&.
+.in -9m
+
+.ZI 9m "add"
+Add arg to it\&.
+.in -9m
+
+.ZI 9m "power"
+Raise to power arg\&.
+.in -9m
+
+.ZI 9m "exp"
+Raise arg (\fIe\fP if omitted) to value\&.
+.in -9m
+
+.ZI 9m "log"
+Take log in base arg (\fIe\fP if omitted)\&.
+.in -9m
+
+.ZI 9m "neglog"
+Take minus log in base arg (\fIe\fP if omitted)\&.
+.in -9m
+
+\fBNOTE\fP
+.br
+\fBmcl(1)\fP accepts \fB--abc-log\fP and \fB--abc-neg-log\fP to specify
+log transformations\&. Similarly, \fBmcxload(1)\fP accepts \fB--stream-log\fP
+and \fB--stream-neg-log\fP\&. The reason is that probabilities are
+sometimes encoded below the precision dictated by the IEEE (32 bit) float
+specification\&. This poses a problem as the mcl applications encode values
+by default as floats, and the transformation specifications are always
+applied to the mcl encoding\&. The options just mentioned are applied
+after a value has been read from an input stream and \fIbefore\fP it
+is converted to the native encoding\&.
 .SH SEE ALSO
-\fBmcxassemble\fP,
+\fBmcxassemble(1)\fP,
 and \fBmclfamily(7)\fP for an overview of all the documentation
 and the utilities in the mcl family\&.
 .SH AUTHOR

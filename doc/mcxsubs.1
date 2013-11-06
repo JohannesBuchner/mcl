@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcxsubs" 1 "10 Nov 2005" "mcxsubs 1\&.006, 05-314" "USER COMMANDS "
+.TH "mcxsubs" 1 "16 Nov 2005" "mcxsubs 1\&.006, 05-320" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -84,7 +84,7 @@ and other miscellaneous operations\&.
 
 If you are a frequent \fBmcxsubs\fP user with very large graphs, consider
 converting the input matrix into binary format using
-\fBmcxconvert\fP and then using the mcxsubs
+\fBmcxconvert(1)\fP and then using the mcxsubs
 \fB--from-disk\fP option\&. This should give you a 400-fold speed gain\&.
 .SH DESCRIPTION
 
@@ -309,7 +309,7 @@ specified\&.
 This option reduces memory consumption to the size of the subgraph(s)
 to be extracted\&.
 
-For graphs in ascii format, the speed gain is not
+For graphs in interchange format, the speed gain is not
 dramatic\&. If more than one subgraph is specified, there will most
 likely be a loss in speed\&.
 
@@ -464,18 +464,11 @@ can be reached from the start domain\&.
 .br
 The value part is specified as
 
-\fBval\fP( < \fBlt\fP(\fIx\fP) | \fBlq\fP(\fIx\fP) | \fBgq\fP(\fIx\fP) | \fBgt\fP(\fIx\fP) > + )
+\fBval\fP(<tf-spec>)
 
-Where \fIx\fP is a real number, and multiple value specifications (such as
-\fBgq\fP(0\&.8)) are separated by commas\&.
-The strings \&'lt\&', \&'lq\&', \&'gq\&', \&'gt\&', respectively denote
-\fIless than\fP,
-\fIless than or equal to\fP,
-\fIgreater than or equal to\fP,
-and
-\fIgreater than\fP\&.
-
-This selects matrix entries based on their value\&.
+It transforms or removes values according to \fI<tf-spec>\fP\&.
+Refer to \fBmcxio(5)\fP for a description of the transformation
+specification syntax and the available transformation primitives\&.
 
 \fBSIZE\fP
 .br
@@ -593,6 +586,6 @@ the resulting matrix should be output in binary format\&.
 
 Stijn van Dongen\&.
 .SH SEE ALSO
-\fBmcx\fP,
+\fBmcx(1)\fP,
 and \fBmclfamily(7)\fP for an overview of all the documentation
 and the utilities in the mcl family\&.

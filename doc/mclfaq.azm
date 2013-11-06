@@ -42,7 +42,7 @@
 \sec{resources}{RESOURCES}
 \par
    The manual pages for all the utilities that come with \mcl;
-   refer to \sibmclfamily for an overview.
+   refer to \mysib{mclfamily} for an overview.
 
 \par
    mcl development is discussed on mcl-devel@micans.org,
@@ -178,16 +178,17 @@ is it labeled 'Markov cluster' anyway?}
    \it{./configure, make, make install}, i.e. follow the instructions in
    INSTALL.
 
-\par
+\par{
    This MCL implementation has not yet been reported to run on MAC.  For the
    latest Mac OS X one would expect that it is certainly possible to
-   make this happen.
+   make this happen.}
 
-\par
+\par{
    If you have further questions or news about this issue, contact
-   mcl-devel <at> lists <dot> micans <dot> org.
+   mcl-devel <at> lists <dot> micans <dot> org.}
 
 \faq{versioning}{How does mcl's versioning scheme work?}
+\car{
    The current setup, which I hope to continue, is this.  All releases are
    identified by a date stamp.  For example 02-095 denotes day 95 in the year
    2002.  This date stamp agrees (as of April 2000) with the (differently
@@ -197,9 +198,9 @@ is it labeled 'Markov cluster' anyway?}
    The Changelog file contains a list of what's changed/added with each
    release. Currently, the date stamp is the primary way of identifying an \mcl
    release.  When asked for its version by using \useopt{--version}, mcl
-   outputs both the date stamp and a version tag (see below).
+   outputs both the date stamp and a version tag (see below).}
 
-\par
+\par{
    In early 2002 it occurred to me that \mcl should, in addition to time
    stamps, also have something like version numbers, wanting to use those to
    indicate noteworthy changes. The April 2002 release got version tag 1.001,
@@ -207,8 +208,12 @@ is it labeled 'Markov cluster' anyway?}
    logging facility \genopt{--log}, and \clmimac to the MCL distribution.  The
    January 2003 release had its version number bumped to 1.002, marking MCL's
    ability to directly deal with a much more general type of graph encoding.
-   Currently, the version tag is not used in the mcl distribution name \- only
-   the date stamp is used for that.
+   1.003 brought mclpipeline, mcxdeblast, mclblastline, mcxassemble, clmformat
+   and automatic output naming. 1.004 revived binary format, improved mcxsubs,
+   and had a host of other additions. 1.005 removed an IO bottleneck,
+   considerably speeding up matrix reads. 1.006 featured mcl's ability to
+   directly read and produce label output.  Currently, the version tag is not
+   used in the mcl distribution name \- only the date stamp is used for that.}
 
 \end{faqsec}
 
@@ -246,7 +251,14 @@ pears     apples     1.01}
    In this example a few runs were shown with different inflation parameters.
    This is nonsensical with this particular 4-node input but a good idea in
    general.  \mcl provides many options to cache the intermediate matrix input
-   and the intermediate tab file.  Refer to the \sibref{mcl}{mcl manual page}.}
+   and the intermediate tab file.  Refer to the \sibref{mcl}{mcl manual page},
+   specifically look for the \genopt{-cache-tab} and \genopt{-cache-graph}
+   options.}
+
+\par{
+   Alternatively, use \mysib{mcxload} to save label input as an mcl matrix and
+   one or more tab files, then apply mcl to the matrix file using the
+   \genopt{-use-tab} option.}
 
 \cpar{NOTE}{
    Simply doing}
@@ -670,7 +682,7 @@ from a perfectly computed MCL process?}
    really what it is thought to be - a small perturbation.  In many cases, the
    'approximated' clustering is identical to the 'exact' clustering.  In other
    cases, they are very close to each other in terms of the metric
-   split/join distance as computed by \sib{clmdist}.
+   split/join distance as computed by \mysib{clmdist}.
 
    Some experiments with randomly generated test graphs, clustering,
    and pruning are described in \publref{pcfgcmce}.
@@ -707,7 +719,7 @@ from a perfectly computed MCL process?}
 
 \par
    Second, you can do multiple \mcl runs for different resource schemes,
-   and compare the resulting clusterings using \sib{clmdist}. See
+   and compare the resulting clusterings using \mysib{clmdist}. See
    the \sibref{clmdist}{clmdist manual} for a case study.
 
 \: No Mathematical Analysis for Pruning.
@@ -722,7 +734,7 @@ from a perfectly computed MCL process?}
 \: It is quite clear though that pruning is absolutely necessary if you want to
 \: apply MCL to large graphs and that pruning is a very viable thing to do.
 \: \mcl gives you hooks for monitoring pruning \- refer to the \genopt{-v}
-\: option. \sib{clmdist} should also be useful, refer to the other entries in
+\: option. \mysib{clmdist} should also be useful, refer to the other entries in
 \: this section.
 
 \: Qualitative Statements aboutthe Effects of Pruning
@@ -784,9 +796,9 @@ How can I trust the output clustering?}
    clusters to which they are attracted are merged.
 
 \par
-   By the way, you do know all about \sib{clmdist}, don't you? Because the
+   By the way, you do know all about \mysib{clmdist}, don't you? Because the
    statement that clusterings are not identical should be quantified: \it{How
-   much do they differ?} This issue is discussed in the \sib{clmdist} manual
+   much do they differ?} This issue is discussed in the \mysib{clmdist} manual
    page \- clmdist gives you a robust measure for the distance (dissimilarity)
    between two clusterings.
 
@@ -797,7 +809,7 @@ How can I trust the output clustering?}
    inflation parameter fits the data.  The first can be judged by looking at
    the jury marks (\iref{enoughresources}{faq\~\refnumber{enoughresources}})
    and applying clmdist to different clusterings. The
-   second can be judged by measurement (e.g. use \sib{clminfo}) and/or
+   second can be judged by measurement (e.g. use \mysib{clminfo}) and/or
    inspection (use your judgment).
 
 \end{faqsec}
@@ -826,8 +838,8 @@ How can I trust the output clustering?}
    values will certainly depend on your input graph.  For many graphs, 1.1 will
    be far too low, and for many other graphs, 5.0 will be far too high.  You
    will have to find the right value or range of values by experimenting, using
-   your judgment, and using measurement tools such as \sib{clmdist} and
-   \sib{clminfo}. The default 2.0 is a good value to begin the experimental
+   your judgment, and using measurement tools such as \mysib{clmdist} and
+   \mysib{clminfo}. The default 2.0 is a good value to begin the experimental
    stage with.
 
 \par
@@ -837,7 +849,7 @@ How can I trust the output clustering?}
    playing around with mcl in order to study the characteristics of the
    process that it computes, and \it{maybe}, just \it{maybe}, use it in a
    production environment if you find it useful.  In the first vein, you may be
-   interested to know that \sib{mcx} is a stack language/interpreter in which
+   interested to know that \mysib{mcx} is a stack language/interpreter in which
    the entire MCL algorithm can be written in three lines of code. It provides
    comprehensive access to the MCL graph and matrix libraries.  However, the
    \mcx interface to the MCL pruning facilities is not yet satisfactory at this
@@ -1124,7 +1136,7 @@ How can I trust the output clustering?}
    in such an environment.
 
 \par
-   At some point in the future a second, xml-based, ascii input format
+   At some point in the future a second, xml-based, interchange input format
    may be introduced.
 
 \par
@@ -1152,7 +1164,7 @@ How can I trust the output clustering?}
 \sec{seealso}{SEE ALSO}
 
 \par
-   \sibmclfamily for an overview of all the documentation
+   \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 
 \par

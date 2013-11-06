@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcxassemble" 1 "10 Nov 2005" "mcxassemble 1\&.006, 05-314" "USER COMMANDS "
+.TH "mcxassemble" 1 "16 Nov 2005" "mcxassemble 1\&.006, 05-320" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -35,10 +35,13 @@ mcxassemble \- transform raw cooccurrence data to mcl matrix format\&.
 \fB-b\fP base (\fIbase name\fP)
 \fB[-o\fP fname (\fIwrite to file fname\fP)\fB]\fP
 \fB[--map\fP (\fIapply base\&.map\fP)\fB]\fP
+\fB[-raw-tf\fP (\fIapply transform spec to input\fP)\fB]\fP
 \fB[-rv\fP MODE (\fIrepeated vectors\fP)\fB]\fP
 \fB[-re\fP MODE (\fIrepeated entries\fP)\fB]\fP
 \fB[-ri\fP MODE (\fIadding mirror image\fP)\fB]\fP
 \fB[-r\fP MODE (\fIrepeated entries/vectors/images\fP)\fB]\fP
+\fB[-prm-tf\fP (\fIapply transform spec to primary matrix\fP)\fB]\fP
+\fB[-sym-tf\fP (\fIapply transform spec to symmetrified matrix\fP)\fB]\fP
 \fB[-q\fP (\fIquiet mode\fP)\fB]\fP
 
 The options above embody the default setup when using mcxassemble\&.
@@ -48,6 +51,15 @@ how repeated entries and vectors should be treated\&.
 The full list of options is shown below\&.
 Read \fBDESCRIPTION\fP for learning about mcxassemble input/output
 and the functionality it provides\&.
+
+\fBNOTE\fP
+.br
+As of release 05-314 \fBmcl(1)\fP is able to cluster label-type input
+on the fly\&. In most cases, this will be sufficient\&. Alternatively,
+\fBmcxload(1)\fP can be used to map label-type input onto mcl
+matrices\&. Consequently, there are likely fewer scenarios nowadays
+where \fBmcxassemble\fP is the best solution\&. Consider first whether
+\fBmcl\fP in label mode or \fBmcxload\fP can do the job as well\&.
 
 \fBmcxassemble\fP
 \fB[-b\fP base (\fIbase name\fP)\fB]\fP
@@ -72,10 +84,13 @@ and the functionality it provides\&.
 \fB[-i\fP (\fIread from single data file\fP)\fB]\fP
 \fB[-digits\fP int (\fIdigits width\fP)\fB]\fP
 \fB[-s\fP (\fIcheck for symmetry\fP)\fB]\fP
-\fB[-rv\fP MODE (\fIaction for repeated vectors\fP)\fB]\fP
-\fB[-re\fP MODE (\fIaction for repeated entries\fP)\fB]\fP
-\fB[-ri\fP MODE (\fIadding mirror image\fP)\fB]\fP
-\fB[-r\fP MODE (\fIsame for entries and vectors\fP)\fB]\fP
+\fB[-raw-tf\fP (\fIapply transform spec to input\fP)\fB]\fP
+\fB[-rv\fP <mode> (\fIaction for repeated vectors\fP)\fB]\fP
+\fB[-re\fP <mode> (\fIaction for repeated entries\fP)\fB]\fP
+\fB[-ri\fP <mode> (\fIadding mirror image\fP)\fB]\fP
+\fB[-r\fP <mode> (\fIsame for entries and vectors\fP)\fB]\fP
+\fB[-prm-tf\fP (\fIapply transform spec to primary matrix\fP)\fB]\fP
+\fB[-sym-tf\fP (\fIapply transform spec to symmetrified matrix\fP)\fB]\fP
 \fB[--quiet-re\fP (\fIquiet for repeated entries\fP)\fB]\fP
 \fB[--quiet-rv\fP (\fIquiet for repeated vectors\fP)\fB]\fP
 \fB[-q\fP (\fIthe two above combined\fP)\fB]\fP
@@ -380,6 +395,26 @@ This will check whether the primary result matrix was symmetric\&.
 It reports the number of failing (or \fIskew\fP) edges\&.
 .in -3m
 
+.ZI 3m "\fB-raw-tf\fP <tf-spec> (\fIapply transform spec to input\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-prm-tf\fP (\fIapply transform spec to primary matrix\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-sym-tf\fP (\fIapply transform spec to symmetrified matrix\fP)"
+\&
+'in -3m
+'in +3m
+\&
+.br
+The first applies its transformation spec to the values
+as found in the raw data\&. The second applies its transformation
+spec to the primary matrix\&. The third applies its transformation
+step to the symmetrified matrix\&.
+Refer to \fBmcxio(5)\fP for documentation on the transformation
+spec syntax\&.
+.in -3m
+
 .ZI 3m "\fB-rv\fP add|max|mul|left|right (\fIaction for repeated vectors\fP)"
 \&
 'in -3m
@@ -531,6 +566,6 @@ List a one-line synopsis for all options\&.
 .SH AUTHOR
 Stijn van Dongen\&.
 .SH SEE ALSO
-\fBmcxio(5)\fP,
+\fBmcxio(5)\fP, \fBmcl(1)\fP, \fBmcxload(1)\fP
 and \fBmclfamily(7)\fP for an overview of all the documentation
 and the utilities in the mcl family\&.

@@ -68,9 +68,9 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-10 Nov 2005&nbsp;&nbsp;&nbsp;
+16 Nov 2005&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxconvert.ps"><b>mcxconvert</b></a>
-1.006, 05-314
+1.006, 05-320
 </p>
 <div style="margin-top:1em">
 <table
@@ -106,16 +106,17 @@ mcxconvert - convert between mcx storage types</p>
 In the two-argument invocation, <b>mcxconvert</b> converts from the format
 found in the first file to the other format.
 In the one-argument invocation, mcxconvert will simply output
-one of the strings <tt>ascii</tt> or <tt>binary</tt> depending on the format found.
+one of the strings <tt>interchange</tt>
+or <tt>binary</tt> depending on the format found.
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
 <p class="default L50">
 The <b>mcl</b> libraries make extensive use of matrices. Matrices
 are used to encode graphs, matrices and clusterings.
-They can be stored either in ascii or in binary format. The latter is
+They can be stored either in interchange or in binary format. The latter is
 somewhat more efficient in storage and much faster in both reading and
-writing, but the default is ascii format.
+writing, but the default is interchange format.
 <p class="default L50">
 The <b>mcl</b> input routines recognize the type of storage they are dealing
 with. If you want to convert a matrix to the other storage type,

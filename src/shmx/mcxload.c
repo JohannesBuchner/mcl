@@ -67,11 +67,10 @@ enum
 ,  MY_OPT_EXTEND_TABC
                         ,  MY_OPT_EXTEND_TABR
 ,  MY_OPT_DEDUP         =  MY_OPT_EXTEND_TABR + 2
-,  MY_OPT_SELECT
-,  MY_OPT_TRANSFORM_LOG
-,  MY_OPT_TRANSFORM_NEGLOG
-,  MY_OPT_TRANSFORM_ADD
-,  MY_OPT_TRANSFORM_POW
+,  MY_OPT_STREAM_TRANSFORM
+,  MY_OPT_TRANSFORM
+,  MY_OPT_STREAM_LOG
+,  MY_OPT_STREAM_NEGLOG
 ,  MY_OPT_IMAGE
 ,  MY_OPT_TRANSPOSE
 ,  MY_OPT_CLEANUP
@@ -241,35 +240,29 @@ mcxOptAnchor options[] =
    ,  "<fname>"
    ,  "input file, 123 format"
    }
-,  {  "-s"
+,  {  "-tf"
    ,  MCX_OPT_HASARG
-   ,  MY_OPT_SELECT
-   ,  "[io]<lq|gq|ceil|floor>=<num>"
-   ,  "select|bound input output"
+   ,  MY_OPT_TRANSFORM
+   ,  "<func(arg)[, func(arg)]*>"
+   ,  "apply unary transformations to matrix"
    }
-,  {  "-log"
+,  {  "-stream-tf"
    ,  MCX_OPT_HASARG
-   ,  MY_OPT_TRANSFORM_LOG
-   ,  "<base>"
-   ,  "take log of value (1)"
+   ,  MY_OPT_STREAM_TRANSFORM
+   ,  "<func(arg)[, func(arg)]*>"
+   ,  "apply unary transformations to stream values"
    }
-,  {  "-neglog"
-   ,  MCX_OPT_HASARG
-   ,  MY_OPT_TRANSFORM_NEGLOG
-   ,  "<base>"
-   ,  "take negative log of value (1)"
+,  {  "--stream-log"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_STREAM_LOG
+   ,  NULL
+   ,  "take log of stream value"
    }
-,  {  "-add"
-   ,  MCX_OPT_HASARG
-   ,  MY_OPT_TRANSFORM_ADD
-   ,  "<num>"
-   ,  "add number (2)"
-   }
-,  {  "-pow"
-   ,  MCX_OPT_HASARG
-   ,  MY_OPT_TRANSFORM_POW
-   ,  "<power>"
-   ,  "take power (3)"
+,  {  "--stream-neg-log"
+   ,  MCX_OPT_DEFAULT
+   ,  MY_OPT_STREAM_NEGLOG
+   ,  NULL
+   ,  "take negative log of stream value"
    }
 ,  {  "-t"
    ,  MCX_OPT_DEFAULT
@@ -298,10 +291,15 @@ int main
    ;  mcxIO* xfusetabc =   NULL
    ;  mcxIO* xfusetabr =   NULL
 
+   ;  mclpAR* stream_transform = NULL
+   ;  mcxTing* stream_transform_spec = NULL
+
+   ;  mclpAR* transform = NULL
+   ;  mcxTing* transform_spec = NULL
+
    ;  mcxbits bits_stream_input  =  MCLXIO_STREAM_ABC
    ;  mcxbits bits_stream_tab    =  0
    ;  mcxbits bits_stream_other  =  0
-   ;  mcxbits bits_select = 0
 
    ;  double (*symfunc) (pval val1, pval val2) = NULL
 
@@ -320,21 +318,6 @@ int main
    ;  mcxbool user_symmetric=  FALSE
    ;  mcxbool transpose =  FALSE
    ;  mcxbool cleanup   =  FALSE
-
-   ;  double power = 1.0
-   ;  double shift = 0.0
-   ;  double base_log = 0.0
-   ;  double base_neglog = 0.0
-
-   ;  double ilq = 0.0
-   ;  double igq = 0.0
-   ;  double iceil = 0.0
-   ;  double ifloor = 0.0
-
-   ;  double olq = 0.0
-   ;  double ogq = 0.0
-   ;  double oceil = 0.0
-   ;  double ofloor = 0.0
 
    ;  mcxOption* opts, *opt
    ;  mcxstatus parseStatus = STATUS_OK
@@ -367,7 +350,7 @@ int main
          ;
 
             case MY_OPT_BINARY
-         :  set_binary_io()
+         :  mclxSetBinaryIO()
          ;  break
          ;
 
@@ -457,64 +440,29 @@ int main
          ;  break
          ;
 
-            case MY_OPT_SELECT
-         :  {  const char* is = strchr(opt->val, '=')
-            ;  double num = is ? atof(is+1) : 0.0
-            ;  if (!is)
-               mcxDie(1, me, "ill-formatted select argument")
-
-            ;  if (!strncmp(opt->val, "ilq", 3))
-                  bits_select |= SELECT_ILQ
-               ,  ilq = num
-            ;  else if (!strncmp(opt->val, "igq", 3))
-                  bits_select |= SELECT_IGQ
-               ,  igq = num
-            ;  else if (!strncmp(opt->val, "iceil", 5))
-                  bits_select |= SELECT_ICEIL
-               ,  iceil = num
-            ;  else if (!strncmp(opt->val, "ifloor", 6))
-                  bits_select |= SELECT_IFLOOR
-               ,  ifloor = num
-
-            ;  else if (!strncmp(opt->val, "olq", 3))
-                  bits_select |= SELECT_OLQ
-               ,  olq = num
-            ;  else if (!strncmp(opt->val, "ogq", 3))
-                  bits_select |= SELECT_OGQ
-               ,  ogq = num
-            ;  else if (!strncmp(opt->val, "oceil", 5))
-                  bits_select |= SELECT_OCEIL
-               ,  oceil = num
-            ;  else if (!strncmp(opt->val, "ofloor", 6))
-                  bits_select |= SELECT_OFLOOR
-               ,  ofloor = num
-         ;  }
-            break
-         ;
-
-            case MY_OPT_TRANSFORM_NEGLOG
-         :  base_neglog = atof(opt->val)
+            case MY_OPT_STREAM_NEGLOG
+         :  bits_stream_other |= MCLXIO_STREAM_NEGLOGTRANSFORM
          ;  break
          ;
 
-            case MY_OPT_TRANSFORM_LOG
-         :  base_log = atof(opt->val)
+            case MY_OPT_STREAM_LOG
+         :  bits_stream_other |= MCLXIO_STREAM_LOGTRANSFORM
          ;  break
          ;
 
-            case MY_OPT_TRANSFORM_POW
-         :  power = atof(opt->val)
+            case MY_OPT_TRANSFORM
+         :  transform_spec = mcxTingNew(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_STREAM_TRANSFORM
+         :  stream_transform_spec = mcxTingNew(opt->val)
          ;  break
          ;
 
             case MY_OPT_GRAPH
          :  symmetric = TRUE
          ;  user_symmetric = TRUE
-         ;  break
-         ;
-
-            case MY_OPT_TRANSFORM_ADD
-         :  shift = atof(opt->val)
          ;  break
          ;
 
@@ -559,6 +507,18 @@ int main
    
       mcxOptFree(&opts)
 
+   ;  if
+      (  stream_transform_spec
+      && !(stream_transform = mclpTFparse(NULL, stream_transform_spec))
+      )
+      mcxDie(1, me, "stream tf-spec does not parse")
+
+   ;  if
+      (  transform_spec
+      && !(transform = mclpTFparse(NULL, transform_spec))
+      )
+      mcxDie(1, me, "matrix tf-spec does not parse")
+
    ;  if (user_tab && !user_symmetric)
       mcxWarn(me, "I will assume labels are from same domain")
 
@@ -587,6 +547,7 @@ int main
       mclxIOstreamIn
       (  xfin
       ,  bits_stream_input | bits_stream_tab | bits_stream_other
+      ,  stream_transform
       ,  merge
       ,  &tabcxch
       ,  symmetric ? NULL : &tabrxch
@@ -597,59 +558,24 @@ int main
       mcxDie(1, me, "error occurred")
    ;  mcxIOclose(xfin)
 
-   ;  {  if (bits_select & SELECT_ILQ)
-         mclxUnary(mx, fltLqBar, &ilq)
-      ;  else if (bits_select & SELECT_ICEIL)
-         mclxUnary(mx, fltCeil, &iceil)
+   ;  if (transpose || symfunc)
+      {  mclx* tp = mclxTranspose(mx)
 
-      ;  if (bits_select & SELECT_IGQ)
-         mclxUnary(mx, fltGqBar, &igq)
-      ;  else if (bits_select & SELECT_IFLOOR)
-         mclxUnary(mx, fltFloor, &ifloor)
-   
-      ;  if (base_log)
-         mclxUnary(mx, fltLog, &base_log)
-      ;  else if (base_neglog)
-         mclxUnary(mx, fltNeglog, &base_neglog)
-
-      ;  if (shift)
-         mclxUnary(mx, fltShift, &shift)
-
-      ;  if (power != 1.0)
-         mclxUnary(mx, fltPower, &power)
-
-
-      ;  if (bits_select & SELECT_OLQ)
-         mclxUnary(mx, fltLqBar, &olq)
-      ;  else if (bits_select & SELECT_OCEIL)
-         mclxUnary(mx, fltCeil, &oceil)
-
-      ;  if (bits_select & SELECT_OGQ)
-         mclxUnary(mx, fltGqBar, &ogq)
-      ;  else if (bits_select & SELECT_OFLOOR)
-         mclxUnary(mx, fltFloor, &ofloor)
-   
-      ;  if (base_log)
-         mclxUnary(mx, fltLog, &base_log)
-      ;  else if (base_neglog)
-         mclxUnary(mx, fltNeglog, &base_neglog)
-
-      ;  if (transpose || symfunc)
-         {  mclx* tp = mclxTranspose(mx)
-
-         ;  if (symfunc)
-            {  mclx* sym = mclxBinary(mx, tp, symfunc)
-            ;  mclxFree(&mx)
-            ;  mclxFree(&tp)
-            ;  mx = sym
-         ;  }
-            else
-               mclxFree(&mx)
-            ,  mx = tp
+      ;  if (symfunc)
+         {  mclx* sym = mclxBinary(mx, tp, symfunc)
+         ;  mclxFree(&mx)
+         ;  mclxFree(&tp)
+         ;  mx = sym
       ;  }
-      }
+         else
+            mclxFree(&mx)
+         ,  mx = tp
+   ;  }
 
-      mclxWrite(mx, xfmx, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+      if (transform)
+      mclxUnaryList(mx, transform)
+
+   ;  mclxWrite(mx, xfmx, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
    ;  mcxIOclose(xfmx)
 
    ;  if (bits_stream_input & MCLXIO_STREAM_ABC)
@@ -714,6 +640,8 @@ int main
       ;  mclTabFree(&tabc)
       ;  if (!symmetric)
          mclTabFree(&tabr)
+      ;  mcxTingFree(&stream_transform_spec)
+      ;  mclpARfree(&stream_transform)
    ;  }
 
       mcxIOfree(&xfmx)

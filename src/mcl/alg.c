@@ -78,11 +78,13 @@ enum
 ,  ALG_OPT_SORT
 ,  ALG_OPT_UNCHECKED
 ,  ALG_OPT_DIGITS
-,  ALG_OPT_BINARY
-                        ,  ALG_OPT_ASCII
-,  ALG_OPT_ABC          =  ALG_OPT_ASCII + 2
+                        ,  ALG_OPT_BINARY
+,  ALG_OPT_ABC          =  ALG_OPT_BINARY + 2
 ,  ALG_OPT_EXPECT_ABC
 ,  ALG_OPT_YIELD_ABC
+,  ALG_OPT_ABC_TRANSFORM
+,  ALG_OPT_ABC_LOGTRANSFORM
+,  ALG_OPT_ABC_NEGLOGTRANSFORM
 ,  ALG_OPT_EXPECT_123
 ,  ALG_OPT_EXPECT_PACKED
 ,  ALG_OPT_TAB_EXTEND
@@ -98,6 +100,7 @@ enum
 ,  ALG_OPT_AUTOBOUNCEFIX
                         ,  ALG_OPT_AUTOPREFIX
 ,  ALG_OPT_CENTERING    =  ALG_OPT_AUTOPREFIX + 2
+,  ALG_OPT_TRANSFORM
 ,  ALG_OPT_CTRMAXAVG
                         ,  ALG_OPT_DIAGADD
 ,  ALG_OPT_INGQ         =  ALG_OPT_DIAGADD + 2
@@ -279,6 +282,30 @@ mcxOptAnchor mclAlgOptions[] =
    ,  NULL
    ,  "write clusters as tab-separated labels"
    }
+,  {  "--abc-log"
+   ,  MCX_OPT_DEFAULT
+   ,  ALG_OPT_ABC_LOGTRANSFORM
+   ,  NULL
+   ,  "log-transform label value"
+   }
+,  {  "--abc-neg-log"
+   ,  MCX_OPT_DEFAULT
+   ,  ALG_OPT_ABC_NEGLOGTRANSFORM
+   ,  NULL
+   ,  "minus log-transform label value"
+   }
+,  {  "-abc-tf"
+   ,  MCX_OPT_HASARG
+   ,  ALG_OPT_ABC_TRANSFORM
+   ,  "tf-spec"
+   ,  "transform label values"
+   }
+,  {  "-tf"
+   ,  MCX_OPT_HASARG
+   ,  ALG_OPT_TRANSFORM
+   ,  "tf-spec"
+   ,  "transform matrix values"
+   }
 ,  {  "--expect-123"
    ,  MCX_OPT_DEFAULT | MCX_OPT_HIDDEN
    ,  ALG_OPT_EXPECT_123
@@ -333,12 +360,6 @@ mcxOptAnchor mclAlgOptions[] =
    ,  "fname"
    ,  "tab file (extendable)"
    }
-,  {  "--ascii"
-   ,  MCX_OPT_DEFAULT
-   ,  ALG_OPT_ASCII
-   ,  NULL
-   ,  "write ascii output (default)"
-   }
 ,  {  "--binary"
    ,  MCX_OPT_DEFAULT
    ,  ALG_OPT_BINARY
@@ -349,7 +370,7 @@ mcxOptAnchor mclAlgOptions[] =
    ,  MCX_OPT_HASARG
    ,  ALG_OPT_DIGITS
    ,  "<int>"
-   ,  "precision for (ascii) output of intermediate matrices"
+   ,  "precision in interchange (intermediate matrices) output"
    }
 ,  {  "--show-settings"
    ,  MCX_OPT_INFO
@@ -1001,6 +1022,28 @@ mcxstatus mclAlgorithmInit
          ;  break
          ;
 
+            case ALG_OPT_ABC_LOGTRANSFORM
+         :  BIT_OFF(mlp->stream_modes, MCLXIO_STREAM_NEGLOGTRANSFORM)
+         ;  BIT_ON(mlp->stream_modes, MCLXIO_STREAM_LOGTRANSFORM)
+         ;  break
+         ;
+
+            case ALG_OPT_ABC_NEGLOGTRANSFORM
+         :  BIT_ON(mlp->stream_modes, MCLXIO_STREAM_NEGLOGTRANSFORM)
+         ;  BIT_OFF(mlp->stream_modes, MCLXIO_STREAM_LOGTRANSFORM)
+         ;  break
+         ;
+
+            case ALG_OPT_ABC_TRANSFORM
+         :  mlp->stream_transform_spec = mcxTingNew(opt->val)
+         ;  break
+         ;
+
+            case ALG_OPT_TRANSFORM
+         :  mlp->transform_spec  =  mcxTingNew(opt->val)
+         ;  break
+         ;
+
             case ALG_OPT_CACHE_TAB
          :  mlp->stream_tab_wname  =  mcxTingNew(opt->val)
          ;  break
@@ -1040,13 +1083,8 @@ mcxstatus mclAlgorithmInit
          ;  break
          ;
 
-            case ALG_OPT_ASCII
-         :  set_ascii_io()
-         ;  break
-         ;
-
             case ALG_OPT_BINARY
-         :  set_binary_io()
+         :  mclxSetBinaryIO()
          ;  break
          ;
 
@@ -1340,6 +1378,12 @@ mclAlgParam* mclAlgParamNew
    ;  mlp->stream_mx_wname =     NULL
    ;  mlp->tab             =     NULL
 
+   ;  mlp->stream_transform_spec  =     NULL
+   ;  mlp->stream_transform       =    NULL
+
+   ;  mlp->transform_spec  =     NULL
+   ;  mlp->transform       =    NULL
+
    ;  mlp->writeMode       =     'a'
    ;  mlp->sortMode        =     'S'
    ;  mlp->cline           =     mcxTingPrintAfter(NULL, "%s %s", prog, fn)
@@ -1553,6 +1597,7 @@ static mclx* mclAlgorithmStreamIn
       =  mclxIOstreamIn
          (  xfin
          ,  mlp->stream_modes | MCLXIO_STREAM_MIRROR
+         ,  mlp->stream_transform
          ,  mclpMergeMax
          ,  &tabxch
          ,  NULL
@@ -1574,14 +1619,6 @@ static mclx* mclAlgorithmStreamIn
          ;  mclTabWrite(tabxch, xftab, NULL, RETURN_ON_FAIL)
          ;  mcxIOfree(&xftab)
       ;  }
-         if (mlp->stream_mx_wname)
-         {  mcxIO* xfmx = mcxIOnew(mlp->stream_mx_wname->str, "w")
-         ;  mcxIOopen(xfmx, EXIT_ON_FAIL)
-         ;  mclxWrite(mx, xfmx, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
-         ;  mcxIOclose(xfmx)
-         ;  mcxIOfree(&xfmx)
-;if(1)fprintf(stderr, "wrote it to file <%s>\n", mlp->stream_mx_wname->str)
-      ;  }
       }
       else
       mx = test_tab(mx, mlp)
@@ -1595,11 +1632,35 @@ mclx* mclAlgorithmRead
 ,  mclAlgParam* mlp
 )
    {  mclx* mx = NULL
+
+   ;  if
+      (  mlp->transform_spec
+      && !(mlp->transform = mclpTFparse(NULL, mlp->transform_spec))
+      )
+      mcxDie(1, "mcl", "errors in tf-spec")
+
+   ;  if
+      (  mlp->stream_transform_spec
+      && !(mlp->stream_transform = mclpTFparse(NULL, mlp->stream_transform_spec))
+      )
+      mcxDie(1, "mcl", "errors in stream tf-spec")
+
    ;  if (mlp->stream_modes & MCLXIO_STREAM_READ)
       mx = mclAlgorithmStreamIn(xfin, mlp)
    ;  else
       {  mx = mclxReadx(xfin, EXIT_ON_FAIL, MCL_READX_GRAPH)
       ;  mx = test_tab(mx, mlp)
+   ;  }
+
+      if (mlp->transform)
+      mclxUnaryList(mx, mlp->transform)
+
+   ;  if (mlp->stream_mx_wname)
+      {  mcxIO* xfmx = mcxIOnew(mlp->stream_mx_wname->str, "w")
+      ;  mcxIOopen(xfmx, EXIT_ON_FAIL)
+      ;  mclxWrite(mx, xfmx, MCLXIO_VALUE_GETENV, RETURN_ON_FAIL)
+      ;  mcxIOclose(xfmx)
+      ;  mcxIOfree(&xfmx)
    ;  }
       return mx
 ;  }

@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "clmmeet" 1 "10 Nov 2005" "clmmeet 1\&.006, 05-314" "USER COMMANDS "
+.TH "clmmeet" 1 "16 Nov 2005" "clmmeet 1\&.006, 05-320" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -43,10 +43,10 @@ clusterings in mcl format (see \fBmcxio(5)\fP), which must all
 pertain to a set of the same cardinality\&.
 
 This utility can be useful in measuring (in conjunction with
-\fBclmdist\fP) the consistency of a set of clusterings at different
+\fBclmdist(1)\fP) the consistency of a set of clusterings at different
 levels of granularity \- if the meet of all those clusterings is close to
 being a subclustering of each of them, consistency is good\&. See
-\fBclmdist\fP for an example\&.
+\fBclmdist(1)\fP for an example\&.
 
 The --adapt option allows domain mismatches to occur between clusterings\&.
 \fBclmmeet\fP will project the clusterings onto the meet of their domains\&.

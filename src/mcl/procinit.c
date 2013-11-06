@@ -214,14 +214,6 @@ mcxOptAnchor mclProcOptions[] =
    ,  "<int>"
    ,  "length of progress bar or minus chunk size"
    }
-#if 0
-,  {  "-digits"
-   ,  MCX_OPT_HASARG
-   ,  PROC_OPT_DIGITS
-   ,  "<int>"
-   ,  "number of digits for (ascii) output"
-   }
-#endif
 ,  {  "-devel"
    ,  MCX_OPT_HASARG | MCX_OPT_HIDDEN
    ,  PROC_OPT_DEVEL

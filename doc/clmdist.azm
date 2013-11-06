@@ -50,7 +50,7 @@
    the \it{Mirkin metric},
    and the \it{scatter} distance.
    It can compute the chosen distance for all pairs of distances in a set of
-   clusterings.  Clusterings must be in the mcl matrix format (Cf. \sibmcxio),
+   clusterings.  Clusterings must be in the mcl matrix format (Cf. \mysib{mcxio}),
    and are supplied on the command line as the names of the files in which they
    are stored.
 
@@ -107,7 +107,7 @@
    subclustering of the other - mostly for comparing a set of clusterings of
    different granularity, made by letting the mcl parameter \genopt{-I} vary.
    The \secref{examples} section contains examples of all these \clmdist uses,
-   and the use of \sib{clminfo} and \sib{clmmeet} is also discussed there.
+   and the use of \mysib{clminfo} and \mysib{clmmeet} is also discussed there.
 
 \par
    \sjd is a metric distance on the space of partitions of
@@ -197,7 +197,7 @@
    clustering in particular can be chosen as 'best', because all clusterings
    seem at least acceptable.  They do aid however in showing the relative
    merits of each clusterings.  The most important issue in this respect is
-   cluster granularity. The table below shows the output of \sib{clminfo}.
+   cluster granularity. The table below shows the output of \mysib{clminfo}.
 
 \verbatim{
      Efficiency  Mass frac  Area frac  Cl weight  Mx link weight
@@ -306,7 +306,7 @@ k=3 |        |        |   4,4  |
 
 \sec{seealso}{SEE ALSO}
 \par{
-   \sibmclfamily for an overview of all the documentation
+   \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 }
 

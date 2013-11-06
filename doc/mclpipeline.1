@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mclpipeline" 1 "10 Nov 2005" "mclpipeline 1\&.006, 05-314" "USER COMMANDS "
+.TH "mclpipeline" 1 "16 Nov 2005" "mclpipeline 1\&.006, 05-320" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -90,7 +90,7 @@ http://micans\&.org/mcl/\&. The problem will then be fixed\&.
 The full list of pipeline options is given below\&. Start simple,
 and if you need some behaviour, try to see if there is an option
 that fits your needs\&.
-If you use a wrapper pipeline such as \fBmclblastline\fP, you
+If you use a wrapper pipeline such as \fBmclblastline(1)\fP, you
 can ignore the \fB--parser\fP and \fB--parser-tag\fP options
 as they are provided by the wrapper\&.
 
@@ -172,8 +172,8 @@ consists of the stages of \fIparsing\fP, \fIassembly\fP,
 The parsing stage is to be
 represented by some parser script obeying the interface
 rules described below\&. The assembly stage is done by
-\fBmcxassemble\fP, the clustering stage is done by \fBmcl\fP,
-and the formatting stage is done by \fBclmformat\fP\&.
+\fBmcxassemble(1)\fP, the clustering stage is done by \fBmcl(1)\fP,
+and the formatting stage is done by \fBclmformat(1)\fP\&.
 
 The script can also be put to simpler uses, e\&.g\&. letting the script take
 care of unique file names for differently parametrized mcl runs\&. In this
@@ -412,7 +412,7 @@ by the formatting stage\&.
 \&
 .br
 Corresponds with the \fBmcxassemble\fP \fB-r\fP\ \fImode\fP option\&.
-Refer to the \fBmcxassemble\fP manual\&.
+Refer to the \fBmcxassemble(1)\fP manual\&.
 .in -3m
 
 .ZI 3m "\fB--ass-opt\fP val (\fIassembly option transporter\fP)"
@@ -439,7 +439,7 @@ The (main) inflation value mcl should use\&.
 \&
 .br
 The scheme index to use\&. This options is also important\&.
-Refer to the \fBmcl\fP manual\&.
+Refer to the \fBmcl(1)\fP manual\&.
 .in -3m
 
 .ZI 3m "\fB--mcl-te\fP num (\fI#expansion threads\fP)"
@@ -467,7 +467,7 @@ is applied\&. By default zero\&.
 .br
 The center value\&. One may attempt to affect granularity
 by exercising this option, which controls the loop weights
-in the input matrix\&. Refer to the \fBmcl\fP manual\&.
+in the input matrix\&. Refer to the \fBmcl(1)\fP manual\&.
 .in -3m
 
 .ZI 3m "\fB--mcl-pi\fP float (\fImcl pre-inflation value\fP)"
@@ -476,7 +476,7 @@ in the input matrix\&. Refer to the \fBmcl\fP manual\&.
 Pre-inflation, another option which may possibly affect granularity by
 changing the input matrix\&. It makes the edge weight
 distribution either more or less homogeneous\&.
-Refer to the \fBmcl\fP manual\&.
+Refer to the \fBmcl(1)\fP manual\&.
 .in -3m
 
 .ZI 3m "\fB--mcl-o\fP fname (\fIdo not use\fP)"
@@ -542,7 +542,7 @@ Transfer \fB-opt\fP\ \fIval\fP to \fBclmformat\fP\&.
 Stijn van Dongen
 .SH SEE ALSO
 
-\fBmcxdeblast\fP, \fBmclblastline\fP,
+\fBmcxdeblast(1)\fP, \fBmclblastline(1)\fP,
 and \fBmclfamily(7)\fP for an overview of all the documentation
 and the utilities in the mcl family\&.
 

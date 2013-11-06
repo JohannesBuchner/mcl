@@ -1108,7 +1108,7 @@ void mclvMakeConstant
    {  if (val == 0.0) 
       mclvZeroValues(vec)
    ;  else
-      mclvUnary(vec, fltConstant, &val)
+      mclvUnary(vec, fltxConst, &val)
 ;  }
 
 
@@ -1116,7 +1116,7 @@ void mclvMakeCharacteristic
 (  mclVector* vec
 )  
    {  double one = 1.0
-   ;  mclvUnary(vec, fltConstant, &one)
+   ;  mclvUnary(vec, fltxConst, &one)
 ;  }
 
 
@@ -1124,7 +1124,7 @@ void mclvHdp
 (  mclVector* vec
 ,  double power
 )  
-   {  mclvUnary(vec, fltPower, &power)
+   {  mclvUnary(vec, fltxPower, &power)
 ;  }
 
 
@@ -1428,4 +1428,31 @@ double mclvAdjustForce
 ;  }
 
 
+long mclvUnaryList
+(  mclv*    vec
+,  mclpAR*  ar       /* idx: MCLX_UNARY_mode, val: arg */
+)
+   {  int      n_ivps
+   ;  mclIvp   *src_ivp, *dst_ivp
+
+   ;  MCLV_CHECK(vec, "mclvUnary")
+
+   ;  n_ivps   =  vec->n_ivps
+   ;  src_ivp  =  vec->ivps
+   ;  dst_ivp  =  vec->ivps
+   
+   ;  while (--n_ivps >= 0)
+      {  double val =  mclpUnary(src_ivp, ar)
+
+      ;  if (val != 0.0)
+         {  dst_ivp->idx =  src_ivp->idx
+         ;  dst_ivp->val =  val
+         ;  dst_ivp++
+      ;  }
+         src_ivp++
+   ;  }
+
+      mclvResize(vec, dst_ivp - vec->ivps)
+   ;  return vec->n_ivps
+;  }
 

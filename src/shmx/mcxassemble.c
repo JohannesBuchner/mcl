@@ -55,8 +55,11 @@ enum
 ,  MY_OPT_SKW_
 ,  MY_OPT_PRM
 ,  MY_OPT_PRM_
-,                 MY_OPT_CHECK
-,  MY_OPT_RV =    MY_OPT_CHECK + 2
+,                       MY_OPT_CHECK
+,  MY_OPT_RAWTRANSFORM =  MY_OPT_CHECK + 2
+,  MY_OPT_PRMTRANSFORM
+,  MY_OPT_SYMTRANSFORM
+,  MY_OPT_RV
 ,  MY_OPT_RE
 ,  MY_OPT_RI
 ,  MY_OPT_R
@@ -191,6 +194,24 @@ mcxOptAnchor options[] =
    ,  NULL
    ,  "write primary result matrix to base.prm"
    }
+,  {  "-raw-tf"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_RAWTRANSFORM
+   ,  "<func(arg)[, func(arg)]*>"
+   ,  "apply unary transformations to raw values"
+   }
+,  {  "-prm-tf"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_PRMTRANSFORM
+   ,  "<func(arg)[, func(arg)]*>"
+   ,  "apply unary transformations to primary matrix"
+   }
+,  {  "-sym-tf"
+   ,  MCX_OPT_HASARG
+   ,  MY_OPT_SYMTRANSFORM
+   ,  "<func(arg)[, func(arg)]*>"
+   ,  "apply unary transformations to symmetrified matrix"
+   }
 ,  {  "-o"
    ,  MCX_OPT_HASARG
    ,  MY_OPT_OUTPUT
@@ -209,7 +230,7 @@ mcxOptAnchor options[] =
    ,  NULL
    ,  "do not write default symmetrized result"
    }
-,  {  "--write-binary"
+,  {  "--binary"
    ,  MCX_OPT_DEFAULT
    ,  MY_OPT_BINMODE
    ,  NULL
@@ -290,7 +311,6 @@ int main
    ;  mcxbool noput_sym =  FALSE
    ;  mcxbool write_prm =  FALSE
    ;  mcxbool check_sym =  FALSE
-   ;  mcxbool binmode   =  FALSE
    ;  mcxbool single_data_file = FALSE
    ;  mcxbits warn_repeat = MCLV_WARN_REPEAT
    ;  int EODATA = EOF
@@ -298,6 +318,15 @@ int main
    ;  void (*ivpmerge)(void* ivp1, const void* ivp2)  =  mclpMergeMax
    ;  double (*fltvecbinary)(pval val1, pval val2)    =  fltMax
    ;  double (*fltmxbinary) (pval val1, pval val2)    =  fltMax
+
+   ;  mclpAR* rawtransform = NULL
+   ;  mcxTing* rawtransform_spec = NULL
+
+   ;  mclpAR* symtransform = NULL
+   ;  mcxTing* symtransform_spec = NULL
+
+   ;  mclpAR* prmtransform = NULL
+   ;  mcxTing* prmtransform_spec = NULL
 
    ;  mcxstatus parseStatus = STATUS_OK
    ;  mcxOption* opts, *opt
@@ -333,6 +362,21 @@ int main
 
             case MY_OPT_MAP_
          :  maptype |= MAP_DOMS
+         ;  break
+         ;
+
+            case MY_OPT_PRMTRANSFORM
+         :  prmtransform_spec = mcxTingNew(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_SYMTRANSFORM
+         :  symtransform_spec = mcxTingNew(opt->val)
+         ;  break
+         ;
+
+            case MY_OPT_RAWTRANSFORM
+         :  rawtransform_spec = mcxTingNew(opt->val)
          ;  break
          ;
 
@@ -378,7 +422,7 @@ int main
          ;
 
             case MY_OPT_BINMODE
-         :  binmode = TRUE
+         :  mclxSetBinaryIO()
          ;  break
          ;
 
@@ -490,6 +534,24 @@ int main
       if (single_data_file && xf_raw != xf_hdr)
          mcxErr(me, "some other option conflicts -i usage")
       ,  mcxExit(1)
+
+   ;  if
+      (  rawtransform_spec
+      && !(rawtransform = mclpTFparse(NULL, rawtransform_spec))
+      )
+      mcxDie(1, me, "input tf-spec does not parse")
+
+   ;  if
+      (  symtransform_spec
+      && !(symtransform = mclpTFparse(NULL, symtransform_spec))
+      )
+      mcxDie(1, me, "sym tf-spec does not parse")
+
+   ;  if
+      (  prmtransform_spec
+      && !(prmtransform = mclpTFparse(NULL, prmtransform_spec))
+      )
+      mcxDie(1, me, "prm tf-spec does not parse")
 
    ;  if (ibase)
       {  if (!xf_raw)
@@ -607,7 +669,7 @@ int main
          mcxErr(me, "error parsing header file")
       ,  mcxExit(1)
 
-   ;  if (single_data_file)
+   ;  if (single_data_file)         /* dangersign, hackish */
       mcxIOexpect(xf_raw, "begin", EXIT_ON_FAIL)
 
    ;  mx = mclxAllocZero(dom_cols, dom_rows)
@@ -631,6 +693,7 @@ int main
          ,  EXIT_ON_FAIL
          ,  EODATA
          ,  warn_repeat
+         ,  rawtransform
          ,  ivpmerge
          ,  fltvecbinary
          )
@@ -641,24 +704,29 @@ int main
    ;  if (rmap && mclxMapRows(mx, rmap))
       mcxDie(1, me, "could not map rows")
 
+   ;  if (prmtransform)
+      mclxUnaryList(mx, prmtransform)
+
    ;  if (xf_prm)
-      mclxAppWrite(mx, xf_prm, EXIT_ON_FAIL, binmode)
+      mclxWrite(mx, xf_prm, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
 
    ;  if (!noput_sym)
       {  tp = mclxTranspose(mx)
       ;  sym = mclxBinary(mx, tp, fltmxbinary)
-      ;  mclxAppWrite(sym, xf_sym, EXIT_ON_FAIL, binmode)
+      ;  if (symtransform)
+         mclxUnaryList(sym, symtransform)
+      ;  mclxWrite(sym, xf_sym, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
       ;  mclxFree(&sym)
    ;  }
 
       if (write_skw || check_sym)
-      {  double min = -1.0
+      {  double minone = -1.0
       ;  long n
       ;  tp = tp ? tp : mclxTranspose(mx)
-      ;  mclxScale(tp, min)
+      ;  mclxUnary(tp, fltxMul, &minone)
       ;  skew = mclxAdd(mx, tp)
       ;  if (write_skw)
-         mclxAppWrite(skew, xf_skew, EXIT_ON_FAIL, binmode)
+         mclxWrite(skew, xf_skew, MCLXIO_VALUE_GETENV, EXIT_ON_FAIL)
       ;  n = mclxNrofEntries(skew)
       ;  fprintf(stdout, "symmetry check: %ld skew edges\n", (long) (n/2))
    ;  }

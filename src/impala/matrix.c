@@ -385,7 +385,7 @@ mclMatrix* mclxConstDiag
 ,  double c
 )
    {  mclMatrix*  m = mclxDiag(vec)
-   ;  mclxUnary(m, fltConstant, &c)
+   ;  mclxUnary(m, fltxConst, &c)
    ;  return m
 ;  }
 
@@ -1038,7 +1038,7 @@ double mclxMaxValue
 (  const mclMatrix*        mx
 ) 
    {  double max_val  =  0.0
-   ;  mclxUnary((mclMatrix*)mx, fltPropagateMax, &max_val)
+   ;  mclxUnary((mclMatrix*)mx, fltxPropagateMax, &max_val)
    ;  return max_val
 ;  }
 
@@ -1050,35 +1050,11 @@ mclMatrix* mclxIdentity
 ;  }
 
 
-void mclxScale
-(  const mclMatrix*  mx
-,  double   f
-) 
-   {  mclxUnary((mclMatrix*)mx, fltScale, &f)
-;  }
-
-
-void mclxHdp
-(  mclMatrix*  mx
-,  double  power
-)  
-   {  mclxUnary(mx, fltPower, &power)
-;  }
-
-
-void mclxLog
-(  mclMatrix*  mx
-,  double      base
-)  
-   {  mclxUnary(mx, fltLog, &base)
-;  }
-
-
 void mclxMakeCharacteristic
 (  mclMatrix*              mx
 )  
    {  double one  =  1.0
-   ;  mclxUnary(mx, fltConstant, &one)
+   ;  mclxUnary(mx, fltxConst, &one)
 ;  }
 
 
@@ -1221,7 +1197,7 @@ void mclxAdjustLoops
 
       ;  if (ivp && !val)
             ivp->val = 0.0
-         ,  mclvUnary(vec, fltCopy, NULL)
+         ,  mclvUnary(vec, fltxCopy, NULL)
       ;  else if (ivp && val)
          ivp->val = val
       ;  else if (!ivp && val)
@@ -1285,6 +1261,21 @@ mclx* mclxWeed
    ;  mclvFree(&rowselect)
 
    ;  return res
+;  }
+
+
+long mclxUnaryList
+(  mclx*    mx
+,  mclpAR*  ar       /* idx: MCLX_UNARY_mode, val: arg */
+)
+   {  int n_cols =  N_COLS(mx)
+   ;  mclVector* vec = mx->cols
+   ;  long n_entries_kept = 0
+
+   ;  while (--n_cols >= 0)
+         n_entries_kept += mclvUnaryList(vec, ar)
+      ,  vec++
+   ;  return n_entries_kept
 ;  }
 
 

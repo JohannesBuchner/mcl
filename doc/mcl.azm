@@ -46,7 +46,7 @@ by white space.  The most basic example of usage is this:}
    Native mode (matrix input) is entered simply by \it{not} specifying
    \genopt{--abc}.  The input file should then have been created by an earlier
    invocation of \genoptref{-cache-graph}{fname} or by other means,
-   e.g. \sibref{mcxload}{mcxload}. It is
+   e.g. \mysib{mcxload}. It is
    possible to obtain label output in native mode by specifying a label
    dictionary, possibly one that was saved earlier using the
    \genoptref{-cache-tab}{fname} option. An example is this:}
@@ -68,7 +68,9 @@ by white space.  The most basic example of usage is this:}
    in matrix format) is that the data can easily be analyzed and subjected to
    further processing.  Second, input that is stored in native binary format
    loads much faster than label data when the input data size grows large.  If
-   neither of these is of concern then label mode may be entirely sufficient.}
+   neither of these is of concern then label mode may be entirely sufficient.
+   For more information on label mode and native mode refer to examples in this
+   manual and \mysib{mcxio}.}
 
 \cpar{Granularity}{
    If you want to explore cluster structure in graphs with MCL, do use
@@ -107,7 +109,7 @@ mcl hsfsp.mcx -use-tab hsfsp.tab -o  hsfsp.my-nice-clustering}
    \mcl also accepts the \genoptref{--binary} option, ensuring that
    graphs written with \genoptref{-cache-graph} are output in binary
    format.
-   The \sibref{mcxload}{mcxload} \genopt{--mirror} option ensures that
+   The \mysib{mcxload} \genopt{--mirror} option ensures that
    the resulting graph is undirected. Input graphs that
    are cached with mcl's \genoptref{-cache-graph} option
    get the same treatment.}
@@ -116,7 +118,7 @@ mcl hsfsp.mcx -use-tab hsfsp.tab -o  hsfsp.my-nice-clustering}
 
 \car{
 The example invocation below assumes matrix input, as described in the
-\sibmcxio section.  Switching to label mode requires the input file to be in
+\mysib{mcxio} section.  Switching to label mode requires the input file to be in
 label format and the addition of the \genoptref{--abc} option.}
 
 \par{
@@ -136,7 +138,7 @@ label format and the addition of the \genoptref{--abc} option.}
 }
 
 \""{
-   As of the first 1.003 release, \sib{clmformat} enables you to map a
+   As of the first 1.003 release, \mysib{clmformat} enables you to map a
    clustering onto a format better suited for inspection, using an index file
    (the so called \it{tab file}) mapping mcl indices onto descriptive labels.
    Read the \sibref{clmformat}{clmformat manual} for more information -
@@ -147,7 +149,7 @@ label format and the addition of the \genoptref{--abc} option.}
    A mechanism for pipelines is supported (as of the first 1.003 release).
    Refer to the \secref{pipeline} section for more information.
    A prepackaged pipeline for BLAST data is present in the form of
-   \sib{mclblastline}. As of release 1.006 a lightweight BLAST clustering
+   \mysib{mclblastline}. As of release 1.006 a lightweight BLAST clustering
    mechanism is also supported. \secref{started} is a small introduction,
    with some examples of using BLAST results.
 }
@@ -178,6 +180,12 @@ label format and the addition of the \genoptref{--abc} option.}
    \synoptopt{-restrict-tab}{fname}{use mapping to restrict}
    \synoptopt{-extend-tab}{fname}{use mapping and extend}
    \synoptopt{-cache-tab}{fname}{write mapping}
+}
+\cpar{Transform options}{
+   \synoptopt{-tf}{<tf-spec>}{transform input matrix values}
+   \synoptopt{-stream-tf}{<tf-spec>}{transform input stream values}
+   \synoptopt{--stream-log}{take logarithm of stream values}
+   \synoptopt{--stream-neg-log}{take negative logarithm of stream values}
 }
 \cpar{Cache options}{
    \synoptopt{-cache-graph}{fname}{write graph}
@@ -304,7 +312,7 @@ label format and the addition of the \genoptref{--abc} option.}
    
    The inception of this flow process and the theory behind it are
    described elsewhere (see \secref{references}).  Frequently asked questions
-   are answered in the \sibmclfaq section.
+   are answered in the \mysib{mclfaq} section.
 
    The program described here is a fast threaded implementation written by the
    algorithm's creator with contributions by several others. Anton Enright
@@ -343,7 +351,7 @@ label format and the addition of the \genoptref{--abc} option.}
 }
 \par{
    In native mode clusterings are stored as matrices
-   - this is discussed in the \sibmcxio section.
+   - this is discussed in the \mysib{mcxio} section.
    You presumably want to convert the output to something that
    is easier to interpret. The native mcl matrix format is perhaps
    unpleasant to parse in the quick and dirty way. You can use
@@ -355,8 +363,8 @@ label format and the addition of the \genoptref{--abc} option.}
    to get a line/tab based output format,
    each line containing a cluster in the form of tab-separated labels.
    Here \usearg{proteins.tab} should be a tab file previously
-   created by \sibref{mcxdeblast}{mcxdeblast} or mcl.
-   Refer to \sibmcxio for more information on tab files,
+   created by \mysib{mcxdeblast} or mcl.
+   Refer to \mysib{mcxio} for more information on tab files,
    and the entries grouped under \genoptref{--abc} for an extensive
    discussion of the various ways in which mcl can combine
    label format and matrix format in input and output.
@@ -394,7 +402,7 @@ label format and the addition of the \genoptref{--abc} option.}
    triggers different settings for the group of pruning parameters
    \optref{-P}{\genopt{-p/-P}, \genopt{-R}, \genopt{-S}, and
    \genopt{-pct}}.  The default setting corresponds with
-   \useopt{-scheme}{4}.
+   \useopt{-scheme}{6}.
 
    There is an additional group of control parameters
    \optref{--adapt}{\genopt{--adapt}, \genopt{--rigid}, \genopt{-ae},
@@ -411,8 +419,9 @@ label format and the addition of the \genoptref{--abc} option.}
    mcl (so that you might want to tune resources) whereas a sparsely
    connected graph on 500,000 nodes may be business as usual.
 \""{If graphs are really huge, the time to read a graph from file can be
-   shortened by converting the input graph from ascii mcl format to binary mcl
-   format with \sib{mcxconvert}.}
+   shortened by converting the input graph from
+   interchane mcl format to binary mcl
+   format with \mysib{mcxconvert}.}
 }
 \par{
    \mcl is a memory munger. Its precise appetite depends on the resource
@@ -440,8 +449,8 @@ label format and the addition of the \genoptref{--abc} option.}
 \par{
    MCL iterands allow a generic interpretation as clusterings as well.  The
    clusterings associated with early iterands may contain a fair amount of
-   overlap. Refer to the \optref{-dump}{\genopt{-dump} option}, the \sibmclfaq
-   manual, and the \sib{clmimac} utility (Interpret Matrices As Clusterings).
+   overlap. Refer to the \optref{-dump}{\genopt{-dump} option}, the \mysib{mclfaq}
+   manual, and the \mysib{clmimac} utility (Interpret Matrices As Clusterings).
    Use \clmimac only if you have a special reason; the normal usage of \mcl is
    to do multiple runs for varying \genopt{-I} parameters and use the
    clusterings output by mcl itself.
@@ -483,9 +492,9 @@ label format and the addition of the \genoptref{--abc} option.}
    result in very coarse grained clusterings. Your mileage will vary
    depending on the characteristics of your data.  That is why it is
    a good idea to test the quality and coherency of your clusterings
-   using \sib{clmdist} and \sib{clminfo}.  This will most likely reveal that
+   using \mysib{clmdist} and \mysib{clminfo}.  This will most likely reveal that
    certain values of \genopt{-I} are simply not right for your data.  The
-   \sib{clmdist} section contains a discussion of how to use the cluster
+   \mysib{clmdist} section contains a discussion of how to use the cluster
    validation tools shipped with \mcl (see the \secref{seealso} section).
 }
 
@@ -510,7 +519,7 @@ label format and the addition of the \genoptref{--abc} option.}
    label format \- provided a tab file is specified or the input
    is in label format.
    Otherwise the clustering is output in the
-   mcl matrix format; see the \sibmcxio section for 
+   mcl matrix format; see the \mysib{mcxio} section for 
    more information on this.
    Refer also to the group of options
    discussed at \genoptref{--abc}.
@@ -580,9 +589,28 @@ label format and the addition of the \genoptref{--abc} option.}
    domains for which the indices range from zero to some number \v{N}
    without omissions. It is possible to hook up any tab file to mcl,
    but it requires mcxdump to act as an intermediary -
-   \sibref{mcxdump}{mcxdump} has no such limitations. This need in
+   \mysib{mcxdump} has no such limitations. This need in
    general not be of concern to you. If a tab file is created by
    mcl or mcxdeblast it will always be canonical.}
+
+
+\items{
+   {\defopt{-tf}{<tf-spec>}{transform input matrix values}}
+   {\defopt{-stream-tf}{<tf-spec>}{transform input stream values}}
+   {\defopt{--stream-log}{take logarithm of stream values}}
+   {\defopt{--stream-neg-log}{take negative logarithm of stream values}}
+}
+\car{
+   \genopt{-tf} transforms the values of the input matrix according
+   to \genopt{<tf-spec>}. \genopt{-stream-tf} transforms the stream values
+   (when \genoptref{--abc} or \genoptref{--expect-abc} is used)
+   according to \genopt{<tf-spec>}. 
+   \genopt{--neg-stream-log} and \genopt{--stream-log}
+   respectively imply that the stream input values are
+   first replaced by their (negative) logarithm.
+   The reason for their existence is documented in \mysib{mcxio}.
+   For a description of the transform language excpected/accepted
+   in \genopt{<tf-spec>} refer to the same.}
 
 \items{
    {\defopt{-cache-graph}{fname}{write graph}}
@@ -619,7 +647,7 @@ mcxdump -imx - --no-values --dump-rlines\\
 
 \car{
    Admittedly this is beginning to look like black magic, but truthfully
-   it is not, my dear paduan. \sibref{mcxdump}{mcxdump}
+   it is not, my dear paduan. \mysib{mcxdump}
    simply needs to be told how it should format its output. It needs to know
    it should dump the matrix columns (clusters in this case) on a per-line
    basis, that it should not dump the index that identifies the cluster
@@ -666,11 +694,11 @@ mcxdump -imx - --no-values --dump-rlines\\
    The \secref{pruneoptions} section contains an elaborate description
    of the way \mcl manages resources, should you be interested.
    In case you are worried about the validation of the resulting
-   clusterings, the \sibmclfaq section
+   clusterings, the \mysib{mclfaq} section
    has several entries discussing this issue. The bottom line is
    that you have to compare the clusterings resulting from different
    schemes (and otherwise identical parameters) using utilities
-   such as \sib{clmdist}, \sib{clminfo} on the one hand, and your
+   such as \mysib{clmdist}, \mysib{clminfo} on the one hand, and your
    own sound judgment on the other hand.
 }
 \par{
@@ -729,7 +757,7 @@ mcxdump -imx - --no-values --dump-rlines\\
    Each verbosity mode is given its own entry below.
 }
 \item{\useopt{-v}{progress}}
-   This mode causes \mcl to emit an ascii gauge
+   This mode causes \mcl to emit a gauge
    for each single matrix multiplication. It uses some
    default length for the gauge, which can be altered by
    the \genopt{-progress}{k} option. Simply using the latter
@@ -970,12 +998,12 @@ mcxdump -imx - --no-values --dump-rlines\\
    (abbreviated as DAG) associated with each iterand. The \bf{dag} option
    writes that DAG to file. The DAG can optionally be further
    pruned and then again be interpreted as a
-   clustering using \sib{clmimac}, and \sib{clmimac} can also
+   clustering using \mysib{clmimac}, and \mysib{clmimac} can also
    work with the matrices written using the \bf{ite} option.
    It should be noted that clusterings associated with intermediate
    iterands may contain overlap, which is interesting in
    many applications. For more information
-   refer to \sibmclfaq and the \secref{references} section below.
+   refer to \mysib{mclfaq} and the \secref{references} section below.
 }
 
 \par{
@@ -1016,17 +1044,12 @@ mcxdump -imx - --no-values --dump-rlines\\
    Use e.g. \useopt{-S}{6} for such
    a small graph and view the MCL matrix iterands with \genopt{--show}.
 
-\""{
-\item{\defopt{--ascii}{output format}}
-   See the \optref{--binary}{\genopt{--binary} option} below.
-}
-
 \item{\defopt{--binary}{output format}}
 \car{
    Write matrix dump output in binary mcl format rather
-   than ascii mcl format (the default). Note that \mcxconvert
+   than interchange mcl format (the default). Note that \mysib{mcxconvert}
    can be used to convert each one into the other.
-   See \sibmcxio and \sib{mcxconvert} for more information.
+   See \mysib{mcxio} and \mysib{mcxconvert} for more information.
 }
 
 \item{\defopt{-sort}{str}{sort mode}}
@@ -1238,7 +1261,7 @@ mcxdump -imx - --no-values --dump-rlines\\
 \par{
    Note that 'less accurate' or 'more accurate' computations may still
    generate the same output clusterings. Use \clmdist to compare output
-   clusterings for different resource parameters.  Refer to \sib{clmdist}
+   clusterings for different resource parameters.  Refer to \mysib{clmdist}
    for a discussion of this issue.
 }
 
@@ -1508,7 +1531,7 @@ all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|
    As of the 1.006 release, label data can be directly streamed into
    MCL as described in \secref{started} and \secref{examples}.
    For BLAST input this is achieved
-   by hooking up \mcxdeblast \genkvp{--abc-out}{-} with
+   by hooking up \mysib{mcxdeblast} \genkvp{--abc-out}{-} with
    \mcl - \genopt{--abc}. Refer to \secref{started} for examples.}
 
 \par{
@@ -1520,7 +1543,7 @@ all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|
 \par{
    In general, clustering requires several stages; creating the matrix,
    running mcl, and displaying the result.  The display stage is supported
-   by \sib{clmformat}.  The matrix creation stage often needs only be
+   by \mysib{clmformat}.  The matrix creation stage often needs only be
    done once for a given data collection, followed by repeated runs of
    the other two stages for varying inflation values and scheme settings.}
 
@@ -1529,7 +1552,7 @@ all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|
    namely parsing a data file in some given format, and assembling a
    matrix from the data bits and pieces, such as node indices and edge
    weights or even edge weight contributions.
-   The assembly step can be done by \sib{mcxassemble},
+   The assembly step can be done by \mysib{mcxassemble},
    which allows a very general input format and customizable behaviour
    in how the bits and pieces should be transformed to the input graph.
    This leaves the parse stage to be filled in.}
@@ -1544,14 +1567,14 @@ all ny nx|all ny nx|8532c8532c8532c|8532c8532c8532c|
    means a simple mechanism).}
 
 \par{
-   \sib{mclpipeline} requires a single parse script to be specified.
+   \mysib{mclpipeline} requires a single parse script to be specified.
    It will be plugged into the pipeline and you should be set to run.
    The parse script must satisfy the interface requirements described
    in the \sibref{mclpipeline}{mclpipeline manual page}.}
 
 \par{
-   For BLAST input, the \sibref{mclblastline}{mclblastline
-   script} provides a dedicated interface. It uses the
+   For BLAST input, the \sibref{mclblastline}{mclblastline script}
+   provides a dedicated mclpipeline interface. It uses the
    \sibref{mcxdeblast}{mcxdeblast script} that comes prepackaged with mcl.}
 
 \sec{examples}{EXAMPLES}
@@ -1651,20 +1674,22 @@ with value 0.8.}
 \sec{files}{FILES}
 \par{
    There are currently no resource nor configuration files.
-   The mcl matrix format is described in the \sibmcxio section.
+   The mcl matrix format is described in the \mysib{mcxio} section.
 }
 \sec{environment}{ENVIRONMENT}
 
 \begin{itemize}{{compact}{0}{contiguous}{0}{align}{left}}
-\item{MCLXASCIIDIGITS}
-   When writing matrices in ascii format, mcl will use the environment
-   variable MCLXASCIIDIGITS (if present) as the precision (number of digits)
-   for printing the fractional part of values.
+\item{MCLXINTERCHANGEDIGITS}
+\car{
+   When writing matrices in interchange format, mcl will use the environment
+   variable MCLXINTERCHANGEDIGITS (if present) as the precision (number of
+   digits) for printing the fractional part of values.}
 
 \item{MCLXIOVERBOSITY}
+\car{
    MCL and its sibling applications will usually report about matrix
    input/output from/to disk. The verbosity level can be regulated
-   via MCLXIOVERBOSITY. These are the levels it can currently be set to.
+   via MCLXIOVERBOSITY. These are the levels it can currently be set to.}
 
 \begin{itemize}{{compact}{1}{contiguous}{1}{align}{right}{w2}{2}}
 \item{1} Silent but applications may alter this.
@@ -1675,25 +1700,25 @@ with value 0.8.}
 
 \item{MCLXIOFORMAT}
    MCL and its sibling applications will by default output matrices
-   in ASCII format rather than binary format (cf. \sibmcxio). 
+   in interchange format rather than binary format (cf. \mysib{mcxio}). 
    The desired format can be controlled via the variable 
    MCLXIOFORMAT. These are the levels it can currently be set to.
 
 \begin{itemize}{{compact}{1}{w2}{2}{contiguous}{1}{align}{right}}
-\item{1} Ascii format but applications may alter this.
-\item{2} Ascii format and applications can not alter this (default).
+\item{1} Interchange format but applications may alter this.
+\item{2} Interchange format and applications can not alter this (default).
 \item{4} Binary format but applications may alter this.
 \item{8} Binary format and applications can not alter this.
 \end{itemize}
 
-\item{MCLXASCIIFLAGS}
-   If matrices are output in ascii format, by default empty vectors
+\item{MCLXINTERCHANGEFLAGS}
+   If matrices are output in interchange format, by default empty vectors
    will not be listed. Equivalently (during input time),
    vectors for which no listing is present are understood to be empty -
    note that the \it{presence} of a vector is established using
    the domain information found in the header part.
    It is possible to enforce listing of empty vectors by
-   setting bit '1' in the variable MCLXASCIIFLAGS.
+   setting bit '1' in the variable MCLXINTERCHANGEFLAGS.
 
 \item{MCLXIOUNCHECKED}
    MCL and its sibling applications will always check a matrix for consistency
@@ -1710,7 +1735,7 @@ with value 0.8.}
    If \mcl issues a diagnostic error, it will most likely be
    because the input matrix could not be parsed succesfully.
    \mcl tries to be helpful in describing the kind of parse error.
-   The mcl matrix format is described in the \sibmcxio section.
+   The mcl matrix format is described in the \mysib{mcxio} section.
 }
 \sec{bugs}{BUGS}
 \par{
@@ -1759,12 +1784,27 @@ Stijn van Dongen.
    for parallellization.
 }
 \par{
-   In Jan 2003 the 03-010 release introduced support for sparsely
+   Onwards.
+   The January 2003 03-010 release introduced support for sparsely
    enumerated (i.e. indices need not be sequential) graphs and matrices, the
    result of a major overhaul of the matrix library and most higher layers.
    Conceptually, the library now sees matrices as infinite quadrants
    of which only finite subsections happen to have nonzero entries.
 }
+\par{
+   The June 2003 03-154 release introduced unix-type pipelines for clustering,
+   including the BLAST parser mcxdeblast and the mclblastline script.
+   The April 2004 04-105 release revived binary format, which has been a first
+   class citizen every since.}
+  
+\par{
+   With the March 2005 05-090 release mcxsubs finally acquired a sane
+   specification syntax.  The November 2005 05-314 release brought the ability
+   to stream label input directly into mcl. The subsequent release introduced a
+   transformation language shared by various mcl siblings that allows arbitrary
+   progressions of transformations to be applied to either stream values or
+   matrix values.}
+
 \par{
    Joost van Baal set up the mcl CVS tree and packaged mcl for Debian
    GNU/Linux. He completely autotooled the sources, so much so that at first I
@@ -1787,14 +1827,14 @@ Stijn van Dongen.
 \sec{seealso}{SEE ALSO}
 
 \par{
-   \sibmclfaq - Frequently Asked Questions.
+   \mysib{mclfaq} - Frequently Asked Questions.
 }
 \par{
-   \sibmcxio - a description of the mcl matrix format.
+   \mysib{mcxio} - a description of the mcl matrix format.
 }
 \par{
    There are many more utilities. Consult
-   \sibmclfamily for an overview of and links to all the documentation
+   \mysib{mclfamily} for an overview of and links to all the documentation
    and the utilities in the mcl family.
 }
 \par{

@@ -68,9 +68,9 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-10 Nov 2005&nbsp;&nbsp;&nbsp;
+16 Nov 2005&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxsubs.ps"><b>mcxsubs</b></a>
-1.006, 05-314
+1.006, 05-320
 </p>
 <div style="margin-top:1em">
 <table
@@ -332,7 +332,7 @@ specified.
 This option reduces memory consumption to the size of the subgraph(s)
 to be extracted.
 <p class="default L50">
-For graphs in ascii format, the speed gain is not
+For graphs in interchange format, the speed gain is not
 dramatic. If more than one subgraph is specified, there will most
 likely be a loss in speed.
 <p class="default L50">
@@ -491,21 +491,11 @@ can be reached from the start domain.
 The value part is specified as
 </p>
 <p class="default L50" style="margin-bottom:0">
-<b>val</b>( &lt; <b>lt</b>(<i>x</i>) | <b>lq</b>(<i>x</i>) | <b>gq</b>(<i>x</i>) | <b>gt</b>(<i>x</i>) &gt; + )
-</p>
+<b>val</b>(&lt;tf-spec&gt;)</p>
 <p class="default L50" style="margin-bottom:0">
-Where <i>x</i> is a real number, and multiple value specifications (such as
-<b>gq</b>(0.8)) are separated by commas.
-The strings 'lt', 'lq', 'gq', 'gt', respectively denote
-<i>less than</i>,
-<i>less than or equal to</i>,
-<i>greater than or equal to</i>,
-and
-<i>greater than</i>.
-</p>
-<p class="default L50" style="margin-bottom:0">
-This selects matrix entries based on their value.
-</p>
+It transforms or removes values according to <i>&lt;tf-spec&gt;</i>.
+Refer to <a class="local" href="mcxio.html">mcxio</a> for a description of the transformation
+specification syntax and the available transformation primitives.</p>
 <p class="default L50" style="margin-bottom:0"><b>SIZE</b><br>
 The size part is specified as
 </p>

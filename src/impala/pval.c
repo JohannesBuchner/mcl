@@ -8,19 +8,20 @@
 
 #include <math.h>
 #include <float.h>
+#include <stdlib.h>
 
 #include "util/minmax.h"
 #include "pval.h"
 
-double fltConstant
+double fltxConst
 (  pval     d
 ,  void*    arg
 )
-   {  return d ? *((double*)arg) : 0
+   {  return *((double*)arg)
 ;  }
 
 
-double fltGqBar
+double fltxGQ
 (  pval     d
 ,  void*    arg
 )
@@ -28,7 +29,7 @@ double fltGqBar
 ;  }
 
 
-double fltGtBar
+double fltxGT
 (  pval     d
 ,  void*    arg
 )
@@ -36,7 +37,7 @@ double fltGtBar
 ;  }
 
 
-double fltLtBar
+double fltxLT
 (  pval     d
 ,  void*    arg
 )
@@ -44,7 +45,7 @@ double fltLtBar
 ;  }
 
 
-double fltLqBar
+double fltxLQ
 (  pval     d
 ,  void*    arg
 )
@@ -52,7 +53,7 @@ double fltLqBar
 ;  }
 
 
-double fltCopy
+double fltxCopy
 (  pval     flt
 ,  void*    ignore
 )
@@ -60,7 +61,7 @@ double fltCopy
 ;  }
 
 
-double fltScale
+double fltxMul
 (  pval     d
 ,  void*    arg
 )
@@ -68,31 +69,15 @@ double fltScale
 ;  }
 
 
-double fltShift
+double fltxAdd
 (  pval     flt
-,  void     *shift
+,  void     *add
 )
-   {  return flt + *((double*) shift)
+   {  return flt + *((double*) add)
 ;  }
 
 
-double fltFloor
-(  pval     flt
-,  void     *lowest
-)
-   {  return MAX(flt, *((double*) lowest))
-;  }
-
-
-double fltCeil
-(  pval     flt
-,  void     *highest
-)
-   {  return MIN(flt, *((double*) highest))
-;  }
-
-
-double fltPower
+double fltxPower
 (  pval     flt
 ,  void     *power
 )
@@ -100,14 +85,14 @@ double fltPower
 ;  }
 
 
-double fltLog
+double fltxLog
 (  pval     flt
 ,  void*    basep
 )
    {  double base = basep ? *((double*) basep) : -1
    ;  if (base > 0 && flt > 0)
       return log(flt) / log(base)
-   ;  else if (!basep && flt > 0)
+   ;  else if ((!base || !basep) && flt > 0)
       return log(flt)
    ;  else if (!flt)
       return -FLT_MAX
@@ -116,15 +101,43 @@ double fltLog
 ;  }
 
 
-double fltNeglog
+double fltxNeglog
 (  pval     flt
 ,  void*    base
 )
-   {  return -fltLog(flt, base)
+   {  return -fltxLog(flt, base)
 ;  }
 
 
-double fltPropagateMax
+double fltxExp
+(  pval     power
+,  void*    flt
+)
+   {  double base = *((double*) flt)
+   ;  if (!base)
+      return exp(power)
+   ;  else
+      return pow(*((double*) flt), power)
+;  }
+
+
+double fltxCeil
+(  pval     flt
+,  void*    val
+)
+   {  return flt > *((double*) val) ? *((double*) val) : flt
+;  }
+
+
+double fltxFloor
+(  pval     flt
+,  void*    val
+)
+   {  return flt < *((double*) val) ? *((double*) val) : flt
+;  }
+
+
+double fltxPropagateMax
 (  pval     d
 ,  void*    arg
 )

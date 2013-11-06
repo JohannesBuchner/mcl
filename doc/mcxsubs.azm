@@ -93,7 +93,7 @@
 \par{
    If you are a frequent \mcxsubs user with very large graphs, consider
    converting the input matrix into binary format using
-   \sibref{mcxconvert}{mcxconvert} and then using the mcxsubs
+   \mysib{mcxconvert} and then using the mcxsubs
    \genopt{--from-disk} option. This should give you a 400-fold speed gain.
 }
 
@@ -275,7 +275,7 @@ This option reduces memory consumption to the size of the subgraph(s)
 to be extracted.
 
 \par
-For graphs in ascii format, the speed gain is not
+For graphs in interchange format, the speed gain is not
 dramatic. If more than one subgraph is specified, there will most
 likely be a loss in speed.
 
@@ -472,23 +472,13 @@ It does not matter whether more than one subgraph is specified.
 }
 
 \par{
-   \bf{val}( < \bf{lt}(\it{x}) |  \bf{lq}(\it{x}) |  \bf{gq}(\it{x}) |  \bf{gt}(\it{x})  > + )
-}
+   \bf{val}(<tf-spec>)}
 
 \par{
-   Where \it{x} is a real number, and multiple value specifications (such as
-   \bf{gq}(0.8)) are separated by commas.
-   The strings 'lt', 'lq', 'gq', 'gt', respectively denote
-   \it{less than},
-   \it{less than or equal to},
-   \it{greater than or equal to},
-   and
-   \it{greater than}.
-}
-
-\par{
-   This selects matrix entries based on their value.
-}
+   It transforms or removes values according to \it{<tf-spec>}.
+\: fixme, anchor #transform
+   Refer to \mysib{mcxio} for a description of the transformation
+   specification syntax and the available transformation primitives.}
 
 \cpar{SIZE}{
    The size part is specified as
@@ -596,8 +586,8 @@ the resulting matrix should be output in binary format.
 
 \sec{seealso}{SEE ALSO}
 
-   \sib{mcx},
-   and \sibmclfamily for an overview of all the documentation
+   \mysib{mcx},
+   and \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 
 \"man::postamble"

@@ -32,7 +32,7 @@
    \clminfo computes several numbers indicative for the efficiency with
    with a clustering captures the edge mass of a given graph.
    Use it in conjunction with \clmdist to determine which clusterings
-   you accept. See the EXAMPLES section in \sib{clmdist}
+   you accept. See the EXAMPLES section in \mysib{clmdist}
    for an example of \clmdist and \clminfo (and \clmmeet) usage.
    Output can be generated for multiple clusterings at the same time.
 
@@ -103,7 +103,7 @@
 
 \sec{seealso}{SEE ALSO}
 \par{
-   \sibmclfamily for an overview of all the documentation
+   \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 }
 

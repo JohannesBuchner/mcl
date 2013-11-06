@@ -24,16 +24,17 @@
    In the two-argument invocation, \mcxconvert converts from the format
    found in the first file to the other format.
    In the one-argument invocation, mcxconvert will simply output
-   one of the strings \v{ascii} or \v{binary} depending on the format found.
+   one of the strings \v{interchange}
+   or \v{binary} depending on the format found.
 
 \sec{description}{DESCRIPTION}
 
 \par
    The \mcl libraries make extensive use of matrices. Matrices
    are used to encode graphs, matrices and clusterings.
-   They can be stored either in ascii or in binary format. The latter is
+   They can be stored either in interchange or in binary format. The latter is
    somewhat more efficient in storage and much faster in both reading and
-   writing, but the default is ascii format.
+   writing, but the default is interchange format.
 
 \par
    The \mcl input routines recognize the type of storage they are dealing
@@ -50,8 +51,8 @@
    Stijn van Dongen.
 
 \sec{seealso}{SEE ALSO}
-   \sibmcxio,
-   and \sibmclfamily for an overview of all the documentation
+   \mysib{mcxio},
+   and \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 
 \"man::postamble"

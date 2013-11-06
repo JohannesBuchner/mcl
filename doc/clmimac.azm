@@ -59,7 +59,7 @@
    file. This DAG is constructed according to the structure associated
    with diagonally positive semi-definite matrices as described
    in the PhD thesis \it{Graph clustering by flow simulation}.
-   Consult \sibmclfaq for references.
+   Consult \mysib{mclfamily} for references.
 
 \item{\defopt{-sort}{str}{size|revsize|lex|none}}
    Sort the clusters either by increasing size, decreasing size,
@@ -85,7 +85,7 @@
 
 \sec{seealso}{SEE ALSO}
 \par
-   \sibmclfamily for an overview of all the documentation
+   \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 
 \"man::postamble"

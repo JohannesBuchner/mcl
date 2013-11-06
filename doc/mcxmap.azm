@@ -154,10 +154,10 @@ begin
 Stijn van Dongen.
 
 \sec{seealso}{SEE ALSO}
-   \sibmcxio,
-   \sib{mcx},
-   \sib{mcxsubs},
-   and \sibmclfamily for an overview of all the documentation
+   \mysib{mcxio},
+   \mysib{mcx},
+   \mysib{mcxsubs},
+   and \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 
 \"man::postamble"

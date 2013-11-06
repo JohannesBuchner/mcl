@@ -68,28 +68,70 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-10 Nov 2005&nbsp;&nbsp;&nbsp;
+17 Nov 2005&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxio.ps"><b>mcxio</b></a>
-1.006, 05-314
+1.006, 05-321
 </p>
 
 <a name="name"></a>
 <h2>NAME</h2>
 <p class="default L50" style="margin-bottom:0">
-mcxio - the format specification for matrix input and output in the mcl family.</p>
+mcxio - the format specifications for input and output in the mcl family.</p>
 
 <a name="description"></a>
 <h2>DESCRIPTION</h2>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
-This document describes the <i>generic matrix format</i>
-used in the mcl libaries. It also describes the <i>raw intermediate
-format</i> used by <a class="local" href="mcxassemble.html">mcxassemble</a>.
-The two formats (generic and raw) are in fact
-identical at the vector level; they are distinguished by the error reporting
-implied by the generic format.
-Also described here is the <i>tab format</i> used by mcl to convert
-between meaningful labels describing the input data and the numerical
-identifiers used internally.</p>
+This document describes</p>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr><td colspan=3>native matrix input format</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+The format that can be read in by any mcl application
+expecting a matrix argument. The native format closely resembles
+the layout of matrices as residing in computer memory. There are
+two distinct encodings, respectively <i>interchange</i> and <i>binary</i>.
+Their relative merits are described further below.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3>raw intermediate format</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+This is read by <a class="local" href="mcxassemble.html">mcxassemble</a>.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3>tab format</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Used by applications such as <a class="local" href="mcl.html">mcl</a> and <a class="local" href="mcxdump.html">mcxdump</a> to
+convert between meaningful labels describing the input data and the
+numerical identifiers used internally.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3>label format</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+The format used when streaming labels directly into
+<a class="local" href="mcl.html">mcl</a> or <a class="local" href="mcxload.html">mcxload</a>.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3>transformation syntax</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+The syntax accepted by <a class="local" href="mcl.html">mcl</a>, <a class="local" href="mcxload.html">mcxload</a>, <a class="local" href="mcxsubs.html">mcxsubs</a>
+and <a class="local" href="mcxassemble.html">mcxassemble</a> to transform values in an input stream
+or in input or output matrices.</p>
+</div></td></tr>
+</table>
+
+</div>
+<p class="default L50" style="margin-bottom:0">
+The interchange format is a portable format that can be transmitted
+across computers and over networks and will work with any version
+of mcl or its sibling programs. It is documented (here) and very stable.
+Applications can easily create matrices in this format.
+The drawback of interchange format is that for very large graphs
+matrix encodings grow very big and are slow to read.</p>
+<p class="default L50" style="margin-bottom:0">
+The binary format is <i>not</i> garantueed to be portable across
+machines or different versions of mcl or differently compiled
+versions of mcl. Its distinct advantage is that for very large
+graphs the speed advantage over interchange format can be
+significant.</p>
+<p class="default L50" style="margin-bottom:0">
+Conversion between the two formats is easily achieved with
+<a class="local" href="mcxconvert.html">mcxconvert</a>. Both <a class="local" href="mcl.html">mcl</a> and <a class="local" href="mcxload.html">mcxload</a>
+can save a matrix in either format after constructing it from
+label input.</p>
 <p class="default L50" style="margin-bottom:0">
 A remark on the sloppy naming conventions used for <b>mcl</b> and its sibling
 utilities may be in order here. The prefix <b>mcx</b> is used for generic
@@ -115,14 +157,16 @@ cellpadding="0" summary="itemize">
 </div></td></tr><tr><td width=48 valign="top" class=left>5.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#gspec">Specifying graphs</a>
 </div></td></tr><tr><td width=48 valign="top" class=left>6.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-<a class="intern" href="#notes">Additional notes</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>7.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#raw">Raw format</a>
-</div></td></tr><tr><td width=48 valign="top" class=left>8.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=48 valign="top" class=left>7.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#tab">Tab format / label information</a>
+</div></td></tr><tr><td width=48 valign="top" class=left>8.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#label">Label input</a>
 </div></td></tr><tr><td width=48 valign="top" class=left>9.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-<a class="intern" href="#seealso">SEE ALSO</a>
+<a class="intern" href="#trans">Transformation syntax</a>
 </div></td></tr><tr><td width=48 valign="top" class=left>10.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<a class="intern" href="#seealso">SEE ALSO</a>
+</div></td></tr><tr><td width=48 valign="top" class=left>11.</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <a class="intern" href="#author">AUTHOR</a>
 </div></td></tr>
 </table>
@@ -258,7 +302,7 @@ of all row entries in c (these are matrix entries M[r,c] for varying r). The
 entry M[r,c] is specified either as 'r' or as 'r:f', where f is a float. In
 the first case, the entry M[r,c] defaults to 1.0, in the second case, it is
 set to f. The secondary list is closed with the `$' character. A full
-fledged examples thus looks as follows:
+fledged examples thus looks as follows:</p>
 <pre>(mclheader
 mcltype matrix
 dimensions 12x3
@@ -275,6 +319,7 @@ begin
 1    11 66 77 123 $
 2    22 33 55 $
 )</pre>
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Note that the column domain is canonical; its specifiation could have been
 omitted. In this example, no values were specified. See below for more.</p>
 </div></td></tr>
@@ -334,10 +379,7 @@ begin
 10   3  7  8 11 $
 11   8 10 $
 )</pre>
-
-<a name="notes"></a>
-<h2>Additional notes</h2>
-<p class="default L50" style="margin-bottom:0">
+<p class="default L50" style="margin-bottom:0"><b>Additional notes</b><br>
 There are few restrictions on the format that one might actually expect.
 Vectors and entries may occur in any order and need not be sorted.
 Repeated entries and repeated vectors are allowed but are always
@@ -359,13 +401,13 @@ no matrix introduction syntax is used - these are supplied to the processing
 application by other means. The end-of-vector token '$' must still be used,
 and the comment token '#' is still valid. <a class="local" href="mcxassemble.html">mcxassemble</a>
 imports a file in raw
-format, creates a generic matrix from the data therein, and writes the
+format, creates a native matrix from the data therein, and writes the
 matrix to (a different) file. It allows customizable behaviour in how to
 combine repeated entries and repeated vectors. This is typically used in the
 following procedure. A) Do a one-pass-parse on some external cooccurrence
 file/format, generate raw data during the parse and write it to file
 (without needing to build a huge data structure in memory). B) mcxassemble
-takes the raw data and assembles it according to instruction into a generic
+takes the raw data and assembles it according to instruction into a native
 mcl matrix.</p>
 
 <a name="tab"></a>
@@ -400,6 +442,90 @@ mcl provides explicit modes for dealing with tab structures by means of
 the <b>-extend-tab</b>, <b>-restrict-tab</b> and
 <b>-strict-tab</b> options. Refer to the <a class="local" href="mcl.html">mcl</a>
 documentation.</p>
+
+<a name="label"></a>
+<h2>Label input</h2>
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Label input is a line based input where two nodes and a value
+are specified on each line. The nodes should be specified
+by labels containing no whitespace. A line thus consists
+of two labels and a numerical value, all separated by
+whitespace. Any line where the first non-whitespace
+character is the octothorp (#) is ignored.
+The following is an example of label input.</p>
+<pre>---8&lt;------8&lt;------8&lt;------8&lt;------8&lt;---
+# the cat and the hat example
+cat hat  0.2
+hat bat  0.16
+bat cat  1.0
+bat bit  0.125
+bit fit  0.25
+fit hit  0.5
+hit bit  0.16
+---&gt;8------&gt;8------&gt;8------&gt;8------&gt;8---</pre>
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<a class="local" href="mcl.html">mcl</a> can read in label input and cluster it when it is
+given the <b>--abc</b> option. It can optionally save
+the input graph in native format and save the label information
+in a tab file with the <b>-save-graph</b> and <b>-save-tab</b>
+options.</p>
+<p class="default L50" style="margin-bottom:0">
+Refer to the <a class="local" href="mcl.html#started">MCL getting started</a> and
+<a class="local" href="mcl.html#examples">MCL manual examples</a> sections
+for more information on how MCL deals with label input.</p>
+<p class="default L50" style="margin-bottom:0">
+<a class="local" href="mcxload.html">mcxload</a> is a general purpose program for reading
+in label data and other stream formats. It
+encodes them in native mcl format and tab files.
+It allows intermediate transformations on the values.</p>
+
+<a name="trans"></a>
+<h2>Transformation syntax</h2>
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<a class="local" href="mcl.html">mcl</a>, <a class="local" href="mcxload.html">mcxload</a>, <a class="local" href="mcxsubs.html">mcxsubs</a>, <a class="local" href="mcxassemble.html">mcxassemble</a>
+all accept the same transformation language in their
+respective <b>tf</b>-type options and mcxsub's <b>val</b>
+specification.</p>
+<p class="default L50" style="margin-bottom:0">
+A statement in this language is simply a comma-separated
+list of functions accepting a single numerical value.
+The syntax of a function invocation in general is
+<b>func</b>(<i>arg</i>).
+The functions <b>exp</b>, <b>log</b>, <b>neglog</b> can
+also be given an empty parameter list, indicating that
+<i>e</i> is taken as the exponent base. In this case,
+the invocation looks like <b>func</b>(). The following
+functions are supported.</p>
+<div style="margin-top:1em">
+<table
+cellspacing="0" border=0
+cellpadding="0" summary="itemize">
+<tr><td width=128 valign="top" class=left>lt</td><td width=8>&nbsp;</td><td><div style="text-align:justify"> Filter out values greater than or equal to arg.
+</div></td></tr><tr><td width=128>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=128 valign="top" class=left>lq</td><td width=8>&nbsp;</td><td><div style="text-align:justify"> Filter out values greater than arg.
+</div></td></tr><tr><td width=128>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=128 valign="top" class=left>gq</td><td width=8>&nbsp;</td><td><div style="text-align:justify"> Filter out values less than arg.
+</div></td></tr><tr><td width=128>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=128 valign="top" class=left>gt</td><td width=8>&nbsp;</td><td><div style="text-align:justify"> Filter out values less than or equal to arg.
+</div></td></tr><tr><td width=128>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=128 valign="top" class=left>ceil</td><td width=8>&nbsp;</td><td><div style="text-align:justify"> Set everything higher than arg to arg.
+</div></td></tr><tr><td width=128>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=128 valign="top" class=left>floor</td><td width=8>&nbsp;</td><td><div style="text-align:justify"> Set everything lower than arg to arg.
+</div></td></tr><tr><td width=128>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=128 valign="top" class=left>mul</td><td width=8>&nbsp;</td><td><div style="text-align:justify"> Multiply by arg.
+</div></td></tr><tr><td width=128>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=128 valign="top" class=left>add</td><td width=8>&nbsp;</td><td><div style="text-align:justify"> Add arg to it.
+</div></td></tr><tr><td width=128>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=128 valign="top" class=left>power</td><td width=8>&nbsp;</td><td><div style="text-align:justify"> Raise to power arg.
+</div></td></tr><tr><td width=128>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=128 valign="top" class=left>exp</td><td width=8>&nbsp;</td><td><div style="text-align:justify"> Raise arg (<i>e</i> if omitted) to value.
+</div></td></tr><tr><td width=128>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=128 valign="top" class=left>log</td><td width=8>&nbsp;</td><td><div style="text-align:justify"> Take log in base arg (<i>e</i> if omitted).
+</div></td></tr><tr><td width=128>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=128 valign="top" class=left>neglog</td><td width=8>&nbsp;</td><td><div style="text-align:justify"> Take minus log in base arg (<i>e</i> if omitted).
+</div></td></tr>
+</table>
+
+</div>
+<p class="default L50" style="margin-bottom:0"><b>NOTE</b><br>
+<a class="local" href="mcl.html">mcl</a> accepts <b>--abc-log</b> and <b>--abc-neg-log</b> to specify
+log transformations. Similarly, <a class="local" href="mcxload.html">mcxload</a> accepts <b>--stream-log</b>
+and <b>--stream-neg-log</b>. The reason is that probabilities are
+sometimes encoded below the precision dictated by the IEEE (32 bit) float
+specification. This poses a problem as the mcl applications encode values
+by default as floats, and the transformation specifications are always
+applied to the mcl encoding. The options just mentioned are applied
+after a value has been read from an input stream and <i>before</i> it
+is converted to the native encoding.</p>
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>

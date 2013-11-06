@@ -158,7 +158,7 @@ mcxOptAnchor options[]
    ,  MCX_OPT_HASARG
    ,  MY_OPT_DIGITS
    ,  "<int>"
-   ,  "precision to use for (ascii) output matrix"
+   ,  "precision to use in interchange format"
    }
 ,  {  NULL, 0, 0, NULL, NULL }
 }  ;
@@ -369,13 +369,14 @@ int main
       mclxAddTranspose(res, 0.5)
 
    ;  if (to01)
-      {  mclx* halves
+      {  double half = 0.5
+      ;  mclx* halves
          =  mclxCartesian
             (  mclvCopy(NULL, res->dom_cols)
             ,  mclvCopy(NULL, res->dom_rows)
             ,  0.5
             )
-      ;  mclxScale(res, 0.5)
+      ;  mclxUnary(res, fltxMul, &half)
       ;  mclxMerge(res, halves, fltAdd)
       ;  mclxFree(&halves)
    ;  }

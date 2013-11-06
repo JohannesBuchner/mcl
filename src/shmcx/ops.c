@@ -1503,7 +1503,7 @@ int opHadamardPower
    {  mclx* mx = zsGetOb(1, UTYPE_MX)
    ;  double* dp = zsGetOb(0, UTYPE_DBL)
    ;  if (!mx || !dp) return 0
-   ;  mclxHdp(mx, *dp)
+   ;  mclxUnary(mx, fltxPower, dp)
    ;  return zsPop()
 ;  }
 

@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcxload" 1 "10 Nov 2005" "mcxload 1\&.006, 05-314" "USER COMMANDS "
+.TH "mcxload" 1 "16 Nov 2005" "mcxload 1\&.006, 05-320" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -50,11 +50,10 @@ mcxload \- load matrices and tab files from label format
 \fB[-extend-tab\fP <fname> (\fItab launch\fP)\fB]\fP
 \fB[-extend-tabc\fP <fname> (\fItabc launch\fP)\fB]\fP
 \fB[-extend-tabr\fP <fname> (\fItabr launch\fP)\fB]\fP
-\fB[-s\fP [io]<lq|gq|ceil|floor>=<num> (\fIselect/bound input/output\fP)\fB]\fP
-\fB[-log\fP <base> (\fIlog transform\fP)\fB]\fP
-\fB[-neglog\fP <base> (\fI-log transform\fP)\fB]\fP
-\fB[-add\fP <num> (\fIshift\fP)\fB]\fP
-\fB[-pow\fP <power> (\fIraise\fP)\fB]\fP
+\fB[--stream-log\fP (\fIlog transform stream values\fP)\fB]\fP
+\fB[--stream-neg-log\fP (\fIminus log transform stream values\fP)\fB]\fP
+\fB[-stream-tf\fP (\fItransform stream values\fP)\fB]\fP
+\fB[-tf\fP <tf-spec> (\fItransform (not so) final matrix\fP)\fB]\fP
 \fB[-t\fP (\fItranspose\fP)\fB]\fP
 \fB[--binary\fP (\fIoutput binary format\fP)\fB]\fP
 \fB[--debug\fP (\fIdebug\fP)\fB]\fP
@@ -117,15 +116,16 @@ It presumably only makes sense to do so if the corresponding
 The input stream is deduplicated on a per-node neighbourhood basis
 using the \fB-re\fP option\&.
 
-mcxload has many options to transform or select based on
-the values of the input\&. These are
-\fB-add\fP,
-\fB-pow\fP,
-\fB-log\fP and
-\fB-neglog\fP for unary transformations of the input\&.
-Use \fB-s\fP to select edges based on their values\&.
-It is possible to select edges both before and after unary
-transformations have been applied\&.
+mcxload has a few options to transform or select based on
+the values in the input stream and the values in the
+constructed matrix\&. These are
+\fB--stream-log\fP,
+\fB--stream-neg-log\fP,
+\fB-stream-tf\fP and
+\fB-tf\fP\&.
+Refer to \fBmcxio(5)\fP for a description of the syntax accepted
+by the latter two options \- it is a syntax accepted
+by a few more mcl siblings\&.
 Finally it is possible to transpose the final result
 using the \fB-t\fP option\&. Keep in mind that
 mcxload does not accordingly change its idea of row and
@@ -138,27 +138,20 @@ The final matrix can be symmetrified using the \fB-ri\fP option\&.
 Conceptually, input matrix creation consists of the following stages
 
 .ZJ 4m 3m "i"
-Read the input stream, optionally push reverse elements
+Read the input stream, apply \fB-stream-tf\fP transformation
+specification, and optionally push reverse elements
 (\fB--stream-mirror\fP)\&.
 .in -7m
 .ZJ 4m 3m "ii"
 Deduplicate edges in the context of all edges/arcs originating from
-a given node\&.
+a given node according to the \fB-re\fP option\&.
 .in -7m
 .ZJ 4m 3m "iii"
-Apply input bound and select options -
-those in the syntax \fCi<lq|lt|gq|gt|ceil|floor>\fP\&.
-.in -7m
-.ZJ 4m 3m "iv"
-Apply unary transformations\&.
-.in -7m
-.ZJ 4m 3m "v"
-Apply output bound and select options -
-those in the syntax \fCo<lq|lt|gq|gt|ceil|floor>\fP\&.
-.in -7m
-.ZJ 4m 3m "vi"
 Apply transpose symmetrification according to the
 \fB-ri\fP option, if used\&.
+.in -7m
+.ZJ 4m 3m "iv"
+Apply \fB-tf\fP transformation specification\&.
 .in -7m
 .SH OPTIONS
 
@@ -286,56 +279,32 @@ Read a dictionary from file and extend it with all
 second labels from the input not yet present in the dictionary\&.
 .in -3m
 
-.ZI 3m "\fB-log\fP <base> (\fIlog transform\fP)"
+.ZI 3m "\fB--stream-log\fP (\fIlog transform stream values\fP)"
 \&
 .br
-Replace each entry by its log in base \fI<base>\fP\&.
+Replace each entry by its natural logarithm\&.
 .in -3m
 
-.ZI 3m "\fB-neglog\fP <base> (\fI-log transform\fP)"
+.ZI 3m "\fB--stream-neg-log\fP (\fIminus log transform stream values\fP)"
 \&
 .br
-Replace each entry by its negative log in base \fI<base>\fP\&.
+Replace each entry by the negative of its natural logarithm\&.
+This is most likely useful to convert scores that denote probabilities
+or p-values such as BLAST scores\&.
 .in -3m
 
-.ZI 3m "\fB-add\fP <num> (\fIshift\fP)"
+.ZI 3m "\fB-stream-tf\fP (\fItransform stream values\fP)"
 \&
 .br
-Add \fI<shift>\fP to each non-zero entry\&.
+Transform the stream values as they are read in according
+to the syntax described in \fBmcxio(5)\fP\&.
 .in -3m
 
-.ZI 3m "\fB-pow\fP <power> (\fIraise\fP)"
+.ZI 3m "\fB-tf\fP <tf-spec> (\fItransform (not so) final matrix\fP)"
 \&
 .br
-Raise each entry to the power \fI<power>\fP\&.
-.in -3m
-
-.ZI 3m "\fB-s\fP [io]<lq|gq|ceil|floor>=<num> (\fIselect/bound input/output\fP)"
-\&
-.br
-Combine \fBi\fP or \fBo\fP with any of the modifiers to select or bound
-input or output\&. Example:
-
-.di ZV
-.in 0
-.nf \fC
--s igq=5 -s oceil=10
-.fi \fR
-.in
-.di
-.ne \n(dnu
-.nf \fC
-.ZV
-.fi \fR
-
-This selects only entries in the input that are greater than or
-equal to 5 and it setes any entry larger than 10 to 10\&.
-
-\fBNOTE\fP
-.br
-Output is in this context the stage immediately after unary
-transformation and before symmetrification using the transposed
-matrix\&.
+Transform the matrix values after deduplication and symmetrification
+according to the syntax described in \fBmcxio(5)\fP\&.
 .in -3m
 
 .ZI 3m "\fB-ri\fP (\fI<max|add|mul>\fP)"
@@ -390,8 +359,8 @@ Output version information\&.
 .SH AUTHOR
 Stijn van Dongen\&.
 .SH SEE ALSO
-\fBmcxdump\fP,
-\fBmcl\fP,
-\fBmclfaq\fP,
+\fBmcxdump(1)\fP,
+\fBmcl(1)\fP,
+\fBmclfaq(7)\fP,
 and \fBmclfamily(7)\fP for an overview of all the documentation
 and the utilities in the mcl family\&.

@@ -12,6 +12,7 @@
 #include <math.h>
 #include <stdio.h>
 
+#include "ivp.h"
 #include "vector.h"
 #include "matrix.h"
 #include "tab.h"
@@ -19,6 +20,7 @@
 #include "util/io.h"
 #include "util/types.h"
 #include "util/ting.h"
+#include "util/list.h"     /* needed for mclpTFparse */
 
 
 /* TODO:
@@ -171,18 +173,6 @@ mcxstatus  mclxbWrite
 )  ;
 
 
-/* Provides easy interface for applications that accept --write-binary option,
- * they can simply pass their boolean along
-*/
-
-mcxstatus mclxAppWrite
-(  const mclx* mx
-,  mcxIO*      xf
-,  mcxOnFail   ON_FAIL
-,  mcxbool     binmode
-)  ;
-
-
 enum
 {  MCLXR_ENTRIES_ADD
 ,  MCLXR_ENTRIES_MAX
@@ -216,6 +206,7 @@ mcxstatus mclxaSubReadRaw
 ,  mcxOnFail      ON_FAIL
 ,  int            fintok     /* e.g. EOF or ')' */
 ,  mcxbits        warn_repeat
+,  mclpAR*        transform
 ,  void (*ivpmerge)(void* ivp1, const void* ivp2)
 ,  double (*fltbinary)(pval val1, pval val2)
 )  ;
@@ -382,6 +373,18 @@ mclpAR *mclpaReadRaw
 ,  mcxOnFail   ON_FAIL
 ,  int         fintok     /* e.g. EOF or '$' */
 )  ;
+
+
+/* supply either encoding_link OR encoding_ting.
+   ting e.g.: log(3), ceil(5), gq(2)
+   link e.g.: mcxTokArgs of the above.
+*/
+
+mclpAR* mclpTFparse
+(  mcxLink*    encoding_link
+,  mcxTing*    encoding_ting
+)  ;
+
 
 #endif
 

@@ -209,7 +209,7 @@
 
 \item{\defopt{-tab}{fname}{read tab file}}
    The file \v{fname} should be in \it{tab format}. Refer
-   to \sibmcxio.
+   to \mysib{mcxio}.
 
 \item{\defopt{--lazy-tab}{allow mismatched tab-file}}
    Allow missing and spurious entries in the tab file.
@@ -529,7 +529,7 @@ SUM     The sum of *all* edges leaving node idx.}
 
 \sec{seealso}{SEE ALSO}
 \par
-   \sibmclfamily for an overview of all the documentation
+   \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 
 \"man::postamble"

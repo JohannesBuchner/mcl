@@ -19,20 +19,31 @@
 \synreqopt{-b}{base}{base name}
 \synoptopt{-o}{fname}{write to file fname}
 \synoptopt{--map}{apply base.map}
+\synoptopt{-raw-tf}{apply transform spec to input}
 \synoptopt{-rv}{MODE}{repeated vectors}
 \synoptopt{-re}{MODE}{repeated entries}
 \synoptopt{-ri}{MODE}{adding mirror image}
 \synoptopt{-r}{MODE}{repeated entries/vectors/images}
+\synoptopt{-prm-tf}{apply transform spec to primary matrix}
+\synoptopt{-sym-tf}{apply transform spec to symmetrified matrix}
 \synoptopt{-q}{quiet mode}
 
-\par
+\par{
 The options above embody the default setup when using mcxassemble.
 There are many more options which mostly provide subtly different
 ways of doing input/output, set warning levels, or regulate
 how repeated entries and vectors should be treated.
 The full list of options is shown below.
 Read \secref{description} for learning about mcxassemble input/output
-and the functionality it provides.
+and the functionality it provides.}
+
+\cpar{NOTE}{
+   As of release 05-314 \mysib{mcl} is able to cluster label-type input
+   on the fly. In most cases, this will be sufficient.  Alternatively,
+   \mysib{mcxload} can be used to map label-type input onto mcl
+   matrices. Consequently, there are likely fewer scenarios nowadays
+   where \mcxassemble is the best solution. Consider first whether
+   \mcl in label mode or \mcxload can do the job as well.}
 
 \par
 \mcxassemble
@@ -58,10 +69,13 @@ and the functionality it provides.
 \synoptopt{-i}{read from single data file}
 \synoptopt{-digits}{int}{digits width}
 \synoptopt{-s}{check for symmetry}
-\synoptopt{-rv}{MODE}{action for repeated vectors}
-\synoptopt{-re}{MODE}{action for repeated entries}
-\synoptopt{-ri}{MODE}{adding mirror image}
-\synoptopt{-r}{MODE}{same for entries and vectors}
+\synoptopt{-raw-tf}{apply transform spec to input}
+\synoptopt{-rv}{<mode>}{action for repeated vectors}
+\synoptopt{-re}{<mode>}{action for repeated entries}
+\synoptopt{-ri}{<mode>}{adding mirror image}
+\synoptopt{-r}{<mode>}{same for entries and vectors}
+\synoptopt{-prm-tf}{apply transform spec to primary matrix}
+\synoptopt{-sym-tf}{apply transform spec to symmetrified matrix}
 \synoptopt{--quiet-re}{quiet for repeated entries}
 \synoptopt{--quiet-rv}{quiet for repeated vectors}
 \synoptopt{-q}{the two above combined}
@@ -125,14 +139,14 @@ and the functionality it provides.
 \cpar{Header file}
    This file contains a header as usually found in generic mcl matrix files,
    i.e. the required \it{header} part, and optionally the \it{domain} part(s)
-   if not all domains are canonical.  Refer to \sibmcxio for more information.
+   if not all domains are canonical.  Refer to \mysib{mcxio} for more information.
    The domain information in the header file will be used to pre-construct a
    skeleton matrix and to validate the entries in the raw data file as they
    fill the skeleton matrix.
 
 \cpar{Raw input format}
    The file from which raw input is read should have the raw format as
-   described in \sibmcxio. Simply put; no header specification, no domain
+   described in \mysib{mcxio}. Simply put; no header specification, no domain
    specification, and no matrix introduction syntax is used. The file just
    contains a listing of vectors.  An example fragment is the following:
 
@@ -302,6 +316,19 @@ begin
    It reports the number of failing (or \it{skew}) edges.
 
 \items{
+   {\defopt{-raw-tf}{<tf-spec>}{apply transform spec to input}}
+   {\defopt{-prm-tf}{apply transform spec to primary matrix}}
+   {\defopt{-sym-tf}{apply transform spec to symmetrified matrix}}
+}
+\car{
+   The first applies its transformation spec to the values
+   as found in the raw data. The second applies its transformation
+   spec to the primary matrix. The third applies its transformation
+   step to the symmetrified matrix.
+   Refer to \mysib{mcxio} for documentation on the transformation
+   spec syntax.} 
+
+\items{
    {\defopt{-rv}{add|max|mul|left|right}{action for repeated vectors}}
    {\defopt{-re}{add|max|mul|left|right}{action for repeated entries}}
    {\defopt{-ri}{add|max|mul}{adding mirror image}}
@@ -390,8 +417,8 @@ begin
 Stijn van Dongen.
 
 \sec{seealso}{SEE ALSO}
-   \sibmcxio,
-   and \sibmclfamily for an overview of all the documentation
+   \mysib{mcxio}, \mysib{mcl}, \mysib{mcxload}
+   and \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 
 \"man::postamble"

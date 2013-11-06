@@ -68,9 +68,9 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-10 Nov 2005&nbsp;&nbsp;&nbsp;
+16 Nov 2005&nbsp;&nbsp;&nbsp;
 <a class="local" href="mclfaq.ps"><b>MCL&nbsp;FAQ</b></a>
-1.006, 05-314
+1.006, 05-320
 </p>
 <div style="margin-top:1em">
 <table
@@ -448,25 +448,26 @@ you use the full suite of cygwin tools. Install cygwin if you do not have it
 yet. In the cygwin shell, unpack mcl and simply issue the commands
 <i>./configure, make, make install</i>, i.e. follow the instructions in
 INSTALL.
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
 This MCL implementation has not yet been reported to run on MAC. For the
 latest Mac OS X one would expect that it is certainly possible to
-make this happen.
-<p class="default L50">
+make this happen.</p>
+<p class="default L50" style="margin-bottom:0">
 If you have further questions or news about this issue, contact
-mcl-devel &lt;at&gt; lists &lt;dot&gt; micans &lt;dot&gt; org.
+mcl-devel &lt;at&gt; lists &lt;dot&gt; micans &lt;dot&gt; org.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td width=32 valign="top" class=left><a name="versioning"></a> <a class="quiet" href="#toc-general">1.7</a></td><td width=8>&nbsp;</td><td><div style="text-align:justify"><b>How does mcl's versioning scheme work?</b><p class="default L50">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 The current setup, which I hope to continue, is this. All releases are
 identified by a date stamp. For example 02-095 denotes day 95 in the year
 2002. This date stamp agrees (as of April 2000) with the (differently
 presented) date stamp used in all manual pages shipped with that release.
-For example, the date stamp of the FAQ you are reading is <b>10 Nov 2005</b>,
-which corresponds with the MCL stamp <b>05-314</b>.
+For example, the date stamp of the FAQ you are reading is <b>16 Nov 2005</b>,
+which corresponds with the MCL stamp <b>05-320</b>.
 The Changelog file contains a list of what's changed/added with each
 release. Currently, the date stamp is the primary way of identifying an <b>mcl</b>
 release. When asked for its version by using <b>--version</b>, mcl
-outputs both the date stamp and a version tag (see below).
-<p class="default L50">
+outputs both the date stamp and a version tag (see below).</p>
+<p class="default L50" style="margin-bottom:0">
 In early 2002 it occurred to me that <b>mcl</b> should, in addition to time
 stamps, also have something like version numbers, wanting to use those to
 indicate noteworthy changes. The April 2002 release got version tag 1.001,
@@ -474,8 +475,12 @@ in order to celebrate the then-recent addition of this FAQ, mcl's new
 logging facility <b>--log</b>, and <b>clmimac</b> to the MCL distribution. The
 January 2003 release had its version number bumped to 1.002, marking MCL's
 ability to directly deal with a much more general type of graph encoding.
-Currently, the version tag is not used in the mcl distribution name - only
-the date stamp is used for that.
+1.003 brought mclpipeline, mcxdeblast, mclblastline, mcxassemble, clmformat
+and automatic output naming. 1.004 revived binary format, improved mcxsubs,
+and had a host of other additions. 1.005 removed an IO bottleneck,
+considerably speeding up matrix reads. 1.006 featured mcl's ability to
+directly read and produce label output. Currently, the version tag is not
+used in the mcl distribution name - only the date stamp is used for that.</p>
 </div></td></tr>
 </table>
 
@@ -511,7 +516,13 @@ You can simply cluster it like this:</p>
 In this example a few runs were shown with different inflation parameters.
 This is nonsensical with this particular 4-node input but a good idea in
 general. <b>mcl</b> provides many options to cache the intermediate matrix input
-and the intermediate tab file. Refer to the <a class="local" href="mcl.html">mcl manual page</a>.</p>
+and the intermediate tab file. Refer to the <a class="local" href="mcl.html">mcl manual page</a>,
+specifically look for the <b>-cache-tab</b> and <b>-cache-graph</b>
+options.</p>
+<p class="default L50" style="margin-bottom:0">
+Alternatively, use <a class="local" href="mcxload.html">mcxload</a> to save label input as an mcl matrix and
+one or more tab files, then apply mcl to the matrix file using the
+<b>-use-tab</b> option.</p>
 <p class="default L50" style="margin-bottom:0"><b>NOTE</b><br>
 Simply doing</p>
 <pre>   mcl mydata --abc -I 2.0
@@ -1284,7 +1295,7 @@ operations are now more suited to be employed in a distributed computing
 environment. However, much remains to be done before mcl can operate
 in such an environment.
 <p class="default L50">
-At some point in the future a second, xml-based, ascii input format
+At some point in the future a second, xml-based, interchange input format
 may be introduced.
 <p class="default L50">
 If you feel that mcl should support some other standard matrix format,

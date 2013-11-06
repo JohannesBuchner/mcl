@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcl" 1 "10 Nov 2005" "mcl 1\&.006, 05-314" "USER COMMANDS "
+.TH "mcl" 1 "17 Nov 2005" "mcl 1\&.006, 05-321" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -73,7 +73,7 @@ input for later use in matrix input\&. Here is how to do it\&.
 Native mode (matrix input) is entered simply by \fInot\fP specifying
 \fB--abc\fP\&. The input file should then have been created by an earlier
 invocation of \fB-cache-graph\fP\ \fIfname\fP or by other means,
-e\&.g\&. \fBmcxload\fP\&. It is
+e\&.g\&. \fBmcxload(1)\fP\&. It is
 possible to obtain label output in native mode by specifying a label
 dictionary, possibly one that was saved earlier using the
 \fB-cache-tab\fP\ \fIfname\fP option\&. An example is this:
@@ -102,6 +102,8 @@ in matrix format) is that the data can easily be analyzed and subjected to
 further processing\&. Second, input that is stored in native binary format
 loads much faster than label data when the input data size grows large\&. If
 neither of these is of concern then label mode may be entirely sufficient\&.
+For more information on label mode and native mode refer to examples in this
+manual and \fBmcxio(5)\fP\&.
 
 \fBGranularity\fP
 .br
@@ -158,7 +160,7 @@ of mcl or differently compiled versions of mcl\&.
 \fBmcl\fP also accepts the \fB--binary\fP option, ensuring that
 graphs written with \fB-cache-graph\fP are output in binary
 format\&.
-The \fBmcxload\fP \fB--mirror\fP option ensures that
+The \fBmcxload(1)\fP \fB--mirror\fP option ensures that
 the resulting graph is undirected\&. Input graphs that
 are cached with mcl\&'s \fB-cache-graph\fP option
 get the same treatment\&.
@@ -182,7 +184,7 @@ immaterial\&.
 A mechanism for pipelines is supported (as of the first 1\&.003 release)\&.
 Refer to the \fBPIPELINES\fP section for more information\&.
 A prepackaged pipeline for BLAST data is present in the form of
-\fBmclblastline\fP\&. As of release 1\&.006 a lightweight BLAST clustering
+\fBmclblastline(1)\fP\&. As of release 1\&.006 a lightweight BLAST clustering
 mechanism is also supported\&. \fBGETTING STARTED\fP is a small introduction,
 with some examples of using BLAST results\&.
 
@@ -211,6 +213,13 @@ for those who are interested, so it has many options\&.
 \fB[-restrict-tab\fP fname (\fIuse mapping to restrict\fP)\fB]\fP
 \fB[-extend-tab\fP fname (\fIuse mapping and extend\fP)\fB]\fP
 \fB[-cache-tab\fP fname (\fIwrite mapping\fP)\fB]\fP
+
+\fBTransform options\fP
+.br
+\fB[-tf\fP <tf-spec> (\fItransform input matrix values\fP)\fB]\fP
+\fB[-stream-tf\fP <tf-spec> (\fItransform input stream values\fP)\fB]\fP
+\fB[--stream-log\fP (\fItake logarithm of stream values\fP)\fB]\fP
+\fB[--stream-neg-log\fP (\fItake negative logarithm of stream values\fP)\fB]\fP
 
 \fBCache options\fP
 .br
@@ -400,7 +409,7 @@ mcl proteins -I 2\&.0 -use-tab proteins\&.tab --yield-abc
 to get a line/tab based output format,
 each line containing a cluster in the form of tab-separated labels\&.
 Here \fBproteins\&.tab\fP should be a tab file previously
-created by \fBmcxdeblast\fP or mcl\&.
+created by \fBmcxdeblast(1)\fP or mcl\&.
 Refer to \fBmcxio(5)\fP for more information on tab files,
 and the entries grouped under \fB--abc\fP for an extensive
 discussion of the various ways in which mcl can combine
@@ -437,7 +446,7 @@ to do is just vary the \fB-scheme\fP option\&. This
 triggers different settings for the group of pruning parameters
 \fB-p/-P\fP, \fB-R\fP, \fB-S\fP, and
 \fB-pct\fP\&. The default setting corresponds with
-\fB-scheme\fP\ \fB4\fP\&.
+\fB-scheme\fP\ \fB6\fP\&.
 There is an additional group of control parameters
 \fB--adapt\fP, \fB--rigid\fP, \fB-ae\fP,
 \fB-af\fP, which may be helpful in speeding up \fBmcl\fP\&.
@@ -473,7 +482,7 @@ more feeling)\&.
 MCL iterands allow a generic interpretation as clusterings as well\&. The
 clusterings associated with early iterands may contain a fair amount of
 overlap\&. Refer to the \fB-dump\fP option, the \fBmclfaq(7)\fP
-manual, and the \fBclmimac\fP utility (Interpret Matrices As Clusterings)\&.
+manual, and the \fBclmimac(1)\fP utility (Interpret Matrices As Clusterings)\&.
 Use \fBclmimac\fP only if you have a special reason; the normal usage of \fBmcl\fP is
 to do multiple runs for varying \fB-I\fP parameters and use the
 clusterings output by mcl itself\&.
@@ -508,9 +517,9 @@ in fine-grained clusterings, and \fB-I\fP\ \fB1\&.2\fP will tend to
 result in very coarse grained clusterings\&. Your mileage will vary
 depending on the characteristics of your data\&. That is why it is
 a good idea to test the quality and coherency of your clusterings
-using \fBclmdist\fP and \fBclminfo\fP\&. This will most likely reveal that
+using \fBclmdist(1)\fP and \fBclminfo(1)\fP\&. This will most likely reveal that
 certain values of \fB-I\fP are simply not right for your data\&. The
-\fBclmdist\fP section contains a discussion of how to use the cluster
+\fBclmdist(1)\fP section contains a discussion of how to use the cluster
 validation tools shipped with \fBmcl\fP (see the \fBSEE ALSO\fP section)\&.
 
 A second option for affecting cluster granularity is the
@@ -612,9 +621,36 @@ for which the associated domain is \fIcanonical\fP, that is,
 domains for which the indices range from zero to some number \fCN\fP
 without omissions\&. It is possible to hook up any tab file to mcl,
 but it requires mcxdump to act as an intermediary -
-\fBmcxdump\fP has no such limitations\&. This need in
+\fBmcxdump(1)\fP has no such limitations\&. This need in
 general not be of concern to you\&. If a tab file is created by
 mcl or mcxdeblast it will always be canonical\&.
+.in -3m
+
+.ZI 3m "\fB-tf\fP <tf-spec> (\fItransform input matrix values\fP)"
+\&
+'in -3m
+.ZI 3m "\fB-stream-tf\fP <tf-spec> (\fItransform input stream values\fP)"
+\&
+'in -3m
+.ZI 3m "\fB--stream-log\fP (\fItake logarithm of stream values\fP)"
+\&
+'in -3m
+.ZI 3m "\fB--stream-neg-log\fP (\fItake negative logarithm of stream values\fP)"
+\&
+'in -3m
+'in +3m
+\&
+.br
+\fB-tf\fP transforms the values of the input matrix according
+to \fB<tf-spec>\fP\&. \fB-stream-tf\fP transforms the stream values
+(when \fB--abc\fP or \fB--expect-abc\fP is used)
+according to \fB<tf-spec>\fP\&.
+\fB--neg-stream-log\fP and \fB--stream-log\fP
+respectively imply that the stream input values are
+first replaced by their (negative) logarithm\&.
+The reason for their existence is documented in \fBmcxio(5)\fP\&.
+For a description of the transform language excpected/accepted
+in \fB<tf-spec>\fP refer to the same\&.
 .in -3m
 
 .ZI 3m "\fB-cache-graph\fP fname (\fIwrite graph\fP)"
@@ -675,7 +711,7 @@ mcxdump -imx - --no-values --dump-rlines\e
 .fi \fR
 
 Admittedly this is beginning to look like black magic, but truthfully
-it is not, my dear paduan\&. \fBmcxdump\fP
+it is not, my dear paduan\&. \fBmcxdump(1)\fP
 simply needs to be told how it should format its output\&. It needs to know
 it should dump the matrix columns (clusters in this case) on a per-line
 basis, that it should not dump the index that identifies the cluster
@@ -735,7 +771,7 @@ clusterings, the \fBmclfaq(7)\fP section
 has several entries discussing this issue\&. The bottom line is
 that you have to compare the clusterings resulting from different
 schemes (and otherwise identical parameters) using utilities
-such as \fBclmdist\fP, \fBclminfo\fP on the one hand, and your
+such as \fBclmdist(1)\fP, \fBclminfo(1)\fP on the one hand, and your
 own sound judgment on the other hand\&.
 
 If your input graph is extremely dense, with an average node degree
@@ -813,7 +849,7 @@ Each verbosity mode is given its own entry below\&.
 .ZI 3m "\fB-v\fP\ \fBprogress\fP"
 \&
 .br
-This mode causes \fBmcl\fP to emit an ascii gauge
+This mode causes \fBmcl\fP to emit a gauge
 for each single matrix multiplication\&. It uses some
 default length for the gauge, which can be altered by
 the \fB-progress\fP\ \fIk\fP option\&. Simply using the latter
@@ -1124,7 +1160,7 @@ These clusters are obtained from a particular directed acyclic graph
 (abbreviated as DAG) associated with each iterand\&. The \fBdag\fP option
 writes that DAG to file\&. The DAG can optionally be further
 pruned and then again be interpreted as a
-clustering using \fBclmimac\fP, and \fBclmimac\fP can also
+clustering using \fBclmimac(1)\fP, and \fBclmimac(1)\fP can also
 work with the matrices written using the \fBite\fP option\&.
 It should be noted that clusterings associated with intermediate
 iterands may contain overlap, which is interesting in
@@ -1175,9 +1211,9 @@ a small graph and view the MCL matrix iterands with \fB--show\fP\&.
 \&
 .br
 Write matrix dump output in binary mcl format rather
-than ascii mcl format (the default)\&. Note that \fBmcxconvert\fP
+than interchange mcl format (the default)\&. Note that \fBmcxconvert(1)\fP
 can be used to convert each one into the other\&.
-See \fBmcxio(5)\fP and \fBmcxconvert\fP for more information\&.
+See \fBmcxio(5)\fP and \fBmcxconvert(1)\fP for more information\&.
 .in -3m
 
 .ZI 3m "\fB-sort\fP str (\fIsort mode\fP)"
@@ -1438,7 +1474,7 @@ appararent that other schemes are better\&.
 
 Note that \&'less accurate\&' or \&'more accurate\&' computations may still
 generate the same output clusterings\&. Use \fBclmdist\fP to compare output
-clusterings for different resource parameters\&. Refer to \fBclmdist\fP
+clusterings for different resource parameters\&. Refer to \fBclmdist(1)\fP
 for a discussion of this issue\&.
 
 The \fB-my-scheme\fP\ \fBn\fP option sets a tag that is used in constructing
@@ -1726,7 +1762,7 @@ It affects the \fB--append-log\fP=\fBy\fP output\&.
 As of the 1\&.006 release, label data can be directly streamed into
 MCL as described in \fBGETTING STARTED\fP and \fBEXAMPLES\fP\&.
 For BLAST input this is achieved
-by hooking up \fBmcxdeblast\fP \fB--abc-out\fP=\fI-\fP with
+by hooking up \fBmcxdeblast(1)\fP \fB--abc-out\fP=\fI-\fP with
 \fBmcl\fP - \fB--abc\fP\&. Refer to \fBGETTING STARTED\fP for examples\&.
 
 The classic mode of operation is more heavyweight, and the remainder
@@ -1736,7 +1772,7 @@ derived from this earlier framework\&.
 
 In general, clustering requires several stages; creating the matrix,
 running mcl, and displaying the result\&. The display stage is supported
-by \fBclmformat\fP\&. The matrix creation stage often needs only be
+by \fBclmformat(1)\fP\&. The matrix creation stage often needs only be
 done once for a given data collection, followed by repeated runs of
 the other two stages for varying inflation values and scheme settings\&.
 
@@ -1744,7 +1780,7 @@ The matrix creation stage can often be split up in two more stages,
 namely parsing a data file in some given format, and assembling a
 matrix from the data bits and pieces, such as node indices and edge
 weights or even edge weight contributions\&.
-The assembly step can be done by \fBmcxassemble\fP,
+The assembly step can be done by \fBmcxassemble(1)\fP,
 which allows a very general input format and customizable behaviour
 in how the bits and pieces should be transformed to the input graph\&.
 This leaves the parse stage to be filled in\&.
@@ -1757,13 +1793,13 @@ supported\&. The IO mechanism is entirely file based, and files are
 associated with parametrizations via file name extensions (by all
 means a simple mechanism)\&.
 
-\fBmclpipeline\fP requires a single parse script to be specified\&.
+\fBmclpipeline(1)\fP requires a single parse script to be specified\&.
 It will be plugged into the pipeline and you should be set to run\&.
 The parse script must satisfy the interface requirements described
 in the \fBmclpipeline manual page\fP\&.
 
-For BLAST input, the \fBmclblastline
-script\fP provides a dedicated interface\&. It uses the
+For BLAST input, the \fBmclblastline script\fP
+provides a dedicated mclpipeline interface\&. It uses the
 \fBmcxdeblast script\fP that comes prepackaged with mcl\&.
 .SH EXAMPLES
 
@@ -1898,12 +1934,12 @@ There are currently no resource nor configuration files\&.
 The mcl matrix format is described in the \fBmcxio(5)\fP section\&.
 .SH ENVIRONMENT
 
-.ZI 3m "MCLXASCIIDIGITS"
+.ZI 3m "MCLXINTERCHANGEDIGITS"
 \&
 .br
-When writing matrices in ascii format, mcl will use the environment
-variable MCLXASCIIDIGITS (if present) as the precision (number of digits)
-for printing the fractional part of values\&.
+When writing matrices in interchange format, mcl will use the environment
+variable MCLXINTERCHANGEDIGITS (if present) as the precision (number of
+digits) for printing the fractional part of values\&.
 .in -3m
 
 .ZI 3m "MCLXIOVERBOSITY"
@@ -1931,15 +1967,15 @@ Verbose and applications can not alter this (default)\&.
 \&
 .br
 MCL and its sibling applications will by default output matrices
-in ASCII format rather than binary format (cf\&. \fBmcxio(5)\fP)\&.
+in interchange format rather than binary format (cf\&. \fBmcxio(5)\fP)\&.
 The desired format can be controlled via the variable
 MCLXIOFORMAT\&. These are the levels it can currently be set to\&.
 
 .ZJ 2m 2m "1"
-Ascii format but applications may alter this\&.
+Interchange format but applications may alter this\&.
 .in -4m
 .ZJ 2m 2m "2"
-Ascii format and applications can not alter this (default)\&.
+Interchange format and applications can not alter this (default)\&.
 .in -4m
 .ZJ 2m 2m "4"
 Binary format but applications may alter this\&.
@@ -1949,16 +1985,16 @@ Binary format and applications can not alter this\&.
 .in -4m
 .in -3m
 
-.ZI 3m "MCLXASCIIFLAGS"
+.ZI 3m "MCLXINTERCHANGEFLAGS"
 \&
 .br
-If matrices are output in ascii format, by default empty vectors
+If matrices are output in interchange format, by default empty vectors
 will not be listed\&. Equivalently (during input time),
 vectors for which no listing is present are understood to be empty -
 note that the \fIpresence\fP of a vector is established using
 the domain information found in the header part\&.
 It is possible to enforce listing of empty vectors by
-setting bit \&'1\&' in the variable MCLXASCIIFLAGS\&.
+setting bit \&'1\&' in the variable MCLXINTERCHANGEFLAGS\&.
 .in -3m
 
 .ZI 3m "MCLXIOUNCHECKED"
@@ -2016,11 +2052,24 @@ expansion\&. This was great, as the MCL data structures and operands
 (normal matrix multiplication and Hadamard multiplication) just beg
 for parallellization\&.
 
-In Jan 2003 the 03-010 release introduced support for sparsely
+Onwards\&.
+The January 2003 03-010 release introduced support for sparsely
 enumerated (i\&.e\&. indices need not be sequential) graphs and matrices, the
 result of a major overhaul of the matrix library and most higher layers\&.
 Conceptually, the library now sees matrices as infinite quadrants
 of which only finite subsections happen to have nonzero entries\&.
+
+The June 2003 03-154 release introduced unix-type pipelines for clustering,
+including the BLAST parser mcxdeblast and the mclblastline script\&.
+The April 2004 04-105 release revived binary format, which has been a first
+class citizen every since\&.
+
+With the March 2005 05-090 release mcxsubs finally acquired a sane
+specification syntax\&. The November 2005 05-314 release brought the ability
+to stream label input directly into mcl\&. The subsequent release introduced a
+transformation language shared by various mcl siblings that allows arbitrary
+progressions of transformations to be applied to either stream values or
+matrix values\&.
 
 Joost van Baal set up the mcl CVS tree and packaged mcl for Debian
 GNU/Linux\&. He completely autotooled the sources, so much so that at first I

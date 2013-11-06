@@ -42,7 +42,7 @@
 \sec{description}{DESCRIPTION}
 
    \mcxdump reads a data file satisfying the mcl input format
-   (refer to \sibmcxio).  It outputs a line-based format. The
+   (refer to \mysib{mcxio}).  It outputs a line-based format. The
    \useopt{--dump-pairs} option yields a single matrix entry per line,
    identified by the respective column and row identifiers (either index or
    label) separated by the field separator.
@@ -143,10 +143,10 @@
 
 \sec{seealso}{SEE ALSO}
 
-   \sib{mcxload},
-   \sib{mcl},
-   \sib{mclfaq},
-   and \sibmclfamily for an overview of all the documentation
+   \mysib{mcxload},
+   \mysib{mcl},
+   \mysib{mclfaq},
+   and \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 
 \"man::postamble"

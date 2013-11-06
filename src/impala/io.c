@@ -7,7 +7,7 @@
 */
 
 /* This is the big file of MCL IO.
- *    -  ascii/binary
+ *    -  interchange/binary
  *    -  submatrices from disk
  *    -  domain checks
  *    -  streamed output/input
@@ -58,6 +58,8 @@ mcxload -abc small.data -extend-tabc small.tab-short -o foo -cache-tabr bar
 #include "util/io.h"
 #include "util/hash.h"
 #include "util/array.h"
+#include "util/list.h"
+#include "util/tok.h"
 
 
 static mcxstatus mclxa_parse_dimpart
@@ -118,7 +120,7 @@ static mcxstatus mclxa_read_dimpart
 )  ;
 
 
-/* reads a vector (ascii format)
+/* reads a vector (interchange format)
  * ensures it is in ascending format and has no negative entries
  * or repeated entries.
 */
@@ -129,6 +131,7 @@ static mcxstatus mclxa_readavec
 ,  mclpAR*     ar
 ,  int         fintok
 ,  mcxbits     bits              /* inherited from mcl{x,v}aReadRaw */
+,  mclpAR*     transform
 ,  void      (*ivpmerge)(void* ivp1, const void* ivp2)
 ,  double    (*fltbinary)(pval val1, pval val2)
 )  ;
@@ -262,7 +265,7 @@ unsigned long get_quad_mode
    ;  else if (!strcmp(opt, "MCLXIOVERBOSITY"))
       val = 8     /* default verbose,  apps can not override */
    ;  else if (!strcmp(opt, "MCLXIOFORMAT"))
-      val = 2     /* do default ascii, apps can not override */
+      val = 2     /* do default interchange, apps can not override */
 
    ;  return val
 ;  }
@@ -305,10 +308,10 @@ mcxbool mclxIOgetQMode
 ;  }
 
 
-int set_ascii_digits
+int set_interchange_digits
 (  int valdigits
 )
-   {  const char* envp  =  getenv("MCLXASCIIDIGITS")
+   {  const char* envp  =  getenv("MCLXINTERCHANGEDIGITS")
 
    ;  if (valdigits == MCLXIO_VALUE_GETENV)
       {  if (envp)
@@ -1134,8 +1137,10 @@ static mclMatrix* mclxa_read_body
 
       ;  if
          (  mclxaSubReadRaw
-           (xf, mx, dom_cols, dom_rows, ON_FAIL, ')', bits, mclpMergeLeft, fltMax
-           )!= STATUS_OK
+           (  xf, mx, dom_cols, dom_rows, ON_FAIL
+           , ')', bits, NULL, mclpMergeLeft, fltMax
+           )
+           != STATUS_OK
          )
          {  mx = NULL      /* twas freed by mclxaSubReadRaw */
          ;  break
@@ -1157,7 +1162,7 @@ static mclMatrix* mclxa_read_body
          mcxDie(1, "mclxa_read_body", "error occurred")
    ;  }
       else if (mclxIOgetQMode("MCLXIOVERBOSITY"))
-      tell_read_native(mx, "ascii")
+      tell_read_native(mx, "interchange")
 
    ;  return mx
 ;  }
@@ -1230,7 +1235,7 @@ mcxstatus mclxTaggedWrite
 
       fprintf(fp, ")\n")
    ;  if (mclxIOgetQMode("MCLXIOVERBOSITY"))
-      tell_wrote_native(mx, "ascii tagged", xfout)
+      tell_wrote_native(mx, "interchange tagged", xfout)
 
    ;  return STATUS_OK
 ;  }
@@ -1308,21 +1313,6 @@ mcxstatus mclxWrite
 ;  }
 
 
-mcxstatus mclxAppWrite
-(  const mclx* mx
-,  mcxIO*      xf
-,  mcxOnFail   ON_FAIL
-,  mcxbool     binmode
-)
-   {  if (!xf->fp && mcxIOopen(xf, ON_FAIL) != STATUS_OK)
-      return STATUS_FAIL
-   ;  return
-         binmode
-      ?  mclxbWrite(mx, xf, ON_FAIL)
-      :  mclxWrite(mx, xf, MCLXIO_VALUE_GETENV, ON_FAIL)
-;  }
-
-
 mcxstatus mclxaWrite
 (  const mclMatrix*        mx
 ,  mcxIO*                  xfout
@@ -1334,12 +1324,12 @@ mcxstatus mclxaWrite
    ;  int   leadwidth   =  log10(MAXID_ROWS(mx)+1) + 2
    ;  FILE* fp
    ;  const char* me    =  "mclxaWrite"
-   ;  unsigned long flags =  get_env_flags("MCLXASCIIFLAGS")
+   ;  unsigned long flags =  get_env_flags("MCLXINTERCHANGEIFLAGS")
    ;  long n_mod        =  MAX(1+(N_COLS(mx)-1)/40, 1)
    ;  mcxbool progress  =     isatty(fileno(stderr))
                            && mclxIOgetQMode("MCLXIOVERBOSITY")
 
-   ;  valdigits = set_ascii_digits(valdigits)
+   ;  valdigits = set_interchange_digits(valdigits)
 
    ;  if (progress)
       fprintf(stderr, "[mclIO] writing <%s> ", xfout->fn->str)
@@ -1370,7 +1360,7 @@ mcxstatus mclxaWrite
    ;  fprintf(fp, ")\n")
 
    ;  if (mclxIOgetQMode("MCLXIOVERBOSITY"))
-      tell_wrote_native(mx, "ascii", xfout)
+      tell_wrote_native(mx, "interchange", xfout)
 
    ;  return STATUS_OK
 ;  }
@@ -1592,6 +1582,7 @@ mcxstatus mclvEmbedRead
 mclpAR* mclpReaDaList
 (  mcxIO   *xf
 ,  mclpAR  *ar
+,  mclpAR  *transform
 ,  int      fintok
 )
    {  const char* me = "mclpReaDaList"
@@ -1657,6 +1648,10 @@ expect_val
          {  mcxErr(me, "could not extend/insert ar-ivp")
          ;  break
       ;  }
+         if (transform)
+         {  mclp* ivp = ar->ivps+ar->n_ivps-1
+         ;  ivp->val = mclpUnary(ivp, transform)
+      ;  }
       }
 
       if (!ok)
@@ -1674,12 +1669,13 @@ static mcxstatus mclxa_readavec
 ,  mclpAR*     ar
 ,  int         fintok
 ,  mcxbits     warn_repeat
+,  mclpAR*     transform
 ,  void (*ivpmerge)(void* ivp1, const void* ivp2)
 ,  double (*fltbinary)(pval val1, pval val2)
 )
    {  mclpAR* arcp = ar
 
-   ;  if (!(ar = mclpReaDaList(xf, ar, fintok)))
+   ;  if (!(ar = mclpReaDaList(xf, ar, transform, fintok)))
       return STATUS_FAIL
 
    ;  mclvFromIvps_x
@@ -1766,6 +1762,7 @@ static mcxstatus mclxa_parse_domain
          ,  NULL
          ,  '$'
          ,  MCLV_WARN_REPEAT
+         ,  NULL
          ,  mclpMergeLeft
          ,  NULL
          )
@@ -1849,7 +1846,7 @@ void mclFlowPrettyPrint
 ;  }
 
 
-void mclvaWrite               /* fixme should use set_ascii_digits */
+void mclvaWrite               /* fixme should use set_interchange_digits */
 (  const mclVector*  vec
 ,  FILE*             fp
 ,  int               valdigits
@@ -1870,7 +1867,7 @@ mclpAR *mclpaReadRaw
 ,  mcxOnFail   ON_FAIL
 ,  int         fintok     /* e.g. EOF or '$' */
 )
-   {  mclpAR* ar = mclpReaDaList(xf, NULL, fintok)
+   {  mclpAR* ar = mclpReaDaList(xf, NULL, NULL, fintok)
    ;  if (!ar && ON_FAIL != RETURN_ON_FAIL)
       mcxExit(1)
    ;  return ar
@@ -1890,7 +1887,7 @@ mclVector* mclvaReadRaw
 )
    {  mclVector* vec = mclvInit(NULL)  /* cannot use create; vec must be ok */
    ;  if
-      (  mclxa_readavec(xf, vec, ar, fintok, warn_repeat, ivpmerge, NULL)
+      (  mclxa_readavec(xf, vec, ar, fintok, warn_repeat, NULL, ivpmerge, NULL)
       != STATUS_OK
       )
       {  mcxErr("mclvaReadRaw", "read failed in <%s>", xf->fn->str)
@@ -1901,7 +1898,7 @@ mclVector* mclvaReadRaw
       if (0 && mclxIOgetQMode("MCLXIOVERBOSITY"))
       mcxTell
       (  "mclIO"
-      ,  "read raw ascii <%ld> vector from stream <%s>"
+      ,  "read raw interchange <%ld> vector from stream <%s>"
       ,  (long) vec->n_ivps
       ,  xf->fn->str
       )
@@ -1921,6 +1918,7 @@ mcxstatus mclxaSubReadRaw
 ,  mcxOnFail      ON_FAIL
 ,  int            fintok         /* e.g. EOF or ')' */
 ,  mcxbits        bits
+,  mclpAR*        transform
 ,  void (*ivpmerge)(void* ivp1, const void* ivp2)
 ,  double (*fltbinary)(pval val1, pval val2)
 )
@@ -1999,7 +1997,8 @@ mcxstatus mclxaSubReadRaw
          */
 
       ;  if
-         (  mclxa_readavec(xf,vec,ar,'$', bits & warnmask, ivpmerge, fltbinary)
+         (  mclxa_readavec
+            (xf,vec,ar,'$', bits & warnmask, transform, ivpmerge, fltbinary)
          != STATUS_OK
          )
          {  mcxErr(me, "vector read failed for column <%ld>", (long) cidx)
@@ -2038,7 +2037,7 @@ mcxstatus mclxaSubReadRaw
    ;  if (fintok == EOF && mclxIOgetQMode("MCLXIOVERBOSITY"))
       mcxTell
       (  "mclIO"
-      ,  "read raw ascii %ldx%ld matrix from stream <%s>"
+      ,  "read raw interchange %ldx%ld matrix from stream <%s>"
       ,  (long) N_ROWS(mx)
       ,  (long) N_COLS(mx)
       ,  xf->fn->str
@@ -2241,6 +2240,108 @@ mcxstatus mclxIOdump
       ;  }
       }
       return STATUS_OK
+;  }
+
+
+
+mclpAR* mclpTFparse
+(  mcxLink*    encoding_link
+,  mcxTing*    encoding_ting
+)
+   {  mcxLink* lk = encoding_link
+   ;  mclpAR* par = mclpARensure(NULL, 10)
+   ;  int n_args
+   ;  const char* me = "mclpTFparse"
+
+   ;  if
+      (  !lk
+      &&!(  lk
+         =  mcxTokArgs
+            (  encoding_ting->str
+            ,  encoding_ting->len
+            ,  &n_args
+            ,  MCX_TOK_DEL_WS
+      )  )  )
+      return NULL
+
+   ;  if (!par)
+      return NULL
+
+   ;  while ((lk = lk->next))
+      {  mcxTokFunc tf
+      ;  mcxTing* valspec = lk->val
+      ;  char* z
+
+      ;  tf.opts = MCX_TOK_DEL_WS
+
+      ;  if
+         (  STATUS_OK
+         == mcxTokExpectFunc(&tf, valspec->str, valspec->len, &z, 1, 1, NULL)
+         )
+         {  const char* val = ((mcxTing*) tf.args->next->val)->str
+         ;  const char* key = tf.key->str
+         ;  char* onw = NULL
+         ;  double d = strtod(val, &onw)
+         ;  int mode = -1
+         ;  mcxbool nought = FALSE
+
+         ;  if (!val || !strlen(val))
+            nought = TRUE
+         ;  else if (val == onw)
+            {  mcxErr(me, "failed to parse number <%s>", val)
+            ;  break
+         ;  }
+
+            if (!strcmp(key, "gq"))
+            mode = MCLX_UNARY_GQ
+         ;  else if (!strcmp(key, "gt"))
+            mode = MCLX_UNARY_GT
+         ;  else if (!strcmp(key, "lt"))
+            mode = MCLX_UNARY_LT
+         ;  else if (!strcmp(key, "lq"))
+            mode = MCLX_UNARY_LQ
+         ;  else if (!strcmp(key, "mul"))
+            mode = MCLX_UNARY_MUL
+         ;  else if (!strcmp(key, "add"))
+            mode = MCLX_UNARY_ADD
+         ;  else if (!strcmp(key, "ceil"))
+            mode = MCLX_UNARY_CEIL
+         ;  else if (!strcmp(key, "floor"))
+            mode = MCLX_UNARY_FLOOR
+         ;  else if (!strcmp(key, "pow"))
+            mode = MCLX_UNARY_POW
+         ;  else if (!strcmp(key, "exp"))
+            mode = MCLX_UNARY_EXP
+         ;  else if (!strcmp(key, "log"))
+            mode = MCLX_UNARY_LOG
+         ;  else if (!strcmp(key, "neglog"))
+            mode = MCLX_UNARY_NEGLOG
+
+         ;  if (mode < 0)
+            {  mcxErr(me, "unknown value transform <%s>", key)
+            ;  break
+         ;  }
+
+            if (nought)
+            {  if (mode == MCLX_UNARY_LOG || mode == MCLX_UNARY_NEGLOG)
+               d = 0.0
+            ;  else if (mode == MCLX_UNARY_EXP)
+               d = 0.0
+            ;  else
+               {  mcxErr(me, "transform <%s> needs value", key)
+               ;  break
+            ;  }
+         ;  }
+            mclpARextend(par, mode, d)
+      ;  }
+         else
+         break
+   ;  }
+
+      if (lk)
+      mclpARfree(&par)
+
+   ;  return par
 ;  }
 
 

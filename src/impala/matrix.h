@@ -296,32 +296,12 @@ void mclxMakeCharacteristic
 (  mclx*     mtx
 )  ;
 
-void mclxHdp
-(  mclx*     mx
-,  double                   power
-)  ; 
-
-void mclxLog
-(  mclMatrix*  mx
-,  double      base
-)  ;  
-
 long mclxNrofEntries
 (  const mclx*        m
 )  ;
 
-
 double mclxMass
 (  const mclx*  m
-)  ;
-
-
-/* operation's second arg should be double */
-
-void mclxUnary
-(  mclx*  m1
-,  double  (*operation)(pval, void*)
-,  void*  arg           /* double*  */
 )  ;
 
 
@@ -402,12 +382,6 @@ size_t mclxNEntries
 
 double mclxMaxValue
 (  const mclx*  m
-)  ;
-
-
-void mclxScale
-(  const mclx*  m
-,  double            f
 )  ;
 
 
@@ -525,6 +499,21 @@ mclv* mclxUnionv
 mclx* mclxWeed
 (  mclx* mx
 ,  mcxbits bits
+)  ;
+
+
+
+/* operation's second arg should be double */
+
+void mclxUnary
+(  mclx*  m1
+,  double  (*operation)(pval, void*)
+,  void*  arg           /* double*  */
+)  ;
+
+long mclxUnaryList
+(  mclx*    mx
+,  mclpAR*  ar       /* idx: MCLX_UNARY_mode, val: arg */
 )  ;
 
 

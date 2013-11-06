@@ -15,20 +15,68 @@
 \:    stretch over more than one line.
 
 \sec{*}{name}{NAME}
-\NAME{mcxio}{the format specification for matrix input and output in the mcl family.}
+\NAME{mcxio}{the format specifications for input and output in the mcl family.}
 
 
 \sec{*}{description}{DESCRIPTION}
 \car{
-   This document describes the \it{generic matrix format}
-   used in the mcl libaries.  It also describes the \it{raw intermediate
-   format} used by \sib{mcxassemble}.
-   The two formats (generic and raw) are in fact
+   This document describes}
+   
+\begin{itemize}
+\item{native matrix input format}
+\car{
+   The format that can be read in by any mcl application
+   expecting a matrix argument. The native format closely resembles
+   the layout of matrices as residing in computer memory. There are
+   two distinct encodings, respectively \it{interchange} and \it{binary}.
+   Their relative merits are described further below.}
+
+\item{raw intermediate format}
+\car{
+   This is read by \mysib{mcxassemble}.}
+\""{
+   The two formats (native and raw) are in fact
    identical at the vector level; they are distinguished by the error reporting
-   implied by the generic format.
-   Also described here is the \it{tab format} used by mcl to convert
-   between meaningful labels describing the input data and the numerical
-   identifiers used internally.}
+   implied by the native format.}
+
+\item{tab format}
+\car{
+   Used by applications such as \mysib{mcl} and \mysib{mcxdump} to
+   convert between meaningful labels describing the input data and the
+   numerical identifiers used internally.}
+
+\item{label format}
+\car{
+   The format used when streaming labels directly into
+   \mysib{mcl} or \mysib{mcxload}.}
+
+\item{transformation syntax}
+\car{
+   The syntax accepted by \mysib{mcl}, \mysib{mcxload}, \mysib{mcxsubs}
+   and \mysib{mcxassemble} to transform values in an input stream
+   or in input or output matrices.}
+\end{itemize}
+
+\par{
+   The interchange format is a portable format that can be transmitted
+   across computers and over networks and will work with any version
+   of mcl or its sibling programs. It is documented (here) and very stable.
+   Applications can easily create matrices in this format.
+   The drawback of interchange format is that for very large graphs
+   matrix encodings grow very big and are slow to read.}
+
+\par{
+   The binary format is \it{not} garantueed to be portable across
+   machines or different versions of mcl or differently compiled
+   versions of mcl. Its distinct advantage is that for very large
+   graphs the speed advantage over interchange format can be
+   significant.}
+
+\par{
+   Conversion between the two formats is easily achieved with
+   \mysib{mcxconvert}. Both \mysib{mcl} and \mysib{mcxload}
+   can save a matrix in either format after constructing it from
+   label input.}
 
 \par{
    A remark on the sloppy naming conventions used for \mcl and its sibling
@@ -36,7 +84,7 @@
    matrix functionality, the prefix \bf{clm} is used for generic cluster
    functionaliy.  The \it{utility} \mcx is a general purpose interpreter for
    manipulating matrices (and grahps, sets, and clusterings).  The set of all
-   \mcl siblings (cf. \sibmclfamily) is loosely refered to as the mcl
+   \mcl siblings (cf. \mysib{mclfamily}) is loosely refered to as the mcl
    family, which makes use of the mcl libraries (rather than the mcx
    libraries). The full truth is even more horrible, as the mcl/mcx prefix
    conventions used in the C source code follow still other rules.}
@@ -134,6 +182,7 @@ dimensions 9x14
    domain has dimension 9 and the column domain has dimension 14.
 }
 
+
 \item{Domain specification}
 \car{
    The domain specification can have various forms: if nothing is specified,
@@ -188,7 +237,8 @@ begin}
    entry M[r,c] is specified either as 'r' or as 'r:f', where f is a float. In
    the first case, the entry M[r,c] defaults to 1.0, in the second case, it is
    set to f. The secondary list is closed with the `$' character.  A full
-   fledged examples thus looks as follows:
+   fledged examples thus looks as follows:}
+
 \verbatix{\:/
 (mclheader
 mcltype matrix
@@ -206,6 +256,8 @@ begin
 1    11 66 77 123 $
 2    22 33 55 $
 )}
+
+\car{
    Note that the column domain is canonical; its specifiation could have been
    omitted. In this example, no values were specified. See below for more.}
 
@@ -268,9 +320,7 @@ begin
 11   8 10 $
 )}
 
-\sec{notes}{Additional notes}
-
-\par{
+\cpar{Additional notes}{
    There are few restrictions on the format that one might actually expect.
    Vectors and entries may occur in any order and need not be sorted.
    Repeated entries and repeated vectors are allowed but are always
@@ -279,7 +329,7 @@ begin
 \par{
    If you want \it{functionally interesting behaviour} in combining
    repeated vectors and repeated entries, have a look at the next section
-   and at \sib{mcxassemble}.}
+   and at \mysib{mcxassemble}.}
 
 \par{
    Within the vector listing, the '#' is a token that introduces
@@ -292,15 +342,15 @@ begin
    sectioning structure.  No header specification, no domain specification, and
    no matrix introduction syntax is used - these are supplied to the processing
    application by other means.  The end-of-vector token '$' must still be used,
-   and the comment token '#' is still valid. \sib{mcxassemble}
+   and the comment token '#' is still valid. \mysib{mcxassemble}
    imports a file in raw
-   format, creates a generic matrix from the data therein, and writes the
+   format, creates a native matrix from the data therein, and writes the
    matrix to (a different) file.  It allows customizable behaviour in how to
    combine repeated entries and repeated vectors. This is typically used in the
    following procedure. A) Do a one-pass-parse on some external cooccurrence
    file/format, generate raw data during the parse and write it to file
    (without needing to build a huge data structure in memory).  B) mcxassemble
-   takes the raw data and assembles it according to instruction into a generic
+   takes the raw data and assembles it according to instruction into a native
    mcl matrix.}
 
 
@@ -332,7 +382,7 @@ is called the \it{tab domain}.}
 
 \par{
    Tab files are almost always employed in conjunction with an mcl matrix file.
-   \sibref{mcxdump}{mcxdump} and \sibref{clmformat}{clmformat} require by
+   \mysib{mcxdump} and \mysib{clmformat} require by
    default that the tab domain coincides with the matrix domain (either row or
    column or both) to which they will be applied. This can be relaxed for
    either by supplying the \useopt{--lazy-tab} option.}
@@ -340,13 +390,96 @@ is called the \it{tab domain}.}
 \par{
    mcl provides explicit modes for dealing with tab structures by means of
    the \genopt{-extend-tab}, \genopt{-restrict-tab} and
-   \genopt{-strict-tab} options. Refer to the \sibref{mcl}{mcl}
+   \genopt{-strict-tab} options. Refer to the \mysib{mcl}
    documentation.}
+
+\sec{label}{Label input}
+\car{
+   Label input is a line based input where two nodes and a value
+   are specified on each line. The nodes should be specified
+   by labels containing no whitespace. A line thus consists
+   of two labels and a numerical value, all separated by
+   whitespace. Any line where the first non-whitespace
+   character is the octothorp (#) is ignored.
+   The following is an example of label input.}
+
+\verbatim{---8<------8<------8<------8<------8<---
+# the cat and the hat example
+cat hat  0.2
+hat bat  0.16
+bat cat  1.0
+bat bit  0.125
+bit fit  0.25
+fit hit  0.5
+hit bit  0.16
+--->8------>8------>8------>8------>8---}
+
+\car{
+   \mysib{mcl} can read in label input and cluster it when it is
+   given the \genopt{--abc} option. It can optionally save
+   the input graph in native format and save the label information
+   in a tab file with the \genopt{-save-graph} and \genopt{-save-tab}
+   options.}
+
+\par{
+   Refer to the \sibref{mcl}{started}{MCL getting started} and
+   \sibref{mcl}{examples}{MCL manual examples} sections
+   for more information on how MCL deals with label input.}
+
+\par{
+   \mysib{mcxload} is a general purpose program for reading
+   in label data and other stream formats. It
+   encodes them in native mcl format and tab files.
+   It allows intermediate transformations on the values.}
+
+\sec{trans}{Transformation syntax}
+\car{
+   \mysib{mcl}, \mysib{mcxload}, \mysib{mcxsubs}, \mysib{mcxassemble}
+   all accept the same transformation language in their
+   respective \bf{tf}-type options and mcxsub's \bf{val}
+   specification.}
+
+\par{
+   A statement in this language is simply a comma-separated
+   list of functions accepting a single numerical value.
+   The syntax of a function invocation in general is
+   \bf{func}(\it{arg}).
+   The functions \bf{exp}, \bf{log}, \bf{neglog} can
+   also be given an empty parameter list, indicating that
+   \it{e} is taken as the exponent base. In this case,
+   the invocation looks like \bf{func}(). The following
+   functions are supported.}
+
+\begin{itemize}{{w1}{8}{compact}{1}}
+\item{lt}   Filter out values greater than or equal to arg.
+\item{lq}   Filter out values greater than arg.
+\item{gq}   Filter out values less than arg.
+\item{gt}   Filter out values less than or equal to arg.
+\item{ceil} Set everything higher than arg to arg.
+\item{floor} Set everything lower than arg to arg.
+\item{mul}  Multiply by arg.
+\item{add}  Add arg to it.
+\item{power}   Raise to power arg.
+\item{exp}     Raise arg (\it{e} if omitted) to value.
+\item{log}     Take log in base arg (\it{e} if omitted).
+\item{neglog}  Take minus log in base arg (\it{e} if omitted).
+\end{itemize}
+
+\cpar{NOTE}{
+   \mysib{mcl} accepts \genopt{--abc-log} and \genopt{--abc-neg-log} to specify
+   log transformations. Similarly, \mysib{mcxload} accepts \genopt{--stream-log}
+   and \genopt{--stream-neg-log}.  The reason is that probabilities are
+   sometimes encoded below the precision dictated by the IEEE (32 bit) float
+   specification.  This poses a problem as the mcl applications encode values
+   by default as floats, and the transformation specifications are always
+   applied to the mcl encoding. The options just mentioned are applied
+   after a value has been read from an input stream and \it{before} it
+   is converted to the native encoding.}
 
 \sec{seealso}{SEE ALSO}
 \car{
-   \sib{mcxassemble},
-   and \sibmclfamily for an overview of all the documentation
+   \mysib{mcxassemble},
+   and \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.}
 
 \sec{author}{AUTHOR}

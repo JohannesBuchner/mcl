@@ -68,9 +68,9 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-10 Nov 2005&nbsp;&nbsp;&nbsp;
+16 Nov 2005&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxload.ps"><b>mcxload</b></a>
-1.006, 05-314
+1.006, 05-320
 </p>
 <div style="margin-top:1em">
 <table
@@ -120,11 +120,10 @@ mcxload - load matrices and tab files from label format</p>
 <a class="intern" href="#opt-extend-tab"><b>[-extend-tab</b> &lt;fname&gt; (<i>tab launch</i>)<b>]</b></a>
 <a class="intern" href="#opt-extend-tabc"><b>[-extend-tabc</b> &lt;fname&gt; (<i>tabc launch</i>)<b>]</b></a>
 <a class="intern" href="#opt-extend-tabr"><b>[-extend-tabr</b> &lt;fname&gt; (<i>tabr launch</i>)<b>]</b></a>
-<a class="intern" href="#opt-s"><b>[-s</b> [io]&lt;lq|gq|ceil|floor&gt;=&lt;num&gt; (<i>select/bound input/output</i>)<b>]</b></a>
-<a class="intern" href="#opt-log"><b>[-log</b> &lt;base&gt; (<i>log transform</i>)<b>]</b></a>
-<a class="intern" href="#opt-neglog"><b>[-neglog</b> &lt;base&gt; (<i>-log transform</i>)<b>]</b></a>
-<a class="intern" href="#opt-add"><b>[-add</b> &lt;num&gt; (<i>shift</i>)<b>]</b></a>
-<a class="intern" href="#opt-pow"><b>[-pow</b> &lt;power&gt; (<i>raise</i>)<b>]</b></a>
+<a class="intern" href="#opt--stream-log"><b>[--stream-log</b> (<i>log transform stream values</i>)<b>]</b></a>
+<a class="intern" href="#opt--stream-neg-log"><b>[--stream-neg-log</b> (<i>minus log transform stream values</i>)<b>]</b></a>
+<a class="intern" href="#opt-stream-tf"><b>[-stream-tf</b> (<i>transform stream values</i>)<b>]</b></a>
+<a class="intern" href="#opt-tf"><b>[-tf</b> &lt;tf-spec&gt; (<i>transform (not so) final matrix</i>)<b>]</b></a>
 <a class="intern" href="#opt-t"><b>[-t</b> (<i>transpose</i>)<b>]</b></a>
 <a class="intern" href="#opt--binary"><b>[--binary</b> (<i>output binary format</i>)<b>]</b></a>
 <a class="intern" href="#opt--debug"><b>[--debug</b> (<i>debug</i>)<b>]</b></a>
@@ -190,15 +189,16 @@ It presumably only makes sense to do so if the corresponding
 The input stream is deduplicated on a per-node neighbourhood basis
 using the <a class="intern" href="#opt-re"><b>-re</b></a> option.</p>
 <p class="default L50" style="margin-bottom:0">
-mcxload has many options to transform or select based on
-the values of the input. These are
-<a class="intern" href="#opt-add"><b>-add</b></a>,
-<a class="intern" href="#opt-pow"><b>-pow</b></a>,
-<a class="intern" href="#opt-log"><b>-log</b></a> and
-<a class="intern" href="#opt-neglog"><b>-neglog</b></a> for unary transformations of the input.
-Use <a class="intern" href="#opt-s"><b>-s</b></a> to select edges based on their values.
-It is possible to select edges both before and after unary
-transformations have been applied.
+mcxload has a few options to transform or select based on
+the values in the input stream and the values in the
+constructed matrix. These are
+<a class="intern" href="#opt--stream-log"><b>--stream-log</b></a>,
+<a class="intern" href="#opt--stream-neg-log"><b>--stream-neg-log</b></a>,
+<a class="intern" href="#opt-stream-tf"><b>-stream-tf</b></a> and
+<a class="intern" href="#opt-tf"><b>-tf</b></a>.
+Refer to <a class="local" href="mcxio.html">mcxio</a> for a description of the syntax accepted
+by the latter two options - it is a syntax accepted
+by a few more mcl siblings.
 Finally it is possible to transpose the final result
 using the <a class="intern" href="#opt-t"><b>-t</b></a> option. Keep in mind that
 mcxload does not accordingly change its idea of row and
@@ -213,27 +213,20 @@ cellspacing="0" border=0
 cellpadding="0" summary="itemize">
 <tr><td width=64 valign="top" class=right>i</td><td width=24>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
-Read the input stream, optionally push reverse elements
+Read the input stream, apply <a class="intern" href="#opt-stream-tf"><b>-stream-tf</b></a> transformation
+specification, and optionally push reverse elements
 (<a class="intern" href="#opt--stream-mirror"><b>--stream-mirror</b></a>).</p>
 </div></td></tr><tr><td width=64 valign="top" class=right>ii</td><td width=24>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Deduplicate edges in the context of all edges/arcs originating from
-a given node.</p>
+a given node according to the <a class="intern" href="#opt-re"><b>-re</b></a> option.</p>
 </div></td></tr><tr><td width=64 valign="top" class=right>iii</td><td width=24>&nbsp;</td><td><div style="text-align:justify">
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
-Apply input bound and select options -
-those in the syntax <tt>i&lt;lq|lt|gq|gt|ceil|floor&gt;</tt>.</p>
-</div></td></tr><tr><td width=64 valign="top" class=right>iv</td><td width=24>&nbsp;</td><td><div style="text-align:justify">
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
-Apply unary transformations.</p>
-</div></td></tr><tr><td width=64 valign="top" class=right>v</td><td width=24>&nbsp;</td><td><div style="text-align:justify">
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
-Apply output bound and select options -
-those in the syntax <tt>o&lt;lq|lt|gq|gt|ceil|floor&gt;</tt>.</p>
-</div></td></tr><tr><td width=64 valign="top" class=right>vi</td><td width=24>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Apply transpose symmetrification according to the
 <a class="intern" href="#opt-ri"><b>-ri</b></a> option, if used.</p>
+</div></td></tr><tr><td width=64 valign="top" class=right>iv</td><td width=24>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+Apply <a class="intern" href="#opt-tf"><b>-tf</b></a> transformation specification.</p>
 </div></td></tr>
 </table>
 
@@ -316,30 +309,22 @@ first labels from the input not yet present in the dictionary.</p>
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Read a dictionary from file and extend it with all
 second labels from the input not yet present in the dictionary.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-log"></a><b>-log</b> &lt;base&gt; (<i>log transform</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--stream-log"></a><b>--stream-log</b> (<i>log transform stream values</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
-Replace each entry by its log in base <i>&lt;base&gt;</i>.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-neglog"></a><b>-neglog</b> &lt;base&gt; (<i>-log transform</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Replace each entry by its natural logarithm.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--stream-neg-log"></a><b>--stream-neg-log</b> (<i>minus log transform stream values</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
-Replace each entry by its negative log in base <i>&lt;base&gt;</i>.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-add"></a><b>-add</b> &lt;num&gt; (<i>shift</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Replace each entry by the negative of its natural logarithm.
+This is most likely useful to convert scores that denote probabilities
+or p-values such as BLAST scores.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-stream-tf"></a><b>-stream-tf</b> (<i>transform stream values</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
-Add <i>&lt;shift&gt;</i> to each non-zero entry.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-pow"></a><b>-pow</b> &lt;power&gt; (<i>raise</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+Transform the stream values as they are read in according
+to the syntax described in <a class="local" href="mcxio.html">mcxio</a>.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-tf"></a><b>-tf</b> &lt;tf-spec&gt; (<i>transform (not so) final matrix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
-Raise each entry to the power <i>&lt;power&gt;</i>.</p>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-s"></a><b>-s</b> [io]&lt;lq|gq|ceil|floor&gt;=&lt;num&gt; (<i>select/bound input/output</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
-Combine <b>i</b> or <b>o</b> with any of the modifiers to select or bound
-input or output. Example:</p>
-<pre>-s igq=5 -s oceil=10</pre>
-<p class="default L50" style="margin-top:0em; margin-bottom:0em">
-This selects only entries in the input that are greater than or
-equal to 5 and it setes any entry larger than 10 to 10.</p>
-<p class="default L50" style="margin-bottom:0"><b>NOTE</b><br>
-Output is in this context the stage immediately after unary
-transformation and before symmetrification using the transposed
-matrix.</p>
+Transform the matrix values after deduplication and symmetrification
+according to the syntax described in <a class="local" href="mcxio.html">mcxio</a>.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-ri"></a><b>-ri</b> (<i>&lt;max|add|mul&gt;</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 After the initial matrix has been assembled, it can be symmetrified by

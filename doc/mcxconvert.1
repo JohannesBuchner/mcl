@@ -1,5 +1,5 @@
 .\" Copyright (c) 2005 Stijn van Dongen
-.TH "mcxconvert" 1 "10 Nov 2005" "mcxconvert 1\&.006, 05-314" "USER COMMANDS "
+.TH "mcxconvert" 1 "16 Nov 2005" "mcxconvert 1\&.006, 05-320" "USER COMMANDS "
 .po 2m
 .de ZI
 .\" Zoem Indent/Itemize macro I.
@@ -38,14 +38,15 @@ mcxconvert \- convert between mcx storage types
 In the two-argument invocation, \fBmcxconvert\fP converts from the format
 found in the first file to the other format\&.
 In the one-argument invocation, mcxconvert will simply output
-one of the strings \fCascii\fP or \fCbinary\fP depending on the format found\&.
+one of the strings \fCinterchange\fP
+or \fCbinary\fP depending on the format found\&.
 .SH DESCRIPTION
 
 The \fBmcl\fP libraries make extensive use of matrices\&. Matrices
 are used to encode graphs, matrices and clusterings\&.
-They can be stored either in ascii or in binary format\&. The latter is
+They can be stored either in interchange or in binary format\&. The latter is
 somewhat more efficient in storage and much faster in both reading and
-writing, but the default is ascii format\&.
+writing, but the default is interchange format\&.
 
 The \fBmcl\fP input routines recognize the type of storage they are dealing
 with\&. If you want to convert a matrix to the other storage type,

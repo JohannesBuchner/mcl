@@ -1,4 +1,64 @@
 
+
+Thu 17 Nov 2005
+
+   *  mcl-05-321 released.
+
+   *  Focus: uniform transformation syntax accross programs, improved
+      documentation, especially mcxio. Previous 'ascii' format is now called
+      interchange format throughout the documentation.
+
+   *  mcl accepts the -abc-tf option to transform the input stream
+      and the -tf option to transform the input matrix (either constructed
+      from a stream with --abc or directly read from a stream).
+
+      -abc-tf 'pow(2), ceil(200), gt(20)'
+
+      This squares everything in the input stream, then truncates everything
+      larger than 200 to 200, and removes anything less than or equal to 20.
+      There are two special transform cases that appear as separate options.
+
+      --abc-log
+      --abc-neg-log
+
+      indicate that as the first thing to do the log or negative logarirthm
+      should be taken. The reason is that probability scores can get quite low
+      and are best represented as doubles (64 bit values); however mcl's
+      internal floating point representation is by default float (32 bit
+      values).
+
+      This means that blast clustering can be done from columnar format
+      like this:
+
+      grep -v '^#' hsfsp.cblast |\
+         cut -f 1,2,11  |\
+         mcl - --abc --abc-neg-log -tf 'ceil(460), gt(10)'  -o -
+
+      This will make a few people very happy, and bewilder the rest.
+
+      For sake of completeness, ceil(460) because 1e-200 (standard
+      BLAST p-value cut-off) corresponds to 1/e/-460.517019 where
+      /e/ is the REAL e, namely 2.718281828.
+
+   *  All of
+      -  mcxsubs 'val(<spec>)'
+      -  mcl -tf <spec>, -abc-tf <spec>
+      -  mcxload -tf <spec>, -stream-tf <spec>
+      -  mcxassemble -raw-tf <spec> -prm-tf <spec> -sym-tf <spec>
+
+         now accept the same syntax, documented in mcxio(5).
+
+   *  The mcxio manual has gained two sections, one on transformation
+      syntax, one on label input.
+
+   *  mcl -cache-graph saves the graph after any transformations have
+      been applied to it.
+
+   *  Throughout the documentation, environment variables, and
+      logging statements, replaced 'ascii' by 'interchange'.
+      MCLXIOASCIIDIGITS is now MCLXIOINTERCHANGEDIGITS. bliss.
+      There is still plenty-o-ascii in the ChangeLog below.
+
 Fri, 11 Nov 2005
 
    *  mcl-05-314 released - major new features.

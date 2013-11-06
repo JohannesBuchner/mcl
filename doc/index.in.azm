@@ -81,7 +81,7 @@
 \sec{name}{NAME}
 \NAME{mclindex}{a list of the utilities and modules present in the MCL distribution.}
 \par
-      For more information, consult \sibmclfamily.
+      For more information, consult \mysib{mclfamily}.
    \set{utsection#1}{\par\sec{}{\1}
       \par
       \begin{itemize}{{compact}{1}{contiguous}{1}{w1}{14}{w2}{1}}

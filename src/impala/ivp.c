@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include "ivp.h"
+#include "pval.h"
 
 #include "util/err.h"
 #include "util/alloc.h"
@@ -276,5 +277,60 @@ void mclpFree
       ;  *p_ivp   =  NULL
    ;  }
    }
+
+
+#if 0
+enum
+{  MCLX_UNARY_LT  =  0
+,  MCLX_UNARY_LQ
+,  MCLX_UNARY_GQ
+,  MCLX_UNARY_GT
+,  MCLX_UNARY_MUL
+,  MCLX_UNARY_ADD 
+,  MCLX_UNARY_CEIL
+,  MCLX_UNARY_FLOOR 
+,  MCLX_UNARY_POW
+,  MCLX_UNARY_EXP
+,  MCLX_UNARY_LOG
+,  MCLX_UNARY_NEGLOG
+,  MCLX_UNARY_UNUSED
+}  ;
+#endif
+
+double (*mclp_unary_tab[])(pval, void*)
+=
+{  fltxLT
+,  fltxLQ
+,  fltxGT
+,  fltxGT
+,  fltxMul
+,  fltxAdd 
+,  fltxCeil
+,  fltxFloor 
+,  fltxPower
+,  fltxExp
+,  fltxLog
+,  fltxNeglog
+,  NULL           /* (double (f*)(pval* flt, void*arg)) NULL */
+}  ;
+
+
+double mclpUnary
+(  mclp*    ivp
+,  mclpAR*  ar       /* idx: MCLX_UNARY_mode, val: arg */
+)
+   {  int i
+   ;  double val = ivp->val
+   ;  for (i=0;i<ar->n_ivps;i++)
+      {  int mode = ar->ivps[i].idx
+      ;  double arg = ar->ivps[i].val
+      ;  if (mode < 0 || mode >= MCLX_UNARY_UNUSED)
+         {  mcxErr("mclpUnary", "not a mode: %d", mode)
+         ;  break
+      ;  }
+         val = mclp_unary_tab[mode](val, &arg)
+   ;  }
+      return val
+;  }
 
 

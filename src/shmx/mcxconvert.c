@@ -51,7 +51,7 @@ int main
          mcxDie(1, me, "reading %s failed", argv[1])
 
       ;  format = mclxIOformat(xf)
-      ;  fmt = format == 'b' ? "binary" : format == 'a' ? "ascii" : "?"
+      ;  fmt = format == 'b' ? "binary" : format == 'a' ? "interchange" : "?"
       ;  fprintf
          (  stdout
          ,  "%s format,  row x col dimensions are %ld x %ld\n"

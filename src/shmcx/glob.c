@@ -530,7 +530,7 @@ zgglob_p zgMul
       {  mclMatrix *mx = zgGetOb(o1, UTYPE_MX)
       ;  double *dp = zgGetOb(o2, UTYPE_DBL)
       ;  if (!mx || !dp) return NULL
-      ;  mclxScale(mx, *dp)
+      ;  mclxUnary(mx, fltxMul, dp)
       ;  return NULL
    ;  }
       else if (glypex & GLASS_NUM && glypey & GLASS_MX)

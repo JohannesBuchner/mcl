@@ -68,9 +68,9 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-10 Nov 2005&nbsp;&nbsp;&nbsp;
+17 Nov 2005&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcl.ps"><b>mcl</b></a>
-1.006, 05-314
+1.006, 05-321
 </p>
 <div style="margin-top:1em">
 <table
@@ -163,7 +163,9 @@ advantage of full native mode (where both graph input and cluster output are
 in matrix format) is that the data can easily be analyzed and subjected to
 further processing. Second, input that is stored in native binary format
 loads much faster than label data when the input data size grows large. If
-neither of these is of concern then label mode may be entirely sufficient.</p>
+neither of these is of concern then label mode may be entirely sufficient.
+For more information on label mode and native mode refer to examples in this
+manual and <a class="local" href="mcxio.html">mcxio</a>.</p>
 <p class="default L50" style="margin-bottom:0"><b>Granularity</b><br>
 If you want to explore cluster structure in graphs with MCL, do use
 the <a class="intern" href="#opt-I"><b>-I</b>&nbsp;<i>inflation</i></a> option with varying parameters
@@ -251,6 +253,12 @@ for those who are interested, so it has many options.
 <a class="intern" href="#opt-restrict-tab"><b>[-restrict-tab</b> fname (<i>use mapping to restrict</i>)<b>]</b></a>
 <a class="intern" href="#opt-extend-tab"><b>[-extend-tab</b> fname (<i>use mapping and extend</i>)<b>]</b></a>
 <a class="intern" href="#opt-cache-tab"><b>[-cache-tab</b> fname (<i>write mapping</i>)<b>]</b></a>
+</p>
+<p class="default L50" style="margin-bottom:0"><b>Transform options</b><br>
+<a class="intern" href="#opt-tf"><b>[-tf</b> &lt;tf-spec&gt; (<i>transform input matrix values</i>)<b>]</b></a>
+<a class="intern" href="#opt-stream-tf"><b>[-stream-tf</b> &lt;tf-spec&gt; (<i>transform input stream values</i>)<b>]</b></a>
+<a class="intern" href="#opt--stream-log"><b>[--stream-log</b> (<i>take logarithm of stream values</i>)<b>]</b></a>
+<a class="intern" href="#opt--stream-neg-log"><b>[--stream-neg-log</b> (<i>take negative logarithm of stream values</i>)<b>]</b></a>
 </p>
 <p class="default L50" style="margin-bottom:0"><b>Cache options</b><br>
 <a class="intern" href="#opt-cache-graph"><b>[-cache-graph</b> fname (<i>write graph</i>)<b>]</b></a>
@@ -457,7 +465,7 @@ to do is just vary the <a class="intern" href="#opt-scheme"><b>-scheme</b> optio
 triggers different settings for the group of pruning parameters
 <a class="intern" href="#opt-P"><b>-p/-P</b>, <b>-R</b>, <b>-S</b>, and
 <b>-pct</b></a>. The default setting corresponds with
-<b>-scheme</b>&nbsp;<b>4</b>.
+<b>-scheme</b>&nbsp;<b>6</b>.
 There is an additional group of control parameters
 <a class="intern" href="#opt--adapt"><b>--adapt</b>, <b>--rigid</b>, <b>-ae</b>,
 <b>-af</b></a>, which may be helpful in speeding up <b>mcl</b>.
@@ -622,6 +630,18 @@ but it requires mcxdump to act as an intermediary -
 <a class="local" href="mcxdump.html">mcxdump</a> has no such limitations. This need in
 general not be of concern to you. If a tab file is created by
 mcl or mcxdeblast it will always be canonical.</p>
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-tf"></a><b>-tf</b> &lt;tf-spec&gt; (<i>transform input matrix values</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-stream-tf"></a><b>-stream-tf</b> &lt;tf-spec&gt; (<i>transform input stream values</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--stream-log"></a><b>--stream-log</b> (<i>take logarithm of stream values</i>)</td></tr><tr><td colspan=3 class=left><a name="opt--stream-neg-log"></a><b>--stream-neg-log</b> (<i>take negative logarithm of stream values</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+<b>-tf</b> transforms the values of the input matrix according
+to <b>&lt;tf-spec&gt;</b>. <b>-stream-tf</b> transforms the stream values
+(when <a class="intern" href="#opt--abc"><b>--abc</b></a> or <a class="intern" href="#opt--expect-abc"><b>--expect-abc</b></a> is used)
+according to <b>&lt;tf-spec&gt;</b>.
+<b>--neg-stream-log</b> and <b>--stream-log</b>
+respectively imply that the stream input values are
+first replaced by their (negative) logarithm.
+The reason for their existence is documented in <a class="local" href="mcxio.html">mcxio</a>.
+For a description of the transform language excpected/accepted
+in <b>&lt;tf-spec&gt;</b> refer to the same.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-cache-graph"></a><b>-cache-graph</b> fname (<i>write graph</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-cache-expanded"></a><b>-cache-expanded</b> fname (<i>write expanded graph</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-ei"></a><b>-ei</b> inflation (<i>use with expanded input</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">If you work with label input, <b>-cache-graph</b> can be
 used to save the matrix mcl constructs. In a following
@@ -743,7 +763,7 @@ equal to one of <b>progress</b>, <b>pruning</b>, or <b>explain</b>).
 Each verbosity mode is given its own entry below.
 </p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><b>-v</b>&nbsp;<b>progress</b></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-This mode causes <b>mcl</b> to emit an ascii gauge
+This mode causes <b>mcl</b> to emit a gauge
 for each single matrix multiplication. It uses some
 default length for the gauge, which can be altered by
 the <b>-progress</b>&nbsp;<i>k</i> option. Simply using the latter
@@ -975,7 +995,7 @@ a small graph and view the MCL matrix iterands with <b>--show</b>.
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt--binary"></a><b>--binary</b> (<i>output format</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 <p class="default L50" style="margin-top:0em; margin-bottom:0em">
 Write matrix dump output in binary mcl format rather
-than ascii mcl format (the default). Note that <b>mcxconvert</b>
+than interchange mcl format (the default). Note that <a class="local" href="mcxconvert.html">mcxconvert</a>
 can be used to convert each one into the other.
 See <a class="local" href="mcxio.html">mcxio</a> and <a class="local" href="mcxconvert.html">mcxconvert</a> for more information.
 </p>
@@ -1391,7 +1411,7 @@ It affects the <a class="intern" href="#opt--append-log"><b>--append-log</b>=<b>
 As of the 1.006 release, label data can be directly streamed into
 MCL as described in <a class="intern" href="#started">GETTING STARTED</a> and <a class="intern" href="#examples">EXAMPLES</a>.
 For BLAST input this is achieved
-by hooking up <b>mcxdeblast</b> <b>--abc-out</b>=<i>-</i> with
+by hooking up <a class="local" href="mcxdeblast.html">mcxdeblast</a> <b>--abc-out</b>=<i>-</i> with
 <b>mcl</b> - <b>--abc</b>. Refer to <a class="intern" href="#started">GETTING STARTED</a> for examples.</p>
 <p class="default L50" style="margin-bottom:0">
 The classic mode of operation is more heavyweight, and the remainder
@@ -1427,8 +1447,8 @@ It will be plugged into the pipeline and you should be set to run.
 The parse script must satisfy the interface requirements described
 in the <a class="local" href="mclpipeline.html">mclpipeline manual page</a>.</p>
 <p class="default L50" style="margin-bottom:0">
-For BLAST input, the <a class="local" href="mclblastline.html">mclblastline
-script</a> provides a dedicated interface. It uses the
+For BLAST input, the <a class="local" href="mclblastline.html">mclblastline script</a>
+provides a dedicated mclpipeline interface. It uses the
 <a class="local" href="mcxdeblast.html">mcxdeblast script</a> that comes prepackaged with mcl.</p>
 
 <a name="examples"></a>
@@ -1531,14 +1551,16 @@ The mcl matrix format is described in the <a class="local" href="mcxio.html">mcx
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td colspan=3>MCLXASCIIDIGITS</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-When writing matrices in ascii format, mcl will use the environment
-variable MCLXASCIIDIGITS (if present) as the precision (number of digits)
-for printing the fractional part of values.
+<tr><td colspan=3>MCLXINTERCHANGEDIGITS</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+When writing matrices in interchange format, mcl will use the environment
+variable MCLXINTERCHANGEDIGITS (if present) as the precision (number of
+digits) for printing the fractional part of values.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3>MCLXIOVERBOSITY</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
 MCL and its sibling applications will usually report about matrix
 input/output from/to disk. The verbosity level can be regulated
-via MCLXIOVERBOSITY. These are the levels it can currently be set to.
+via MCLXIOVERBOSITY. These are the levels it can currently be set to.</p>
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
@@ -1553,29 +1575,29 @@ cellpadding="0" summary="itemize">
 </div>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3>MCLXIOFORMAT</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 MCL and its sibling applications will by default output matrices
-in ASCII format rather than binary format (cf. <a class="local" href="mcxio.html">mcxio</a>).
+in interchange format rather than binary format (cf. <a class="local" href="mcxio.html">mcxio</a>).
 The desired format can be controlled via the variable
 MCLXIOFORMAT. These are the levels it can currently be set to.
 <div style="margin-top:1em">
 <table
 cellspacing="0" border=0
 cellpadding="0" summary="itemize">
-<tr><td width=32 valign="top" class=right>1</td><td width=16>&nbsp;</td><td><div style="text-align:justify"> Ascii format but applications may alter this.
-</div></td></tr><tr><td width=32 valign="top" class=right>2</td><td width=16>&nbsp;</td><td><div style="text-align:justify"> Ascii format and applications can not alter this (default).
+<tr><td width=32 valign="top" class=right>1</td><td width=16>&nbsp;</td><td><div style="text-align:justify"> Interchange format but applications may alter this.
+</div></td></tr><tr><td width=32 valign="top" class=right>2</td><td width=16>&nbsp;</td><td><div style="text-align:justify"> Interchange format and applications can not alter this (default).
 </div></td></tr><tr><td width=32 valign="top" class=right>4</td><td width=16>&nbsp;</td><td><div style="text-align:justify"> Binary format but applications may alter this.
 </div></td></tr><tr><td width=32 valign="top" class=right>8</td><td width=16>&nbsp;</td><td><div style="text-align:justify"> Binary format and applications can not alter this.
 </div></td></tr>
 </table>
 
 </div>
-</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3>MCLXASCIIFLAGS</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
-If matrices are output in ascii format, by default empty vectors
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3>MCLXINTERCHANGEFLAGS</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+If matrices are output in interchange format, by default empty vectors
 will not be listed. Equivalently (during input time),
 vectors for which no listing is present are understood to be empty -
 note that the <i>presence</i> of a vector is established using
 the domain information found in the header part.
 It is possible to enforce listing of empty vectors by
-setting bit '1' in the variable MCLXASCIIFLAGS.
+setting bit '1' in the variable MCLXINTERCHANGEFLAGS.
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3>MCLXIOUNCHECKED</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 MCL and its sibling applications will always check a matrix for consistency
 while it is being read. If this variable is set, the consistency check is
@@ -1647,12 +1669,25 @@ expansion. This was great, as the MCL data structures and operands
 for parallellization.
 </p>
 <p class="default L50" style="margin-bottom:0">
-In Jan 2003 the 03-010 release introduced support for sparsely
+Onwards.
+The January 2003 03-010 release introduced support for sparsely
 enumerated (i.e. indices need not be sequential) graphs and matrices, the
 result of a major overhaul of the matrix library and most higher layers.
 Conceptually, the library now sees matrices as infinite quadrants
 of which only finite subsections happen to have nonzero entries.
 </p>
+<p class="default L50" style="margin-bottom:0">
+The June 2003 03-154 release introduced unix-type pipelines for clustering,
+including the BLAST parser mcxdeblast and the mclblastline script.
+The April 2004 04-105 release revived binary format, which has been a first
+class citizen every since.</p>
+<p class="default L50" style="margin-bottom:0">
+With the March 2005 05-090 release mcxsubs finally acquired a sane
+specification syntax. The November 2005 05-314 release brought the ability
+to stream label input directly into mcl. The subsequent release introduced a
+transformation language shared by various mcl siblings that allows arbitrary
+progressions of transformations to be applied to either stream values or
+matrix values.</p>
 <p class="default L50" style="margin-bottom:0">
 Joost van Baal set up the mcl CVS tree and packaged mcl for Debian
 GNU/Linux. He completely autotooled the sources, so much so that at first I

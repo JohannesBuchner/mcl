@@ -45,7 +45,7 @@ static mcxstatus write_u32_be
    ;  u8 bytes[4]
 
    ;  for (i=0;i<4;i++)
-      {  bytes[3-i] = l & 0377
+      {  bytes[3-i] = l & 0377   /* least significant last */
       ;  l >>= 8
    ;  }
 
@@ -82,7 +82,7 @@ static mcxstatus read_packed
 ,  unsigned long* s
 ,  unsigned long* x
 ,  unsigned long* y
-,  float* value
+,  double* value
 )
    {  if
       (  read_u32_be(s, fp)
@@ -117,7 +117,7 @@ static mcxstatus read_abc
 ,  unsigned long* y
 ,  long* x_max_seen
 ,  long* y_max_seen
-,  float* value
+,  double* value
 ,  mcxbits bits
 )
    {  mcxstatus status = mcxIOreadLine(xf, buf, MCX_READLINE_CHOMP)
@@ -155,7 +155,7 @@ static mcxstatus read_abc
          mcxTingEnsure(xkey, buf->len)    /* fixme, bit wasteful */
       ;  mcxTingEnsure(ykey, buf->len)    /* fixme, bit wasteful */
 
-      ;  cv = sscanf(buf->str, "%s%s%f", xkey->str, ykey->str, value)
+      ;  cv = sscanf(buf->str, "%s%s%lf", xkey->str, ykey->str, value)
 
       /* WARNING: [xy]key->len have to be set.
        * we first check sscanf return value
@@ -275,7 +275,7 @@ static mcxstatus read_123
 ,  mcxTing* buf
 ,  unsigned long* x
 ,  unsigned long* y
-,  float* value
+,  double* value
 ,  mcxbits bits
 )
    {  mcxstatus status = mcxIOreadLine(xf, buf, MCX_READLINE_CHOMP)
@@ -289,19 +289,23 @@ static mcxstatus read_123
       {  if (status)
          break
 
+      ;  status = STATUS_FAIL
+
       ;  printable = mcxStrChrAint(buf->str, isspace, buf->len)
       ;  if (printable && (unsigned char) printable[0] == '#')
          {  status = mcxIOreadLine(xf, buf, MCX_READLINE_CHOMP)
          ;  continue
       ;  }
 
-         cv = sscanf(buf->str, "%lu%lu%f", x, y, value)
+         cv = sscanf(buf->str, "%lu%lu%lf", x, y, value)
 
       ;  if (*x > LONG_MAX || *y > LONG_MAX)
-         mcxErr
-         (me, "negative values in input stream? unsigned %lu %lu", *x, *y)
+         {  mcxErr
+            (me, "negative values in input stream? unsigned %lu %lu", *x, *y)
+         ;  break
+      ;  }
 
-      ;  if (cv == 2)
+         if (cv == 2)
          *value = 1.0
 
       ;  else if (cv != 3)
@@ -313,15 +317,15 @@ static mcxstatus read_123
             ,  buf->str
             )
          ;  if (strict)
-            {  status = STATUS_FAIL
-            ;  break
-         ;  }
-            status = mcxIOreadLine(xf, buf, MCX_READLINE_CHOMP)
+            break
+
+         ;  status = mcxIOreadLine(xf, buf, MCX_READLINE_CHOMP)
          ;  continue
       ;  }
          else if (!(*value < FLT_MAX))
          *value = 1.0
 
+      ;  status = STATUS_OK
       ;  break
    ;  }
 
@@ -386,9 +390,10 @@ mcxbits mclxio_stream_usebits
 
 
 mclx* mclxIOstreamIn
-(  mcxIO* xf
-,  mcxbits bits
-,  void (*ivpmerge)(void* ivp1, const void* ivp2)
+(  mcxIO*   xf
+,  mcxbits  bits
+,  mclpAR*  transform
+,  void    (*ivpmerge)(void* ivp1, const void* ivp2)
 ,  mclTab** tabcpp
 ,  mclTab** tabrpp
 ,  mcxstatus ON_FAIL
@@ -425,7 +430,7 @@ mclx* mclxIOstreamIn
          /* pars can now be alloced short of c_max_seen in abc mode */
 
    ;  while (1)
-      {  if (abc + one23 + packed > TRUE)   /* OUCH :) */
+      {  if (abc + one23 + packed > TRUE)   /* OUCH */
          {  mcxErr(me_str, "multiple stream formats specified")
          ;  break
       ;  }
@@ -501,7 +506,7 @@ mclx* mclxIOstreamIn
       if (!status)
       while (1)
       {  unsigned long s = 0, x = 0, y = 0
-      ;  float value = 0
+      ;  double value = 0
       ;  n_ite++
 
       ;  if (n_ite % 100000 == 0)
@@ -558,14 +563,30 @@ mclx* mclxIOstreamIn
          ;  }
          }
 
-         if (mclpARextend(pars+x, y, value))
+         if (bits & MCLXIO_STREAM_LOGTRANSFORM)
+         value = log(value)
+      ;  else if (bits & MCLXIO_STREAM_NEGLOGTRANSFORM)
+         value = -log(value)
+
+      ;  if (mclpARextend(pars+x, y, value))
          {  mcxErr(me, "x-extend fails")
          ;  break
       ;  }
-         if (mirror && mclpARextend(pars+y, x, value))
-         {  mcxErr(me, "y-extend fails")
-         ;  break
+         if (transform)
+         {  mclp* ivpx = pars[x].ivps+pars[x].n_ivps-1
+         ;  ivpx->val = mclpUnary(ivpx, transform)
       ;  }
+
+         if (mirror)
+         {  if (mclpARextend(pars+y, x, value))
+            {  mcxErr(me, "y-extend fails")
+            ;  break
+         ;  }
+            if (transform)
+            {  mclp* ivpy = pars[y].ivps+pars[y].n_ivps-1
+            ;  ivpy->val = mclpUnary(ivpy, transform)
+         ;  }
+         }
 
          status = STATUS_OK
    ;  }

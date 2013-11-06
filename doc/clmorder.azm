@@ -31,7 +31,7 @@
 
 \par
    \clmorder interprets its arguments as names of files containing
-   clusterings in mcl format (see \sibmcxio).
+   clusterings in mcl format (see \mysib{mcxio}).
 
 \sec{author}{AUTHOR}
 \par
@@ -40,7 +40,7 @@
 \sec{seealso}{SEE ALSO}
 
 \par
-   \sibmclfamily for an overview of all the documentation
+   \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 
 \"man::postamble"

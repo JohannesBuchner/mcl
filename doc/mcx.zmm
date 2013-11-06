@@ -54,9 +54,37 @@
 
 \def{sib#1}{\sibref{\1}{\1}}
 
-\def{sibmclfaq}{\sibref{mclfaq}{mclfaq\${roff}{(7)}}}
-\def{sibmclfaq#1}{\sibref{mclfaq}{\1}{mclfaq\${roff}{(7)}}}
-\def{sibmcxio}{\sibref{mcxio}{mcxio\${roff}{(5)}}}
-\def{sibmclfamily}{\sibref{mclfamily}{mclfamily\${roff}{(7)}}}
+\set{%{sibroffmap}}{
+   {mcxio}{5}
+   {mclfaq}{7}
+   {mclfamily}{7}
 
+   {mcl}{1}
+   {mcx}{1}
+
+   {mcxconvert}{1}
+   {mcxarray}{1}
+   {mcxdump}{1}
+   {mcxload}{1}
+   {mcxsubs}{1}
+   {mcxmap}{1}
+   {mcxassemble}{1}
+
+   {clmimac}{1}
+   {clmclose}{1}
+   {clmresidue}{1}
+   {clmdist}{1}
+   {clminfo}{1}
+   {clmmate}{1}
+   {clmmeet}{1}
+   {clmformat}{1}
+   {clmorder}{1}
+
+   {mclpipeline}{1}
+   {mclblastline}{1}
+   {mcxdeblast}{1}
+}
+
+\def{mysib#1}{\sibref{\1}{\1\${roff}{(\%{sibroffmap}{\1})}}}
+\def{mysib#2}{\sibref{\1}{\2}{\1\${roff}{(\%{sibroffmap}{\1})}}}
 

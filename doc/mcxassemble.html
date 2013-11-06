@@ -68,9 +68,9 @@ margin-right: 0%;
 </head>
 <body>
 <p style="text-align:right">
-10 Nov 2005&nbsp;&nbsp;&nbsp;
+16 Nov 2005&nbsp;&nbsp;&nbsp;
 <a class="local" href="mcxassemble.ps"><b>mcxassemble</b></a>
-1.006, 05-314
+1.006, 05-320
 </p>
 <div style="margin-top:1em">
 <table
@@ -105,19 +105,29 @@ mcxassemble - transform raw cooccurrence data to mcl matrix format.</p>
 <a class="intern" href="#opt-b"><b>-b</b> base (<i>base name</i>)</a>
 <a class="intern" href="#opt-o"><b>[-o</b> fname (<i>write to file fname</i>)<b>]</b></a>
 <a class="intern" href="#opt--map"><b>[--map</b> (<i>apply base.map</i>)<b>]</b></a>
+<a class="intern" href="#opt-raw-tf"><b>[-raw-tf</b> (<i>apply transform spec to input</i>)<b>]</b></a>
 <a class="intern" href="#opt-rv"><b>[-rv</b> MODE (<i>repeated vectors</i>)<b>]</b></a>
 <a class="intern" href="#opt-re"><b>[-re</b> MODE (<i>repeated entries</i>)<b>]</b></a>
 <a class="intern" href="#opt-ri"><b>[-ri</b> MODE (<i>adding mirror image</i>)<b>]</b></a>
 <a class="intern" href="#opt-r"><b>[-r</b> MODE (<i>repeated entries/vectors/images</i>)<b>]</b></a>
+<a class="intern" href="#opt-prm-tf"><b>[-prm-tf</b> (<i>apply transform spec to primary matrix</i>)<b>]</b></a>
+<a class="intern" href="#opt-sym-tf"><b>[-sym-tf</b> (<i>apply transform spec to symmetrified matrix</i>)<b>]</b></a>
 <a class="intern" href="#opt-q"><b>[-q</b> (<i>quiet mode</i>)<b>]</b></a>
-<p class="default L50">
+<p class="default L50" style="margin-bottom:0">
 The options above embody the default setup when using mcxassemble.
 There are many more options which mostly provide subtly different
 ways of doing input/output, set warning levels, or regulate
 how repeated entries and vectors should be treated.
 The full list of options is shown below.
 Read <a class="intern" href="#description">DESCRIPTION</a> for learning about mcxassemble input/output
-and the functionality it provides.
+and the functionality it provides.</p>
+<p class="default L50" style="margin-bottom:0"><b>NOTE</b><br>
+As of release 05-314 <a class="local" href="mcl.html">mcl</a> is able to cluster label-type input
+on the fly. In most cases, this will be sufficient. Alternatively,
+<a class="local" href="mcxload.html">mcxload</a> can be used to map label-type input onto mcl
+matrices. Consequently, there are likely fewer scenarios nowadays
+where <b>mcxassemble</b> is the best solution. Consider first whether
+<b>mcl</b> in label mode or <b>mcxload</b> can do the job as well.</p>
 <p class="default L50">
 <b>mcxassemble</b>
 <a class="intern" href="#opt-b"><b>[-b</b> base (<i>base name</i>)<b>]</b></a>
@@ -142,10 +152,13 @@ and the functionality it provides.
 <a class="intern" href="#opt-i"><b>[-i</b> (<i>read from single data file</i>)<b>]</b></a>
 <a class="intern" href="#opt-digits"><b>[-digits</b> int (<i>digits width</i>)<b>]</b></a>
 <a class="intern" href="#opt-s"><b>[-s</b> (<i>check for symmetry</i>)<b>]</b></a>
-<a class="intern" href="#opt-rv"><b>[-rv</b> MODE (<i>action for repeated vectors</i>)<b>]</b></a>
-<a class="intern" href="#opt-re"><b>[-re</b> MODE (<i>action for repeated entries</i>)<b>]</b></a>
-<a class="intern" href="#opt-ri"><b>[-ri</b> MODE (<i>adding mirror image</i>)<b>]</b></a>
-<a class="intern" href="#opt-r"><b>[-r</b> MODE (<i>same for entries and vectors</i>)<b>]</b></a>
+<a class="intern" href="#opt-raw-tf"><b>[-raw-tf</b> (<i>apply transform spec to input</i>)<b>]</b></a>
+<a class="intern" href="#opt-rv"><b>[-rv</b> &lt;mode&gt; (<i>action for repeated vectors</i>)<b>]</b></a>
+<a class="intern" href="#opt-re"><b>[-re</b> &lt;mode&gt; (<i>action for repeated entries</i>)<b>]</b></a>
+<a class="intern" href="#opt-ri"><b>[-ri</b> &lt;mode&gt; (<i>adding mirror image</i>)<b>]</b></a>
+<a class="intern" href="#opt-r"><b>[-r</b> &lt;mode&gt; (<i>same for entries and vectors</i>)<b>]</b></a>
+<a class="intern" href="#opt-prm-tf"><b>[-prm-tf</b> (<i>apply transform spec to primary matrix</i>)<b>]</b></a>
+<a class="intern" href="#opt-sym-tf"><b>[-sym-tf</b> (<i>apply transform spec to symmetrified matrix</i>)<b>]</b></a>
 <a class="intern" href="#opt--quiet-re"><b>[--quiet-re</b> (<i>quiet for repeated entries</i>)<b>]</b></a>
 <a class="intern" href="#opt--quiet-rv"><b>[--quiet-rv</b> (<i>quiet for repeated vectors</i>)<b>]</b></a>
 <a class="intern" href="#opt-q"><b>[-q</b> (<i>the two above combined</i>)<b>]</b></a>
@@ -338,6 +351,14 @@ to generic mcl matrix format.
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3><a name="opt-s"></a><b>-s</b> (<i>check for symmetry</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 This will check whether the primary result matrix was symmetric.
 It reports the number of failing (or <i>skew</i>) edges.
+</div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-raw-tf"></a><b>-raw-tf</b> &lt;tf-spec&gt; (<i>apply transform spec to input</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-prm-tf"></a><b>-prm-tf</b> (<i>apply transform spec to primary matrix</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-sym-tf"></a><b>-sym-tf</b> (<i>apply transform spec to symmetrified matrix</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
+<p class="default L50" style="margin-top:0em; margin-bottom:0em">
+The first applies its transformation spec to the values
+as found in the raw data. The second applies its transformation
+spec to the primary matrix. The third applies its transformation
+step to the symmetrified matrix.
+Refer to <a class="local" href="mcxio.html">mcxio</a> for documentation on the transformation
+spec syntax.</p>
 </div></td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td></td></tr><tr><td colspan=3 class=left><a name="opt-rv"></a><b>-rv</b> add|max|mul|left|right (<i>action for repeated vectors</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-re"></a><b>-re</b> add|max|mul|left|right (<i>action for repeated entries</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-ri"></a><b>-ri</b> add|max|mul (<i>adding mirror image</i>)</td></tr><tr><td colspan=3 class=left><a name="opt-r"></a><b>-r</b> add|max|mul|left|right (<i>same for entries and vectors</i>)</td></tr><tr><td width=32>&nbsp;</td><td width=8>&nbsp;</td><td><div style="text-align:justify">
 Merge options, dictating the behaviour when repeated entries are
 found. A distinction is made between entries that are repeated within
@@ -404,7 +425,7 @@ Stijn van Dongen.
 
 <a name="seealso"></a>
 <h2>SEE ALSO</h2>
-<a class="local" href="mcxio.html">mcxio</a>,
+<a class="local" href="mcxio.html">mcxio</a>, <a class="local" href="mcl.html">mcl</a>, <a class="local" href="mcxload.html">mcxload</a>
 and <a class="local" href="mclfamily.html">mclfamily</a> for an overview of all the documentation
 and the utilities in the mcl family.
 </body>

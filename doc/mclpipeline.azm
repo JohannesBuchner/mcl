@@ -77,7 +77,7 @@ a clustering consisting of tab-separated labels.}
    The full list of pipeline options is given below. Start simple,
    and if you need some behaviour, try to see if there is an option
    that fits your needs.
-   If you use a wrapper pipeline such as \sib{mclblastline}, you
+   If you use a wrapper pipeline such as \mysib{mclblastline}, you
    can ignore the \genopt{--parser} and \genopt{--parser-tag} options
    as they are provided by the wrapper.
 
@@ -135,8 +135,8 @@ a clustering consisting of tab-separated labels.}
    The parsing stage is to be
    represented by some parser script obeying the interface
    rules described below. The assembly stage is done by
-   \sib{mcxassemble}, the clustering stage is done by \sib{mcl},
-   and the formatting stage is done by \sib{clmformat}.
+   \mysib{mcxassemble}, the clustering stage is done by \mysib{mcl},
+   and the formatting stage is done by \mysib{clmformat}.
 
 \par
    The script can also be put to simpler uses, e.g. letting the script take
@@ -340,7 +340,7 @@ a clustering consisting of tab-separated labels.}
 
 \item{\defopt{--ass-repeat}{str}{assembly repeat option}}
    Corresponds with the \mcxassemble \genopt{-r}{mode} option.
-   Refer to the \sib{mcxassemble} manual.
+   Refer to the \mysib{mcxassemble} manual.
 
 \item{\defopt{--ass-opt}{val}{assembly option transporter}}
    Transfer \genopt{-opt}{val} to \mcxassemble.
@@ -355,7 +355,7 @@ a clustering consisting of tab-separated labels.}
 
 \item{\defopt{--mcl-scheme}{i}{mcl scheme index}}
    The scheme index to use. This options is also important.
-   Refer to the \sib{mcl} manual.
+   Refer to the \mysib{mcl} manual.
 
 \item{\defopt{--mcl-te}{num}{#expansion threads}}
    The number of threads \mcl should use.
@@ -371,13 +371,13 @@ a clustering consisting of tab-separated labels.}
 \item{\defopt{--mcl-c}{float}{mcl center value}}
    The center value. One may attempt to affect granularity
    by exercising this option, which controls the loop weights
-   in the input matrix. Refer to the \sib{mcl} manual.
+   in the input matrix. Refer to the \mysib{mcl} manual.
 
 \item{\defopt{--mcl-pi}{float}{mcl pre-inflation value}}
    Pre-inflation, another option which may  possibly affect granularity by
    changing the input matrix. It makes the edge weight
    distribution either more or less homogeneous.
-   Refer to the \sib{mcl} manual.
+   Refer to the \mysib{mcl} manual.
 
 \item{\defopt{--mcl-o}{fname}{do not use}}
    Set the mcl output name.
@@ -424,8 +424,8 @@ a clustering consisting of tab-separated labels.}
 
 \sec{seealso}{SEE ALSO}
 \par
-   \sib{mcxdeblast}, \sib{mclblastline},
-   and \sibmclfamily for an overview of all the documentation
+   \mysib{mcxdeblast}, \mysib{mclblastline},
+   and \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.
 
 \par

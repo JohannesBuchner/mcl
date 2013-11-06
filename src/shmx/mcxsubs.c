@@ -258,8 +258,6 @@ typedef struct
 ;  mcxTing*    txt              /*  text representation of spec   */
 ;  mclVector*  cvec             /*  contains col indices    */
 ;  mclVector*  rvec             /*  contains row indices    */
-;  double      val_min
-;  double      val_max
 ;  long        sz_min
 ;  long        sz_max
 ;  long        ext_disc         /* TODO remove ext_disc */
@@ -269,7 +267,7 @@ typedef struct
 ;  int         n_col_specs
 ;  int         n_row_specs
 ;  mcxbool     do_extend
-;  mcxbits     sel_val_opts
+;  mclpAR*     sel_val
 ;  mcxbits     sel_sz_opts 
 ;  mcxbits     fin_map_opts
 ;  mcxbits     fin_misc_opts
@@ -327,7 +325,7 @@ void thin_out
       ;  if (((double) r) / RANDOM_MAX > fac)
          universe->ivps[i].val = 0.0
    ;  }
-      mclvUnary(universe, fltGtBar, &zero)
+      mclvUnary(universe, fltxGT, &zero)
 ;fprintf(stderr, "%d left\n", universe->n_ivps)
 ;  }
 
@@ -343,7 +341,7 @@ void prune_edges
          if (((double) random()) / RANDOM_MAX >= efac)
          vec->ivps[i].val = 0.0
 
-      ;  mclvUnary(vec, fltCopy, NULL)    /* removes zeros */
+      ;  mclvUnary(vec, fltxCopy, NULL)    /* removes zeros */
    ;  }
    }
 
@@ -374,9 +372,6 @@ void spec_init
    ;  spec->fname          =  mcxTingPrint
                               (NULL, "out-sub-%d", (int) ct)
 
-   ;  spec->val_min        =  0.0
-   ;  spec->val_max        =  0.0
-
    ;  spec->sz_min         =  0
    ;  spec->sz_max         =  0
 
@@ -385,7 +380,7 @@ void spec_init
    ;  spec->ext_rdisc      =  0
    ;  spec->ext_ring       =  0
 
-   ;  spec->sel_val_opts   =  0
+   ;  spec->sel_val        =  NULL
    ;  spec->sel_sz_opts    =  0
    ;  spec->fin_map_opts   =  0
    ;  spec->fin_misc_opts  =  0
@@ -659,7 +654,8 @@ int main
       ;  block = do_block & 4 ? mclxBlocks2(mx, dom) : mclxBlocks(mx, dom)
 
       ;  if (do_block == 2)
-         {  mclxScale(block, -1)
+         {  double minone = -1
+         ;  mclxUnary(block, fltxMul, &minone)
          ;  blockc = mclxAdd(mx, block)
       ;  }
 
@@ -1141,59 +1137,6 @@ mcxstatus parse_size
 ;  }
 
 
-mcxstatus parse_val
-(  mcxLink*    src
-,  int         n_args
-,  subspec_mt* spec
-,  context_mt* ctxt
-)
-   {  mcxLink* lk = src
-   
-   ;  while ((lk = lk->next))
-      {  mcxTokFunc tf
-      ;  mcxTing* valspec = lk->val
-      ;  char* z
-
-      ;  tf.opts = MCX_TOK_DEL_WS
-
-      ;  if
-         (  STATUS_OK
-         == mcxTokExpectFunc(&tf, valspec->str, valspec->len, &z, 1, 1, NULL)
-         )
-         {  const char* val = ((mcxTing*) tf.args->next->val)->str
-         ;  const char* key = tf.key->str
-         ;  mcxbits bits = 0
-         ;  char* onw = NULL
-         ;  double d = strtod(val, &onw)
-
-         ;  if (val == onw)
-            {  mcxErr(me, "failed to parse number <%s>", val)
-            ;  break
-         ;  }
-
-            if (!strcmp(key, "gq"))
-            bits = MCLX_EQT_GQ
-         ;  else if (!strcmp(key, "gt"))
-            bits = MCLX_EQT_GT
-         ;  else if (!strcmp(key, "lt"))
-            bits = MCLX_EQT_LT
-         ;  else if (!strcmp(key, "lq"))
-            bits = MCLX_EQT_LQ
-
-         ;  if (bits & (MCLX_EQT_GQ | MCLX_EQT_GT))
-            spec->val_min = d
-         ;  else
-            spec->val_max = d
-
-         ;  spec->sel_val_opts |= bits
-         ;  mcxTell(me, "selecting entries <%s> <%f>", key, d)
-      ;  }
-         else
-         break
-   ;  }
-      return lk ? STATUS_FAIL : STATUS_OK
-;  }
-
 
 mcxstatus dispatch
 (  mcxLink* src
@@ -1243,7 +1186,7 @@ mcxstatus dispatch
          ;  }
 
             else if (!strcmp(tf.key->str, "val"))
-            {  if (parse_val(tf.args, n_args, spec, ctxt))
+            {  if (!(spec->sel_val = mclpTFparse(tf.args, NULL)))
                break
          ;  }
 
@@ -1415,13 +1358,8 @@ void spec_exec
    ;  else                 /* fixme: must check subness */
       sub =  mclxSub(mx, spec->cvec, spec->rvec)
 
-   ;  if (spec->sel_val_opts)
-      mclxSelectValues
-      (  sub
-      ,  spec->sel_val_opts & (MCLX_EQT_GQ | MCLX_EQT_GT) ? &(spec->val_min) : NULL
-      ,  spec->sel_val_opts & (MCLX_EQT_LQ | MCLX_EQT_LT) ? &(spec->val_max) : NULL
-      ,  spec->sel_val_opts
-      )
+   ;  if (spec->sel_val)
+      mclxUnaryList(sub, spec->sel_val)
 
    ;  if (spec->sel_sz_opts)
 fprintf(stderr, "%ld %ld %ld\n", (long) spec->sel_sz_opts, spec->sz_min, spec->sz_max)

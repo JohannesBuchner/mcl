@@ -283,6 +283,10 @@ void mclvUnary
 ,  void*          argument
 )  ;
 
+long mclvUnaryList
+(  mclv*    mx
+,  mclpAR*  ar       /* idx: MCLX_UNARY_mode, val: arg */
+)  ;
 
 int mclvCountGiven
 (  mclVector*     src

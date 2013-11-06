@@ -9,6 +9,7 @@
 #ifndef impala_stream_h
 #define impala_stream_h
 
+#include "ivp.h"
 #include "vector.h"
 #include "matrix.h"
 #include "tab.h"
@@ -43,6 +44,9 @@ mcxstatus mclxIOstreamOut
 #define MCLXIO_STREAM_RTAB_STRICT   1 << 12     /* on miss fail */
 #define MCLXIO_STREAM_RTAB_RESTRICT 1 << 13     /* on miss ignore */
 
+#define MCLXIO_STREAM_LOGTRANSFORM     1 << 14
+#define MCLXIO_STREAM_NEGLOGTRANSFORM  1 << 15
+
 
 #define MCLXIO_STREAM_TAB_EXTEND (MCLXIO_STREAM_CTAB_EXTEND | MCLXIO_STREAM_RTAB_EXTEND)
 #define MCLXIO_STREAM_TAB_STRICT (MCLXIO_STREAM_CTAB_STRICT | MCLXIO_STREAM_RTAB_STRICT)
@@ -69,6 +73,7 @@ mcxstatus mclxIOstreamOut
 mclx* mclxIOstreamIn
 (  mcxIO* xf
 ,  mcxbits  bits
+,  mclpAR*  transform
 ,  void (*ivpmerge)(void* ivp1, const void* ivp2)
 ,  mclTab** tabcpp
 ,  mclTab** tabrpp

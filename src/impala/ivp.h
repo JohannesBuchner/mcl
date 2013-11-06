@@ -169,5 +169,11 @@ void mclpARfree
 )  ;  
 
 
+double mclpUnary
+(  mclp*    ivp
+,  mclpAR*  ar       /* idx: MCLX_UNARY_mode, val: arg */
+)  ;
+
+
 #endif
 

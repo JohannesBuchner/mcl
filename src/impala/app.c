@@ -15,7 +15,7 @@ void app_report_version
 ;  }
 
 
-void set_binary_io
+void mclxSetBinaryIO
 (  void
 )
    {  mcxTing* tmp = mcxTingPrint(NULL, "MCLXIOFORMAT=8")
@@ -24,7 +24,7 @@ void set_binary_io
 ;  }
 
 
-void set_ascii_io
+void mclxSetInterchangeIO
 (  void
 )
    {  mcxTing* tmp = mcxTingPrint(NULL, "MCLXIOFORMAT=2")

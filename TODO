@@ -7,25 +7,35 @@ time to time.
 
      _____________________________________
     |                                     |
-    - streamable binary format            |
-    - unify mcxload mcxarray mcxassemble mcxsubs transformation code
-    - check native/123/packed on tab (re)strict
-    - buffer mcl  input                   |
+    $ smart cattable ascii/binary/123/abc/packed recognition
+    $ make mcxarray read bio-type array data flat files
+    - focus: large graph problems, not just clustering
+    - option to redirect stderr           |
+    - buffer mcl interchange input        |
     - internally replace tab by hash.     |
     - make mcl available as library call  |
     - move mcxsubs to mcx                 |
     - try to spot/frame siphoning         |
     / visualize mcl process dynamically   |
     - implement shortest path search (i,j); also (S1, S2)? Dijkstra.
+    - clean up taurus                     |
     - optimum spanning tree               |
     - framework for IO domain manipulation|
     - framework for adapt                 |
     - framework for overlap               |
-    - extend mcx with scripting language. try ruby and lua.
+    - extend mcx with data structures|scripting language. ruby/lua/R.
     # mcl libs do not unwind on memory errors. (culprit: vector)
     |_____________________________________|
 
 -------------
+
+-  check native/123/packed on tab (re)strict
+
+? -dir nm option to make mcl output in nm ?
+
+-  is mcxassemble fully capable of doing asymmetric domains?
+
+-  create test/stress directory
 
 w  mcxdump --stream-packed, note 123 and abc are already present.
 ,  general suggestions.
@@ -34,24 +44,16 @@ w  mcxdump --stream-packed, note 123 and abc are already present.
 -  -extend-tab with 123/native/packed input?
 
 -  mcl small.data --abc -az gives the name on STDERR and STDOUT.
--  regression test clxcoarse.
-
-!  native + tab is now intermingled with the stream interface,
-   which is sub-optimal.
 
 /  mcxsubs acting on tabs.
-   should be relatively easy: just a different output primitive
-   tab(foo)
-   note that mcxdump already can take subselections.
+   should be relatively easy: just a different output primitive tab(foo) note
+   that mcxdump already can take subselections.
 
 -  future: optionally ship tab domains to matrix reading code
    for native/123/packed (rather than the fait accompli method now)
    should be very doable, as there is currently the domain
    restriction interface. might mostly be a warning/verbosity issue.
    possibly should use this to do some redesign.
-
--  being able to do mcxsubs based on tab would/should/could be valuable.
-   right now it is doable by using mcxdump as well.
 
 mcxdeblast mcxdump etc write leading cookie.
    0x00 0x77 0x77 0x00  -> packed
@@ -64,36 +66,14 @@ so, unspecified input will discard first record.
    unless, you want to do the same checks as with abc,
    of course (except extend).
 
--------------
+?  write the cookie always in big endian format.
+   recognize (mcl and 'xxx( , xx(m, x(mc as well.
 
-write the cookie always in big endian format.
-recognize (mcl and 'xxx( , xx(m, x(mc as well.
-
-?  add clean-up option to mcxdump
-
--------------
+!  force-connected=y fails with directed graphs.
 
 !  streaming: buffer input:
       use mcxIOappendChunk, possibly finishing newline.
       inspiration for general buffering?
-
-*  enable binary output without seeking.
-   umlum, we seek to write offsets. presumably we can compute
-   these in advance .. or would it require knowledge of data sizes /offsets
-   that is too intimate?
-   input seeks for same reason. with subreads, alternative scheme
-   would simply not seek.
-   subread is similar to database seek; disk-bound.
-
-*  mcxload, mcxsubs, mcx could do with shared sublanguage for unary
-   transformations and selections.
-   also, implementation should provide a 1-go solution.
-   registry for callbacks, pass list of indexes into this list,
-   something like that.
-
--------------
-
--  memfree: added tab, lots of ting file name members.
 
 -  -t 0 does?
 
@@ -105,13 +85,9 @@ recognize (mcl and 'xxx( , xx(m, x(mc as well.
 
 -  mcx max does not work for matrices: it even moans about lt.
 
---------------------
-
 on domain operations,
    mclfam should emit notification when it is adjusting domains.
    serves as signal to user.
-
---------------------
 
 scripting language needed to avoid making primitives out of
    'colsizes' etc.
@@ -124,24 +100,13 @@ suppose you work with a huge matrix and want to extract some
       (bring the hardware)
    on the other hand, we might try to move everything into mcx.
 
---------------------
-
 -  FAQ things you know or should know.
    mcxdeblast
    threads
    test small. duh.
 
---------------------
-
 !  make a vector-dump-debug routine that I am happy with.
 perhaps build on the one in mcxdump
-
--  mcxsubs fin noloop option.
-
-/  mcxsubs can read a domain from a tab file.
-   [then how about multiple tab files?  [linked list .. [shhhh]]]
-
--  how about symmetrifying selections only for edges currently present?
 
 -  work on clmps for easy creation of graphics.
 
@@ -207,6 +172,9 @@ p
    -  write hash of indices -> fname, so that it can be changed in zoem space.
    ?  enable index sorted on label [but sorting begets intricacy] (?)
 
+-  mcxdump:
+   *  cleanup option.
+
 -  mclpipeline:
    *  should check empty/impossible val for many options.
    *  allow multiple blastfiles?
@@ -214,6 +182,7 @@ p
    *  perhaps cut down on all the filename customizability.
 
 -  mcxsubs
+   *  fin(noloop, oneloop)
    *  is it far from memclean ?
    *  think about evolution towards more modular chained approach.
    *   --block still seems to take ridiculously long. slow.  profile.
@@ -257,17 +226,6 @@ p
 -  clmformat, others:
       compute clustering coefficient, global and localized to clusters.
 
-=  mcx 'max' is very rotten.
-   make it work on matrices as well.
-   or make 'map/apply' type operator.
-
-=  on web, do something about text outside <p>;
-   (in zoem lists, stuck in between <hrule>s etc)
-   make it a particular class.
-
-=  convert all text after item to \car.
-=  get rid of all \par#0, \car#0
-
 -  clmimac: sth that just emits non-overlapping cores.
    core/periphery angle.
 
@@ -281,33 +239,12 @@ p
    mclvResize succeeds with int 31448 (sth like l % (INT_MAX+1))
    fread fails with size_t ..
 
-
 -  faq symcheck: mention clxdo script.
 
 -  clean up all the interface enums in io.h
    some are not used.
 
    Is there a way to force enums to be of some type ?
-
-#  WTF does clxcoarse do with diff ?
-   ah, uh, yes, it removes intra cluster edges.
-
-#  does mcxdump still have lazy-tab option?
-   yes, absence requires domain match.
-
-!  how much would ascii input benefit from buffered io ?
-   (some issue with integer and float reads there).
-   Read block, make it end on a line.
-   test with read first.
-
-!! Think hard about clever handling of mismatched domains.
-   in which cases should it be supported in the libary,
-   in which cases in the application,
-   in which cases not at all.
-
-   being lax gives ample scope for accumulation of trouble.
-   e.g. checked reads become pointless (or the code becomes
-   a clutter).
 
 ?  mclvGetIvp could check next entry as special case if ivp arg not null.
    idem mclvGetIvpOffset. bit cumbersome though.
@@ -363,15 +300,10 @@ p
    Would one want to iterate over columns also based on some ternary criterion,
    rather than simple meet?
 
-
-!  force-connected=y fails with directed graphs.
-
 !  multi-level:
    singleton clusters might pull together big clusters that are
    otherwise not very much related.
    Think about remedies.
-
-!  investigate siphoning (using visualization)
 
 !  look at all cmp functions returning a difference. overflows with long.
 -  test all utils for long compatability.
@@ -397,27 +329,12 @@ mcxfetch? for format, dimensions, domains, ....
 
 ?  add env variable for verbosity on non-matching domains
 
-make better binary format,
-   - backwards compatability enabled by mechanism for section+length structure.
-   - 
-
--  saner structured output format for clminfo.
-
 -  mcx should pbb have more efficient stack code.
    also, depth/type checking should be done by dispatcher mostly.
-
-!  If zoem is not present, pipelines should exit more gracefully.
 
 ?  does mcl check for negative numbers?
 
 d  mcxdeblast --abc option covers a very generic format.
-
-! OVERLAP
- / clminfo.
- /    mclxcoverage
- /    massfrac
- -    principles of practice/theory?
- ! clmformat
 
 -  dump format: combined index/label can be handy.
    would be nice to have format-string for that (rather

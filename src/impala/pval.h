@@ -7,6 +7,11 @@
 */
 
 
+/*
+ * TODO
+ *    catch exp errors.
+*/
+
 #ifndef impala_pval_h
 #define impala_pval_h
 
@@ -19,77 +24,98 @@
 #define  MCLX_EQT_GT  8
 
 
-double fltConstant
+enum
+{  MCLX_UNARY_LT  =  0
+,  MCLX_UNARY_LQ
+,  MCLX_UNARY_GQ
+,  MCLX_UNARY_GT
+,  MCLX_UNARY_MUL
+,  MCLX_UNARY_ADD 
+,  MCLX_UNARY_CEIL
+,  MCLX_UNARY_FLOOR 
+,  MCLX_UNARY_POW
+,  MCLX_UNARY_EXP
+,  MCLX_UNARY_LOG
+,  MCLX_UNARY_NEGLOG
+,  MCLX_UNARY_UNUSED
+}  ;
+
+
+double fltxConst
 (  pval     flt
 ,  void*    p_constant
 )  ;
 
 
-double fltGqBar
+double fltxGQ
 (  pval     d
 ,  void*    arg
 )  ;
 
-double fltCeil
+double fltxGT
 (  pval     d
 ,  void*    arg
 )  ;
 
-double fltFloor
+double fltxLT
 (  pval     d
 ,  void*    arg
 )  ;
 
-double fltGtBar
+double fltxLQ
 (  pval     d
 ,  void*    arg
 )  ;
 
-double fltLtBar
-(  pval     d
-,  void*    arg
+double fltxCeil
+(  pval     flt
+,  void*    val
 )  ;
 
-double fltLqBar
-(  pval     d
-,  void*    arg
+double fltxFloor
+(  pval     flt
+,  void*    val
 )  ;
 
+double fltxExp
+(  pval     power
+,  void*    flt
+)  ;
 
-double fltCopy
+double fltxCopy
 (  pval     flt
 ,  void*    ignore
 )  ;
 
 
-double fltScale
+double fltxMul
 (  pval     flt
 ,  void*    p_scale
 )  ;
 
 
-double fltPropagateMax
+double fltxPropagateMax
 (  pval     flt
 ,  void*    p_max
 )  ;
 
 
-double fltPower
+double fltxPower
 (  pval     flt
 ,  void*    power
 )  ;
 
-double fltShift
+double fltxAdd
 (  pval     flt
 ,  void*    shift
 )  ;
 
-double fltLog
+double fltxLog
 (  pval     flt
 ,  void*    base
 )  ;
 
-double fltNeglog
+double fltxNeglog
 (  pval     flt
 ,  void*    base
 )  ;

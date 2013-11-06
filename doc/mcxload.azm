@@ -43,11 +43,11 @@
    \synoptopt{-extend-tabc}{<fname>}{tabc launch}
    \synoptopt{-extend-tabr}{<fname>}{tabr launch}
 
-   \synoptopt{-s}{[io]<lq|gq|ceil|floor>=<num>}{select/bound input/output}
-   \synoptopt{-log}{<base>}{log transform}
-   \synoptopt{-neglog}{<base>}{-log transform}
-   \synoptopt{-add}{<num>}{shift}
-   \synoptopt{-pow}{<power>}{raise}
+   \synoptopt{--stream-log}{log transform stream values}
+   \synoptopt{--stream-neg-log}{minus log transform stream values}
+   \synoptopt{-stream-tf}{transform stream values}
+   \synoptopt{-tf}{<tf-spec>}{transform (not so) final matrix}
+
    \synoptopt{-t}{transpose}
    \synoptopt{--binary}{output binary format}
    \synoptopt{--debug}{debug}
@@ -96,7 +96,7 @@
    and the \bf{tabr} options \it{always refer to the second label}.
    The letters \bf{c} and \bf{r} refer to \it{column} and \it{row} respectively.
    The latter are the names of the matrix domains corresponding
-   to the input domains. Refer to \sibmcxio.}
+   to the input domains. Refer to \mysib{mcxio}.}
 
 \par{
    A further mcxload modality is whether it constructs dictionaries
@@ -120,15 +120,16 @@
    using the \genoptref{-re} option.}
 
 \par{
-   mcxload has many options to transform or select based on
-   the values of the input. These are
-   \genoptref{-add},
-   \genoptref{-pow},
-   \genoptref{-log} and
-   \genoptref{-neglog} for unary transformations of the input.
-   Use \genoptref{-s} to select edges based on their values.
-   It is possible to select edges both before and after unary
-   transformations have been applied.
+   mcxload has a few options to transform or select based on
+   the values in the input stream and the values in the
+   constructed matrix. These are
+\genoptref{--stream-log},
+\genoptref{--stream-neg-log},
+\genoptref{-stream-tf} and
+\genoptref{-tf}.
+   Refer to \mysib{mcxio} for a description of the syntax accepted
+   by the latter two options \- it is a syntax accepted
+   by a few more mcl siblings.
    Finally it is possible to transpose the final result
    using the \genoptref{-t} option. Keep in mind that
    mcxload does not accordingly change its idea of row and
@@ -143,27 +144,20 @@
 \begin{itemize}{{compact}{1}{contiguous}{1}{type}{roman}{w1}{4}{w2}{3}{align}{right}}
 \item
 \car{
-   Read the input stream, optionally push reverse elements
+   Read the input stream, apply \genoptref{-stream-tf} transformation
+   specification, and optionally push reverse elements
    (\genoptref{--stream-mirror}).}
 \item
 \car{
    Deduplicate edges in the context of all edges/arcs originating from
-   a given node.}
-\item
-\car{
-   Apply input bound and select options -
-   those in the syntax \v{i<lq|lt|gq|gt|ceil|floor>}.}
-\item
-\car{
-   Apply unary transformations.}
-\item
-\car{
-   Apply output bound and select options -
-   those in the syntax \v{o<lq|lt|gq|gt|ceil|floor>}.}
+   a given node according to the \genoptref{-re} option.}
 \item
 \car{
    Apply transpose symmetrification according to the
    \genoptref{-ri} option, if used.}
+\item
+\car{
+   Apply \genoptref{-tf} transformation specification.}
 \end{itemize}
 
 \sec{options}{OPTIONS}
@@ -258,37 +252,25 @@
    Read a dictionary from file and extend it with all
    second labels from the input not yet present in the dictionary.}
 
-\item{\defopt{-log}{<base>}{log transform}}
+\item{\defopt{--stream-log}{log transform stream values}}
 \car{
-   Replace each entry by its log in base \genarg{<base>}.}
+   Replace each entry by its natural logarithm.}
 
-\item{\defopt{-neglog}{<base>}{-log transform}}
+\item{\defopt{--stream-neg-log}{minus log transform stream values}}
 \car{
-   Replace each entry by its negative log in base \genarg{<base>}.}
+   Replace each entry by the  negative of its natural logarithm.
+   This is most likely useful to convert scores that denote probabilities
+   or p-values such as BLAST scores.}
 
-\item{\defopt{-add}{<num>}{shift}}
+\item{\defopt{-stream-tf}{transform stream values}}
 \car{
-   Add \genarg{<shift>} to each non-zero entry.}
+   Transform the stream values as they are read in according
+   to the syntax described in \mysib{mcxio}.}
 
-\item{\defopt{-pow}{<power>}{raise}}
+\item{\defopt{-tf}{<tf-spec>}{transform (not so) final matrix}}
 \car{
-   Raise each entry to the power \genarg{<power>}.}
-
-\item{\defopt{-s}{[io]<lq|gq|ceil|floor>=<num>}{select/bound input/output}}
-\car{
-   Combine \bf{i} or \bf{o} with any of the modifiers to select or bound
-   input or output. Example:}
-
-\verbatim{-s igq=5 -s oceil=10}
-
-\car{
-   This selects only entries in the input that are greater than or
-   equal to 5 and it setes any entry larger than 10 to 10.}
-
-\cpar{NOTE}{
-   Output is in this context the stage immediately after unary
-   transformation and before symmetrification using the transposed
-   matrix.}
+   Transform the matrix values after deduplication and symmetrification
+   according to the syntax described in \mysib{mcxio}.}
 
 \item{\defopt{-ri}{<max|add|mul>}}
 \car{
@@ -335,10 +317,10 @@
 \sec{seealso}{SEE ALSO}
 
 \car{
-   \sib{mcxdump},
-   \sib{mcl},
-   \sib{mclfaq},
-   and \sibmclfamily for an overview of all the documentation
+   \mysib{mcxdump},
+   \mysib{mcl},
+   \mysib{mclfaq},
+   and \mysib{mclfamily} for an overview of all the documentation
    and the utilities in the mcl family.}
 
 \"man::postamble"
